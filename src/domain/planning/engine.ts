@@ -17,6 +17,8 @@ import type {
 } from "../model/entities.js";
 import {
   addRationals,
+  compareRationals,
+  createRational,
   isZero,
   minRational,
   rationalFromInteger,
@@ -57,6 +59,10 @@ function unwrapProvenQuantity<T>(result: DomainResult<T>): T {
   }
   return result.value;
 }
+
+const NORMAL_ALLOCATION_QUANTUM = unwrapProvenQuantity(
+  createRational(1n, 2n, "normalAllocationQuantum"),
+);
 
 function projectsForTeam(
   portfolio: Portfolio,
@@ -116,31 +122,73 @@ function selectAdmittedProjects(
   return Object.freeze(admitted);
 }
 
-function allocateSequentiallyToAdmittedProjects(
+function normalAllocationIncrement(
+  remainingCapacity: Rational,
+  state: ProjectTeamState,
+  allocatedToday: Rational,
+): Rational {
+  let maximumAbsorbable = minRational(remainingCapacity, state.remaining);
+
+  if (state.requirement.dailyCap) {
+    const remainingDailyCap = subtractRationals(
+      rationalOf(state.requirement.dailyCap),
+      allocatedToday,
+    );
+    maximumAbsorbable = minRational(maximumAbsorbable, remainingDailyCap);
+  }
+
+  if (compareRationals(maximumAbsorbable, NORMAL_ALLOCATION_QUANTUM) >= 0) {
+    return NORMAL_ALLOCATION_QUANTUM;
+  }
+  if (
+    !isZero(state.remaining) &&
+    compareRationals(state.remaining, maximumAbsorbable) <= 0
+  ) {
+    return state.remaining;
+  }
+  return ZERO;
+}
+
+function allocateFairlyToAdmittedProjects(
   date: CivilDate,
   availableCapacity: Rational,
   admitted: readonly ProjectTeamState[],
 ): void {
   let remainingCapacity = availableCapacity;
+  const dailyAllocations = new Map<ProjectTeamState, Rational>();
+  let allocationMade: boolean;
+
+  do {
+    allocationMade = false;
+
+    for (const state of admitted) {
+      if (isZero(remainingCapacity)) break;
+
+      const allocatedToday = dailyAllocations.get(state) ?? ZERO;
+      const increment = normalAllocationIncrement(
+        remainingCapacity,
+        state,
+        allocatedToday,
+      );
+      if (isZero(increment)) continue;
+
+      dailyAllocations.set(state, addRationals(allocatedToday, increment));
+      state.remaining = subtractRationals(state.remaining, increment);
+      remainingCapacity = subtractRationals(remainingCapacity, increment);
+      allocationMade = true;
+    }
+  } while (allocationMade && !isZero(remainingCapacity));
 
   for (const state of admitted) {
-    if (isZero(remainingCapacity)) break;
+    const dailyAllocation = dailyAllocations.get(state);
+    if (!dailyAllocation || isZero(dailyAllocation)) continue;
 
-    let allocation = minRational(remainingCapacity, state.remaining);
-    if (state.requirement.dailyCap) {
-      allocation = minRational(
-        allocation,
-        rationalOf(state.requirement.dailyCap),
-      );
-    }
-    if (isZero(allocation)) continue;
-
-    const workload = unwrapProvenQuantity(capacityFromRational(allocation));
+    const workload = unwrapProvenQuantity(
+      capacityFromRational(dailyAllocation),
+    );
     state.allocations.push(Object.freeze({ date, workload }));
-    state.remaining = subtractRationals(state.remaining, allocation);
-    state.planned = addRationals(state.planned, allocation);
+    state.planned = addRationals(state.planned, dailyAllocation);
     state.lastAllocationDate = date;
-    remainingCapacity = subtractRationals(remainingCapacity, allocation);
   }
 }
 
@@ -217,7 +265,7 @@ function planTeam(input: PlanningInput, team: Team): TeamPlanningResult {
         ),
       }),
     );
-    allocateSequentiallyToAdmittedProjects(
+    allocateFairlyToAdmittedProjects(
       date,
       rationalOf(available),
       admitted,
@@ -233,9 +281,8 @@ function planTeam(input: PlanningInput, team: Team): TeamPlanningResult {
 }
 
 /**
- * Phase 2B daily admission with a deliberately temporary sequential consumer.
- * This is not the final deadline, sharing, quantization, or redistribution
- * policy.
+ * Phase 2C daily admission with normal fair sharing. Deadline-constrained
+ * consumption remains outside this phase.
  */
 export function planPortfolio(input: PlanningInput): PlanningResult {
   return Object.freeze({

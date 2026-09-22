@@ -78,7 +78,7 @@ La vérification navigateur minimale consiste à lancer `npm run dev`, ouvrir
 `http://127.0.0.1:4173`, puis vérifier la présence de `FlowPlan` et de
 `Planning workspace`.
 
-## Planning Engine — Phase 2B
+## Planning Engine — Phase 2C
 
 La Phase 2B introduit l'admission quotidienne canonique. Pour chaque équipe,
 l'admission est entièrement recalculée chaque jour dans l'ordre global de
@@ -87,9 +87,16 @@ admis est ensuite figé pour la journée : terminer un RAF ou ne recevoir aucune
 allocation ne libère pas de place et aucun autre projet ne peut entrer en
 remplacement.
 
-La consommation séquentielle de la capacité par les projets admis reste une
-règle volontairement temporaire. Elle sera remplacée par le partage équitable
-de la Phase 2C sans modifier la sélection des admis.
+La Phase 2C remplace la consommation séquentielle temporaire par le partage
+normal canonique entre les seuls projets admis. Un quantum normal vaut
+exactement `0.5` j.h. (`1/2` rationnel) et la distribution s'effectue par tours
+dans l'ordre de priorité. La priorité tranche ainsi les quanta indivisibles.
+
+Lorsqu'un projet atteint son RAF ou son plafond quotidien cumulé, les tours
+suivants redistribuent la capacité uniquement au sein de l'ensemble admis. Un
+reliquat final de RAF inférieur à `0.5` peut être alloué exactement pour achever
+le projet. Une fraction de capacité inférieure à `0.5` reste inutilisée si elle
+ne permet pas de terminer exactement un RAF.
 
 La date objectif et la deadline impérative restent ignorées. En particulier,
 une deadline n'influence jamais l'admission.
