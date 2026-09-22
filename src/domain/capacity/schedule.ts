@@ -1,12 +1,12 @@
-import { compareCivilDates, isoWeekday, type CivilDate } from "../model/date";
-import type { Capacity } from "../model/scalars";
+import { compareCivilDates, isoWeekday, type CivilDate } from "../model/date.js";
+import type { Capacity } from "../model/scalars.js";
 import {
   error,
   failure,
   success,
   type DomainError,
   type DomainResult,
-} from "../model/result";
+} from "../model/result.js";
 
 export type IsoWeekday = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 

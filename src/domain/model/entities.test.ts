@@ -1,5 +1,7 @@
-import { describe, expect, it } from "vitest";
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
 import {
+  createCivilDate,
   createDailyCap,
   createFirmCapacityReservation,
   createMaxParallelProjects,
@@ -14,12 +16,11 @@ import {
   createTeamCapacitySchedule,
   createTeamId,
   createWorkingPattern,
-  createCivilDate,
   serializeQuantity,
   type DomainResult,
   type Project,
   type Team,
-} from "../index";
+} from "../index.js";
 
 function must<T>(result: DomainResult<T>): T {
   if (!result.ok) throw new Error(JSON.stringify(result.errors));
@@ -69,20 +70,21 @@ describe("projects and teams", () => {
   it("keeps zero workload and zero daily cap explicitly", () => {
     const project = makeProject("project-a", makeTeam("team-a"));
     const requirement = project.requirements[0];
-    if (!requirement || !requirement.dailyCap)
+    if (!requirement || !requirement.dailyCap) {
       throw new Error("Missing requirement");
-    expect(serializeQuantity(requirement.remainingWorkload)).toBe("0/1");
-    expect(serializeQuantity(requirement.dailyCap)).toBe("0/1");
-    expect(Object.isFrozen(requirement.remainingWorkload)).toBe(true);
-    expect(Object.isFrozen(requirement.dailyCap)).toBe(true);
+    }
+    assert.equal(serializeQuantity(requirement.remainingWorkload), "0/1");
+    assert.equal(serializeQuantity(requirement.dailyCap), "0/1");
+    assert.equal(Object.isFrozen(requirement.remainingWorkload), true);
+    assert.equal(Object.isFrozen(requirement.dailyCap), true);
   });
 
   it("rejects invalid workload, parallelism, and duplicate team requirements", () => {
-    expect(createRemainingWorkload("-1").ok).toBe(false);
-    expect(createRemainingWorkload("Infinity").ok).toBe(false);
-    expect(createMaxParallelProjects(0).ok).toBe(false);
-    expect(createMaxParallelProjects(-1).ok).toBe(false);
-    expect(createMaxParallelProjects(1.5).ok).toBe(false);
+    assert.equal(createRemainingWorkload("-1").ok, false);
+    assert.equal(createRemainingWorkload("Infinity").ok, false);
+    assert.equal(createMaxParallelProjects(0).ok, false);
+    assert.equal(createMaxParallelProjects(-1).ok, false);
+    assert.equal(createMaxParallelProjects(1.5).ok, false);
 
     const team = makeTeam("team-a");
     const requirement = must(
@@ -91,21 +93,23 @@ describe("projects and teams", () => {
         remainingWorkload: must(createRemainingWorkload("1")),
       }),
     );
-    expect(
-      createProject({
-        id: must(createProjectId("duplicate")),
-        name: "duplicate",
-        requirements: [requirement, requirement],
-      }),
-    ).toMatchObject({
-      ok: false,
-      errors: [
-        {
-          code: "DUPLICATE_PROJECT_TEAM_REQUIREMENT",
-          path: "requirements[1].teamId",
-        },
-      ],
+    const result = createProject({
+      id: must(createProjectId("duplicate")),
+      name: "duplicate",
+      requirements: [requirement, requirement],
     });
+    assert.equal(result.ok, false);
+    if (!result.ok) {
+      assert.deepEqual(
+        result.errors.map(({ code, path }) => ({ code, path })),
+        [
+          {
+            code: "DUPLICATE_PROJECT_TEAM_REQUIREMENT",
+            path: "requirements[1].teamId",
+          },
+        ],
+      );
+    }
   });
 
   it("represents project dates without interpreting feasibility", () => {
@@ -126,7 +130,7 @@ describe("projects and teams", () => {
         requirements: [requirement],
       }),
     );
-    expect(project.mandatoryDeadline).toBe("2025-01-01");
+    assert.equal(project.mandatoryDeadline, "2025-01-01");
   });
 });
 
@@ -147,12 +151,12 @@ describe("Portfolio invariants", () => {
     );
     projects.reverse();
     priorities.reverse();
-    expect(portfolio.projects.map((project) => project.id)).toEqual([
-      "first",
-      "second",
-    ]);
-    expect(portfolio.priorityOrder).toEqual(["second", "first"]);
-    expect(Object.isFrozen(portfolio.priorityOrder)).toBe(true);
+    assert.deepEqual(
+      portfolio.projects.map((project) => project.id),
+      ["first", "second"],
+    );
+    assert.deepEqual(portfolio.priorityOrder, ["second", "first"]);
+    assert.equal(Object.isFrozen(portfolio.priorityOrder), true);
   });
 
   it("rejects duplicate identities", () => {
@@ -174,16 +178,17 @@ describe("Portfolio invariants", () => {
       priorityOrder: [project.id, project.id],
       reservations: [reservation, reservation],
     });
-    expect(result.ok).toBe(false);
+    assert.equal(result.ok, false);
     if (result.ok) return;
-    expect(result.errors.map((item) => item.code)).toEqual(
-      expect.arrayContaining([
-        "DUPLICATE_TEAM_ID",
-        "DUPLICATE_PROJECT_ID",
-        "DUPLICATE_RESERVATION_ID",
-        "DUPLICATE_PRIORITY_PROJECT",
-      ]),
-    );
+    const codes = result.errors.map((item) => item.code);
+    for (const code of [
+      "DUPLICATE_TEAM_ID",
+      "DUPLICATE_PROJECT_ID",
+      "DUPLICATE_RESERVATION_ID",
+      "DUPLICATE_PRIORITY_PROJECT",
+    ]) {
+      assert.equal(codes.includes(code), true, `Missing error code ${code}`);
+    }
   });
 
   it("rejects unknown team references", () => {
@@ -206,16 +211,22 @@ describe("Portfolio invariants", () => {
       priorityOrder: [project.id],
       reservations: [reservation],
     });
-    expect(result).toMatchObject({
-      ok: false,
-      errors: [
-        {
-          code: "UNKNOWN_REQUIREMENT_TEAM",
-          path: "projects[0].requirements[0].teamId",
-        },
-        { code: "UNKNOWN_RESERVATION_TEAM", path: "reservations[0].teamId" },
-      ],
-    });
+    assert.equal(result.ok, false);
+    if (!result.ok) {
+      assert.deepEqual(
+        result.errors.map(({ code, path }) => ({ code, path })),
+        [
+          {
+            code: "UNKNOWN_REQUIREMENT_TEAM",
+            path: "projects[0].requirements[0].teamId",
+          },
+          {
+            code: "UNKNOWN_RESERVATION_TEAM",
+            path: "reservations[0].teamId",
+          },
+        ],
+      );
+    }
   });
 
   it("rejects unknown, missing, and duplicate priority projects", () => {
@@ -229,14 +240,15 @@ describe("Portfolio invariants", () => {
       priorityOrder: [first.id, first.id, unknown],
       reservations: [],
     });
-    expect(result.ok).toBe(false);
+    assert.equal(result.ok, false);
     if (result.ok) return;
-    expect(result.errors.map((item) => item.code)).toEqual(
-      expect.arrayContaining([
-        "DUPLICATE_PRIORITY_PROJECT",
-        "UNKNOWN_PRIORITY_PROJECT",
-        "MISSING_PRIORITY_PROJECT",
-      ]),
-    );
+    const codes = result.errors.map((item) => item.code);
+    for (const code of [
+      "DUPLICATE_PRIORITY_PROJECT",
+      "UNKNOWN_PRIORITY_PROJECT",
+      "MISSING_PRIORITY_PROJECT",
+    ]) {
+      assert.equal(codes.includes(code), true, `Missing error code ${code}`);
+    }
   });
 });

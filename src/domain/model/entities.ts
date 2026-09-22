@@ -1,20 +1,20 @@
-import type { TeamCapacitySchedule } from "../capacity/schedule";
-import type { FirmCapacityReservation } from "../capacity/reservation";
-import type { CivilDate } from "./date";
+import type { TeamCapacitySchedule } from "../capacity/schedule.js";
+import type { FirmCapacityReservation } from "../capacity/reservation.js";
+import type { CivilDate } from "./date.js";
 import type {
   DailyCap,
   MaxParallelProjects,
   ProjectId,
   RemainingWorkload,
   TeamId,
-} from "./scalars";
+} from "./scalars.js";
 import {
   error,
   failure,
   success,
   type DomainError,
   type DomainResult,
-} from "./result";
+} from "./result.js";
 
 export interface Team {
   readonly id: TeamId;

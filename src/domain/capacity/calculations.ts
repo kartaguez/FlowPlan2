@@ -1,6 +1,6 @@
-import type { CivilDate } from "../model/date";
-import type { Team } from "../model/entities";
-import type { DomainResult } from "../model/result";
+import type { CivilDate } from "../model/date.js";
+import type { Team } from "../model/entities.js";
+import type { DomainResult } from "../model/result.js";
 import {
   addRationals,
   compareRationals,
@@ -8,7 +8,7 @@ import {
   multiplyRationals,
   rationalFromInteger,
   subtractRationals,
-} from "../model/rational";
+} from "../model/rational.js";
 import {
   capacityFromRational,
   capacityRatioFromRational,
@@ -16,10 +16,10 @@ import {
   type Capacity,
   type CapacityRatio,
   type TeamId,
-} from "../model/scalars";
-import type { FirmCapacityReservation } from "./reservation";
-import { isReservationApplicable } from "./reservation";
-import { isWorkingDay } from "./schedule";
+} from "../model/scalars.js";
+import type { FirmCapacityReservation } from "./reservation.js";
+import { isReservationApplicable } from "./reservation.js";
+import { isWorkingDay } from "./schedule.js";
 
 const ZERO = rationalFromInteger(0n);
 const ONE = rationalFromInteger(1n);

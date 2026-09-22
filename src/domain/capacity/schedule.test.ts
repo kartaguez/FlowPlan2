@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
 import {
   createCapacity,
   createCapacityException,
@@ -12,7 +13,7 @@ import {
   effectiveCapacity,
   quantityToDecimalString,
   type DomainResult,
-} from "../index";
+} from "../index.js";
 
 function must<T>(result: DomainResult<T>): T {
   if (!result.ok) throw new Error(JSON.stringify(result.errors));
@@ -74,18 +75,18 @@ describe("team capacity schedule", () => {
 
   it("uses working days, inclusive period bounds, and zero in gaps", () => {
     const team = makeTeam();
-    expect(rendered(effectiveCapacity(team, date("2025-01-01")))).toBe("3.2");
-    expect(rendered(effectiveCapacity(team, date("2025-01-10")))).toBe("3.2");
-    expect(rendered(effectiveCapacity(team, date("2025-01-11")))).toBe("0");
-    expect(rendered(effectiveCapacity(team, date("2025-01-13")))).toBe("0");
+    assert.equal(rendered(effectiveCapacity(team, date("2025-01-01"))), "3.2");
+    assert.equal(rendered(effectiveCapacity(team, date("2025-01-10"))), "3.2");
+    assert.equal(rendered(effectiveCapacity(team, date("2025-01-11"))), "0");
+    assert.equal(rendered(effectiveCapacity(team, date("2025-01-13"))), "0");
   });
 
   it("gives absolute priority to exceptions", () => {
     const team = makeTeam();
-    expect(rendered(effectiveCapacity(team, date("2025-01-04")))).toBe("2");
-    expect(rendered(effectiveCapacity(team, date("2025-02-01")))).toBe("1");
-    expect(rendered(effectiveCapacity(team, date("2025-01-06")))).toBe("0");
-    expect(rendered(effectiveCapacity(team, date("2025-01-06")))).toBe("0");
+    assert.equal(rendered(effectiveCapacity(team, date("2025-01-04"))), "2");
+    assert.equal(rendered(effectiveCapacity(team, date("2025-02-01"))), "1");
+    assert.equal(rendered(effectiveCapacity(team, date("2025-01-06"))), "0");
+    assert.equal(rendered(effectiveCapacity(team, date("2025-01-06"))), "0");
   });
 
   it("rejects overlapping periods and duplicate exception dates", () => {
@@ -114,13 +115,16 @@ describe("team capacity schedule", () => {
       periods: [overlap, first],
       exceptions: [exception, exception],
     });
-    expect(result).toMatchObject({
-      ok: false,
-      errors: [
-        { code: "OVERLAPPING_CAPACITY_PERIODS" },
-        { code: "DUPLICATE_CAPACITY_EXCEPTION_DATE" },
-      ],
-    });
+    assert.equal(result.ok, false);
+    if (!result.ok) {
+      assert.deepEqual(
+        result.errors.map(({ code }) => code),
+        [
+          "OVERLAPPING_CAPACITY_PERIODS",
+          "DUPLICATE_CAPACITY_EXCEPTION_DATE",
+        ],
+      );
+    }
   });
 
   it("sorts only periods and exceptions in defensive copies", () => {
@@ -147,10 +151,10 @@ describe("team capacity schedule", () => {
       }),
     );
     source.reverse();
-    expect(schedule.periods.map((period) => period.start)).toEqual([
-      "2025-01-01",
-      "2025-02-01",
-    ]);
-    expect(Object.isFrozen(schedule.periods)).toBe(true);
+    assert.deepEqual(
+      schedule.periods.map((period) => period.start),
+      ["2025-01-01", "2025-02-01"],
+    );
+    assert.equal(Object.isFrozen(schedule.periods), true);
   });
 });

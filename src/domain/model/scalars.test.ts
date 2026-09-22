@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
 import {
   capacityFromSerialized,
   createCapacity,
@@ -8,9 +9,9 @@ import {
   quantityToDecimalString,
   serializeQuantity,
   type DomainResult,
-} from "../index";
-import { createRational, rationalFromInteger } from "./rational";
-import { capacityFromRational, capacityRatioFromRational } from "./scalars";
+} from "../index.js";
+import { createRational, rationalFromInteger } from "./rational.js";
+import { capacityFromRational, capacityRatioFromRational } from "./scalars.js";
 
 function must<T>(result: DomainResult<T>): T {
   if (!result.ok) throw new Error(JSON.stringify(result.errors));
@@ -19,61 +20,79 @@ function must<T>(result: DomainResult<T>): T {
 
 describe("opaque rational domain quantities", () => {
   it("rejects invalid capacities created from internal rationals", () => {
-    expect(capacityFromRational(rationalFromInteger(-1n))).toMatchObject({
-      ok: false,
-      errors: [{ code: "NEGATIVE_CAPACITY", path: "capacity" }],
-    });
+    const result = capacityFromRational(rationalFromInteger(-1n));
+    assert.equal(result.ok, false);
+    if (!result.ok) {
+      assert.deepEqual(
+        result.errors.map(({ code, path }) => ({ code, path })),
+        [{ code: "NEGATIVE_CAPACITY", path: "capacity" }],
+      );
+    }
   });
 
   it("rejects invalid capacity ratios created from internal rationals", () => {
     const negativeHalf = must(createRational(-1n, 2n));
-    expect(capacityRatioFromRational(negativeHalf)).toMatchObject({
-      ok: false,
-      errors: [{ code: "NEGATIVE_RATIO", path: "ratio" }],
-    });
+    const result = capacityRatioFromRational(negativeHalf);
+    assert.equal(result.ok, false);
+    if (!result.ok) {
+      assert.deepEqual(
+        result.errors.map(({ code, path }) => ({ code, path })),
+        [{ code: "NEGATIVE_RATIO", path: "ratio" }],
+      );
+    }
   });
 
-  it.each([
+  for (const [input, expected] of [
     ["0", "0/1"],
     ["3.2", "16/5"],
     ["0.20", "1/5"],
     ["12.75", "51/4"],
     ["0.125", "1/8"],
-  ])("creates capacity %s exactly as %s", (input, expected) => {
-    expect(serializeQuantity(must(createCapacity(input)))).toBe(expected);
-  });
+  ] as const) {
+    it(`creates capacity ${input} exactly as ${expected}`, () => {
+      assert.equal(serializeQuantity(must(createCapacity(input))), expected);
+    });
+  }
 
   it("preserves non-negative business invariants and accepts zero", () => {
-    expect(createCapacity("-1").ok).toBe(false);
-    expect(createRemainingWorkload("-0.1").ok).toBe(false);
-    expect(serializeQuantity(must(createRemainingWorkload("0")))).toBe("0/1");
-    expect(serializeQuantity(must(createDailyCap("0")))).toBe("0/1");
+    assert.equal(createCapacity("-1").ok, false);
+    assert.equal(createRemainingWorkload("-0.1").ok, false);
+    assert.equal(
+      serializeQuantity(must(createRemainingWorkload("0"))),
+      "0/1",
+    );
+    assert.equal(serializeQuantity(must(createDailyCap("0"))), "0/1");
   });
 
   it("rejects unsupported decimal input at the public factory boundary", () => {
     for (const invalid of ["1e-3", "+1.2", "NaN", "Infinity", "0x10"]) {
-      expect(createCapacity(invalid)).toMatchObject({
-        ok: false,
-        errors: [{ code: "INVALID_DECIMAL_STRING" }],
-      });
+      const result = createCapacity(invalid);
+      assert.equal(result.ok, false);
+      if (!result.ok) {
+        assert.equal(result.errors[0]?.code, "INVALID_DECIMAL_STRING");
+      }
     }
   });
 
   it("keeps individual reservation ratios in the exact zero-to-one range", () => {
-    expect(createReservationRatio("0").ok).toBe(true);
-    expect(createReservationRatio("1").ok).toBe(true);
-    expect(createReservationRatio("-0.0000000000000000001").ok).toBe(false);
-    expect(createReservationRatio("1.0000000000000000001").ok).toBe(false);
+    assert.equal(createReservationRatio("0").ok, true);
+    assert.equal(createReservationRatio("1").ok, true);
+    assert.equal(createReservationRatio("-0.0000000000000000001").ok, false);
+    assert.equal(createReservationRatio("1.0000000000000000001").ok, false);
   });
 
   it("serializes exactly and renders periodic values only with explicit precision", () => {
     const third = must(capacityFromSerialized("1/3"));
-    expect(serializeQuantity(third)).toBe("1/3");
-    expect(quantityToDecimalString(third)).toMatchObject({
-      ok: false,
-      errors: [{ code: "DECIMAL_PRECISION_REQUIRED" }],
-    });
-    expect(must(quantityToDecimalString(third, 8))).toBe("0.33333333");
-    expect(Object.isFrozen(third)).toBe(true);
+    assert.equal(serializeQuantity(third), "1/3");
+    const withoutPrecision = quantityToDecimalString(third);
+    assert.equal(withoutPrecision.ok, false);
+    if (!withoutPrecision.ok) {
+      assert.equal(
+        withoutPrecision.errors[0]?.code,
+        "DECIMAL_PRECISION_REQUIRED",
+      );
+    }
+    assert.equal(must(quantityToDecimalString(third, 8)), "0.33333333");
+    assert.equal(Object.isFrozen(third), true);
   });
 });

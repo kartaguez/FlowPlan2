@@ -1,6 +1,6 @@
-import { compareCivilDates, type CivilDate } from "../model/date";
-import type { ReservationId, ReservationRatio, TeamId } from "../model/scalars";
-import { error, failure, success, type DomainResult } from "../model/result";
+import { compareCivilDates, type CivilDate } from "../model/date.js";
+import type { ReservationId, ReservationRatio, TeamId } from "../model/scalars.js";
+import { error, failure, success, type DomainResult } from "../model/result.js";
 
 export interface FirmCapacityReservation {
   readonly id: ReservationId;

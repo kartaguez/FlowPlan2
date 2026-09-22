@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
 import {
   createCapacity,
   createCapacityPeriod,
@@ -20,7 +21,7 @@ import {
   totalReservationRatio,
   type DomainResult,
   type FirmCapacityReservation,
-} from "../index";
+} from "../index.js";
 
 function must<T>(result: DomainResult<T>): T {
   if (!result.ok) throw new Error(JSON.stringify(result.errors));
@@ -81,37 +82,39 @@ describe("firm capacity reservations", () => {
   }
 
   it("accepts boundary ratios and rejects ratios outside zero to one", () => {
-    expect(createReservationRatio("0").ok).toBe(true);
-    expect(createReservationRatio("1").ok).toBe(true);
-    expect(createReservationRatio("-0.1").ok).toBe(false);
-    expect(createReservationRatio("1.1").ok).toBe(false);
+    assert.equal(createReservationRatio("0").ok, true);
+    assert.equal(createReservationRatio("1").ok, true);
+    assert.equal(createReservationRatio("-0.1").ok, false);
+    assert.equal(createReservationRatio("1.1").ok, false);
   });
 
   it("rejects reversed intervals and includes both bounds", () => {
-    expect(
-      createFirmCapacityReservation({
-        id: must(createReservationId("bad")),
-        teamId,
-        label: "bad",
-        start: date("2025-02-01"),
-        end: date("2025-01-01"),
-        ratio: must(createReservationRatio("0.2")),
-      }),
-    ).toMatchObject({
-      ok: false,
-      errors: [{ code: "INVALID_RESERVATION_INTERVAL" }],
+    const invalid = createFirmCapacityReservation({
+      id: must(createReservationId("bad")),
+      teamId,
+      label: "bad",
+      start: date("2025-02-01"),
+      end: date("2025-01-01"),
+      ratio: must(createReservationRatio("0.2")),
     });
+    assert.equal(invalid.ok, false);
+    if (!invalid.ok) {
+      assert.equal(invalid.errors[0]?.code, "INVALID_RESERVATION_INTERVAL");
+    }
 
     const item = reservation("bounded", "0.2");
-    expect(
+    assert.equal(
       rendered(totalReservationRatio(teamId, date("2025-01-01"), [item])),
-    ).toBe("0.2");
-    expect(
+      "0.2",
+    );
+    assert.equal(
       rendered(totalReservationRatio(teamId, date("2025-01-31"), [item])),
-    ).toBe("0.2");
-    expect(
+      "0.2",
+    );
+    assert.equal(
       rendered(totalReservationRatio(teamId, date("2025-02-01"), [item])),
-    ).toBe("0");
+      "0",
+    );
   });
 
   it("does not couple reservations to planning horizons", () => {
@@ -122,48 +125,47 @@ describe("firm capacity reservations", () => {
       }),
     );
     const outside = reservation("outside", "0.2", "2024-01-01", "2024-01-31");
-    expect(horizon.start).toBe("2025-06-01");
-    expect(outside.start).toBe("2024-01-01");
+    assert.equal(horizon.start, "2025-06-01");
+    assert.equal(outside.start, "2024-01-01");
   });
 
   it("exposes over-reservation without capping its diagnostics", () => {
     const team = makeTeam("3.2");
     const reservations = [reservation("one", "0.7"), reservation("two", "0.6")];
     const day = date("2025-01-15");
-    expect(rendered(totalReservationRatio(teamId, day, reservations))).toBe(
-      "1.3",
-    );
-    expect(rendered(reservedCapacity(team, day, reservations))).toBe("4.16");
-    expect(rendered(projectCapacity(team, day, reservations))).toBe("0");
-    expect(isOverReserved(teamId, day, reservations)).toBe(true);
+    assert.equal(rendered(totalReservationRatio(teamId, day, reservations)), "1.3");
+    assert.equal(rendered(reservedCapacity(team, day, reservations)), "4.16");
+    assert.equal(rendered(projectCapacity(team, day, reservations)), "0");
+    assert.equal(isOverReserved(teamId, day, reservations), true);
   });
 
   it("keeps reservation arithmetic exact", () => {
     const team = makeTeam("3.2");
     const reservations = [reservation("twenty-percent", "0.20")];
     const day = date("2025-01-15");
-    expect(serializeQuantity(reservedCapacity(team, day, reservations))).toBe(
+    assert.equal(
+      serializeQuantity(reservedCapacity(team, day, reservations)),
       "16/25",
     );
-    expect(rendered(reservedCapacity(team, day, reservations))).toBe("0.64");
-    expect(serializeQuantity(projectCapacity(team, day, reservations))).toBe(
+    assert.equal(rendered(reservedCapacity(team, day, reservations)), "0.64");
+    assert.equal(
+      serializeQuantity(projectCapacity(team, day, reservations)),
       "64/25",
     );
-    expect(rendered(projectCapacity(team, day, reservations))).toBe("2.56");
+    assert.equal(rendered(projectCapacity(team, day, reservations)), "2.56");
   });
 
   it("supports over-reservation at nine million without an intermediate overflow", () => {
     const team = makeTeam("9000000");
     const reservations = [reservation("one", "1"), reservation("two", "1")];
     const day = date("2025-01-15");
-    expect(rendered(totalReservationRatio(teamId, day, reservations))).toBe(
-      "2",
-    );
-    expect(rendered(reservedCapacity(team, day, reservations))).toBe(
+    assert.equal(rendered(totalReservationRatio(teamId, day, reservations)), "2");
+    assert.equal(
+      rendered(reservedCapacity(team, day, reservations)),
       "18000000",
     );
-    expect(rendered(projectCapacity(team, day, reservations))).toBe("0");
-    expect(isOverReserved(teamId, day, reservations)).toBe(true);
+    assert.equal(rendered(projectCapacity(team, day, reservations)), "0");
+    assert.equal(isOverReserved(teamId, day, reservations), true);
   });
 
   it("supports exact values far beyond JavaScript safe integers", () => {
@@ -171,7 +173,7 @@ describe("firm capacity reservations", () => {
     const team = makeTeam(huge);
     const reservations = [reservation("full", "1")];
     const day = date("2025-01-15");
-    expect(rendered(reservedCapacity(team, day, reservations))).toBe(huge);
-    expect(rendered(projectCapacity(team, day, reservations))).toBe("0");
+    assert.equal(rendered(reservedCapacity(team, day, reservations)), huge);
+    assert.equal(rendered(projectCapacity(team, day, reservations)), "0");
   });
 });

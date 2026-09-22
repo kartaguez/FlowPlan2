@@ -1,5 +1,5 @@
-import { compareCivilDates, type CivilDate } from "./date";
-import { error, failure, success, type DomainResult } from "./result";
+import { compareCivilDates, type CivilDate } from "./date.js";
+import { error, failure, success, type DomainResult } from "./result.js";
 
 export interface PlanningHorizon {
   readonly start: CivilDate;

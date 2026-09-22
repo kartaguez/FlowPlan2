@@ -1,4 +1,4 @@
-export type { DomainError, DomainResult } from "./model/result";
+export type { DomainError, DomainResult } from "./model/result.js";
 export {
   addDays,
   civilDatesInclusive,
@@ -6,7 +6,7 @@ export {
   createCivilDate,
   isoWeekday,
   type CivilDate,
-} from "./model/date";
+} from "./model/date.js";
 export {
   capacityFromSerialized,
   capacityRatioFromSerialized,
@@ -33,8 +33,8 @@ export {
   type ReservationId,
   type ReservationRatio,
   type TeamId,
-} from "./model/scalars";
-export { createPlanningHorizon, type PlanningHorizon } from "./model/horizon";
+} from "./model/scalars.js";
+export { createPlanningHorizon, type PlanningHorizon } from "./model/horizon.js";
 export {
   createPortfolio,
   createProject,
@@ -44,7 +44,7 @@ export {
   type Project,
   type ProjectTeamRequirement,
   type Team,
-} from "./model/entities";
+} from "./model/entities.js";
 export {
   createCapacityException,
   createCapacityPeriod,
@@ -56,16 +56,16 @@ export {
   type IsoWeekday,
   type TeamCapacitySchedule,
   type WorkingPattern,
-} from "./capacity/schedule";
+} from "./capacity/schedule.js";
 export {
   createFirmCapacityReservation,
   isReservationApplicable,
   type FirmCapacityReservation,
-} from "./capacity/reservation";
+} from "./capacity/reservation.js";
 export {
   effectiveCapacity,
   isOverReserved,
   projectCapacity,
   reservedCapacity,
   totalReservationRatio,
-} from "./capacity/calculations";
+} from "./capacity/calculations.js";

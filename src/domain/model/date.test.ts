@@ -1,11 +1,12 @@
-import { describe, expect, it } from "vitest";
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
 import {
   addDays,
   civilDatesInclusive,
   compareCivilDates,
   createCivilDate,
   type DomainResult,
-} from "../index";
+} from "../index.js";
 
 function must<T>(result: DomainResult<T>): T {
   if (!result.ok) throw new Error(JSON.stringify(result.errors));
@@ -14,22 +15,29 @@ function must<T>(result: DomainResult<T>): T {
 
 describe("CivilDate", () => {
   it("validates leap years and impossible dates", () => {
-    expect(createCivilDate("2024-02-29").ok).toBe(true);
-    expect(createCivilDate("2023-02-29")).toMatchObject({
-      ok: false,
-      errors: [{ code: "INVALID_CIVIL_DATE", path: "date" }],
-    });
-    expect(createCivilDate("2024-2-09").ok).toBe(false);
+    assert.equal(createCivilDate("2024-02-29").ok, true);
+    const impossible = createCivilDate("2023-02-29");
+    assert.equal(impossible.ok, false);
+    if (!impossible.ok) {
+      assert.deepEqual(
+        impossible.errors.map(({ code, path }) => ({ code, path })),
+        [{ code: "INVALID_CIVIL_DATE", path: "date" }],
+      );
+    }
+    assert.equal(createCivilDate("2024-2-09").ok, false);
   });
 
   it("adds days across month and year boundaries without timezone state", () => {
-    expect(must(addDays(must(createCivilDate("2024-02-28")), 2))).toBe(
+    assert.equal(
+      must(addDays(must(createCivilDate("2024-02-28")), 2)),
       "2024-03-01",
     );
-    expect(must(addDays(must(createCivilDate("2024-12-31")), 1))).toBe(
+    assert.equal(
+      must(addDays(must(createCivilDate("2024-12-31")), 1)),
       "2025-01-01",
     );
-    expect(must(addDays(must(createCivilDate("2025-01-01")), -1))).toBe(
+    assert.equal(
+      must(addDays(must(createCivilDate("2025-01-01")), -1)),
       "2024-12-31",
     );
   });
@@ -37,13 +45,13 @@ describe("CivilDate", () => {
   it("compares and traverses inclusive intervals", () => {
     const start = must(createCivilDate("2025-01-30"));
     const end = must(createCivilDate("2025-02-02"));
-    expect(compareCivilDates(start, end)).toBe(-1);
-    expect(civilDatesInclusive(start, end)).toEqual([
+    assert.equal(compareCivilDates(start, end), -1);
+    assert.deepEqual(civilDatesInclusive(start, end), [
       "2025-01-30",
       "2025-01-31",
       "2025-02-01",
       "2025-02-02",
     ]);
-    expect(civilDatesInclusive(end, start)).toEqual([]);
+    assert.deepEqual(civilDatesInclusive(end, start), []);
   });
 });

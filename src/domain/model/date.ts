@@ -1,4 +1,4 @@
-import { error, failure, success, type DomainResult } from "./result";
+import { error, failure, success, type DomainResult } from "./result.js";
 
 declare const civilDateBrand: unique symbol;
 export type CivilDate = string & { readonly [civilDateBrand]: "CivilDate" };

@@ -7,8 +7,8 @@ import {
   rationalToCanonicalString,
   rationalToDecimalString,
   type Rational,
-} from "./rational";
-import { error, failure, success, type DomainResult } from "./result";
+} from "./rational.js";
+import { error, failure, success, type DomainResult } from "./result.js";
 
 type Brand<T, Name extends string> = T & { readonly __brand: Name };
 

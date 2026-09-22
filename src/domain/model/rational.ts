@@ -1,4 +1,4 @@
-import { error, failure, success, type DomainResult } from "./result";
+import { error, failure, success, type DomainResult } from "./result.js";
 
 export interface Rational {
   readonly numerator: bigint;

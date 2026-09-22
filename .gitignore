@@ -1,6 +1,5 @@
 node_modules/
 dist/
-playwright-report/
-test-results/
+.test-dist/
 *.tsbuildinfo
 .DS_Store
