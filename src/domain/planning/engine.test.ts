@@ -896,6 +896,120 @@ describe("Phase 2D mandatory deadlines", () => {
     assert.deepEqual(allocations(deadlinePlan), [["2025-01-04", "1"]]);
   });
 
+  it("does not reserve future capacity for a higher-priority unfeasible deadline", () => {
+    const team = makeTeam("team-a", "1", 2);
+    const futurePriority = makeProject(
+      "future-priority",
+      [{ team, workload: "1" }],
+      { earliestStartDate: "2025-01-02" },
+    );
+    const unfeasible = makeProject(
+      "unfeasible",
+      [{ team, workload: "2" }],
+      { mandatoryDeadline: "2025-01-01" },
+    );
+    const lowerDeadline = makeProject(
+      "lower-deadline",
+      [{ team, workload: "1" }],
+      { mandatoryDeadline: "2025-01-02" },
+    );
+    const teamPlan = findTeamPlan(
+      planPortfolio(
+        makeInput(
+          [team],
+          [futurePriority, unfeasible, lowerDeadline],
+          "2025-01-01",
+          "2025-01-02",
+        ),
+      ),
+      team,
+    );
+    const unfeasiblePlan = findProjectPlan(teamPlan, unfeasible);
+    const lowerPlan = findProjectPlan(teamPlan, lowerDeadline);
+
+    assert.equal(unfeasiblePlan.deadlineStatuses?.[0]?.status, "UNFEASIBLE");
+    assert.deepEqual(deadlineStatuses(lowerPlan), [
+      ["2025-01-01", "FEASIBLE"],
+      ["2025-01-02", "FEASIBLE"],
+    ]);
+    assert.deepEqual(teamPlan.dayAdmissions[0]?.admittedProjectIds, [
+      unfeasible.id,
+      lowerDeadline.id,
+    ]);
+    assert.deepEqual(teamPlan.dayAdmissions[1]?.admittedProjectIds, [
+      futurePriority.id,
+      unfeasible.id,
+    ]);
+    assert.deepEqual(allocations(lowerPlan), []);
+  });
+
+  it("does not reserve future capacity for a higher-priority missed deadline", () => {
+    const team = makeTeam("team-a", "1", 2);
+    const missed = makeProject(
+      "missed",
+      [{ team, workload: "2" }],
+      { mandatoryDeadline: "2025-01-01" },
+    );
+    const lowerDeadline = makeProject(
+      "lower-deadline",
+      [{ team, workload: "1" }],
+      { mandatoryDeadline: "2025-01-03" },
+    );
+    const teamPlan = findTeamPlan(
+      planPortfolio(
+        makeInput(
+          [team],
+          [missed, lowerDeadline],
+          "2025-01-02",
+          "2025-01-02",
+        ),
+      ),
+      team,
+    );
+
+    assert.equal(findProjectPlan(teamPlan, missed).deadlineStatus, "MISSED");
+    assert.equal(
+      findProjectPlan(teamPlan, lowerDeadline).deadlineStatus,
+      "FEASIBLE",
+    );
+    assert.deepEqual(allocations(findProjectPlan(teamPlan, missed)), [
+      ["2025-01-02", "1"],
+    ]);
+    assert.deepEqual(allocations(findProjectPlan(teamPlan, lowerDeadline)), []);
+  });
+
+  it("still applies a higher-priority feasible trajectory to future accessibility", () => {
+    const team = makeTeam("team-a", "1", 2);
+    const feasible = makeProject(
+      "feasible",
+      [{ team, workload: "1" }],
+      { mandatoryDeadline: "2025-01-02" },
+    );
+    const constrained = makeProject(
+      "constrained",
+      [{ team, workload: "1.5" }],
+      { mandatoryDeadline: "2025-01-02" },
+    );
+    const teamPlan = findTeamPlan(
+      planPortfolio(
+        makeInput([team], [feasible, constrained], "2025-01-01", "2025-01-01"),
+      ),
+      team,
+    );
+
+    assert.equal(findProjectPlan(teamPlan, feasible).deadlineStatus, "FEASIBLE");
+    assert.equal(
+      findProjectPlan(teamPlan, constrained).deadlineStatus,
+      "UNFEASIBLE",
+    );
+    assert.deepEqual(allocations(findProjectPlan(teamPlan, feasible)), [
+      ["2025-01-01", "0.5"],
+    ]);
+    assert.deepEqual(allocations(findProjectPlan(teamPlan, constrained)), [
+      ["2025-01-01", "0.5"],
+    ]);
+  });
+
   it("uses an exact one-half ratio and constrains lower-priority deadlines", () => {
     const team = makeTeam("team-a", "2", 2);
     const first = makeProject(

@@ -121,3 +121,14 @@ connue du calendrier jusqu'à la deadline et les contraintes de trajectoire déj
 imposées par les deadlines admises plus prioritaires. Il ne prédit pas les
 futurs slots, ne simule pas d'admissions alternatives et ne soustrait jamais à
 l'avance les allocations normales. La date objectif reste descriptive.
+
+`FEASIBLE` exprime une faisabilité structurelle conditionnelle, et non une
+garantie d'admission future : la deadline reste tenable si le projet obtient les
+accès nécessaires. Seules les trajectoires rationnelles des deadlines
+`FEASIBLE` plus prioritaires contraignent l'enveloppe accessible future des
+deadlines suivantes.
+
+Un projet `UNFEASIBLE` ou `MISSED` ne possède aucune trajectoire future. Il
+consomme le maximum possible uniquement les jours où il est effectivement
+admis et ne réserve jamais de capacité sur les dates suivantes. L'admission
+reste recalculée indépendamment chaque jour.

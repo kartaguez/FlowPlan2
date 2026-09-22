@@ -256,18 +256,6 @@ function updateMissedDeadlineStatuses(
   }
 }
 
-function latestRelevantDeadline(
-  today: CivilDate,
-  admitted: readonly ProjectTeamState[],
-): CivilDate {
-  let latest = today;
-  for (const state of admitted) {
-    const deadline = state.project.mandatoryDeadline;
-    if (deadline && compareCivilDates(deadline, latest) > 0) latest = deadline;
-  }
-  return latest;
-}
-
 function sumDeadlineAccessibility(
   state: ProjectTeamState,
   dates: readonly CivilDate[],
@@ -306,7 +294,6 @@ function allocateDeadlineProjects(
   const residualByDate = new Map<CivilDate, Rational>([
     [today, availableCapacity],
   ]);
-  const forecastEnd = latestRelevantDeadline(today, admitted);
 
   for (const state of admitted) {
     const deadline = state.project.mandatoryDeadline;
@@ -371,25 +358,20 @@ function allocateDeadlineProjects(
       continue;
     }
 
-    let projectedRemaining = remainingBeforeAllocation;
-    for (const date of civilDatesInclusive(today, forecastEnd)) {
-      if (isZero(projectedRemaining)) break;
-      const accessible = deadlineAccessibleCapacity(
-        state,
-        date,
-        today,
-        team,
-        portfolio,
-        residualByDate,
-        dailyAllocations,
-      );
-      const increment = minRational(projectedRemaining, accessible);
-      subtractDeadlineCapacity(date, increment, residualByDate);
-      projectedRemaining = subtractRationals(projectedRemaining, increment);
-      if (date === today) {
-        addDailyAllocation(state, increment, dailyAllocations);
-      }
-    }
+    // UNFEASIBLE and MISSED have no future trajectory: admission today only
+    // authorizes maximum consumption today.
+    const accessibleToday = deadlineAccessibleCapacity(
+      state,
+      today,
+      today,
+      team,
+      portfolio,
+      residualByDate,
+      dailyAllocations,
+    );
+    const increment = minRational(remainingBeforeAllocation, accessibleToday);
+    subtractDeadlineCapacity(today, increment, residualByDate);
+    addDailyAllocation(state, increment, dailyAllocations);
   }
 
   return residualByDate.get(today) ?? ZERO;
