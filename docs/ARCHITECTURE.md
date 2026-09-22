@@ -167,3 +167,20 @@ hors Phase 2 :
 ```text
 Actuals / History -> Current RAF -> Planning Engine
 ```
+
+## Application Layer — Phase 3A
+
+`RecomputePlanning` constitue l'unique cas d'usage applicatif de cette phase.
+Il reçoit un `Portfolio` et un `PlanningHorizon`, délègue intégralement le
+calcul à Planning Engine V1, puis retourne le `PlanningResult` sans transformer
+allocations, statuts ou diagnostics.
+
+```text
+UI / Adapters
+    -> Application
+    -> Domain
+```
+
+Cette couche est pure, déterministe et sans état. Elle ne contient aucune
+persistence, aucun store, aucun port technique, aucune logique UI et aucun
+`TimelineViewModel`. Aucun autre cas d'usage n'est introduit en Phase 3A.
