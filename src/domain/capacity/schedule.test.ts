@@ -10,6 +10,7 @@ import {
   createTeamId,
   createWorkingPattern,
   effectiveCapacity,
+  quantityToDecimalString,
   type DomainResult,
 } from "../index";
 
@@ -20,7 +21,9 @@ function must<T>(result: DomainResult<T>): T {
 
 describe("team capacity schedule", () => {
   const date = (value: string) => must(createCivilDate(value));
-  const capacity = (value: number) => must(createCapacity(value));
+  const capacity = (value: string) => must(createCapacity(value));
+  const rendered = (value: ReturnType<typeof effectiveCapacity>) =>
+    must(quantityToDecimalString(value));
 
   function makeTeam() {
     const schedule = must(
@@ -33,7 +36,7 @@ describe("team capacity schedule", () => {
             createCapacityPeriod({
               start: date("2025-01-01"),
               end: date("2025-01-10"),
-              dailyCapacity: capacity(3.2),
+              dailyCapacity: capacity("3.2"),
             }),
           ),
         ],
@@ -41,19 +44,19 @@ describe("team capacity schedule", () => {
           must(
             createCapacityException({
               date: date("2025-01-04"),
-              capacity: capacity(2),
+              capacity: capacity("2"),
             }),
           ),
           must(
             createCapacityException({
               date: date("2025-01-06"),
-              capacity: capacity(0),
+              capacity: capacity("0"),
             }),
           ),
           must(
             createCapacityException({
               date: date("2025-02-01"),
-              capacity: capacity(1),
+              capacity: capacity("1"),
             }),
           ),
         ],
@@ -71,18 +74,18 @@ describe("team capacity schedule", () => {
 
   it("uses working days, inclusive period bounds, and zero in gaps", () => {
     const team = makeTeam();
-    expect(effectiveCapacity(team, date("2025-01-01"))).toBe(3.2);
-    expect(effectiveCapacity(team, date("2025-01-10"))).toBe(3.2);
-    expect(effectiveCapacity(team, date("2025-01-11"))).toBe(0);
-    expect(effectiveCapacity(team, date("2025-01-13"))).toBe(0);
+    expect(rendered(effectiveCapacity(team, date("2025-01-01")))).toBe("3.2");
+    expect(rendered(effectiveCapacity(team, date("2025-01-10")))).toBe("3.2");
+    expect(rendered(effectiveCapacity(team, date("2025-01-11")))).toBe("0");
+    expect(rendered(effectiveCapacity(team, date("2025-01-13")))).toBe("0");
   });
 
   it("gives absolute priority to exceptions", () => {
     const team = makeTeam();
-    expect(effectiveCapacity(team, date("2025-01-04"))).toBe(2);
-    expect(effectiveCapacity(team, date("2025-02-01"))).toBe(1);
-    expect(effectiveCapacity(team, date("2025-01-06"))).toBe(0);
-    expect(effectiveCapacity(team, date("2025-01-06"))).toBe(0);
+    expect(rendered(effectiveCapacity(team, date("2025-01-04")))).toBe("2");
+    expect(rendered(effectiveCapacity(team, date("2025-02-01")))).toBe("1");
+    expect(rendered(effectiveCapacity(team, date("2025-01-06")))).toBe("0");
+    expect(rendered(effectiveCapacity(team, date("2025-01-06")))).toBe("0");
   });
 
   it("rejects overlapping periods and duplicate exception dates", () => {
@@ -90,20 +93,20 @@ describe("team capacity schedule", () => {
       createCapacityPeriod({
         start: date("2025-01-01"),
         end: date("2025-01-10"),
-        dailyCapacity: capacity(1),
+        dailyCapacity: capacity("1"),
       }),
     );
     const overlap = must(
       createCapacityPeriod({
         start: date("2025-01-10"),
         end: date("2025-01-12"),
-        dailyCapacity: capacity(2),
+        dailyCapacity: capacity("2"),
       }),
     );
     const exception = must(
       createCapacityException({
         date: date("2025-01-03"),
-        capacity: capacity(1),
+        capacity: capacity("1"),
       }),
     );
     const result = createTeamCapacitySchedule({
@@ -125,14 +128,14 @@ describe("team capacity schedule", () => {
       createCapacityPeriod({
         start: date("2025-02-01"),
         end: date("2025-02-02"),
-        dailyCapacity: capacity(1),
+        dailyCapacity: capacity("1"),
       }),
     );
     const early = must(
       createCapacityPeriod({
         start: date("2025-01-01"),
         end: date("2025-01-02"),
-        dailyCapacity: capacity(1),
+        dailyCapacity: capacity("1"),
       }),
     );
     const source = [late, early];

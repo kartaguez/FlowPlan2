@@ -1,17 +1,70 @@
-import { normalizeDecimal, type NormalizedDecimal } from "./decimal";
-import { atPath, error, failure, success, type DomainResult } from "./result";
+import {
+  compareRationals,
+  isNegative,
+  parseDecimalRational,
+  parseSerializedRational,
+  rationalFromInteger,
+  rationalToCanonicalString,
+  rationalToDecimalString,
+  type Rational,
+} from "./rational";
+import { error, failure, success, type DomainResult } from "./result";
 
 type Brand<T, Name extends string> = T & { readonly __brand: Name };
 
 export type TeamId = Brand<string, "TeamId">;
 export type ProjectId = Brand<string, "ProjectId">;
 export type ReservationId = Brand<string, "ReservationId">;
-export type Capacity = Brand<NormalizedDecimal, "Capacity">;
-export type RemainingWorkload = Brand<NormalizedDecimal, "RemainingWorkload">;
-export type DailyCap = Brand<NormalizedDecimal, "DailyCap">;
-export type CapacityRatio = Brand<NormalizedDecimal, "CapacityRatio">;
-export type ReservationRatio = Brand<NormalizedDecimal, "ReservationRatio">;
+
+declare const capacityBrand: unique symbol;
+declare const remainingWorkloadBrand: unique symbol;
+declare const dailyCapBrand: unique symbol;
+declare const capacityRatioBrand: unique symbol;
+declare const reservationRatioBrand: unique symbol;
+
+export interface Capacity {
+  readonly [capacityBrand]: true;
+}
+export interface RemainingWorkload {
+  readonly [remainingWorkloadBrand]: true;
+}
+export interface DailyCap {
+  readonly [dailyCapBrand]: true;
+}
+export interface CapacityRatio {
+  readonly [capacityRatioBrand]: true;
+}
+export interface ReservationRatio {
+  readonly [reservationRatioBrand]: true;
+}
+
+export type DomainQuantity =
+  Capacity | RemainingWorkload | DailyCap | CapacityRatio | ReservationRatio;
 export type MaxParallelProjects = Brand<number, "MaxParallelProjects">;
+
+const rationalByQuantity = new WeakMap<DomainQuantity, Rational>();
+
+function wrapQuantity<T extends DomainQuantity>(value: Rational): T {
+  const quantity = Object.freeze({}) as T;
+  rationalByQuantity.set(quantity, value);
+  return quantity;
+}
+
+export function rationalOf(value: DomainQuantity): Rational {
+  const rational = rationalByQuantity.get(value);
+  if (!rational) {
+    throw new TypeError("Domain quantity was not created by a domain factory.");
+  }
+  return rational;
+}
+
+export function capacityFromRational(value: Rational): Capacity {
+  return wrapQuantity(value);
+}
+
+export function capacityRatioFromRational(value: Rational): CapacityRatio {
+  return wrapQuantity(value);
+}
 
 function createId<T extends TeamId | ProjectId | ReservationId>(
   value: string,
@@ -46,29 +99,31 @@ export function createReservationId(
   return createId(value, path, "INVALID_RESERVATION_ID", "Reservation id");
 }
 
-function createNonNegative<
-  T extends Capacity | RemainingWorkload | DailyCap | CapacityRatio,
->(value: number, path: string, code: string, label: string): DomainResult<T> {
-  const normalized = normalizeDecimal(value, path);
-  if (!normalized.ok)
-    return failure(normalized.errors.map((item) => atPath(item, path)));
-  if (normalized.value < 0) {
+function createNonNegative<T extends DomainQuantity>(
+  value: string,
+  path: string,
+  code: string,
+  label: string,
+): DomainResult<T> {
+  const rational = parseDecimalRational(value, path);
+  if (!rational.ok) return rational;
+  if (isNegative(rational.value)) {
     return failure([
       error(code, path, `${label} must be greater than or equal to zero.`),
     ]);
   }
-  return success(normalized.value as T);
+  return success(wrapQuantity<T>(rational.value));
 }
 
 export function createCapacity(
-  value: number,
+  value: string,
   path = "capacity",
 ): DomainResult<Capacity> {
   return createNonNegative(value, path, "NEGATIVE_CAPACITY", "Capacity");
 }
 
 export function createRemainingWorkload(
-  value: number,
+  value: string,
   path = "remainingWorkload",
 ): DomainResult<RemainingWorkload> {
   return createNonNegative(
@@ -80,26 +135,29 @@ export function createRemainingWorkload(
 }
 
 export function createDailyCap(
-  value: number,
+  value: string,
   path = "dailyCap",
 ): DomainResult<DailyCap> {
   return createNonNegative(value, path, "NEGATIVE_DAILY_CAP", "Daily cap");
 }
 
 export function createCapacityRatio(
-  value: number,
+  value: string,
   path = "ratio",
 ): DomainResult<CapacityRatio> {
   return createNonNegative(value, path, "NEGATIVE_RATIO", "Ratio");
 }
 
 export function createReservationRatio(
-  value: number,
+  value: string,
   path = "ratio",
 ): DomainResult<ReservationRatio> {
-  const normalized = createCapacityRatio(value, path);
-  if (!normalized.ok) return normalized;
-  if (normalized.value > 1) {
+  const rational = parseDecimalRational(value, path);
+  if (!rational.ok) return rational;
+  if (
+    isNegative(rational.value) ||
+    compareRationals(rational.value, rationalFromInteger(1n)) > 0
+  ) {
     return failure([
       error(
         "RATIO_OUT_OF_RANGE",
@@ -108,7 +166,95 @@ export function createReservationRatio(
       ),
     ]);
   }
-  return success(normalized.value as unknown as ReservationRatio);
+  return success(wrapQuantity<ReservationRatio>(rational.value));
+}
+
+export function quantityToDecimalString(
+  value: DomainQuantity,
+  precision?: number,
+): DomainResult<string> {
+  return rationalToDecimalString(rationalOf(value), precision);
+}
+
+export function serializeQuantity(value: DomainQuantity): string {
+  return rationalToCanonicalString(rationalOf(value));
+}
+
+function quantityFromSerialized<T extends DomainQuantity>(
+  value: string,
+  path: string,
+  validate: (rational: Rational) => boolean,
+  message: string,
+): DomainResult<T> {
+  const rational = parseSerializedRational(value, path);
+  if (!rational.ok) return rational;
+  if (!validate(rational.value)) {
+    return failure([error("SERIALIZED_QUANTITY_OUT_OF_RANGE", path, message)]);
+  }
+  return success(wrapQuantity<T>(rational.value));
+}
+
+const isNonNegative = (value: Rational) => !isNegative(value);
+
+export function capacityFromSerialized(
+  value: string,
+  path = "capacity",
+): DomainResult<Capacity> {
+  return quantityFromSerialized(
+    value,
+    path,
+    isNonNegative,
+    "Capacity must be non-negative.",
+  );
+}
+
+export function remainingWorkloadFromSerialized(
+  value: string,
+  path = "remainingWorkload",
+): DomainResult<RemainingWorkload> {
+  return quantityFromSerialized(
+    value,
+    path,
+    isNonNegative,
+    "Remaining workload must be non-negative.",
+  );
+}
+
+export function dailyCapFromSerialized(
+  value: string,
+  path = "dailyCap",
+): DomainResult<DailyCap> {
+  return quantityFromSerialized(
+    value,
+    path,
+    isNonNegative,
+    "Daily cap must be non-negative.",
+  );
+}
+
+export function capacityRatioFromSerialized(
+  value: string,
+  path = "ratio",
+): DomainResult<CapacityRatio> {
+  return quantityFromSerialized(
+    value,
+    path,
+    isNonNegative,
+    "Ratio must be non-negative.",
+  );
+}
+
+export function reservationRatioFromSerialized(
+  value: string,
+  path = "ratio",
+): DomainResult<ReservationRatio> {
+  const one = rationalFromInteger(1n);
+  return quantityFromSerialized(
+    value,
+    path,
+    (rational) => !isNegative(rational) && compareRationals(rational, one) <= 0,
+    "Reservation ratio must be between zero and one.",
+  );
 }
 
 export function createMaxParallelProjects(

@@ -15,6 +15,7 @@ import {
   createTeamId,
   createWorkingPattern,
   createCivilDate,
+  serializeQuantity,
   type DomainResult,
   type Project,
   type Team,
@@ -55,8 +56,8 @@ function makeProject(id: string, team: Team): Project {
         must(
           createProjectTeamRequirement({
             teamId: team.id,
-            remainingWorkload: must(createRemainingWorkload(0)),
-            dailyCap: must(createDailyCap(0)),
+            remainingWorkload: must(createRemainingWorkload("0")),
+            dailyCap: must(createDailyCap("0")),
           }),
         ),
       ],
@@ -67,15 +68,18 @@ function makeProject(id: string, team: Team): Project {
 describe("projects and teams", () => {
   it("keeps zero workload and zero daily cap explicitly", () => {
     const project = makeProject("project-a", makeTeam("team-a"));
-    expect(project.requirements[0]).toMatchObject({
-      remainingWorkload: 0,
-      dailyCap: 0,
-    });
+    const requirement = project.requirements[0];
+    if (!requirement || !requirement.dailyCap)
+      throw new Error("Missing requirement");
+    expect(serializeQuantity(requirement.remainingWorkload)).toBe("0/1");
+    expect(serializeQuantity(requirement.dailyCap)).toBe("0/1");
+    expect(Object.isFrozen(requirement.remainingWorkload)).toBe(true);
+    expect(Object.isFrozen(requirement.dailyCap)).toBe(true);
   });
 
   it("rejects invalid workload, parallelism, and duplicate team requirements", () => {
-    expect(createRemainingWorkload(-1).ok).toBe(false);
-    expect(createRemainingWorkload(Number.POSITIVE_INFINITY).ok).toBe(false);
+    expect(createRemainingWorkload("-1").ok).toBe(false);
+    expect(createRemainingWorkload("Infinity").ok).toBe(false);
     expect(createMaxParallelProjects(0).ok).toBe(false);
     expect(createMaxParallelProjects(-1).ok).toBe(false);
     expect(createMaxParallelProjects(1.5).ok).toBe(false);
@@ -84,7 +88,7 @@ describe("projects and teams", () => {
     const requirement = must(
       createProjectTeamRequirement({
         teamId: team.id,
-        remainingWorkload: must(createRemainingWorkload(1)),
+        remainingWorkload: must(createRemainingWorkload("1")),
       }),
     );
     expect(
@@ -109,7 +113,7 @@ describe("projects and teams", () => {
     const requirement = must(
       createProjectTeamRequirement({
         teamId: team.id,
-        remainingWorkload: must(createRemainingWorkload(1)),
+        remainingWorkload: must(createRemainingWorkload("1")),
       }),
     );
     const project = must(
@@ -161,7 +165,7 @@ describe("Portfolio invariants", () => {
         label: "reservation",
         start: must(createCivilDate("2025-01-01")),
         end: must(createCivilDate("2025-01-01")),
-        ratio: must(createReservationRatio(0.2)),
+        ratio: must(createReservationRatio("0.2")),
       }),
     );
     const result = createPortfolio({
@@ -193,7 +197,7 @@ describe("Portfolio invariants", () => {
         label: "reservation",
         start: must(createCivilDate("2025-01-01")),
         end: must(createCivilDate("2025-01-02")),
-        ratio: must(createReservationRatio(0.5)),
+        ratio: must(createReservationRatio("0.5")),
       }),
     );
     const result = createPortfolio({

@@ -1,15 +1,5 @@
 export type { DomainError, DomainResult } from "./model/result";
 export {
-  DECIMAL_SCALE,
-  addDecimals,
-  compareDecimals,
-  divideDecimals,
-  multiplyDecimals,
-  normalizeDecimal,
-  subtractDecimals,
-  type NormalizedDecimal,
-} from "./model/decimal";
-export {
   addDays,
   civilDatesInclusive,
   compareCivilDates,
@@ -18,6 +8,8 @@ export {
   type CivilDate,
 } from "./model/date";
 export {
+  capacityFromSerialized,
+  capacityRatioFromSerialized,
   createCapacity,
   createCapacityRatio,
   createDailyCap,
@@ -27,6 +19,11 @@ export {
   createReservationId,
   createReservationRatio,
   createTeamId,
+  dailyCapFromSerialized,
+  quantityToDecimalString,
+  remainingWorkloadFromSerialized,
+  reservationRatioFromSerialized,
+  serializeQuantity,
   type Capacity,
   type CapacityRatio,
   type DailyCap,
