@@ -244,3 +244,38 @@ UI                renders
 
 Phase 3C ne contient toujours aucune géométrie, coordonnée, couleur ou logique
 DOM/SVG. `TimelineGeometry` reste une étape ultérieure.
+
+## TimelineGeometry — Phase 4A
+
+`TimelineGeometry` est une projection géométrique pure du contrat sémantique :
+
+```text
+TimelineViewModel
+      -> pure geometric projection
+      -> TimelineGeometry
+      -> DOM/SVG renderer (future)
+```
+
+Le `TimelineViewModel` porte les dates et données métier ; la géométrie porte
+uniquement les coordonnées et dimensions ; le futur renderer créera les
+éléments DOM/SVG. La convention V1 place l'origine dans le coin supérieur
+gauche : `x` augmente vers la droite, `y` vers le bas, le temps est horizontal
+et les équipes sont empilées verticalement dans l'ordre du ViewModel.
+
+L'horizon reste inclusif. Chaque jour forme une colonne de largeur
+`viewport.width / dayCount`, avec `horizon.start` à `x = 0`. Chaque équipe
+occupe une lane complète de hauteur `teamLaneHeight`. Ses capacités doivent
+couvrir exactement chaque date de l'horizon, dans l'ordre, et sont projetées
+sans être recalculées.
+
+La frontière numérique est explicite :
+
+```text
+Capacity / workload       exact domain quantity
+x / y / width / height    presentation number
+```
+
+Phase 4A ne convertit pas la capacité en hauteur visuelle et n'introduit ni
+stacking, ni surface projet, ni path/polygon, ni labels, ni couleurs, ni
+hit-testing. Elle ne dépend ni du DOM ni de SVG et n'utilise que `CivilDate`
+pour l'axe temporel.
