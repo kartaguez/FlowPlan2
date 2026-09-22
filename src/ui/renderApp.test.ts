@@ -84,5 +84,22 @@ describe("renderApp", () => {
     assert.equal((elements.svg as unknown as FakeElement).tagName, "svg");
     assert.equal((elements.dateSummary as unknown as FakeElement).tagName, "section");
     assert.equal((elements.diagnostics as unknown as FakeElement).tagName, "section");
+    assert.equal(Object.isFrozen(elements.viewportControls), true);
+    assert.equal(
+      (elements.viewportControls.zoomIn as unknown as FakeElement).getAttribute(
+        "aria-label",
+      ),
+      "Zoom in",
+    );
+    assert.equal(
+      (elements.viewportControls.zoomOut as unknown as FakeElement).getAttribute(
+        "aria-label",
+      ),
+      "Zoom out",
+    );
+    assert.equal(
+      (elements.viewportControls.reset as unknown as FakeElement).textContent,
+      "Reset view",
+    );
   });
 });

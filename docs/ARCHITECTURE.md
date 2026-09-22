@@ -493,3 +493,58 @@ sérialisés sous leur forme rationnelle exacte.
 Phase 6A ne modifie pas le viewport. Phase 6B portera le zoom et le pan.
 Phase 6C portera la sélection projet/équipe/allocation et le hit-testing. Le
 curseur 6A n'introduit ni tooltip, ni sélection projet, ni persistence.
+
+## Timeline Viewport — Phase 6B
+
+La géométrie de planning reste une projection immuable de l'horizon complet.
+Le viewport est un état UI distinct, exprimé dans le même repère horizontal :
+
+```text
+full TimelineGeometry { width, height, days, allocations, markers }
+        ↓
+TimelineViewportState { x, width }
+        ↓
+SVG viewBox = "x 0 width geometry.height"
+```
+
+Zoom et pan ne reconstruisent jamais `TimelineGeometry` et ne modifient aucune
+capacité, allocation, date ou coordonnée source. Le viewport initial couvre la
+largeur complète. Sa largeur maximale vaut `geometry.width`; sa largeur
+minimale vaut sept jours (`7 * dayWidth`), ou toute la géométrie lorsque
+l'horizon est plus court. Le facteur de zoom est `1.25` : zoom avant par
+division, zoom arrière par multiplication. Le point d'ancrage conserve sa
+position relative selon :
+
+```text
+anchorRatio = (anchorX - viewport.x) / viewport.width
+newX = anchorX - anchorRatio * newWidth
+```
+
+Les boutons utilisent le centre du viewport comme ancrage. Le pan reçoit un
+delta dans le repère timeline et borne `x` entre zéro et
+`geometry.width - viewport.width`.
+
+Le SVG occupe désormais la largeur disponible et utilise
+`preserveAspectRatio="none"` : la hauteur affichée reste la hauteur logique
+complète, tandis que le `viewBox` contrôle exclusivement la projection
+horizontale. Ce modèle unique remplace le scroll horizontal natif introduit en
+5C. Il évite de cumuler scroll navigateur et viewport SVG.
+
+Les interactions restent séparées par leur geste initial :
+
+```text
+normal pointer drag  -> time cursor
+Shift + pointer drag -> timeline pan
+```
+
+Les deux contrôleurs écoutent le même SVG mais filtrent ces gestes. Le
+contrôleur viewport possède seul l'état visible et expose `getState()` au
+contrôleur curseur afin que `clientX` soit projeté par
+`viewport.x + relativeX * viewport.width`. Chaque drag utilise pointer capture
+jusqu'à `pointerup` ou `pointercancel`. Les boutons HTML natifs fournissent
+Zoom in, Zoom out et Reset view; aucune molette, pinch ou persistence n'est
+introduite.
+
+Phase 6B concerne uniquement la navigation du viewport. Phase 6C introduira le
+hit-testing et la sélection projet/équipe/allocation. Aucun tooltip ou état de
+sélection métier n'appartient à 6B.

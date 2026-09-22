@@ -5,6 +5,7 @@ import {
 import { recomputePlanning } from "../application/index.js";
 import { renderApp } from "../ui/renderApp.js";
 import { createTimelineCursorController } from "../ui/timeline/createTimelineCursorController.js";
+import { createTimelineViewportController } from "../ui/timeline/createTimelineViewportController.js";
 import { renderPlanningDiagnostics } from "../ui/timeline/renderPlanningDiagnostics.js";
 import { renderTimelineSvg } from "../ui/timeline/renderTimelineSvg.js";
 import { createDemoPlanningScenario } from "./demo/createDemoPlanningScenario.js";
@@ -15,7 +16,8 @@ if (!root) {
   throw new Error("FlowPlan root element is missing");
 }
 
-const { svg, diagnostics, dateSummary, cursorControl } = renderApp(root);
+const { svg, diagnostics, dateSummary, cursorControl, viewportControls } =
+  renderApp(root);
 const scenario = createDemoPlanningScenario();
 const { planningResult } = recomputePlanning(scenario);
 const viewModel = buildTimelineViewModel({
@@ -33,6 +35,11 @@ const geometry = buildTimelineGeometry({
 
 renderTimelineSvg({ svg, geometry });
 renderPlanningDiagnostics({ container: diagnostics, viewModel });
+const viewportController = createTimelineViewportController({
+  svg,
+  geometry,
+  controls: viewportControls,
+});
 createTimelineCursorController({
   svg,
   geometry,
@@ -40,4 +47,5 @@ createTimelineCursorController({
   summaryContainer: dateSummary,
   cursorControl,
   initialDate: scenario.horizon.start,
+  getViewport: viewportController.getState,
 });

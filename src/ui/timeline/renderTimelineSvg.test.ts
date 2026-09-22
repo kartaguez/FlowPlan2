@@ -295,8 +295,9 @@ describe("renderTimelineSvg", () => {
       svg.getAttribute("aria-label"),
       "FlowPlan planning timeline demo",
     );
-    assert.equal(svg.getAttribute("width"), "300");
+    assert.equal(svg.getAttribute("width"), "100%");
     assert.equal(svg.getAttribute("height"), "160");
+    assert.equal(svg.getAttribute("preserveAspectRatio"), "none");
   });
 
   it("creates one empty cursor layer above all static teams", () => {

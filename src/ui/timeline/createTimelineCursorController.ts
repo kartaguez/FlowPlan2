@@ -7,6 +7,12 @@ import {
 import type { CivilDate } from "../../domain/index.js";
 import { renderTimelineCursor } from "./renderTimelineCursor.js";
 import { renderTimelineDateSummary } from "./renderTimelineDateSummary.js";
+import {
+  timelineXFromClientX,
+  type TimelineViewportState,
+} from "./timelineViewport.js";
+
+export { timelineXFromClientX } from "./timelineViewport.js";
 
 export interface TimelineCursorState {
   readonly selectedDate: CivilDate;
@@ -24,6 +30,7 @@ export interface CreateTimelineCursorControllerInput {
   readonly summaryContainer: HTMLElement;
   readonly cursorControl: HTMLButtonElement;
   readonly initialDate: CivilDate;
+  readonly getViewport: () => TimelineViewportState;
 }
 
 export function createTimelineCursorController(
@@ -57,13 +64,14 @@ export function createTimelineCursorController(
       clientX: event.clientX,
       svgLeft: bounds.left,
       svgWidth: bounds.width,
-      geometryWidth: input.geometry.width,
+      viewport: input.getViewport(),
     });
     selectedDate = dateAtTimelineX({ geometry: input.geometry, x });
     render();
   };
 
   const onPointerDown = (event: PointerEvent): void => {
+    if (event.shiftKey) return;
     if (typeof input.svg.setPointerCapture === "function") {
       input.svg.setPointerCapture(event.pointerId);
     }
@@ -138,27 +146,4 @@ function releasePointerCapture(svg: SVGSVGElement, pointerId: number): void {
   ) {
     svg.releasePointerCapture(pointerId);
   }
-}
-
-export interface TimelineXFromClientXInput {
-  readonly clientX: number;
-  readonly svgLeft: number;
-  readonly svgWidth: number;
-  readonly geometryWidth: number;
-}
-
-export function timelineXFromClientX(
-  input: TimelineXFromClientXInput,
-): number {
-  if (
-    !Number.isFinite(input.clientX) ||
-    !Number.isFinite(input.svgLeft) ||
-    !Number.isFinite(input.svgWidth) ||
-    input.svgWidth <= 0 ||
-    !Number.isFinite(input.geometryWidth) ||
-    input.geometryWidth <= 0
-  ) {
-    throw new TypeError("Pointer geometry must contain finite positive widths.");
-  }
-  return ((input.clientX - input.svgLeft) / input.svgWidth) * input.geometryWidth;
 }

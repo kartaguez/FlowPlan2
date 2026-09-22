@@ -24,8 +24,9 @@ export function renderTimelineSvg(input: RenderTimelineSvgInput): void {
     `0 0 ${input.geometry.width} ${input.geometry.height}`,
   );
   input.svg.setAttribute("role", "img");
-  input.svg.setAttribute("width", String(input.geometry.width));
+  input.svg.setAttribute("width", "100%");
   input.svg.setAttribute("height", String(input.geometry.height));
+  input.svg.setAttribute("preserveAspectRatio", "none");
 
   const document = input.svg.ownerDocument;
   const root = createSvgElement(document, "g");

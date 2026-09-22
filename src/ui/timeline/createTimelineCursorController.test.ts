@@ -158,8 +158,12 @@ function fixture(): {
   return { svg, summary, cursorControl, geometry, viewModel };
 }
 
-function pointer(pointerId: number, clientX: number): PointerEvent {
-  return { pointerId, clientX } as PointerEvent;
+function pointer(
+  pointerId: number,
+  clientX: number,
+  shiftKey = false,
+): PointerEvent {
+  return { pointerId, clientX, shiftKey } as PointerEvent;
 }
 
 function keyboard(key: string): KeyboardEvent & { prevented: boolean } {
@@ -183,6 +187,7 @@ describe("createTimelineCursorController", () => {
       summaryContainer: input.summary as unknown as HTMLElement,
       cursorControl: input.cursorControl as unknown as HTMLButtonElement,
       initialDate: input.viewModel.horizon.start,
+      getViewport: () => ({ x: 0, width: 300 }),
     });
 
     assert.equal(controller.getState().selectedDate, "2025-01-01");
@@ -204,10 +209,14 @@ describe("createTimelineCursorController", () => {
       summaryContainer: input.summary as unknown as HTMLElement,
       cursorControl: input.cursorControl as unknown as HTMLButtonElement,
       initialDate: input.viewModel.horizon.start,
+      getViewport: () => ({ x: 0, width: 300 }),
     });
 
     input.svg.dispatch("pointermove", pointer(1, 250));
     assert.equal(controller.getState().selectedDate, "2025-01-01");
+    input.svg.dispatch("pointerdown", pointer(9, 350, true));
+    assert.equal(controller.getState().selectedDate, "2025-01-01");
+    assert.equal(input.svg.hasPointerCapture(9), false);
     input.svg.dispatch("pointerdown", pointer(1, 250));
     assert.equal(input.svg.hasPointerCapture(1), true);
     assert.equal(controller.getState().selectedDate, "2025-01-02");
@@ -228,6 +237,7 @@ describe("createTimelineCursorController", () => {
       summaryContainer: input.summary as unknown as HTMLElement,
       cursorControl: input.cursorControl as unknown as HTMLButtonElement,
       initialDate: input.viewModel.horizon.start,
+      getViewport: () => ({ x: 0, width: 300 }),
     });
 
     const leftAtStart = keyboard("ArrowLeft");
@@ -246,16 +256,42 @@ describe("createTimelineCursorController", () => {
     assert.equal(controller.getState().selectedDate, "2025-01-01");
   });
 
-  it("accounts for visible SVG bounds after horizontal scrolling", () => {
+  it("maps client coordinates through the current rendered SVG bounds", () => {
     assert.equal(
       timelineXFromClientX({
         clientX: 50,
         svgLeft: -200,
         svgWidth: 300,
-        geometryWidth: 300,
+        viewport: { x: 0, width: 300 },
       }),
       250,
     );
+    assert.equal(
+      timelineXFromClientX({
+        clientX: 700,
+        svgLeft: 100,
+        svgWidth: 1200,
+        viewport: { x: 600, width: 900 },
+      }),
+      1050,
+    );
+  });
+
+  it("uses the current viewport for pointer date selection", () => {
+    const input = fixture();
+    const controller = createTimelineCursorController({
+      svg: input.svg as unknown as SVGSVGElement,
+      geometry: input.geometry,
+      viewModel: input.viewModel,
+      summaryContainer: input.summary as unknown as HTMLElement,
+      cursorControl: input.cursorControl as unknown as HTMLButtonElement,
+      initialDate: input.viewModel.horizon.start,
+      getViewport: () => ({ x: 100, width: 200 }),
+    });
+
+    input.svg.dispatch("pointerdown", pointer(5, 100));
+
+    assert.equal(controller.getState().selectedDate, "2025-01-02");
   });
 
   it("releases capture and ends dragging on pointercancel", () => {
@@ -267,6 +303,7 @@ describe("createTimelineCursorController", () => {
       summaryContainer: input.summary as unknown as HTMLElement,
       cursorControl: input.cursorControl as unknown as HTMLButtonElement,
       initialDate: input.viewModel.horizon.start,
+      getViewport: () => ({ x: 0, width: 300 }),
     });
 
     input.svg.dispatch("pointerdown", pointer(7, 250));
@@ -296,6 +333,7 @@ describe("createTimelineCursorController", () => {
       summaryContainer: input.summary as unknown as HTMLElement,
       cursorControl: input.cursorControl as unknown as HTMLButtonElement,
       initialDate: input.viewModel.horizon.start,
+      getViewport: () => ({ x: 0, width: 300 }),
     });
 
     input.svg.dispatch("pointerdown", pointer(4, 250));
@@ -314,6 +352,7 @@ describe("createTimelineCursorController", () => {
       summaryContainer: input.summary as unknown as HTMLElement,
       cursorControl: input.cursorControl as unknown as HTMLButtonElement,
       initialDate: input.viewModel.horizon.start,
+      getViewport: () => ({ x: 0, width: 300 }),
     });
 
     input.svg.dispatch("pointerdown", pointer(1, 150));

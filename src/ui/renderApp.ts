@@ -5,6 +5,13 @@ export interface AppElements {
   readonly diagnostics: HTMLElement;
   readonly dateSummary: HTMLElement;
   readonly cursorControl: HTMLButtonElement;
+  readonly viewportControls: TimelineViewportControls;
+}
+
+export interface TimelineViewportControls {
+  readonly zoomIn: HTMLButtonElement;
+  readonly zoomOut: HTMLButtonElement;
+  readonly reset: HTMLButtonElement;
 }
 
 export function renderApp(root: HTMLElement): AppElements {
@@ -33,6 +40,15 @@ export function renderApp(root: HTMLElement): AppElements {
   cursorControl.className = "timeline-cursor-control";
   cursorControl.setAttribute("aria-label", "Timeline date cursor");
   cursorControl.textContent = "Selected date";
+  const viewportControlContainer = document.createElement("div");
+  viewportControlContainer.className = "timeline-viewport-controls";
+  viewportControlContainer.setAttribute("role", "group");
+  viewportControlContainer.setAttribute("aria-label", "Timeline viewport");
+  const zoomOut = createViewportButton(document, "−", "Zoom out");
+  const zoomIn = createViewportButton(document, "+", "Zoom in");
+  const reset = createViewportButton(document, "Reset view", "Reset view");
+  viewportControlContainer.append(zoomOut, zoomIn, reset);
+  const viewportControls = Object.freeze({ zoomIn, zoomOut, reset });
   const timelineContainer = document.createElement("div");
   timelineContainer.className = "timeline-container";
   const timeline = document.createElementNS(SVG_NAMESPACE, "svg");
@@ -50,6 +66,7 @@ export function renderApp(root: HTMLElement): AppElements {
     workspaceTitle,
     description,
     cursorControl,
+    viewportControlContainer,
     timelineContainer,
     dateSummary,
     diagnostics,
@@ -62,5 +79,19 @@ export function renderApp(root: HTMLElement): AppElements {
     diagnostics,
     dateSummary,
     cursorControl,
+    viewportControls,
   });
+}
+
+function createViewportButton(
+  document: Document,
+  text: string,
+  label: string,
+): HTMLButtonElement {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "timeline-viewport-button";
+  button.setAttribute("aria-label", label);
+  button.textContent = text;
+  return button;
 }
