@@ -453,3 +453,37 @@ planning diagnostics                -> read-only HTML diagnostics panel
 Phase 5D fournit uniquement des annotations visuelles en lecture seule. Phase
 6A introduira le curseur temporel interactif. Aucun tooltip, sélection,
 gestionnaire d'événement, drag/drop ou handle d'édition n'appartient à 5D.
+
+## Interactive Time Cursor — Phase 6A
+
+`selectedDate` est un état UI éphémère de type `CivilDate`. Il est initialisé
+avec le début de l'horizon et reste encapsulé dans le contrôleur du curseur :
+il n'appartient ni au domaine, ni à `PlanningResult`, et son déplacement ne
+déclenche aucun nouveau calcul de planning.
+
+```text
+selected CivilDate -> cursor geometry -> SVG cursor overlay
+selected CivilDate + TimelineViewModel -> read-only date summary
+```
+
+La géométrie expose une échelle journalière commune, indépendante des équipes.
+La projection pure du curseur retrouve la colonne existante et place la ligne
+au centre du jour, depuis le bas du header temporel jusqu'au bas de la
+timeline. Une date absente de l'horizon est refusée. Le mapping pointer utilise
+`clientX` et le `getBoundingClientRect()` courant du SVG ; il reste donc aligné
+après un scroll horizontal sans recourir à une arithmétique `Date` JavaScript.
+
+Le contrôleur écoute `pointerdown`, le déplacement actif, `pointerup` et
+`pointercancel`. Le clavier propose `ArrowLeft`, `ArrowRight`, `Home` et `End`,
+sans bouclage aux bornes. Une mise à jour remplace uniquement la ligne du
+calque `timeline-cursor-layer` et reconstruit le résumé de la date ; la
+timeline statique n'est pas rerendue.
+
+Le résumé HTML lit exclusivement le `TimelineViewModel`. Dans l'ordre des
+équipes, il présente les capacités effective, réservée et projet, puis les
+allocations journalières avec leur libellé projet. Capacités et workloads sont
+sérialisés sous leur forme rationnelle exacte.
+
+Phase 6A ne modifie pas le viewport. Phase 6B portera le zoom et le pan.
+Phase 6C portera la sélection projet/équipe/allocation et le hit-testing. Le
+curseur 6A n'introduit ni tooltip, ni sélection projet, ni persistence.

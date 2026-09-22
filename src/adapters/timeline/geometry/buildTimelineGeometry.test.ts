@@ -364,6 +364,8 @@ describe("buildTimelineGeometry", () => {
     );
 
     assert.equal(Object.isFrozen(geometry), true);
+    assert.equal(Object.isFrozen(geometry.dates), true);
+    assert.ok(geometry.dates.every(Object.isFrozen));
     assert.equal(Object.isFrozen(geometry.timeAxis), true);
     assert.equal(Object.isFrozen(geometry.timeAxis.years), true);
     assert.equal(Object.isFrozen(geometry.timeAxis.months), true);

@@ -24,6 +24,8 @@ export function renderTimelineSvg(input: RenderTimelineSvgInput): void {
     `0 0 ${input.geometry.width} ${input.geometry.height}`,
   );
   input.svg.setAttribute("role", "img");
+  input.svg.setAttribute("tabindex", "0");
+  input.svg.setAttribute("aria-label", "Timeline date cursor");
   input.svg.setAttribute("width", String(input.geometry.width));
   input.svg.setAttribute("height", String(input.geometry.height));
 
@@ -35,6 +37,9 @@ export function renderTimelineSvg(input: RenderTimelineSvgInput): void {
   for (const team of input.geometry.teams) {
     root.append(renderTeam(document, team));
   }
+  const cursorLayer = createSvgElement(document, "g");
+  cursorLayer.setAttribute("class", "timeline-cursor-layer");
+  root.append(cursorLayer);
 
   input.svg.replaceChildren(root);
 }

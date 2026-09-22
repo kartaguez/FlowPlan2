@@ -197,6 +197,57 @@ p {
   stroke-width: 2.5;
 }
 
+.timeline-cursor {
+  pointer-events: none;
+  stroke: #1d4ed8;
+  stroke-width: 2;
+}
+
+.timeline-date-summary {
+  margin-top: 1.25rem;
+  border: 1px solid #d9e0ea;
+  border-radius: 0.5rem;
+  background: #f8fafc;
+  padding: 1rem;
+}
+
+.timeline-date-summary-heading {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+}
+
+.timeline-date-summary-teams {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 0.75rem;
+}
+
+.timeline-date-summary-team {
+  border: 1px solid #d9e0ea;
+  border-radius: 0.4rem;
+  background: #ffffff;
+  padding: 0.75rem;
+}
+
+.timeline-date-summary-team-label {
+  margin: 0 0 0.4rem;
+}
+
+.timeline-date-summary-capacities {
+  margin-bottom: 0.5rem;
+  color: #52657f;
+  font-size: 0.85rem;
+}
+
+.timeline-date-summary-allocations {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.timeline-date-summary-allocation-empty {
+  color: #64748b;
+}
+
 .timeline-diagnostics {
   margin-top: 1.25rem;
   border-top: 1px solid #d9e0ea;

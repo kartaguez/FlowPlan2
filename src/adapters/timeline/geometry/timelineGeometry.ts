@@ -16,10 +16,17 @@ export interface TimelineGeometry {
   readonly width: number;
   readonly height: number;
   readonly dayWidth: number;
+  readonly dates: readonly TimelineDateGeometry[];
   readonly timeAxis: TimelineTimeAxisGeometry;
   readonly maxEffectiveCapacity: Capacity;
   readonly pixelsPerCapacityUnit: number;
   readonly teams: readonly TimelineTeamGeometry[];
+}
+
+export interface TimelineDateGeometry {
+  readonly date: CivilDate;
+  readonly x: number;
+  readonly width: number;
 }
 
 export interface TimelineTimeAxisGeometry extends TimelineRectGeometry {

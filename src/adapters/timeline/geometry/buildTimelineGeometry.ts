@@ -16,6 +16,7 @@ import type {
 import type {
   TimelineAllocationGeometry,
   TimelineDayGeometry,
+  TimelineDateGeometry,
   TimelineGeometry,
   TimelineGeometryViewport,
   TimelineMonthGeometry,
@@ -73,6 +74,16 @@ export function buildTimelineGeometry(
     expectedDates.map((date, index) => [date, index]),
   );
   const dayWidth = input.viewport.width / expectedDates.length;
+  const dates = Object.freeze(
+    expectedDates.map(
+      (date, index) =>
+        Object.freeze({
+          date,
+          x: index * dayWidth,
+          width: dayWidth,
+        }) satisfies TimelineDateGeometry,
+    ),
+  );
   const timeAxis = buildTimeAxisGeometry(
     expectedDates,
     dayWidth,
@@ -202,6 +213,7 @@ export function buildTimelineGeometry(
       input.viewport.timeAxisHeight +
       input.viewModel.teams.length * input.viewport.teamLaneHeight,
     dayWidth,
+    dates,
     timeAxis,
     maxEffectiveCapacity,
     pixelsPerCapacityUnit,

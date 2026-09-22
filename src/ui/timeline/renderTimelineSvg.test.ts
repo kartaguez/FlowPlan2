@@ -138,6 +138,11 @@ function makeGeometry(): TimelineGeometry {
     width: 300,
     height: 160,
     dayWidth: 100,
+    dates: [
+      { date: date("2025-01-01"), x: 0, width: 100 },
+      { date: date("2025-01-02"), x: 100, width: 100 },
+      { date: date("2025-01-03"), x: 200, width: 100 },
+    ],
     timeAxis: {
       x: 0,
       y: 0,
@@ -283,8 +288,23 @@ describe("renderTimelineSvg", () => {
 
     assert.equal(svg.getAttribute("viewBox"), "0 0 300 160");
     assert.equal(svg.getAttribute("role"), "img");
+    assert.equal(svg.getAttribute("tabindex"), "0");
+    assert.equal(svg.getAttribute("aria-label"), "Timeline date cursor");
     assert.equal(svg.getAttribute("width"), "300");
     assert.equal(svg.getAttribute("height"), "160");
+  });
+
+  it("creates one empty cursor layer above all static teams", () => {
+    const svg = createSvg();
+    render(svg);
+
+    const layers = withClass(svg, "timeline-cursor-layer");
+    assert.equal(layers.length, 1);
+    assert.equal(layers[0]?.childNodes.length, 0);
+    assert.equal(
+      svg.childNodes[0]?.childNodes.at(-1)?.getAttribute("class"),
+      "timeline-cursor-layer",
+    );
   });
 
   it("renders supplied year and month axis segments before teams", () => {
@@ -610,6 +630,11 @@ describe("renderTimelineSvg", () => {
       width: 300,
       height: 40,
       dayWidth: 100,
+      dates: [
+        { date: date("2025-01-01"), x: 0, width: 100 },
+        { date: date("2025-01-02"), x: 100, width: 100 },
+        { date: date("2025-01-03"), x: 200, width: 100 },
+      ],
       timeAxis: {
         x: 0,
         y: 0,

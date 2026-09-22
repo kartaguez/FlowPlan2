@@ -16,6 +16,7 @@ export type {
   TimelineAllocationGeometry,
   TimelineCapacityTubeGeometry,
   TimelineDayGeometry,
+  TimelineDateGeometry,
   TimelineGeometry,
   TimelineGeometryViewport,
   TimelineMonthGeometry,
@@ -26,6 +27,13 @@ export type {
   TimelineTimeAxisGeometry,
   TimelineYearGeometry,
 } from "./timeline/geometry/timelineGeometry.js";
+export {
+  buildTimelineCursorGeometry,
+  dateAtTimelineX,
+  type BuildTimelineCursorGeometryInput,
+  type DateAtTimelineXInput,
+  type TimelineCursorGeometry,
+} from "./timeline/geometry/timelineCursorGeometry.js";
 export {
   buildTimelineGeometry,
   dateToX,

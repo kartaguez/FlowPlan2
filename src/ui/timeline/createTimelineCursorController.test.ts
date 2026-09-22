@@ -1,0 +1,270 @@
+import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import { resolve } from "node:path";
+import { describe, it } from "node:test";
+import {
+  createCapacity,
+  createCivilDate,
+  type DomainResult,
+} from "../../domain/index.js";
+import type {
+  TimelineGeometry,
+  TimelineViewModel,
+} from "../../adapters/index.js";
+import {
+  createTimelineCursorController,
+  timelineXFromClientX,
+} from "./createTimelineCursorController.js";
+
+const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
+
+function must<T>(result: DomainResult<T>): T {
+  if (!result.ok) throw new Error(JSON.stringify(result.errors));
+  return result.value;
+}
+
+type Listener = (event: unknown) => void;
+
+class FakeDocument {
+  createElement(tagName: string): FakeElement {
+    return new FakeElement(this, tagName, "http://www.w3.org/1999/xhtml");
+  }
+
+  createElementNS(namespaceURI: string, tagName: string): FakeElement {
+    return new FakeElement(this, tagName, namespaceURI);
+  }
+}
+
+class FakeElement {
+  readonly attributes = new Map<string, string>();
+  readonly listeners = new Map<string, Set<Listener>>();
+  childNodes: FakeElement[] = [];
+  className = "";
+  textContent: string | null = null;
+  bounds = { left: 100, width: 300 };
+
+  constructor(
+    readonly ownerDocument: FakeDocument,
+    readonly tagName: string,
+    readonly namespaceURI: string,
+  ) {}
+
+  setAttribute(name: string, value: string): void {
+    this.attributes.set(name, value);
+  }
+
+  getAttribute(name: string): string | null {
+    return this.attributes.get(name) ?? null;
+  }
+
+  append(...nodes: FakeElement[]): void {
+    this.childNodes.push(...nodes);
+  }
+
+  replaceChildren(...nodes: FakeElement[]): void {
+    this.childNodes = [...nodes];
+  }
+
+  querySelector(selector: string): FakeElement | null {
+    const className = selector.startsWith(".") ? selector.slice(1) : undefined;
+    for (const child of this.childNodes) {
+      if (
+        className !== undefined &&
+        child.getAttribute("class")?.split(/\s+/).includes(className)
+      ) {
+        return child;
+      }
+      const nested = child.querySelector(selector);
+      if (nested !== null) return nested;
+    }
+    return null;
+  }
+
+  getBoundingClientRect(): DOMRect {
+    return {
+      left: this.bounds.left,
+      width: this.bounds.width,
+    } as DOMRect;
+  }
+
+  addEventListener(type: string, listener: EventListener): void {
+    const listeners = this.listeners.get(type) ?? new Set<Listener>();
+    listeners.add(listener as Listener);
+    this.listeners.set(type, listeners);
+  }
+
+  removeEventListener(type: string, listener: EventListener): void {
+    this.listeners.get(type)?.delete(listener as Listener);
+  }
+
+  dispatch(type: string, event: object): void {
+    for (const listener of this.listeners.get(type) ?? []) listener(event);
+  }
+}
+
+function fixture(): {
+  svg: FakeElement;
+  summary: FakeElement;
+  geometry: TimelineGeometry;
+  viewModel: TimelineViewModel;
+} {
+  const document = new FakeDocument();
+  const svg = document.createElementNS(SVG_NAMESPACE, "svg");
+  const layer = document.createElementNS(SVG_NAMESPACE, "g");
+  layer.setAttribute("class", "timeline-cursor-layer");
+  svg.append(layer);
+  const summary = document.createElement("section");
+  const dates = ["2025-01-01", "2025-01-02", "2025-01-03"].map((value) =>
+    must(createCivilDate(value)),
+  );
+  const geometry: TimelineGeometry = {
+    width: 300,
+    height: 256,
+    dayWidth: 100,
+    dates: dates.map((date, index) => ({ date, x: index * 100, width: 100 })),
+    timeAxis: {
+      x: 0,
+      y: 0,
+      width: 300,
+      height: 56,
+      years: [],
+      months: [],
+    },
+    maxEffectiveCapacity: must(createCapacity("0")),
+    pixelsPerCapacityUnit: 0,
+    teams: [],
+  };
+  const viewModel: TimelineViewModel = {
+    horizon: { start: dates[0]!, end: dates[2]! },
+    projects: [],
+    teams: [],
+    diagnostics: [],
+  };
+  return { svg, summary, geometry, viewModel };
+}
+
+function pointer(pointerId: number, clientX: number): PointerEvent {
+  return { pointerId, clientX } as PointerEvent;
+}
+
+function keyboard(key: string): KeyboardEvent & { prevented: boolean } {
+  const event = {
+    key,
+    prevented: false,
+    preventDefault() {
+      this.prevented = true;
+    },
+  };
+  return event as KeyboardEvent & { prevented: boolean };
+}
+
+describe("createTimelineCursorController", () => {
+  it("starts at the supplied horizon start and renders cursor plus summary", () => {
+    const input = fixture();
+    const controller = createTimelineCursorController({
+      svg: input.svg as unknown as SVGSVGElement,
+      geometry: input.geometry,
+      viewModel: input.viewModel,
+      summaryContainer: input.summary as unknown as HTMLElement,
+      initialDate: input.viewModel.horizon.start,
+    });
+
+    assert.equal(controller.getState().selectedDate, "2025-01-01");
+    assert.equal(input.svg.getAttribute("aria-valuetext"), "2025-01-01");
+    assert.equal(input.summary.childNodes[0]?.textContent, "Selected date: 2025-01-01");
+  });
+
+  it("updates on pointerdown and pointermove only during an active drag", () => {
+    const input = fixture();
+    const controller = createTimelineCursorController({
+      svg: input.svg as unknown as SVGSVGElement,
+      geometry: input.geometry,
+      viewModel: input.viewModel,
+      summaryContainer: input.summary as unknown as HTMLElement,
+      initialDate: input.viewModel.horizon.start,
+    });
+
+    input.svg.dispatch("pointermove", pointer(1, 250));
+    assert.equal(controller.getState().selectedDate, "2025-01-01");
+    input.svg.dispatch("pointerdown", pointer(1, 250));
+    assert.equal(controller.getState().selectedDate, "2025-01-02");
+    input.svg.dispatch("pointermove", pointer(1, 350));
+    assert.equal(controller.getState().selectedDate, "2025-01-03");
+    input.svg.dispatch("pointerup", pointer(1, 350));
+    input.svg.dispatch("pointermove", pointer(1, 150));
+    assert.equal(controller.getState().selectedDate, "2025-01-03");
+  });
+
+  it("supports arrows, Home, and End without wrapping", () => {
+    const input = fixture();
+    const controller = createTimelineCursorController({
+      svg: input.svg as unknown as SVGSVGElement,
+      geometry: input.geometry,
+      viewModel: input.viewModel,
+      summaryContainer: input.summary as unknown as HTMLElement,
+      initialDate: input.viewModel.horizon.start,
+    });
+
+    const leftAtStart = keyboard("ArrowLeft");
+    input.svg.dispatch("keydown", leftAtStart);
+    assert.equal(controller.getState().selectedDate, "2025-01-01");
+    assert.equal(leftAtStart.prevented, true);
+    input.svg.dispatch("keydown", keyboard("ArrowRight"));
+    assert.equal(controller.getState().selectedDate, "2025-01-02");
+    input.svg.dispatch("keydown", keyboard("End"));
+    assert.equal(controller.getState().selectedDate, "2025-01-03");
+    input.svg.dispatch("keydown", keyboard("ArrowRight"));
+    assert.equal(controller.getState().selectedDate, "2025-01-03");
+    input.svg.dispatch("keydown", keyboard("Home"));
+    assert.equal(controller.getState().selectedDate, "2025-01-01");
+  });
+
+  it("accounts for visible SVG bounds after horizontal scrolling", () => {
+    assert.equal(
+      timelineXFromClientX({
+        clientX: 50,
+        svgLeft: -200,
+        svgWidth: 300,
+        geometryWidth: 300,
+      }),
+      250,
+    );
+  });
+
+  it("removes every listener on destroy", () => {
+    const input = fixture();
+    const controller = createTimelineCursorController({
+      svg: input.svg as unknown as SVGSVGElement,
+      geometry: input.geometry,
+      viewModel: input.viewModel,
+      summaryContainer: input.summary as unknown as HTMLElement,
+      initialDate: input.viewModel.horizon.start,
+    });
+
+    controller.destroy();
+    input.svg.dispatch("pointerdown", pointer(1, 350));
+    input.svg.dispatch("keydown", keyboard("End"));
+
+    assert.equal(controller.getState().selectedDate, "2025-01-01");
+    assert.ok([...input.svg.listeners.values()].every((set) => set.size === 0));
+  });
+
+  it("has no planning, persistence, or JavaScript Date dependency", async () => {
+    const source = await readFile(
+      resolve(
+        process.cwd(),
+        "src/ui/timeline/createTimelineCursorController.ts",
+      ),
+      "utf8",
+    );
+
+    assert.doesNotMatch(
+      source,
+      /planPortfolio|recomputePlanning|buildTimelineViewModel|buildTimelineGeometry/,
+    );
+    assert.doesNotMatch(
+      source,
+      /new Date|Date\.parse|Date\.now|localStorage|indexedDB/,
+    );
+  });
+});

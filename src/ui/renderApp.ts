@@ -3,6 +3,7 @@ const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 export interface AppElements {
   readonly svg: SVGSVGElement;
   readonly diagnostics: HTMLElement;
+  readonly dateSummary: HTMLElement;
 }
 
 export function renderApp(root: HTMLElement): AppElements {
@@ -36,9 +37,18 @@ export function renderApp(root: HTMLElement): AppElements {
   const diagnostics = document.createElement("section");
   diagnostics.className = "timeline-diagnostics";
   diagnostics.setAttribute("aria-label", "Planning diagnostics");
-  workspace.append(workspaceTitle, description, timelineContainer, diagnostics);
+  const dateSummary = document.createElement("section");
+  dateSummary.className = "timeline-date-summary";
+  dateSummary.setAttribute("aria-label", "Selected planning date summary");
+  workspace.append(
+    workspaceTitle,
+    description,
+    timelineContainer,
+    dateSummary,
+    diagnostics,
+  );
 
   shell.append(header, workspace);
   root.replaceChildren(shell);
-  return Object.freeze({ svg: timeline, diagnostics });
+  return Object.freeze({ svg: timeline, diagnostics, dateSummary });
 }
