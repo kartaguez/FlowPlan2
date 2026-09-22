@@ -9,6 +9,8 @@ import {
   serializeQuantity,
   type DomainResult,
 } from "../index";
+import { createRational, rationalFromInteger } from "./rational";
+import { capacityFromRational, capacityRatioFromRational } from "./scalars";
 
 function must<T>(result: DomainResult<T>): T {
   if (!result.ok) throw new Error(JSON.stringify(result.errors));
@@ -16,6 +18,21 @@ function must<T>(result: DomainResult<T>): T {
 }
 
 describe("opaque rational domain quantities", () => {
+  it("rejects invalid capacities created from internal rationals", () => {
+    expect(capacityFromRational(rationalFromInteger(-1n))).toMatchObject({
+      ok: false,
+      errors: [{ code: "NEGATIVE_CAPACITY", path: "capacity" }],
+    });
+  });
+
+  it("rejects invalid capacity ratios created from internal rationals", () => {
+    const negativeHalf = must(createRational(-1n, 2n));
+    expect(capacityRatioFromRational(negativeHalf)).toMatchObject({
+      ok: false,
+      errors: [{ code: "NEGATIVE_RATIO", path: "ratio" }],
+    });
+  });
+
   it.each([
     ["0", "0/1"],
     ["3.2", "16/5"],

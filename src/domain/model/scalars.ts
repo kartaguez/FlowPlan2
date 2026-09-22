@@ -44,7 +44,9 @@ export type MaxParallelProjects = Brand<number, "MaxParallelProjects">;
 
 const rationalByQuantity = new WeakMap<DomainQuantity, Rational>();
 
-function wrapQuantity<T extends DomainQuantity>(value: Rational): T {
+function unsafeWrapValidatedQuantity<T extends DomainQuantity>(
+  value: Rational,
+): T {
   const quantity = Object.freeze({}) as T;
   rationalByQuantity.set(quantity, value);
   return quantity;
@@ -58,12 +60,37 @@ export function rationalOf(value: DomainQuantity): Rational {
   return rational;
 }
 
-export function capacityFromRational(value: Rational): Capacity {
-  return wrapQuantity(value);
+function createNonNegativeFromRational<T extends DomainQuantity>(
+  value: Rational,
+  path: string,
+  code: string,
+  label: string,
+): DomainResult<T> {
+  if (isNegative(value)) {
+    return failure([
+      error(code, path, `${label} must be greater than or equal to zero.`),
+    ]);
+  }
+  return success(unsafeWrapValidatedQuantity<T>(value));
 }
 
-export function capacityRatioFromRational(value: Rational): CapacityRatio {
-  return wrapQuantity(value);
+export function capacityFromRational(
+  value: Rational,
+  path = "capacity",
+): DomainResult<Capacity> {
+  return createNonNegativeFromRational(
+    value,
+    path,
+    "NEGATIVE_CAPACITY",
+    "Capacity",
+  );
+}
+
+export function capacityRatioFromRational(
+  value: Rational,
+  path = "ratio",
+): DomainResult<CapacityRatio> {
+  return createNonNegativeFromRational(value, path, "NEGATIVE_RATIO", "Ratio");
 }
 
 function createId<T extends TeamId | ProjectId | ReservationId>(
@@ -107,12 +134,7 @@ function createNonNegative<T extends DomainQuantity>(
 ): DomainResult<T> {
   const rational = parseDecimalRational(value, path);
   if (!rational.ok) return rational;
-  if (isNegative(rational.value)) {
-    return failure([
-      error(code, path, `${label} must be greater than or equal to zero.`),
-    ]);
-  }
-  return success(wrapQuantity<T>(rational.value));
+  return createNonNegativeFromRational(rational.value, path, code, label);
 }
 
 export function createCapacity(
@@ -166,7 +188,7 @@ export function createReservationRatio(
       ),
     ]);
   }
-  return success(wrapQuantity<ReservationRatio>(rational.value));
+  return success(unsafeWrapValidatedQuantity<ReservationRatio>(rational.value));
 }
 
 export function quantityToDecimalString(
@@ -191,7 +213,7 @@ function quantityFromSerialized<T extends DomainQuantity>(
   if (!validate(rational.value)) {
     return failure([error("SERIALIZED_QUANTITY_OUT_OF_RANGE", path, message)]);
   }
-  return success(wrapQuantity<T>(rational.value));
+  return success(unsafeWrapValidatedQuantity<T>(rational.value));
 }
 
 const isNonNegative = (value: Rational) => !isNegative(value);
