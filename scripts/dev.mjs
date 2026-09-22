@@ -1,5 +1,5 @@
-import { createReadStream } from "node:fs";
-import { stat } from "node:fs/promises";
+import { createReadStream, watch } from "node:fs";
+import { cp, readdir, rename, rm, stat } from "node:fs/promises";
 import { createServer } from "node:http";
 import { extname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -9,6 +9,8 @@ import { build } from "./build.mjs";
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const distDirectory = resolve(projectRoot, "dist");
+const publicDirectory = resolve(projectRoot, "public");
+const publicSyncStaging = resolve(distDirectory, ".public-sync");
 const tscEntryPoint = resolve(
   projectRoot,
   "node_modules/typescript/bin/tsc",
@@ -68,36 +70,120 @@ const server = createServer(async (request, response) => {
 });
 
 let shuttingDown = false;
+let publicSyncTimer;
+let publicSyncRunning = false;
+let publicSyncRequested = false;
+
+async function mirrorPublicToDist() {
+  await rm(publicSyncStaging, { recursive: true, force: true });
+  await cp(publicDirectory, publicSyncStaging, { recursive: true });
+
+  const stagedEntries = await readdir(publicSyncStaging, {
+    withFileTypes: true,
+  });
+  if (stagedEntries.some((entry) => entry.name === "js")) {
+    throw new Error(
+      "public/js is reserved because dist/js contains TypeScript output.",
+    );
+  }
+
+  const stagedNames = new Set(stagedEntries.map((entry) => entry.name));
+  for (const entry of stagedEntries) {
+    const destination = resolve(distDirectory, entry.name);
+    await rm(destination, { recursive: true, force: true });
+    await rename(resolve(publicSyncStaging, entry.name), destination);
+  }
+
+  const distEntries = await readdir(distDirectory, { withFileTypes: true });
+  await Promise.all(
+    distEntries
+      .filter(
+        (entry) =>
+          entry.name !== "js" &&
+          entry.name !== ".public-sync" &&
+          !stagedNames.has(entry.name),
+      )
+      .map((entry) =>
+        rm(resolve(distDirectory, entry.name), {
+          recursive: true,
+          force: true,
+        }),
+      ),
+  );
+  await rm(publicSyncStaging, { recursive: true, force: true });
+  console.log("Synchronized public/ to dist/.");
+}
+
+async function synchronizePublic() {
+  if (publicSyncRunning) {
+    publicSyncRequested = true;
+    return;
+  }
+
+  publicSyncRunning = true;
+  try {
+    do {
+      publicSyncRequested = false;
+      await mirrorPublicToDist();
+    } while (publicSyncRequested);
+  } catch (error) {
+    console.error("Public asset synchronization failed:", error);
+    shutdown(1);
+  } finally {
+    publicSyncRunning = false;
+  }
+}
+
+function schedulePublicSync() {
+  if (shuttingDown) return;
+  if (publicSyncTimer) clearTimeout(publicSyncTimer);
+  publicSyncTimer = setTimeout(() => {
+    publicSyncTimer = undefined;
+    void synchronizePublic();
+  }, 75);
+}
+
+const publicWatcher = watch(
+  publicDirectory,
+  { recursive: true },
+  schedulePublicSync,
+);
 
 server.listen(port, host, () => {
   console.log(`FlowPlan development server: http://${host}:${port}`);
 });
 
-function shutdown() {
+function shutdown(exitCode = 0) {
   if (shuttingDown) return;
   shuttingDown = true;
+  if (publicSyncTimer) clearTimeout(publicSyncTimer);
+  publicWatcher.close();
   compiler.kill("SIGTERM");
-  server.close(() => process.exit(0));
+  if (server.listening) {
+    server.close(() => process.exit(exitCode));
+  } else {
+    process.exitCode = exitCode;
+  }
 }
 
 server.once("error", (error) => {
   console.error(error);
-  shuttingDown = true;
-  process.exitCode = 1;
-  compiler.kill("SIGTERM");
+  shutdown(1);
 });
 compiler.once("error", (error) => {
   console.error(error);
-  shuttingDown = true;
-  server.close(() => process.exit(1));
+  shutdown(1);
 });
 compiler.once("exit", (code, signal) => {
   if (!shuttingDown) {
-    shuttingDown = true;
     console.error(`TypeScript watch stopped (${signal ?? `code ${code}`}).`);
-    server.close(() => process.exit(1));
+    shutdown(1);
   }
 });
+publicWatcher.once("error", (error) => {
+  console.error("Public directory watcher failed:", error);
+  shutdown(1);
+});
 
-process.on("SIGINT", shutdown);
-process.on("SIGTERM", shutdown);
+process.on("SIGINT", () => shutdown());
+process.on("SIGTERM", () => shutdown());
