@@ -74,6 +74,8 @@ export type {
   PlanningInput,
   PlanningResult,
   DeadlineStatus,
+  PlanningDiagnostic,
+  PlanningDiagnosticCode,
   ProjectAllocation,
   ProjectDeadlineStatusByDate,
   ProjectTeamPlanningResult,

@@ -78,17 +78,16 @@ La vérification navigateur minimale consiste à lancer `npm run dev`, ouvrir
 `http://127.0.0.1:4173`, puis vérifier la présence de `FlowPlan` et de
 `Planning workspace`.
 
-## Planning Engine — Phase 2D
+## Planning Engine V1 — Final semantics
 
-La Phase 2B introduit l'admission quotidienne canonique. Pour chaque équipe,
+Pour chaque équipe,
 l'admission est entièrement recalculée chaque jour dans l'ordre global de
 priorité, sans droit à la continuité, jusqu'à `maxParallelProjects`. L'ensemble
 admis est ensuite figé pour la journée : terminer un RAF ou ne recevoir aucune
 allocation ne libère pas de place et aucun autre projet ne peut entrer en
 remplacement.
 
-La Phase 2C reste responsable du partage normal entre les seuls projets admis.
-Un quantum normal vaut
+Le partage normal concerne uniquement les projets admis. Un quantum normal vaut
 exactement `0.5` j.h. (`1/2` rationnel) et la distribution s'effectue par tours
 dans l'ordre de priorité. La priorité tranche ainsi les quanta indivisibles.
 
@@ -98,8 +97,8 @@ reliquat final de RAF inférieur à `0.5` peut être alloué exactement pour ach
 le projet. Une fraction de capacité inférieure à `0.5` reste inutilisée si elle
 ne permet pas de terminer exactement un RAF.
 
-La Phase 2D ajoute les deadlines impératives avant ce partage normal, sans
-modifier l'admission : une deadline ne change ni la priorité, ni le nombre de
+Les deadlines impératives sont traitées avant ce partage normal, sans modifier
+l'admission : une deadline ne change ni la priorité, ni le nombre de
 slots, ni l'ensemble admis figé. Un projet non admis reste `PENDING`, puis peut
 devenir `MISSED` après sa deadline sans avoir jamais été admis.
 
@@ -132,3 +131,39 @@ Un projet `UNFEASIBLE` ou `MISSED` ne possède aucune trajectoire future. Il
 consomme le maximum possible uniquement les jours où il est effectivement
 admis et ne réserve jamais de capacité sur les dates suivantes. L'admission
 reste recalculée indépendamment chaque jour.
+
+Les équipes sont simulées indépendamment, jour par jour, dans les bornes
+inclusives du `PlanningHorizon`. Les réservations fermes sont retranchées avant
+toute admission projet. L'horizon n'est jamais prolongé : RAF planifié et RAF
+restant sont tous deux conservés dans le résultat. La date objectif reste une
+donnée descriptive sans effet sur le moteur.
+
+Les diagnostics V1 sont des codes métier sans message ni sévérité :
+`TEAM_OVER_RESERVED`, `PROJECT_REMAINS_UNPLANNED_AT_HORIZON`,
+`DEADLINE_UNFEASIBLE` et `DEADLINE_MISSED`. Leur ordre est déterministe : ordre
+des équipes, dates croissantes, ordre d'émission du pipeline et priorité des
+projets ; les diagnostics de fin d'horizon viennent ensuite par priorité.
+
+## Frontière finale de la Phase 2
+
+Planning Engine V1 ends at `PlanningResult`.
+
+La Phase 2 ne contient ni cas d'usage applicatif, ni persistence, ni UI, ni
+`TimelineViewModel`, ni `TimelineGeometry`, ni actuals/history. La chaîne future
+est :
+
+```text
+Planning Engine
+  -> PlanningResult
+  -> Application / PlanningViewModelAdapter
+  -> TimelineViewModel
+  -> TimelineGeometry
+  -> Vanilla SVG Renderer
+```
+
+Les actuals et l'historique resteront en amont selon la frontière suivante,
+hors Phase 2 :
+
+```text
+Actuals / History -> Current RAF -> Planning Engine
+```

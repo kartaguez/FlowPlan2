@@ -36,6 +36,7 @@ import {
 } from "../model/scalars.js";
 import type {
   DeadlineStatus,
+  PlanningDiagnostic,
   PlanningInput,
   PlanningResult,
   ProjectAllocation,
@@ -242,7 +243,9 @@ function addDailyAllocation(
 
 function updateMissedDeadlineStatuses(
   date: CivilDate,
+  team: Team,
   states: readonly ProjectTeamState[],
+  diagnostics: PlanningDiagnostic[],
 ): void {
   for (const state of states) {
     const deadline = state.project.mandatoryDeadline;
@@ -251,6 +254,16 @@ function updateMissedDeadlineStatuses(
       !isZero(state.remaining) &&
       compareCivilDates(date, deadline) > 0
     ) {
+      if (state.deadlineStatus !== "MISSED") {
+        diagnostics.push(
+          Object.freeze({
+            code: "DEADLINE_MISSED",
+            teamId: team.id,
+            projectId: state.project.id,
+            date,
+          }),
+        );
+      }
       state.deadlineStatus = "MISSED";
     }
   }
@@ -290,6 +303,7 @@ function allocateDeadlineProjects(
   portfolio: Portfolio,
   admitted: readonly ProjectTeamState[],
   dailyAllocations: Map<ProjectTeamState, Rational>,
+  diagnostics: PlanningDiagnostic[],
 ): Rational {
   const residualByDate = new Map<CivilDate, Rational>([
     [today, availableCapacity],
@@ -319,10 +333,21 @@ function allocateDeadlineProjects(
         residualByDate,
         dailyAllocations,
       );
-      state.deadlineStatus =
+      if (
         compareRationals(remainingBeforeAllocation, remainingAccessible) <= 0
-          ? "FEASIBLE"
-          : "UNFEASIBLE";
+      ) {
+        state.deadlineStatus = "FEASIBLE";
+      } else {
+        state.deadlineStatus = "UNFEASIBLE";
+        diagnostics.push(
+          Object.freeze({
+            code: "DEADLINE_UNFEASIBLE",
+            teamId: team.id,
+            projectId: state.project.id,
+            date: today,
+          }),
+        );
+      }
     }
 
     if (state.deadlineStatus === "FEASIBLE") {
@@ -438,7 +463,11 @@ function projectResult(
   });
 }
 
-function planTeam(input: PlanningInput, team: Team): TeamPlanningResult {
+function planTeam(
+  input: PlanningInput,
+  team: Team,
+  diagnostics: PlanningDiagnostic[],
+): TeamPlanningResult {
   const states = projectsForTeam(input.portfolio, team);
   const dayCapacities: TeamDayCapacity[] = [];
   const dayAdmissions: TeamDayAdmission[] = [];
@@ -447,7 +476,6 @@ function planTeam(input: PlanningInput, team: Team): TeamPlanningResult {
     input.horizon.start,
     input.horizon.end,
   )) {
-    updateMissedDeadlineStatuses(date, states);
     const effective = effectiveCapacity(team, date);
     const reserved = reservedCapacity(
       team,
@@ -459,19 +487,30 @@ function planTeam(input: PlanningInput, team: Team): TeamPlanningResult {
       date,
       input.portfolio.reservations,
     );
+    const overReserved = isOverReserved(
+      team.id,
+      date,
+      input.portfolio.reservations,
+    );
     dayCapacities.push(
       Object.freeze({
         date,
         effectiveCapacity: effective,
         reservedCapacity: reserved,
         projectCapacity: available,
-        overReserved: isOverReserved(
-          team.id,
-          date,
-          input.portfolio.reservations,
-        ),
+        overReserved,
       }),
     );
+    if (overReserved) {
+      diagnostics.push(
+        Object.freeze({
+          code: "TEAM_OVER_RESERVED",
+          teamId: team.id,
+          date,
+        }),
+      );
+    }
+    updateMissedDeadlineStatuses(date, team, states, diagnostics);
 
     const admitted = selectAdmittedProjects(
       date,
@@ -495,6 +534,7 @@ function planTeam(input: PlanningInput, team: Team): TeamPlanningResult {
       input.portfolio,
       admitted,
       dailyAllocations,
+      diagnostics,
     );
     allocateFairlyToAdmittedProjects(
       remainingAfterDeadlines,
@@ -505,22 +545,39 @@ function planTeam(input: PlanningInput, team: Team): TeamPlanningResult {
     recordDeadlineStatuses(date, states);
   }
 
+  const projectPlans = states.map((state) => projectResult(team, state));
+  states.forEach((state) => {
+    if (!isZero(state.remaining)) {
+      diagnostics.push(
+        Object.freeze({
+          code: "PROJECT_REMAINS_UNPLANNED_AT_HORIZON",
+          teamId: team.id,
+          projectId: state.project.id,
+        }),
+      );
+    }
+  });
+
   return Object.freeze({
     teamId: team.id,
     dayCapacities: Object.freeze(dayCapacities),
     dayAdmissions: Object.freeze(dayAdmissions),
-    projectPlans: Object.freeze(states.map((state) => projectResult(team, state))),
+    projectPlans: Object.freeze(projectPlans),
   });
 }
 
 /**
- * Phase 2D daily admission, exact deadline consumption, then normal fair
- * sharing of the remaining capacity.
+ * Planning Engine V1: capacity, frozen daily admission, exact deadline
+ * consumption, then normal fair sharing of the remaining capacity.
  */
 export function planPortfolio(input: PlanningInput): PlanningResult {
+  const diagnostics: PlanningDiagnostic[] = [];
   return Object.freeze({
     teamPlans: Object.freeze(
-      input.portfolio.teams.map((team) => planTeam(input, team)),
+      input.portfolio.teams.map((team) =>
+        planTeam(input, team, diagnostics),
+      ),
     ),
+    diagnostics: Object.freeze(diagnostics),
   });
 }

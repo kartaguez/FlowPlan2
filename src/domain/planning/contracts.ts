@@ -61,6 +61,20 @@ export interface TeamPlanningResult {
   readonly projectPlans: readonly ProjectTeamPlanningResult[];
 }
 
+export type PlanningDiagnosticCode =
+  | "TEAM_OVER_RESERVED"
+  | "PROJECT_REMAINS_UNPLANNED_AT_HORIZON"
+  | "DEADLINE_UNFEASIBLE"
+  | "DEADLINE_MISSED";
+
+export interface PlanningDiagnostic {
+  readonly code: PlanningDiagnosticCode;
+  readonly teamId?: TeamId;
+  readonly projectId?: ProjectId;
+  readonly date?: CivilDate;
+}
+
 export interface PlanningResult {
   readonly teamPlans: readonly TeamPlanningResult[];
+  readonly diagnostics: readonly PlanningDiagnostic[];
 }
