@@ -340,3 +340,32 @@ la quantité rationnelle exacte dans `TimelineAllocationGeometry.workload`.
 Phase 4C s'arrête à ces rectangles quotidiens indépendants. Elle ne fusionne
 pas les jours et ne crée ni surface continue, ni path/polygon, ni couleur, ni
 label, ni marker, ni curseur, ni zoom, ni hit-testing, ni rendu DOM/SVG.
+
+## Static SVG Renderer — Phase 5A
+
+Le renderer statique constitue une projection DOM mécanique :
+
+```text
+TimelineGeometry
+      -> renderTimelineSvg
+      -> SVG DOM
+```
+
+`TimelineGeometry` possède le layout et fournit toutes les coordonnées. Le
+renderer possède uniquement la création des groupes et rectangles SVG. Le CSS
+possède l'apparence neutre de ces primitives. Le renderer ne calcule donc ni
+position, ni dimension, ni priorité, ni échelle de capacité.
+
+À chaque appel, `renderTimelineSvg` vide intégralement l'élément `<svg>` fourni
+et reconstruit son arbre. Phase 5A n'utilise aucun cache, diffing, virtual DOM
+ou mécanisme de réconciliation. Le `viewBox` provient directement des
+dimensions de la géométrie.
+
+La structure rend les lanes d'équipe, cellules journalières, tubes de capacité,
+régions réservées, régions projet et rectangles d'allocation. Des classes et
+attributs `data-*` sémantiques rendent l'arbre inspectable sans introduire de
+comportement métier ou interactif.
+
+Phase 5A ne fournit ni couleurs stables par projet, ni labels, ni axe temporel,
+ni markers, ni surfaces continues, ni tooltips, ni curseur, ni zoom, ni
+sélection, ni gestionnaires d'événements.

@@ -41,3 +41,31 @@ p {
   background: #ffffff;
   padding: 1.5rem;
 }
+
+.timeline-team-lane {
+  fill: #f8fafc;
+  stroke: #cbd5e1;
+}
+
+.timeline-day-cell {
+  fill: none;
+  stroke: #e2e8f0;
+}
+
+.timeline-capacity-tube {
+  fill: #eef2f7;
+  stroke: #94a3b8;
+}
+
+.timeline-reserved-region {
+  fill: #cbd5e1;
+}
+
+.timeline-project-region {
+  fill: #e6edf5;
+}
+
+.timeline-project-allocation {
+  fill: #64748b;
+  stroke: #475569;
+}
