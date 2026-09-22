@@ -75,6 +75,7 @@ export type {
   PlanningResult,
   ProjectAllocation,
   ProjectTeamPlanningResult,
+  TeamDayAdmission,
   TeamDayCapacity,
   TeamPlanningResult,
 } from "./planning/contracts.js";

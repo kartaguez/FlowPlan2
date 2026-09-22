@@ -42,13 +42,19 @@ const date = (value: string) => must(createCivilDate(value));
 const rendered = (value: Parameters<typeof quantityToDecimalString>[0]) =>
   must(quantityToDecimalString(value));
 
-function makeTeam(id: string, dailyCapacity: string): Team {
+function makeTeam(
+  id: string,
+  dailyCapacity: string,
+  maxParallelProjects = 3,
+): Team {
   const teamId = must(createTeamId(id));
   return must(
     createTeam({
       id: teamId,
       name: id,
-      maxParallelProjects: must(createMaxParallelProjects(3)),
+      maxParallelProjects: must(
+        createMaxParallelProjects(maxParallelProjects),
+      ),
       capacitySchedule: must(
         createTeamCapacitySchedule({
           workingPattern: must(
@@ -142,12 +148,13 @@ function makeInput(
   start: string,
   end: string,
   reservations: readonly FirmCapacityReservation[] = [],
+  priorityOrder: readonly Project[] = projects,
 ): PlanningInput {
   const portfolio = must(
     createPortfolio({
       teams,
       projects,
-      priorityOrder: projects.map((project) => project.id),
+      priorityOrder: priorityOrder.map((project) => project.id),
       reservations,
     }),
   );
@@ -192,6 +199,10 @@ function comparableResult(result: PlanningResult) {
       reserved: rendered(day.reservedCapacity),
       project: rendered(day.projectCapacity),
       overReserved: day.overReserved,
+    })),
+    admissions: teamPlan.dayAdmissions.map((admission) => ({
+      date: admission.date,
+      projectIds: admission.admittedProjectIds,
     })),
     projects: teamPlan.projectPlans.map((projectPlan) => ({
       projectId: projectPlan.projectId,
@@ -279,15 +290,17 @@ describe("Phase 2A planning engine", () => {
         mandatoryDeadline: "2025-01-02",
       },
     );
-    const plan = findProjectPlan(
-      findTeamPlan(
-        planPortfolio(makeInput([team], [project], "2025-01-01", "2025-01-03")),
-        team,
-      ),
-      project,
+    const teamPlan = findTeamPlan(
+      planPortfolio(makeInput([team], [project], "2025-01-01", "2025-01-03")),
+      team,
     );
+    const plan = findProjectPlan(teamPlan, project);
 
     assert.deepEqual(allocations(plan), [["2025-01-03", "1"]]);
+    assert.deepEqual(
+      teamPlan.dayAdmissions.map((day) => day.admittedProjectIds),
+      [[], [], [project.id]],
+    );
     assert.equal(plan.projectedEndDate, "2025-01-03");
   });
 
@@ -376,6 +389,7 @@ describe("Phase 2A planning engine", () => {
     assert.ok(day);
     assert.equal(rendered(day.projectCapacity), "0");
     assert.equal(day.overReserved, true);
+    assert.deepEqual(teamPlan.dayAdmissions[0]?.admittedProjectIds, []);
     assert.deepEqual(allocations(findProjectPlan(teamPlan, project)), []);
   });
 
@@ -453,5 +467,242 @@ describe("Phase 2A planning engine", () => {
     assert.equal(rendered(first.requirements[0]!.remainingWorkload), "2");
     assert.equal(Object.isFrozen(firstResult), true);
     assert.equal(Object.isFrozen(firstResult.teamPlans), true);
+    const firstTeamPlan = firstResult.teamPlans[0];
+    assert.ok(firstTeamPlan);
+    const firstAdmission = firstTeamPlan.dayAdmissions[0];
+    assert.ok(firstAdmission);
+    assert.equal(Object.isFrozen(firstTeamPlan.dayAdmissions), true);
+    assert.equal(Object.isFrozen(firstAdmission), true);
+    assert.equal(Object.isFrozen(firstAdmission.admittedProjectIds), true);
+  });
+});
+
+describe("Phase 2B daily admission", () => {
+  it("admits one project until it completes when max parallel is one", () => {
+    const team = makeTeam("team-a", "2", 1);
+    const first = makeProject("first", [{ team, workload: "4" }]);
+    const second = makeProject("second", [{ team, workload: "4" }]);
+    const teamPlan = findTeamPlan(
+      planPortfolio(
+        makeInput([team], [first, second], "2025-01-01", "2025-01-03"),
+      ),
+      team,
+    );
+
+    assert.deepEqual(
+      teamPlan.dayAdmissions.map((day) => day.admittedProjectIds),
+      [[first.id], [first.id], [second.id]],
+    );
+  });
+
+  it("admits at most two projects and leaves the third outside", () => {
+    const team = makeTeam("team-a", "2", 2);
+    const first = makeProject("first", [{ team, workload: "4" }]);
+    const second = makeProject("second", [{ team, workload: "4" }]);
+    const third = makeProject("third", [{ team, workload: "4" }]);
+    const teamPlan = findTeamPlan(
+      planPortfolio(
+        makeInput(
+          [team],
+          [first, second, third],
+          "2025-01-01",
+          "2025-01-01",
+        ),
+      ),
+      team,
+    );
+
+    assert.deepEqual(teamPlan.dayAdmissions[0]?.admittedProjectIds, [
+      first.id,
+      second.id,
+    ]);
+    assert.deepEqual(allocations(findProjectPlan(teamPlan, third)), []);
+  });
+
+  it("freezes admission before consumption and never backfills", () => {
+    const team = makeTeam("team-a", "2", 2);
+    const first = makeProject("first", [{ team, workload: "0.5" }]);
+    const second = makeProject("second", [{ team, workload: "4" }]);
+    const third = makeProject("third", [{ team, workload: "4" }]);
+    const teamPlan = findTeamPlan(
+      planPortfolio(
+        makeInput(
+          [team],
+          [first, second, third],
+          "2025-01-01",
+          "2025-01-01",
+        ),
+      ),
+      team,
+    );
+
+    assert.deepEqual(teamPlan.dayAdmissions[0]?.admittedProjectIds, [
+      first.id,
+      second.id,
+    ]);
+    assert.deepEqual(allocations(findProjectPlan(teamPlan, first)), [
+      ["2025-01-01", "0.5"],
+    ]);
+    assert.deepEqual(allocations(findProjectPlan(teamPlan, second)), [
+      ["2025-01-01", "1.5"],
+    ]);
+    assert.deepEqual(allocations(findProjectPlan(teamPlan, third)), []);
+  });
+
+  it("recomputes admission daily without continuity rights", () => {
+    const team = makeTeam("team-a", "1", 1);
+    const first = makeProject(
+      "first",
+      [{ team, workload: "2" }],
+      { earliestStartDate: "2025-01-02" },
+    );
+    const second = makeProject("second", [{ team, workload: "3" }]);
+    const teamPlan = findTeamPlan(
+      planPortfolio(
+        makeInput([team], [first, second], "2025-01-01", "2025-01-03"),
+      ),
+      team,
+    );
+
+    assert.deepEqual(
+      teamPlan.dayAdmissions.map((day) => day.admittedProjectIds),
+      [[second.id], [first.id], [first.id]],
+    );
+    assert.deepEqual(allocations(findProjectPlan(teamPlan, second)), [
+      ["2025-01-01", "1"],
+    ]);
+  });
+
+  it("does not admit a project whose daily cap is zero", () => {
+    const team = makeTeam("team-a", "1", 1);
+    const blocked = makeProject("blocked", [
+      { team, workload: "2", dailyCap: "0" },
+    ]);
+    const next = makeProject("next", [{ team, workload: "2" }]);
+    const teamPlan = findTeamPlan(
+      planPortfolio(
+        makeInput([team], [blocked, next], "2025-01-01", "2025-01-01"),
+      ),
+      team,
+    );
+
+    assert.deepEqual(teamPlan.dayAdmissions[0]?.admittedProjectIds, [next.id]);
+  });
+
+  it("does not admit a project whose remaining workload is zero", () => {
+    const team = makeTeam("team-a", "1", 1);
+    const complete = makeProject("complete", [{ team, workload: "0" }]);
+    const next = makeProject("next", [{ team, workload: "2" }]);
+    const teamPlan = findTeamPlan(
+      planPortfolio(
+        makeInput([team], [complete, next], "2025-01-01", "2025-01-01"),
+      ),
+      team,
+    );
+
+    assert.deepEqual(teamPlan.dayAdmissions[0]?.admittedProjectIds, [next.id]);
+  });
+
+  it("admits no project when project capacity is zero", () => {
+    const team = makeTeam("team-a", "2", 2);
+    const first = makeProject("first", [{ team, workload: "2" }]);
+    const second = makeProject("second", [{ team, workload: "2" }]);
+    const teamPlan = findTeamPlan(
+      planPortfolio(
+        makeInput(
+          [team],
+          [first, second],
+          "2025-01-01",
+          "2025-01-01",
+          [reservation("all", team, "1")],
+        ),
+      ),
+      team,
+    );
+
+    assert.deepEqual(teamPlan.dayAdmissions[0]?.admittedProjectIds, []);
+  });
+
+  it("keeps an admitted project inactive without admitting a replacement", () => {
+    const team = makeTeam("team-a", "1", 2);
+    const first = makeProject("first", [{ team, workload: "2" }]);
+    const second = makeProject("second", [{ team, workload: "2" }]);
+    const third = makeProject("third", [{ team, workload: "2" }]);
+    const teamPlan = findTeamPlan(
+      planPortfolio(
+        makeInput(
+          [team],
+          [first, second, third],
+          "2025-01-01",
+          "2025-01-01",
+        ),
+      ),
+      team,
+    );
+
+    assert.deepEqual(teamPlan.dayAdmissions[0]?.admittedProjectIds, [
+      first.id,
+      second.id,
+    ]);
+    assert.deepEqual(allocations(findProjectPlan(teamPlan, first)), [
+      ["2025-01-01", "1"],
+    ]);
+    assert.deepEqual(allocations(findProjectPlan(teamPlan, second)), []);
+    assert.deepEqual(allocations(findProjectPlan(teamPlan, third)), []);
+  });
+
+  it("uses portfolio priority order for admission", () => {
+    const team = makeTeam("team-a", "1", 2);
+    const first = makeProject("first", [{ team, workload: "2" }]);
+    const second = makeProject("second", [{ team, workload: "2" }]);
+    const third = makeProject("third", [{ team, workload: "2" }]);
+    const teamPlan = findTeamPlan(
+      planPortfolio(
+        makeInput(
+          [team],
+          [third, first, second],
+          "2025-01-01",
+          "2025-01-01",
+          [],
+          [first, second, third],
+        ),
+      ),
+      team,
+    );
+
+    assert.deepEqual(teamPlan.dayAdmissions[0]?.admittedProjectIds, [
+      first.id,
+      second.id,
+    ]);
+  });
+
+  it("computes independent admissions for teams with different limits", () => {
+    const narrow = makeTeam("narrow", "2", 1);
+    const wide = makeTeam("wide", "2", 2);
+    const first = makeProject("first", [
+      { team: narrow, workload: "2" },
+      { team: wide, workload: "2" },
+    ]);
+    const second = makeProject("second", [
+      { team: narrow, workload: "2" },
+      { team: wide, workload: "2" },
+    ]);
+    const teamPlans = planPortfolio(
+      makeInput(
+        [narrow, wide],
+        [first, second],
+        "2025-01-01",
+        "2025-01-01",
+      ),
+    );
+
+    assert.deepEqual(
+      findTeamPlan(teamPlans, narrow).dayAdmissions[0]?.admittedProjectIds,
+      [first.id],
+    );
+    assert.deepEqual(
+      findTeamPlan(teamPlans, wide).dayAdmissions[0]?.admittedProjectIds,
+      [first.id, second.id],
+    );
   });
 });

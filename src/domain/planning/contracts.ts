@@ -21,6 +21,11 @@ export interface TeamDayCapacity {
   readonly overReserved: boolean;
 }
 
+export interface TeamDayAdmission {
+  readonly date: CivilDate;
+  readonly admittedProjectIds: readonly ProjectId[];
+}
+
 export interface ProjectAllocation {
   readonly date: CivilDate;
   readonly workload: Capacity;
@@ -39,6 +44,7 @@ export interface ProjectTeamPlanningResult {
 export interface TeamPlanningResult {
   readonly teamId: TeamId;
   readonly dayCapacities: readonly TeamDayCapacity[];
+  readonly dayAdmissions: readonly TeamDayAdmission[];
   readonly projectPlans: readonly ProjectTeamPlanningResult[];
 }
 

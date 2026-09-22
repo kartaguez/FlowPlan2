@@ -78,14 +78,18 @@ La vérification navigateur minimale consiste à lancer `npm run dev`, ouvrir
 `http://127.0.0.1:4173`, puis vérifier la présence de `FlowPlan` et de
 `Planning workspace`.
 
-## Planning Engine — Phase 2A
+## Planning Engine — Phase 2B
 
-La Phase 2A implémente un allocateur séquentiel volontairement minimal. Elle
-pose l'infrastructure pure et déterministe du moteur final, mais ne constitue
-pas encore sa policy canonique d'admission, de partage ou de redistribution.
-Pour chaque équipe et chaque jour, toute la capacité projet disponible va au
-premier projet éligible dans l'ordre de priorité, sous réserve de son RAF et de
-son plafond quotidien.
+La Phase 2B introduit l'admission quotidienne canonique. Pour chaque équipe,
+l'admission est entièrement recalculée chaque jour dans l'ordre global de
+priorité, sans droit à la continuité, jusqu'à `maxParallelProjects`. L'ensemble
+admis est ensuite figé pour la journée : terminer un RAF ou ne recevoir aucune
+allocation ne libère pas de place et aucun autre projet ne peut entrer en
+remplacement.
 
-La date objectif et la deadline impérative sont représentées mais ignorées en
-Phase 2A. Elles n'influencent ni l'éligibilité ni l'allocation à ce stade.
+La consommation séquentielle de la capacité par les projets admis reste une
+règle volontairement temporaire. Elle sera remplacée par le partage équitable
+de la Phase 2C sans modifier la sélection des admis.
+
+La date objectif et la deadline impérative restent ignorées. En particulier,
+une deadline n'influence jamais l'admission.
