@@ -184,3 +184,31 @@ UI / Adapters
 Cette couche est pure, déterministe et sans état. Elle ne contient aucune
 persistence, aucun store, aucun port technique, aucune logique UI et aucun
 `TimelineViewModel`. Aucun autre cas d'usage n'est introduit en Phase 3A.
+
+## TimelineViewModel — Phase 3B
+
+`TimelineViewModel` est le contrat de présentation sémantique et temporel de la
+future timeline. Il décrit les projets, les équipes, leurs capacités exactes,
+les allocations journalières, les états projet-équipe et les diagnostics. Les
+métadonnées globales d'un projet restent séparées de son état de planning pour
+chaque équipe. `priorityIndex` est un index de présentation dérivé de
+`Portfolio.priorityOrder` : `0` désigne la priorité la plus élevée et ne crée
+aucune nouvelle source de priorité métier.
+
+Les allocations conservent la granularité journalière du moteur. Le ViewModel
+ne les compresse pas en segments continus ; la future `TimelineGeometry`
+décidera si et comment des jours adjacents sont regroupés pour le rendu.
+
+```text
+TimelineViewModel                    TimelineGeometry (future)
+  domain identifiers                  geometric projection
+  CivilDate                           pixels and coordinates
+  exact capacities/workloads          paths and hitboxes
+  project/team planning state          viewport and clipping
+  semantic diagnostics                renderer-ready layout
+```
+
+Le contrat ne contient donc ni pixels, ni coordonnées, ni chemins SVG, ni
+hitboxes, ni viewport, ni référence DOM. Phase 3B ne fournit aucun adapter
+`PlanningResult -> TimelineViewModel` et n'appelle ni l'application ni le
+moteur. Cette transformation appartient à la Phase 3C.
