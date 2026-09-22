@@ -548,3 +548,64 @@ introduite.
 Phase 6B concerne uniquement la navigation du viewport. Phase 6C introduira le
 hit-testing et la sélection projet/équipe/allocation. Aucun tooltip ou état de
 sélection métier n'appartient à 6B.
+
+## Geometry numerical policy
+
+Toutes les coordonnées de présentation restent des nombres IEEE 754 avec leur
+précision complète. Aucun `Math.round`, `toFixed`, BigInt ou rationnel métier
+n'est utilisé pour stabiliser les pixels. La constante partagée
+`GEOMETRY_EPSILON = 1e-9` absorbe uniquement les résidus de calcul lors des
+comparaisons géométriques et des bornes de viewport. Elle ne modifie jamais
+une date, une capacité, un workload ou une règle de planning.
+
+Les rectangles conservent des intervalles half-open : `[x, x + width)` et
+`[y, y + height)`. Une coordonnée située à moins de `GEOMETRY_EPSILON` d'une
+frontière connue est traitée comme cette frontière pour la comparaison
+uniquement. Ainsi, une frontière commune appartient toujours au rectangle de
+droite ou du dessous, sans créer de chevauchement. Un écart réel supérieur à
+l'epsilon reste distinct.
+
+`GEOMETRY_EPSILON` n'est pas une taille de cible utilisateur. La tolérance de
+hit d'un marqueur vaut quatre pixels CSS, convertis dans le repère timeline à
+partir du viewport courant. Le seuil séparant click et drag vaut également
+quatre pixels CSS. Ces deux tolérances UX sont indépendantes de la politique
+de précision numérique.
+
+## Timeline Hit Testing and Selection — Phase 6C
+
+Le hit-testing suit une chaîne unidirectionnelle et ne lit jamais le DOM SVG :
+
+```text
+client pointer
+    -> viewport-aware timeline x/y
+    -> pure hit test against full TimelineGeometry
+    -> hovered / selected UI state
+    -> selection overlay + tooltip / selection summary
+```
+
+Avec `preserveAspectRatio="none"`, X et Y sont projetés indépendamment depuis
+le rectangle affiché du SVG : X utilise `{ viewport.x, viewport.width }` et Y
+utilise la hauteur complète de la géométrie. Une position hors géométrie ne se
+fait pas clamper pour le hit-testing et produit `undefined`.
+
+La priorité de hit reproduit l'ordre visuel : marqueur, puis allocation, puis
+lane d'équipe. Les tableaux de marqueurs et d'allocations sont parcourus en
+ordre inverse afin que le dernier élément rendu gagne en cas de recouvrement.
+Le time axis ne produit aucun hit métier.
+
+Le contrôleur d'interaction possède deux états UI indépendants, `hovered` et
+`selected`. Un mouvement sans drag alimente un tooltip HTML depuis le
+`TimelineViewModel`; aucun attribut `data-*` SVG n'est relu. Un click sous le
+seuil sélectionne le hit, tandis qu'un cursor drag plus long ne change pas la
+sélection. `Shift + drag` reste réservé au pan et est entièrement ignoré par
+la sélection. Un click sur une zone sans hit ou `Escape` efface la sélection.
+
+La sélection est projetée dans un calque SVG dédié situé au-dessus des équipes
+et sous le curseur : rectangle pour une allocation ou une équipe, ligne pour
+un marqueur. Un panneau HTML `aria-live="polite"` expose la sélection active;
+le tooltip de hover n'est pas annoncé en live.
+
+Phase 6C inspecte et sélectionne exclusivement un planning existant. Phase 7
+portera les changements d'état applicatif et l'édition des projets, équipes ou
+réservations. Aucun recompute, persistence, undo/redo ou comportement
+d'édition n'est introduit ici.

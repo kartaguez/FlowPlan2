@@ -1,3 +1,5 @@
+import { GEOMETRY_EPSILON } from "../../adapters/index.js";
+
 export interface TimelineViewportState {
   readonly x: number;
   readonly width: number;
@@ -31,10 +33,16 @@ export function clampTimelineViewport(
     input.geometryWidth,
     Math.max(minimumWidth, input.viewport.width),
   );
-  const x = Math.min(
+  let x = Math.min(
     input.geometryWidth - width,
     Math.max(0, input.viewport.x),
   );
+  if (Math.abs(x) <= GEOMETRY_EPSILON) x = 0;
+  if (
+    Math.abs(x + width - input.geometryWidth) <= GEOMETRY_EPSILON
+  ) {
+    x = input.geometryWidth - width;
+  }
   return Object.freeze({ x, width });
 }
 
@@ -115,6 +123,40 @@ export function timelineXFromClientX(
   validatePositiveFinite(input.viewport.width, "Viewport width");
   const relativeX = (input.clientX - input.svgLeft) / input.svgWidth;
   return input.viewport.x + relativeX * input.viewport.width;
+}
+
+export interface TimelinePointFromClientPointInput
+  extends TimelineXFromClientXInput {
+  readonly clientY: number;
+  readonly svgTop: number;
+  readonly svgHeight: number;
+  readonly geometryHeight: number;
+}
+
+export interface TimelinePoint {
+  readonly x: number;
+  readonly y: number;
+}
+
+export function timelinePointFromClientPoint(
+  input: TimelinePointFromClientPointInput,
+): TimelinePoint {
+  if (
+    !Number.isFinite(input.clientY) ||
+    !Number.isFinite(input.svgTop) ||
+    !Number.isFinite(input.svgHeight) ||
+    input.svgHeight <= 0 ||
+    !Number.isFinite(input.geometryHeight) ||
+    input.geometryHeight <= 0
+  ) {
+    throw new TypeError("Pointer geometry must contain finite positive heights.");
+  }
+  return Object.freeze({
+    x: timelineXFromClientX(input),
+    y:
+      ((input.clientY - input.svgTop) / input.svgHeight) *
+      input.geometryHeight,
+  });
 }
 
 function validatePositiveFinite(value: number, label: string): void {

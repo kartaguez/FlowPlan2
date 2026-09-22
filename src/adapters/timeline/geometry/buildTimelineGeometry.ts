@@ -27,8 +27,8 @@ import type {
   TimelineTimeAxisGeometry,
   TimelineYearGeometry,
 } from "./timelineGeometry.js";
+import { GEOMETRY_EPSILON } from "./geometryNumbers.js";
 
-const GEOMETRY_EPSILON = 1e-9;
 const MARKER_KIND_ORDER: Readonly<Record<TimelineProjectMarkerKind, number>> =
   Object.freeze({
     "earliest-start": 0,

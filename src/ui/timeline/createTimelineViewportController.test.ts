@@ -120,6 +120,23 @@ describe("createTimelineViewportController", () => {
     assert.ok(Math.abs(input.controller.getState().x - 430) < 1e-9);
   });
 
+  it("resets exactly after a long floating-point interaction sequence", () => {
+    const input = fixture();
+    for (let index = 0; index < 50; index += 1) {
+      input.zoomIn.dispatch("click");
+      input.zoomOut.dispatch("click");
+    }
+    input.zoomIn.dispatch("click");
+    input.svg.dispatch("pointerdown", pointer(8, 500, true));
+    input.svg.dispatch("pointermove", pointer(8, 173, false));
+    input.svg.dispatch("pointerup", pointer(8, 173, false));
+
+    input.reset.dispatch("click");
+
+    assert.deepEqual(input.controller.getState(), { x: 0, width: 1000 });
+    assert.equal(input.svg.getAttribute("viewBox"), "0 0 1000 200");
+  });
+
   it("uses only Shift plus pointer drag for captured horizontal pan", () => {
     const input = fixture();
     input.zoomIn.dispatch("click");

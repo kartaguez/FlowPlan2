@@ -36,6 +36,9 @@ export function renderTimelineSvg(input: RenderTimelineSvgInput): void {
   for (const team of input.geometry.teams) {
     root.append(renderTeam(document, team));
   }
+  const selectionLayer = createSvgElement(document, "g");
+  selectionLayer.setAttribute("class", "timeline-selection-layer");
+  root.append(selectionLayer);
   const cursorLayer = createSvgElement(document, "g");
   cursorLayer.setAttribute("class", "timeline-cursor-layer");
   root.append(cursorLayer);

@@ -39,3 +39,7 @@ export {
   dateToX,
   type BuildTimelineGeometryInput,
 } from "./timeline/geometry/buildTimelineGeometry.js";
+export {
+  GEOMETRY_EPSILON,
+  snapToGeometryBoundary,
+} from "./timeline/geometry/geometryNumbers.js";

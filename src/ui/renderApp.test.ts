@@ -27,6 +27,7 @@ class FakeElement {
   readonly classList = new FakeClassList(this);
   childNodes: FakeElement[] = [];
   className = "";
+  hidden = false;
   id = "";
   textContent: string | null = null;
   type = "";
@@ -101,5 +102,13 @@ describe("renderApp", () => {
       (elements.viewportControls.reset as unknown as FakeElement).textContent,
       "Reset view",
     );
+    assert.equal(
+      (elements.selectionSummary as unknown as FakeElement).getAttribute(
+        "aria-live",
+      ),
+      "polite",
+    );
+    assert.equal((elements.tooltip as unknown as FakeElement).tagName, "div");
+    assert.equal((elements.tooltip as unknown as FakeElement).hidden, true);
   });
 });

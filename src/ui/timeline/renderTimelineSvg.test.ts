@@ -313,6 +313,21 @@ describe("renderTimelineSvg", () => {
     );
   });
 
+  it("creates selection below cursor as dedicated non-static overlays", () => {
+    const svg = createSvg();
+    render(svg);
+
+    const rootChildren = svg.childNodes[0]?.childNodes ?? [];
+    const selectionIndex = rootChildren.findIndex(
+      (child) => child.getAttribute("class") === "timeline-selection-layer",
+    );
+    const cursorIndex = rootChildren.findIndex(
+      (child) => child.getAttribute("class") === "timeline-cursor-layer",
+    );
+    assert.ok(selectionIndex >= 0);
+    assert.ok(cursorIndex > selectionIndex);
+  });
+
   it("renders supplied year and month axis segments before teams", () => {
     const svg = createSvg();
     render(svg);

@@ -203,6 +203,41 @@ p {
   stroke-width: 2;
 }
 
+.timeline-selection {
+  pointer-events: none;
+  fill: none;
+  stroke: #0f172a;
+  stroke-width: 2.5;
+}
+
+.timeline-selection--allocation {
+  fill: rgb(255 255 255 / 18%);
+}
+
+.timeline-selection--project-marker {
+  stroke-width: 4;
+}
+
+.timeline-selection--team {
+  stroke-dasharray: 8 4;
+}
+
+.timeline-tooltip {
+  position: fixed;
+  z-index: 10;
+  max-width: 18rem;
+  border: 1px solid #94a3b8;
+  border-radius: 0.4rem;
+  background: #ffffff;
+  padding: 0.5rem 0.65rem;
+  box-shadow: 0 4px 14px rgb(15 23 42 / 15%);
+  color: #26364d;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  pointer-events: none;
+  white-space: pre-line;
+}
+
 .timeline-cursor-control {
   margin: 0.5rem 0 0.75rem;
   border: 1px solid #94a3b8;
@@ -283,6 +318,23 @@ p {
 
 .timeline-date-summary-allocation-empty {
   color: #64748b;
+}
+
+.timeline-selection-summary {
+  margin-top: 1rem;
+  border: 1px solid #d9e0ea;
+  border-radius: 0.5rem;
+  background: #ffffff;
+  padding: 0.85rem 1rem;
+}
+
+.timeline-selection-summary-heading {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.timeline-selection-summary p {
+  margin-bottom: 0.25rem;
 }
 
 .timeline-diagnostics {

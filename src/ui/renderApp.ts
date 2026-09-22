@@ -6,6 +6,8 @@ export interface AppElements {
   readonly dateSummary: HTMLElement;
   readonly cursorControl: HTMLButtonElement;
   readonly viewportControls: TimelineViewportControls;
+  readonly tooltip: HTMLElement;
+  readonly selectionSummary: HTMLElement;
 }
 
 export interface TimelineViewportControls {
@@ -62,6 +64,14 @@ export function renderApp(root: HTMLElement): AppElements {
   const dateSummary = document.createElement("section");
   dateSummary.className = "timeline-date-summary";
   dateSummary.setAttribute("aria-label", "Selected planning date summary");
+  const selectionSummary = document.createElement("section");
+  selectionSummary.className = "timeline-selection-summary";
+  selectionSummary.setAttribute("aria-label", "Timeline selection summary");
+  selectionSummary.setAttribute("aria-live", "polite");
+  const tooltip = document.createElement("div");
+  tooltip.className = "timeline-tooltip";
+  tooltip.setAttribute("role", "tooltip");
+  tooltip.hidden = true;
   workspace.append(
     workspaceTitle,
     description,
@@ -69,7 +79,9 @@ export function renderApp(root: HTMLElement): AppElements {
     viewportControlContainer,
     timelineContainer,
     dateSummary,
+    selectionSummary,
     diagnostics,
+    tooltip,
   );
 
   shell.append(header, workspace);
@@ -80,6 +92,8 @@ export function renderApp(root: HTMLElement): AppElements {
     dateSummary,
     cursorControl,
     viewportControls,
+    tooltip,
+    selectionSummary,
   });
 }
 

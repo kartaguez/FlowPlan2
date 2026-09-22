@@ -411,6 +411,7 @@ describe("buildTimelineGeometry", () => {
       "../../../domain/index.js",
       "../timelineViewModel.js",
       "./timelineGeometry.js",
+      "./geometryNumbers.js",
     ]);
     assert.doesNotMatch(source, /new Date|Date\.parse|getTime|86400000/);
   });
