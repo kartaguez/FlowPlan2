@@ -13,6 +13,7 @@ export {
   type BuildTimelineViewModelInput,
 } from "./timeline/buildTimelineViewModel.js";
 export type {
+  TimelineAllocationGeometry,
   TimelineCapacityTubeGeometry,
   TimelineDayGeometry,
   TimelineGeometry,

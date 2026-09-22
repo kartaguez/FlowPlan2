@@ -4,18 +4,25 @@ import {
   serializeQuantity,
   type Capacity,
   type CivilDate,
+  type ProjectId,
 } from "../../../domain/index.js";
 import type {
+  TimelineAllocation,
   TimelineHorizon,
+  TimelineProject,
+  TimelineTeam,
   TimelineViewModel,
 } from "../timelineViewModel.js";
 import type {
+  TimelineAllocationGeometry,
   TimelineDayGeometry,
   TimelineGeometry,
   TimelineGeometryViewport,
   TimelineRectGeometry,
   TimelineTeamGeometry,
 } from "./timelineGeometry.js";
+
+const GEOMETRY_EPSILON = 1e-9;
 
 export interface BuildTimelineGeometryInput {
   readonly viewModel: TimelineViewModel;
@@ -32,6 +39,7 @@ export function buildTimelineGeometry(
   );
 
   const expectedDates = datesInHorizon(input.viewModel.horizon);
+  const priorityByProjectId = indexProjectPriorities(input.viewModel.projects);
   const dayWidth = input.viewport.width / expectedDates.length;
   const maxEffectiveCapacity = findMaxEffectiveCapacity(input.viewModel);
   const maxEffectiveCapacityNumber = capacityToGeometryNumber(
@@ -54,6 +62,11 @@ export function buildTimelineGeometry(
 
     const y = teamIndex * input.viewport.teamLaneHeight;
     const laneBottom = y + input.viewport.teamLaneHeight;
+    const allocationsByDate = indexAllocationsByDate(
+      team,
+      expectedDates,
+      priorityByProjectId,
+    );
     const days = team.capacities.map((capacity, dayIndex) => {
       if (capacity.date !== expectedDates[dayIndex]) {
         throw new TypeError(
@@ -93,6 +106,13 @@ export function buildTimelineGeometry(
         width: dayWidth,
         height: reservedHeight,
       });
+      const allocations = buildAllocationGeometries(
+        allocationsByDate.get(capacity.date) ?? [],
+        priorityByProjectId,
+        projectRegion,
+        capacity.projectCapacity,
+        pixelsPerCapacityUnit,
+      );
 
       return Object.freeze({
         date: capacity.date,
@@ -112,6 +132,7 @@ export function buildTimelineGeometry(
           projectRegion,
           reservedRegion,
         }),
+        allocations,
       }) satisfies TimelineDayGeometry;
     });
 
@@ -192,6 +213,159 @@ function compareCapacities(left: Capacity, right: Capacity): -1 | 0 | 1 {
   return leftProduct < rightProduct ? -1 : leftProduct > rightProduct ? 1 : 0;
 }
 
+function indexProjectPriorities(
+  projects: readonly TimelineProject[],
+): ReadonlyMap<ProjectId, number> {
+  const priorities = new Map<ProjectId, number>();
+  const usedPriorityIndexes = new Set<number>();
+  for (const project of projects) {
+    if (priorities.has(project.id)) {
+      throw new TypeError(`Duplicate timeline project ${project.id}.`);
+    }
+    if (
+      !Number.isInteger(project.priorityIndex) ||
+      project.priorityIndex < 0 ||
+      usedPriorityIndexes.has(project.priorityIndex)
+    ) {
+      throw new TypeError(
+        "Timeline project priority indexes must be unique non-negative integers.",
+      );
+    }
+    priorities.set(project.id, project.priorityIndex);
+    usedPriorityIndexes.add(project.priorityIndex);
+  }
+  return priorities;
+}
+
+function indexAllocationsByDate(
+  team: TimelineTeam,
+  expectedDates: readonly CivilDate[],
+  priorityByProjectId: ReadonlyMap<ProjectId, number>,
+): ReadonlyMap<CivilDate, readonly TimelineAllocation[]> {
+  const expectedDateSet = new Set(expectedDates);
+  const indexed = new Map<CivilDate, TimelineAllocation[]>();
+  const projectIdsByDate = new Map<CivilDate, Set<ProjectId>>();
+
+  for (const allocation of team.allocations) {
+    if (allocation.teamId !== team.id) {
+      throw new TypeError(
+        `Allocation ${allocation.projectId} references a different team.`,
+      );
+    }
+    if (!priorityByProjectId.has(allocation.projectId)) {
+      throw new TypeError(
+        `Allocation references unknown project ${allocation.projectId}.`,
+      );
+    }
+    if (!expectedDateSet.has(allocation.date)) {
+      throw new TypeError(
+        `Allocation ${allocation.projectId} is outside the timeline horizon.`,
+      );
+    }
+    if (serializedCapacityParts(allocation.workload).numerator === 0n) {
+      throw new TypeError("Timeline allocations must have a positive workload.");
+    }
+
+    const allocatedProjects = projectIdsByDate.get(allocation.date) ?? new Set();
+    if (allocatedProjects.has(allocation.projectId)) {
+      throw new TypeError(
+        `Duplicate allocation ${allocation.projectId} on ${allocation.date}.`,
+      );
+    }
+    allocatedProjects.add(allocation.projectId);
+    projectIdsByDate.set(allocation.date, allocatedProjects);
+    const allocations = indexed.get(allocation.date) ?? [];
+    allocations.push(allocation);
+    indexed.set(allocation.date, allocations);
+  }
+
+  for (const allocations of indexed.values()) {
+    allocations.sort(
+      (left, right) =>
+        requireProjectPriority(priorityByProjectId, left.projectId) -
+        requireProjectPriority(priorityByProjectId, right.projectId),
+    );
+  }
+  return indexed;
+}
+
+function buildAllocationGeometries(
+  allocations: readonly TimelineAllocation[],
+  priorityByProjectId: ReadonlyMap<ProjectId, number>,
+  projectRegion: TimelineRectGeometry,
+  projectCapacity: Capacity,
+  pixelsPerCapacityUnit: number,
+): readonly TimelineAllocationGeometry[] {
+  let totalWorkload: CapacityRationalParts = {
+    numerator: 0n,
+    denominator: 1n,
+  };
+  for (const allocation of allocations) {
+    totalWorkload = addCapacityParts(
+      totalWorkload,
+      serializedCapacityParts(allocation.workload),
+    );
+  }
+  if (
+    compareCapacityParts(
+      totalWorkload,
+      serializedCapacityParts(projectCapacity),
+    ) > 0
+  ) {
+    throw new TypeError(
+      "Daily allocations must not exceed the available project capacity.",
+    );
+  }
+
+  const projectBottom = projectRegion.y + projectRegion.height;
+  const tolerance = GEOMETRY_EPSILON * Math.max(1, projectRegion.height);
+  let stackedHeight = 0;
+  const geometries = allocations.map((allocation) => {
+    const rawHeight = capacityToHeight(
+      allocation.workload,
+      pixelsPerCapacityUnit,
+    );
+    const nextHeight = stackedHeight + rawHeight;
+    if (nextHeight > projectRegion.height + tolerance) {
+      throw new TypeError(
+        "Daily allocation geometry exceeds the project capacity region.",
+      );
+    }
+    const clampedHeight = Math.min(nextHeight, projectRegion.height);
+    const renderedHeight = clampedHeight - stackedHeight;
+    const geometry = Object.freeze({
+      projectId: allocation.projectId,
+      teamId: allocation.teamId,
+      date: allocation.date,
+      workload: allocation.workload,
+      priorityIndex: requireProjectPriority(
+        priorityByProjectId,
+        allocation.projectId,
+      ),
+      x: projectRegion.x,
+      y: projectBottom - clampedHeight,
+      width: projectRegion.width,
+      height: renderedHeight,
+    }) satisfies TimelineAllocationGeometry;
+    validateNonNegativeFinite(geometry.y, "Allocation y");
+    validateNonNegativeFinite(geometry.height, "Allocation height");
+    stackedHeight = clampedHeight;
+    return geometry;
+  });
+  return Object.freeze(geometries);
+}
+
+function requireProjectPriority(
+  priorityByProjectId: ReadonlyMap<ProjectId, number>,
+  projectId: ProjectId,
+): number {
+  const priority = priorityByProjectId.get(projectId);
+  if (priority === undefined) {
+    throw new TypeError(`Unknown timeline project ${projectId}.`);
+  }
+  return priority;
+}
+
 function capacityToHeight(
   capacity: Capacity,
   pixelsPerCapacityUnit: number,
@@ -226,10 +400,12 @@ function capacityToGeometryNumber(capacity: Capacity): number {
   return value;
 }
 
-function serializedCapacityParts(capacity: Capacity): {
+interface CapacityRationalParts {
   readonly numerator: bigint;
   readonly denominator: bigint;
-} {
+}
+
+function serializedCapacityParts(capacity: Capacity): CapacityRationalParts {
   const serialized = serializeQuantity(capacity);
   const match = /^(\d+)\/([1-9]\d*)$/.exec(serialized);
   if (!match) {
@@ -239,6 +415,27 @@ function serializedCapacityParts(capacity: Capacity): {
     numerator: BigInt(match[1]!),
     denominator: BigInt(match[2]!),
   };
+}
+
+function addCapacityParts(
+  left: CapacityRationalParts,
+  right: CapacityRationalParts,
+): CapacityRationalParts {
+  return {
+    numerator:
+      left.numerator * right.denominator +
+      right.numerator * left.denominator,
+    denominator: left.denominator * right.denominator,
+  };
+}
+
+function compareCapacityParts(
+  left: CapacityRationalParts,
+  right: CapacityRationalParts,
+): -1 | 0 | 1 {
+  const leftProduct = left.numerator * right.denominator;
+  const rightProduct = right.numerator * left.denominator;
+  return leftProduct < rightProduct ? -1 : leftProduct > rightProduct ? 1 : 0;
 }
 
 function freezeRect(rect: TimelineRectGeometry): TimelineRectGeometry {

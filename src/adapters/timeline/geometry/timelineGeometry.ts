@@ -1,4 +1,9 @@
-import type { Capacity, CivilDate, TeamId } from "../../../domain/index.js";
+import type {
+  Capacity,
+  CivilDate,
+  ProjectId,
+  TeamId,
+} from "../../../domain/index.js";
 
 export interface TimelineGeometryViewport {
   readonly width: number;
@@ -34,6 +39,19 @@ export interface TimelineDayGeometry {
   readonly projectCapacity: Capacity;
   readonly overReserved: boolean;
   readonly capacityTube: TimelineCapacityTubeGeometry;
+  readonly allocations: readonly TimelineAllocationGeometry[];
+}
+
+export interface TimelineAllocationGeometry {
+  readonly projectId: ProjectId;
+  readonly teamId: TeamId;
+  readonly date: CivilDate;
+  readonly workload: Capacity;
+  readonly priorityIndex: number;
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
 }
 
 export interface TimelineCapacityTubeGeometry {

@@ -291,7 +291,7 @@ describe("TimelineGeometry capacity tubes", () => {
     assert.ok(numbers.every((value) => Number.isFinite(value) && value >= 0));
   });
 
-  it("still exposes no allocation or project-surface geometry", () => {
+  it("still exposes no continuous project-surface geometry", () => {
     const geometry = buildTimelineGeometry({
       viewModel: makeViewModel([[day("2", "0.5", "1.5")]]),
       viewport: { width: 100, teamLaneHeight: 100 },

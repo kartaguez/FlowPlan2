@@ -314,3 +314,29 @@ Phase 4C   Project allocations -> stacked project surfaces in projectRegion
 
 Aucun projet, stacking ou surface d'allocation n'est positionné en Phase 4B.
 Les couleurs et le rendu DOM/SVG restent également hors de cette couche.
+
+## TimelineGeometry — Phase 4C project allocation stacking
+
+Les allocations du `TimelineViewModel` restent journalières : une allocation
+positive produit exactement un rectangle dans le `projectRegion` de son équipe
+et de sa date. La géométrie réutilise l'échelle globale de capacité définie en
+4B :
+
+```text
+allocationHeight = allocation.workload * pixelsPerCapacityUnit
+```
+
+Les rectangles sont triés par `priorityIndex` croissant puis empilés de bas en
+haut. Le projet de priorité la plus élevée occupe donc le bas du tube. Si les
+allocations n'utilisent pas toute la capacité projet, l'espace restant demeure
+vide au-dessus de la pile. La somme exacte des workloads est vérifiée contre
+`projectCapacity` avant la projection ; une tolérance n'intervient que pour un
+éventuel résidu de calcul en pixels.
+
+À largeur de jour fixe, la hauteur est proportionnelle au workload. L'aire du
+rectangle est donc proportionnelle au workload quotidien, tout en conservant
+la quantité rationnelle exacte dans `TimelineAllocationGeometry.workload`.
+
+Phase 4C s'arrête à ces rectangles quotidiens indépendants. Elle ne fusionne
+pas les jours et ne crée ni surface continue, ni path/polygon, ni couleur, ni
+label, ni marker, ni curseur, ni zoom, ni hit-testing, ni rendu DOM/SVG.

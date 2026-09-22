@@ -266,7 +266,7 @@ describe("buildTimelineGeometry", () => {
     }
   });
 
-  it("does not expose allocation or project-surface geometry", () => {
+  it("does not expose root-level allocation or project-surface geometry", () => {
     const geometry = buildTimelineGeometry(
       buildInput(makeViewModel("2025-01-01", "2025-01-01"), 300),
     );
