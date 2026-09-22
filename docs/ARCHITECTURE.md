@@ -279,3 +279,38 @@ Phase 4A ne convertit pas la capacité en hauteur visuelle et n'introduit ni
 stacking, ni surface projet, ni path/polygon, ni labels, ni couleurs, ni
 hit-testing. Elle ne dépend ni du DOM ni de SVG et n'utilise que `CivilDate`
 pour l'axe temporel.
+
+## TimelineGeometry — Phase 4B capacity tube
+
+La géométrie utilise une échelle verticale unique pour toute la timeline. La
+capacité effective maximale, recherchée exactement parmi toutes les équipes et
+tous les jours, définit `pixelsPerCapacityUnit` :
+
+```text
+pixelsPerCapacityUnit = teamLaneHeight / maxEffectiveCapacity
+```
+
+Ainsi, une même capacité produit la même hauteur en pixels quelle que soit
+l'équipe. Si toutes les capacités sont nulles, l'échelle vaut `0` et les tubes
+restent présents avec une hauteur nulle.
+
+Chaque tube quotidien est ancré sur le bas de sa lane. `effectiveCapacity`
+définit sa hauteur totale. `projectCapacity` définit la région basse utilisable
+par les futurs projets. `reservedCapacity` définit la région haute visible de
+réservation. En cas de sur-réservation, cette région est écrêtée à la capacité
+effective du tube, tandis que la quantité métier exacte et `overReserved`
+restent inchangés dans la géométrie.
+
+La conversion rationnelle vers `number` est strictement une conversion de
+présentation ; les objets `Capacity` ne sont ni remplacés ni modifiés. Toute
+valeur qui ne peut pas produire une dimension finie provoque un `TypeError`.
+
+La frontière des lots est :
+
+```text
+Phase 4B   Capacity -> geometric available space
+Phase 4C   Project allocations -> stacked project surfaces in projectRegion
+```
+
+Aucun projet, stacking ou surface d'allocation n'est positionné en Phase 4B.
+Les couleurs et le rendu DOM/SVG restent également hors de cette couche.

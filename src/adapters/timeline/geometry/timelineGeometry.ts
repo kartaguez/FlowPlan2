@@ -9,6 +9,8 @@ export interface TimelineGeometry {
   readonly width: number;
   readonly height: number;
   readonly dayWidth: number;
+  readonly maxEffectiveCapacity: Capacity;
+  readonly pixelsPerCapacityUnit: number;
   readonly teams: readonly TimelineTeamGeometry[];
 }
 
@@ -31,4 +33,21 @@ export interface TimelineDayGeometry {
   readonly reservedCapacity: Capacity;
   readonly projectCapacity: Capacity;
   readonly overReserved: boolean;
+  readonly capacityTube: TimelineCapacityTubeGeometry;
+}
+
+export interface TimelineCapacityTubeGeometry {
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+  readonly projectRegion: TimelineRectGeometry;
+  readonly reservedRegion: TimelineRectGeometry;
+}
+
+export interface TimelineRectGeometry {
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
 }
