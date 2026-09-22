@@ -77,3 +77,15 @@ npm run dev
 La vérification navigateur minimale consiste à lancer `npm run dev`, ouvrir
 `http://127.0.0.1:4173`, puis vérifier la présence de `FlowPlan` et de
 `Planning workspace`.
+
+## Planning Engine — Phase 2A
+
+La Phase 2A implémente un allocateur séquentiel volontairement minimal. Elle
+pose l'infrastructure pure et déterministe du moteur final, mais ne constitue
+pas encore sa policy canonique d'admission, de partage ou de redistribution.
+Pour chaque équipe et chaque jour, toute la capacité projet disponible va au
+premier projet éligible dans l'ordre de priorité, sous réserve de son RAF et de
+son plafond quotidien.
+
+La date objectif et la deadline impérative sont représentées mais ignorées en
+Phase 2A. Elles n'influencent ni l'éligibilité ni l'allocation à ce stade.

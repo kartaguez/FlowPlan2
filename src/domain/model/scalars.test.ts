@@ -11,7 +11,11 @@ import {
   type DomainResult,
 } from "../index.js";
 import { createRational, rationalFromInteger } from "./rational.js";
-import { capacityFromRational, capacityRatioFromRational } from "./scalars.js";
+import {
+  capacityFromRational,
+  capacityRatioFromRational,
+  remainingWorkloadFromRational,
+} from "./scalars.js";
 
 function must<T>(result: DomainResult<T>): T {
   if (!result.ok) throw new Error(JSON.stringify(result.errors));
@@ -38,6 +42,22 @@ describe("opaque rational domain quantities", () => {
       assert.deepEqual(
         result.errors.map(({ code, path }) => ({ code, path })),
         [{ code: "NEGATIVE_RATIO", path: "ratio" }],
+      );
+    }
+  });
+
+  it("rejects invalid remaining workloads created from internal rationals", () => {
+    const result = remainingWorkloadFromRational(rationalFromInteger(-1n));
+    assert.equal(result.ok, false);
+    if (!result.ok) {
+      assert.deepEqual(
+        result.errors.map(({ code, path }) => ({ code, path })),
+        [
+          {
+            code: "NEGATIVE_REMAINING_WORKLOAD",
+            path: "remainingWorkload",
+          },
+        ],
       );
     }
   });

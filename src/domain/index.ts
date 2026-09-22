@@ -69,3 +69,12 @@ export {
   reservedCapacity,
   totalReservationRatio,
 } from "./capacity/calculations.js";
+export { planPortfolio } from "./planning/engine.js";
+export type {
+  PlanningInput,
+  PlanningResult,
+  ProjectAllocation,
+  ProjectTeamPlanningResult,
+  TeamDayCapacity,
+  TeamPlanningResult,
+} from "./planning/contracts.js";

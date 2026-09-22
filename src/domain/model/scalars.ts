@@ -93,6 +93,18 @@ export function capacityRatioFromRational(
   return createNonNegativeFromRational(value, path, "NEGATIVE_RATIO", "Ratio");
 }
 
+export function remainingWorkloadFromRational(
+  value: Rational,
+  path = "remainingWorkload",
+): DomainResult<RemainingWorkload> {
+  return createNonNegativeFromRational(
+    value,
+    path,
+    "NEGATIVE_REMAINING_WORKLOAD",
+    "Remaining workload",
+  );
+}
+
 function createId<T extends TeamId | ProjectId | ReservationId>(
   value: string,
   path: string,
