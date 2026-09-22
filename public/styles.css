@@ -59,13 +59,61 @@ p {
 
 .timeline-reserved-region {
   fill: #cbd5e1;
+  stroke: #94a3b8;
 }
 
 .timeline-project-region {
-  fill: #e6edf5;
+  fill: #e8eef5;
+  stroke: #b8c4d3;
 }
 
 .timeline-project-allocation {
-  fill: #64748b;
-  stroke: #475569;
+  stroke: #334155;
+  stroke-width: 0.75;
+}
+
+.timeline-day--over-reserved .timeline-reserved-region {
+  fill: #c97a72;
+  stroke: #8f3f3a;
+  stroke-width: 1.5;
+}
+
+.timeline-project-color-0 {
+  fill: #5f7ea3;
+}
+
+.timeline-project-color-1 {
+  fill: #7a6f9b;
+}
+
+.timeline-project-color-2 {
+  fill: #4f887d;
+}
+
+.timeline-project-color-3 {
+  fill: #9a7457;
+}
+
+.timeline-project-color-4 {
+  fill: #708b55;
+}
+
+.timeline-project-color-5 {
+  fill: #936575;
+}
+
+.timeline-project-color-6 {
+  fill: #4f8194;
+}
+
+.timeline-project-color-7 {
+  fill: #8a7954;
+}
+
+.timeline-project-color-8 {
+  fill: #65758f;
+}
+
+.timeline-project-color-9 {
+  fill: #7e6f87;
 }

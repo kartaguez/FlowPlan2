@@ -369,3 +369,23 @@ comportement métier ou interactif.
 Phase 5A ne fournit ni couleurs stables par projet, ni labels, ni axe temporel,
 ni markers, ni surfaces continues, ni tooltips, ni curseur, ni zoom, ni
 sélection, ni gestionnaires d'événements.
+
+## Visual Semantics — Phase 5B
+
+La répartition des responsabilités visuelles reste stricte : la géométrie
+possède le layout, le renderer possède la structure SVG, et CSS/UI possède
+l'identité visuelle. Une couleur projet est une projection UI déterministe de
+`ProjectId` vers une palette fixe. Elle n'est ni un état métier, ni une donnée
+persistée dans `PlanningResult`, `TimelineViewModel` ou `TimelineGeometry`.
+Le même projet conserve donc sa couleur entre les jours, les équipes et les
+reconstructions, indépendamment de l'ordre de rendu.
+
+`overReserved` est fourni par la sémantique de la géométrie. Le renderer ne le
+recalcule pas : il le traduit seulement en classe CSS, qui distingue
+visuellement la réservation excédentaire. Les styles différencient également
+le tube de capacité, la région réservée, la région projet et les allocations,
+sans modifier leurs coordonnées.
+
+Phase 5B s'arrête à cette sémantique visuelle statique. Phase 5C introduira
+l'axe temporel et les en-têtes mois/année. Aucun label, marker, tooltip,
+curseur, zoom, sélection ou gestionnaire d'événement n'est ajouté ici.

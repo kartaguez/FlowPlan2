@@ -17,6 +17,7 @@ import type {
   TimelineGeometry,
   TimelineRectGeometry,
 } from "../../adapters/index.js";
+import { projectColorIndex } from "./projectVisualIdentity.js";
 import { renderTimelineSvg } from "./renderTimelineSvg.js";
 
 const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
@@ -169,7 +170,8 @@ function descendants(root: FakeSvgElement): FakeSvgElement[] {
 
 function withClass(root: FakeSvgElement, className: string): FakeSvgElement[] {
   return descendants(root).filter(
-    (element) => element.getAttribute("class") === className,
+    (element) =>
+      element.getAttribute("class")?.split(/\s+/).includes(className) ?? false,
   );
 }
 
@@ -308,8 +310,9 @@ describe("renderTimelineSvg", () => {
     const allocations = withClass(svg, "timeline-project-allocation");
 
     assert.equal(allocations.length, 3);
+    const colorIndex = projectColorIndex("project-1");
     assert.deepEqual(attributes(allocations[0]!), {
-      class: "timeline-project-allocation",
+      class: `timeline-project-allocation timeline-project-color-${colorIndex}`,
       x: "12",
       y: "42",
       width: "26",
@@ -318,6 +321,7 @@ describe("renderTimelineSvg", () => {
       "data-team-id": "team-a",
       "data-date": "2025-01-01",
       "data-priority-index": "0",
+      "data-project-color-index": String(colorIndex),
     });
   });
 
@@ -333,13 +337,108 @@ describe("renderTimelineSvg", () => {
     );
   });
 
-  it("exposes over-reservation as metadata without visual semantics", () => {
+  it("maps over-reservation metadata to a dedicated semantic class", () => {
     const svg = createSvg();
     render(svg);
+    const days = withClass(svg, "timeline-day");
 
     assert.equal(
-      withClass(svg, "timeline-day")[0]?.getAttribute("data-over-reserved"),
+      days[0]?.getAttribute("data-over-reserved"),
       "true",
+    );
+    assert.equal(
+      days[0]?.getAttribute("class"),
+      "timeline-day timeline-day--over-reserved",
+    );
+    assert.equal(days[1]?.getAttribute("data-over-reserved"), "false");
+    assert.equal(days[1]?.getAttribute("class"), "timeline-day");
+  });
+
+  it("keeps one project color stable across different days", () => {
+    const geometry = makeGeometry();
+    const team = geometry.teams[0]!;
+    const firstAllocation = team.days[0]!.allocations[0]!;
+    const secondDay = team.days[1]!;
+    const repeatedAllocation: TimelineAllocationGeometry = {
+      ...firstAllocation,
+      date: secondDay.date,
+      x: secondDay.capacityTube.projectRegion.x,
+      y: secondDay.capacityTube.projectRegion.y,
+      width: secondDay.capacityTube.projectRegion.width,
+      height: 10,
+    };
+    const updatedGeometry: TimelineGeometry = {
+      ...geometry,
+      teams: [
+        {
+          ...team,
+          days: [
+            team.days[0]!,
+            { ...secondDay, allocations: [repeatedAllocation] },
+            team.days[2]!,
+          ],
+        },
+        geometry.teams[1]!,
+      ],
+    };
+    const svg = createSvg();
+
+    render(svg, updatedGeometry);
+
+    const allocations = withClass(svg, "timeline-project-allocation").filter(
+      (element) => element.getAttribute("data-project-id") === "project-1",
+    );
+    assert.equal(allocations.length, 2);
+    assert.equal(
+      allocations[0]?.getAttribute("data-project-color-index"),
+      allocations[1]?.getAttribute("data-project-color-index"),
+    );
+    assert.equal(
+      allocations[0]?.getAttribute("class"),
+      allocations[1]?.getAttribute("class"),
+    );
+  });
+
+  it("keeps one project color stable across different teams", () => {
+    const geometry = makeGeometry();
+    const firstTeam = geometry.teams[0]!;
+    const secondTeam = geometry.teams[1]!;
+    const source = firstTeam.days[0]!.allocations[0]!;
+    const secondDay = secondTeam.days[0]!;
+    const repeatedAllocation: TimelineAllocationGeometry = {
+      ...source,
+      teamId: secondTeam.teamId,
+      date: secondDay.date,
+      x: secondDay.capacityTube.projectRegion.x,
+      y: secondDay.capacityTube.projectRegion.y,
+      width: secondDay.capacityTube.projectRegion.width,
+      height: 10,
+    };
+    const updatedGeometry: TimelineGeometry = {
+      ...geometry,
+      teams: [
+        firstTeam,
+        {
+          ...secondTeam,
+          days: [{ ...secondDay, allocations: [repeatedAllocation] }],
+        },
+      ],
+    };
+    const svg = createSvg();
+
+    render(svg, updatedGeometry);
+
+    const allocations = withClass(svg, "timeline-project-allocation").filter(
+      (element) => element.getAttribute("data-project-id") === "project-1",
+    );
+    assert.equal(allocations.length, 2);
+    assert.equal(
+      allocations[0]?.getAttribute("data-project-color-index"),
+      allocations[1]?.getAttribute("data-project-color-index"),
+    );
+    assert.equal(
+      allocations[0]?.getAttribute("class"),
+      allocations[1]?.getAttribute("class"),
     );
   });
 
@@ -400,7 +499,7 @@ describe("renderTimelineSvg", () => {
     );
     assert.doesNotMatch(
       source,
-      /addEventListener|onclick|onpointer|ondrag|innerHTML/,
+      /addEventListener|onclick|onpointer|mousemove|ondrag|\bdrag\b|innerHTML/,
     );
   });
 });

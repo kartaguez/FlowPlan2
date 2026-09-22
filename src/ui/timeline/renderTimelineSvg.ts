@@ -5,6 +5,7 @@ import type {
   TimelineRectGeometry,
   TimelineTeamGeometry,
 } from "../../adapters/index.js";
+import { projectColorIndex } from "./projectVisualIdentity.js";
 
 const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 
@@ -51,7 +52,12 @@ function renderTeam(
 
 function renderDay(document: Document, day: TimelineDayGeometry): SVGElement {
   const group = createSvgElement(document, "g");
-  group.setAttribute("class", "timeline-day");
+  group.setAttribute(
+    "class",
+    day.overReserved
+      ? "timeline-day timeline-day--over-reserved"
+      : "timeline-day",
+  );
   group.setAttribute("data-date", day.date);
   group.setAttribute("data-over-reserved", String(day.overReserved));
 
@@ -85,9 +91,10 @@ function renderAllocation(
   document: Document,
   allocation: TimelineAllocationGeometry,
 ): SVGElement {
+  const colorIndex = projectColorIndex(allocation.projectId);
   const rectangle = createRect(
     document,
-    "timeline-project-allocation",
+    `timeline-project-allocation timeline-project-color-${colorIndex}`,
     allocation,
   );
   rectangle.setAttribute("data-project-id", allocation.projectId);
@@ -97,6 +104,7 @@ function renderAllocation(
     "data-priority-index",
     String(allocation.priorityIndex),
   );
+  rectangle.setAttribute("data-project-color-index", String(colorIndex));
   return rectangle;
 }
 
