@@ -474,10 +474,16 @@ timeline. Une date absente de l'horizon est refusée. Le mapping pointer utilise
 après un scroll horizontal sans recourir à une arithmétique `Date` JavaScript.
 
 Le contrôleur écoute `pointerdown`, le déplacement actif, `pointerup` et
-`pointercancel`. Le clavier propose `ArrowLeft`, `ArrowRight`, `Home` et `End`,
-sans bouclage aux bornes. Une mise à jour remplace uniquement la ligne du
-calque `timeline-cursor-layer` et reconstruit le résumé de la date ; la
-timeline statique n'est pas rerendue.
+`pointercancel` sur le SVG, qui reste une surface visuelle et pointer. Une
+capture du pointer démarre avec le drag et est libérée à sa fin : le cycle
+reste ainsi cohérent lorsque le pointer sort des limites du SVG.
+
+Le focus clavier et la sémantique accessible de la date sélectionnée vivent
+sur un bouton HTML natif adjacent à la timeline, jamais sur le SVG principal.
+Ce contrôle propose `ArrowLeft`, `ArrowRight`, `Home` et `End`, sans bouclage
+aux bornes, et son texte accessible suit la date sélectionnée. Une mise à jour
+remplace uniquement la ligne du calque `timeline-cursor-layer` et reconstruit
+le résumé de la date ; la timeline statique n'est pas rerendue.
 
 Le résumé HTML lit exclusivement le `TimelineViewModel`. Dans l'ordre des
 équipes, il présente les capacités effective, réservée et projet, puis les

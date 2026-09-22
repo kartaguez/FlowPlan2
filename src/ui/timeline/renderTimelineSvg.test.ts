@@ -284,12 +284,17 @@ describe("renderTimelineSvg", () => {
 
   it("sets viewBox directly from geometry dimensions", () => {
     const svg = createSvg();
+    svg.setAttribute("aria-label", "FlowPlan planning timeline demo");
     render(svg);
 
     assert.equal(svg.getAttribute("viewBox"), "0 0 300 160");
     assert.equal(svg.getAttribute("role"), "img");
-    assert.equal(svg.getAttribute("tabindex"), "0");
-    assert.equal(svg.getAttribute("aria-label"), "Timeline date cursor");
+    assert.equal(svg.getAttribute("tabindex"), null);
+    assert.equal(svg.getAttribute("aria-valuetext"), null);
+    assert.equal(
+      svg.getAttribute("aria-label"),
+      "FlowPlan planning timeline demo",
+    );
     assert.equal(svg.getAttribute("width"), "300");
     assert.equal(svg.getAttribute("height"), "160");
   });

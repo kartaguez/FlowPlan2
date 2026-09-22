@@ -24,8 +24,6 @@ export function renderTimelineSvg(input: RenderTimelineSvgInput): void {
     `0 0 ${input.geometry.width} ${input.geometry.height}`,
   );
   input.svg.setAttribute("role", "img");
-  input.svg.setAttribute("tabindex", "0");
-  input.svg.setAttribute("aria-label", "Timeline date cursor");
   input.svg.setAttribute("width", String(input.geometry.width));
   input.svg.setAttribute("height", String(input.geometry.height));
 

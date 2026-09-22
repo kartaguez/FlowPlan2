@@ -38,6 +38,7 @@ class FakeDocument {
 class FakeElement {
   readonly attributes = new Map<string, string>();
   readonly listeners = new Map<string, Set<Listener>>();
+  readonly capturedPointerIds = new Set<number>();
   childNodes: FakeElement[] = [];
   className = "";
   textContent: string | null = null;
@@ -97,6 +98,18 @@ class FakeElement {
     this.listeners.get(type)?.delete(listener as Listener);
   }
 
+  setPointerCapture(pointerId: number): void {
+    this.capturedPointerIds.add(pointerId);
+  }
+
+  hasPointerCapture(pointerId: number): boolean {
+    return this.capturedPointerIds.has(pointerId);
+  }
+
+  releasePointerCapture(pointerId: number): void {
+    this.capturedPointerIds.delete(pointerId);
+  }
+
   dispatch(type: string, event: object): void {
     for (const listener of this.listeners.get(type) ?? []) listener(event);
   }
@@ -105,6 +118,7 @@ class FakeElement {
 function fixture(): {
   svg: FakeElement;
   summary: FakeElement;
+  cursorControl: FakeElement;
   geometry: TimelineGeometry;
   viewModel: TimelineViewModel;
 } {
@@ -114,6 +128,7 @@ function fixture(): {
   layer.setAttribute("class", "timeline-cursor-layer");
   svg.append(layer);
   const summary = document.createElement("section");
+  const cursorControl = document.createElement("button");
   const dates = ["2025-01-01", "2025-01-02", "2025-01-03"].map((value) =>
     must(createCivilDate(value)),
   );
@@ -140,7 +155,7 @@ function fixture(): {
     teams: [],
     diagnostics: [],
   };
-  return { svg, summary, geometry, viewModel };
+  return { svg, summary, cursorControl, geometry, viewModel };
 }
 
 function pointer(pointerId: number, clientX: number): PointerEvent {
@@ -166,11 +181,17 @@ describe("createTimelineCursorController", () => {
       geometry: input.geometry,
       viewModel: input.viewModel,
       summaryContainer: input.summary as unknown as HTMLElement,
+      cursorControl: input.cursorControl as unknown as HTMLButtonElement,
       initialDate: input.viewModel.horizon.start,
     });
 
     assert.equal(controller.getState().selectedDate, "2025-01-01");
-    assert.equal(input.svg.getAttribute("aria-valuetext"), "2025-01-01");
+    assert.equal(input.svg.getAttribute("aria-valuetext"), null);
+    assert.equal(input.cursorControl.textContent, "Selected date: 2025-01-01");
+    assert.equal(
+      input.cursorControl.getAttribute("aria-label"),
+      "Timeline date cursor, selected date 2025-01-01",
+    );
     assert.equal(input.summary.childNodes[0]?.textContent, "Selected date: 2025-01-01");
   });
 
@@ -181,16 +202,19 @@ describe("createTimelineCursorController", () => {
       geometry: input.geometry,
       viewModel: input.viewModel,
       summaryContainer: input.summary as unknown as HTMLElement,
+      cursorControl: input.cursorControl as unknown as HTMLButtonElement,
       initialDate: input.viewModel.horizon.start,
     });
 
     input.svg.dispatch("pointermove", pointer(1, 250));
     assert.equal(controller.getState().selectedDate, "2025-01-01");
     input.svg.dispatch("pointerdown", pointer(1, 250));
+    assert.equal(input.svg.hasPointerCapture(1), true);
     assert.equal(controller.getState().selectedDate, "2025-01-02");
     input.svg.dispatch("pointermove", pointer(1, 350));
     assert.equal(controller.getState().selectedDate, "2025-01-03");
     input.svg.dispatch("pointerup", pointer(1, 350));
+    assert.equal(input.svg.hasPointerCapture(1), false);
     input.svg.dispatch("pointermove", pointer(1, 150));
     assert.equal(controller.getState().selectedDate, "2025-01-03");
   });
@@ -202,20 +226,23 @@ describe("createTimelineCursorController", () => {
       geometry: input.geometry,
       viewModel: input.viewModel,
       summaryContainer: input.summary as unknown as HTMLElement,
+      cursorControl: input.cursorControl as unknown as HTMLButtonElement,
       initialDate: input.viewModel.horizon.start,
     });
 
     const leftAtStart = keyboard("ArrowLeft");
-    input.svg.dispatch("keydown", leftAtStart);
+    input.svg.dispatch("keydown", keyboard("End"));
+    assert.equal(controller.getState().selectedDate, "2025-01-01");
+    input.cursorControl.dispatch("keydown", leftAtStart);
     assert.equal(controller.getState().selectedDate, "2025-01-01");
     assert.equal(leftAtStart.prevented, true);
-    input.svg.dispatch("keydown", keyboard("ArrowRight"));
+    input.cursorControl.dispatch("keydown", keyboard("ArrowRight"));
     assert.equal(controller.getState().selectedDate, "2025-01-02");
-    input.svg.dispatch("keydown", keyboard("End"));
+    input.cursorControl.dispatch("keydown", keyboard("End"));
     assert.equal(controller.getState().selectedDate, "2025-01-03");
-    input.svg.dispatch("keydown", keyboard("ArrowRight"));
+    input.cursorControl.dispatch("keydown", keyboard("ArrowRight"));
     assert.equal(controller.getState().selectedDate, "2025-01-03");
-    input.svg.dispatch("keydown", keyboard("Home"));
+    input.cursorControl.dispatch("keydown", keyboard("Home"));
     assert.equal(controller.getState().selectedDate, "2025-01-01");
   });
 
@@ -231,22 +258,76 @@ describe("createTimelineCursorController", () => {
     );
   });
 
-  it("removes every listener on destroy", () => {
+  it("releases capture and ends dragging on pointercancel", () => {
     const input = fixture();
     const controller = createTimelineCursorController({
       svg: input.svg as unknown as SVGSVGElement,
       geometry: input.geometry,
       viewModel: input.viewModel,
       summaryContainer: input.summary as unknown as HTMLElement,
+      cursorControl: input.cursorControl as unknown as HTMLButtonElement,
       initialDate: input.viewModel.horizon.start,
     });
 
+    input.svg.dispatch("pointerdown", pointer(7, 250));
+    assert.equal(input.svg.hasPointerCapture(7), true);
+    input.svg.dispatch("pointercancel", pointer(7, 250));
+    assert.equal(input.svg.hasPointerCapture(7), false);
+    input.svg.dispatch("pointermove", pointer(7, 350));
+    assert.equal(controller.getState().selectedDate, "2025-01-02");
+  });
+
+  it("falls back safely when pointer capture APIs are unavailable", () => {
+    const input = fixture();
+    const svgWithoutCapture = input.svg as FakeElement & {
+      setPointerCapture?: undefined;
+      hasPointerCapture?: undefined;
+      releasePointerCapture?: undefined;
+    };
+    Object.defineProperties(svgWithoutCapture, {
+      setPointerCapture: { value: undefined },
+      hasPointerCapture: { value: undefined },
+      releasePointerCapture: { value: undefined },
+    });
+    const controller = createTimelineCursorController({
+      svg: svgWithoutCapture as unknown as SVGSVGElement,
+      geometry: input.geometry,
+      viewModel: input.viewModel,
+      summaryContainer: input.summary as unknown as HTMLElement,
+      cursorControl: input.cursorControl as unknown as HTMLButtonElement,
+      initialDate: input.viewModel.horizon.start,
+    });
+
+    input.svg.dispatch("pointerdown", pointer(4, 250));
+    input.svg.dispatch("pointerup", pointer(4, 250));
+    input.svg.dispatch("pointermove", pointer(4, 350));
+
+    assert.equal(controller.getState().selectedDate, "2025-01-02");
+  });
+
+  it("removes every listener and active capture on destroy", () => {
+    const input = fixture();
+    const controller = createTimelineCursorController({
+      svg: input.svg as unknown as SVGSVGElement,
+      geometry: input.geometry,
+      viewModel: input.viewModel,
+      summaryContainer: input.summary as unknown as HTMLElement,
+      cursorControl: input.cursorControl as unknown as HTMLButtonElement,
+      initialDate: input.viewModel.horizon.start,
+    });
+
+    input.svg.dispatch("pointerdown", pointer(1, 150));
+    assert.equal(input.svg.hasPointerCapture(1), true);
     controller.destroy();
-    input.svg.dispatch("pointerdown", pointer(1, 350));
-    input.svg.dispatch("keydown", keyboard("End"));
+    input.svg.dispatch("pointerdown", pointer(2, 350));
+    input.cursorControl.dispatch("keydown", keyboard("End"));
 
     assert.equal(controller.getState().selectedDate, "2025-01-01");
     assert.ok([...input.svg.listeners.values()].every((set) => set.size === 0));
+    assert.ok(
+      [...input.cursorControl.listeners.values()].every((set) => set.size === 0),
+    );
+    assert.equal(input.svg.capturedPointerIds.size, 0);
   });
 
   it("has no planning, persistence, or JavaScript Date dependency", async () => {

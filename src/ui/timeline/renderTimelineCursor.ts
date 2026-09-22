@@ -23,5 +23,4 @@ export function renderTimelineCursor(input: RenderTimelineCursorInput): void {
   line.setAttribute("y2", String(input.cursor.y2));
   line.setAttribute("data-selected-date", input.cursor.date);
   layer.replaceChildren(line);
-  input.svg.setAttribute("aria-valuetext", input.cursor.date);
 }

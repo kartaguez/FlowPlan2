@@ -15,7 +15,7 @@ if (!root) {
   throw new Error("FlowPlan root element is missing");
 }
 
-const { svg, diagnostics, dateSummary } = renderApp(root);
+const { svg, diagnostics, dateSummary, cursorControl } = renderApp(root);
 const scenario = createDemoPlanningScenario();
 const { planningResult } = recomputePlanning(scenario);
 const viewModel = buildTimelineViewModel({
@@ -38,5 +38,6 @@ createTimelineCursorController({
   geometry,
   viewModel,
   summaryContainer: dateSummary,
+  cursorControl,
   initialDate: scenario.horizon.start,
 });

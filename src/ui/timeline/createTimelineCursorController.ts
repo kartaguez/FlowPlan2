@@ -22,6 +22,7 @@ export interface CreateTimelineCursorControllerInput {
   readonly geometry: TimelineGeometry;
   readonly viewModel: TimelineViewModel;
   readonly summaryContainer: HTMLElement;
+  readonly cursorControl: HTMLButtonElement;
   readonly initialDate: CivilDate;
 }
 
@@ -43,6 +44,11 @@ export function createTimelineCursorController(
       viewModel: input.viewModel,
       selectedDate,
     });
+    input.cursorControl.textContent = `Selected date: ${selectedDate}`;
+    input.cursorControl.setAttribute(
+      "aria-label",
+      `Timeline date cursor, selected date ${selectedDate}`,
+    );
   };
 
   const selectFromPointer = (event: PointerEvent): void => {
@@ -58,6 +64,9 @@ export function createTimelineCursorController(
   };
 
   const onPointerDown = (event: PointerEvent): void => {
+    if (typeof input.svg.setPointerCapture === "function") {
+      input.svg.setPointerCapture(event.pointerId);
+    }
     activePointerId = event.pointerId;
     selectFromPointer(event);
   };
@@ -66,7 +75,9 @@ export function createTimelineCursorController(
     selectFromPointer(event);
   };
   const stopPointer = (event: PointerEvent): void => {
-    if (activePointerId === event.pointerId) activePointerId = undefined;
+    if (activePointerId !== event.pointerId) return;
+    releasePointerCapture(input.svg, event.pointerId);
+    activePointerId = undefined;
   };
   const onKeyDown = (event: KeyboardEvent): void => {
     const currentIndex = dates.indexOf(selectedDate);
@@ -100,7 +111,7 @@ export function createTimelineCursorController(
   input.svg.addEventListener("pointermove", onPointerMove);
   input.svg.addEventListener("pointerup", stopPointer);
   input.svg.addEventListener("pointercancel", stopPointer);
-  input.svg.addEventListener("keydown", onKeyDown);
+  input.cursorControl.addEventListener("keydown", onKeyDown);
   render();
 
   return Object.freeze({
@@ -110,10 +121,23 @@ export function createTimelineCursorController(
       input.svg.removeEventListener("pointermove", onPointerMove);
       input.svg.removeEventListener("pointerup", stopPointer);
       input.svg.removeEventListener("pointercancel", stopPointer);
-      input.svg.removeEventListener("keydown", onKeyDown);
+      input.cursorControl.removeEventListener("keydown", onKeyDown);
+      if (activePointerId !== undefined) {
+        releasePointerCapture(input.svg, activePointerId);
+      }
       activePointerId = undefined;
     },
   });
+}
+
+function releasePointerCapture(svg: SVGSVGElement, pointerId: number): void {
+  if (typeof svg.releasePointerCapture !== "function") return;
+  if (
+    typeof svg.hasPointerCapture !== "function" ||
+    svg.hasPointerCapture(pointerId)
+  ) {
+    svg.releasePointerCapture(pointerId);
+  }
 }
 
 export interface TimelineXFromClientXInput {

@@ -93,7 +93,7 @@ describe("renderTimelineCursor", () => {
       y2: "356",
       "data-selected-date": "2025-01-02",
     });
-    assert.equal(svg.getAttribute("aria-valuetext"), "2025-01-02");
+    assert.equal(svg.getAttribute("aria-valuetext"), null);
   });
 
   it("is deterministic and never duplicates cursor lines", () => {

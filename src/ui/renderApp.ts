@@ -4,6 +4,7 @@ export interface AppElements {
   readonly svg: SVGSVGElement;
   readonly diagnostics: HTMLElement;
   readonly dateSummary: HTMLElement;
+  readonly cursorControl: HTMLButtonElement;
 }
 
 export function renderApp(root: HTMLElement): AppElements {
@@ -27,6 +28,11 @@ export function renderApp(root: HTMLElement): AppElements {
   const description = document.createElement("p");
   description.textContent =
     "Three teams, four projects, exact capacity reservations and daily planning.";
+  const cursorControl = document.createElement("button");
+  cursorControl.type = "button";
+  cursorControl.className = "timeline-cursor-control";
+  cursorControl.setAttribute("aria-label", "Timeline date cursor");
+  cursorControl.textContent = "Selected date";
   const timelineContainer = document.createElement("div");
   timelineContainer.className = "timeline-container";
   const timeline = document.createElementNS(SVG_NAMESPACE, "svg");
@@ -43,6 +49,7 @@ export function renderApp(root: HTMLElement): AppElements {
   workspace.append(
     workspaceTitle,
     description,
+    cursorControl,
     timelineContainer,
     dateSummary,
     diagnostics,
@@ -50,5 +57,10 @@ export function renderApp(root: HTMLElement): AppElements {
 
   shell.append(header, workspace);
   root.replaceChildren(shell);
-  return Object.freeze({ svg: timeline, diagnostics, dateSummary });
+  return Object.freeze({
+    svg: timeline,
+    diagnostics,
+    dateSummary,
+    cursorControl,
+  });
 }

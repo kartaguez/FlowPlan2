@@ -203,6 +203,22 @@ p {
   stroke-width: 2;
 }
 
+.timeline-cursor-control {
+  margin: 0.5rem 0 0.75rem;
+  border: 1px solid #94a3b8;
+  border-radius: 0.4rem;
+  background: #ffffff;
+  padding: 0.45rem 0.75rem;
+  color: #26364d;
+  font: inherit;
+  cursor: default;
+}
+
+.timeline-cursor-control:focus-visible {
+  outline: 3px solid #60a5fa;
+  outline-offset: 2px;
+}
+
 .timeline-date-summary {
   margin-top: 1.25rem;
   border: 1px solid #d9e0ea;
