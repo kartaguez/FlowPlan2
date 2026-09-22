@@ -3,6 +3,7 @@ import type {
   TimelineDayGeometry,
   TimelineGeometry,
   TimelineMonthGeometry,
+  TimelineProjectMarkerGeometry,
   TimelineRectGeometry,
   TimelineTeamGeometry,
   TimelineTimeAxisGeometry,
@@ -99,8 +100,42 @@ function renderTeam(
   for (const day of team.days) {
     days.append(renderDay(document, day));
   }
-  group.append(lane, days);
+  const markers = createSvgElement(document, "g");
+  markers.setAttribute("class", "timeline-project-markers");
+  for (const marker of team.markers) {
+    markers.append(renderProjectMarker(document, marker));
+  }
+  group.append(lane, days, markers);
   return group;
+}
+
+function renderProjectMarker(
+  document: Document,
+  marker: TimelineProjectMarkerGeometry,
+): SVGElement {
+  const line = createSvgElement(document, "line");
+  const classes = [
+    "timeline-project-marker",
+    `timeline-project-marker--${marker.kind}`,
+  ];
+  if (marker.deadlineStatus !== undefined) {
+    classes.push(
+      `timeline-project-marker--deadline-${marker.deadlineStatus.toLowerCase()}`,
+    );
+  }
+  line.setAttribute("class", classes.join(" "));
+  line.setAttribute("x1", String(marker.x));
+  line.setAttribute("x2", String(marker.x));
+  line.setAttribute("y1", String(marker.y1));
+  line.setAttribute("y2", String(marker.y2));
+  line.setAttribute("data-project-id", marker.projectId);
+  line.setAttribute("data-team-id", marker.teamId);
+  line.setAttribute("data-date", marker.date);
+  line.setAttribute("data-marker-kind", marker.kind);
+  if (marker.deadlineStatus !== undefined) {
+    line.setAttribute("data-deadline-status", marker.deadlineStatus);
+  }
+  return line;
 }
 
 function renderDay(document: Document, day: TimelineDayGeometry): SVGElement {
@@ -184,7 +219,7 @@ function setRectGeometry(
 
 function createSvgElement(
   document: Document,
-  name: "g" | "rect" | "text",
+  name: "g" | "line" | "rect" | "text",
 ): SVGElement {
   return document.createElementNS(SVG_NAMESPACE, name);
 }

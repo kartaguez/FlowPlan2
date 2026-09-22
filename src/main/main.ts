@@ -4,6 +4,7 @@ import {
 } from "../adapters/index.js";
 import { recomputePlanning } from "../application/index.js";
 import { renderApp } from "../ui/renderApp.js";
+import { renderPlanningDiagnostics } from "../ui/timeline/renderPlanningDiagnostics.js";
 import { renderTimelineSvg } from "../ui/timeline/renderTimelineSvg.js";
 import { createDemoPlanningScenario } from "./demo/createDemoPlanningScenario.js";
 
@@ -13,7 +14,7 @@ if (!root) {
   throw new Error("FlowPlan root element is missing");
 }
 
-const svg = renderApp(root);
+const { svg, diagnostics } = renderApp(root);
 const scenario = createDemoPlanningScenario();
 const { planningResult } = recomputePlanning(scenario);
 const viewModel = buildTimelineViewModel({
@@ -30,3 +31,4 @@ const geometry = buildTimelineGeometry({
 });
 
 renderTimelineSvg({ svg, geometry });
+renderPlanningDiagnostics({ container: diagnostics, viewModel });

@@ -52,5 +52,27 @@ describe("demo planning bootstrap", () => {
         ),
       ),
     );
+    assert.ok(
+      geometry.teams.some((team) =>
+        team.markers.some((marker) => marker.kind === "earliest-start"),
+      ),
+    );
+    assert.ok(
+      geometry.teams.some((team) =>
+        team.markers.some((marker) => marker.kind === "objective-end"),
+      ),
+    );
+    assert.ok(
+      geometry.teams.some((team) =>
+        team.markers.some(
+          (marker) => marker.kind === "mandatory-deadline",
+        ),
+      ),
+    );
+    assert.ok(
+      viewModel.diagnostics.some(
+        (diagnostic) => diagnostic.code === "TEAM_OVER_RESERVED",
+      ),
+    );
   });
 });

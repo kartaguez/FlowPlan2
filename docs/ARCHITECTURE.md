@@ -425,3 +425,31 @@ entre par les fabriques métier normales, n'est ni un défaut du domaine, ni un
 état du renderer, ni une persistence. Il sera remplacé à terme par la future
 source applicative. Aucun `localStorage`, IndexedDB ou mécanisme d'édition
 n'est introduit par cette intégration en lecture seule.
+
+## Project markers and diagnostics — Phase 5D
+
+Les dates projet positionnables (`earliestStartDate`, `objectiveEndDate` et
+`mandatoryDeadline`) deviennent des marqueurs géométriques uniquement sur les
+lanes où un `TimelineProjectTeamState` existe. La géométrie place chaque ligne
+au centre de sa colonne journalière et la borne verticalement à sa lane. Une
+date hors de l'horizon est omise, sans clamp. Les marqueurs sont ordonnés par
+`priorityIndex`, puis par type (`earliest-start`, `objective-end`,
+`mandatory-deadline`), puis par date. Le statut deadline est copié uniquement
+sur le marqueur de deadline ; il n'est jamais recalculé par la géométrie ou le
+renderer.
+
+Les diagnostics de planning suivent une autre projection : ils restent dans le
+`TimelineViewModel` et alimentent un panneau HTML en lecture seule, dans leur
+ordre source. Cette séparation évite d'inventer une coordonnée temporelle pour
+les diagnostics sans date, notamment le RAF restant à la fin de l'horizon. La
+UI joint les labels déjà fournis et associe seulement chaque code stable à un
+message humain ; elle n'introduit aucune severity métier.
+
+```text
+project dates + project/team states -> marker geometry -> SVG lines
+planning diagnostics                -> read-only HTML diagnostics panel
+```
+
+Phase 5D fournit uniquement des annotations visuelles en lecture seule. Phase
+6A introduira le curseur temporel interactif. Aucun tooltip, sélection,
+gestionnaire d'événement, drag/drop ou handle d'édition n'appartient à 5D.

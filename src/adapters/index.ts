@@ -19,6 +19,8 @@ export type {
   TimelineGeometry,
   TimelineGeometryViewport,
   TimelineMonthGeometry,
+  TimelineProjectMarkerGeometry,
+  TimelineProjectMarkerKind,
   TimelineRectGeometry,
   TimelineTeamGeometry,
   TimelineTimeAxisGeometry,

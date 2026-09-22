@@ -1,6 +1,11 @@
 const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 
-export function renderApp(root: HTMLElement): SVGSVGElement {
+export interface AppElements {
+  readonly svg: SVGSVGElement;
+  readonly diagnostics: HTMLElement;
+}
+
+export function renderApp(root: HTMLElement): AppElements {
   const document = root.ownerDocument;
   const shell = document.createElement("main");
   shell.className = "application-shell";
@@ -28,9 +33,12 @@ export function renderApp(root: HTMLElement): SVGSVGElement {
   timeline.classList.add("timeline-svg");
   timeline.setAttribute("aria-label", "FlowPlan planning timeline demo");
   timelineContainer.append(timeline);
-  workspace.append(workspaceTitle, description, timelineContainer);
+  const diagnostics = document.createElement("section");
+  diagnostics.className = "timeline-diagnostics";
+  diagnostics.setAttribute("aria-label", "Planning diagnostics");
+  workspace.append(workspaceTitle, description, timelineContainer, diagnostics);
 
   shell.append(header, workspace);
   root.replaceChildren(shell);
-  return timeline;
+  return Object.freeze({ svg: timeline, diagnostics });
 }

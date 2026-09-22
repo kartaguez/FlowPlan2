@@ -157,3 +157,88 @@ p {
 .timeline-project-color-9 {
   fill: #7e6f87;
 }
+
+.timeline-project-marker {
+  pointer-events: none;
+  stroke: #475569;
+  stroke-width: 1.25;
+}
+
+.timeline-project-marker--earliest-start {
+  stroke: #64748b;
+  stroke-dasharray: 3 3;
+}
+
+.timeline-project-marker--objective-end {
+  stroke: #52657f;
+  stroke-dasharray: 6 3;
+}
+
+.timeline-project-marker--mandatory-deadline {
+  stroke: #7c3f3f;
+  stroke-width: 2;
+}
+
+.timeline-project-marker--deadline-pending {
+  opacity: 0.7;
+}
+
+.timeline-project-marker--deadline-feasible {
+  stroke: #39705d;
+}
+
+.timeline-project-marker--deadline-unfeasible {
+  stroke: #b26a2f;
+  stroke-dasharray: 4 2;
+}
+
+.timeline-project-marker--deadline-missed {
+  stroke: #a33f3f;
+  stroke-width: 2.5;
+}
+
+.timeline-diagnostics {
+  margin-top: 1.25rem;
+  border-top: 1px solid #d9e0ea;
+  padding-top: 1rem;
+}
+
+.timeline-diagnostics-heading {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+}
+
+.timeline-diagnostics-list {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.timeline-diagnostic {
+  display: grid;
+  gap: 0.2rem;
+  border-left: 3px solid #94a3b8;
+  background: #f8fafc;
+  padding: 0.65rem 0.75rem;
+}
+
+.timeline-diagnostic--team-over-reserved,
+.timeline-diagnostic--deadline-unfeasible,
+.timeline-diagnostic--deadline-missed {
+  border-left-color: #a85b4f;
+}
+
+.timeline-diagnostic-code {
+  color: #52657f;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.timeline-diagnostic-message,
+.timeline-diagnostics-empty {
+  margin: 0;
+  color: #334155;
+}

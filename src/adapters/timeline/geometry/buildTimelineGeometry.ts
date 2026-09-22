@@ -19,6 +19,8 @@ import type {
   TimelineGeometry,
   TimelineGeometryViewport,
   TimelineMonthGeometry,
+  TimelineProjectMarkerGeometry,
+  TimelineProjectMarkerKind,
   TimelineRectGeometry,
   TimelineTeamGeometry,
   TimelineTimeAxisGeometry,
@@ -26,6 +28,12 @@ import type {
 } from "./timelineGeometry.js";
 
 const GEOMETRY_EPSILON = 1e-9;
+const MARKER_KIND_ORDER: Readonly<Record<TimelineProjectMarkerKind, number>> =
+  Object.freeze({
+    "earliest-start": 0,
+    "objective-end": 1,
+    "mandatory-deadline": 2,
+  });
 const MONTH_LABELS = Object.freeze([
   "Jan",
   "Feb",
@@ -58,6 +66,12 @@ export function buildTimelineGeometry(
 
   const expectedDates = datesInHorizon(input.viewModel.horizon);
   const priorityByProjectId = indexProjectPriorities(input.viewModel.projects);
+  const projectsById = new Map(
+    input.viewModel.projects.map((project) => [project.id, project]),
+  );
+  const dayIndexByDate = new Map(
+    expectedDates.map((date, index) => [date, index]),
+  );
   const dayWidth = input.viewport.width / expectedDates.length;
   const timeAxis = buildTimeAxisGeometry(
     expectedDates,
@@ -92,6 +106,15 @@ export function buildTimelineGeometry(
       team,
       expectedDates,
       priorityByProjectId,
+    );
+    const markers = buildProjectMarkers(
+      team,
+      projectsById,
+      priorityByProjectId,
+      dayIndexByDate,
+      dayWidth,
+      y,
+      input.viewport.teamLaneHeight,
     );
     const days = team.capacities.map((capacity, dayIndex) => {
       if (capacity.date !== expectedDates[dayIndex]) {
@@ -169,6 +192,7 @@ export function buildTimelineGeometry(
       width: input.viewport.width,
       height: input.viewport.teamLaneHeight,
       days: Object.freeze(days),
+      markers,
     }) satisfies TimelineTeamGeometry;
   });
 
@@ -183,6 +207,121 @@ export function buildTimelineGeometry(
     pixelsPerCapacityUnit,
     teams: Object.freeze(teams),
   });
+}
+
+function buildProjectMarkers(
+  team: TimelineTeam,
+  projectsById: ReadonlyMap<ProjectId, TimelineProject>,
+  priorityByProjectId: ReadonlyMap<ProjectId, number>,
+  dayIndexByDate: ReadonlyMap<CivilDate, number>,
+  dayWidth: number,
+  y: number,
+  height: number,
+): readonly TimelineProjectMarkerGeometry[] {
+  const markers: TimelineProjectMarkerGeometry[] = [];
+  const seenProjectIds = new Set<ProjectId>();
+
+  for (const state of team.projectStates) {
+    if (state.teamId !== team.id) {
+      throw new TypeError(
+        `Project state ${state.projectId} references a different team.`,
+      );
+    }
+    if (seenProjectIds.has(state.projectId)) {
+      throw new TypeError(
+        `Duplicate project state ${state.projectId} for team ${team.id}.`,
+      );
+    }
+    seenProjectIds.add(state.projectId);
+    const project = projectsById.get(state.projectId);
+    if (project === undefined) {
+      throw new TypeError(
+        `Project state references unknown project ${state.projectId}.`,
+      );
+    }
+
+    addProjectMarker(
+      markers,
+      project.earliestStartDate,
+      "earliest-start",
+      project,
+      team,
+      state.deadlineStatus,
+      dayIndexByDate,
+      dayWidth,
+      y,
+      height,
+    );
+    addProjectMarker(
+      markers,
+      project.objectiveEndDate,
+      "objective-end",
+      project,
+      team,
+      state.deadlineStatus,
+      dayIndexByDate,
+      dayWidth,
+      y,
+      height,
+    );
+    addProjectMarker(
+      markers,
+      project.mandatoryDeadline,
+      "mandatory-deadline",
+      project,
+      team,
+      state.deadlineStatus,
+      dayIndexByDate,
+      dayWidth,
+      y,
+      height,
+    );
+  }
+
+  markers.sort((left, right) => {
+    const priorityDifference =
+      requireProjectPriority(priorityByProjectId, left.projectId) -
+      requireProjectPriority(priorityByProjectId, right.projectId);
+    if (priorityDifference !== 0) return priorityDifference;
+    const kindDifference =
+      MARKER_KIND_ORDER[left.kind] - MARKER_KIND_ORDER[right.kind];
+    return kindDifference !== 0
+      ? kindDifference
+      : left.date.localeCompare(right.date);
+  });
+  return Object.freeze(markers);
+}
+
+function addProjectMarker(
+  markers: TimelineProjectMarkerGeometry[],
+  date: CivilDate | undefined,
+  kind: TimelineProjectMarkerKind,
+  project: TimelineProject,
+  team: TimelineTeam,
+  deadlineStatus: TimelineProjectMarkerGeometry["deadlineStatus"],
+  dayIndexByDate: ReadonlyMap<CivilDate, number>,
+  dayWidth: number,
+  y: number,
+  height: number,
+): void {
+  if (date === undefined) return;
+  const dayIndex = dayIndexByDate.get(date);
+  if (dayIndex === undefined) return;
+
+  markers.push(
+    Object.freeze({
+      projectId: project.id,
+      teamId: team.id,
+      date,
+      kind,
+      x: (dayIndex + 0.5) * dayWidth,
+      y1: y,
+      y2: y + height,
+      ...(kind === "mandatory-deadline" && deadlineStatus !== undefined
+        ? { deadlineStatus }
+        : {}),
+    }),
+  );
 }
 
 function buildTimeAxisGeometry(

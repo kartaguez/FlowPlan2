@@ -1,6 +1,7 @@
 import type {
   Capacity,
   CivilDate,
+  DeadlineStatus,
   ProjectId,
   TeamId,
 } from "../../../domain/index.js";
@@ -48,6 +49,23 @@ export interface TimelineTeamGeometry {
   readonly width: number;
   readonly height: number;
   readonly days: readonly TimelineDayGeometry[];
+  readonly markers: readonly TimelineProjectMarkerGeometry[];
+}
+
+export type TimelineProjectMarkerKind =
+  | "earliest-start"
+  | "objective-end"
+  | "mandatory-deadline";
+
+export interface TimelineProjectMarkerGeometry {
+  readonly projectId: ProjectId;
+  readonly teamId: TeamId;
+  readonly date: CivilDate;
+  readonly kind: TimelineProjectMarkerKind;
+  readonly x: number;
+  readonly y1: number;
+  readonly y2: number;
+  readonly deadlineStatus?: DeadlineStatus;
 }
 
 export interface TimelineDayGeometry {

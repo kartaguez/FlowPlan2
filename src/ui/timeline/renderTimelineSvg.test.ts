@@ -178,6 +178,36 @@ function makeGeometry(): TimelineGeometry {
         y: 0,
         width: 300,
         height: 80,
+        markers: [
+          {
+            projectId: must(createProjectId("project-1")),
+            teamId: firstTeamId,
+            date: date("2025-01-01"),
+            kind: "earliest-start",
+            x: 25,
+            y1: 0,
+            y2: 80,
+          },
+          {
+            projectId: must(createProjectId("project-2")),
+            teamId: firstTeamId,
+            date: date("2025-01-02"),
+            kind: "objective-end",
+            x: 150,
+            y1: 0,
+            y2: 80,
+          },
+          {
+            projectId: must(createProjectId("project-3")),
+            teamId: firstTeamId,
+            date: date("2025-01-03"),
+            kind: "mandatory-deadline",
+            deadlineStatus: "UNFEASIBLE",
+            x: 250,
+            y1: 0,
+            y2: 80,
+          },
+        ],
         days: [
           makeDay("2025-01-01", rect(10, 20, 30, 40), allocations, true),
           makeDay("2025-01-02", rect(100, 0, 100, 80)),
@@ -190,6 +220,7 @@ function makeGeometry(): TimelineGeometry {
         y: 80,
         width: 300,
         height: 80,
+        markers: [],
         days: [makeDay("2025-01-01", rect(0, 80, 100, 80))],
       },
     ],
@@ -298,6 +329,50 @@ describe("renderTimelineSvg", () => {
       ["team-a", "team-b"],
     );
     assert.equal(withClass(svg, "timeline-team-lane").length, 2);
+  });
+
+  it("renders project markers above days with supplied line coordinates", () => {
+    const svg = createSvg();
+    render(svg);
+    const firstTeam = withClass(svg, "timeline-team")[0]!;
+    const markers = withClass(firstTeam, "timeline-project-marker");
+
+    assert.equal(markers.length, 3);
+    assert.deepEqual(attributes(markers[0]!), {
+      class:
+        "timeline-project-marker timeline-project-marker--earliest-start",
+      x1: "25",
+      x2: "25",
+      y1: "0",
+      y2: "80",
+      "data-project-id": "project-1",
+      "data-team-id": "team-a",
+      "data-date": "2025-01-01",
+      "data-marker-kind": "earliest-start",
+    });
+    assert.deepEqual(
+      firstTeam.childNodes.map((element) => element.getAttribute("class")),
+      ["timeline-team-lane", "timeline-days", "timeline-project-markers"],
+    );
+  });
+
+  it("maps marker kinds and deadline status to semantic classes and data", () => {
+    const svg = createSvg();
+    render(svg);
+    const markers = withClass(svg, "timeline-project-marker");
+
+    assert.equal(
+      markers[1]?.getAttribute("class"),
+      "timeline-project-marker timeline-project-marker--objective-end",
+    );
+    assert.equal(
+      markers[2]?.getAttribute("class"),
+      "timeline-project-marker timeline-project-marker--mandatory-deadline timeline-project-marker--deadline-unfeasible",
+    );
+    assert.equal(
+      markers[2]?.getAttribute("data-deadline-status"),
+      "UNFEASIBLE",
+    );
   });
 
   it("renders daily cells and their exact date metadata", () => {
