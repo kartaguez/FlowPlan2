@@ -99,7 +99,7 @@ function makeScenario(input: ScenarioInput): TimelineViewModel {
 const geometryFor = (viewModel: TimelineViewModel, laneHeight = 100) =>
   buildTimelineGeometry({
     viewModel,
-    viewport: { width: 300, teamLaneHeight: laneHeight },
+    viewport: { width: 300, teamLaneHeight: laneHeight, timeAxisHeight: 40 },
   });
 
 describe("TimelineGeometry daily project allocation stacking", () => {
@@ -120,7 +120,7 @@ describe("TimelineGeometry daily project allocation stacking", () => {
     assert.ok(second);
 
     assert.equal(first.height, 50);
-    assert.equal(first.y + first.height, 100);
+    assert.equal(first.y + first.height, 140);
     assert.equal(second.height, 50);
     assert.equal(second.y + second.height, first.y);
     assert.equal(second.y, day.capacityTube.projectRegion.y);
@@ -147,9 +147,9 @@ describe("TimelineGeometry daily project allocation stacking", () => {
         allocation.height,
       ]),
       [
-        [0, 50, 50],
-        [1, 25, 25],
-        [2, 0, 25],
+        [0, 90, 50],
+        [1, 65, 25],
+        [2, 40, 25],
       ],
     );
   });
@@ -168,11 +168,11 @@ describe("TimelineGeometry daily project allocation stacking", () => {
     const currentDay = geometry.teams[0]!.days[0]!;
     const stackTop = currentDay.allocations.at(-1)!.y;
 
-    assert.equal(stackTop, 50);
-    assert.equal(currentDay.capacityTube.projectRegion.y, 0);
+    assert.equal(stackTop, 90);
+    assert.equal(currentDay.capacityTube.projectRegion.y, 40);
     assert.equal(
       currentDay.allocations[0]!.y + currentDay.allocations[0]!.height,
-      100,
+      140,
     );
   });
 

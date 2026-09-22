@@ -63,8 +63,9 @@ function buildInput(
   viewModel: TimelineViewModel,
   width: number,
   teamLaneHeight = 80,
+  timeAxisHeight = 40,
 ): BuildTimelineGeometryInput {
-  return { viewModel, viewport: { width, teamLaneHeight } };
+  return { viewModel, viewport: { width, teamLaneHeight, timeAxisHeight } };
 }
 
 describe("buildTimelineGeometry", () => {
@@ -103,6 +104,101 @@ describe("buildTimelineGeometry", () => {
     assert.ok(Math.abs(lastDay.x + lastDay.width - 100) < 1e-9);
   });
 
+  it("builds one complete month segment inside a single-month horizon", () => {
+    const geometry = buildTimelineGeometry(
+      buildInput(makeViewModel("2025-01-01", "2025-01-31"), 620),
+    );
+
+    assert.deepEqual(
+      geometry.timeAxis.months.map(({ year, month, label, x, width }) => ({
+        year,
+        month,
+        label,
+        x,
+        width,
+      })),
+      [{ year: 2025, month: 1, label: "Jan", x: 0, width: 620 }],
+    );
+    assert.deepEqual(
+      geometry.timeAxis.years.map(({ year, label, x, width }) => ({
+        year,
+        label,
+        x,
+        width,
+      })),
+      [{ year: 2025, label: "2025", x: 0, width: 620 }],
+    );
+  });
+
+  it("clips month segments to a partial horizon", () => {
+    const geometry = buildTimelineGeometry(
+      buildInput(makeViewModel("2025-01-20", "2025-02-10"), 220),
+    );
+
+    assert.equal(geometry.dayWidth, 10);
+    assert.deepEqual(
+      geometry.timeAxis.months.map(({ label, x, width }) => ({
+        label,
+        x,
+        width,
+      })),
+      [
+        { label: "Jan", x: 0, width: 120 },
+        { label: "Feb", x: 120, width: 100 },
+      ],
+    );
+  });
+
+  it("builds independent month and year segments across a year boundary", () => {
+    const geometry = buildTimelineGeometry(
+      buildInput(makeViewModel("2025-12-20", "2026-01-10"), 220),
+    );
+
+    assert.deepEqual(
+      geometry.timeAxis.months.map(({ year, month, label, x, width }) => ({
+        year,
+        month,
+        label,
+        x,
+        width,
+      })),
+      [
+        { year: 2025, month: 12, label: "Dec", x: 0, width: 120 },
+        { year: 2026, month: 1, label: "Jan", x: 120, width: 100 },
+      ],
+    );
+    assert.deepEqual(
+      geometry.timeAxis.years.map(({ year, label, x, width }) => ({
+        year,
+        label,
+        x,
+        width,
+      })),
+      [
+        { year: 2025, label: "2025", x: 0, width: 120 },
+        { year: 2026, label: "2026", x: 120, width: 100 },
+      ],
+    );
+  });
+
+  it("places team lanes below the explicit time header", () => {
+    const geometry = buildTimelineGeometry(
+      buildInput(
+        makeViewModel("2025-01-01", "2025-01-01", ["team-a", "team-b"]),
+        300,
+        80,
+        50,
+      ),
+    );
+
+    assert.equal(geometry.timeAxis.height, 50);
+    assert.deepEqual(
+      geometry.teams.map((team) => team.y),
+      [50, 130],
+    );
+    assert.equal(geometry.height, 210);
+  });
+
   it("stacks team lanes vertically and computes their total height", () => {
     const geometry = buildTimelineGeometry(
       buildInput(
@@ -118,9 +214,9 @@ describe("buildTimelineGeometry", () => {
 
     assert.deepEqual(
       geometry.teams.map((team) => team.y),
-      [0, 80, 160],
+      [40, 120, 200],
     );
-    assert.equal(geometry.height, 240);
+    assert.equal(geometry.height, 280);
     assert.ok(
       geometry.teams.every(
         (team) =>
@@ -177,10 +273,20 @@ describe("buildTimelineGeometry", () => {
   it("rejects non-positive and non-finite viewport dimensions", () => {
     const viewModel = makeViewModel("2025-01-01", "2025-01-01");
     const invalidViewports = [
-      { width: 0, teamLaneHeight: 80 },
-      { width: Number.NaN, teamLaneHeight: 80 },
-      { width: 300, teamLaneHeight: -1 },
-      { width: 300, teamLaneHeight: Number.POSITIVE_INFINITY },
+      { width: 0, teamLaneHeight: 80, timeAxisHeight: 40 },
+      { width: Number.NaN, teamLaneHeight: 80, timeAxisHeight: 40 },
+      { width: 300, teamLaneHeight: -1, timeAxisHeight: 40 },
+      {
+        width: 300,
+        teamLaneHeight: Number.POSITIVE_INFINITY,
+        timeAxisHeight: 40,
+      },
+      { width: 300, teamLaneHeight: 80, timeAxisHeight: 0 },
+      {
+        width: 300,
+        teamLaneHeight: 80,
+        timeAxisHeight: Number.NaN,
+      },
     ];
 
     for (const viewport of invalidViewports) {
@@ -258,6 +364,11 @@ describe("buildTimelineGeometry", () => {
     );
 
     assert.equal(Object.isFrozen(geometry), true);
+    assert.equal(Object.isFrozen(geometry.timeAxis), true);
+    assert.equal(Object.isFrozen(geometry.timeAxis.years), true);
+    assert.equal(Object.isFrozen(geometry.timeAxis.months), true);
+    assert.ok(geometry.timeAxis.years.every(Object.isFrozen));
+    assert.ok(geometry.timeAxis.months.every(Object.isFrozen));
     assert.equal(Object.isFrozen(geometry.teams), true);
     assert.ok(geometry.teams.every(Object.isFrozen));
     for (const team of geometry.teams) {

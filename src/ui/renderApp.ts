@@ -1,4 +1,6 @@
-export function renderApp(root: HTMLElement): void {
+const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
+
+export function renderApp(root: HTMLElement): SVGSVGElement {
   const document = root.ownerDocument;
   const shell = document.createElement("main");
   shell.className = "application-shell";
@@ -15,11 +17,20 @@ export function renderApp(root: HTMLElement): void {
   workspace.className = "workspace-placeholder";
   workspace.setAttribute("aria-label", "Planning workspace");
   const workspaceTitle = document.createElement("h2");
-  workspaceTitle.textContent = "Planning workspace";
+  workspaceTitle.textContent = "Planning demo";
   const description = document.createElement("p");
-  description.textContent = "The clean-room application shell is ready.";
-  workspace.append(workspaceTitle, description);
+  description.textContent =
+    "Three teams, four projects, exact capacity reservations and daily planning.";
+  const timelineContainer = document.createElement("div");
+  timelineContainer.className = "timeline-container";
+  const timeline = document.createElementNS(SVG_NAMESPACE, "svg");
+  timeline.id = "timeline";
+  timeline.classList.add("timeline-svg");
+  timeline.setAttribute("aria-label", "FlowPlan planning timeline demo");
+  timelineContainer.append(timeline);
+  workspace.append(workspaceTitle, description, timelineContainer);
 
   shell.append(header, workspace);
   root.replaceChildren(shell);
+  return timeline;
 }

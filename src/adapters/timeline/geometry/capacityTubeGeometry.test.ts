@@ -67,7 +67,7 @@ describe("TimelineGeometry capacity tubes", () => {
         [day("1"), day("2")],
         [day("4"), day("3")],
       ]),
-      viewport: { width: 200, teamLaneHeight: 100 },
+      viewport: { width: 200, teamLaneHeight: 100, timeAxisHeight: 40 },
     });
 
     assert.equal(serializeQuantity(geometry.maxEffectiveCapacity), "4/1");
@@ -83,7 +83,7 @@ describe("TimelineGeometry capacity tubes", () => {
   it("makes capacities comparable across teams with one global scale", () => {
     const geometry = buildTimelineGeometry({
       viewModel: makeViewModel([[day("1")], [day("2")]]),
-      viewport: { width: 100, teamLaneHeight: 100 },
+      viewport: { width: 100, teamLaneHeight: 100, timeAxisHeight: 40 },
     });
     const firstHeight = geometry.teams[0]!.days[0]!.capacityTube.height;
     const secondHeight = geometry.teams[1]!.days[0]!.capacityTube.height;
@@ -95,29 +95,29 @@ describe("TimelineGeometry capacity tubes", () => {
   it("anchors every effective-capacity tube on the lane bottom", () => {
     const geometry = buildTimelineGeometry({
       viewModel: makeViewModel([[day("4")], [day("2")]]),
-      viewport: { width: 100, teamLaneHeight: 80 },
+      viewport: { width: 100, teamLaneHeight: 80, timeAxisHeight: 40 },
     });
     const lane = geometry.teams[1]!;
     const tube = lane.days[0]!.capacityTube;
 
-    assert.equal(lane.y, 80);
+    assert.equal(lane.y, 120);
     assert.equal(tube.height, 40);
-    assert.equal(tube.y, 120);
+    assert.equal(tube.y, 160);
     assert.equal(tube.y + tube.height, lane.y + lane.height);
   });
 
   it("places the project region below the visible reservation region", () => {
     const geometry = buildTimelineGeometry({
       viewModel: makeViewModel([[day("4", "1", "3")]]),
-      viewport: { width: 100, teamLaneHeight: 100 },
+      viewport: { width: 100, teamLaneHeight: 100, timeAxisHeight: 40 },
     });
     const tube = geometry.teams[0]!.days[0]!.capacityTube;
 
     assert.equal(tube.height, 100);
     assert.equal(tube.projectRegion.height, 75);
-    assert.equal(tube.projectRegion.y, 25);
+    assert.equal(tube.projectRegion.y, 65);
     assert.equal(tube.reservedRegion.height, 25);
-    assert.equal(tube.reservedRegion.y, 0);
+    assert.equal(tube.reservedRegion.y, 40);
     assert.equal(
       tube.projectRegion.height + tube.reservedRegion.height,
       tube.height,
@@ -129,7 +129,7 @@ describe("TimelineGeometry capacity tubes", () => {
     const source = viewModel.teams[0]!.capacities[0]!;
     const tube = buildTimelineGeometry({
       viewModel,
-      viewport: { width: 100, teamLaneHeight: 90 },
+      viewport: { width: 100, teamLaneHeight: 90, timeAxisHeight: 40 },
     }).teams[0]!.days[0]!.capacityTube;
 
     assert.equal(tube.height, 90);
@@ -144,7 +144,7 @@ describe("TimelineGeometry capacity tubes", () => {
     const source = viewModel.teams[0]!.capacities[0]!;
     const projected = buildTimelineGeometry({
       viewModel,
-      viewport: { width: 100, teamLaneHeight: 90 },
+      viewport: { width: 100, teamLaneHeight: 90, timeAxisHeight: 40 },
     }).teams[0]!.days[0]!;
 
     assert.equal(projected.capacityTube.height, 90);
@@ -161,7 +161,7 @@ describe("TimelineGeometry capacity tubes", () => {
         [day("0"), day("0")],
         [day("0"), day("0")],
       ]),
-      viewport: { width: 200, teamLaneHeight: 100 },
+      viewport: { width: 200, teamLaneHeight: 100, timeAxisHeight: 40 },
     });
 
     assert.equal(serializeQuantity(geometry.maxEffectiveCapacity), "0/1");
@@ -181,7 +181,7 @@ describe("TimelineGeometry capacity tubes", () => {
   it("keeps a zero-capacity gap at its true horizontal date", () => {
     const geometry = buildTimelineGeometry({
       viewModel: makeViewModel([[day("2"), day("0"), day("2")]]),
-      viewport: { width: 300, teamLaneHeight: 100 },
+      viewport: { width: 300, teamLaneHeight: 100, timeAxisHeight: 40 },
     });
     const days = geometry.teams[0]!.days;
 
@@ -203,7 +203,7 @@ describe("TimelineGeometry capacity tubes", () => {
       () =>
         buildTimelineGeometry({
           viewModel,
-          viewport: { width: 100, teamLaneHeight: 100 },
+          viewport: { width: 100, teamLaneHeight: 100, timeAxisHeight: 40 },
         }),
       TypeError,
     );
@@ -221,7 +221,7 @@ describe("TimelineGeometry capacity tubes", () => {
     );
     const input = {
       viewModel,
-      viewport: { width: 200, teamLaneHeight: 100 },
+      viewport: { width: 200, teamLaneHeight: 100, timeAxisHeight: 40 },
     };
 
     assert.deepEqual(buildTimelineGeometry(input), buildTimelineGeometry(input));
@@ -240,7 +240,7 @@ describe("TimelineGeometry capacity tubes", () => {
   it("freezes tubes and both capacity regions", () => {
     const geometry = buildTimelineGeometry({
       viewModel: makeViewModel([[day("2", "0.5", "1.5")]]),
-      viewport: { width: 100, teamLaneHeight: 100 },
+      viewport: { width: 100, teamLaneHeight: 100, timeAxisHeight: 40 },
     });
     const tube = geometry.teams[0]!.days[0]!.capacityTube;
 
@@ -255,7 +255,7 @@ describe("TimelineGeometry capacity tubes", () => {
         [day("1", "0.25", "0.75"), day("2")],
         [day("3", "1", "2"), day("4", "1.5", "2.5")],
       ]),
-      viewport: { width: 175, teamLaneHeight: 83 },
+      viewport: { width: 175, teamLaneHeight: 83, timeAxisHeight: 40 },
     });
     const numbers = [
       geometry.width,
@@ -294,7 +294,7 @@ describe("TimelineGeometry capacity tubes", () => {
   it("still exposes no continuous project-surface geometry", () => {
     const geometry = buildTimelineGeometry({
       viewModel: makeViewModel([[day("2", "0.5", "1.5")]]),
-      viewport: { width: 100, teamLaneHeight: 100 },
+      viewport: { width: 100, teamLaneHeight: 100, timeAxisHeight: 40 },
     });
     const dayGeometry = geometry.teams[0]!.days[0]!;
 

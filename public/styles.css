@@ -35,11 +35,51 @@ p {
 
 .workspace-placeholder {
   align-self: start;
-  max-width: 46rem;
+  width: 100%;
   border: 1px solid #d9e0ea;
   border-radius: 0.75rem;
   background: #ffffff;
   padding: 1.5rem;
+}
+
+.timeline-container {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #d9e0ea;
+  border-radius: 0.5rem;
+  background: #ffffff;
+}
+
+.timeline-svg {
+  display: block;
+  max-width: none;
+}
+
+.timeline-year-cell {
+  fill: #e9eef5;
+  stroke: #b8c4d3;
+}
+
+.timeline-month-cell {
+  fill: #f5f7fa;
+  stroke: #cbd5e1;
+}
+
+.timeline-year-label,
+.timeline-month-label {
+  fill: #334155;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  pointer-events: none;
+}
+
+.timeline-year-label {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.timeline-month-label {
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .timeline-team-lane {

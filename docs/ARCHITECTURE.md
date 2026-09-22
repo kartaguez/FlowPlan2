@@ -389,3 +389,39 @@ sans modifier leurs coordonnées.
 Phase 5B s'arrête à cette sémantique visuelle statique. Phase 5C introduira
 l'axe temporel et les en-têtes mois/année. Aucun label, marker, tooltip,
 curseur, zoom, sélection ou gestionnaire d'événement n'est ajouté ici.
+
+## Time Axis — Phase 5C
+
+La géométrie possède également le layout de l'axe temporel. Elle découpe
+l'horizon inclusif en portions visibles de mois et d'années sur la même échelle
+que les colonnes journalières. Chaque segment fournit son rectangle et la
+position de son libellé ; le renderer ne calcule aucune limite calendaire.
+
+Le viewport réserve `timeAxisHeight` au-dessus des lanes. La première équipe
+commence donc à cette ordonnée, puis les équipes restent espacées de
+`teamLaneHeight`. Le header est partagé en une rangée année et une rangée mois.
+Les labels mensuels sont une table statique (`Jan` à `Dec`) et ne dépendent ni
+de la locale ni du fuseau système. Toute l'arithmétique calendaire repose sur
+`CivilDate`, sans `Date` JavaScript.
+
+## Demo bootstrap — Phase 5C
+
+Le démarrage navigateur compose pour la première fois la chaîne complète :
+
+```text
+createDemoPlanningScenario
+        ↓
+recomputePlanning
+        ↓
+buildTimelineViewModel
+        ↓
+buildTimelineGeometry
+        ↓
+renderTimelineSvg
+```
+
+Le portefeuille de démonstration est une donnée de bootstrap remplaçable. Il
+entre par les fabriques métier normales, n'est ni un défaut du domaine, ni un
+état du renderer, ni une persistence. Il sera remplacé à terme par la future
+source applicative. Aucun `localStorage`, IndexedDB ou mécanisme d'édition
+n'est introduit par cette intégration en lecture seule.

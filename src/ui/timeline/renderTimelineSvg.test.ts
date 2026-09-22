@@ -36,6 +36,7 @@ class FakeDocument {
 class FakeSvgElement {
   readonly attributes = new Map<string, string>();
   childNodes: FakeSvgElement[] = [];
+  textContent: string | null = null;
 
   constructor(
     readonly ownerDocument: FakeDocument,
@@ -137,6 +138,37 @@ function makeGeometry(): TimelineGeometry {
     width: 300,
     height: 160,
     dayWidth: 100,
+    timeAxis: {
+      x: 0,
+      y: 0,
+      width: 300,
+      height: 40,
+      years: [
+        {
+          year: 2025,
+          label: "2025",
+          x: 0,
+          y: 0,
+          width: 300,
+          height: 20,
+          labelX: 150,
+          labelY: 10,
+        },
+      ],
+      months: [
+        {
+          year: 2025,
+          month: 1,
+          label: "Jan",
+          x: 0,
+          y: 20,
+          width: 300,
+          height: 20,
+          labelX: 150,
+          labelY: 30,
+        },
+      ],
+    },
     maxEffectiveCapacity: capacity("2"),
     pixelsPerCapacityUnit: 40,
     teams: [
@@ -220,6 +252,39 @@ describe("renderTimelineSvg", () => {
 
     assert.equal(svg.getAttribute("viewBox"), "0 0 300 160");
     assert.equal(svg.getAttribute("role"), "img");
+    assert.equal(svg.getAttribute("width"), "300");
+    assert.equal(svg.getAttribute("height"), "160");
+  });
+
+  it("renders supplied year and month axis segments before teams", () => {
+    const svg = createSvg();
+    render(svg);
+
+    assert.equal(withClass(svg, "timeline-time-axis").length, 1);
+    assert.equal(withClass(svg, "timeline-years").length, 1);
+    assert.equal(withClass(svg, "timeline-months").length, 1);
+    assert.equal(withClass(svg, "timeline-year").length, 1);
+    assert.equal(withClass(svg, "timeline-month").length, 1);
+    assert.equal(withClass(svg, "timeline-year-label")[0]?.textContent, "2025");
+    assert.equal(withClass(svg, "timeline-month-label")[0]?.textContent, "Jan");
+    assert.deepEqual(attributes(withClass(svg, "timeline-year-cell")[0]!), {
+      class: "timeline-year-cell",
+      x: "0",
+      y: "0",
+      width: "300",
+      height: "20",
+    });
+    assert.deepEqual(attributes(withClass(svg, "timeline-month-cell")[0]!), {
+      class: "timeline-month-cell",
+      x: "0",
+      y: "20",
+      width: "300",
+      height: "20",
+    });
+    assert.equal(
+      svg.childNodes[0]?.childNodes[0]?.getAttribute("class"),
+      "timeline-time-axis",
+    );
   });
 
   it("renders one semantic group per team with its domain identifier", () => {
@@ -442,12 +507,19 @@ describe("renderTimelineSvg", () => {
     );
   });
 
-  it("creates no text, path, polygon, or interaction elements", () => {
+  it("creates axis text but no allocation text, path, or polygon", () => {
     const svg = createSvg();
     render(svg);
     const tagNames = descendants(svg).map((element) => element.tagName);
 
-    assert.equal(tagNames.includes("text"), false);
+    assert.equal(withClass(svg, "timeline-year-label").length, 1);
+    assert.equal(withClass(svg, "timeline-month-label").length, 1);
+    assert.ok(
+      withClass(svg, "timeline-project-allocation").every(
+        (allocation) =>
+          descendants(allocation).every((element) => element.tagName !== "text"),
+      ),
+    );
     assert.equal(tagNames.includes("path"), false);
     assert.equal(tagNames.includes("polygon"), false);
     assert.ok(
@@ -461,8 +533,16 @@ describe("renderTimelineSvg", () => {
     const svg = createSvg();
     const geometry: TimelineGeometry = {
       width: 300,
-      height: 0,
+      height: 40,
       dayWidth: 100,
+      timeAxis: {
+        x: 0,
+        y: 0,
+        width: 300,
+        height: 40,
+        years: [],
+        months: [],
+      },
       maxEffectiveCapacity: capacity("0"),
       pixelsPerCapacityUnit: 0,
       teams: [],
@@ -470,7 +550,7 @@ describe("renderTimelineSvg", () => {
 
     render(svg, geometry);
 
-    assert.equal(svg.getAttribute("viewBox"), "0 0 300 0");
+    assert.equal(svg.getAttribute("viewBox"), "0 0 300 40");
     assert.equal(withClass(svg, "timeline-team").length, 0);
     assert.equal(svg.childNodes.length, 1);
   });
@@ -495,7 +575,7 @@ describe("renderTimelineSvg", () => {
 
     assert.doesNotMatch(
       source,
-      /dateToX|pixelsPerCapacityUnit|capacityToHeight|buildTimelineGeometry|planPortfolio|recomputePlanning/,
+      /dateToX|civilDatesInclusive|addDays|pixelsPerCapacityUnit|capacityToHeight|buildTimelineGeometry|planPortfolio|recomputePlanning/,
     );
     assert.doesNotMatch(
       source,

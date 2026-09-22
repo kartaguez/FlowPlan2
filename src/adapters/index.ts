@@ -18,8 +18,11 @@ export type {
   TimelineDayGeometry,
   TimelineGeometry,
   TimelineGeometryViewport,
+  TimelineMonthGeometry,
   TimelineRectGeometry,
   TimelineTeamGeometry,
+  TimelineTimeAxisGeometry,
+  TimelineYearGeometry,
 } from "./timeline/geometry/timelineGeometry.js";
 export {
   buildTimelineGeometry,

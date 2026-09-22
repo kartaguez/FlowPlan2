@@ -18,11 +18,28 @@ import type {
   TimelineDayGeometry,
   TimelineGeometry,
   TimelineGeometryViewport,
+  TimelineMonthGeometry,
   TimelineRectGeometry,
   TimelineTeamGeometry,
+  TimelineTimeAxisGeometry,
+  TimelineYearGeometry,
 } from "./timelineGeometry.js";
 
 const GEOMETRY_EPSILON = 1e-9;
+const MONTH_LABELS = Object.freeze([
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+]);
 
 export interface BuildTimelineGeometryInput {
   readonly viewModel: TimelineViewModel;
@@ -37,10 +54,17 @@ export function buildTimelineGeometry(
     input.viewport.teamLaneHeight,
     "Team lane height",
   );
+  validatePositiveFinite(input.viewport.timeAxisHeight, "Time axis height");
 
   const expectedDates = datesInHorizon(input.viewModel.horizon);
   const priorityByProjectId = indexProjectPriorities(input.viewModel.projects);
   const dayWidth = input.viewport.width / expectedDates.length;
+  const timeAxis = buildTimeAxisGeometry(
+    expectedDates,
+    dayWidth,
+    input.viewport.width,
+    input.viewport.timeAxisHeight,
+  );
   const maxEffectiveCapacity = findMaxEffectiveCapacity(input.viewModel);
   const maxEffectiveCapacityNumber = capacityToGeometryNumber(
     maxEffectiveCapacity,
@@ -60,7 +84,9 @@ export function buildTimelineGeometry(
       );
     }
 
-    const y = teamIndex * input.viewport.teamLaneHeight;
+    const y =
+      input.viewport.timeAxisHeight +
+      teamIndex * input.viewport.teamLaneHeight;
     const laneBottom = y + input.viewport.teamLaneHeight;
     const allocationsByDate = indexAllocationsByDate(
       team,
@@ -148,12 +174,108 @@ export function buildTimelineGeometry(
 
   return Object.freeze({
     width: input.viewport.width,
-    height: input.viewModel.teams.length * input.viewport.teamLaneHeight,
+    height:
+      input.viewport.timeAxisHeight +
+      input.viewModel.teams.length * input.viewport.teamLaneHeight,
     dayWidth,
+    timeAxis,
     maxEffectiveCapacity,
     pixelsPerCapacityUnit,
     teams: Object.freeze(teams),
   });
+}
+
+function buildTimeAxisGeometry(
+  dates: readonly CivilDate[],
+  dayWidth: number,
+  width: number,
+  height: number,
+): TimelineTimeAxisGeometry {
+  const rowHeight = height / 2;
+  const years = buildTimeSegments(dates, dayWidth, 0, rowHeight, "year");
+  const months = buildTimeSegments(
+    dates,
+    dayWidth,
+    rowHeight,
+    rowHeight,
+    "month",
+  );
+
+  return Object.freeze({
+    x: 0,
+    y: 0,
+    width,
+    height,
+    years: Object.freeze(years) as readonly TimelineYearGeometry[],
+    months: Object.freeze(months) as readonly TimelineMonthGeometry[],
+  });
+}
+
+function buildTimeSegments(
+  dates: readonly CivilDate[],
+  dayWidth: number,
+  y: number,
+  height: number,
+  kind: "year" | "month",
+): readonly (TimelineYearGeometry | TimelineMonthGeometry)[] {
+  const segments: (TimelineYearGeometry | TimelineMonthGeometry)[] = [];
+  let startIndex = 0;
+
+  while (startIndex < dates.length) {
+    const startDate = dates[startIndex]!;
+    const year = civilDateYear(startDate);
+    const month = civilDateMonth(startDate);
+    let endIndex = startIndex + 1;
+    while (
+      endIndex < dates.length &&
+      civilDateYear(dates[endIndex]!) === year &&
+      (kind === "year" || civilDateMonth(dates[endIndex]!) === month)
+    ) {
+      endIndex += 1;
+    }
+
+    const x = startIndex * dayWidth;
+    const segmentWidth = (endIndex - startIndex) * dayWidth;
+    const common = {
+      x,
+      y,
+      width: segmentWidth,
+      height,
+      labelX: x + segmentWidth / 2,
+      labelY: y + height / 2,
+    };
+    segments.push(
+      Object.freeze(
+        kind === "year"
+          ? { ...common, year, label: String(year) }
+          : {
+              ...common,
+              year,
+              month,
+              label: requireMonthLabel(month),
+            },
+      ),
+    );
+    startIndex = endIndex;
+  }
+
+  return segments;
+}
+
+function civilDateYear(date: CivilDate): number {
+  return Number(date.slice(0, 4));
+}
+
+function civilDateMonth(date: CivilDate): number {
+  return Number(date.slice(5, 7));
+}
+
+function requireMonthLabel(month: number): string {
+  const label = MONTH_LABELS[month - 1];
+  if (label === undefined) {
+    throw new TypeError(`Invalid CivilDate month ${month}.`);
+  }
+  return label;
 }
 
 export function dateToX(

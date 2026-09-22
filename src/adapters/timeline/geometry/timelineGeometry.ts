@@ -8,15 +8,37 @@ import type {
 export interface TimelineGeometryViewport {
   readonly width: number;
   readonly teamLaneHeight: number;
+  readonly timeAxisHeight: number;
 }
 
 export interface TimelineGeometry {
   readonly width: number;
   readonly height: number;
   readonly dayWidth: number;
+  readonly timeAxis: TimelineTimeAxisGeometry;
   readonly maxEffectiveCapacity: Capacity;
   readonly pixelsPerCapacityUnit: number;
   readonly teams: readonly TimelineTeamGeometry[];
+}
+
+export interface TimelineTimeAxisGeometry extends TimelineRectGeometry {
+  readonly years: readonly TimelineYearGeometry[];
+  readonly months: readonly TimelineMonthGeometry[];
+}
+
+export interface TimelineYearGeometry extends TimelineRectGeometry {
+  readonly year: number;
+  readonly label: string;
+  readonly labelX: number;
+  readonly labelY: number;
+}
+
+export interface TimelineMonthGeometry extends TimelineRectGeometry {
+  readonly year: number;
+  readonly month: number;
+  readonly label: string;
+  readonly labelX: number;
+  readonly labelY: number;
 }
 
 export interface TimelineTeamGeometry {
