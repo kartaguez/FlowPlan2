@@ -19,8 +19,10 @@ import {
   addRationals,
   compareRationals,
   createRational,
+  divideRationals,
   isZero,
   minRational,
+  multiplyRationals,
   rationalFromInteger,
   subtractRationals,
   type Rational,
@@ -33,9 +35,11 @@ import {
   type MaxParallelProjects,
 } from "../model/scalars.js";
 import type {
+  DeadlineStatus,
   PlanningInput,
   PlanningResult,
   ProjectAllocation,
+  ProjectDeadlineStatusByDate,
   ProjectTeamPlanningResult,
   TeamDayAdmission,
   TeamDayCapacity,
@@ -49,6 +53,8 @@ interface ProjectTeamState {
   planned: Rational;
   readonly allocations: ProjectAllocation[];
   lastAllocationDate?: CivilDate;
+  deadlineStatus?: DeadlineStatus;
+  readonly deadlineStatuses?: ProjectDeadlineStatusByDate[];
 }
 
 const ZERO = rationalFromInteger(0n);
@@ -86,6 +92,9 @@ function projectsForTeam(
       remaining: rationalOf(requirement.remainingWorkload),
       planned: ZERO,
       allocations: [],
+      ...(project.mandatoryDeadline
+        ? { deadlineStatus: "PENDING" as const, deadlineStatuses: [] }
+        : {}),
     });
   }
 
@@ -150,12 +159,11 @@ function normalAllocationIncrement(
 }
 
 function allocateFairlyToAdmittedProjects(
-  date: CivilDate,
   availableCapacity: Rational,
   admitted: readonly ProjectTeamState[],
-): void {
+  dailyAllocations: Map<ProjectTeamState, Rational>,
+): Rational {
   let remainingCapacity = availableCapacity;
-  const dailyAllocations = new Map<ProjectTeamState, Rational>();
   let allocationMade: boolean;
 
   do {
@@ -179,6 +187,219 @@ function allocateFairlyToAdmittedProjects(
     }
   } while (allocationMade && !isZero(remainingCapacity));
 
+  return remainingCapacity;
+}
+
+function deadlineAccessibleCapacity(
+  state: ProjectTeamState,
+  date: CivilDate,
+  today: CivilDate,
+  team: Team,
+  portfolio: Portfolio,
+  residualByDate: Map<CivilDate, Rational>,
+  dailyAllocations: ReadonlyMap<ProjectTeamState, Rational>,
+): Rational {
+  let residual = residualByDate.get(date);
+  if (residual === undefined) {
+    residual = rationalOf(projectCapacity(team, date, portfolio.reservations));
+    residualByDate.set(date, residual);
+  }
+
+  if (!state.requirement.dailyCap) return residual;
+
+  const allocated = date === today ? dailyAllocations.get(state) ?? ZERO : ZERO;
+  const remainingDailyCap = subtractRationals(
+    rationalOf(state.requirement.dailyCap),
+    allocated,
+  );
+  return minRational(residual, remainingDailyCap);
+}
+
+function subtractDeadlineCapacity(
+  date: CivilDate,
+  amount: Rational,
+  residualByDate: Map<CivilDate, Rational>,
+): void {
+  const residual = residualByDate.get(date);
+  if (residual === undefined) {
+    throw new TypeError("Deadline capacity must be initialized before use.");
+  }
+  residualByDate.set(date, subtractRationals(residual, amount));
+}
+
+function addDailyAllocation(
+  state: ProjectTeamState,
+  increment: Rational,
+  dailyAllocations: Map<ProjectTeamState, Rational>,
+): void {
+  if (isZero(increment)) return;
+  dailyAllocations.set(
+    state,
+    addRationals(dailyAllocations.get(state) ?? ZERO, increment),
+  );
+  state.remaining = subtractRationals(state.remaining, increment);
+}
+
+function updateMissedDeadlineStatuses(
+  date: CivilDate,
+  states: readonly ProjectTeamState[],
+): void {
+  for (const state of states) {
+    const deadline = state.project.mandatoryDeadline;
+    if (
+      deadline &&
+      !isZero(state.remaining) &&
+      compareCivilDates(date, deadline) > 0
+    ) {
+      state.deadlineStatus = "MISSED";
+    }
+  }
+}
+
+function latestRelevantDeadline(
+  today: CivilDate,
+  admitted: readonly ProjectTeamState[],
+): CivilDate {
+  let latest = today;
+  for (const state of admitted) {
+    const deadline = state.project.mandatoryDeadline;
+    if (deadline && compareCivilDates(deadline, latest) > 0) latest = deadline;
+  }
+  return latest;
+}
+
+function sumDeadlineAccessibility(
+  state: ProjectTeamState,
+  dates: readonly CivilDate[],
+  today: CivilDate,
+  team: Team,
+  portfolio: Portfolio,
+  residualByDate: Map<CivilDate, Rational>,
+  dailyAllocations: ReadonlyMap<ProjectTeamState, Rational>,
+): Rational {
+  let total = ZERO;
+  for (const date of dates) {
+    total = addRationals(
+      total,
+      deadlineAccessibleCapacity(
+        state,
+        date,
+        today,
+        team,
+        portfolio,
+        residualByDate,
+        dailyAllocations,
+      ),
+    );
+  }
+  return total;
+}
+
+function allocateDeadlineProjects(
+  today: CivilDate,
+  availableCapacity: Rational,
+  team: Team,
+  portfolio: Portfolio,
+  admitted: readonly ProjectTeamState[],
+  dailyAllocations: Map<ProjectTeamState, Rational>,
+): Rational {
+  const residualByDate = new Map<CivilDate, Rational>([
+    [today, availableCapacity],
+  ]);
+  const forecastEnd = latestRelevantDeadline(today, admitted);
+
+  for (const state of admitted) {
+    const deadline = state.project.mandatoryDeadline;
+    if (!deadline) continue;
+
+    const remainingBeforeAllocation = state.remaining;
+    const datesToDeadline =
+      compareCivilDates(today, deadline) <= 0
+        ? civilDatesInclusive(today, deadline)
+        : Object.freeze([]);
+
+    let remainingAccessible = ZERO;
+    if (
+      state.deadlineStatus !== "UNFEASIBLE" &&
+      state.deadlineStatus !== "MISSED"
+    ) {
+      remainingAccessible = sumDeadlineAccessibility(
+        state,
+        datesToDeadline,
+        today,
+        team,
+        portfolio,
+        residualByDate,
+        dailyAllocations,
+      );
+      state.deadlineStatus =
+        compareRationals(remainingBeforeAllocation, remainingAccessible) <= 0
+          ? "FEASIBLE"
+          : "UNFEASIBLE";
+    }
+
+    if (state.deadlineStatus === "FEASIBLE") {
+      const requiredRatio = unwrapProvenQuantity(
+        divideRationals(
+          remainingBeforeAllocation,
+          remainingAccessible,
+          "remainingAccessibleCapacity",
+        ),
+      );
+      let projectedRemaining = remainingBeforeAllocation;
+
+      for (const date of datesToDeadline) {
+        const accessible = deadlineAccessibleCapacity(
+          state,
+          date,
+          today,
+          team,
+          portfolio,
+          residualByDate,
+          dailyAllocations,
+        );
+        const increment = minRational(
+          projectedRemaining,
+          multiplyRationals(accessible, requiredRatio),
+        );
+        subtractDeadlineCapacity(date, increment, residualByDate);
+        projectedRemaining = subtractRationals(projectedRemaining, increment);
+        if (date === today) {
+          addDailyAllocation(state, increment, dailyAllocations);
+        }
+      }
+      continue;
+    }
+
+    let projectedRemaining = remainingBeforeAllocation;
+    for (const date of civilDatesInclusive(today, forecastEnd)) {
+      if (isZero(projectedRemaining)) break;
+      const accessible = deadlineAccessibleCapacity(
+        state,
+        date,
+        today,
+        team,
+        portfolio,
+        residualByDate,
+        dailyAllocations,
+      );
+      const increment = minRational(projectedRemaining, accessible);
+      subtractDeadlineCapacity(date, increment, residualByDate);
+      projectedRemaining = subtractRationals(projectedRemaining, increment);
+      if (date === today) {
+        addDailyAllocation(state, increment, dailyAllocations);
+      }
+    }
+  }
+
+  return residualByDate.get(today) ?? ZERO;
+}
+
+function commitDailyAllocations(
+  date: CivilDate,
+  admitted: readonly ProjectTeamState[],
+  dailyAllocations: ReadonlyMap<ProjectTeamState, Rational>,
+): void {
   for (const state of admitted) {
     const dailyAllocation = dailyAllocations.get(state);
     if (!dailyAllocation || isZero(dailyAllocation)) continue;
@@ -189,6 +410,18 @@ function allocateFairlyToAdmittedProjects(
     state.allocations.push(Object.freeze({ date, workload }));
     state.planned = addRationals(state.planned, dailyAllocation);
     state.lastAllocationDate = date;
+  }
+}
+
+function recordDeadlineStatuses(
+  date: CivilDate,
+  states: readonly ProjectTeamState[],
+): void {
+  for (const state of states) {
+    if (!state.deadlineStatus || !state.deadlineStatuses) continue;
+    state.deadlineStatuses.push(
+      Object.freeze({ date, status: state.deadlineStatus }),
+    );
   }
 }
 
@@ -214,6 +447,12 @@ function projectResult(
     ...(complete && state.lastAllocationDate
       ? { projectedEndDate: state.lastAllocationDate }
       : {}),
+    ...(state.deadlineStatus && state.deadlineStatuses
+      ? {
+          deadlineStatus: state.deadlineStatus,
+          deadlineStatuses: Object.freeze([...state.deadlineStatuses]),
+        }
+      : {}),
   });
 }
 
@@ -226,6 +465,7 @@ function planTeam(input: PlanningInput, team: Team): TeamPlanningResult {
     input.horizon.start,
     input.horizon.end,
   )) {
+    updateMissedDeadlineStatuses(date, states);
     const effective = effectiveCapacity(team, date);
     const reserved = reservedCapacity(
       team,
@@ -265,11 +505,22 @@ function planTeam(input: PlanningInput, team: Team): TeamPlanningResult {
         ),
       }),
     );
-    allocateFairlyToAdmittedProjects(
+    const dailyAllocations = new Map<ProjectTeamState, Rational>();
+    const remainingAfterDeadlines = allocateDeadlineProjects(
       date,
       rationalOf(available),
+      team,
+      input.portfolio,
       admitted,
+      dailyAllocations,
     );
+    allocateFairlyToAdmittedProjects(
+      remainingAfterDeadlines,
+      admitted,
+      dailyAllocations,
+    );
+    commitDailyAllocations(date, admitted, dailyAllocations);
+    recordDeadlineStatuses(date, states);
   }
 
   return Object.freeze({
@@ -281,8 +532,8 @@ function planTeam(input: PlanningInput, team: Team): TeamPlanningResult {
 }
 
 /**
- * Phase 2C daily admission with normal fair sharing. Deadline-constrained
- * consumption remains outside this phase.
+ * Phase 2D daily admission, exact deadline consumption, then normal fair
+ * sharing of the remaining capacity.
  */
 export function planPortfolio(input: PlanningInput): PlanningResult {
   return Object.freeze({

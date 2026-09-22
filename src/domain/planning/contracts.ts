@@ -31,6 +31,17 @@ export interface ProjectAllocation {
   readonly workload: Capacity;
 }
 
+export type DeadlineStatus =
+  | "PENDING"
+  | "FEASIBLE"
+  | "UNFEASIBLE"
+  | "MISSED";
+
+export interface ProjectDeadlineStatusByDate {
+  readonly date: CivilDate;
+  readonly status: DeadlineStatus;
+}
+
 export interface ProjectTeamPlanningResult {
   readonly projectId: ProjectId;
   readonly teamId: TeamId;
@@ -39,6 +50,8 @@ export interface ProjectTeamPlanningResult {
   readonly remainingUnplannedWorkload: RemainingWorkload;
   readonly complete: boolean;
   readonly projectedEndDate?: CivilDate;
+  readonly deadlineStatus?: DeadlineStatus;
+  readonly deadlineStatuses?: readonly ProjectDeadlineStatusByDate[];
 }
 
 export interface TeamPlanningResult {

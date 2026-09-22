@@ -21,6 +21,7 @@ import {
   createWorkingPattern,
   planPortfolio,
   quantityToDecimalString,
+  serializeQuantity,
   type CivilDate,
   type DomainResult,
   type FirmCapacityReservation,
@@ -190,6 +191,15 @@ function allocations(plan: ProjectTeamPlanningResult): [CivilDate, string][] {
   ]);
 }
 
+function deadlineStatuses(
+  plan: ProjectTeamPlanningResult,
+): [CivilDate, string][] {
+  return (plan.deadlineStatuses ?? []).map((entry) => [
+    entry.date,
+    entry.status,
+  ]);
+}
+
 function comparableResult(result: PlanningResult) {
   return result.teamPlans.map((teamPlan) => ({
     teamId: teamPlan.teamId,
@@ -211,6 +221,8 @@ function comparableResult(result: PlanningResult) {
       remaining: rendered(projectPlan.remainingUnplannedWorkload),
       complete: projectPlan.complete,
       projectedEndDate: projectPlan.projectedEndDate,
+      deadlineStatus: projectPlan.deadlineStatus,
+      deadlineStatuses: projectPlan.deadlineStatuses,
     })),
   }));
 }
@@ -237,6 +249,8 @@ describe("Phase 2A planning engine", () => {
     assert.equal(rendered(plan.remainingUnplannedWorkload), "0");
     assert.equal(plan.complete, true);
     assert.equal(plan.projectedEndDate, "2025-01-02");
+    assert.equal("deadlineStatus" in plan, false);
+    assert.equal("deadlineStatuses" in plan, false);
   });
 
   it("applies an exact daily cap without quantization", () => {
@@ -279,7 +293,7 @@ describe("Phase 2A planning engine", () => {
     ]);
   });
 
-  it("respects earliest start inclusively and ignores objective and deadline dates", () => {
+  it("respects earliest start, ignores objective date, and handles a passed deadline", () => {
     const team = makeTeam("team-a", "1");
     const project = makeProject(
       "project-a",
@@ -302,6 +316,7 @@ describe("Phase 2A planning engine", () => {
       [[], [], [project.id]],
     );
     assert.equal(plan.projectedEndDate, "2025-01-03");
+    assert.equal(plan.deadlineStatus, "MISSED");
   });
 
   it("shares capacity equally and aggregates each daily allocation", () => {
@@ -844,5 +859,352 @@ describe("Phase 2C normal fair sharing", () => {
     assert.deepEqual(allocations(findProjectPlan(teamPlan, regular)), [
       ["2025-01-01", "1.5"],
     ]);
+  });
+});
+
+describe("Phase 2D mandatory deadlines", () => {
+  it("keeps a never-admitted project pending and tests feasibility only on admission", () => {
+    const team = makeTeam("team-a", "1", 1);
+    const blocker = makeProject("blocker", [{ team, workload: "3" }]);
+    const deadline = makeProject(
+      "deadline",
+      [{ team, workload: "2" }],
+      { mandatoryDeadline: "2025-01-04" },
+    );
+    const teamPlan = findTeamPlan(
+      planPortfolio(
+        makeInput(
+          [team],
+          [blocker, deadline],
+          "2025-01-01",
+          "2025-01-04",
+        ),
+      ),
+      team,
+    );
+    const deadlinePlan = findProjectPlan(teamPlan, deadline);
+
+    assert.deepEqual(deadlineStatuses(deadlinePlan), [
+      ["2025-01-01", "PENDING"],
+      ["2025-01-02", "PENDING"],
+      ["2025-01-03", "PENDING"],
+      ["2025-01-04", "UNFEASIBLE"],
+    ]);
+    assert.deepEqual(teamPlan.dayAdmissions[3]?.admittedProjectIds, [
+      deadline.id,
+    ]);
+    assert.deepEqual(allocations(deadlinePlan), [["2025-01-04", "1"]]);
+  });
+
+  it("uses an exact one-half ratio and constrains lower-priority deadlines", () => {
+    const team = makeTeam("team-a", "2", 2);
+    const first = makeProject(
+      "first",
+      [{ team, workload: "2" }],
+      { mandatoryDeadline: "2025-01-02" },
+    );
+    const second = makeProject(
+      "second",
+      [{ team, workload: "3" }],
+      { mandatoryDeadline: "2025-01-02" },
+    );
+    const teamPlan = findTeamPlan(
+      planPortfolio(
+        makeInput([team], [first, second], "2025-01-01", "2025-01-01"),
+      ),
+      team,
+    );
+
+    assert.equal(findProjectPlan(teamPlan, first).deadlineStatus, "FEASIBLE");
+    assert.equal(
+      findProjectPlan(teamPlan, second).deadlineStatus,
+      "UNFEASIBLE",
+    );
+    assert.deepEqual(allocations(findProjectPlan(teamPlan, first)), [
+      ["2025-01-01", "1"],
+    ]);
+    assert.deepEqual(allocations(findProjectPlan(teamPlan, second)), [
+      ["2025-01-01", "1"],
+    ]);
+  });
+
+  it("keeps an exact one-third deadline allocation outside normal quantization", () => {
+    const team = makeTeam("team-a", "1", 2);
+    const normal = makeProject("normal", [{ team, workload: "5" }]);
+    const deadline = makeProject(
+      "deadline",
+      [{ team, workload: "1" }],
+      { mandatoryDeadline: "2025-01-03" },
+    );
+    const teamPlan = findTeamPlan(
+      planPortfolio(
+        makeInput([team], [normal, deadline], "2025-01-01", "2025-01-01"),
+      ),
+      team,
+    );
+    const deadlinePlan = findProjectPlan(teamPlan, deadline);
+    const allocation = deadlinePlan.allocations[0];
+    assert.ok(allocation);
+
+    assert.equal(serializeQuantity(allocation.workload), "1/3");
+    assert.equal(deadlinePlan.deadlineStatus, "FEASIBLE");
+    assert.deepEqual(allocations(findProjectPlan(teamPlan, normal)), [
+      ["2025-01-01", "0.5"],
+    ]);
+  });
+
+  it("lets a lower-priority deadline consume before normal fair sharing", () => {
+    const team = makeTeam("team-a", "2", 2);
+    const normal = makeProject("normal", [{ team, workload: "5" }]);
+    const deadline = makeProject(
+      "deadline",
+      [{ team, workload: "3" }],
+      { mandatoryDeadline: "2025-01-02" },
+    );
+    const teamPlan = findTeamPlan(
+      planPortfolio(
+        makeInput([team], [normal, deadline], "2025-01-01", "2025-01-01"),
+      ),
+      team,
+    );
+
+    assert.deepEqual(allocations(findProjectPlan(teamPlan, normal)), [
+      ["2025-01-01", "0.5"],
+    ]);
+    assert.deepEqual(allocations(findProjectPlan(teamPlan, deadline)), [
+      ["2025-01-01", "1.5"],
+    ]);
+  });
+
+  it("lets an unfeasible deadline consume the maximum without backfill", () => {
+    const team = makeTeam("team-a", "2", 2);
+    const deadline = makeProject(
+      "deadline",
+      [{ team, workload: "5" }],
+      { mandatoryDeadline: "2025-01-01" },
+    );
+    const admittedNormal = makeProject("admitted-normal", [
+      { team, workload: "4" },
+    ]);
+    const outside = makeProject("outside", [{ team, workload: "4" }]);
+    const teamPlan = findTeamPlan(
+      planPortfolio(
+        makeInput(
+          [team],
+          [deadline, admittedNormal, outside],
+          "2025-01-01",
+          "2025-01-01",
+        ),
+      ),
+      team,
+    );
+
+    assert.deepEqual(teamPlan.dayAdmissions[0]?.admittedProjectIds, [
+      deadline.id,
+      admittedNormal.id,
+    ]);
+    assert.deepEqual(allocations(findProjectPlan(teamPlan, deadline)), [
+      ["2025-01-01", "2"],
+    ]);
+    assert.deepEqual(allocations(findProjectPlan(teamPlan, admittedNormal)), []);
+    assert.deepEqual(allocations(findProjectPlan(teamPlan, outside)), []);
+  });
+
+  it("changes feasible to unfeasible after interruption and never reverses it", () => {
+    const team = makeTeam("team-a", "1", 1);
+    const interrupter = makeProject(
+      "interrupter",
+      [{ team, workload: "1" }],
+      { earliestStartDate: "2025-01-02" },
+    );
+    const deadline = makeProject(
+      "deadline",
+      [{ team, workload: "3" }],
+      { mandatoryDeadline: "2025-01-04" },
+    );
+    const deadlinePlan = findProjectPlan(
+      findTeamPlan(
+        planPortfolio(
+          makeInput(
+            [team],
+            [interrupter, deadline],
+            "2025-01-01",
+            "2025-01-04",
+          ),
+        ),
+        team,
+      ),
+      deadline,
+    );
+
+    assert.deepEqual(deadlineStatuses(deadlinePlan), [
+      ["2025-01-01", "FEASIBLE"],
+      ["2025-01-02", "FEASIBLE"],
+      ["2025-01-03", "UNFEASIBLE"],
+      ["2025-01-04", "UNFEASIBLE"],
+    ]);
+    assert.equal(
+      serializeQuantity(deadlinePlan.allocations[0]!.workload),
+      "3/4",
+    );
+  });
+
+  it("changes a pending project to missed without ever admitting it", () => {
+    const team = makeTeam("team-a", "1", 1);
+    const blocker = makeProject("blocker", [{ team, workload: "3" }]);
+    const deadline = makeProject(
+      "deadline",
+      [{ team, workload: "1" }],
+      { mandatoryDeadline: "2025-01-01" },
+    );
+    const deadlinePlan = findProjectPlan(
+      findTeamPlan(
+        planPortfolio(
+          makeInput(
+            [team],
+            [blocker, deadline],
+            "2025-01-01",
+            "2025-01-02",
+          ),
+        ),
+        team,
+      ),
+      deadline,
+    );
+
+    assert.deepEqual(deadlineStatuses(deadlinePlan), [
+      ["2025-01-01", "PENDING"],
+      ["2025-01-02", "MISSED"],
+    ]);
+    assert.deepEqual(allocations(deadlinePlan), []);
+  });
+
+  it("changes a feasible interrupted project to missed", () => {
+    const team = makeTeam("team-a", "1", 1);
+    const blocker = makeProject(
+      "blocker",
+      [{ team, workload: "2" }],
+      { earliestStartDate: "2025-01-02" },
+    );
+    const deadline = makeProject(
+      "deadline",
+      [{ team, workload: "2" }],
+      { mandatoryDeadline: "2025-01-02" },
+    );
+    const deadlinePlan = findProjectPlan(
+      findTeamPlan(
+        planPortfolio(
+          makeInput(
+            [team],
+            [blocker, deadline],
+            "2025-01-01",
+            "2025-01-03",
+          ),
+        ),
+        team,
+      ),
+      deadline,
+    );
+
+    assert.deepEqual(deadlineStatuses(deadlinePlan), [
+      ["2025-01-01", "FEASIBLE"],
+      ["2025-01-02", "FEASIBLE"],
+      ["2025-01-03", "MISSED"],
+    ]);
+  });
+
+  it("changes unfeasible to missed and still consumes the maximum", () => {
+    const team = makeTeam("team-a", "1", 1);
+    const deadline = makeProject(
+      "deadline",
+      [{ team, workload: "3" }],
+      { mandatoryDeadline: "2025-01-01" },
+    );
+    const deadlinePlan = findProjectPlan(
+      findTeamPlan(
+        planPortfolio(
+          makeInput([team], [deadline], "2025-01-01", "2025-01-02"),
+        ),
+        team,
+      ),
+      deadline,
+    );
+
+    assert.deepEqual(deadlineStatuses(deadlinePlan), [
+      ["2025-01-01", "UNFEASIBLE"],
+      ["2025-01-02", "MISSED"],
+    ]);
+    assert.deepEqual(allocations(deadlinePlan), [
+      ["2025-01-01", "1"],
+      ["2025-01-02", "1"],
+    ]);
+  });
+
+  it("shares one daily cap across exact deadline and normal allocations", () => {
+    const team = makeTeam("team-a", "2", 1);
+    const deadline = makeProject(
+      "deadline",
+      [{ team, workload: "2", dailyCap: "1.5" }],
+      { mandatoryDeadline: "2025-01-02" },
+    );
+    const deadlinePlan = findProjectPlan(
+      findTeamPlan(
+        planPortfolio(
+          makeInput([team], [deadline], "2025-01-01", "2025-01-01"),
+        ),
+        team,
+      ),
+      deadline,
+    );
+
+    assert.deepEqual(allocations(deadlinePlan), [["2025-01-01", "1.5"]]);
+    assert.equal(rendered(deadlinePlan.remainingUnplannedWorkload), "0.5");
+  });
+
+  it("can finish a feasible project before its deadline", () => {
+    const team = makeTeam("team-a", "1", 1);
+    const deadline = makeProject(
+      "deadline",
+      [{ team, workload: "1" }],
+      { mandatoryDeadline: "2025-01-02" },
+    );
+    const deadlinePlan = findProjectPlan(
+      findTeamPlan(
+        planPortfolio(
+          makeInput([team], [deadline], "2025-01-01", "2025-01-01"),
+        ),
+        team,
+      ),
+      deadline,
+    );
+
+    assert.equal(deadlinePlan.complete, true);
+    assert.equal(deadlinePlan.projectedEndDate, "2025-01-01");
+    assert.equal(deadlinePlan.deadlineStatus, "FEASIBLE");
+  });
+
+  it("simulates deadline status independently for each team", () => {
+    const slow = makeTeam("slow", "1", 1);
+    const fast = makeTeam("fast", "2", 1);
+    const deadline = makeProject(
+      "deadline",
+      [
+        { team: slow, workload: "2" },
+        { team: fast, workload: "2" },
+      ],
+      { mandatoryDeadline: "2025-01-01" },
+    );
+    const result = planPortfolio(
+      makeInput([slow, fast], [deadline], "2025-01-01", "2025-01-01"),
+    );
+    const slowPlan = findProjectPlan(findTeamPlan(result, slow), deadline);
+    const fastPlan = findProjectPlan(findTeamPlan(result, fast), deadline);
+
+    assert.equal(slowPlan.deadlineStatus, "UNFEASIBLE");
+    assert.equal(fastPlan.deadlineStatus, "FEASIBLE");
+    assert.equal(slowPlan.complete, false);
+    assert.equal(fastPlan.complete, true);
+    assert.equal(Object.isFrozen(fastPlan.deadlineStatuses), true);
+    assert.equal(Object.isFrozen(fastPlan.deadlineStatuses?.[0]), true);
   });
 });

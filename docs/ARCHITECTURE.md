@@ -78,7 +78,7 @@ La vérification navigateur minimale consiste à lancer `npm run dev`, ouvrir
 `http://127.0.0.1:4173`, puis vérifier la présence de `FlowPlan` et de
 `Planning workspace`.
 
-## Planning Engine — Phase 2C
+## Planning Engine — Phase 2D
 
 La Phase 2B introduit l'admission quotidienne canonique. Pour chaque équipe,
 l'admission est entièrement recalculée chaque jour dans l'ordre global de
@@ -87,8 +87,8 @@ admis est ensuite figé pour la journée : terminer un RAF ou ne recevoir aucune
 allocation ne libère pas de place et aucun autre projet ne peut entrer en
 remplacement.
 
-La Phase 2C remplace la consommation séquentielle temporaire par le partage
-normal canonique entre les seuls projets admis. Un quantum normal vaut
+La Phase 2C reste responsable du partage normal entre les seuls projets admis.
+Un quantum normal vaut
 exactement `0.5` j.h. (`1/2` rationnel) et la distribution s'effectue par tours
 dans l'ordre de priorité. La priorité tranche ainsi les quanta indivisibles.
 
@@ -98,5 +98,26 @@ reliquat final de RAF inférieur à `0.5` peut être alloué exactement pour ach
 le projet. Une fraction de capacité inférieure à `0.5` reste inutilisée si elle
 ne permet pas de terminer exactement un RAF.
 
-La date objectif et la deadline impérative restent ignorées. En particulier,
-une deadline n'influence jamais l'admission.
+La Phase 2D ajoute les deadlines impératives avant ce partage normal, sans
+modifier l'admission : une deadline ne change ni la priorité, ni le nombre de
+slots, ni l'ensemble admis figé. Un projet non admis reste `PENDING`, puis peut
+devenir `MISSED` après sa deadline sans avoir jamais été admis.
+
+À la première admission puis à chaque admission d'un projet `FEASIBLE`, le
+moteur compare exactement son RAF à la capacité accessible restante jusqu'à la
+deadline. `FEASIBLE` peut devenir `UNFEASIBLE`, mais cette transition est
+irréversible. Une date dépassée avec un RAF positif produit `MISSED`.
+
+Une deadline `FEASIBLE` consomme une allocation rationnelle exacte fondée sur
+le ratio `RAF / capacité accessible restante`. Une deadline `UNFEASIBLE` ou
+`MISSED` consomme le maximum possible. Les deadlines admises sont traitées
+séquentiellement dans l'ordre de priorité ; leurs allocations exactes ne sont
+jamais quantifiées à `0.5`. Le reliquat revient ensuite au partage normal, où
+les projets deadline `FEASIBLE` peuvent aussi avancer, sous leur RAF et leur
+plafond quotidien global.
+
+Le calcul futur reste local et non prédictif : il additionne la capacité projet
+connue du calendrier jusqu'à la deadline et les contraintes de trajectoire déjà
+imposées par les deadlines admises plus prioritaires. Il ne prédit pas les
+futurs slots, ne simule pas d'admissions alternatives et ne soustrait jamais à
+l'avance les allocations normales. La date objectif reste descriptive.

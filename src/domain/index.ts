@@ -73,7 +73,9 @@ export { planPortfolio } from "./planning/engine.js";
 export type {
   PlanningInput,
   PlanningResult,
+  DeadlineStatus,
   ProjectAllocation,
+  ProjectDeadlineStatusByDate,
   ProjectTeamPlanningResult,
   TeamDayAdmission,
   TeamDayCapacity,
