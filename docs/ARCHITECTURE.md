@@ -212,3 +212,35 @@ Le contrat ne contient donc ni pixels, ni coordonnées, ni chemins SVG, ni
 hitboxes, ni viewport, ni référence DOM. Phase 3B ne fournit aucun adapter
 `PlanningResult -> TimelineViewModel` et n'appelle ni l'application ni le
 moteur. Cette transformation appartient à la Phase 3C.
+
+## PlanningViewModelAdapter — Phase 3C
+
+L'adapter pur `buildTimelineViewModel` joint les données déjà calculées avec
+les identités et libellés du portfolio :
+
+```text
+Portfolio + PlanningHorizon + PlanningResult
+                    -> buildTimelineViewModel
+                    -> TimelineViewModel
+```
+
+Le Portfolio fournit l'ordre de présentation des équipes et son
+`priorityOrder` fournit l'ordre des projets et des états projet-équipe. Les
+capacités et workloads rationnels restent exacts, les allocations restent
+journalières et l'ordre déterministe des diagnostics est préservé. L'adapter
+n'effectue aucun calcul de planning : il ne décide ni capacité, ni allocation,
+ni admission, ni statut deadline. Il enrichit uniquement les identifiants des
+diagnostics avec leurs libellés lorsqu'ils sont présents.
+
+La séparation canonique est désormais :
+
+```text
+Planning Engine   decides allocations
+Application       triggers planning
+Adapter           reshapes and joins
+Geometry          positions
+UI                renders
+```
+
+Phase 3C ne contient toujours aucune géométrie, coordonnée, couleur ou logique
+DOM/SVG. `TimelineGeometry` reste une étape ultérieure.
