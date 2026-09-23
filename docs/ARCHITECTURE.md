@@ -793,3 +793,48 @@ Phase 7C ne modifie jamais projets, priorité globale ou réservations. Une
 capacité modifiée peut néanmoins changer les conséquences et diagnostics des
 réservations existantes. Leur édition commence uniquement en Phase 7D. Aucun
 add/remove team ou période, drag/drop, undo/redo ou persistence n'est ajouté.
+
+## Firm Reservation Editing — Phase 7D
+
+Une firm reservation est un objet métier indépendant. Elle possède un
+`ReservationId` globalement unique, une `TeamId`, une plage CivilDate inclusive
+`[start, end]` et un `ReservationRatio` exact. Elle n'est ni un requirement
+projet ni une période de capacité et ne contient aucune priorité, RAF, daily
+cap ou deadline.
+
+L'éditeur applique une transaction complète par équipe sélectionnée :
+
+```text
+local add/edit/remove rows
+        ↓ Apply
+ReplaceTeamReservationsCommand
+        ↓ validation complète
+immutable Portfolio replacement
+        ↓
+recompute → ViewModel → Geometry → rerender
+```
+
+Les IDs existants sont conservés. Une nouvelle ligne reçoit un ID de session
+déterministe via un `ReservationIdGenerator` injecté, qui évite les collisions
+avec le Portfolio courant et ne dépend ni du DOM, ni du SVG, ni de l'ordre de
+rendu. Une ligne existante absente du payload est supprimée. Les réservations
+des autres équipes sont conservées et l'ordre UI soumis est conservé dans le
+bloc de l'équipe ciblée.
+
+Chaque ratio individuel reste borné à `[0, 1]`. L'UI convertit exactement les
+pourcentages `25`, `12.5` ou `100/3`, sans flottant métier. Les réservations
+peuvent se chevaucher et leurs ratios applicables sont additionnés exactement.
+Un total supérieur à 100 % est une entrée valide :
+
+```text
+total ratio > 1
+→ reservedCapacity may exceed effectiveCapacity
+→ projectCapacity = 0
+→ TEAM_OVER_RESERVED
+```
+
+Cette conséquence planner n'est jamais une erreur de formulaire. Un hit projet
+active seulement le Project editor. Un hit team active simultanément le Team
+Capacity editor et le Firm Reservations editor, dont les controllers, parsers,
+commandes et panneaux d'erreur restent séparés. Phase 7D n'ajoute aucun handle
+timeline, drag/drop, undo/redo, persistence ou actuals/history.

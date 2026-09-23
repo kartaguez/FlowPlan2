@@ -155,6 +155,20 @@ describe("firm capacity reservations", () => {
     assert.equal(rendered(projectCapacity(team, day, reservations)), "2.56");
   });
 
+  it("aggregates multiple exact reservations before deriving project capacity", () => {
+    const team = makeTeam("4");
+    const day = date("2025-01-15");
+    const quarter = [reservation("quarter", "0.25")];
+    assert.equal(serializeQuantity(reservedCapacity(team, day, quarter)), "1/1");
+    assert.equal(serializeQuantity(projectCapacity(team, day, quarter)), "3/1");
+    const combined = [
+      reservation("combined-quarter", "0.25"),
+      reservation("combined-half", "0.5"),
+    ];
+    assert.equal(serializeQuantity(reservedCapacity(team, day, combined)), "3/1");
+    assert.equal(serializeQuantity(projectCapacity(team, day, combined)), "1/1");
+  });
+
   it("supports over-reservation at nine million without an intermediate overflow", () => {
     const team = makeTeam("9000000");
     const reservations = [reservation("one", "1"), reservation("two", "1")];

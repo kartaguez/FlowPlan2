@@ -230,8 +230,7 @@ describe("PlanningSession team editing", () => {
       ),
     );
     assert.doesNotMatch(source, /HTMLElement|SVGElement|src\/ui/);
-    assert.match(source, /UpdateProjectCommand \| UpdateTeamCommand/);
-    assert.doesNotMatch(source, /reservationRatio/);
+    assert.match(source, /UpdateProjectCommand[\s\S]*UpdateTeamCommand/);
     assert.equal(must(createMaxParallelProjects(1)), 1);
   });
 });

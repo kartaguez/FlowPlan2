@@ -2,6 +2,7 @@ import {
   capacityFromSerialized,
   compareCivilDates,
   createCapacityPeriod,
+  createFirmCapacityReservation,
   createMaxParallelProjects,
   createPortfolio,
   createProject,
@@ -10,6 +11,7 @@ import {
   createTeamCapacitySchedule,
   createWorkingPattern,
   serializeQuantity,
+  reservationRatioFromSerialized,
   unavailabilityRatioFromSerialized,
   type Capacity,
   type CivilDate,
@@ -18,6 +20,8 @@ import {
   type PlanningHorizon,
   type Portfolio,
   type ProjectId,
+  type ReservationId,
+  type ReservationRatio,
   type RemainingWorkload,
   type Team,
   type TeamId,
@@ -65,7 +69,23 @@ export interface UpdateTeamCommand {
   readonly capacityPeriods: readonly UpdateTeamCapacityPeriod[];
 }
 
-export type PlanningCommand = UpdateProjectCommand | UpdateTeamCommand;
+export interface ReplaceTeamReservation {
+  readonly reservationId: ReservationId;
+  readonly startDate: CivilDate;
+  readonly endDate: CivilDate;
+  readonly ratio: ReservationRatio;
+}
+
+export interface ReplaceTeamReservationsCommand {
+  readonly kind: "replace-team-reservations";
+  readonly teamId: TeamId;
+  readonly reservations: readonly ReplaceTeamReservation[];
+}
+
+export type PlanningCommand =
+  | UpdateProjectCommand
+  | UpdateTeamCommand
+  | ReplaceTeamReservationsCommand;
 
 export type PlanningCommandResult =
   | Readonly<{ ok: true; state: PlanningSessionState }>
@@ -100,7 +120,111 @@ function applyCommand(
       return updateProject(state, command);
     case "update-team":
       return updateTeam(state, command);
+    case "replace-team-reservations":
+      return replaceTeamReservations(state, command);
   }
+}
+
+function replaceTeamReservations(
+  state: PlanningSessionState,
+  command: ReplaceTeamReservationsCommand,
+): PlanningCommandResult {
+  if (!state.portfolio.teams.some((team) => team.id === command.teamId)) {
+    return failure([
+      applicationError(
+        "UNKNOWN_TEAM",
+        "teamId",
+        `Team ${command.teamId} does not exist in the current portfolio.`,
+      ),
+    ]);
+  }
+  const errors: DomainError[] = [];
+  const payloadIds = new Set<ReservationId>();
+  const reservationsById = new Map(
+    state.portfolio.reservations.map((reservation) => [reservation.id, reservation]),
+  );
+  const replacements = command.reservations.map((reservation, index) => {
+    const path = `reservations[${index}]`;
+    if (payloadIds.has(reservation.reservationId)) {
+      errors.push(
+        applicationError(
+          "DUPLICATE_RESERVATION_ID",
+          `${path}.reservationId`,
+          "A reservation ID may appear only once.",
+        ),
+      );
+    }
+    payloadIds.add(reservation.reservationId);
+    const existing = reservationsById.get(reservation.reservationId);
+    if (existing !== undefined && existing.teamId !== command.teamId) {
+      errors.push(
+        applicationError(
+          "RESERVATION_ID_COLLISION",
+          `${path}.reservationId`,
+          "Reservation ID already belongs to another team.",
+        ),
+      );
+    }
+    const ratio = reservationRatioFromSerialized(
+      serializeQuantity(reservation.ratio),
+      `${path}.ratio`,
+    );
+    if (!ratio.ok) {
+      errors.push(...ratio.errors);
+      return undefined;
+    }
+    const result = createFirmCapacityReservation({
+      id: reservation.reservationId,
+      teamId: command.teamId,
+      label: existing?.label ?? "Firm reservation",
+      start: reservation.startDate,
+      end: reservation.endDate,
+      ratio: ratio.value,
+    });
+    if (!result.ok) {
+      errors.push(
+        ...result.errors.map((entry) =>
+          Object.freeze({ ...entry, path: `${path}.${entry.path}` }),
+        ),
+      );
+      return undefined;
+    }
+    return result.value;
+  });
+  if (errors.length > 0 || replacements.some((item) => item === undefined)) {
+    return failure(errors);
+  }
+  const validated = replacements.filter(
+    (item): item is NonNullable<typeof item> => item !== undefined,
+  );
+  const firstTargetIndex = state.portfolio.reservations.findIndex(
+    (reservation) => reservation.teamId === command.teamId,
+  );
+  const others = state.portfolio.reservations.filter(
+    (reservation) => reservation.teamId !== command.teamId,
+  );
+  const insertionIndex =
+    firstTargetIndex < 0
+      ? others.length
+      : state.portfolio.reservations
+          .slice(0, firstTargetIndex)
+          .filter((reservation) => reservation.teamId !== command.teamId).length;
+  const reservations = [
+    ...others.slice(0, insertionIndex),
+    ...validated,
+    ...others.slice(insertionIndex),
+  ];
+  const portfolio = createPortfolio({
+    teams: state.portfolio.teams,
+    projects: state.portfolio.projects,
+    priorityOrder: state.portfolio.priorityOrder,
+    reservations,
+  });
+  if (!portfolio.ok) return failure(portfolio.errors);
+  return Object.freeze({
+    ok: true,
+    state: freezeState({ portfolio: portfolio.value, horizon: state.horizon }),
+  });
 }
 
 function updateTeam(

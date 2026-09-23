@@ -338,7 +338,8 @@ p {
 }
 
 .timeline-project-edit,
-.timeline-team-edit {
+.timeline-team-edit,
+.timeline-reservation-edit {
   margin-top: 1rem;
   border: 1px solid #d9e0ea;
   border-radius: 0.5rem;
@@ -347,7 +348,8 @@ p {
 }
 
 .timeline-project-edit h3,
-.timeline-team-edit h3 {
+.timeline-team-edit h3,
+.timeline-reservation-edit h3 {
   margin: 0 0 0.4rem;
   font-size: 1rem;
 }
@@ -356,12 +358,14 @@ p {
   color: #52627a;
 }
 
-.timeline-team-edit-status {
+.timeline-team-edit-status,
+.timeline-reservation-edit-status {
   color: #52627a;
 }
 
 .timeline-project-edit-form,
-.timeline-team-edit-form {
+.timeline-team-edit-form,
+.timeline-reservation-edit-form {
   display: grid;
   gap: 0.8rem;
 }
@@ -387,13 +391,36 @@ p {
 }
 
 .timeline-project-edit-actions,
-.timeline-team-edit-actions {
+.timeline-team-edit-actions,
+.timeline-reservation-edit-actions {
   display: flex;
   gap: 0.6rem;
 }
 
+.timeline-reservation-edit-rows {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.timeline-reservation-edit-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  gap: 0.75rem;
+  align-items: end;
+}
+
+.timeline-reservation-edit-row label {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.reservation-edit-error {
+  color: #9b2c2c;
+}
+
 .timeline-project-edit-form label,
-.timeline-team-edit-form label {
+.timeline-team-edit-form label,
+.timeline-reservation-edit-form label {
   display: grid;
   gap: 0.25rem;
 }
@@ -401,7 +428,9 @@ p {
 .timeline-project-edit-form input,
 .timeline-project-edit-form button,
 .timeline-team-edit-form input,
-.timeline-team-edit-form button {
+.timeline-team-edit-form button,
+.timeline-reservation-edit-form input,
+.timeline-reservation-edit-form button {
   min-height: 2.25rem;
   border: 1px solid #94a3b8;
   border-radius: 0.35rem;

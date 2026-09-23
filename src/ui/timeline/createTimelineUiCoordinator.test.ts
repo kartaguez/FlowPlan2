@@ -3,6 +3,8 @@ import { describe, it } from "node:test";
 import type {
   ProjectEditViewModel,
   TeamEditViewModel,
+  TeamReservationsEditViewModel,
+  ReplaceTeamReservationsCommand,
   UpdateProjectCommand,
   UpdateTeamCommand,
 } from "../../application/index.js";
@@ -10,6 +12,7 @@ import type { TimelineGeometry, TimelineViewModel } from "../../adapters/index.j
 import {
   createCivilDate,
   createProjectId,
+  createReservationId,
   createTeamId,
   type DomainResult,
 } from "../../domain/index.js";
@@ -106,6 +109,11 @@ function fixture() {
     workingWeekdays: Object.freeze([1, 2, 3, 4, 5] as const),
     capacityPeriods: Object.freeze([]),
   }) satisfies TeamEditViewModel;
+  const reservationModel = Object.freeze({
+    teamId,
+    teamLabel: "Team Alpha",
+    reservations: Object.freeze([]),
+  }) satisfies TeamReservationsEditViewModel;
   const elements = createElements();
   const lifecycle: string[] = [];
   const viewportInputs: Array<{ initialViewport?: unknown }> = [];
@@ -116,8 +124,12 @@ function fixture() {
   }> = [];
   const projectModels: Array<ProjectEditViewModel | undefined> = [];
   const teamModels: Array<TeamEditViewModel | undefined> = [];
+  const reservationModels: Array<TeamReservationsEditViewModel | undefined> = [];
   let applyProject: ((command: UpdateProjectCommand) => { readonly ok: boolean }) | undefined;
   let applyTeam: ((command: UpdateTeamCommand) => { readonly ok: boolean }) | undefined;
+  let applyReservations:
+    | ((command: ReplaceTeamReservationsCommand) => { readonly ok: boolean })
+    | undefined;
   let currentSelected: TimelineHit | undefined = allocationHit;
   let generation = 0;
   const dependencies = {
@@ -178,6 +190,17 @@ function fixture() {
         destroy: () => lifecycle.push("destroy-team-edit"),
       };
     },
+    createReservationEditController: (input: {
+      onApply: (command: ReplaceTeamReservationsCommand) => { readonly ok: boolean };
+    }) => {
+      applyReservations = input.onApply;
+      return {
+        setTeam: (model: TeamReservationsEditViewModel | undefined) =>
+          reservationModels.push(model),
+        getTeamId: () => reservationModels.at(-1)?.teamId,
+        destroy: () => lifecycle.push("destroy-reservation-edit"),
+      };
+    },
   } as unknown as TimelineUiCoordinatorDependencies;
   return {
     projectId,
@@ -189,6 +212,7 @@ function fixture() {
     nextProjection,
     editModel,
     teamEditModel,
+    reservationModel,
     elements,
     dependencies,
     lifecycle,
@@ -197,8 +221,10 @@ function fixture() {
     interactionInputs,
     projectModels,
     teamModels,
+    reservationModels,
     getApplyProject: () => applyProject!,
     getApplyTeam: () => applyTeam!,
+    getApplyReservations: () => applyReservations!,
     select: (selected: TimelineHit | undefined) => {
       currentSelected = selected;
       interactionInputs.at(-1)?.onSelectionChange?.(selected);
@@ -217,6 +243,8 @@ describe("TimelineUiCoordinator", () => {
         dispatch: () => ({ ok: true, projection: input.nextProjection }),
         getProjectEditViewModel: () => input.editModel,
         getTeamEditViewModel: () => input.teamEditModel,
+        getTeamReservationsEditViewModel: () => input.reservationModel,
+        nextReservationId: () => must(createReservationId("new-reservation")),
       },
       input.dependencies,
     );
@@ -254,6 +282,8 @@ describe("TimelineUiCoordinator", () => {
         }),
         getProjectEditViewModel: () => input.editModel,
         getTeamEditViewModel: () => input.teamEditModel,
+        getTeamReservationsEditViewModel: () => input.reservationModel,
+        nextReservationId: () => must(createReservationId("new-reservation")),
       },
       input.dependencies,
     );
@@ -276,6 +306,8 @@ describe("TimelineUiCoordinator", () => {
         dispatch: () => ({ ok: true, projection: input.nextProjection }),
         getProjectEditViewModel: () => input.editModel,
         getTeamEditViewModel: () => input.teamEditModel,
+        getTeamReservationsEditViewModel: () => input.reservationModel,
+        nextReservationId: () => must(createReservationId("new-reservation")),
       },
       input.dependencies,
     );
@@ -285,9 +317,11 @@ describe("TimelineUiCoordinator", () => {
     });
     assert.equal(input.projectModels.at(-1), undefined);
     assert.equal(input.teamModels.at(-1), input.teamEditModel);
+    assert.equal(input.reservationModels.at(-1), input.reservationModel);
     input.select(input.allocationHit);
     assert.equal(input.projectModels.at(-1), input.editModel);
     assert.equal(input.teamModels.at(-1), undefined);
+    assert.equal(input.reservationModels.at(-1), undefined);
 
     const withoutAllocation = {
       ...input.nextProjection,
@@ -315,16 +349,43 @@ describe("TimelineUiCoordinator", () => {
         dispatch: () => ({ ok: true, projection: input.nextProjection }),
         getProjectEditViewModel: () => input.editModel,
         getTeamEditViewModel: () => input.teamEditModel,
+        getTeamReservationsEditViewModel: () => input.reservationModel,
+        nextReservationId: () => must(createReservationId("new-reservation")),
       },
       input.dependencies,
     );
     const teamHit = { kind: "team", teamId: input.teamId } as const;
     input.select(teamHit);
     assert.equal(input.teamModels.at(-1), input.teamEditModel);
+    assert.equal(input.reservationModels.at(-1), input.reservationModel);
     assert.equal(input.projectModels.at(-1), undefined);
     input.getApplyTeam()({} as UpdateTeamCommand);
     assert.deepEqual(coordinator.getUiSnapshot().selected, teamHit);
     assert.equal(input.teamModels.at(-1), input.teamEditModel);
+    assert.equal(input.reservationModels.at(-1), input.reservationModel);
+  });
+
+  it("preserves the team context through a reservation replacement", () => {
+    const input = fixture();
+    const coordinator = createTimelineUiCoordinator(
+      {
+        elements: input.elements,
+        initialProjection: input.projection,
+        initialDate: input.firstDate,
+        dispatch: () => ({ ok: true, projection: input.nextProjection }),
+        getProjectEditViewModel: () => input.editModel,
+        getTeamEditViewModel: () => input.teamEditModel,
+        getTeamReservationsEditViewModel: () => input.reservationModel,
+        nextReservationId: () => must(createReservationId("new-reservation")),
+      },
+      input.dependencies,
+    );
+    const teamHit = { kind: "team", teamId: input.teamId } as const;
+    input.select(teamHit);
+    input.getApplyReservations()({} as ReplaceTeamReservationsCommand);
+    assert.deepEqual(coordinator.getUiSnapshot().selected, teamHit);
+    assert.equal(input.reservationModels.at(-1), input.reservationModel);
+    assert.equal(input.projectModels.at(-1), undefined);
   });
 });
 
@@ -356,6 +417,15 @@ function createElements(): AppElements {
       cancel: element() as unknown as HTMLButtonElement,
       status: element() as unknown as HTMLElement,
     },
+    reservationEditControls: {
+      form: element() as unknown as HTMLFormElement,
+      rows: element() as unknown as HTMLElement,
+      add: element() as unknown as HTMLButtonElement,
+      apply: element() as unknown as HTMLButtonElement,
+      cancel: element() as unknown as HTMLButtonElement,
+      status: element() as unknown as HTMLElement,
+    },
     applicationError: element() as unknown as HTMLElement,
+    reservationEditError: element() as unknown as HTMLElement,
   };
 }

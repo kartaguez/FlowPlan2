@@ -13,6 +13,8 @@ export {
   type UpdateProjectTeamRequirement,
   type UpdateTeamCapacityPeriod,
   type UpdateTeamCommand,
+  type ReplaceTeamReservation,
+  type ReplaceTeamReservationsCommand,
 } from "./session/planningSession.js";
 export {
   buildProjectEditViewModel,
@@ -24,3 +26,12 @@ export {
   type TeamCapacityPeriodEditViewModel,
   type TeamEditViewModel,
 } from "./session/teamEditViewModel.js";
+export {
+  buildTeamReservationsEditViewModel,
+  type ReservationEditItemViewModel,
+  type TeamReservationsEditViewModel,
+} from "./session/teamReservationsEditViewModel.js";
+export {
+  createReservationIdGenerator,
+  type ReservationIdGenerator,
+} from "./session/reservationIdGenerator.js";

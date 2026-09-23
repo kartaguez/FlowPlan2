@@ -6,18 +6,22 @@ import type {
   PlanningCommand,
   ProjectEditViewModel,
   TeamEditViewModel,
+  TeamReservationsEditViewModel,
   UpdateProjectCommand,
   UpdateTeamCommand,
+  ReplaceTeamReservationsCommand,
 } from "../../application/index.js";
 import type {
   CivilDate,
   DomainError,
   ProjectId,
   TeamId,
+  ReservationId,
 } from "../../domain/index.js";
 import type { AppElements } from "../renderApp.js";
 import { createProjectEditController } from "../project-edit/createProjectEditController.js";
 import { createTeamEditController } from "../team-edit/createTeamEditController.js";
+import { createReservationEditController } from "../reservation-edit/createReservationEditController.js";
 import { createTimelineCursorController } from "./createTimelineCursorController.js";
 import { createTimelineInteractionController } from "./createTimelineInteractionController.js";
 import { createTimelineViewportController } from "./createTimelineViewportController.js";
@@ -62,6 +66,10 @@ export interface CreateTimelineUiCoordinatorInput {
   readonly getTeamEditViewModel: (
     teamId: TeamId,
   ) => TeamEditViewModel | undefined;
+  readonly getTeamReservationsEditViewModel: (
+    teamId: TeamId,
+  ) => TeamReservationsEditViewModel | undefined;
+  readonly nextReservationId: () => ReservationId;
 }
 
 export interface TimelineUiCoordinatorDependencies {
@@ -72,6 +80,7 @@ export interface TimelineUiCoordinatorDependencies {
   readonly createInteractionController: typeof createTimelineInteractionController;
   readonly createProjectEditController: typeof createProjectEditController;
   readonly createTeamEditController: typeof createTeamEditController;
+  readonly createReservationEditController: typeof createReservationEditController;
 }
 
 const DEFAULT_DEPENDENCIES: TimelineUiCoordinatorDependencies = Object.freeze({
@@ -82,6 +91,7 @@ const DEFAULT_DEPENDENCIES: TimelineUiCoordinatorDependencies = Object.freeze({
   createInteractionController: createTimelineInteractionController,
   createProjectEditController,
   createTeamEditController,
+  createReservationEditController,
 });
 
 export function createTimelineUiCoordinator(
@@ -94,6 +104,7 @@ export function createTimelineUiCoordinator(
   let interactionController: ReturnType<typeof createTimelineInteractionController>;
   let projectEditController: ReturnType<typeof createProjectEditController>;
   let teamEditController: ReturnType<typeof createTeamEditController>;
+  let reservationEditController: ReturnType<typeof createReservationEditController>;
   let mounted = false;
 
   const updateEditForms = (selected: TimelineHit | undefined): void => {
@@ -111,6 +122,11 @@ export function createTimelineUiCoordinator(
         ? input.getTeamEditViewModel(selected.teamId)
         : undefined;
     teamEditController.setTeam(teamEditViewModel);
+    reservationEditController.setTeam(
+      selected?.kind === "team"
+        ? input.getTeamReservationsEditViewModel(selected.teamId)
+        : undefined,
+    );
   };
 
   const currentSnapshot = (): TimelineUiSnapshot => {
@@ -209,6 +225,12 @@ export function createTimelineUiCoordinator(
     renderProjection(result.projection);
     return Object.freeze({ ok: true as const });
   };
+  const applyReservationUpdate = (command: ReplaceTeamReservationsCommand) => {
+    const result = input.dispatch(command);
+    if (!result.ok) return result;
+    renderProjection(result.projection);
+    return Object.freeze({ ok: true as const });
+  };
 
   projectEditController = dependencies.createProjectEditController({
     controls: input.elements.projectEditControls,
@@ -220,6 +242,12 @@ export function createTimelineUiCoordinator(
     errorContainer: input.elements.applicationError,
     onApply: applyTeamUpdate,
   });
+  reservationEditController = dependencies.createReservationEditController({
+    controls: input.elements.reservationEditControls,
+    errorContainer: input.elements.reservationEditError,
+    nextReservationId: input.nextReservationId,
+    onApply: applyReservationUpdate,
+  });
   mountProjection(input.initialProjection, currentSnapshot());
 
   return Object.freeze({
@@ -229,6 +257,7 @@ export function createTimelineUiCoordinator(
     destroy: () => {
       projectEditController.destroy();
       teamEditController.destroy();
+      reservationEditController.destroy();
       destroyControllers();
     },
   });

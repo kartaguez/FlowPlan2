@@ -138,6 +138,18 @@ describe("renderApp", () => {
       true,
     );
     assert.equal(
+      (elements.reservationEditControls.form as unknown as FakeElement).tagName,
+      "form",
+    );
+    assert.equal(
+      (elements.reservationEditControls.add as unknown as FakeElement).disabled,
+      true,
+    );
+    assert.equal(
+      (elements.reservationEditError as unknown as FakeElement).getAttribute("role"),
+      "alert",
+    );
+    assert.equal(
       (elements.applicationError as unknown as FakeElement).getAttribute("role"),
       "alert",
     );

@@ -10,7 +10,9 @@ export interface AppElements {
   readonly selectionSummary: HTMLElement;
   readonly projectEditControls: ProjectEditControls;
   readonly teamEditControls: TeamEditControls;
+  readonly reservationEditControls: ReservationEditControls;
   readonly applicationError: HTMLElement;
+  readonly reservationEditError: HTMLElement;
 }
 
 export interface ProjectEditControls {
@@ -24,6 +26,15 @@ export interface ProjectEditControls {
 export interface TeamEditControls {
   readonly form: HTMLFormElement;
   readonly fields: HTMLElement;
+  readonly apply: HTMLButtonElement;
+  readonly cancel: HTMLButtonElement;
+  readonly status: HTMLElement;
+}
+
+export interface ReservationEditControls {
+  readonly form: HTMLFormElement;
+  readonly rows: HTMLElement;
+  readonly add: HTMLButtonElement;
   readonly apply: HTMLButtonElement;
   readonly cancel: HTMLButtonElement;
   readonly status: HTMLElement;
@@ -155,6 +166,52 @@ export function renderApp(root: HTMLElement): AppElements {
     cancel: teamCancel,
     status: teamEditStatus,
   });
+  const reservationEdit = document.createElement("section");
+  reservationEdit.className = "timeline-reservation-edit";
+  reservationEdit.setAttribute("aria-label", "Firm reservation edit");
+  const reservationTitle = document.createElement("h3");
+  reservationTitle.textContent = "Firm reservations";
+  const reservationStatus = document.createElement("p");
+  reservationStatus.className = "timeline-reservation-edit-status";
+  reservationStatus.textContent = "Select a team lane to edit reservations.";
+  const reservationForm = document.createElement("form");
+  reservationForm.className = "timeline-reservation-edit-form";
+  const reservationRows = document.createElement("div");
+  reservationRows.className = "timeline-reservation-edit-rows";
+  const reservationAdd = document.createElement("button");
+  reservationAdd.type = "button";
+  reservationAdd.textContent = "Add reservation";
+  reservationAdd.disabled = true;
+  const reservationApply = document.createElement("button");
+  reservationApply.type = "submit";
+  reservationApply.textContent = "Apply reservations";
+  reservationApply.disabled = true;
+  const reservationCancel = document.createElement("button");
+  reservationCancel.type = "button";
+  reservationCancel.textContent = "Cancel";
+  reservationCancel.disabled = true;
+  const reservationActions = document.createElement("div");
+  reservationActions.className = "timeline-reservation-edit-actions";
+  reservationActions.append(reservationAdd, reservationApply, reservationCancel);
+  reservationForm.append(reservationRows, reservationActions);
+  const reservationEditError = document.createElement("p");
+  reservationEditError.className = "reservation-edit-error";
+  reservationEditError.setAttribute("role", "alert");
+  reservationEditError.hidden = true;
+  reservationEdit.append(
+    reservationTitle,
+    reservationStatus,
+    reservationForm,
+    reservationEditError,
+  );
+  const reservationEditControls = Object.freeze({
+    form: reservationForm,
+    rows: reservationRows,
+    add: reservationAdd,
+    apply: reservationApply,
+    cancel: reservationCancel,
+    status: reservationStatus,
+  });
   const applicationError = document.createElement("p");
   applicationError.className = "application-error";
   applicationError.setAttribute("role", "alert");
@@ -169,6 +226,7 @@ export function renderApp(root: HTMLElement): AppElements {
     selectionSummary,
     projectEdit,
     teamEdit,
+    reservationEdit,
     applicationError,
     diagnostics,
     tooltip,
@@ -186,7 +244,9 @@ export function renderApp(root: HTMLElement): AppElements {
     selectionSummary,
     projectEditControls,
     teamEditControls,
+    reservationEditControls,
     applicationError,
+    reservationEditError,
   });
 }
 

@@ -11,12 +11,16 @@ import {
   createCapacity,
   createDailyCap,
   createRemainingWorkload,
+  createReservationId,
+  createReservationRatio,
   createUnavailabilityRatio,
   createWorkingPattern,
   serializeQuantity,
   type DomainResult,
   type ProjectId,
   type TeamId,
+  projectCapacity,
+  reservedCapacity,
 } from "../../domain/index.js";
 import { createDemoPlanningScenario } from "../demo/createDemoPlanningScenario.js";
 import { buildPlanningSessionProjection } from "./buildPlanningSessionProjection.js";
@@ -419,5 +423,88 @@ describe("PlanningProjectionDispatcher", () => {
         (capacity) => capacity.date === "2025-01-02",
       )!;
     assert.equal(serializeQuantity(day.effectiveCapacity), "2/1");
+  });
+
+  it("accepts overlapping over-reservations and rebuilds their diagnostics once", () => {
+    const initial = createDemoPlanningScenario();
+    const session = createPlanningSession(initial);
+    let buildCount = 0;
+    const dispatcher = createPlanningProjectionDispatcher({
+      session,
+      geometryViewport,
+      buildProjection: (input) => {
+        buildCount += 1;
+        return buildPlanningSessionProjection(input);
+      },
+    });
+    const team = initial.portfolio.teams[0]!;
+    const otherTeam = initial.portfolio.teams[1]!;
+    const date = must(createCivilDate("2025-01-02"));
+    const otherBefore = dispatcher
+      .getProjection()
+      .viewModel.teams.find((item) => item.id === otherTeam.id)!
+      .capacities.find((item) => item.date === date)!;
+    const result = dispatcher.dispatch({
+      kind: "replace-team-reservations",
+      teamId: team.id,
+      reservations: ["0.75", "0.5"].map((ratio, index) => ({
+        reservationId: must(createReservationId(`overlap-${index}`)),
+        startDate: must(createCivilDate("2025-01-01")),
+        endDate: must(createCivilDate("2025-01-31")),
+        ratio: must(createReservationRatio(ratio)),
+      })),
+    });
+    assert.equal(result.ok, true);
+    assert.equal(buildCount, 2);
+    const state = session.getState();
+    assert.equal(
+      serializeQuantity(reservedCapacity(team, date, state.portfolio.reservations)),
+      "15/4",
+    );
+    assert.equal(
+      serializeQuantity(projectCapacity(team, date, state.portfolio.reservations)),
+      "0/1",
+    );
+    assert.ok(
+      dispatcher.getProjection().viewModel.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "TEAM_OVER_RESERVED" && diagnostic.teamId === team.id,
+      ),
+    );
+    const otherAfter = dispatcher
+      .getProjection()
+      .viewModel.teams.find((item) => item.id === otherTeam.id)!
+      .capacities.find((item) => item.date === date)!;
+    assert.deepEqual(otherAfter, otherBefore);
+  });
+
+  it("does not rebuild for an invalid reservation replacement", () => {
+    const initial = createDemoPlanningScenario();
+    const session = createPlanningSession(initial);
+    let buildCount = 0;
+    const dispatcher = createPlanningProjectionDispatcher({
+      session,
+      geometryViewport,
+      buildProjection: (input) => {
+        buildCount += 1;
+        return buildPlanningSessionProjection(input);
+      },
+    });
+    const projection = dispatcher.getProjection();
+    const result = dispatcher.dispatch({
+      kind: "replace-team-reservations",
+      teamId: initial.portfolio.teams[0]!.id,
+      reservations: [
+        {
+          reservationId: must(createReservationId("invalid-range")),
+          startDate: must(createCivilDate("2025-02-01")),
+          endDate: must(createCivilDate("2025-01-01")),
+          ratio: must(createReservationRatio("0.5")),
+        },
+      ],
+    });
+    assert.equal(result.ok, false);
+    assert.equal(buildCount, 1);
+    assert.equal(dispatcher.getProjection(), projection);
   });
 });

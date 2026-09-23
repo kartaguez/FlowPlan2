@@ -14,6 +14,7 @@ import {
   type TeamId,
   type UnavailabilityRatio,
 } from "../../domain/index.js";
+import { percentageToSerializedRatio } from "../../application/session/exactPercentage.js";
 
 export interface TeamEditFormValues {
   readonly teamId: TeamId;
@@ -180,7 +181,7 @@ function parseUnavailabilityPercent(
   path: string,
   errors: DomainError[],
 ): UnavailabilityRatio | undefined {
-  const serializedRatio = percentToSerializedRatio(raw.trim());
+  const serializedRatio = percentageToSerializedRatio(raw);
   if (serializedRatio === undefined) {
     errors.push(
       error(
@@ -197,20 +198,6 @@ function parseUnavailabilityPercent(
     return undefined;
   }
   return result.value;
-}
-
-function percentToSerializedRatio(value: string): string | undefined {
-  const fraction = /^([+-]?\d+)\/([1-9]\d*)$/.exec(value);
-  if (fraction) {
-    return `${fraction[1]}/${BigInt(fraction[2]!) * 100n}`;
-  }
-  const decimal = /^([+-]?)(\d+)(?:\.(\d+))?$/.exec(value);
-  if (!decimal) return undefined;
-  const fractionDigits = decimal[3] ?? "";
-  const numerator = BigInt(`${decimal[2]}${fractionDigits}`);
-  const signedNumerator = decimal[1] === "-" ? -numerator : numerator;
-  const denominator = 10n ** BigInt(fractionDigits.length) * 100n;
-  return `${signedNumerator}/${denominator}`;
 }
 
 function error(code: string, path: string, message: string): DomainError {

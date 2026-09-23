@@ -5,6 +5,7 @@ import {
   type TeamId,
 } from "../../domain/index.js";
 import type { PlanningSessionState } from "./planningSession.js";
+import { serializedRatioToPercentage } from "./exactPercentage.js";
 
 export interface TeamEditViewModel {
   readonly teamId: TeamId;
@@ -43,7 +44,7 @@ export function buildTeamEditViewModel(
           startDate: period.start,
           endDate: period.end,
           capacity: serializeQuantity(period.dailyCapacity),
-          unavailabilityPercent: ratioToPercent(
+          unavailabilityPercent: serializedRatioToPercentage(
             period.unavailabilityRatio === undefined
               ? "0/1"
               : serializeQuantity(period.unavailabilityRatio),
@@ -52,30 +53,4 @@ export function buildTeamEditViewModel(
       ),
     ),
   });
-}
-
-function ratioToPercent(serializedRatio: string): string {
-  const [numerator, denominator] = serializedRatio.split("/");
-  if (numerator === undefined || denominator === undefined) {
-    throw new TypeError("Canonical ratio serialization is invalid.");
-  }
-  const percentNumerator = BigInt(numerator) * 100n;
-  const percentDenominator = BigInt(denominator);
-  const divisor = greatestCommonDivisor(percentNumerator, percentDenominator);
-  const reducedNumerator = percentNumerator / divisor;
-  const reducedDenominator = percentDenominator / divisor;
-  return reducedDenominator === 1n
-    ? String(reducedNumerator)
-    : `${reducedNumerator}/${reducedDenominator}`;
-}
-
-function greatestCommonDivisor(left: bigint, right: bigint): bigint {
-  let a = left < 0n ? -left : left;
-  let b = right < 0n ? -right : right;
-  while (b !== 0n) {
-    const remainder = a % b;
-    a = b;
-    b = remainder;
-  }
-  return a === 0n ? 1n : a;
 }

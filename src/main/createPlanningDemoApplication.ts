@@ -2,6 +2,8 @@ import type { TimelineGeometryViewport } from "../adapters/index.js";
 import {
   buildProjectEditViewModel,
   buildTeamEditViewModel,
+  buildTeamReservationsEditViewModel,
+  createReservationIdGenerator,
   createPlanningSession,
 } from "../application/index.js";
 import type { AppElements } from "../ui/renderApp.js";
@@ -24,6 +26,9 @@ export function createPlanningDemoApplication(
     session,
     geometryViewport: DEMO_GEOMETRY_VIEWPORT,
   });
+  const reservationIdGenerator = createReservationIdGenerator(() =>
+    session.getState().portfolio.reservations.map((reservation) => reservation.id),
+  );
   return createTimelineUiCoordinator({
     elements,
     initialProjection: projectionDispatcher.getProjection(),
@@ -33,5 +38,8 @@ export function createPlanningDemoApplication(
       buildProjectEditViewModel(session.getState(), projectId),
     getTeamEditViewModel: (teamId) =>
       buildTeamEditViewModel(session.getState(), teamId),
+    getTeamReservationsEditViewModel: (teamId) =>
+      buildTeamReservationsEditViewModel(session.getState(), teamId),
+    nextReservationId: reservationIdGenerator.next,
   });
 }
