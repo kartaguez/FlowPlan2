@@ -4,11 +4,9 @@ import type {
 } from "../../application/index.js";
 import {
   createCivilDate,
-  createDailyCap,
   createRemainingWorkload,
   dailyCapFromSerialized,
   remainingWorkloadFromSerialized,
-  serializeQuantity,
   type CivilDate,
   type DailyCap,
   type DomainError,
@@ -31,7 +29,9 @@ export interface ProjectEditFormValues {
 export interface ProjectRequirementFormValues {
   readonly teamId: TeamId;
   readonly remainingWorkload: string;
-  readonly dailyCap: string;
+  readonly remainingWorkloadExact: string;
+  readonly remainingWorkloadDirty: boolean;
+  readonly dailyCapExact?: string;
 }
 
 export type ProjectEditCommandParseResult =
@@ -152,10 +152,16 @@ function parseRequirement(
   const path = `requirements.${values.teamId}`;
   const remainingWorkload = parseRemainingWorkload(
     values.remainingWorkload,
+    values.remainingWorkloadExact,
+    values.remainingWorkloadDirty,
     `${path}.remainingWorkload`,
     errors,
   );
-  const dailyCap = parseDailyCap(values.dailyCap, `${path}.dailyCap`, errors);
+  const dailyCap = parseDailyCapExact(
+    values.dailyCapExact,
+    `${path}.dailyCap`,
+    errors,
+  );
   if (remainingWorkload === undefined || dailyCap === "invalid") {
     return undefined;
   }
@@ -168,13 +174,14 @@ function parseRequirement(
 
 function parseRemainingWorkload(
   raw: string,
+  originalExact: string,
+  dirty: boolean,
   path: string,
   errors: DomainError[],
 ): RemainingWorkload | undefined {
-  const value = raw.trim();
-  const result = value.includes("/")
-    ? remainingWorkloadFromSerialized(value, path)
-    : createRemainingWorkload(value, path);
+  const result = dirty
+    ? createRemainingWorkload(raw.trim(), path)
+    : remainingWorkloadFromSerialized(originalExact, path);
   if (!result.ok) {
     errors.push(...result.errors);
     return undefined;
@@ -182,28 +189,15 @@ function parseRemainingWorkload(
   return result.value;
 }
 
-function parseDailyCap(
-  raw: string,
+function parseDailyCapExact(
+  serialized: string | undefined,
   path: string,
   errors: DomainError[],
 ): DailyCap | undefined | "invalid" {
-  const value = raw.trim();
-  if (value.length === 0) return undefined;
-  const result = value.includes("/")
-    ? dailyCapFromSerialized(value, path)
-    : createDailyCap(value, path);
+  if (serialized === undefined) return undefined;
+  const result = dailyCapFromSerialized(serialized, path);
   if (!result.ok) {
     errors.push(...result.errors);
-    return "invalid";
-  }
-  if (serializeQuantity(result.value) === "0/1") {
-    errors.push(
-      error(
-        "NON_POSITIVE_DAILY_CAP",
-        path,
-        "Daily cap must be greater than zero when provided.",
-      ),
-    );
     return "invalid";
   }
   return result.value;

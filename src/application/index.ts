@@ -35,3 +35,8 @@ export {
   createReservationIdGenerator,
   type ReservationIdGenerator,
 } from "./session/reservationIdGenerator.js";
+export {
+  EDITING_DECIMAL_PRECISION,
+  formatPercentageForEditing,
+  formatQuantityForEditing,
+} from "./session/editableQuantity.js";

@@ -21,6 +21,9 @@ export interface ReservationEditRowValues {
   readonly startDate: string;
   readonly endDate: string;
   readonly ratioPercent: string;
+  readonly ratioOriginalDisplay: string;
+  readonly ratioExact?: string;
+  readonly ratioDirty: boolean;
 }
 
 export type ReservationEditCommandParseResult =
@@ -59,7 +62,10 @@ function parseRow(
   const path = `reservations[${index}]`;
   const start = createCivilDate(row.startDate.trim(), `${path}.startDate`);
   const end = createCivilDate(row.endDate.trim(), `${path}.endDate`);
-  const serializedRatio = percentageToSerializedRatio(row.ratioPercent);
+  const serializedRatio =
+    !row.ratioDirty && row.ratioExact !== undefined
+      ? row.ratioExact
+      : percentageToSerializedRatio(row.ratioPercent);
   if (!start.ok) errors.push(...start.errors);
   if (!end.ok) errors.push(...end.errors);
   if (serializedRatio === undefined) {

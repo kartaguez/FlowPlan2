@@ -34,8 +34,19 @@ function values(
     objectiveEndDate: "2025-02-03",
     mandatoryDeadline: "2025-03-04",
     requirements: [
-      { teamId: alphaId, remainingWorkload: "25/2", dailyCap: "3/2" },
-      { teamId: betaId, remainingWorkload: "0", dailyCap: "" },
+      {
+        teamId: alphaId,
+        remainingWorkload: "12.5",
+        remainingWorkloadExact: "25/2",
+        remainingWorkloadDirty: false,
+        dailyCapExact: "3/2",
+      },
+      {
+        teamId: betaId,
+        remainingWorkload: "0",
+        remainingWorkloadExact: "0/1",
+        remainingWorkloadDirty: false,
+      },
     ],
     ...overrides,
   };
@@ -93,25 +104,35 @@ describe("parseProjectEditCommand", () => {
     }
   });
 
-  it("accepts zero and positive RAF but rejects negative and invalid RAF", () => {
-    for (const remainingWorkload of ["0", "1.25", "5/3"]) {
+  it("accepts finite decimal RAF edits but rejects fractions, negative, and invalid input", () => {
+    for (const remainingWorkload of ["0", "1.25"]) {
       assert.equal(
         parseProjectEditCommand(
           values({
             requirements: [
-              { teamId: alphaId, remainingWorkload, dailyCap: "1" },
+              {
+                teamId: alphaId,
+                remainingWorkload,
+                remainingWorkloadExact: "1/3",
+                remainingWorkloadDirty: true,
+              },
             ],
           }),
         ).ok,
         true,
       );
     }
-    for (const remainingWorkload of ["-1", "invalid"]) {
+    for (const remainingWorkload of ["-1", "5/3", "invalid"]) {
       assert.equal(
         parseProjectEditCommand(
           values({
             requirements: [
-              { teamId: alphaId, remainingWorkload, dailyCap: "1" },
+              {
+                teamId: alphaId,
+                remainingWorkload,
+                remainingWorkloadExact: "1/3",
+                remainingWorkloadDirty: true,
+              },
             ],
           }),
         ).ok,
@@ -120,26 +141,38 @@ describe("parseProjectEditCommand", () => {
     }
   });
 
-  it("maps empty daily cap to undefined and accepts only positive exact values", () => {
-    for (const dailyCap of ["", "0.5", "1/3"]) {
-      const result = parseProjectEditCommand(
-        values({
-          requirements: [
-            { teamId: alphaId, remainingWorkload: "1", dailyCap },
-          ],
-        }),
-      );
-      assert.equal(result.ok, true);
-    }
-    for (const dailyCap of ["0", "-1", "invalid"]) {
-      const result = parseProjectEditCommand(
-        values({
-          requirements: [
-            { teamId: alphaId, remainingWorkload: "1", dailyCap },
-          ],
-        }),
-      );
-      assert.equal(result.ok, false);
+  it("preserves hidden daily cap and untouched non-terminating exact RAF", () => {
+    const result = parseProjectEditCommand(
+      values({
+        requirements: [{
+          teamId: alphaId,
+          remainingWorkload: "0.333",
+          remainingWorkloadExact: "1/3",
+          remainingWorkloadDirty: false,
+          dailyCapExact: "2/3",
+        }],
+      }),
+    );
+    assert.equal(result.ok, true);
+    if (!result.ok) return;
+    assert.equal(serializeQuantity(result.command.teamRequirements[0]!.remainingWorkload), "1/3");
+    assert.equal(serializeQuantity(result.command.teamRequirements[0]!.dailyCap!), "2/3");
+  });
+
+  it("turns an edited decimal into a new exact rational", () => {
+    const result = parseProjectEditCommand(
+      values({
+        requirements: [{
+          teamId: alphaId,
+          remainingWorkload: "0.25",
+          remainingWorkloadExact: "1/3",
+          remainingWorkloadDirty: true,
+        }],
+      }),
+    );
+    assert.equal(result.ok, true);
+    if (result.ok) {
+      assert.equal(serializeQuantity(result.command.teamRequirements[0]!.remainingWorkload), "1/4");
     }
   });
 
@@ -170,12 +203,17 @@ describe("parseProjectEditCommand", () => {
         priorityPosition: "x",
         earliestStartDate: "bad",
         requirements: [
-          { teamId: alphaId, remainingWorkload: "bad", dailyCap: "0" },
+          {
+            teamId: alphaId,
+            remainingWorkload: "bad",
+            remainingWorkloadExact: "1/1",
+            remainingWorkloadDirty: true,
+          },
         ],
       }),
     );
     assert.equal(result.ok, false);
-    if (!result.ok) assert.ok(result.errors.length >= 5);
+    if (!result.ok) assert.ok(result.errors.length >= 4);
 
     const source = await readFile(
       resolve(process.cwd(), "src/ui/project-edit/parseProjectEditCommand.ts"),

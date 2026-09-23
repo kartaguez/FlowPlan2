@@ -4,6 +4,7 @@ import {
   type ProjectId,
   type TeamId,
 } from "../../domain/index.js";
+import { formatQuantityForEditing } from "./editableQuantity.js";
 import type { PlanningSessionState } from "./planningSession.js";
 
 export interface ProjectEditViewModel {
@@ -21,7 +22,8 @@ export interface ProjectRequirementEditViewModel {
   readonly teamId: TeamId;
   readonly teamLabel: string;
   readonly remainingWorkload: string;
-  readonly dailyCap?: string;
+  readonly remainingWorkloadExact: string;
+  readonly dailyCapExact?: string;
 }
 
 export function buildProjectEditViewModel(
@@ -42,10 +44,11 @@ export function buildProjectEditViewModel(
       Object.freeze({
         teamId: team.id,
         teamLabel: team.name,
-        remainingWorkload: serializeQuantity(requirement.remainingWorkload),
+        remainingWorkload: formatQuantityForEditing(requirement.remainingWorkload),
+        remainingWorkloadExact: serializeQuantity(requirement.remainingWorkload),
         ...(requirement.dailyCap === undefined
           ? {}
-          : { dailyCap: serializeQuantity(requirement.dailyCap) }),
+          : { dailyCapExact: serializeQuantity(requirement.dailyCap) }),
       }),
     ];
   });

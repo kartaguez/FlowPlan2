@@ -38,6 +38,8 @@ interface RenderedRow {
   readonly startDate: HTMLInputElement;
   readonly endDate: HTMLInputElement;
   readonly ratioPercent: HTMLInputElement;
+  readonly ratioDisplay: string;
+  readonly ratioExact?: string;
 }
 
 export function createReservationEditController(
@@ -63,6 +65,9 @@ export function createReservationEditController(
       startDate: row.startDate.value,
       endDate: row.endDate.value,
       ratioPercent: row.ratioPercent.value,
+      ratioOriginalDisplay: row.ratioDisplay,
+      ratioDirty: row.ratioPercent.value !== row.ratioDisplay,
+      ...(row.ratioExact === undefined ? {} : { ratioExact: row.ratioExact }),
     }));
   const renderRows = (): void => {
     const document = input.controls.rows.ownerDocument;
@@ -97,17 +102,23 @@ export function createReservationEditController(
         startDate: start,
         endDate: end,
         ratioPercent: ratio,
+        ratioDisplay: row.ratioOriginalDisplay,
+        ...(row.ratioExact === undefined ? {} : { ratioExact: row.ratioExact }),
       });
     }));
   };
   const hydrate = (next: TeamReservationsEditViewModel | undefined): void => {
     model = next;
+    input.controls.container.hidden = next === undefined;
     rows = next
       ? next.reservations.map((reservation) => ({
           reservationId: reservation.reservationId,
           startDate: reservation.startDate,
           endDate: reservation.endDate,
           ratioPercent: reservation.ratioPercent,
+          ratioOriginalDisplay: reservation.ratioPercent,
+          ratioExact: reservation.ratioExact,
+          ratioDirty: false,
         }))
       : [];
     input.controls.add.disabled = next === undefined;
@@ -127,6 +138,8 @@ export function createReservationEditController(
         startDate: "",
         endDate: "",
         ratioPercent: "0",
+        ratioOriginalDisplay: "0",
+        ratioDirty: true,
       },
     ];
     renderRows();

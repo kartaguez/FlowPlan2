@@ -4,7 +4,7 @@ import {
   type ReservationId,
   type TeamId,
 } from "../../domain/index.js";
-import { serializedRatioToPercentage } from "./exactPercentage.js";
+import { formatPercentageForEditing } from "./editableQuantity.js";
 import type { PlanningSessionState } from "./planningSession.js";
 
 export interface TeamReservationsEditViewModel {
@@ -18,6 +18,7 @@ export interface ReservationEditItemViewModel {
   readonly startDate: CivilDate;
   readonly endDate: CivilDate;
   readonly ratioPercent: string;
+  readonly ratioExact: string;
 }
 
 export function buildTeamReservationsEditViewModel(
@@ -37,9 +38,10 @@ export function buildTeamReservationsEditViewModel(
             reservationId: reservation.id,
             startDate: reservation.start,
             endDate: reservation.end,
-            ratioPercent: serializedRatioToPercentage(
+            ratioPercent: formatPercentageForEditing(
               serializeQuantity(reservation.ratio),
             ),
+            ratioExact: serializeQuantity(reservation.ratio),
           }),
         ),
     ),

@@ -417,6 +417,9 @@ function updateProject(
   const currentTeamIds = new Set(
     project.requirements.map((requirement) => requirement.teamId),
   );
+  const currentRequirementsByTeam = new Map(
+    project.requirements.map((requirement) => [requirement.teamId, requirement]),
+  );
   const replacements = new Map<TeamId, UpdateProjectTeamRequirement>();
   command.teamRequirements.forEach((requirement, index) => {
     const path = `requirements.${requirement.teamId}`;
@@ -439,7 +442,11 @@ function updateProject(
     }
     if (
       requirement.dailyCap !== undefined &&
-      serializeQuantity(requirement.dailyCap) === "0/1"
+      serializeQuantity(requirement.dailyCap) === "0/1" &&
+      serializeQuantity(
+        currentRequirementsByTeam.get(requirement.teamId)?.dailyCap ??
+          requirement.dailyCap,
+      ) !== "0/1"
     ) {
       errors.push(
         applicationError(

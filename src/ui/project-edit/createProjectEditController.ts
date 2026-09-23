@@ -36,7 +36,9 @@ interface GlobalInputs {
 interface RequirementInputs {
   readonly teamId: TeamId;
   readonly remainingWorkload: HTMLInputElement;
-  readonly dailyCap: HTMLInputElement;
+  readonly originalDisplay: string;
+  readonly remainingWorkloadExact: string;
+  readonly dailyCapExact?: string;
 }
 
 export function createProjectEditController(
@@ -62,6 +64,7 @@ export function createProjectEditController(
     input.controls.fields.replaceChildren();
     const activeModel = nextModel;
     const enabled = activeModel !== undefined;
+    input.controls.container.hidden = !enabled;
     input.controls.apply.disabled = !enabled;
     input.controls.cancel.disabled = !enabled;
     input.controls.status.textContent = enabled
@@ -138,21 +141,17 @@ export function createProjectEditController(
           "text",
           `requirements.${requirement.teamId}.remainingWorkload`,
         );
-        const dailyCap = createLabeledInput(
-          document,
-          fieldset,
-          "Daily cap",
-          "text",
-          `requirements.${requirement.teamId}.dailyCap`,
-        );
         fieldset.prepend(teamLegend);
         remainingWorkload.value = requirement.remainingWorkload;
-        dailyCap.value = requirement.dailyCap ?? "";
         input.controls.fields.append(fieldset);
         return Object.freeze({
           teamId: requirement.teamId,
           remainingWorkload,
-          dailyCap,
+          originalDisplay: requirement.remainingWorkload,
+          remainingWorkloadExact: requirement.remainingWorkloadExact,
+          ...(requirement.dailyCapExact === undefined
+            ? {}
+            : { dailyCapExact: requirement.dailyCapExact }),
         });
       }),
     );
@@ -176,7 +175,12 @@ export function createProjectEditController(
           Object.freeze({
             teamId: requirement.teamId,
             remainingWorkload: requirement.remainingWorkload.value,
-            dailyCap: requirement.dailyCap.value,
+            remainingWorkloadExact: requirement.remainingWorkloadExact,
+            remainingWorkloadDirty:
+              requirement.remainingWorkload.value !== requirement.originalDisplay,
+            ...(requirement.dailyCapExact === undefined
+              ? {}
+              : { dailyCapExact: requirement.dailyCapExact }),
           }),
         ),
       ),

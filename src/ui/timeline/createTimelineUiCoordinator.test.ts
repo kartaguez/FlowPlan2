@@ -15,6 +15,8 @@ import {
   createReservationId,
   createTeamId,
   type DomainResult,
+  type ProjectId,
+  type TeamId,
 } from "../../domain/index.js";
 import type { AppElements } from "../renderApp.js";
 import {
@@ -125,6 +127,10 @@ function fixture() {
   const projectModels: Array<ProjectEditViewModel | undefined> = [];
   const teamModels: Array<TeamEditViewModel | undefined> = [];
   const reservationModels: Array<TeamReservationsEditViewModel | undefined> = [];
+  const shellInputs: Array<{
+    onTeamSettings: (teamId: TeamId) => void;
+    onProjectSelect: (projectId: ProjectId) => void;
+  }> = [];
   let applyProject: ((command: UpdateProjectCommand) => { readonly ok: boolean }) | undefined;
   let applyTeam: ((command: UpdateTeamCommand) => { readonly ok: boolean }) | undefined;
   let applyReservations:
@@ -201,6 +207,13 @@ function fixture() {
         destroy: () => lifecycle.push("destroy-reservation-edit"),
       };
     },
+    renderShellNavigation: (input: {
+      onTeamSettings: (teamId: TeamId) => void;
+      onProjectSelect: (projectId: ProjectId) => void;
+    }) => {
+      shellInputs.push(input);
+      return { destroy() {} };
+    },
   } as unknown as TimelineUiCoordinatorDependencies;
   return {
     projectId,
@@ -222,6 +235,7 @@ function fixture() {
     projectModels,
     teamModels,
     reservationModels,
+    shellInputs,
     getApplyProject: () => applyProject!,
     getApplyTeam: () => applyTeam!,
     getApplyReservations: () => applyReservations!,
@@ -256,6 +270,8 @@ describe("TimelineUiCoordinator", () => {
       viewport: { x: 100, width: 800 },
       selectedDate: input.middleDate,
       selected: input.allocationHit,
+      editingContext: { kind: "project", projectId: input.projectId },
+      editingContextSource: "timeline",
     });
     assert.deepEqual(
       input.lifecycle.slice(5, 8),
@@ -387,6 +403,31 @@ describe("TimelineUiCoordinator", () => {
     assert.equal(input.reservationModels.at(-1), input.reservationModel);
     assert.equal(input.projectModels.at(-1), undefined);
   });
+
+  it("opens explicit team and project contexts from the team shell and sidebar", () => {
+    const input = fixture();
+    createTimelineUiCoordinator(
+      {
+        elements: input.elements,
+        initialProjection: input.projection,
+        initialDate: input.firstDate,
+        dispatch: () => ({ ok: true, projection: input.nextProjection }),
+        getProjectEditViewModel: () => input.editModel,
+        getTeamEditViewModel: () => input.teamEditModel,
+        getTeamReservationsEditViewModel: () => input.reservationModel,
+        nextReservationId: () => must(createReservationId("new-reservation")),
+      },
+      input.dependencies,
+    );
+    input.shellInputs.at(-1)!.onTeamSettings(input.teamId);
+    assert.equal(input.teamModels.at(-1), input.teamEditModel);
+    assert.equal(input.reservationModels.at(-1), input.reservationModel);
+    assert.equal(input.projectModels.at(-1), undefined);
+    input.shellInputs.at(-1)!.onProjectSelect(input.projectId);
+    assert.equal(input.projectModels.at(-1), input.editModel);
+    assert.equal(input.teamModels.at(-1), undefined);
+    assert.equal(input.reservationModels.at(-1), undefined);
+  });
 });
 
 function createElements(): AppElements {
@@ -404,6 +445,7 @@ function createElements(): AppElements {
     tooltip: element() as unknown as HTMLElement,
     selectionSummary: element() as unknown as HTMLElement,
     projectEditControls: {
+      container: element() as unknown as HTMLElement,
       form: element() as unknown as HTMLFormElement,
       fields: element() as unknown as HTMLElement,
       apply: element() as unknown as HTMLButtonElement,
@@ -411,6 +453,7 @@ function createElements(): AppElements {
       status: element() as unknown as HTMLElement,
     },
     teamEditControls: {
+      container: element() as unknown as HTMLElement,
       form: element() as unknown as HTMLFormElement,
       fields: element() as unknown as HTMLElement,
       apply: element() as unknown as HTMLButtonElement,
@@ -418,6 +461,7 @@ function createElements(): AppElements {
       status: element() as unknown as HTMLElement,
     },
     reservationEditControls: {
+      container: element() as unknown as HTMLElement,
       form: element() as unknown as HTMLFormElement,
       rows: element() as unknown as HTMLElement,
       add: element() as unknown as HTMLButtonElement,
@@ -427,5 +471,8 @@ function createElements(): AppElements {
     },
     applicationError: element() as unknown as HTMLElement,
     reservationEditError: element() as unknown as HTMLElement,
+    teamSections: element() as unknown as HTMLElement,
+    projectList: element() as unknown as HTMLElement,
+    editorDrawer: element() as unknown as HTMLElement,
   };
 }

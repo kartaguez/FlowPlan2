@@ -157,5 +157,21 @@ describe("renderApp", () => {
       (elements.applicationError as unknown as FakeElement).hidden,
       true,
     );
+    assert.equal(
+      (elements.teamSections as unknown as FakeElement).className,
+      "timeline-team-sections",
+    );
+    assert.equal(
+      (elements.projectList as unknown as FakeElement).tagName,
+      "ol",
+    );
+    assert.equal(
+      (elements.projectList as unknown as FakeElement).className,
+      "project-sidebar-list",
+    );
+    assert.equal(
+      (elements.editorDrawer as unknown as FakeElement).className,
+      "planning-editor-drawer",
+    );
   });
 });

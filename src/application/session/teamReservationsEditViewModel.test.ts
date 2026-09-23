@@ -10,7 +10,7 @@ function must<T>(result: DomainResult<T>): T {
 }
 
 describe("TeamReservationsEditViewModel", () => {
-  it("filters by team and displays exact percentages without rounding", () => {
+  it("filters by team and displays decimal percentages with exact backing values", () => {
     const state = createDemoPlanningScenario();
     const team = state.portfolio.teams[2]!;
     const model = buildTeamReservationsEditViewModel(state, team.id)!;
@@ -25,6 +25,8 @@ describe("TeamReservationsEditViewModel", () => {
       ),
     );
     assert.ok(Object.isFrozen(model.reservations));
+    assert.ok(model.reservations.every((item) => !item.ratioPercent.includes("/")));
+    assert.ok(model.reservations.every((item) => item.ratioExact.includes("/")));
   });
 
   it("returns undefined for an unknown team", () => {

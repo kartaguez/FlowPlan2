@@ -8,6 +8,7 @@ import {
   createCivilDate,
   createProjectId,
   createTeamId,
+  serializeQuantity,
   type DomainResult,
 } from "../../domain/index.js";
 import type { ProjectEditControls } from "../renderApp.js";
@@ -90,13 +91,15 @@ function model(label = "Project Atlas"): ProjectEditViewModel {
       Object.freeze({
         teamId: alphaId,
         teamLabel: "Team Alpha",
-        remainingWorkload: "25/2",
-        dailyCap: "3/2",
+        remainingWorkload: "12.5",
+        remainingWorkloadExact: "25/2",
+        dailyCapExact: "3/2",
       }),
       Object.freeze({
         teamId: betaId,
         teamLabel: "Team Beta",
         remainingWorkload: "0",
+        remainingWorkloadExact: "0/1",
       }),
     ]),
   });
@@ -105,6 +108,7 @@ function model(label = "Project Atlas"): ProjectEditViewModel {
 function fixture(onApply: (command: UpdateProjectCommand) => { ok: true } | { ok: false; errors: readonly { code: string; path: string; message: string }[] } = () => ({ ok: true })) {
   const document = new FakeDocument();
   const form = document.createElement("form");
+  const container = document.createElement("section");
   const fields = document.createElement("div");
   const apply = document.createElement("button");
   const cancel = document.createElement("button");
@@ -112,6 +116,7 @@ function fixture(onApply: (command: UpdateProjectCommand) => { ok: true } | { ok
   const error = document.createElement("p");
   error.hidden = true;
   const controls = {
+    container,
     form,
     fields,
     apply,
@@ -123,7 +128,7 @@ function fixture(onApply: (command: UpdateProjectCommand) => { ok: true } | { ok
     errorContainer: error as unknown as HTMLElement,
     onApply,
   });
-  return { form, fields, apply, cancel, status, error, controller };
+  return { container, form, fields, apply, cancel, status, error, controller };
 }
 
 function descendants(root: FakeElement): FakeElement[] {
@@ -137,7 +142,7 @@ function field(root: FakeElement, name: string): FakeElement {
 }
 
 describe("ProjectEditController", () => {
-  it("renders global dates once and RAF/cap once per existing team requirement", () => {
+  it("renders global dates and decimal RAF while hiding daily caps", () => {
     const input = fixture();
     input.controller.setProject(model());
     const elements = descendants(input.fields);
@@ -157,7 +162,7 @@ describe("ProjectEditController", () => {
     );
     assert.equal(
       elements.filter((element) => element.name.endsWith(".dailyCap")).length,
-      2,
+      0,
     );
     assert.equal(
       elements.filter((element) => element.tagName === "fieldset").length,
@@ -168,7 +173,7 @@ describe("ProjectEditController", () => {
     assert.equal(field(input.fields, "project.earliestStartDate").value, "2025-01-02");
     assert.equal(
       field(input.fields, `requirements.${alphaId}.remainingWorkload`).value,
-      "25/2",
+      "12.5",
     );
     assert.equal(input.apply.disabled, false);
   });
@@ -201,7 +206,7 @@ describe("ProjectEditController", () => {
     assert.equal(field(input.fields, "project.mandatoryDeadline").value, "2025-03-04");
     assert.equal(
       field(input.fields, `requirements.${alphaId}.remainingWorkload`).value,
-      "25/2",
+      "12.5",
     );
     assert.equal(applyCount, 0);
   });
@@ -238,13 +243,18 @@ describe("ProjectEditController", () => {
     input.error.textContent = "Old error";
     field(input.fields, "project.name").value = "Atlas Updated";
     field(input.fields, "project.priority").value = "1";
-    field(input.fields, `requirements.${betaId}.dailyCap`).value = "1/3";
+    field(input.fields, `requirements.${betaId}.remainingWorkload`).value = "0.25";
     input.form.dispatch("submit", { preventDefault() {} });
 
     assert.equal(command?.kind, "update-project");
     assert.equal(command?.name, "Atlas Updated");
     assert.equal(command?.priorityPosition, 1);
     assert.equal(command?.teamRequirements.length, 2);
+    assert.equal(command?.teamRequirements[0]?.dailyCap === undefined, false);
+    assert.equal(
+      serializeQuantity(command!.teamRequirements[0]!.dailyCap!),
+      "3/2",
+    );
     assert.equal(input.error.hidden, true);
     assert.equal(input.error.textContent, "");
   });

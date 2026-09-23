@@ -32,8 +32,12 @@ function values(
         index: 0,
         startDate: "2025-01-01",
         endDate: "2025-01-31",
-        capacity: "3/2",
+        capacity: "1.5",
+        capacityExact: "3/2",
+        capacityDirty: false,
         unavailabilityPercent: "25",
+        unavailabilityExact: "1/4",
+        unavailabilityDirty: false,
       },
     ],
     ...overrides,
@@ -70,18 +74,18 @@ describe("parseTeamEditCommand", () => {
   });
 
   it("accepts zero and exact positive capacities but rejects negative or invalid", () => {
-    for (const capacity of ["0", "1.25", "5/3"]) {
+    for (const capacity of ["0", "1.25"]) {
       assert.equal(
         parseTeamEditCommand(
-          values({ capacityPeriods: [{ ...values().capacityPeriods[0]!, capacity }] }),
+          values({ capacityPeriods: [{ ...values().capacityPeriods[0]!, capacity, capacityDirty: true }] }),
         ).ok,
         true,
       );
     }
-    for (const capacity of ["-1", "invalid"]) {
+    for (const capacity of ["-1", "5/3", "invalid"]) {
       assert.equal(
         parseTeamEditCommand(
-          values({ capacityPeriods: [{ ...values().capacityPeriods[0]!, capacity }] }),
+          values({ capacityPeriods: [{ ...values().capacityPeriods[0]!, capacity, capacityDirty: true }] }),
         ).ok,
         false,
       );
@@ -89,29 +93,68 @@ describe("parseTeamEditCommand", () => {
   });
 
   it("parses exact percentage bounds without floating-point conversion", () => {
-    for (const unavailabilityPercent of ["0", "25", "12.5", "100/3", "100"]) {
+    for (const unavailabilityPercent of ["0", "25", "12.5", "100"]) {
       assert.equal(
         parseTeamEditCommand(
           values({
             capacityPeriods: [
-              { ...values().capacityPeriods[0]!, unavailabilityPercent },
+              { ...values().capacityPeriods[0]!, unavailabilityPercent, unavailabilityDirty: true },
             ],
           }),
         ).ok,
         true,
       );
     }
-    for (const unavailabilityPercent of ["-0.1", "100.01", "101", "invalid"]) {
+    for (const unavailabilityPercent of ["-0.1", "100.01", "101", "100/3", "invalid"]) {
       assert.equal(
         parseTeamEditCommand(
           values({
             capacityPeriods: [
-              { ...values().capacityPeriods[0]!, unavailabilityPercent },
+              { ...values().capacityPeriods[0]!, unavailabilityPercent, unavailabilityDirty: true },
             ],
           }),
         ).ok,
         false,
       );
+    }
+  });
+
+  it("preserves untouched thirds and parses edited decimals as new exact values", () => {
+    const untouched = parseTeamEditCommand(
+      values({
+        capacityPeriods: [{
+          ...values().capacityPeriods[0]!,
+          capacity: "0.333",
+          capacityExact: "1/3",
+          capacityDirty: false,
+          unavailabilityPercent: "33.333",
+          unavailabilityExact: "1/3",
+          unavailabilityDirty: false,
+        }],
+      }),
+    );
+    assert.equal(untouched.ok, true);
+    if (untouched.ok) {
+      assert.equal(serializeQuantity(untouched.command.capacityPeriods[0]!.capacity), "1/3");
+      assert.equal(serializeQuantity(untouched.command.capacityPeriods[0]!.unavailability), "1/3");
+    }
+    const edited = parseTeamEditCommand(
+      values({
+        capacityPeriods: [{
+          ...values().capacityPeriods[0]!,
+          capacity: "0.25",
+          capacityExact: "1/3",
+          capacityDirty: true,
+          unavailabilityPercent: "25",
+          unavailabilityExact: "1/3",
+          unavailabilityDirty: true,
+        }],
+      }),
+    );
+    assert.equal(edited.ok, true);
+    if (edited.ok) {
+      assert.equal(serializeQuantity(edited.command.capacityPeriods[0]!.capacity), "1/4");
+      assert.equal(serializeQuantity(edited.command.capacityPeriods[0]!.unavailability), "1/4");
     }
   });
 
@@ -145,7 +188,11 @@ describe("parseTeamEditCommand", () => {
             startDate: "bad",
             endDate: "bad",
             capacity: "bad",
+            capacityExact: "3/2",
+            capacityDirty: true,
             unavailabilityPercent: "bad",
+            unavailabilityExact: "1/4",
+            unavailabilityDirty: true,
           },
         ],
       }),

@@ -36,7 +36,11 @@ interface PeriodInputs {
   readonly startDate: HTMLInputElement;
   readonly endDate: HTMLInputElement;
   readonly capacity: HTMLInputElement;
+  readonly capacityDisplay: string;
+  readonly capacityExact: string;
   readonly unavailabilityPercent: HTMLInputElement;
+  readonly unavailabilityDisplay: string;
+  readonly unavailabilityExact: string;
 }
 
 const WEEKDAYS = Object.freeze([
@@ -68,6 +72,7 @@ export function createTeamEditController(
   };
   const hydrate = (nextModel: TeamEditViewModel | undefined): void => {
     model = nextModel;
+    input.controls.container.hidden = nextModel === undefined;
     input.controls.fields.replaceChildren();
     input.controls.apply.disabled = nextModel === undefined;
     input.controls.cancel.disabled = nextModel === undefined;
@@ -168,7 +173,11 @@ export function createTeamEditController(
           startDate,
           endDate,
           capacity,
+          capacityDisplay: period.capacity,
+          capacityExact: period.capacityExact,
           unavailabilityPercent,
+          unavailabilityDisplay: period.unavailabilityPercent,
+          unavailabilityExact: period.unavailabilityExact,
         });
       }),
     );
@@ -194,7 +203,12 @@ export function createTeamEditController(
             startDate: period.startDate.value,
             endDate: period.endDate.value,
             capacity: period.capacity.value,
+            capacityExact: period.capacityExact,
+            capacityDirty: period.capacity.value !== period.capacityDisplay,
             unavailabilityPercent: period.unavailabilityPercent.value,
+            unavailabilityExact: period.unavailabilityExact,
+            unavailabilityDirty:
+              period.unavailabilityPercent.value !== period.unavailabilityDisplay,
           }),
         ),
       ),

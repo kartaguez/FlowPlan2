@@ -18,16 +18,23 @@ const reservationId = must(createReservationId("reservation-a"));
 function parse(ratioPercent: string, startDate = "2025-01-01", endDate = "2025-01-31") {
   return parseReservationEditCommand({
     teamId,
-    reservations: [{ reservationId, startDate, endDate, ratioPercent }],
+    reservations: [{
+      reservationId,
+      startDate,
+      endDate,
+      ratioPercent,
+      ratioOriginalDisplay: "25",
+      ratioDirty: true,
+    }],
   });
 }
 
 describe("parseReservationEditCommand", () => {
-  it("parses exact percentage fractions and CivilDate values", () => {
-    const result = parse("100/3");
+  it("parses finite decimal percentages and CivilDate values", () => {
+    const result = parse("33.33");
     assert.equal(result.ok, true);
     if (!result.ok) return;
-    assert.equal(serializeQuantity(result.command.reservations[0]!.ratio), "1/3");
+    assert.equal(serializeQuantity(result.command.reservations[0]!.ratio), "3333/10000");
     assert.equal(result.command.reservations[0]!.startDate, "2025-01-01");
   });
 
@@ -55,6 +62,8 @@ describe("parseReservationEditCommand", () => {
           startDate: "2025-02-30",
           endDate: "bad",
           ratioPercent: "invalid",
+          ratioOriginalDisplay: "25",
+          ratioDirty: true,
         },
       ],
     });
@@ -63,9 +72,6 @@ describe("parseReservationEditCommand", () => {
   });
 
   it("uses no JavaScript Date or lossy floating-point parsing", async () => {
-    const source = await import("node:fs/promises").then(({ readFile }) =>
-      readFile(new URL(import.meta.url), "utf8"),
-    );
     const production = await import("node:fs/promises").then(({ readFile }) =>
       readFile(
         new URL(
@@ -76,6 +82,29 @@ describe("parseReservationEditCommand", () => {
       ),
     );
     assert.doesNotMatch(production, /new Date|Date\.parse|Date\.now|parseFloat/);
-    assert.match(source, /100\/3/);
+  });
+
+  it("preserves an untouched exact third and replaces an edited decimal exactly", () => {
+    const untouched = parseReservationEditCommand({
+      teamId,
+      reservations: [{
+        reservationId,
+        startDate: "2025-01-01",
+        endDate: "2025-01-31",
+        ratioPercent: "33.333",
+        ratioOriginalDisplay: "33.333",
+        ratioExact: "1/3",
+        ratioDirty: false,
+      }],
+    });
+    assert.equal(untouched.ok, true);
+    if (untouched.ok) {
+      assert.equal(serializeQuantity(untouched.command.reservations[0]!.ratio), "1/3");
+    }
+    const edited = parse("25");
+    assert.equal(edited.ok, true);
+    if (edited.ok) {
+      assert.equal(serializeQuantity(edited.command.reservations[0]!.ratio), "1/4");
+    }
   });
 });

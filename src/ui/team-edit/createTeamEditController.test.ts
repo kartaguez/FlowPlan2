@@ -87,15 +87,19 @@ function model(label = "Team Alpha"): TeamEditViewModel {
         index: 0,
         startDate: must(createCivilDate("2025-01-01")),
         endDate: must(createCivilDate("2025-01-31")),
-        capacity: "3/1",
+        capacity: "3",
+        capacityExact: "3/1",
         unavailabilityPercent: "0",
+        unavailabilityExact: "0/1",
       }),
       Object.freeze({
         index: 1,
         startDate: must(createCivilDate("2025-02-01")),
         endDate: must(createCivilDate("2025-03-31")),
-        capacity: "5/2",
+        capacity: "2.5",
+        capacityExact: "5/2",
         unavailabilityPercent: "25",
+        unavailabilityExact: "1/4",
       }),
     ]),
   });
@@ -117,6 +121,7 @@ function fixture(
 ) {
   const document = new FakeDocument();
   const form = document.createElement("form");
+  const container = document.createElement("section");
   const fields = document.createElement("div");
   const apply = document.createElement("button");
   const cancel = document.createElement("button");
@@ -124,11 +129,11 @@ function fixture(
   const error = document.createElement("p");
   error.hidden = true;
   const controller = createTeamEditController({
-    controls: { form, fields, apply, cancel, status } as unknown as TeamEditControls,
+    controls: { container, form, fields, apply, cancel, status } as unknown as TeamEditControls,
     errorContainer: error as unknown as HTMLElement,
     onApply,
   });
-  return { form, fields, apply, cancel, status, error, controller };
+  return { container, form, fields, apply, cancel, status, error, controller };
 }
 
 function descendants(root: FakeElement): FakeElement[] {
@@ -185,7 +190,7 @@ describe("TeamEditController", () => {
     input.cancel.dispatch("click");
     assert.equal(field(input.fields, "team.name").value, "Team Alpha");
     assert.equal(field(input.fields, "team.maxParallelProjects").value, "2");
-    assert.equal(field(input.fields, "team.capacityPeriods[0].capacity").value, "3/1");
+    assert.equal(field(input.fields, "team.capacityPeriods[0].capacity").value, "3");
     assert.equal(applyCount, 0);
   });
 

@@ -27,6 +27,7 @@ import { createTimelineInteractionController } from "./createTimelineInteraction
 import { createTimelineViewportController } from "./createTimelineViewportController.js";
 import { renderPlanningDiagnostics } from "./renderPlanningDiagnostics.js";
 import { renderTimelineSvg } from "./renderTimelineSvg.js";
+import { renderTimelineShellNavigation } from "./renderTimelineShellNavigation.js";
 import type { TimelineHit } from "./timelineHitTesting.js";
 import { reconcileTimelineHit } from "./timelineSelectionGeometry.js";
 import type { TimelineViewportState } from "./timelineViewport.js";
@@ -44,7 +45,14 @@ export interface TimelineUiSnapshot {
   readonly viewport: TimelineViewportState;
   readonly selectedDate: CivilDate;
   readonly selected: TimelineHit | undefined;
+  readonly editingContext: TimelineEditingContext;
+  readonly editingContextSource: "timeline" | "shell" | undefined;
 }
+
+export type TimelineEditingContext =
+  | Readonly<{ kind: "project"; projectId: ProjectId }>
+  | Readonly<{ kind: "team"; teamId: TeamId }>
+  | undefined;
 
 export interface TimelineUiCoordinator {
   readonly getProjection: () => TimelineUiProjection;
@@ -81,6 +89,7 @@ export interface TimelineUiCoordinatorDependencies {
   readonly createProjectEditController: typeof createProjectEditController;
   readonly createTeamEditController: typeof createTeamEditController;
   readonly createReservationEditController: typeof createReservationEditController;
+  readonly renderShellNavigation: typeof renderTimelineShellNavigation;
 }
 
 const DEFAULT_DEPENDENCIES: TimelineUiCoordinatorDependencies = Object.freeze({
@@ -92,6 +101,7 @@ const DEFAULT_DEPENDENCIES: TimelineUiCoordinatorDependencies = Object.freeze({
   createProjectEditController,
   createTeamEditController,
   createReservationEditController,
+  renderShellNavigation: renderTimelineShellNavigation,
 });
 
 export function createTimelineUiCoordinator(
@@ -105,28 +115,44 @@ export function createTimelineUiCoordinator(
   let projectEditController: ReturnType<typeof createProjectEditController>;
   let teamEditController: ReturnType<typeof createTeamEditController>;
   let reservationEditController: ReturnType<typeof createReservationEditController>;
+  let shellNavigation: ReturnType<typeof renderTimelineShellNavigation>;
+  let editingContext: TimelineEditingContext;
+  let editingContextSource: "timeline" | "shell" | undefined;
   let mounted = false;
 
-  const updateEditForms = (selected: TimelineHit | undefined): void => {
-    const selectedProjectId =
-      selected?.kind === "allocation" || selected?.kind === "project-marker"
-        ? selected.projectId
-        : undefined;
+  const updateEditForms = (context: TimelineEditingContext): void => {
+    const selectedProjectId = context?.kind === "project" ? context.projectId : undefined;
     const editViewModel =
       selectedProjectId === undefined
         ? undefined
         : input.getProjectEditViewModel(selectedProjectId);
     projectEditController.setProject(editViewModel);
     const teamEditViewModel =
-      selected?.kind === "team"
-        ? input.getTeamEditViewModel(selected.teamId)
+      context?.kind === "team"
+        ? input.getTeamEditViewModel(context.teamId)
         : undefined;
     teamEditController.setTeam(teamEditViewModel);
     reservationEditController.setTeam(
-      selected?.kind === "team"
-        ? input.getTeamReservationsEditViewModel(selected.teamId)
+      context?.kind === "team"
+        ? input.getTeamReservationsEditViewModel(context.teamId)
         : undefined,
     );
+  };
+
+  const contextFromHit = (selected: TimelineHit | undefined): TimelineEditingContext =>
+    selected?.kind === "allocation" || selected?.kind === "project-marker"
+      ? Object.freeze({ kind: "project", projectId: selected.projectId })
+      : selected?.kind === "team"
+        ? Object.freeze({ kind: "team", teamId: selected.teamId })
+        : undefined;
+
+  const setEditingContext = (
+    context: TimelineEditingContext,
+    source: "timeline" | "shell" | undefined,
+  ): void => {
+    editingContext = context;
+    editingContextSource = context === undefined ? undefined : source;
+    updateEditForms(context);
   };
 
   const currentSnapshot = (): TimelineUiSnapshot => {
@@ -138,12 +164,16 @@ export function createTimelineUiCoordinator(
         }),
         selectedDate: input.initialDate,
         selected: undefined,
+        editingContext: undefined,
+        editingContextSource: undefined,
       });
     }
     return Object.freeze({
       viewport: viewportController.getState(),
       selectedDate: cursorController.getState().selectedDate,
       selected: interactionController.getState().selected,
+      editingContext,
+      editingContextSource,
     });
   };
 
@@ -152,6 +182,7 @@ export function createTimelineUiCoordinator(
     interactionController.destroy();
     cursorController.destroy();
     viewportController.destroy();
+    shellNavigation.destroy();
     mounted = false;
   };
 
@@ -168,6 +199,16 @@ export function createTimelineUiCoordinator(
     dependencies.renderDiagnostics({
       container: input.elements.diagnostics,
       viewModel: projection.viewModel,
+    });
+    shellNavigation = dependencies.renderShellNavigation({
+      teamContainer: input.elements.teamSections,
+      projectContainer: input.elements.projectList,
+      viewModel: projection.viewModel,
+      geometry: projection.geometry,
+      onTeamSettings: (teamId) =>
+        setEditingContext(Object.freeze({ kind: "team", teamId }), "shell"),
+      onProjectSelect: (projectId) =>
+        setEditingContext(Object.freeze({ kind: "project", projectId }), "shell"),
     });
 
     const selectedDate = projection.geometry.dates.some(
@@ -203,9 +244,35 @@ export function createTimelineUiCoordinator(
       selectionSummaryContainer: input.elements.selectionSummary,
       keyboardControl: input.elements.cursorControl,
       ...(selected === undefined ? {} : { initialSelected: selected }),
-      onSelectionChange: updateEditForms,
+      onSelectionChange: (hit) => setEditingContext(contextFromHit(hit), "timeline"),
     });
+    const restoredContext =
+      snapshot.editingContextSource === "shell"
+        ? reconcileEditingContext(snapshot.editingContext)
+        : contextFromHit(interactionController.getState().selected);
+    setEditingContext(
+      restoredContext,
+      restoredContext === undefined
+        ? undefined
+        : (snapshot.editingContextSource ?? "timeline"),
+    );
     mounted = true;
+  };
+
+  const reconcileEditingContext = (
+    context: TimelineEditingContext,
+  ): TimelineEditingContext => {
+    if (context?.kind === "project") {
+      return input.getProjectEditViewModel(context.projectId) === undefined
+        ? undefined
+        : context;
+    }
+    if (context?.kind === "team") {
+      return input.getTeamEditViewModel(context.teamId) === undefined
+        ? undefined
+        : context;
+    }
+    return undefined;
   };
 
   const renderProjection = (nextProjection: TimelineUiProjection): void => {

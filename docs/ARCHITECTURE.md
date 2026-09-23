@@ -822,7 +822,7 @@ des autres équipes sont conservées et l'ordre UI soumis est conservé dans le
 bloc de l'équipe ciblée.
 
 Chaque ratio individuel reste borné à `[0, 1]`. L'UI convertit exactement les
-pourcentages `25`, `12.5` ou `100/3`, sans flottant métier. Les réservations
+pourcentages finis comme `25` ou `12.5`, sans flottant métier. Les réservations
 peuvent se chevaucher et leurs ratios applicables sont additionnés exactement.
 Un total supérieur à 100 % est une entrée valide :
 
@@ -838,3 +838,48 @@ active seulement le Project editor. Un hit team active simultanément le Team
 Capacity editor et le Firm Reservations editor, dont les controllers, parsers,
 commandes et panneaux d'erreur restent séparés. Phase 7D n'ajoute aucun handle
 timeline, drag/drop, undo/redo, persistence ou actuals/history.
+
+## Team-Centric UI Shell — Phase 8A
+
+Phase 8A réorganise la coque navigateur autour des équipes sans modifier le
+planning ni la géométrie. Sur desktop, la zone Planning contient une section
+HTML par équipe alignée avec sa lane SVG; une sidebar à droite liste les
+projets et héberge le drawer d'édition contextuel. Sur une largeur plus faible,
+la sidebar passe sous la timeline.
+
+Il reste exactement une `TimelineGeometry`, un SVG, un axe temporel, un
+viewport interactif et un curseur. Les sections team sont uniquement une
+présentation : zoom, pan, date sélectionnée, largeur de jour, hit testing,
+markers, allocations et curseur vertical restent partagés par toutes les
+lanes. Aucun système temporel indépendant par équipe n'est introduit.
+
+Chaque section HTML d'équipe expose un bouton `Settings` accessible. Il établit
+un contexte d'édition team et ouvre dans le drawer les controllers distincts
+Team Capacity et Firm Reservations. Un bouton de la sidebar établit un contexte
+project; une allocation ou un marker de la timeline continue d'établir ce même
+contexte. La sélection d'interaction timeline reste distincte du contexte
+d'édition afin de préserver hover et overlays de sélection.
+
+La sidebar consomme `TimelineViewModel.projects`, déjà ordonné depuis
+`Portfolio.priorityOrder`. Elle affiche la position mais ne permet aucun
+réordonnancement ou drag/drop. `dailyCap` est masqué du formulaire projet, reste
+présent dans le domaine et le planner, et est retransmis depuis sa sérialisation
+exacte lors d'un Apply sans rapport avec ce champ.
+
+### Frontière d'édition décimale
+
+Les quantités du domaine restent des rationnels exacts. Les surfaces d'édition
+affichent des chaînes décimales pour le RAF, la capacité, le pourcentage
+d'indisponibilité et le pourcentage de réservation. Les décimaux finis sont
+affichés exactement; les valeurs non terminantes utilisent trois décimales,
+par exemple `0.333` ou `33.333`.
+
+Chaque quantité éditable conserve simultanément son affichage décimal et sa
+sérialisation exacte d'origine. Si le champ n'est pas modifié, le mapper de
+commande réutilise l'original exact (par exemple `1/3`). Si l'utilisateur saisit
+un nouveau décimal fini, par exemple `0.25`, la factory domaine crée exactement
+`1/4`. L'arrondi de présentation ne mute donc jamais l'état applicatif. La
+syntaxe fractionnelle n'est plus exposée dans les formulaires standards.
+
+Phase 8A n'ajoute ni Program/PAS, metrics, Add Team, CRUD structurel, drag/drop
+de priorité, undo/redo, persistence ou actuals/history.

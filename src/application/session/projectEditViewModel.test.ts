@@ -4,7 +4,7 @@ import { createDemoPlanningScenario } from "../../main/demo/createDemoPlanningSc
 import { buildProjectEditViewModel } from "./projectEditViewModel.js";
 
 describe("ProjectEditViewModel", () => {
-  it("separates global dates from team-ordered exact requirement values", () => {
+  it("separates global dates and exposes decimal RAF with exact hidden values", () => {
     const state = createDemoPlanningScenario();
     const project = state.portfolio.projects[0]!;
     const model = buildProjectEditViewModel(state, project.id)!;
@@ -21,10 +21,10 @@ describe("ProjectEditViewModel", () => {
     );
     assert.deepEqual(
       model.requirements.map((requirement) => requirement.remainingWorkload),
-      ["55/1", "30/1"],
+      ["55", "30"],
     );
     assert.deepEqual(
-      model.requirements.map((requirement) => requirement.dailyCap),
+      model.requirements.map((requirement) => requirement.dailyCapExact),
       ["3/2", "1/1"],
     );
     for (const requirement of model.requirements) {

@@ -5,7 +5,10 @@ import {
   type TeamId,
 } from "../../domain/index.js";
 import type { PlanningSessionState } from "./planningSession.js";
-import { serializedRatioToPercentage } from "./exactPercentage.js";
+import {
+  formatPercentageForEditing,
+  formatQuantityForEditing,
+} from "./editableQuantity.js";
 
 export interface TeamEditViewModel {
   readonly teamId: TeamId;
@@ -21,7 +24,9 @@ export interface TeamCapacityPeriodEditViewModel {
   readonly startDate: CivilDate;
   readonly endDate: CivilDate;
   readonly capacity: string;
+  readonly capacityExact: string;
   readonly unavailabilityPercent: string;
+  readonly unavailabilityExact: string;
 }
 
 export function buildTeamEditViewModel(
@@ -43,12 +48,17 @@ export function buildTeamEditViewModel(
           index,
           startDate: period.start,
           endDate: period.end,
-          capacity: serializeQuantity(period.dailyCapacity),
-          unavailabilityPercent: serializedRatioToPercentage(
+          capacity: formatQuantityForEditing(period.dailyCapacity),
+          capacityExact: serializeQuantity(period.dailyCapacity),
+          unavailabilityPercent: formatPercentageForEditing(
             period.unavailabilityRatio === undefined
               ? "0/1"
               : serializeQuantity(period.unavailabilityRatio),
           ),
+          unavailabilityExact:
+            period.unavailabilityRatio === undefined
+              ? "0/1"
+              : serializeQuantity(period.unavailabilityRatio),
         }),
       ),
     ),

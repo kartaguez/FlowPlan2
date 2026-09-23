@@ -29,7 +29,11 @@ export interface TeamCapacityPeriodFormValues {
   readonly startDate: string;
   readonly endDate: string;
   readonly capacity: string;
+  readonly capacityExact: string;
+  readonly capacityDirty: boolean;
   readonly unavailabilityPercent: string;
+  readonly unavailabilityExact: string;
+  readonly unavailabilityDirty: boolean;
 }
 
 export type TeamEditCommandParseResult =
@@ -125,9 +129,17 @@ function parsePeriod(
   const path = `team.capacityPeriods[${values.index}]`;
   const startDate = parseDate(values.startDate, `${path}.startDate`, errors);
   const endDate = parseDate(values.endDate, `${path}.endDate`, errors);
-  const capacity = parseCapacity(values.capacity, `${path}.capacity`, errors);
+  const capacity = parseCapacity(
+    values.capacity,
+    values.capacityExact,
+    values.capacityDirty,
+    `${path}.capacity`,
+    errors,
+  );
   const unavailability = parseUnavailabilityPercent(
     values.unavailabilityPercent,
+    values.unavailabilityExact,
+    values.unavailabilityDirty,
     `${path}.unavailability`,
     errors,
   );
@@ -162,13 +174,14 @@ function parseDate(
 
 function parseCapacity(
   raw: string,
+  originalExact: string,
+  dirty: boolean,
   path: string,
   errors: DomainError[],
 ): Capacity | undefined {
-  const value = raw.trim();
-  const result = value.includes("/")
-    ? capacityFromSerialized(value, path)
-    : createCapacity(value, path);
+  const result = dirty
+    ? createCapacity(raw.trim(), path)
+    : capacityFromSerialized(originalExact, path);
   if (!result.ok) {
     errors.push(...result.errors);
     return undefined;
@@ -178,10 +191,14 @@ function parseCapacity(
 
 function parseUnavailabilityPercent(
   raw: string,
+  originalExact: string,
+  dirty: boolean,
   path: string,
   errors: DomainError[],
 ): UnavailabilityRatio | undefined {
-  const serializedRatio = percentageToSerializedRatio(raw);
+  const serializedRatio = dirty
+    ? percentageToSerializedRatio(raw)
+    : originalExact;
   if (serializedRatio === undefined) {
     errors.push(
       error(

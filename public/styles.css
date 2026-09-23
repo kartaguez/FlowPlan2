@@ -36,17 +36,116 @@ p {
 .workspace-placeholder {
   align-self: start;
   width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(18rem, 24rem);
+  gap: 1.25rem;
+}
+
+.planning-main,
+.project-sidebar {
   border: 1px solid #d9e0ea;
   border-radius: 0.75rem;
   background: #ffffff;
-  padding: 1.5rem;
+  padding: 1.25rem;
+}
+
+.project-sidebar {
+  position: sticky;
+  top: 1rem;
+  align-self: start;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+}
+
+.project-sidebar > h2 {
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.project-sidebar-list {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.project-sidebar-button,
+.timeline-team-settings-button {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.4rem;
+  background: #ffffff;
+  padding: 0.55rem 0.65rem;
+  color: #26364d;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.project-sidebar-button:hover,
+.timeline-team-settings-button:hover {
+  background: #f1f5f9;
+}
+
+.project-sidebar-button:focus-visible,
+.timeline-team-settings-button:focus-visible {
+  outline: 3px solid #60a5fa;
+  outline-offset: 2px;
+}
+
+.planning-editor-drawer {
+  margin-top: 1rem;
+  border-top: 1px solid #d9e0ea;
+  padding-top: 0.25rem;
+}
+
+.timeline-stage {
+  display: grid;
+  grid-template-columns: 13rem minmax(0, 1fr);
+  width: 100%;
+  border: 1px solid #d9e0ea;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.timeline-team-sections {
+  border-right: 1px solid #cbd5e1;
+  background: #f8fafc;
+}
+
+.timeline-team-axis-spacer {
+  border-bottom: 1px solid #cbd5e1;
+  background: #e9eef5;
+}
+
+.timeline-team-section {
+  display: grid;
+  align-content: center;
+  gap: 0.55rem;
+  border-bottom: 1px solid #cbd5e1;
+  padding: 0.7rem;
+}
+
+.timeline-team-section h3 {
+  margin: 0;
+  color: #26364d;
+  font-size: 0.95rem;
+}
+
+.timeline-team-settings-button {
+  width: auto;
+  justify-self: start;
+  padding: 0.35rem 0.55rem;
+  font-size: 0.8rem;
 }
 
 .timeline-container {
   width: 100%;
   overflow: hidden;
-  border: 1px solid #d9e0ea;
-  border-radius: 0.5rem;
   background: #ffffff;
 }
 
@@ -345,6 +444,27 @@ p {
   border-radius: 0.5rem;
   background: #ffffff;
   padding: 0.85rem 1rem;
+}
+
+@media (max-width: 70rem) {
+  .workspace-placeholder {
+    grid-template-columns: 1fr;
+  }
+
+  .project-sidebar {
+    position: static;
+    max-height: none;
+  }
+}
+
+@media (max-width: 48rem) {
+  .application-shell {
+    padding: 1rem;
+  }
+
+  .timeline-stage {
+    grid-template-columns: 9rem minmax(0, 1fr);
+  }
 }
 
 .timeline-project-edit h3,

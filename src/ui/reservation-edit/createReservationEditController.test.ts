@@ -64,6 +64,7 @@ const model: TeamReservationsEditViewModel = Object.freeze({
       startDate: must(createCivilDate("2025-01-01")),
       endDate: must(createCivilDate("2025-01-31")),
       ratioPercent: "25",
+      ratioExact: "1/4",
     }),
   ]),
 });
@@ -71,6 +72,7 @@ const model: TeamReservationsEditViewModel = Object.freeze({
 function fixture(onApply: (command: ReplaceTeamReservationsCommand) => { ok: true } | { ok: false; errors: readonly { code: string; path: string; message: string }[] } = () => ({ ok: true })) {
   const document = new FakeDocument();
   const form = document.createElement("form");
+  const container = document.createElement("section");
   const rows = document.createElement("div");
   const add = document.createElement("button");
   const apply = document.createElement("button");
@@ -79,12 +81,12 @@ function fixture(onApply: (command: ReplaceTeamReservationsCommand) => { ok: tru
   const error = document.createElement("p");
   error.hidden = true;
   const controller = createReservationEditController({
-    controls: { form, rows, add, apply, cancel, status } as unknown as ReservationEditControls,
+    controls: { container, form, rows, add, apply, cancel, status } as unknown as ReservationEditControls,
     errorContainer: error as unknown as HTMLElement,
     nextReservationId: () => addedId,
     onApply,
   });
-  return { controller, form, rows, add, apply, cancel, status, error };
+  return { controller, container, form, rows, add, apply, cancel, status, error };
 }
 
 function descendants(root: FakeElement, tagName: string): FakeElement[] {
@@ -126,7 +128,7 @@ describe("ReservationEditController", () => {
     const input = fixture((command) => { commands.push(command); return { ok: true }; });
     input.controller.setTeam(model);
     const fields = descendants(input.rows, "input");
-    fields[2]!.value = "100/3";
+    fields[2]!.value = "33.33";
     input.form.dispatch("submit", { preventDefault() {} });
     assert.equal(commands.length, 1);
     assert.equal(commands[0]!.kind, "replace-team-reservations");
