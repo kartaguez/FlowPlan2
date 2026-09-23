@@ -14,6 +14,9 @@ class FakeDocument {
   createElement(tagName: string): FakeElement {
     return new FakeElement(this, tagName);
   }
+  createElementNS(_namespace: string, tagName: string): FakeElement {
+    return new FakeElement(this, tagName);
+  }
 }
 class FakeElement {
   readonly attributes = new Map<string, string>();
@@ -79,6 +82,7 @@ describe("renderTimelineShellNavigation", () => {
       } as unknown as TimelineViewModel,
       geometry: {
         timeAxis: { height: 56 },
+        teamHeaderHeight: 48,
         teams: [
           { teamId: alpha, height: 100 },
           { teamId: beta, height: 100 },
@@ -90,16 +94,40 @@ describe("renderTimelineShellNavigation", () => {
     });
     assert.equal(teams.childNodes.length, 3);
     assert.equal(teams.childNodes[1]!.dataset.teamId, alpha);
-    assert.equal(teams.childNodes[1]!.childNodes[0]!.textContent, "Team Alpha");
+    assert.equal(teams.childNodes[1]!.className, "team-panel");
+    assert.equal(teams.childNodes[1]!.childNodes[0]!.className, "team-panel-header");
+    assert.equal(teams.childNodes[1]!.childNodes[1]!.className, "team-panel-timeline");
+    assert.equal(
+      teams.childNodes[1]!.childNodes[0]!.childNodes[0]!.textContent,
+      "Team Alpha",
+    );
+    assert.equal(
+      teams.childNodes[1]!.childNodes[0]!.childNodes[1]!.attributes.get("aria-label"),
+      "Edit Team Alpha settings",
+    );
+    assert.equal(
+      teams.childNodes[1]!.childNodes[0]!.childNodes[1]!.childNodes[0]!.tagName,
+      "svg",
+    );
     assert.equal(
       teams.childNodes[1]!.childNodes[1]!.attributes.get("aria-label"),
-      "Edit Team Alpha settings",
+      "Team Alpha timeline lane",
+    );
+    assert.deepEqual(
+      teams.childNodes.slice(1).map((panel) => [
+        panel.childNodes[0]!.childNodes[0]!.textContent,
+        panel.childNodes[1]!.attributes.get("aria-label"),
+      ]),
+      [
+        ["Team Alpha", "Team Alpha timeline lane"],
+        ["Team Beta", "Team Beta timeline lane"],
+      ],
     );
     assert.deepEqual(
       projects.childNodes.map((item) => item.childNodes[0]!.textContent),
       ["1. Boreal", "2. Atlas"],
     );
-    teams.childNodes[2]!.childNodes[1]!.click();
+    teams.childNodes[2]!.childNodes[0]!.childNodes[1]!.click();
     projects.childNodes[0]!.childNodes[0]!.click();
     reservationTab.click();
     reservations.childNodes[0]!.childNodes[0]!.click();
@@ -109,7 +137,7 @@ describe("renderTimelineShellNavigation", () => {
     assert.equal(projects.hidden, true);
     assert.equal(reservations.hidden, false);
     navigation.destroy();
-    teams.childNodes[1]!.childNodes[1]!.click();
+    teams.childNodes[1]!.childNodes[0]!.childNodes[1]!.click();
     assert.deepEqual(selectedTeams, [beta]);
   });
 });

@@ -1009,3 +1009,37 @@ le second liste les réservations globales et ouvre leur modal. Team Settings
 reste limité au nom et aux périodes de capacité. Cette phase n'ajoute ni
 Program/PAS, métriques curseur, réordonnancement par drag/drop, CRUD structurel,
 persistence, ni actuals/history.
+
+## Post-8C UI correction — stacked Team panels
+
+La surface Planning conserve un seul SVG et un seul axe temporel global. Sous
+cet axe, le DOM alterne désormais explicitement les éléments dans l'ordre du
+ViewModel :
+
+```text
+Planning time axis
+Team Alpha header
+Team Alpha lane
+Team Beta header
+Team Beta lane
+Team Gamma header
+Team Gamma lane
+```
+
+Chaque `.team-panel` contient un `.team-panel-header` pleine largeur, avec le
+nom à gauche et l'action Settings à droite, puis un `.team-panel-timeline` qui
+réserve exactement la hauteur de sa lane. `TimelineGeometry` reste l'unique
+source des positions verticales : `teamHeaderHeight` réserve les espaces des
+headers dans le même repère que les lanes. L'ancien conteneur
+`.timeline-team-sections` et la grille latérale `13rem | timeline` ont été
+supprimés.
+
+Cet empilement est exclusivement visuel. Il ne crée aucune timeline Team
+indépendante : le SVG, l'horizon, l'échelle temporelle, le viewport, le zoom,
+le pan, `selectedDate`, le cursor, la sélection et le hit testing restent
+uniques et partagés par toutes les lanes.
+
+Les actions Planning Settings et Team Settings utilisent le même helper de
+bouton icône compact. Leur nom accessible reste explicite (`Edit planning
+settings` ou `Edit <Team label> settings`), tandis que l'engrenage SVG inline
+est décoratif (`aria-hidden="true"`) et le tooltip natif reste `Settings`.

@@ -57,4 +57,16 @@ describe("ReservationEditController", () => {
     const select = descendants(input.controls.fields, "select")[0]!; const values = descendants(input.controls.fields, "input").filter((field) => field.type === "text");
     select.value = "fixed-daily"; select.dispatch("change"); assert.equal(values.at(-2)!.value, "");
   });
+  it("shows a local error and does not dispatch reversed dates", () => {
+    const commands: UpdateReservationCommand[] = [];
+    const input = fixture((command) => { commands.push(command); return { ok: true }; });
+    input.controller.setReservation(model);
+    const dates = descendants(input.controls.fields, "input").filter((field) => field.type === "date");
+    dates[0]!.value = "2025-03-01";
+    dates[1]!.value = "2025-01-01";
+    input.controls.form.dispatch("submit", { preventDefault() {} });
+    assert.equal(commands.length, 0);
+    assert.equal(input.error.hidden, false);
+    assert.match(input.error.textContent ?? "", /end date must be on or after its start date/i);
+  });
 });

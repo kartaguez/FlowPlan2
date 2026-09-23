@@ -3,6 +3,7 @@ import type {
   TimelineViewModel,
 } from "../../adapters/index.js";
 import type { ProjectId, ReservationId, TeamId } from "../../domain/index.js";
+import { createSettingsIconButton } from "../createSettingsIconButton.js";
 
 export interface ReservationNavigationItem {
   readonly id: ReservationId;
@@ -41,29 +42,35 @@ export function renderTimelineShellNavigation(
   axisSpacer.setAttribute("aria-hidden", "true");
   axisSpacer.setAttribute("style", `height: ${input.geometry.timeAxis.height}px`);
   const teamsById = new Map(input.viewModel.teams.map((team) => [team.id, team]));
-  const teamRows = input.geometry.teams.map((teamGeometry) => {
+  const teamPanels = input.geometry.teams.map((teamGeometry) => {
     const team = teamsById.get(teamGeometry.teamId);
     if (team === undefined) {
       throw new TypeError(`Missing timeline team ${teamGeometry.teamId}.`);
     }
     const section = document.createElement("section");
-    section.className = "timeline-team-section";
+    section.className = "team-panel";
     section.dataset.teamId = team.id;
-    section.setAttribute("style", `height: ${teamGeometry.height}px`);
+    const header = document.createElement("header");
+    header.className = "team-panel-header";
+    header.setAttribute("style", `height: ${input.geometry.teamHeaderHeight}px`);
     const heading = document.createElement("h3");
     heading.textContent = team.label;
-    const settings = document.createElement("button");
-    settings.type = "button";
-    settings.className = "timeline-team-settings-button";
-    settings.textContent = "Settings";
-    settings.setAttribute("aria-label", `Edit ${team.label} settings`);
+    const settings = createSettingsIconButton(
+      document,
+      `Edit ${team.label} settings`,
+    );
     const listener = () => input.onTeamSettings(team.id);
     settings.addEventListener("click", listener);
     listeners.push({ button: settings, listener });
-    section.append(heading, settings);
+    header.append(heading, settings);
+    const lane = document.createElement("div");
+    lane.className = "team-panel-timeline";
+    lane.setAttribute("aria-label", `${team.label} timeline lane`);
+    lane.setAttribute("style", `height: ${teamGeometry.height}px`);
+    section.append(header, lane);
     return section;
   });
-  input.teamContainer.replaceChildren(axisSpacer, ...teamRows);
+  input.teamContainer.replaceChildren(axisSpacer, ...teamPanels);
 
   const projectItems = input.viewModel.projects.map((project) => {
     const item = document.createElement("li");

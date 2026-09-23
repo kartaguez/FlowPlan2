@@ -34,6 +34,14 @@ describe("parseReservationEditCommand", () => {
     const absent = parseReservationEditCommand({ ...base("25"), teamAllocations: [{ teamId: alpha, enabled: false, kind: "ratio", value: "", dirty: false }] });
     assert.equal(absent.ok, true); if (absent.ok) assert.equal(absent.command.teamAllocations.length, 0);
     assert.equal(parseReservationEditCommand(base("101")).ok, false);
-    assert.equal(parseReservationEditCommand({ ...base("25"), startDate: "2025-03-01", endDate: "2025-01-01" }).ok, true);
+    const reversed = parseReservationEditCommand({ ...base("25"), startDate: "2025-03-01", endDate: "2025-01-01" });
+    assert.equal(reversed.ok, false);
+    if (!reversed.ok) {
+      assert.deepEqual(reversed.errors, [{
+        code: "INVALID_RESERVATION_INTERVAL",
+        path: "reservation.endDate",
+        message: "Reservation end date must be on or after its start date.",
+      }]);
+    }
   });
 });

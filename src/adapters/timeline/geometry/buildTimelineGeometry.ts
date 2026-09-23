@@ -58,11 +58,13 @@ export interface BuildTimelineGeometryInput {
 export function buildTimelineGeometry(
   input: BuildTimelineGeometryInput,
 ): TimelineGeometry {
+  const teamHeaderHeight = input.viewport.teamHeaderHeight ?? 0;
   validatePositiveFinite(input.viewport.width, "Viewport width");
   validatePositiveFinite(
     input.viewport.teamLaneHeight,
     "Team lane height",
   );
+  validateNonNegativeFinite(teamHeaderHeight, "Team header height");
   validatePositiveFinite(input.viewport.timeAxisHeight, "Time axis height");
 
   const expectedDates = datesInHorizon(input.viewModel.horizon);
@@ -111,7 +113,9 @@ export function buildTimelineGeometry(
 
     const y =
       input.viewport.timeAxisHeight +
-      teamIndex * input.viewport.teamLaneHeight;
+      teamHeaderHeight +
+      teamIndex *
+        (teamHeaderHeight + input.viewport.teamLaneHeight);
     const laneBottom = y + input.viewport.teamLaneHeight;
     const allocationsByDate = indexAllocationsByDate(
       team,
@@ -211,8 +215,10 @@ export function buildTimelineGeometry(
     width: input.viewport.width,
     height:
       input.viewport.timeAxisHeight +
-      input.viewModel.teams.length * input.viewport.teamLaneHeight,
+      input.viewModel.teams.length *
+        (teamHeaderHeight + input.viewport.teamLaneHeight),
     dayWidth,
+    teamHeaderHeight,
     dates,
     timeAxis,
     maxEffectiveCapacity,

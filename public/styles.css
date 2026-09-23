@@ -60,19 +60,32 @@ p {
   margin-bottom: 0;
 }
 
-.planning-settings-button {
+.settings-icon-button {
+  display: inline-grid;
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 2rem;
+  place-items: center;
   border: 1px solid #94a3b8;
   border-radius: 0.4rem;
   background: #ffffff;
-  padding: 0.4rem 0.7rem;
+  padding: 0;
   color: #26364d;
-  font: inherit;
   cursor: pointer;
 }
 
-.planning-settings-button:focus-visible {
+.settings-icon-button:hover {
+  background: #f1f5f9;
+}
+
+.settings-icon-button:focus-visible {
   outline: 3px solid #60a5fa;
   outline-offset: 2px;
+}
+
+.settings-icon {
+  display: block;
+  fill: currentColor;
 }
 
 .project-sidebar {
@@ -103,8 +116,7 @@ p {
   list-style: none;
 }
 
-.project-sidebar-button,
-.timeline-team-settings-button {
+.project-sidebar-button {
   width: 100%;
   border: 1px solid #cbd5e1;
   border-radius: 0.4rem;
@@ -116,13 +128,11 @@ p {
   cursor: pointer;
 }
 
-.project-sidebar-button:hover,
-.timeline-team-settings-button:hover {
+.project-sidebar-button:hover {
   background: #f1f5f9;
 }
 
-.project-sidebar-button:focus-visible,
-.timeline-team-settings-button:focus-visible {
+.project-sidebar-button:focus-visible {
   outline: 3px solid #60a5fa;
   outline-offset: 2px;
 }
@@ -134,8 +144,7 @@ p {
 }
 
 .timeline-stage {
-  display: grid;
-  grid-template-columns: 13rem minmax(0, 1fr);
+  position: relative;
   width: 100%;
   border: 1px solid #d9e0ea;
   border-radius: 0.5rem;
@@ -143,44 +152,56 @@ p {
   background: #ffffff;
 }
 
-.timeline-team-sections {
-  border-right: 1px solid #cbd5e1;
-  background: #f8fafc;
+.timeline-team-panels {
+  position: relative;
+  z-index: 2;
+  pointer-events: none;
 }
 
 .timeline-team-axis-spacer {
-  border-bottom: 1px solid #cbd5e1;
-  background: #e9eef5;
+  pointer-events: none;
 }
 
-.timeline-team-section {
+.team-panel {
+  pointer-events: none;
+}
+
+.team-panel-header {
+  position: relative;
+  z-index: 2;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  align-content: center;
   align-items: center;
   gap: 0.75rem;
+  border-top: 1px solid #cbd5e1;
   border-bottom: 1px solid #cbd5e1;
   border-left: 4px solid #94a3b8;
-  padding: 0.7rem 0.75rem;
+  background: #eef2f7;
+  padding: 0.45rem 0.75rem;
   box-shadow: inset 0 1px 0 #ffffff;
+  pointer-events: auto;
 }
 
-.timeline-team-section h3 {
+.team-panel-header h3 {
   margin: 0;
   color: #26364d;
   font-size: 0.95rem;
 }
 
-.timeline-team-settings-button {
-  width: auto;
+.team-panel-header .settings-icon-button {
   justify-self: end;
-  padding: 0.35rem 0.55rem;
-  font-size: 0.8rem;
+}
+
+.team-panel-timeline {
+  position: relative;
+  z-index: 0;
+  pointer-events: none;
 }
 
 .timeline-container {
-  width: 100%;
-  overflow: hidden;
+  position: absolute;
+  z-index: 1;
+  inset: 0;
   background: #ffffff;
 }
 
@@ -621,9 +642,6 @@ p {
     padding: 1rem;
   }
 
-  .timeline-stage {
-    grid-template-columns: 9rem minmax(0, 1fr);
-  }
 }
 
 .timeline-project-edit h3,

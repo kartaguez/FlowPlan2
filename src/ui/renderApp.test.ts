@@ -80,6 +80,31 @@ describe("renderApp", () => {
     );
   });
 
+  it("uses one full-width timeline stage with stacked team panels", () => {
+    const root = new FakeDocument().createElement("div");
+    const elements = renderApp(root as unknown as HTMLElement);
+    const renderedElements = descendants(root);
+    const stage = renderedElements.find(
+      (element) => element.className === "timeline-stage",
+    );
+
+    assert.ok(stage);
+    assert.deepEqual(
+      stage.childNodes.map((element) => element.className),
+      ["timeline-container", "timeline-team-panels"],
+    );
+    assert.equal(
+      renderedElements.some(
+        (element) => element.className === "timeline-team-sections",
+      ),
+      false,
+    );
+    assert.equal(
+      stage.childNodes[1],
+      elements.teamPanels as unknown as FakeElement,
+    );
+  });
+
   it("returns a frozen, strictly typed set of application elements", () => {
     const root = new FakeDocument().createElement("div");
     const elements = renderApp(root as unknown as HTMLElement);
@@ -158,8 +183,8 @@ describe("renderApp", () => {
       true,
     );
     assert.equal(
-      (elements.teamSections as unknown as FakeElement).className,
-      "timeline-team-sections",
+      (elements.teamPanels as unknown as FakeElement).className,
+      "timeline-team-panels",
     );
     assert.equal(
       (elements.projectList as unknown as FakeElement).tagName,
@@ -184,6 +209,21 @@ describe("renderApp", () => {
         "aria-label",
       ),
       "Edit planning settings",
+    );
+    assert.equal(
+      (elements.planningSettingsButton as unknown as FakeElement).textContent,
+      null,
+    );
+    const planningSettingsIcon = (
+      elements.planningSettingsButton as unknown as FakeElement
+    ).childNodes[0]!;
+    assert.equal(planningSettingsIcon.tagName, "svg");
+    assert.equal(planningSettingsIcon.getAttribute("aria-hidden"), "true");
+    assert.equal(
+      (elements.planningSettingsButton as unknown as FakeElement).getAttribute(
+        "title",
+      ),
+      "Settings",
     );
     assert.equal(
       (elements.planningSettingsControls.container as unknown as FakeElement).getAttribute(

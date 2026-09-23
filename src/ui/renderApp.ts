@@ -1,3 +1,5 @@
+import { createSettingsIconButton } from "./createSettingsIconButton.js";
+
 const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 
 export interface AppElements {
@@ -15,7 +17,7 @@ export interface AppElements {
   readonly reservationEditControls: ReservationEditControls;
   readonly applicationError: HTMLElement;
   readonly reservationEditError: HTMLElement;
-  readonly teamSections: HTMLElement;
+  readonly teamPanels: HTMLElement;
   readonly projectList: HTMLElement;
   readonly reservationList: HTMLElement;
   readonly projectTab: HTMLButtonElement;
@@ -89,14 +91,13 @@ export function renderApp(root: HTMLElement): AppElements {
   workspace.className = "workspace-placeholder";
   workspace.setAttribute("aria-label", "Planning workspace");
   const workspaceTitle = document.createElement("h2");
-  workspaceTitle.textContent = "Planning demo";
+  workspaceTitle.textContent = "Planning";
   const planningHeading = document.createElement("div");
   planningHeading.className = "planning-heading";
-  const planningSettingsButton = document.createElement("button");
-  planningSettingsButton.type = "button";
-  planningSettingsButton.className = "planning-settings-button";
-  planningSettingsButton.setAttribute("aria-label", "Edit planning settings");
-  planningSettingsButton.textContent = "Settings";
+  const planningSettingsButton = createSettingsIconButton(
+    document,
+    "Edit planning settings",
+  );
   planningHeading.append(workspaceTitle, planningSettingsButton);
   const description = document.createElement("p");
   description.textContent =
@@ -122,12 +123,12 @@ export function renderApp(root: HTMLElement): AppElements {
   timeline.classList.add("timeline-svg");
   timeline.setAttribute("aria-label", "FlowPlan planning timeline demo");
   timelineContainer.append(timeline);
-  const teamSections = document.createElement("div");
-  teamSections.className = "timeline-team-sections";
-  teamSections.setAttribute("aria-label", "Planning teams");
+  const teamPanels = document.createElement("div");
+  teamPanels.className = "timeline-team-panels";
+  teamPanels.setAttribute("aria-label", "Planning teams");
   const timelineStage = document.createElement("div");
   timelineStage.className = "timeline-stage";
-  timelineStage.append(teamSections, timelineContainer);
+  timelineStage.append(timelineContainer, teamPanels);
   const diagnostics = document.createElement("section");
   diagnostics.className = "timeline-diagnostics";
   diagnostics.setAttribute("aria-label", "Planning diagnostics");
@@ -389,7 +390,7 @@ export function renderApp(root: HTMLElement): AppElements {
     reservationEditControls,
     applicationError,
     reservationEditError,
-    teamSections,
+    teamPanels,
     projectList,
     reservationList,
     projectTab,

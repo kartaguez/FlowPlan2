@@ -9,6 +9,7 @@ import type {
 export interface TimelineGeometryViewport {
   readonly width: number;
   readonly teamLaneHeight: number;
+  readonly teamHeaderHeight?: number;
   readonly timeAxisHeight: number;
 }
 
@@ -16,6 +17,7 @@ export interface TimelineGeometry {
   readonly width: number;
   readonly height: number;
   readonly dayWidth: number;
+  readonly teamHeaderHeight: number;
   readonly dates: readonly TimelineDateGeometry[];
   readonly timeAxis: TimelineTimeAxisGeometry;
   readonly maxEffectiveCapacity: Capacity;

@@ -136,6 +136,7 @@ function fixture(): {
     width: 300,
     height: 256,
     dayWidth: 100,
+    teamHeaderHeight: 0,
     dates: dates.map((date, index) => ({ date, x: index * 100, width: 100 })),
     timeAxis: {
       x: 0,

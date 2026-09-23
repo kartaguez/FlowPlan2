@@ -48,6 +48,15 @@ export function parseReservationEditCommand(
   const end = createCivilDate(values.endDate.trim(), "reservation.endDate");
   if (!start.ok) errors.push(...start.errors);
   if (!end.ok) errors.push(...end.errors);
+  if (start.ok && end.ok && start.value > end.value) {
+    errors.push(
+      error(
+        "INVALID_RESERVATION_INTERVAL",
+        "reservation.endDate",
+        "Reservation end date must be on or after its start date.",
+      ),
+    );
+  }
   const teamAllocations = values.teamAllocations
     .filter((row) => row.enabled)
     .map((row) => parseAllocation(row, errors));

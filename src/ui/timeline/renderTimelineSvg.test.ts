@@ -138,6 +138,7 @@ function makeGeometry(): TimelineGeometry {
     width: 300,
     height: 160,
     dayWidth: 100,
+    teamHeaderHeight: 0,
     dates: [
       { date: date("2025-01-01"), x: 0, width: 100 },
       { date: date("2025-01-02"), x: 100, width: 100 },
@@ -663,6 +664,7 @@ describe("renderTimelineSvg", () => {
       width: 300,
       height: 40,
       dayWidth: 100,
+      teamHeaderHeight: 0,
       dates: [
         { date: date("2025-01-01"), x: 0, width: 100 },
         { date: date("2025-01-02"), x: 100, width: 100 },

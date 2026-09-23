@@ -511,7 +511,7 @@ function createElements(): AppElements {
     },
     applicationError: element() as unknown as HTMLElement,
     reservationEditError: element() as unknown as HTMLElement,
-    teamSections: element() as unknown as HTMLElement,
+    teamPanels: element() as unknown as HTMLElement,
     projectList: element() as unknown as HTMLElement,
     reservationList: element() as unknown as HTMLElement,
     projectTab: element() as unknown as HTMLButtonElement,

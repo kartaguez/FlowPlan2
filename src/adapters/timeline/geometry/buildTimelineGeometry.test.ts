@@ -64,8 +64,12 @@ function buildInput(
   width: number,
   teamLaneHeight = 80,
   timeAxisHeight = 40,
+  teamHeaderHeight = 0,
 ): BuildTimelineGeometryInput {
-  return { viewModel, viewport: { width, teamLaneHeight, timeAxisHeight } };
+  return {
+    viewModel,
+    viewport: { width, teamLaneHeight, teamHeaderHeight, timeAxisHeight },
+  };
 }
 
 describe("buildTimelineGeometry", () => {
@@ -228,6 +232,29 @@ describe("buildTimelineGeometry", () => {
     );
   });
 
+  it("reserves one geometry-owned header immediately before every team lane", () => {
+    const geometry = buildTimelineGeometry(
+      buildInput(
+        makeViewModel("2025-01-01", "2025-01-01", [
+          "team-alpha",
+          "team-beta",
+          "team-gamma",
+        ]),
+        300,
+        80,
+        40,
+        48,
+      ),
+    );
+
+    assert.equal(geometry.teamHeaderHeight, 48);
+    assert.deepEqual(
+      geometry.teams.map((team) => team.y),
+      [88, 216, 344],
+    );
+    assert.equal(geometry.height, 424);
+  });
+
   it("preserves the TimelineViewModel team order", () => {
     const viewModel = makeViewModel("2025-01-01", "2025-01-01", [
       "team-c",
@@ -276,6 +303,7 @@ describe("buildTimelineGeometry", () => {
       { width: 0, teamLaneHeight: 80, timeAxisHeight: 40 },
       { width: Number.NaN, teamLaneHeight: 80, timeAxisHeight: 40 },
       { width: 300, teamLaneHeight: -1, timeAxisHeight: 40 },
+      { width: 300, teamLaneHeight: 80, teamHeaderHeight: -1, timeAxisHeight: 40 },
       {
         width: 300,
         teamLaneHeight: Number.POSITIVE_INFINITY,
