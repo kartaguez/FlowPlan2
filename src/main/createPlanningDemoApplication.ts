@@ -1,5 +1,8 @@
 import type { TimelineGeometryViewport } from "../adapters/index.js";
-import { createPlanningSession } from "../application/index.js";
+import {
+  buildProjectEditViewModel,
+  createPlanningSession,
+} from "../application/index.js";
 import type { AppElements } from "../ui/renderApp.js";
 import { createTimelineUiCoordinator } from "../ui/timeline/createTimelineUiCoordinator.js";
 import type { DemoPlanningScenario } from "./demo/createDemoPlanningScenario.js";
@@ -25,5 +28,7 @@ export function createPlanningDemoApplication(
     initialProjection: projectionDispatcher.getProjection(),
     initialDate: scenario.horizon.start,
     dispatch: projectionDispatcher.dispatch,
+    getProjectEditViewModel: (projectId) =>
+      buildProjectEditViewModel(session.getState(), projectId),
   });
 }

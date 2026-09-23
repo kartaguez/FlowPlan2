@@ -637,12 +637,13 @@ UI intent
     -> static SVG rerender
 ```
 
-La seule commande de démonstration de 7A est `rename-project`. Elle reconstruit
-le projet et le portfolio par leurs factories, rend le pipeline observable et
-ne modifie aucune sémantique de planning. Un label vide ou un projet inconnu
-échoue atomiquement : l'état courant et la projection courante restent les
-mêmes, aucun recompute n'est exécuté et une erreur applicative distincte des
-diagnostics planning est affichée.
+La commande de démonstration `rename-project` de 7A a servi à valider ce
+pipeline. Phase 7B la remplace par la commande transactionnelle
+`update-project`; il n'existe donc pas deux voies concurrentes pour modifier
+le libellé d'un projet. Une commande invalide échoue atomiquement : l'état
+courant et la projection courante restent les mêmes, aucun recompute n'est
+exécuté et une erreur applicative distincte des diagnostics planning est
+affichée.
 
 Les responsabilités restent séparées :
 
@@ -658,5 +659,67 @@ date si elle appartient toujours à l'horizon et conserve le hit uniquement si
 sa géométrie existe encore. Le hover est volontairement réinitialisé.
 
 Le remplacement immutable de l'état prépare un futur undo/redo, sans stocker
-aucun historique en 7A. Ce lot n'ajoute ni persistence, drag/drop, édition des
-contraintes de planning, changement de priorité, ni fonctionnalités 7B–7D.
+aucun historique en 7A.
+
+## Project Editing — Phase 7B
+
+L'édition projet respecte une séparation canonique entre propriétés globales
+et requirements d'équipe :
+
+```text
+Project-global
+  label
+  priority (position in Portfolio.priorityOrder)
+  earliestStartDate
+  objectiveEndDate
+  mandatoryDeadline
+
+Project-team requirement
+  teamId
+  remaining workload / RAF
+  optional daily cap
+```
+
+Les trois dates n'existent qu'une fois sur `Project`. Elles ne sont ni
+dupliquées dans la commande par équipe, ni ajoutées aux requirements, ni
+reconstruites depuis une allocation. `earliestStartDate` est la borne globale
+d'éligibilité du projet. `objectiveEndDate` est descriptive uniquement et ne
+change pas les allocations. `mandatoryDeadline` est globale, tandis que sa
+faisabilité et ses conséquences d'allocation sont évaluées indépendamment par
+chaque planner d'équipe. Une deadline difficile mais valide est acceptée et
+peut produire un diagnostic; elle ne promeut jamais le projet dans l'ordre de
+priorité global.
+
+Le formulaire contient une section globale (libellé, position de priorité et
+trois dates) puis un `fieldset` par équipe existante (RAF et daily cap
+seulement). Les chaînes du DOM sont parsées à cette frontière : dates ISO par
+`createCivilDate`, quantités décimales ou rationnelles par les factories et
+sérialiseurs exacts du domaine. Aucun `Date` JavaScript ou nombre flottant
+métier persistant n'est introduit.
+
+`update-project` transporte le remplacement complet des requirements. La
+session exige exactement le même ensemble de `teamId`, sans doublon, ajout ou
+omission, reconstruit les requirements et le `Project` via leurs factories,
+puis déplace l'identifiant dans `Portfolio.priorityOrder` selon la position
+utilisateur (1 = priorité maximale). L'opération est transactionnelle :
+
+```text
+all fields valid
+  -> immutable state replacement
+  -> one recompute + ViewModel/Geometry rebuild
+
+any field invalid
+  -> no state mutation
+  -> no recompute
+  -> current projection remains active
+```
+
+Après succès, le coordinateur conserve le viewport et la date sélectionnée,
+réconcilie le hit sélectionné avec la nouvelle géométrie et efface le hover.
+Une allocation disparue efface donc la sélection et désactive le formulaire;
+un hit encore présent reste sélectionné. Cancel réhydrate simplement les
+champs depuis l'état courant sans commande ni recompute.
+
+Phase 7B modifie uniquement les projets et leurs requirements déjà associés.
+Elle n'ajoute ni suppression d'affectation, édition d'équipe/réservation,
+drag/drop, undo/redo ou persistence.

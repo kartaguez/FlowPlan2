@@ -2,93 +2,241 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { describe, it } from "node:test";
-import { createProjectId, type DomainResult } from "../../domain/index.js";
+import {
+  createCivilDate,
+  createDailyCap,
+  createProjectId,
+  createRemainingWorkload,
+  createTeamId,
+  serializeQuantity,
+  type DomainResult,
+  type ProjectId,
+} from "../../domain/index.js";
 import { createDemoPlanningScenario } from "../../main/demo/createDemoPlanningScenario.js";
-import { createPlanningSession } from "./planningSession.js";
+import {
+  createPlanningSession,
+  type PlanningSessionState,
+  type UpdateProjectCommand,
+} from "./planningSession.js";
 
 function must<T>(result: DomainResult<T>): T {
   if (!result.ok) throw new Error(JSON.stringify(result.errors));
   return result.value;
 }
 
-describe("PlanningSession", () => {
+function commandFor(
+  state: PlanningSessionState,
+  projectId: ProjectId,
+  overrides: Partial<UpdateProjectCommand> = {},
+): UpdateProjectCommand {
+  const project = state.portfolio.projects.find((candidate) => candidate.id === projectId)!;
+  return {
+    kind: "update-project",
+    projectId,
+    name: project.name,
+    priorityPosition: state.portfolio.priorityOrder.indexOf(projectId) + 1,
+    ...(project.earliestStartDate === undefined
+      ? {}
+      : { earliestStartDate: project.earliestStartDate }),
+    ...(project.objectiveEndDate === undefined
+      ? {}
+      : { objectiveEndDate: project.objectiveEndDate }),
+    ...(project.mandatoryDeadline === undefined
+      ? {}
+      : { mandatoryDeadline: project.mandatoryDeadline }),
+    teamRequirements: project.requirements.map((requirement) => ({
+      teamId: requirement.teamId,
+      remainingWorkload: requirement.remainingWorkload,
+      ...(requirement.dailyCap === undefined
+        ? {}
+        : { dailyCap: requirement.dailyCap }),
+    })),
+    ...overrides,
+  };
+}
+
+describe("PlanningSession project editing", () => {
   it("owns the initial immutable domain/application state", () => {
     const initial = createDemoPlanningScenario();
     const session = createPlanningSession(initial);
-
     assert.equal(session.getState().portfolio, initial.portfolio);
     assert.equal(session.getState().horizon, initial.horizon);
     assert.equal(Object.isFrozen(session.getState()), true);
   });
 
-  it("renames a project through domain factories without mutating prior state", () => {
+  it("atomically updates global project fields, priority, RAF, and daily caps", () => {
     const initial = createDemoPlanningScenario();
-    const initialProjects = initial.portfolio.projects;
-    const initialProject = initialProjects[0]!;
+    const previousState = initial;
+    const previousProject = initial.portfolio.projects[0]!;
+    const previousRequirements = previousProject.requirements;
     const session = createPlanningSession(initial);
-
-    const result = session.dispatch({
-      kind: "rename-project",
-      projectId: initialProject.id,
-      label: "  Atlas Renamed  ",
-    });
+    const result = session.dispatch(
+      commandFor(initial, previousProject.id, {
+        name: "  Atlas Updated  ",
+        priorityPosition: 4,
+        earliestStartDate: must(createCivilDate("2025-01-10")),
+        objectiveEndDate: must(createCivilDate("2025-02-10")),
+        mandatoryDeadline: must(createCivilDate("2025-03-10")),
+        teamRequirements: [
+          {
+            teamId: previousRequirements[0]!.teamId,
+            remainingWorkload: must(createRemainingWorkload("0")),
+            dailyCap: must(createDailyCap("1.5")),
+          },
+          {
+            teamId: previousRequirements[1]!.teamId,
+            remainingWorkload: must(createRemainingWorkload("12.5")),
+          },
+        ],
+      }),
+    );
 
     assert.equal(result.ok, true);
     if (!result.ok) return;
-    assert.notEqual(result.state, initial);
-    assert.notEqual(result.state.portfolio, initial.portfolio);
-    assert.notEqual(result.state.portfolio.projects, initialProjects);
-    assert.equal(result.state.portfolio.projects[0]?.name, "Atlas Renamed");
-    assert.equal(initialProject.name, "Project Atlas");
-    assert.equal(initial.portfolio.projects, initialProjects);
-    assert.notEqual(result.state.portfolio.teams, initial.portfolio.teams);
-    assert.deepEqual(result.state.portfolio.teams, initial.portfolio.teams);
-    assert.notEqual(
-      result.state.portfolio.priorityOrder,
-      initial.portfolio.priorityOrder,
+    const updated = result.state.portfolio.projects[0]!;
+    assert.notEqual(result.state, previousState);
+    assert.notEqual(updated, previousProject);
+    assert.notEqual(updated.requirements, previousRequirements);
+    assert.equal(updated.name, "Atlas Updated");
+    assert.equal(updated.earliestStartDate, "2025-01-10");
+    assert.equal(updated.objectiveEndDate, "2025-02-10");
+    assert.equal(updated.mandatoryDeadline, "2025-03-10");
+    assert.equal(
+      serializeQuantity(updated.requirements[0]!.remainingWorkload),
+      "0/1",
     );
-    assert.deepEqual(
-      result.state.portfolio.priorityOrder,
-      initial.portfolio.priorityOrder,
-    );
-    assert.notEqual(
-      result.state.portfolio.reservations,
-      initial.portfolio.reservations,
-    );
-    assert.deepEqual(
-      result.state.portfolio.reservations,
-      initial.portfolio.reservations,
+    assert.equal(serializeQuantity(updated.requirements[0]!.dailyCap!), "3/2");
+    assert.equal(serializeQuantity(updated.requirements[1]!.remainingWorkload), "25/2");
+    assert.equal(updated.requirements[1]!.dailyCap, undefined);
+    assert.deepEqual(result.state.portfolio.priorityOrder, [
+      initial.portfolio.priorityOrder[1],
+      initial.portfolio.priorityOrder[2],
+      initial.portfolio.priorityOrder[3],
+      previousProject.id,
+    ]);
+    assert.equal(previousProject.name, "Project Atlas");
+    assert.equal(previousProject.earliestStartDate, undefined);
+    assert.equal(previousProject.requirements, previousRequirements);
+    assert.ok(
+      updated.requirements.every(
+        (requirement) =>
+          !("earliestStartDate" in requirement) &&
+          !("objectiveEndDate" in requirement) &&
+          !("mandatoryDeadline" in requirement),
+      ),
     );
   });
 
-  it("keeps the same state after an invalid or unknown-project command", () => {
-    const session = createPlanningSession(createDemoPlanningScenario());
-    const before = session.getState();
-
-    const empty = session.dispatch({
-      kind: "rename-project",
-      projectId: before.portfolio.projects[0]!.id,
-      label: "   ",
-    });
-    assert.equal(empty.ok, false);
-    if (!empty.ok) assert.equal(empty.errors[0]?.code, "EMPTY_PROJECT_LABEL");
-    assert.equal(session.getState(), before);
-
-    const unknown = session.dispatch({
-      kind: "rename-project",
-      projectId: must(createProjectId("unknown-project")),
-      label: "Unknown",
-    });
-    assert.equal(unknown.ok, false);
-    assert.equal(session.getState(), before);
+  it("rejects every invalid priority atomically", () => {
+    const initial = createDemoPlanningScenario();
+    const projectId = initial.portfolio.projects[1]!.id;
+    for (const priorityPosition of [0, -1, 1.5, 5]) {
+      const session = createPlanningSession(initial);
+      const before = session.getState();
+      const result = session.dispatch(
+        commandFor(before, projectId, { priorityPosition }),
+      );
+      assert.equal(result.ok, false);
+      assert.equal(session.getState(), before);
+    }
   });
 
-  it("is DOM-free and does not depend on UI or adapters", async () => {
+  it("moves first to last, last to first, and accepts a middle no-op", () => {
+    const initial = createDemoPlanningScenario();
+    const ids = initial.portfolio.priorityOrder;
+    const firstSession = createPlanningSession(initial);
+    firstSession.dispatch(commandFor(initial, ids[0]!, { priorityPosition: 4 }));
+    assert.deepEqual(firstSession.getState().portfolio.priorityOrder, [
+      ids[1], ids[2], ids[3], ids[0],
+    ]);
+    const lastSession = createPlanningSession(initial);
+    lastSession.dispatch(commandFor(initial, ids[3]!, { priorityPosition: 1 }));
+    assert.deepEqual(lastSession.getState().portfolio.priorityOrder, [
+      ids[3], ids[0], ids[1], ids[2],
+    ]);
+    const middleSession = createPlanningSession(initial);
+    middleSession.dispatch(commandFor(initial, ids[1]!, { priorityPosition: 2 }));
+    assert.deepEqual(middleSession.getState().portfolio.priorityOrder, ids);
+  });
+
+  it("rejects missing, duplicate, and unknown team requirements", () => {
+    const initial = createDemoPlanningScenario();
+    const project = initial.portfolio.projects[0]!;
+    const base = commandFor(initial, project.id);
+    const unknownTeamId = must(createTeamId("unknown-team"));
+    const cases = [
+      base.teamRequirements.slice(0, 1),
+      [base.teamRequirements[0]!, base.teamRequirements[0]!],
+      [
+        ...base.teamRequirements,
+        {
+          teamId: unknownTeamId,
+          remainingWorkload: must(createRemainingWorkload("1")),
+        },
+      ],
+    ];
+    for (const teamRequirements of cases) {
+      const session = createPlanningSession(initial);
+      const before = session.getState();
+      assert.equal(
+        session.dispatch({ ...base, teamRequirements }).ok,
+        false,
+      );
+      assert.equal(session.getState(), before);
+    }
+  });
+
+  it("rejects a typed zero daily cap at the application boundary", () => {
+    const initial = createDemoPlanningScenario();
+    const project = initial.portfolio.projects[0]!;
+    const session = createPlanningSession(initial);
+    const previousState = session.getState();
+    const result = session.dispatch(
+      commandFor(initial, project.id, {
+        teamRequirements: project.requirements.map((requirement, index) =>
+          index === 0
+            ? {
+                ...requirement,
+                dailyCap: must(createDailyCap("0")),
+              }
+            : requirement,
+        ),
+      }),
+    );
+
+    assert.equal(result.ok, false);
+    if (!result.ok) {
+      assert.equal(result.errors[0]?.code, "NON_POSITIVE_DAILY_CAP");
+    }
+    assert.equal(session.getState(), previousState);
+  });
+
+  it("rejects an unknown project without replacing state", () => {
+    const initial = createDemoPlanningScenario();
+    const session = createPlanningSession(initial);
+    const unknown = must(createProjectId("unknown-project"));
+    const result = session.dispatch({
+      ...commandFor(initial, initial.portfolio.projects[0]!.id),
+      projectId: unknown,
+    });
+    assert.equal(result.ok, false);
+    assert.equal(session.getState().portfolio, initial.portfolio);
+  });
+
+  it("is DOM-free and defines no per-requirement project dates", async () => {
     const source = await readFile(
       resolve(process.cwd(), "src/application/session/planningSession.ts"),
       "utf8",
     );
     assert.doesNotMatch(source, /src\/ui|\.\.\/\.\.\/ui|HTMLElement|SVGElement/);
     assert.doesNotMatch(source, /adapters|TimelineViewModel|TimelineGeometry/);
+    const requirementContract = source.slice(
+      source.indexOf("export interface UpdateProjectTeamRequirement"),
+      source.indexOf("export interface UpdateProjectCommand"),
+    );
+    assert.doesNotMatch(
+      requirementContract,
+      /earliestStartDate|objectiveEndDate|mandatoryDeadline/,
+    );
   });
 });

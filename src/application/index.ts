@@ -9,4 +9,11 @@ export {
   type PlanningCommandResult,
   type PlanningSession,
   type PlanningSessionState,
+  type UpdateProjectCommand,
+  type UpdateProjectTeamRequirement,
 } from "./session/planningSession.js";
+export {
+  buildProjectEditViewModel,
+  type ProjectEditViewModel,
+  type ProjectRequirementEditViewModel,
+} from "./session/projectEditViewModel.js";

@@ -355,9 +355,28 @@ p {
 }
 
 .timeline-project-edit-form {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.timeline-project-edit-fields {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.timeline-project-edit-global,
+.timeline-project-edit-requirement {
   display: flex;
   flex-wrap: wrap;
   align-items: end;
+  gap: 0.6rem;
+  border: 1px solid #d9e0ea;
+  border-radius: 0.35rem;
+  padding: 0.65rem;
+}
+
+.timeline-project-edit-actions {
+  display: flex;
   gap: 0.6rem;
 }
 

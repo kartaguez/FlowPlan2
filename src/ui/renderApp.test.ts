@@ -118,8 +118,8 @@ describe("renderApp", () => {
       "form",
     );
     assert.equal(
-      (elements.projectEditControls.input as unknown as FakeElement).disabled,
-      true,
+      (elements.projectEditControls.fields as unknown as FakeElement).className,
+      "timeline-project-edit-fields",
     );
     assert.equal(
       (elements.projectEditControls.apply as unknown as FakeElement).disabled,

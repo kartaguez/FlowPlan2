@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import type {
-  TimelineGeometry,
-  TimelineViewModel,
-} from "../../adapters/index.js";
+  ProjectEditViewModel,
+  UpdateProjectCommand,
+} from "../../application/index.js";
+import type { TimelineGeometry, TimelineViewModel } from "../../adapters/index.js";
 import {
   createCivilDate,
   createProjectId,
@@ -18,28 +19,9 @@ import {
 } from "./createTimelineUiCoordinator.js";
 import type { TimelineHit } from "./timelineHitTesting.js";
 
-type Listener = (event: unknown) => void;
-
 class FakeElement {
-  readonly listeners = new Map<string, Set<Listener>>();
   textContent: string | null = null;
-  value = "";
-  disabled = false;
   hidden = false;
-
-  addEventListener(type: string, listener: EventListener): void {
-    const listeners = this.listeners.get(type) ?? new Set<Listener>();
-    listeners.add(listener as Listener);
-    this.listeners.set(type, listeners);
-  }
-
-  removeEventListener(type: string, listener: EventListener): void {
-    this.listeners.get(type)?.delete(listener as Listener);
-  }
-
-  dispatch(type: string, event: object = {}): void {
-    for (const listener of this.listeners.get(type) ?? []) listener(event);
-  }
 }
 
 function must<T>(result: DomainResult<T>): T {
@@ -101,21 +83,30 @@ function fixture() {
     diagnostics: [],
   } as unknown as TimelineViewModel;
   const projection = Object.freeze({ geometry, viewModel });
-  const renamedProjection = Object.freeze({
+  const nextProjection = Object.freeze({
     geometry: { ...geometry, teams: [...geometry.teams] } as TimelineGeometry,
     viewModel: {
       ...viewModel,
-      projects: [{ id: projectId, label: "Atlas Renamed", priorityIndex: 0 }],
+      projects: [{ id: projectId, label: "Atlas Updated", priorityIndex: 0 }],
     } as TimelineViewModel,
   });
+  const editModel = Object.freeze({
+    projectId,
+    label: "Project Atlas",
+    priorityPosition: 1,
+    projectCount: 1,
+    requirements: Object.freeze([]),
+  }) satisfies ProjectEditViewModel;
   const elements = createElements();
   const lifecycle: string[] = [];
-  const viewportInputs: unknown[] = [];
-  const cursorInputs: unknown[] = [];
+  const viewportInputs: Array<{ initialViewport?: unknown }> = [];
+  const cursorInputs: Array<{ initialDate: typeof firstDate }> = [];
   const interactionInputs: Array<{
     initialSelected?: TimelineHit;
     onSelectionChange?: (selected: TimelineHit | undefined) => void;
   }> = [];
+  const projectModels: Array<ProjectEditViewModel | undefined> = [];
+  let applyProject: ((command: UpdateProjectCommand) => { readonly ok: boolean }) | undefined;
   let generation = 0;
   const dependencies = {
     renderTimeline: () => lifecycle.push("render"),
@@ -123,21 +114,22 @@ function fixture() {
     createViewportController: (input: { initialViewport?: unknown }) => {
       generation += 1;
       viewportInputs.push(input);
-      const state =
-        generation === 1 ? { x: 100, width: 800 } : input.initialViewport!;
+      const state = generation === 1 ? { x: 100, width: 800 } : input.initialViewport!;
       lifecycle.push(`viewport-${generation}`);
+      const ownGeneration = generation;
       return {
         getState: () => state,
-        destroy: () => lifecycle.push(`destroy-viewport-${generation}`),
+        destroy: () => lifecycle.push(`destroy-viewport-${ownGeneration}`),
       };
     },
     createCursorController: (input: { initialDate: typeof firstDate }) => {
       cursorInputs.push(input);
       const date = generation === 1 ? middleDate : input.initialDate;
       lifecycle.push(`cursor-${generation}`);
+      const ownGeneration = generation;
       return {
         getState: () => ({ selectedDate: date }),
-        destroy: () => lifecycle.push(`destroy-cursor-${generation}`),
+        destroy: () => lifecycle.push(`destroy-cursor-${ownGeneration}`),
       };
     },
     createInteractionController: (input: {
@@ -148,26 +140,40 @@ function fixture() {
       const selected = generation === 1 ? allocationHit : input.initialSelected;
       input.onSelectionChange?.(selected);
       lifecycle.push(`interaction-${generation}`);
+      const ownGeneration = generation;
       return {
         getState: () => ({ hovered: undefined, selected }),
-        destroy: () => lifecycle.push(`destroy-interaction-${generation}`),
+        destroy: () => lifecycle.push(`destroy-interaction-${ownGeneration}`),
+      };
+    },
+    createProjectEditController: (input: {
+      onApply: (command: UpdateProjectCommand) => { readonly ok: boolean };
+    }) => {
+      applyProject = input.onApply;
+      return {
+        setProject: (model: ProjectEditViewModel | undefined) => projectModels.push(model),
+        getProjectId: () => projectModels.at(-1)?.projectId,
+        destroy: () => lifecycle.push("destroy-project-edit"),
       };
     },
   } as unknown as TimelineUiCoordinatorDependencies;
-
   return {
     projectId,
+    teamId,
     firstDate,
     middleDate,
     allocationHit,
     projection,
-    renamedProjection,
+    nextProjection,
+    editModel,
     elements,
     dependencies,
     lifecycle,
     viewportInputs,
     cursorInputs,
     interactionInputs,
+    projectModels,
+    getApplyProject: () => applyProject!,
   };
 }
 
@@ -179,125 +185,87 @@ describe("TimelineUiCoordinator", () => {
         elements: input.elements,
         initialProjection: input.projection,
         initialDate: input.firstDate,
-        dispatch: () => ({ ok: true, projection: input.renamedProjection }),
+        dispatch: () => ({ ok: true, projection: input.nextProjection }),
+        getProjectEditViewModel: () => input.editModel,
       },
       input.dependencies,
     );
-    assert.equal(input.elements.projectEditControls.input.disabled, false);
-    assert.equal(input.elements.projectEditControls.input.value, "Project Atlas");
+    assert.equal(input.projectModels.at(-1), input.editModel);
+    input.getApplyProject()({} as UpdateProjectCommand);
 
-    input.elements.projectEditControls.input.value = "Unsaved label";
-    (
-      input.elements.projectEditControls.cancel as unknown as FakeElement
-    ).dispatch("click");
-    assert.equal(input.elements.projectEditControls.input.value, "Project Atlas");
-
-    input.elements.projectEditControls.input.value = "Atlas Renamed";
-    input.elements.projectEditControls.form.dispatch("submit", {
-      preventDefault() {},
-    });
-
-    assert.equal(coordinator.getProjection(), input.renamedProjection);
+    assert.equal(coordinator.getProjection(), input.nextProjection);
     assert.deepEqual(coordinator.getUiSnapshot(), {
       viewport: { x: 100, width: 800 },
       selectedDate: input.middleDate,
       selected: input.allocationHit,
     });
-    assert.equal(input.elements.projectEditControls.input.value, "Atlas Renamed");
-    assert.equal(input.elements.applicationError.hidden, true);
     assert.deepEqual(
       input.lifecycle.slice(5, 8),
       ["destroy-interaction-1", "destroy-cursor-1", "destroy-viewport-1"],
     );
-    assert.deepEqual(
-      (input.viewportInputs[1] as { initialViewport: unknown }).initialViewport,
-      { x: 100, width: 800 },
-    );
-    assert.equal(
-      (input.cursorInputs[1] as { initialDate: unknown }).initialDate,
-      input.middleDate,
-    );
+    assert.deepEqual(input.viewportInputs[1]?.initialViewport, {
+      x: 100,
+      width: 800,
+    });
+    assert.equal(input.cursorInputs[1]?.initialDate, input.middleDate);
     assert.equal(input.interactionInputs[1]?.initialSelected, input.allocationHit);
-    assert.equal(coordinator.getUiSnapshot().selected, input.allocationHit);
-    assert.equal(
-      (input.interactionInputs[1] as { initialSelected?: TimelineHit }).initialSelected,
-      input.allocationHit,
-    );
   });
 
-  it("shows command errors without rerendering and clears them on later success", () => {
+  it("does not rerender when the application command fails", () => {
     const input = fixture();
-    let valid = false;
     const coordinator = createTimelineUiCoordinator(
       {
         elements: input.elements,
         initialProjection: input.projection,
         initialDate: input.firstDate,
-        dispatch: () =>
-          valid
-            ? { ok: true, projection: input.renamedProjection }
-            : {
-                ok: false,
-                errors: [
-                  { code: "EMPTY_PROJECT_LABEL", path: "label", message: "Invalid label." },
-                ],
-              },
+        dispatch: () => ({
+          ok: false,
+          errors: [{ code: "INVALID", path: "project.name", message: "Invalid." }],
+        }),
+        getProjectEditViewModel: () => input.editModel,
       },
       input.dependencies,
     );
-    const rendersBefore = input.lifecycle.filter((entry) => entry === "render").length;
-    input.elements.projectEditControls.form.dispatch("submit", {
-      preventDefault() {},
-    });
-    assert.equal(input.elements.applicationError.hidden, false);
-    assert.equal(input.elements.applicationError.textContent, "Invalid label.");
+    const renderCount = input.lifecycle.filter((entry) => entry === "render").length;
+    assert.equal(input.getApplyProject()({} as UpdateProjectCommand).ok, false);
     assert.equal(
       input.lifecycle.filter((entry) => entry === "render").length,
-      rendersBefore,
+      renderCount,
     );
     assert.equal(coordinator.getProjection(), input.projection);
-
-    valid = true;
-    input.elements.projectEditControls.form.dispatch("submit", {
-      preventDefault() {},
-    });
-    assert.equal(input.elements.applicationError.hidden, true);
-    assert.equal(input.elements.applicationError.textContent, "");
   });
 
-  it("disables project editing for a team selection and clears incompatible selection", () => {
+  it("disables project editing for team hits and clears a vanished selection", () => {
     const input = fixture();
     const coordinator = createTimelineUiCoordinator(
       {
         elements: input.elements,
         initialProjection: input.projection,
         initialDate: input.firstDate,
-        dispatch: () => ({ ok: true, projection: input.renamedProjection }),
+        dispatch: () => ({ ok: true, projection: input.nextProjection }),
+        getProjectEditViewModel: () => input.editModel,
       },
       input.dependencies,
     );
     input.interactionInputs[0]?.onSelectionChange?.({
       kind: "team",
-      teamId: input.allocationHit.teamId,
+      teamId: input.teamId,
     });
-    assert.equal(input.elements.projectEditControls.input.disabled, true);
-    assert.match(
-      input.elements.projectEditControls.status.textContent ?? "",
-      /Select a project/,
-    );
+    assert.equal(input.projectModels.at(-1), undefined);
 
-    const projectionWithoutAllocation = {
-      ...input.renamedProjection,
+    const withoutAllocation = {
+      ...input.nextProjection,
       geometry: {
-        ...input.renamedProjection.geometry,
-        teams: input.renamedProjection.geometry.teams.map((team) => ({
+        ...input.nextProjection.geometry,
+        teams: input.nextProjection.geometry.teams.map((team) => ({
           ...team,
           days: team.days.map((day) => ({ ...day, allocations: [] })),
         })),
       } as TimelineGeometry,
     } satisfies TimelineUiProjection;
-    coordinator.renderProjection(projectionWithoutAllocation);
+    coordinator.renderProjection(withoutAllocation);
     assert.equal(coordinator.getUiSnapshot().selected, undefined);
+    assert.equal(input.projectModels.at(-1), undefined);
   });
 });
 
@@ -317,7 +285,7 @@ function createElements(): AppElements {
     selectionSummary: element() as unknown as HTMLElement,
     projectEditControls: {
       form: element() as unknown as HTMLFormElement,
-      input: element() as unknown as HTMLInputElement,
+      fields: element() as unknown as HTMLElement,
       apply: element() as unknown as HTMLButtonElement,
       cancel: element() as unknown as HTMLButtonElement,
       status: element() as unknown as HTMLElement,

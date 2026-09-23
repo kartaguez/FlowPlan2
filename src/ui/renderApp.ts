@@ -14,7 +14,7 @@ export interface AppElements {
 
 export interface ProjectEditControls {
   readonly form: HTMLFormElement;
-  readonly input: HTMLInputElement;
+  readonly fields: HTMLElement;
   readonly apply: HTMLButtonElement;
   readonly cancel: HTMLButtonElement;
   readonly status: HTMLElement;
@@ -92,13 +92,8 @@ export function renderApp(root: HTMLElement): AppElements {
   projectEditStatus.textContent = "Select a project allocation or marker to edit.";
   const projectEditForm = document.createElement("form");
   projectEditForm.className = "timeline-project-edit-form";
-  const projectLabel = document.createElement("label");
-  projectLabel.textContent = "Project label";
-  const projectInput = document.createElement("input");
-  projectInput.name = "project-label";
-  projectInput.type = "text";
-  projectInput.disabled = true;
-  projectLabel.append(projectInput);
+  const projectFields = document.createElement("div");
+  projectFields.className = "timeline-project-edit-fields";
   const projectApply = document.createElement("button");
   projectApply.type = "submit";
   projectApply.textContent = "Apply";
@@ -107,11 +102,14 @@ export function renderApp(root: HTMLElement): AppElements {
   projectCancel.type = "button";
   projectCancel.textContent = "Cancel";
   projectCancel.disabled = true;
-  projectEditForm.append(projectLabel, projectApply, projectCancel);
+  const projectActions = document.createElement("div");
+  projectActions.className = "timeline-project-edit-actions";
+  projectActions.append(projectApply, projectCancel);
+  projectEditForm.append(projectFields, projectActions);
   projectEdit.append(projectEditTitle, projectEditStatus, projectEditForm);
   const projectEditControls = Object.freeze({
     form: projectEditForm,
-    input: projectInput,
+    fields: projectFields,
     apply: projectApply,
     cancel: projectCancel,
     status: projectEditStatus,

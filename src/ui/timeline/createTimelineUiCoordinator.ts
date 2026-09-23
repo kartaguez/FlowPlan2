@@ -2,13 +2,18 @@ import type {
   TimelineGeometry,
   TimelineViewModel,
 } from "../../adapters/index.js";
-import type { PlanningCommand } from "../../application/index.js";
+import type {
+  PlanningCommand,
+  ProjectEditViewModel,
+  UpdateProjectCommand,
+} from "../../application/index.js";
 import type {
   CivilDate,
   DomainError,
   ProjectId,
 } from "../../domain/index.js";
 import type { AppElements } from "../renderApp.js";
+import { createProjectEditController } from "../project-edit/createProjectEditController.js";
 import { createTimelineCursorController } from "./createTimelineCursorController.js";
 import { createTimelineInteractionController } from "./createTimelineInteractionController.js";
 import { createTimelineViewportController } from "./createTimelineViewportController.js";
@@ -47,6 +52,9 @@ export interface CreateTimelineUiCoordinatorInput {
   readonly dispatch: (
     command: PlanningCommand,
   ) => TimelineProjectionCommandResult;
+  readonly getProjectEditViewModel: (
+    projectId: ProjectId,
+  ) => ProjectEditViewModel | undefined;
 }
 
 export interface TimelineUiCoordinatorDependencies {
@@ -55,6 +63,7 @@ export interface TimelineUiCoordinatorDependencies {
   readonly createViewportController: typeof createTimelineViewportController;
   readonly createCursorController: typeof createTimelineCursorController;
   readonly createInteractionController: typeof createTimelineInteractionController;
+  readonly createProjectEditController: typeof createProjectEditController;
 }
 
 const DEFAULT_DEPENDENCIES: TimelineUiCoordinatorDependencies = Object.freeze({
@@ -63,6 +72,7 @@ const DEFAULT_DEPENDENCIES: TimelineUiCoordinatorDependencies = Object.freeze({
   createViewportController: createTimelineViewportController,
   createCursorController: createTimelineCursorController,
   createInteractionController: createTimelineInteractionController,
+  createProjectEditController,
 });
 
 export function createTimelineUiCoordinator(
@@ -70,31 +80,22 @@ export function createTimelineUiCoordinator(
   dependencies: TimelineUiCoordinatorDependencies = DEFAULT_DEPENDENCIES,
 ): TimelineUiCoordinator {
   let projection = input.initialProjection;
-  let selectedProjectId: ProjectId | undefined;
   let viewportController: ReturnType<typeof createTimelineViewportController>;
   let cursorController: ReturnType<typeof createTimelineCursorController>;
   let interactionController: ReturnType<typeof createTimelineInteractionController>;
+  let projectEditController: ReturnType<typeof createProjectEditController>;
   let mounted = false;
 
   const updateProjectForm = (selected: TimelineHit | undefined): void => {
-    selectedProjectId =
+    const selectedProjectId =
       selected?.kind === "allocation" || selected?.kind === "project-marker"
         ? selected.projectId
         : undefined;
-    const project =
+    const editViewModel =
       selectedProjectId === undefined
         ? undefined
-        : projection.viewModel.projects.find(
-            (candidate) => candidate.id === selectedProjectId,
-          );
-    const enabled = project !== undefined;
-    input.elements.projectEditControls.input.disabled = !enabled;
-    input.elements.projectEditControls.apply.disabled = !enabled;
-    input.elements.projectEditControls.cancel.disabled = !enabled;
-    input.elements.projectEditControls.input.value = project?.label ?? "";
-    input.elements.projectEditControls.status.textContent = enabled
-      ? `Editing ${project.label}`
-      : "Select a project allocation or marker to edit.";
+        : input.getProjectEditViewModel(selectedProjectId);
+    projectEditController.setProject(editViewModel);
   };
 
   const currentSnapshot = (): TimelineUiSnapshot => {
@@ -181,43 +182,18 @@ export function createTimelineUiCoordinator(
     mountProjection(nextProjection, snapshot);
   };
 
-  const resetProjectInput = (): void => {
-    updateProjectForm(interactionController.getState().selected);
-  };
-  const renderApplicationErrors = (errors: readonly DomainError[]): void => {
-    input.elements.applicationError.textContent = errors
-      .map((error) => error.message)
-      .join(" ");
-    input.elements.applicationError.hidden = false;
-  };
-  const clearApplicationError = (): void => {
-    input.elements.applicationError.textContent = "";
-    input.elements.applicationError.hidden = true;
-  };
-  const onProjectSubmit = (event: SubmitEvent): void => {
-    event.preventDefault();
-    if (selectedProjectId === undefined) return;
-    const result = input.dispatch({
-      kind: "rename-project",
-      projectId: selectedProjectId,
-      label: input.elements.projectEditControls.input.value,
-    });
-    if (!result.ok) {
-      renderApplicationErrors(result.errors);
-      return;
-    }
-    clearApplicationError();
+  const applyProjectUpdate = (command: UpdateProjectCommand) => {
+    const result = input.dispatch(command);
+    if (!result.ok) return result;
     renderProjection(result.projection);
+    return Object.freeze({ ok: true as const });
   };
 
-  input.elements.projectEditControls.form.addEventListener(
-    "submit",
-    onProjectSubmit,
-  );
-  input.elements.projectEditControls.cancel.addEventListener(
-    "click",
-    resetProjectInput,
-  );
+  projectEditController = dependencies.createProjectEditController({
+    controls: input.elements.projectEditControls,
+    errorContainer: input.elements.applicationError,
+    onApply: applyProjectUpdate,
+  });
   mountProjection(input.initialProjection, currentSnapshot());
 
   return Object.freeze({
@@ -225,14 +201,7 @@ export function createTimelineUiCoordinator(
     getUiSnapshot: currentSnapshot,
     renderProjection,
     destroy: () => {
-      input.elements.projectEditControls.form.removeEventListener(
-        "submit",
-        onProjectSubmit,
-      );
-      input.elements.projectEditControls.cancel.removeEventListener(
-        "click",
-        resetProjectInput,
-      );
+      projectEditController.destroy();
       destroyControllers();
     },
   });
