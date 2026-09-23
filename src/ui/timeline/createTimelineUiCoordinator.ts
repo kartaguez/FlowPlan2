@@ -6,12 +6,12 @@ import type {
   PlanningCommand,
   PlanningSettingsViewModel,
   ProjectEditViewModel,
+  ReservationEditViewModel,
   TeamEditViewModel,
-  TeamReservationsEditViewModel,
   UpdateProjectCommand,
   UpdateTeamCapacityPeriodsCommand,
   UpdateTeamNameCommand,
-  ReplaceTeamReservationsCommand,
+  UpdateReservationCommand,
 } from "../../application/index.js";
 import type {
   CivilDate,
@@ -55,6 +55,7 @@ export interface TimelineUiSnapshot {
 export type TimelineEditingContext =
   | Readonly<{ kind: "project"; projectId: ProjectId }>
   | Readonly<{ kind: "team"; teamId: TeamId }>
+  | Readonly<{ kind: "reservation"; reservationId: ReservationId }>
   | undefined;
 
 export interface TimelineUiCoordinator {
@@ -78,10 +79,13 @@ export interface CreateTimelineUiCoordinatorInput {
   readonly getTeamEditViewModel: (
     teamId: TeamId,
   ) => TeamEditViewModel | undefined;
-  readonly getTeamReservationsEditViewModel: (
-    teamId: TeamId,
-  ) => TeamReservationsEditViewModel | undefined;
-  readonly nextReservationId: () => ReservationId;
+  readonly getReservationEditViewModel: (
+    reservationId: ReservationId,
+  ) => ReservationEditViewModel | undefined;
+  readonly getReservationNavigationItems: () => readonly Readonly<{
+    id: ReservationId;
+    name: string;
+  }>[];
 }
 
 export interface TimelineUiCoordinatorDependencies {
@@ -139,7 +143,11 @@ export function createTimelineUiCoordinator(
         ? input.getTeamEditViewModel(context.teamId)
         : undefined;
     teamEditController.setTeam(teamEditViewModel);
-    reservationEditController.setTeam(undefined);
+    reservationEditController.setReservation(
+      context?.kind === "reservation"
+        ? input.getReservationEditViewModel(context.reservationId)
+        : undefined,
+    );
   };
 
   const contextFromHit = (selected: TimelineHit | undefined): TimelineEditingContext =>
@@ -207,12 +215,19 @@ export function createTimelineUiCoordinator(
     shellNavigation = dependencies.renderShellNavigation({
       teamContainer: input.elements.teamSections,
       projectContainer: input.elements.projectList,
+      reservationContainer: input.elements.reservationList,
+      projectTab: input.elements.projectTab,
+      reservationTab: input.elements.reservationTab,
+      reservations: input.getReservationNavigationItems(),
+      initialTab: snapshot.editingContext?.kind === "reservation" ? "reservations" : "projects",
       viewModel: projection.viewModel,
       geometry: projection.geometry,
       onTeamSettings: (teamId) =>
         setEditingContext(Object.freeze({ kind: "team", teamId }), "shell"),
       onProjectSelect: (projectId) =>
         setEditingContext(Object.freeze({ kind: "project", projectId }), "shell"),
+      onReservationSelect: (reservationId) =>
+        setEditingContext(Object.freeze({ kind: "reservation", reservationId }), "shell"),
     });
 
     const selectedDate = projection.geometry.dates.some(
@@ -276,6 +291,11 @@ export function createTimelineUiCoordinator(
         ? undefined
         : context;
     }
+    if (context?.kind === "reservation") {
+      return input.getReservationEditViewModel(context.reservationId) === undefined
+        ? undefined
+        : context;
+    }
     return undefined;
   };
 
@@ -298,7 +318,7 @@ export function createTimelineUiCoordinator(
     renderProjection(result.projection);
     return Object.freeze({ ok: true as const });
   };
-  const applyReservationUpdate = (command: ReplaceTeamReservationsCommand) => {
+  const applyReservationUpdate = (command: UpdateReservationCommand) => {
     const result = input.dispatch(command);
     if (!result.ok) return result;
     renderProjection(result.projection);
@@ -319,7 +339,6 @@ export function createTimelineUiCoordinator(
   reservationEditController = dependencies.createReservationEditController({
     controls: input.elements.reservationEditControls,
     errorContainer: input.elements.reservationEditError,
-    nextReservationId: input.nextReservationId,
     onApply: applyReservationUpdate,
   });
   planningSettingsController = dependencies.createPlanningSettingsController({

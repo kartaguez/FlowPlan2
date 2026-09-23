@@ -3,8 +3,7 @@ import {
   buildProjectEditViewModel,
   buildPlanningSettingsViewModel,
   buildTeamEditViewModel,
-  buildTeamReservationsEditViewModel,
-  createReservationIdGenerator,
+  buildReservationEditViewModel,
   createPlanningSession,
 } from "../application/index.js";
 import type { AppElements } from "../ui/renderApp.js";
@@ -27,9 +26,6 @@ export function createPlanningDemoApplication(
     session,
     geometryViewport: DEMO_GEOMETRY_VIEWPORT,
   });
-  const reservationIdGenerator = createReservationIdGenerator(() =>
-    session.getState().portfolio.reservations.map((reservation) => reservation.id),
-  );
   return createTimelineUiCoordinator({
     elements,
     initialProjection: projectionDispatcher.getProjection(),
@@ -41,8 +37,13 @@ export function createPlanningDemoApplication(
       buildPlanningSettingsViewModel(session.getState()),
     getTeamEditViewModel: (teamId) =>
       buildTeamEditViewModel(session.getState(), teamId),
-    getTeamReservationsEditViewModel: (teamId) =>
-      buildTeamReservationsEditViewModel(session.getState(), teamId),
-    nextReservationId: reservationIdGenerator.next,
+    getReservationEditViewModel: (reservationId) =>
+      buildReservationEditViewModel(session.getState(), reservationId),
+    getReservationNavigationItems: () =>
+      Object.freeze(
+        session.getState().portfolio.reservations.map((reservation) =>
+          Object.freeze({ id: reservation.id, name: reservation.name }),
+        ),
+      ),
   });
 }

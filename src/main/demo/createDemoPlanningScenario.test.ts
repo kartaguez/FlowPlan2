@@ -21,6 +21,11 @@ describe("demo planning bootstrap", () => {
         first.planning.endDate.slice(0, 7),
     );
     assert.ok(first.portfolio.reservations.length >= 1);
+    assert.ok(first.portfolio.reservations.some((reservation) => reservation.teamAllocations.length >= 2));
+    assert.ok(first.portfolio.reservations.some((reservation) =>
+      reservation.teamAllocations.some((allocation) => allocation.amount.kind === "ratio") &&
+      reservation.teamAllocations.some((allocation) => allocation.amount.kind === "fixed-daily"),
+    ));
     assert.deepEqual(first, second);
   });
 

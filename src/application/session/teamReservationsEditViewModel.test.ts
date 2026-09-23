@@ -1,41 +1,23 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { createTeamId, type DomainResult } from "../../domain/index.js";
+import { createReservationId, type DomainResult } from "../../domain/index.js";
 import { createDemoPlanningScenario } from "../../main/demo/createDemoPlanningScenario.js";
-import { buildTeamReservationsEditViewModel } from "./teamReservationsEditViewModel.js";
+import { buildReservationEditViewModel } from "./teamReservationsEditViewModel.js";
 
-function must<T>(result: DomainResult<T>): T {
-  if (!result.ok) throw new Error(JSON.stringify(result.errors));
-  return result.value;
-}
+function must<T>(result: DomainResult<T>): T { if (!result.ok) throw new Error(); return result.value; }
 
-describe("TeamReservationsEditViewModel", () => {
-  it("filters by team and displays decimal percentages with exact backing values", () => {
-    const state = createDemoPlanningScenario();
-    const team = state.portfolio.teams[2]!;
-    const model = buildTeamReservationsEditViewModel(state, team.id)!;
-    assert.equal(model.teamLabel, team.name);
-    assert.ok(model.reservations.length >= 2);
-    assert.ok(
-      model.reservations.every((item) =>
-        state.portfolio.reservations.some(
-          (reservation) =>
-            reservation.id === item.reservationId && reservation.teamId === team.id,
-        ),
-      ),
-    );
-    assert.ok(Object.isFrozen(model.reservations));
-    assert.ok(model.reservations.every((item) => !item.ratioPercent.includes("/")));
-    assert.ok(model.reservations.every((item) => item.ratioExact.includes("/")));
+describe("ReservationEditViewModel", () => {
+  it("projects one global reservation and every team in portfolio order", () => {
+    const state = createDemoPlanningScenario(); const reservation = state.portfolio.reservations[0]!;
+    const model = buildReservationEditViewModel(state, reservation.id)!;
+    assert.equal(model.name, reservation.name);
+    assert.equal(model.startDate, reservation.startDate);
+    assert.deepEqual(model.teamAllocations.map((row) => row.teamId), state.portfolio.teams.map((team) => team.id));
+    assert.equal(model.teamAllocations.filter((row) => row.enabled).length, reservation.teamAllocations.length);
+    assert.equal(model.teamAllocations[0]!.value, "20");
+    assert.equal(model.teamAllocations[1]!.value, "1");
   });
-
-  it("returns undefined for an unknown team", () => {
-    assert.equal(
-      buildTeamReservationsEditViewModel(
-        createDemoPlanningScenario(),
-        must(createTeamId("unknown")),
-      ),
-      undefined,
-    );
+  it("returns undefined for an unknown reservation", () => {
+    assert.equal(buildReservationEditViewModel(createDemoPlanningScenario(), must(createReservationId("unknown"))), undefined);
   });
 });

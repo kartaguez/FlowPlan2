@@ -2,9 +2,9 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import type {
   ProjectEditViewModel,
+  ReservationEditViewModel,
   TeamEditViewModel,
-  TeamReservationsEditViewModel,
-  ReplaceTeamReservationsCommand,
+  UpdateReservationCommand,
   UpdateProjectCommand,
   UpdateTeamCapacityPeriodsCommand,
   UpdateTeamNameCommand,
@@ -17,6 +17,7 @@ import {
   createTeamId,
   type DomainResult,
   type ProjectId,
+  type ReservationId,
   type TeamId,
 } from "../../domain/index.js";
 import type { AppElements } from "../renderApp.js";
@@ -40,6 +41,7 @@ function must<T>(result: DomainResult<T>): T {
 function fixture() {
   const projectId = must(createProjectId("project-atlas"));
   const teamId = must(createTeamId("team-alpha"));
+  const reservationId = must(createReservationId("reservation-run"));
   const firstDate = must(createCivilDate("2025-01-01"));
   const middleDate = must(createCivilDate("2025-01-02"));
   const allocationHit = Object.freeze({
@@ -111,10 +113,12 @@ function fixture() {
     capacityPeriods: Object.freeze([]),
   }) satisfies TeamEditViewModel;
   const reservationModel = Object.freeze({
-    teamId,
-    teamLabel: "Team Alpha",
-    reservations: Object.freeze([]),
-  }) satisfies TeamReservationsEditViewModel;
+    reservationId,
+    name: "Run",
+    startDate: firstDate,
+    endDate: middleDate,
+    teamAllocations: Object.freeze([]),
+  }) satisfies ReservationEditViewModel;
   const elements = createElements();
   const lifecycle: string[] = [];
   const viewportInputs: Array<{ initialViewport?: unknown }> = [];
@@ -125,15 +129,16 @@ function fixture() {
   }> = [];
   const projectModels: Array<ProjectEditViewModel | undefined> = [];
   const teamModels: Array<TeamEditViewModel | undefined> = [];
-  const reservationModels: Array<TeamReservationsEditViewModel | undefined> = [];
+  const reservationModels: Array<ReservationEditViewModel | undefined> = [];
   const shellInputs: Array<{
     onTeamSettings: (teamId: TeamId) => void;
     onProjectSelect: (projectId: ProjectId) => void;
+    onReservationSelect: (reservationId: ReservationId) => void;
   }> = [];
   let applyProject: ((command: UpdateProjectCommand) => { readonly ok: boolean }) | undefined;
   let applyTeam: ((command: UpdateTeamNameCommand | UpdateTeamCapacityPeriodsCommand) => { readonly ok: boolean }) | undefined;
   let applyReservations:
-    | ((command: ReplaceTeamReservationsCommand) => { readonly ok: boolean })
+    | ((command: UpdateReservationCommand) => { readonly ok: boolean })
     | undefined;
   let currentSelected: TimelineHit | undefined = allocationHit;
   let generation = 0;
@@ -200,13 +205,13 @@ function fixture() {
       };
     },
     createReservationEditController: (input: {
-      onApply: (command: ReplaceTeamReservationsCommand) => { readonly ok: boolean };
+      onApply: (command: UpdateReservationCommand) => { readonly ok: boolean };
     }) => {
       applyReservations = input.onApply;
       return {
-        setTeam: (model: TeamReservationsEditViewModel | undefined) =>
+        setReservation: (model: ReservationEditViewModel | undefined) =>
           reservationModels.push(model),
-        getTeamId: () => reservationModels.at(-1)?.teamId,
+        getReservationId: () => reservationModels.at(-1)?.reservationId,
         destroy: () => lifecycle.push("destroy-reservation-edit"),
       };
     },
@@ -217,6 +222,7 @@ function fixture() {
     renderShellNavigation: (input: {
       onTeamSettings: (teamId: TeamId) => void;
       onProjectSelect: (projectId: ProjectId) => void;
+      onReservationSelect: (reservationId: ReservationId) => void;
     }) => {
       shellInputs.push(input);
       return { destroy() {} };
@@ -224,6 +230,7 @@ function fixture() {
   } as unknown as TimelineUiCoordinatorDependencies;
   return {
     projectId,
+    reservationId,
     teamId,
     firstDate,
     middleDate,
@@ -265,8 +272,8 @@ describe("TimelineUiCoordinator", () => {
         getPlanningSettingsViewModel: () => ({ startDate: input.firstDate, endDate: input.middleDate, workingWeekdays: [1, 2, 3, 4, 5], maxParallelProjects: 2 }),
         getProjectEditViewModel: () => input.editModel,
         getTeamEditViewModel: () => input.teamEditModel,
-        getTeamReservationsEditViewModel: () => input.reservationModel,
-        nextReservationId: () => must(createReservationId("new-reservation")),
+        getReservationEditViewModel: () => input.reservationModel,
+        getReservationNavigationItems: () => [],
       },
       input.dependencies,
     );
@@ -307,8 +314,8 @@ describe("TimelineUiCoordinator", () => {
         getPlanningSettingsViewModel: () => ({ startDate: input.firstDate, endDate: input.middleDate, workingWeekdays: [1, 2, 3, 4, 5], maxParallelProjects: 2 }),
         getProjectEditViewModel: () => input.editModel,
         getTeamEditViewModel: () => input.teamEditModel,
-        getTeamReservationsEditViewModel: () => input.reservationModel,
-        nextReservationId: () => must(createReservationId("new-reservation")),
+        getReservationEditViewModel: () => input.reservationModel,
+        getReservationNavigationItems: () => [],
       },
       input.dependencies,
     );
@@ -332,8 +339,8 @@ describe("TimelineUiCoordinator", () => {
         getPlanningSettingsViewModel: () => ({ startDate: input.firstDate, endDate: input.middleDate, workingWeekdays: [1, 2, 3, 4, 5], maxParallelProjects: 2 }),
         getProjectEditViewModel: () => input.editModel,
         getTeamEditViewModel: () => input.teamEditModel,
-        getTeamReservationsEditViewModel: () => input.reservationModel,
-        nextReservationId: () => must(createReservationId("new-reservation")),
+        getReservationEditViewModel: () => input.reservationModel,
+        getReservationNavigationItems: () => [],
       },
       input.dependencies,
     );
@@ -376,8 +383,8 @@ describe("TimelineUiCoordinator", () => {
         getPlanningSettingsViewModel: () => ({ startDate: input.firstDate, endDate: input.middleDate, workingWeekdays: [1, 2, 3, 4, 5], maxParallelProjects: 2 }),
         getProjectEditViewModel: () => input.editModel,
         getTeamEditViewModel: () => input.teamEditModel,
-        getTeamReservationsEditViewModel: () => input.reservationModel,
-        nextReservationId: () => must(createReservationId("new-reservation")),
+        getReservationEditViewModel: () => input.reservationModel,
+        getReservationNavigationItems: () => [],
       },
       input.dependencies,
     );
@@ -392,7 +399,7 @@ describe("TimelineUiCoordinator", () => {
     assert.equal(input.reservationModels.at(-1), undefined);
   });
 
-  it("preserves the team context through a reservation replacement", () => {
+  it("preserves the global reservation context through a reservation update", () => {
     const input = fixture();
     const coordinator = createTimelineUiCoordinator(
       {
@@ -403,20 +410,22 @@ describe("TimelineUiCoordinator", () => {
         getPlanningSettingsViewModel: () => ({ startDate: input.firstDate, endDate: input.middleDate, workingWeekdays: [1, 2, 3, 4, 5], maxParallelProjects: 2 }),
         getProjectEditViewModel: () => input.editModel,
         getTeamEditViewModel: () => input.teamEditModel,
-        getTeamReservationsEditViewModel: () => input.reservationModel,
-        nextReservationId: () => must(createReservationId("new-reservation")),
+        getReservationEditViewModel: () => input.reservationModel,
+        getReservationNavigationItems: () => [],
       },
       input.dependencies,
     );
-    const teamHit = { kind: "team", teamId: input.teamId } as const;
-    input.select(teamHit);
-    input.getApplyReservations()({} as ReplaceTeamReservationsCommand);
-    assert.deepEqual(coordinator.getUiSnapshot().selected, teamHit);
-    assert.equal(input.reservationModels.at(-1), undefined);
+    input.shellInputs.at(-1)!.onReservationSelect(input.reservationId);
+    input.getApplyReservations()({} as UpdateReservationCommand);
+    assert.deepEqual(coordinator.getUiSnapshot().editingContext, {
+      kind: "reservation",
+      reservationId: input.reservationId,
+    });
+    assert.equal(input.reservationModels.at(-1), input.reservationModel);
     assert.equal(input.projectModels.at(-1), undefined);
   });
 
-  it("opens explicit team and project contexts from the team shell and sidebar", () => {
+  it("opens mutually exclusive team, project, and reservation contexts", () => {
     const input = fixture();
     createTimelineUiCoordinator(
       {
@@ -427,14 +436,17 @@ describe("TimelineUiCoordinator", () => {
         getPlanningSettingsViewModel: () => ({ startDate: input.firstDate, endDate: input.middleDate, workingWeekdays: [1, 2, 3, 4, 5], maxParallelProjects: 2 }),
         getProjectEditViewModel: () => input.editModel,
         getTeamEditViewModel: () => input.teamEditModel,
-        getTeamReservationsEditViewModel: () => input.reservationModel,
-        nextReservationId: () => must(createReservationId("new-reservation")),
+        getReservationEditViewModel: () => input.reservationModel,
+        getReservationNavigationItems: () => [],
       },
       input.dependencies,
     );
     input.shellInputs.at(-1)!.onTeamSettings(input.teamId);
     assert.equal(input.teamModels.at(-1), input.teamEditModel);
     assert.equal(input.reservationModels.at(-1), undefined);
+    input.shellInputs.at(-1)!.onReservationSelect(input.reservationId);
+    assert.equal(input.reservationModels.at(-1), input.reservationModel);
+    assert.equal(input.teamModels.at(-1), undefined);
     assert.equal(input.projectModels.at(-1), undefined);
     input.shellInputs.at(-1)!.onProjectSelect(input.projectId);
     assert.equal(input.projectModels.at(-1), input.editModel);
@@ -490,9 +502,9 @@ function createElements(): AppElements {
     },
     reservationEditControls: {
       container: element() as unknown as HTMLElement,
+      title: element() as unknown as HTMLElement,
       form: element() as unknown as HTMLFormElement,
-      rows: element() as unknown as HTMLElement,
-      add: element() as unknown as HTMLButtonElement,
+      fields: element() as unknown as HTMLElement,
       apply: element() as unknown as HTMLButtonElement,
       cancel: element() as unknown as HTMLButtonElement,
       status: element() as unknown as HTMLElement,
@@ -501,6 +513,9 @@ function createElements(): AppElements {
     reservationEditError: element() as unknown as HTMLElement,
     teamSections: element() as unknown as HTMLElement,
     projectList: element() as unknown as HTMLElement,
+    reservationList: element() as unknown as HTMLElement,
+    projectTab: element() as unknown as HTMLButtonElement,
+    reservationTab: element() as unknown as HTMLButtonElement,
     editorDrawer: element() as unknown as HTMLElement,
   };
 }

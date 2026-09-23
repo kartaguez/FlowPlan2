@@ -5,7 +5,8 @@ import {
   createCapacityPeriod,
   createCivilDate,
   createDailyCap,
-  createFirmCapacityReservation,
+  createReservation,
+  createReservationTeamAllocation,
   createMaxParallelProjects,
   createPlanningHorizon,
   createPortfolio,
@@ -24,7 +25,7 @@ import {
   serializeQuantity,
   type CivilDate,
   type DomainResult,
-  type FirmCapacityReservation,
+  type Reservation,
   type PlanningInput,
   type PlanningResult,
   type Portfolio,
@@ -132,15 +133,17 @@ function reservation(
   id: string,
   team: Team,
   ratio: string,
-): FirmCapacityReservation {
+): Reservation {
   return must(
-    createFirmCapacityReservation({
+    createReservation({
       id: must(createReservationId(id)),
-      teamId: team.id,
-      label: id,
-      start: date("2025-01-01"),
-      end: date("2025-12-31"),
-      ratio: must(createReservationRatio(ratio)),
+      name: id,
+      startDate: date("2025-01-01"),
+      endDate: date("2025-12-31"),
+      teamAllocations: [must(createReservationTeamAllocation({
+        teamId: team.id,
+        amount: { kind: "ratio", ratio: must(createReservationRatio(ratio)) },
+      }))],
     }),
   );
 }
@@ -150,7 +153,7 @@ function makeInput(
   projects: readonly Project[],
   start: string,
   end: string,
-  reservations: readonly FirmCapacityReservation[] = [],
+  reservations: readonly Reservation[] = [],
   priorityOrder: readonly Project[] = projects,
 ): PlanningInput {
   const portfolio = must(

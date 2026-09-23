@@ -3,7 +3,8 @@ import { describe, it } from "node:test";
 import {
   createCivilDate,
   createDailyCap,
-  createFirmCapacityReservation,
+  createReservation,
+  createReservationTeamAllocation,
   createMaxParallelProjects,
   createPortfolio,
   createProject,
@@ -158,13 +159,15 @@ describe("Portfolio invariants", () => {
     const team = makeTeam("team-a");
     const project = makeProject("project-a", team);
     const reservation = must(
-      createFirmCapacityReservation({
+      createReservation({
         id: must(createReservationId("reservation-a")),
-        teamId: team.id,
-        label: "reservation",
-        start: must(createCivilDate("2025-01-01")),
-        end: must(createCivilDate("2025-01-01")),
-        ratio: must(createReservationRatio("0.2")),
+        name: "reservation",
+        startDate: must(createCivilDate("2025-01-01")),
+        endDate: must(createCivilDate("2025-01-01")),
+        teamAllocations: [must(createReservationTeamAllocation({
+          teamId: team.id,
+          amount: { kind: "ratio", ratio: must(createReservationRatio("0.2")) },
+        }))],
       }),
     );
     const result = createPortfolio({
@@ -191,13 +194,15 @@ describe("Portfolio invariants", () => {
     const absent = makeTeam("absent");
     const project = makeProject("project", absent);
     const reservation = must(
-      createFirmCapacityReservation({
+      createReservation({
         id: must(createReservationId("reservation")),
-        teamId: absent.id,
-        label: "reservation",
-        start: must(createCivilDate("2025-01-01")),
-        end: must(createCivilDate("2025-01-02")),
-        ratio: must(createReservationRatio("0.5")),
+        name: "reservation",
+        startDate: must(createCivilDate("2025-01-01")),
+        endDate: must(createCivilDate("2025-01-02")),
+        teamAllocations: [must(createReservationTeamAllocation({
+          teamId: absent.id,
+          amount: { kind: "ratio", ratio: must(createReservationRatio("0.5")) },
+        }))],
       }),
     );
     const result = createPortfolio({
@@ -217,7 +222,7 @@ describe("Portfolio invariants", () => {
           },
           {
             code: "UNKNOWN_RESERVATION_TEAM",
-            path: "reservations[0].teamId",
+            path: "reservations[0].teamAllocations[0].teamId",
           },
         ],
       );

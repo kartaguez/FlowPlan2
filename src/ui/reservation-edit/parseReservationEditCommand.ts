@@ -1,9 +1,11 @@
-import { percentageToSerializedRatio } from "../../application/session/exactPercentage.js";
-import type {
-  ReplaceTeamReservation,
-  ReplaceTeamReservationsCommand,
+import {
+  parseExactPercentageInput,
+  parseExactQuantityInput,
+  type UpdateReservationCommand,
+  type UpdateReservationTeamAllocation,
 } from "../../application/index.js";
 import {
+  capacityFromSerialized,
   createCivilDate,
   reservationRatioFromSerialized,
   type DomainError,
@@ -12,80 +14,92 @@ import {
 } from "../../domain/index.js";
 
 export interface ReservationEditFormValues {
-  readonly teamId: TeamId;
-  readonly reservations: readonly ReservationEditRowValues[];
-}
-
-export interface ReservationEditRowValues {
   readonly reservationId: ReservationId;
+  readonly name: string;
   readonly startDate: string;
   readonly endDate: string;
-  readonly ratioPercent: string;
-  readonly ratioOriginalDisplay: string;
-  readonly ratioExact?: string;
-  readonly ratioDirty: boolean;
+  readonly teamAllocations: readonly ReservationTeamAllocationFormValues[];
+}
+
+export interface ReservationTeamAllocationFormValues {
+  readonly teamId: TeamId;
+  readonly enabled: boolean;
+  readonly kind: "ratio" | "fixed-daily";
+  readonly value: string;
+  readonly originalKind?: "ratio" | "fixed-daily";
+  readonly originalDisplay?: string;
+  readonly originalExact?: string;
+  readonly dirty: boolean;
 }
 
 export type ReservationEditCommandParseResult =
-  | Readonly<{ ok: true; command: ReplaceTeamReservationsCommand }>
+  | Readonly<{ ok: true; command: UpdateReservationCommand }>
   | Readonly<{ ok: false; errors: readonly DomainError[] }>;
 
 export function parseReservationEditCommand(
   values: ReservationEditFormValues,
 ): ReservationEditCommandParseResult {
   const errors: DomainError[] = [];
-  const reservations = values.reservations.map((row, index) =>
-    parseRow(row, index, errors),
-  );
-  if (errors.length > 0 || reservations.some((item) => item === undefined)) {
+  const name = values.name.trim();
+  if (name.length === 0) {
+    errors.push(error("EMPTY_RESERVATION_NAME", "reservation.name", "Reservation name must not be empty."));
+  }
+  const start = createCivilDate(values.startDate.trim(), "reservation.startDate");
+  const end = createCivilDate(values.endDate.trim(), "reservation.endDate");
+  if (!start.ok) errors.push(...start.errors);
+  if (!end.ok) errors.push(...end.errors);
+  const teamAllocations = values.teamAllocations
+    .filter((row) => row.enabled)
+    .map((row) => parseAllocation(row, errors));
+  if (!start.ok || !end.ok || errors.length > 0 || teamAllocations.some((item) => item === undefined)) {
     return Object.freeze({ ok: false, errors: Object.freeze(errors) });
   }
   return Object.freeze({
     ok: true,
     command: Object.freeze({
-      kind: "replace-team-reservations",
-      teamId: values.teamId,
-      reservations: Object.freeze(
-        reservations.filter(
-          (item): item is ReplaceTeamReservation => item !== undefined,
-        ),
-      ),
+      kind: "update-reservation",
+      reservationId: values.reservationId,
+      name,
+      startDate: start.value,
+      endDate: end.value,
+      teamAllocations: Object.freeze(teamAllocations as UpdateReservationTeamAllocation[]),
     }),
   });
 }
 
-function parseRow(
-  row: ReservationEditRowValues,
-  index: number,
+function parseAllocation(
+  row: ReservationTeamAllocationFormValues,
   errors: DomainError[],
-): ReplaceTeamReservation | undefined {
-  const path = `reservations[${index}]`;
-  const start = createCivilDate(row.startDate.trim(), `${path}.startDate`);
-  const end = createCivilDate(row.endDate.trim(), `${path}.endDate`);
-  const serializedRatio =
-    !row.ratioDirty && row.ratioExact !== undefined
-      ? row.ratioExact
-      : percentageToSerializedRatio(row.ratioPercent);
-  if (!start.ok) errors.push(...start.errors);
-  if (!end.ok) errors.push(...end.errors);
-  if (serializedRatio === undefined) {
-    errors.push(
-      error(
-        "INVALID_RESERVATION_PERCENT",
-        `${path}.ratio`,
-        "Reservation must be an exact percentage from 0 to 100.",
-      ),
-    );
+): UpdateReservationTeamAllocation | undefined {
+  const path = `reservation.teamAllocations.${row.teamId}`;
+  const canPreserveExact =
+    !row.dirty && row.kind === row.originalKind && row.originalExact !== undefined;
+  const serialized = canPreserveExact
+    ? row.originalExact
+    : row.kind === "ratio"
+      ? parseExactPercentageInput(row.value)
+      : parseExactQuantityInput(row.value);
+  if (serialized === undefined) {
+    errors.push(error("INVALID_RESERVATION_VALUE", `${path}.value`, "Enter a decimal or exact fraction."));
     return undefined;
   }
-  const ratio = reservationRatioFromSerialized(serializedRatio, `${path}.ratio`);
-  if (!ratio.ok) errors.push(...ratio.errors);
-  if (!start.ok || !end.ok || !ratio.ok) return undefined;
+  if (row.kind === "ratio") {
+    const ratio = reservationRatioFromSerialized(serialized, `${path}.ratio`);
+    if (!ratio.ok) {
+      errors.push(...ratio.errors);
+      return undefined;
+    }
+    return Object.freeze({ teamId: row.teamId, kind: "ratio", ratio: ratio.value });
+  }
+  const capacity = capacityFromSerialized(serialized, `${path}.dailyCapacity`);
+  if (!capacity.ok) {
+    errors.push(...capacity.errors);
+    return undefined;
+  }
   return Object.freeze({
-    reservationId: row.reservationId,
-    startDate: start.value,
-    endDate: end.value,
-    ratio: ratio.value,
+    teamId: row.teamId,
+    kind: "fixed-daily",
+    dailyCapacity: capacity.value,
   });
 }
 

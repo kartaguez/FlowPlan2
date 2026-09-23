@@ -16,8 +16,8 @@ export {
   type UpdateTeamCapacityPeriod,
   type UpdateTeamNameCommand,
   type UpdateTeamCapacityPeriodsCommand,
-  type ReplaceTeamReservation,
-  type ReplaceTeamReservationsCommand,
+  type UpdateReservationCommand,
+  type UpdateReservationTeamAllocation,
 } from "./session/planningSession.js";
 export {
   buildProjectEditViewModel,
@@ -30,14 +30,10 @@ export {
   type TeamEditViewModel,
 } from "./session/teamEditViewModel.js";
 export {
-  buildTeamReservationsEditViewModel,
-  type ReservationEditItemViewModel,
-  type TeamReservationsEditViewModel,
+  buildReservationEditViewModel,
+  type ReservationEditViewModel,
+  type ReservationTeamAllocationEditViewModel,
 } from "./session/teamReservationsEditViewModel.js";
-export {
-  createReservationIdGenerator,
-  type ReservationIdGenerator,
-} from "./session/reservationIdGenerator.js";
 export {
   EDITING_DECIMAL_PRECISION,
   formatPercentageForEditing,

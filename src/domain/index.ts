@@ -68,16 +68,20 @@ export {
   type WorkingPattern,
 } from "./capacity/schedule.js";
 export {
-  createFirmCapacityReservation,
-  isReservationApplicable,
-  type FirmCapacityReservation,
+  createReservation,
+  createReservationTeamAllocation,
+  isReservationDateApplicable,
+  reservationAllocationForTeam,
+  type Reservation,
+  type ReservationAmount,
+  type ReservationTeamAllocation,
 } from "./capacity/reservation.js";
 export {
   effectiveCapacity,
   isOverReserved,
   projectCapacity,
   reservedCapacity,
-  totalReservationRatio,
+  requestedReservationCapacity,
 } from "./capacity/calculations.js";
 export { planPortfolio } from "./planning/engine.js";
 export type {

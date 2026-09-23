@@ -1,5 +1,5 @@
 import type { TeamCapacitySchedule } from "../capacity/schedule.js";
-import type { FirmCapacityReservation } from "../capacity/reservation.js";
+import type { Reservation } from "../capacity/reservation.js";
 import type { CivilDate } from "./date.js";
 import type {
   DailyCap,
@@ -40,7 +40,7 @@ export interface Portfolio {
   readonly teams: readonly Team[];
   readonly projects: readonly Project[];
   readonly priorityOrder: readonly ProjectId[];
-  readonly reservations: readonly FirmCapacityReservation[];
+  readonly reservations: readonly Reservation[];
 }
 
 export function createTeam(input: {
@@ -110,7 +110,7 @@ export function createPortfolio(input: {
   readonly teams: readonly Team[];
   readonly projects: readonly Project[];
   readonly priorityOrder: readonly ProjectId[];
-  readonly reservations: readonly FirmCapacityReservation[];
+  readonly reservations: readonly Reservation[];
 }): DomainResult<Portfolio> {
   const errors: DomainError[] = [];
   const teamIds = collectUniqueIds(
@@ -151,16 +151,29 @@ export function createPortfolio(input: {
       }
     });
   });
-  input.reservations.forEach((reservation, index) => {
-    if (!teamIds.has(reservation.teamId)) {
-      errors.push(
-        error(
-          "UNKNOWN_RESERVATION_TEAM",
-          `reservations[${index}].teamId`,
-          "Reservation must reference a team in the portfolio.",
-        ),
-      );
-    }
+  input.reservations.forEach((reservation, reservationIndex) => {
+    const allocatedTeamIds = new Set<TeamId>();
+    reservation.teamAllocations.forEach((allocation, allocationIndex) => {
+      if (allocatedTeamIds.has(allocation.teamId)) {
+        errors.push(
+          error(
+            "DUPLICATE_RESERVATION_TEAM_ALLOCATION",
+            `reservations[${reservationIndex}].teamAllocations[${allocationIndex}].teamId`,
+            "A team may appear only once in reservation allocations.",
+          ),
+        );
+      }
+      allocatedTeamIds.add(allocation.teamId);
+      if (!teamIds.has(allocation.teamId)) {
+        errors.push(
+          error(
+            "UNKNOWN_RESERVATION_TEAM",
+            `reservations[${reservationIndex}].teamAllocations[${allocationIndex}].teamId`,
+            "Reservation allocation must reference a team in the portfolio.",
+          ),
+        );
+      }
+    });
   });
 
   const priorities = new Set<ProjectId>();

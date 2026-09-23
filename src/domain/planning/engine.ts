@@ -500,9 +500,10 @@ function planTeam(
       input.workingPattern,
     );
     const overReserved = isOverReserved(
-      team.id,
+      team,
       date,
       input.portfolio.reservations,
+      input.workingPattern,
     );
     dayCapacities.push(
       Object.freeze({

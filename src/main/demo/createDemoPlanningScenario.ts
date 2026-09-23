@@ -3,7 +3,8 @@ import {
   createCapacityPeriod,
   createCivilDate,
   createDailyCap,
-  createFirmCapacityReservation,
+  createReservation,
+  createReservationTeamAllocation,
   createMaxParallelProjects,
   createPlanningHorizon,
   createPortfolio,
@@ -94,33 +95,39 @@ export function createDemoPlanningScenario(): DemoPlanningScenario {
 
   const reservations = [
     must(
-      createFirmCapacityReservation({
-        id: must(createReservationId("reservation-beta-operations")),
-        teamId: betaId,
-        label: "Operations support",
-        start: date("2025-01-20"),
-        end: date("2025-02-14"),
-        ratio: must(createReservationRatio("0.2")),
+      createReservation({
+        id: must(createReservationId("reservation-run")),
+        name: "Run",
+        startDate: date("2025-01-20"),
+        endDate: date("2025-02-14"),
+        teamAllocations: [
+          must(createReservationTeamAllocation({
+            teamId: alphaId,
+            amount: { kind: "ratio", ratio: must(createReservationRatio("0.2")) },
+          })),
+          must(createReservationTeamAllocation({
+            teamId: betaId,
+            amount: { kind: "fixed-daily", dailyCapacity: must(createCapacity("1")) },
+          })),
+        ],
       }),
     ),
     must(
-      createFirmCapacityReservation({
-        id: must(createReservationId("reservation-gamma-audit")),
-        teamId: gammaId,
-        label: "Audit",
-        start: date("2025-02-10"),
-        end: date("2025-02-12"),
-        ratio: must(createReservationRatio("0.7")),
-      }),
-    ),
-    must(
-      createFirmCapacityReservation({
-        id: must(createReservationId("reservation-gamma-support")),
-        teamId: gammaId,
-        label: "Production support",
-        start: date("2025-02-10"),
-        end: date("2025-02-12"),
-        ratio: must(createReservationRatio("0.6")),
+      createReservation({
+        id: must(createReservationId("reservation-support")),
+        name: "Support",
+        startDate: date("2025-02-10"),
+        endDate: date("2025-02-12"),
+        teamAllocations: [
+          must(createReservationTeamAllocation({
+            teamId: gammaId,
+            amount: { kind: "fixed-daily", dailyCapacity: must(createCapacity("2")) },
+          })),
+          must(createReservationTeamAllocation({
+            teamId: alphaId,
+            amount: { kind: "fixed-daily", dailyCapacity: must(createCapacity("1")) },
+          })),
+        ],
       }),
     ),
   ];

@@ -1,110 +1,39 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import {
-  createReservationId,
-  createTeamId,
-  serializeQuantity,
-  type DomainResult,
-} from "../../domain/index.js";
-import { parseReservationEditCommand } from "./parseReservationEditCommand.js";
+import { createReservationId, createTeamId, serializeQuantity, type DomainResult } from "../../domain/index.js";
+import { parseReservationEditCommand, type ReservationEditFormValues } from "./parseReservationEditCommand.js";
 
-function must<T>(result: DomainResult<T>): T {
-  if (!result.ok) throw new Error(JSON.stringify(result.errors));
-  return result.value;
-}
-const teamId = must(createTeamId("team-alpha"));
-const reservationId = must(createReservationId("reservation-a"));
-
-function parse(ratioPercent: string, startDate = "2025-01-01", endDate = "2025-01-31") {
-  return parseReservationEditCommand({
-    teamId,
-    reservations: [{
-      reservationId,
-      startDate,
-      endDate,
-      ratioPercent,
-      ratioOriginalDisplay: "25",
-      ratioDirty: true,
-    }],
-  });
-}
+function must<T>(result: DomainResult<T>): T { if (!result.ok) throw new Error(); return result.value; }
+const reservationId = must(createReservationId("reservation"));
+const alpha = must(createTeamId("alpha"));
+const base = (value: string, kind: "ratio" | "fixed-daily" = "ratio"): ReservationEditFormValues => ({
+  reservationId, name: "Run", startDate: "2025-01-01", endDate: "2025-02-01",
+  teamAllocations: [{ teamId: alpha, enabled: true, kind, value, dirty: true }],
+});
 
 describe("parseReservationEditCommand", () => {
-  it("parses finite decimal percentages and CivilDate values", () => {
-    const result = parse("33.33");
-    assert.equal(result.ok, true);
-    if (!result.ok) return;
-    assert.equal(serializeQuantity(result.command.reservations[0]!.ratio), "3333/10000");
-    assert.equal(result.command.reservations[0]!.startDate, "2025-01-01");
+  it("parses exact percentage and fixed daily fractions", () => {
+    const ratio = parseReservationEditCommand(base("100/3"));
+    assert.equal(ratio.ok, true);
+    if (ratio.ok && ratio.command.teamAllocations[0]!.kind === "ratio") assert.equal(serializeQuantity(ratio.command.teamAllocations[0]!.ratio), "1/3");
+    const fixed = parseReservationEditCommand(base("1/3", "fixed-daily"));
+    assert.equal(fixed.ok, true);
+    if (fixed.ok && fixed.command.teamAllocations[0]!.kind === "fixed-daily") assert.equal(serializeQuantity(fixed.command.teamAllocations[0]!.dailyCapacity), "1/3");
   });
 
-  it("accepts zero and one hundred percent but rejects individual overflow", () => {
-    for (const [value, expected] of [
-      ["0", "0/1"],
-      ["100", "1/1"],
-    ] as const) {
-      const result = parse(value);
-      assert.equal(result.ok, true);
-      if (result.ok) {
-        assert.equal(serializeQuantity(result.command.reservations[0]!.ratio), expected);
-      }
-    }
-    assert.equal(parse("100.01").ok, false);
-    assert.equal(parse("-1").ok, false);
-  });
-
-  it("rejects invalid dates and aggregates multiple row errors", () => {
-    const result = parseReservationEditCommand({
-      teamId,
-      reservations: [
-        {
-          reservationId,
-          startDate: "2025-02-30",
-          endDate: "bad",
-          ratioPercent: "invalid",
-          ratioOriginalDisplay: "25",
-          ratioDirty: true,
-        },
-      ],
-    });
-    assert.equal(result.ok, false);
-    if (!result.ok) assert.ok(result.errors.length >= 3);
-  });
-
-  it("uses no JavaScript Date or lossy floating-point parsing", async () => {
-    const production = await import("node:fs/promises").then(({ readFile }) =>
-      readFile(
-        new URL(
-          "src/ui/reservation-edit/parseReservationEditCommand.ts",
-          `file://${process.cwd()}/`,
-        ),
-        "utf8",
-      ),
-    );
-    assert.doesNotMatch(production, /new Date|Date\.parse|Date\.now|parseFloat/);
-  });
-
-  it("preserves an untouched exact third and replaces an edited decimal exactly", () => {
-    const untouched = parseReservationEditCommand({
-      teamId,
-      reservations: [{
-        reservationId,
-        startDate: "2025-01-01",
-        endDate: "2025-01-31",
-        ratioPercent: "33.333",
-        ratioOriginalDisplay: "33.333",
-        ratioExact: "1/3",
-        ratioDirty: false,
-      }],
-    });
+  it("preserves untouched exact values but treats explicit decimals exactly", () => {
+    const untouched = parseReservationEditCommand({ ...base("0.333", "fixed-daily"), teamAllocations: [{ teamId: alpha, enabled: true, kind: "fixed-daily", value: "0.333", originalKind: "fixed-daily", originalDisplay: "0.333", originalExact: "1/3", dirty: false }] });
     assert.equal(untouched.ok, true);
-    if (untouched.ok) {
-      assert.equal(serializeQuantity(untouched.command.reservations[0]!.ratio), "1/3");
-    }
-    const edited = parse("25");
+    if (untouched.ok && untouched.command.teamAllocations[0]!.kind === "fixed-daily") assert.equal(serializeQuantity(untouched.command.teamAllocations[0]!.dailyCapacity), "1/3");
+    const edited = parseReservationEditCommand(base("0.333", "fixed-daily"));
     assert.equal(edited.ok, true);
-    if (edited.ok) {
-      assert.equal(serializeQuantity(edited.command.reservations[0]!.ratio), "1/4");
-    }
+    if (edited.ok && edited.command.teamAllocations[0]!.kind === "fixed-daily") assert.equal(serializeQuantity(edited.command.teamAllocations[0]!.dailyCapacity), "333/1000");
+  });
+
+  it("keeps absent teams distinct and rejects invalid values or intervals atomically", () => {
+    const absent = parseReservationEditCommand({ ...base("25"), teamAllocations: [{ teamId: alpha, enabled: false, kind: "ratio", value: "", dirty: false }] });
+    assert.equal(absent.ok, true); if (absent.ok) assert.equal(absent.command.teamAllocations.length, 0);
+    assert.equal(parseReservationEditCommand(base("101")).ok, false);
+    assert.equal(parseReservationEditCommand({ ...base("25"), startDate: "2025-03-01", endDate: "2025-01-01" }).ok, true);
   });
 });

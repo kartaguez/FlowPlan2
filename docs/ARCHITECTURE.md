@@ -746,7 +746,7 @@ Separate from team editing
 
 L'indisponibilité planifiée d'une période est représentée par le value object
 exact `UnavailabilityRatio`, borné entre zéro et un. Elle est distincte d'une
-`FirmCapacityReservation` et ne modifie jamais `portfolio.reservations`. La
+une `Reservation` globale et ne modifie jamais `portfolio.reservations`. La
 capacité effective d'une période est calculée dans le domaine par
 `dailyCapacity × (1 - unavailabilityRatio)`; l'UI ne duplique pas cette
 formule. Le formulaire présente le ratio comme un pourcentage exact et le
@@ -794,7 +794,10 @@ capacité modifiée peut néanmoins changer les conséquences et diagnostics des
 réservations existantes. Leur édition commence uniquement en Phase 7D. Aucun
 add/remove team ou période, drag/drop, undo/redo ou persistence n'est ajouté.
 
-## Firm Reservation Editing — Phase 7D
+## Firm Reservation Editing — Phase 7D (historique, remplacée par 8C)
+
+Cette section décrit l'ancien modèle mono-Team. Phase 8C supprime ce modèle,
+sa commande de remplacement par Team et son éditeur lié à Team Settings.
 
 Une firm reservation est un objet métier indépendant. Elle possède un
 `ReservationId` globalement unique, une `TeamId`, une plage CivilDate inclusive
@@ -807,7 +810,7 @@ L'éditeur applique une transaction complète par équipe sélectionnée :
 ```text
 local add/edit/remove rows
         ↓ Apply
-ReplaceTeamReservationsCommand
+legacy per-Team replacement command
         ↓ validation complète
 immutable Portfolio replacement
         ↓
@@ -925,8 +928,8 @@ Settings. La modal Team sépare deux transactions : Apply name reconstruit la
 Team en conservant son `TeamId`, ses périodes, les réservations et toutes les
 références projet; l'accordéon Capacity periods possède ses propres Apply
 periods et Cancel changes. Les jours ouvrés, le maximum parallèle et les
-réservations ne figurent plus dans Team Settings. Le modèle de réservation
-7D reste néanmoins intact jusqu'à sa refonte globale multi-équipe en 8C.
+réservations ne figurent plus dans Team Settings : leur ownership global et
+leur édition dédiée sont définis par la Phase 8C ci-dessous.
 
 L'organisation en panels ne crée aucune timeline indépendante. Il subsiste une
 seule géométrie d'horizon, un axe mois/année, un viewport, un zoom/pan, une date
@@ -968,3 +971,41 @@ reste masqué et préservé exactement.
 Phase 8B ne commence ni refonte Global Reservation, Program/PAS, cursor
 metrics, réordonnancement drag/drop, CRUD structurel Team/Project, undo/redo,
 persistence ou actuals/history.
+
+## Phase 8C — Global Multi-Team Reservations
+
+Une `Reservation` est une entité globale du Portfolio : elle possède une
+identité, un nom et une période inclusive uniques, puis zéro ou plusieurs
+`ReservationTeamAllocation`. Une Team ne peut apparaître qu'une fois. Chaque
+allocation utilise une union discriminée qui contient exactement un mode :
+`ratio` avec un `ReservationRatio`, ou `fixed-daily` avec une `Capacity` par
+jour. Les références Team sont validées par le Portfolio.
+
+| Applicabilité | Ratio | Fixed daily |
+| --- | --- | --- |
+| Jour global non ouvré | 0 | 0 |
+| Aucune période de capacité Team | 0 | 0 |
+| Période présente, capacité effective positive | effective × ratio | quantité fixe |
+| Période présente, effective = 0 par indisponibilité 100 % | 0 | quantité fixe |
+
+La demande réservée est la somme exacte des demandes de toutes les
+réservations applicables. Elle n'est pas clampée. La capacité projet vaut
+`max(0, effectiveCapacity - requestedReservedCapacity)`. Le diagnostic
+`TEAM_OVER_RESERVED` compare désormais la demande réservée réelle à la
+capacité effective; il fonctionne donc avec tout mélange de ratios et de
+quantités fixes.
+
+L'édition produit une seule `UpdateReservationCommand` globale contenant nom,
+dates et allocations Team. Apply parse toutes les valeurs, remplace la
+Reservation atomiquement et déclenche un seul recompute; une erreur conserve
+l'état et la projection précédents. Cancel abandonne l'état local. L'affichage
+est décimal, les entrées acceptent décimal ou fraction et le rationnel exact
+d'origine est conservé tant que le champ n'est pas modifié. Un changement de
+mode vide la saisie au lieu de convertir implicitement ratio et md/jour.
+
+Le panneau Portfolio expose deux boutons accessibles `Projects` et
+`Reservations`. Le premier conserve la liste et l'éditeur projet existants;
+le second liste les réservations globales et ouvre leur modal. Team Settings
+reste limité au nom et aux périodes de capacité. Cette phase n'ajoute ni
+Program/PAS, métriques curseur, réordonnancement par drag/drop, CRUD structurel,
+persistence, ni actuals/history.

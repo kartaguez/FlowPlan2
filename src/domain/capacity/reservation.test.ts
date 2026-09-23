@@ -1,199 +1,78 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
-  createCapacity,
-  createCapacityPeriod,
-  createCivilDate,
-  createFirmCapacityReservation,
-  createPlanningHorizon,
-  createReservationId,
-  createReservationRatio,
-  createTeam,
-  createTeamCapacitySchedule,
-  createTeamId,
-  createWorkingPattern,
-  isOverReserved,
-  projectCapacity as calculateProjectCapacity,
-  quantityToDecimalString,
-  reservedCapacity as calculateReservedCapacity,
-  serializeQuantity,
-  totalReservationRatio,
-  type DomainResult,
-  type FirmCapacityReservation,
+  createCapacity, createCapacityPeriod, createCivilDate, createReservation,
+  createReservationId, createReservationRatio, createReservationTeamAllocation,
+  createTeam, createTeamCapacitySchedule, createTeamId, createUnavailabilityRatio,
+  createWorkingPattern, isOverReserved, projectCapacity, reservedCapacity,
+  capacityFromSerialized, reservationRatioFromSerialized,
+  createPortfolio, createPlanningHorizon, createMaxParallelProjects, planPortfolio,
+  serializeQuantity, type DomainResult, type Reservation,
 } from "../index.js";
 
-function must<T>(result: DomainResult<T>): T {
-  if (!result.ok) throw new Error(JSON.stringify(result.errors));
-  return result.value;
-}
+function must<T>(result: DomainResult<T>): T { if (!result.ok) throw new Error(JSON.stringify(result.errors)); return result.value; }
 
-describe("firm capacity reservations", () => {
+describe("global multi-team reservations", () => {
   const date = (value: string) => must(createCivilDate(value));
   const teamId = must(createTeamId("team-a"));
-  const rendered = (value: Parameters<typeof quantityToDecimalString>[0]) =>
-    must(quantityToDecimalString(value));
-  const workingPattern = must(
-    createWorkingPattern({ workingWeekdays: [1, 2, 3, 4, 5, 6, 7] }),
-  );
-  const reservedCapacity = (
-    team: Parameters<typeof calculateReservedCapacity>[0],
-    day: Parameters<typeof calculateReservedCapacity>[1],
-    reservations: Parameters<typeof calculateReservedCapacity>[2],
-  ) => calculateReservedCapacity(team, day, reservations, workingPattern);
-  const projectCapacity = (
-    team: Parameters<typeof calculateProjectCapacity>[0],
-    day: Parameters<typeof calculateProjectCapacity>[1],
-    reservations: Parameters<typeof calculateProjectCapacity>[2],
-  ) => calculateProjectCapacity(team, day, reservations, workingPattern);
+  const weekdays = must(createWorkingPattern({ workingWeekdays: [1, 2, 3, 4, 5] }));
+  const everyDay = must(createWorkingPattern({ workingWeekdays: [1, 2, 3, 4, 5, 6, 7] }));
+  const team = (capacity: string, unavailability?: string) => must(createTeam({
+    id: teamId, name: "Team A",
+    capacitySchedule: must(createTeamCapacitySchedule({ periods: [must(createCapacityPeriod({
+      start: date("2025-01-01"), end: date("2025-01-31"), dailyCapacity: must(createCapacity(capacity)),
+      ...(unavailability === undefined ? {} : { unavailabilityRatio: must(createUnavailabilityRatio(unavailability)) }),
+    }))], exceptions: [] })),
+  }));
+  const reservation = (id: string, kind: "ratio" | "fixed-daily", value: string, end = "2025-01-31"): Reservation => must(createReservation({
+    id: must(createReservationId(id)), name: id, startDate: date("2025-01-01"), endDate: date(end),
+    teamAllocations: [must(createReservationTeamAllocation({ teamId, amount: kind === "ratio"
+      ? { kind, ratio: must(value.includes("/") ? reservationRatioFromSerialized(value) : createReservationRatio(value)) }
+      : { kind, dailyCapacity: must(value.includes("/") ? capacityFromSerialized(value) : createCapacity(value)) } }))],
+  }));
 
-  function makeTeam(dailyCapacity: string) {
-    return must(
-      createTeam({
-        id: teamId,
-        name: "Team A",
-        capacitySchedule: must(
-          createTeamCapacitySchedule({
-            periods: [
-              must(
-                createCapacityPeriod({
-                  start: date("2025-01-01"),
-                  end: date("2025-12-31"),
-                  dailyCapacity: must(createCapacity(dailyCapacity)),
-                }),
-              ),
-            ],
-            exceptions: [],
-          }),
-        ),
-      }),
-    );
-  }
-
-  function reservation(
-    id: string,
-    ratio: string,
-    start = "2025-01-01",
-    end = "2025-01-31",
-  ): FirmCapacityReservation {
-    return must(
-      createFirmCapacityReservation({
-        id: must(createReservationId(id)),
-        teamId,
-        label: id,
-        start: date(start),
-        end: date(end),
-        ratio: must(createReservationRatio(ratio)),
-      }),
-    );
-  }
-
-  it("accepts boundary ratios and rejects ratios outside zero to one", () => {
-    assert.equal(createReservationRatio("0").ok, true);
-    assert.equal(createReservationRatio("1").ok, true);
-    assert.equal(createReservationRatio("-0.1").ok, false);
-    assert.equal(createReservationRatio("1.1").ok, false);
+  it("owns global dates/name and rejects duplicate team allocations", () => {
+    const allocation = must(createReservationTeamAllocation({ teamId, amount: { kind: "ratio", ratio: must(reservationRatioFromSerialized("1/3")) } }));
+    assert.equal(createReservation({ id: must(createReservationId("duplicate")), name: " Run ", startDate: date("2025-01-01"), endDate: date("2025-01-31"), teamAllocations: [allocation, allocation] }).ok, false);
+    assert.equal(createReservation({ id: must(createReservationId("reversed")), name: "Run", startDate: date("2025-02-01"), endDate: date("2025-01-01"), teamAllocations: [] }).ok, false);
   });
 
-  it("rejects reversed intervals and includes both bounds", () => {
-    const invalid = createFirmCapacityReservation({
-      id: must(createReservationId("bad")),
-      teamId,
-      label: "bad",
-      start: date("2025-02-01"),
-      end: date("2025-01-01"),
-      ratio: must(createReservationRatio("0.2")),
+  it("mixes exact ratio and fixed daily requests", () => {
+    const current = team("8"); const reservations = [reservation("quarter", "ratio", "1/4"), reservation("fixed", "fixed-daily", "3/2")];
+    assert.equal(serializeQuantity(reservedCapacity(current, date("2025-01-15"), reservations, everyDay)), "7/2");
+    assert.equal(serializeQuantity(projectCapacity(current, date("2025-01-15"), reservations, everyDay)), "9/2");
+  });
+
+  it("keeps fixed daily demand at 100% unavailability and reports over-reservation", () => {
+    const unavailable = team("4", "1"); const reservations = [reservation("fixed", "fixed-daily", "1")]; const day = date("2025-01-15");
+    assert.equal(serializeQuantity(reservedCapacity(unavailable, day, reservations, everyDay)), "1/1");
+    assert.equal(serializeQuantity(projectCapacity(unavailable, day, reservations, everyDay)), "0/1");
+    assert.equal(isOverReserved(unavailable, day, reservations, everyDay), true);
+    const portfolio = must(createPortfolio({ teams: [unavailable], projects: [], priorityOrder: [], reservations }));
+    const result = planPortfolio({
+      portfolio,
+      horizon: must(createPlanningHorizon({ start: day, end: day })),
+      workingPattern: everyDay,
+      maxParallelProjects: must(createMaxParallelProjects(1)),
     });
-    assert.equal(invalid.ok, false);
-    if (!invalid.ok) {
-      assert.equal(invalid.errors[0]?.code, "INVALID_RESERVATION_INTERVAL");
-    }
-
-    const item = reservation("bounded", "0.2");
-    assert.equal(
-      rendered(totalReservationRatio(teamId, date("2025-01-01"), [item])),
-      "0.2",
-    );
-    assert.equal(
-      rendered(totalReservationRatio(teamId, date("2025-01-31"), [item])),
-      "0.2",
-    );
-    assert.equal(
-      rendered(totalReservationRatio(teamId, date("2025-02-01"), [item])),
-      "0",
-    );
+    assert.equal(result.diagnostics[0]?.code, "TEAM_OVER_RESERVED");
   });
 
-  it("does not couple reservations to planning horizons", () => {
-    const horizon = must(
-      createPlanningHorizon({
-        start: date("2025-06-01"),
-        end: date("2025-06-30"),
-      }),
-    );
-    const outside = reservation("outside", "0.2", "2024-01-01", "2024-01-31");
-    assert.equal(horizon.start, "2025-06-01");
-    assert.equal(outside.start, "2024-01-01");
+  it("does not apply fixed daily without a capacity period or on a global non-working day", () => {
+    const current = team("4"); const fixed = [reservation("fixed", "fixed-daily", "1", "2025-02-28")];
+    assert.equal(serializeQuantity(reservedCapacity(current, date("2025-02-03"), fixed, weekdays)), "0/1");
+    assert.equal(serializeQuantity(reservedCapacity(current, date("2025-01-04"), fixed, weekdays)), "0/1");
   });
 
-  it("exposes over-reservation without capping its diagnostics", () => {
-    const team = makeTeam("3.2");
-    const reservations = [reservation("one", "0.7"), reservation("two", "0.6")];
-    const day = date("2025-01-15");
-    assert.equal(rendered(totalReservationRatio(teamId, day, reservations)), "1.3");
-    assert.equal(rendered(reservedCapacity(team, day, reservations)), "4.16");
-    assert.equal(rendered(projectCapacity(team, day, reservations)), "0");
-    assert.equal(isOverReserved(teamId, day, reservations), true);
+  it("makes ratio demand zero at zero effective capacity", () => {
+    const unavailable = team("4", "1");
+    assert.equal(serializeQuantity(reservedCapacity(unavailable, date("2025-01-15"), [reservation("half", "ratio", "1/2")], everyDay)), "0/1");
   });
 
-  it("keeps reservation arithmetic exact", () => {
-    const team = makeTeam("3.2");
-    const reservations = [reservation("twenty-percent", "0.20")];
-    const day = date("2025-01-15");
-    assert.equal(
-      serializeQuantity(reservedCapacity(team, day, reservations)),
-      "16/25",
-    );
-    assert.equal(rendered(reservedCapacity(team, day, reservations)), "0.64");
-    assert.equal(
-      serializeQuantity(projectCapacity(team, day, reservations)),
-      "64/25",
-    );
-    assert.equal(rendered(projectCapacity(team, day, reservations)), "2.56");
-  });
-
-  it("aggregates multiple exact reservations before deriving project capacity", () => {
-    const team = makeTeam("4");
-    const day = date("2025-01-15");
-    const quarter = [reservation("quarter", "0.25")];
-    assert.equal(serializeQuantity(reservedCapacity(team, day, quarter)), "1/1");
-    assert.equal(serializeQuantity(projectCapacity(team, day, quarter)), "3/1");
-    const combined = [
-      reservation("combined-quarter", "0.25"),
-      reservation("combined-half", "0.5"),
-    ];
-    assert.equal(serializeQuantity(reservedCapacity(team, day, combined)), "3/1");
-    assert.equal(serializeQuantity(projectCapacity(team, day, combined)), "1/1");
-  });
-
-  it("supports over-reservation at nine million without an intermediate overflow", () => {
-    const team = makeTeam("9000000");
-    const reservations = [reservation("one", "1"), reservation("two", "1")];
-    const day = date("2025-01-15");
-    assert.equal(rendered(totalReservationRatio(teamId, day, reservations)), "2");
-    assert.equal(
-      rendered(reservedCapacity(team, day, reservations)),
-      "18000000",
-    );
-    assert.equal(rendered(projectCapacity(team, day, reservations)), "0");
-    assert.equal(isOverReserved(teamId, day, reservations), true);
-  });
-
-  it("supports exact values far beyond JavaScript safe integers", () => {
-    const huge = "900719925474099312345678901234567890";
-    const team = makeTeam(huge);
-    const reservations = [reservation("full", "1")];
-    const day = date("2025-01-15");
-    assert.equal(rendered(reservedCapacity(team, day, reservations)), huge);
-    assert.equal(rendered(projectCapacity(team, day, reservations)), "0");
+  it("does not clamp mixed requested capacity and bases diagnostics on the actual request", () => {
+    const current = team("4"); const reservations = [reservation("ratio", "ratio", "3/4"), reservation("fixed", "fixed-daily", "2")]; const day = date("2025-01-15");
+    assert.equal(serializeQuantity(reservedCapacity(current, day, reservations, everyDay)), "5/1");
+    assert.equal(serializeQuantity(projectCapacity(current, day, reservations, everyDay)), "0/1");
+    assert.equal(isOverReserved(current, day, reservations, everyDay), true);
   });
 });

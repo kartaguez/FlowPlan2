@@ -2,7 +2,12 @@ import type {
   TimelineGeometry,
   TimelineViewModel,
 } from "../../adapters/index.js";
-import type { ProjectId, TeamId } from "../../domain/index.js";
+import type { ProjectId, ReservationId, TeamId } from "../../domain/index.js";
+
+export interface ReservationNavigationItem {
+  readonly id: ReservationId;
+  readonly name: string;
+}
 
 export interface TimelineShellNavigation {
   readonly destroy: () => void;
@@ -11,10 +16,16 @@ export interface TimelineShellNavigation {
 export interface RenderTimelineShellNavigationInput {
   readonly teamContainer: HTMLElement;
   readonly projectContainer: HTMLElement;
+  readonly reservationContainer: HTMLElement;
+  readonly projectTab: HTMLButtonElement;
+  readonly reservationTab: HTMLButtonElement;
+  readonly reservations: readonly ReservationNavigationItem[];
+  readonly initialTab?: "projects" | "reservations";
   readonly viewModel: TimelineViewModel;
   readonly geometry: TimelineGeometry;
   readonly onTeamSettings: (teamId: TeamId) => void;
   readonly onProjectSelect: (projectId: ProjectId) => void;
+  readonly onReservationSelect: (reservationId: ReservationId) => void;
 }
 
 export function renderTimelineShellNavigation(
@@ -71,11 +82,50 @@ export function renderTimelineShellNavigation(
   });
   input.projectContainer.replaceChildren(...projectItems);
 
+  const reservationItems = input.reservations.map((reservation) => {
+    const item = document.createElement("li");
+    item.className = "project-sidebar-item reservation-sidebar-item";
+    item.dataset.reservationId = reservation.id;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "project-sidebar-button reservation-sidebar-button";
+    button.textContent = reservation.name;
+    button.setAttribute("aria-label", `Edit reservation ${reservation.name}`);
+    const listener = () => input.onReservationSelect(reservation.id);
+    button.addEventListener("click", listener);
+    listeners.push({ button, listener });
+    item.append(button);
+    return item;
+  });
+  input.reservationContainer.replaceChildren(...reservationItems);
+  const showProjects = () => {
+    input.projectContainer.hidden = false;
+    input.reservationContainer.hidden = true;
+    input.projectTab.setAttribute("aria-pressed", "true");
+    input.reservationTab.setAttribute("aria-pressed", "false");
+    input.projectTab.classList.add("portfolio-tab--active");
+    input.reservationTab.classList.remove("portfolio-tab--active");
+  };
+  const showReservations = () => {
+    input.projectContainer.hidden = true;
+    input.reservationContainer.hidden = false;
+    input.projectTab.setAttribute("aria-pressed", "false");
+    input.reservationTab.setAttribute("aria-pressed", "true");
+    input.projectTab.classList.remove("portfolio-tab--active");
+    input.reservationTab.classList.add("portfolio-tab--active");
+  };
+  input.projectTab.addEventListener("click", showProjects);
+  input.reservationTab.addEventListener("click", showReservations);
+  if (input.initialTab === "reservations") showReservations();
+  else showProjects();
+
   return Object.freeze({
     destroy: () => {
       for (const { button, listener } of listeners) {
         button.removeEventListener("click", listener);
       }
+      input.projectTab.removeEventListener("click", showProjects);
+      input.reservationTab.removeEventListener("click", showReservations);
     },
   });
 }

@@ -11,14 +11,14 @@ import {
 } from "../model/rational.js";
 import {
   capacityFromRational,
-  capacityRatioFromRational,
   rationalOf,
   type Capacity,
-  type CapacityRatio,
-  type TeamId,
 } from "../model/scalars.js";
-import type { FirmCapacityReservation } from "./reservation.js";
-import { isReservationApplicable } from "./reservation.js";
+import type { Reservation } from "./reservation.js";
+import {
+  isReservationDateApplicable,
+  reservationAllocationForTeam,
+} from "./reservation.js";
 import { isWorkingDay, type WorkingPattern } from "./schedule.js";
 
 const ZERO = rationalFromInteger(0n);
@@ -65,42 +65,57 @@ export function effectiveCapacity(
   );
 }
 
-/** Applicable ratios are summed exactly in collection order. */
-export function totalReservationRatio(
-  teamId: TeamId,
+export function requestedReservationCapacity(
+  reservation: Reservation,
+  team: Team,
   date: CivilDate,
-  reservations: readonly FirmCapacityReservation[],
-): CapacityRatio {
-  let total = ZERO;
-  for (const reservation of reservations) {
-    if (isReservationApplicable(reservation, teamId, date)) {
-      total = addRationals(total, rationalOf(reservation.ratio));
-    }
+  workingPattern: WorkingPattern,
+): Capacity {
+  const allocation = reservationAllocationForTeam(reservation, team.id);
+  if (
+    allocation === undefined ||
+    !isReservationDateApplicable(reservation, date) ||
+    !isWorkingDay(workingPattern, date)
+  ) {
+    return ZERO_CAPACITY;
   }
-  // A sum of non-negative reservation ratios remains non-negative.
-  return unwrapProvenQuantity(capacityRatioFromRational(total));
+  if (allocation.amount.kind === "ratio") {
+    return unwrapProvenQuantity(
+      capacityFromRational(
+        multiplyRationals(
+          rationalOf(effectiveCapacity(team, date, workingPattern)),
+          rationalOf(allocation.amount.ratio),
+        ),
+      ),
+    );
+  }
+  const hasCapacityPeriod = team.capacitySchedule.periods.some(
+    (period) => period.start <= date && date <= period.end,
+  );
+  return hasCapacityPeriod ? allocation.amount.dailyCapacity : ZERO_CAPACITY;
 }
 
-/** Effective capacity is multiplied by the exact total reservation ratio. */
 export function reservedCapacity(
   team: Team,
   date: CivilDate,
-  reservations: readonly FirmCapacityReservation[],
+  reservations: readonly Reservation[],
   workingPattern: WorkingPattern,
 ): Capacity {
-  const reserved = multiplyRationals(
-    rationalOf(effectiveCapacity(team, date, workingPattern)),
-    rationalOf(totalReservationRatio(team.id, date, reservations)),
-  );
-  // Both factors are non-negative, so their product is non-negative.
-  return unwrapProvenQuantity(capacityFromRational(reserved));
+  let total = ZERO;
+  for (const reservation of reservations) {
+    total = addRationals(
+      total,
+      rationalOf(requestedReservationCapacity(reservation, team, date, workingPattern)),
+    );
+  }
+  return unwrapProvenQuantity(capacityFromRational(total));
 }
 
 /** Reserved capacity is subtracted exactly, then the result is bounded at zero. */
 export function projectCapacity(
   team: Team,
   date: CivilDate,
-  reservations: readonly FirmCapacityReservation[],
+  reservations: readonly Reservation[],
   workingPattern: WorkingPattern,
 ): Capacity {
   const available = subtractRationals(
@@ -114,14 +129,15 @@ export function projectCapacity(
 }
 
 export function isOverReserved(
-  teamId: TeamId,
+  team: Team,
   date: CivilDate,
-  reservations: readonly FirmCapacityReservation[],
+  reservations: readonly Reservation[],
+  workingPattern: WorkingPattern,
 ): boolean {
   return (
     compareRationals(
-      rationalOf(totalReservationRatio(teamId, date, reservations)),
-      ONE,
+      rationalOf(reservedCapacity(team, date, reservations, workingPattern)),
+      rationalOf(effectiveCapacity(team, date, workingPattern)),
     ) > 0
   );
 }

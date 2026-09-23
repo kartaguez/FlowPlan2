@@ -2,7 +2,8 @@ import {
   capacityFromSerialized,
   compareCivilDates,
   createCapacityPeriod,
-  createFirmCapacityReservation,
+  createReservation,
+  createReservationTeamAllocation,
   createMaxParallelProjects,
   createPlanningHorizon,
   createPortfolio,
@@ -88,17 +89,17 @@ export interface UpdateTeamCapacityPeriodsCommand {
   readonly capacityPeriods: readonly UpdateTeamCapacityPeriod[];
 }
 
-export interface ReplaceTeamReservation {
+export type UpdateReservationTeamAllocation =
+  | Readonly<{ teamId: TeamId; kind: "ratio"; ratio: ReservationRatio }>
+  | Readonly<{ teamId: TeamId; kind: "fixed-daily"; dailyCapacity: Capacity }>;
+
+export interface UpdateReservationCommand {
+  readonly kind: "update-reservation";
   readonly reservationId: ReservationId;
+  readonly name: string;
   readonly startDate: CivilDate;
   readonly endDate: CivilDate;
-  readonly ratio: ReservationRatio;
-}
-
-export interface ReplaceTeamReservationsCommand {
-  readonly kind: "replace-team-reservations";
-  readonly teamId: TeamId;
-  readonly reservations: readonly ReplaceTeamReservation[];
+  readonly teamAllocations: readonly UpdateReservationTeamAllocation[];
 }
 
 export type PlanningCommand =
@@ -106,7 +107,7 @@ export type PlanningCommand =
   | UpdateProjectCommand
   | UpdateTeamNameCommand
   | UpdateTeamCapacityPeriodsCommand
-  | ReplaceTeamReservationsCommand;
+  | UpdateReservationCommand;
 
 export type PlanningCommandResult =
   | Readonly<{ ok: true; state: PlanningSessionState }>
@@ -145,100 +146,87 @@ function applyCommand(
       return updateTeamName(state, command);
     case "update-team-capacity-periods":
       return updateTeamCapacityPeriods(state, command);
-    case "replace-team-reservations":
-      return replaceTeamReservations(state, command);
+    case "update-reservation":
+      return updateReservation(state, command);
   }
 }
 
-function replaceTeamReservations(
+function updateReservation(
   state: PlanningSessionState,
-  command: ReplaceTeamReservationsCommand,
+  command: UpdateReservationCommand,
 ): PlanningCommandResult {
-  if (!state.portfolio.teams.some((team) => team.id === command.teamId)) {
+  const reservationIndex = state.portfolio.reservations.findIndex(
+    (reservation) => reservation.id === command.reservationId,
+  );
+  if (reservationIndex < 0) {
     return failure([
       applicationError(
-        "UNKNOWN_TEAM",
-        "teamId",
-        `Team ${command.teamId} does not exist in the current portfolio.`,
+        "UNKNOWN_RESERVATION",
+        "reservationId",
+        `Reservation ${command.reservationId} does not exist in the current portfolio.`,
       ),
     ]);
   }
   const errors: DomainError[] = [];
-  const payloadIds = new Set<ReservationId>();
-  const reservationsById = new Map(
-    state.portfolio.reservations.map((reservation) => [reservation.id, reservation]),
-  );
-  const replacements = command.reservations.map((reservation, index) => {
-    const path = `reservations[${index}]`;
-    if (payloadIds.has(reservation.reservationId)) {
+  const teamIds = new Set<TeamId>();
+  const knownTeamIds = new Set(state.portfolio.teams.map((team) => team.id));
+  const allocations = command.teamAllocations.map((allocation, index) => {
+    const path = `reservation.teamAllocations[${index}]`;
+    if (teamIds.has(allocation.teamId)) {
       errors.push(
         applicationError(
-          "DUPLICATE_RESERVATION_ID",
-          `${path}.reservationId`,
-          "A reservation ID may appear only once.",
+          "DUPLICATE_RESERVATION_TEAM_ALLOCATION",
+          `${path}.teamId`,
+          "A team may appear only once in reservation allocations.",
         ),
       );
     }
-    payloadIds.add(reservation.reservationId);
-    const existing = reservationsById.get(reservation.reservationId);
-    if (existing !== undefined && existing.teamId !== command.teamId) {
+    teamIds.add(allocation.teamId);
+    if (!knownTeamIds.has(allocation.teamId)) {
       errors.push(
         applicationError(
-          "RESERVATION_ID_COLLISION",
-          `${path}.reservationId`,
-          "Reservation ID already belongs to another team.",
+          "UNKNOWN_RESERVATION_TEAM",
+          `${path}.teamId`,
+          "Reservation allocation must reference an existing team.",
         ),
       );
     }
-    const ratio = reservationRatioFromSerialized(
-      serializeQuantity(reservation.ratio),
-      `${path}.ratio`,
-    );
-    if (!ratio.ok) {
-      errors.push(...ratio.errors);
+    const amount = allocation.kind === "ratio"
+      ? reservationRatioFromSerialized(serializeQuantity(allocation.ratio), `${path}.ratio`)
+      : capacityFromSerialized(serializeQuantity(allocation.dailyCapacity), `${path}.dailyCapacity`);
+    if (!amount.ok) {
+      errors.push(...amount.errors);
       return undefined;
     }
-    const result = createFirmCapacityReservation({
-      id: reservation.reservationId,
-      teamId: command.teamId,
-      label: existing?.label ?? "Firm reservation",
-      start: reservation.startDate,
-      end: reservation.endDate,
-      ratio: ratio.value,
+    const result = createReservationTeamAllocation({
+      teamId: allocation.teamId,
+      amount: allocation.kind === "ratio"
+        ? Object.freeze({ kind: "ratio", ratio: amount.value as ReservationRatio })
+        : Object.freeze({ kind: "fixed-daily", dailyCapacity: amount.value as Capacity }),
     });
     if (!result.ok) {
-      errors.push(
-        ...result.errors.map((entry) =>
-          Object.freeze({ ...entry, path: `${path}.${entry.path}` }),
-        ),
-      );
+      errors.push(...result.errors);
       return undefined;
     }
     return result.value;
   });
-  if (errors.length > 0 || replacements.some((item) => item === undefined)) {
+  if (errors.length > 0 || allocations.some((item) => item === undefined)) {
     return failure(errors);
   }
-  const validated = replacements.filter(
+  const validated = allocations.filter(
     (item): item is NonNullable<typeof item> => item !== undefined,
   );
-  const firstTargetIndex = state.portfolio.reservations.findIndex(
-    (reservation) => reservation.teamId === command.teamId,
+  const updated = createReservation({
+    id: command.reservationId,
+    name: command.name,
+    startDate: command.startDate,
+    endDate: command.endDate,
+    teamAllocations: validated,
+  });
+  if (!updated.ok) return failure(updated.errors);
+  const reservations = state.portfolio.reservations.map((reservation, index) =>
+    index === reservationIndex ? updated.value : reservation,
   );
-  const others = state.portfolio.reservations.filter(
-    (reservation) => reservation.teamId !== command.teamId,
-  );
-  const insertionIndex =
-    firstTargetIndex < 0
-      ? others.length
-      : state.portfolio.reservations
-          .slice(0, firstTargetIndex)
-          .filter((reservation) => reservation.teamId !== command.teamId).length;
-  const reservations = [
-    ...others.slice(0, insertionIndex),
-    ...validated,
-    ...others.slice(insertionIndex),
-  ];
   const portfolio = createPortfolio({
     teams: state.portfolio.teams,
     projects: state.portfolio.projects,

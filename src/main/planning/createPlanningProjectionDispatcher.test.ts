@@ -11,8 +11,6 @@ import {
   createCapacity,
   createDailyCap,
   createRemainingWorkload,
-  createReservationId,
-  createReservationRatio,
   createUnavailabilityRatio,
   createWorkingPattern,
   serializeQuantity,
@@ -451,28 +449,28 @@ describe("PlanningProjectionDispatcher", () => {
       },
     });
     const team = initial.portfolio.teams[0]!;
-    const otherTeam = initial.portfolio.teams[1]!;
+    const otherTeam = initial.portfolio.teams[2]!;
     const date = must(createCivilDate("2025-01-02"));
     const otherBefore = dispatcher
       .getProjection()
       .viewModel.teams.find((item) => item.id === otherTeam.id)!
       .capacities.find((item) => item.date === date)!;
     const result = dispatcher.dispatch({
-      kind: "replace-team-reservations",
-      teamId: team.id,
-      reservations: ["0.75", "0.5"].map((ratio, index) => ({
-        reservationId: must(createReservationId(`overlap-${index}`)),
-        startDate: must(createCivilDate("2025-01-01")),
-        endDate: must(createCivilDate("2025-01-31")),
-        ratio: must(createReservationRatio(ratio)),
-      })),
+      kind: "update-reservation",
+      reservationId: initial.portfolio.reservations[0]!.id,
+      name: "Over reserved",
+      startDate: must(createCivilDate("2025-01-01")),
+      endDate: must(createCivilDate("2025-01-31")),
+      teamAllocations: [
+        { teamId: team.id, kind: "fixed-daily", dailyCapacity: must(createCapacity("4")) },
+      ],
     });
     assert.equal(result.ok, true);
     assert.equal(buildCount, 2);
     const state = session.getState();
     assert.equal(
       serializeQuantity(reservedCapacity(team, date, state.portfolio.reservations, state.planning.workingPattern)),
-      "15/4",
+      "4/1",
     );
     assert.equal(
       serializeQuantity(projectCapacity(team, date, state.portfolio.reservations, state.planning.workingPattern)),
@@ -505,16 +503,12 @@ describe("PlanningProjectionDispatcher", () => {
     });
     const projection = dispatcher.getProjection();
     const result = dispatcher.dispatch({
-      kind: "replace-team-reservations",
-      teamId: initial.portfolio.teams[0]!.id,
-      reservations: [
-        {
-          reservationId: must(createReservationId("invalid-range")),
-          startDate: must(createCivilDate("2025-02-01")),
-          endDate: must(createCivilDate("2025-01-01")),
-          ratio: must(createReservationRatio("0.5")),
-        },
-      ],
+      kind: "update-reservation",
+      reservationId: initial.portfolio.reservations[0]!.id,
+      name: "Invalid range",
+      startDate: must(createCivilDate("2025-02-01")),
+      endDate: must(createCivilDate("2025-01-01")),
+      teamAllocations: [],
     });
     assert.equal(result.ok, false);
     assert.equal(buildCount, 1);

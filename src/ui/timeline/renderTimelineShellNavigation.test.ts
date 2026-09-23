@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 import type { TimelineGeometry, TimelineViewModel } from "../../adapters/index.js";
 import {
   createProjectId,
+  createReservationId,
   createTeamId,
   type DomainResult,
 } from "../../domain/index.js";
@@ -22,6 +23,8 @@ class FakeElement {
   className = "";
   textContent: string | null = null;
   type = "";
+  hidden = false;
+  readonly classList = { add() {}, remove() {} };
   constructor(readonly ownerDocument: FakeDocument, readonly tagName: string) {}
   append(...nodes: FakeElement[]): void { this.childNodes.push(...nodes); }
   replaceChildren(...nodes: FakeElement[]): void { this.childNodes = [...nodes]; }
@@ -50,11 +53,20 @@ describe("renderTimelineShellNavigation", () => {
     const document = new FakeDocument();
     const teams = document.createElement("div");
     const projects = document.createElement("ol");
+    const reservations = document.createElement("ol");
+    const projectTab = document.createElement("button");
+    const reservationTab = document.createElement("button");
     const selectedTeams: string[] = [];
     const selectedProjects: string[] = [];
+    const selectedReservations: string[] = [];
+    const reservationId = must(createReservationId("run"));
     const navigation = renderTimelineShellNavigation({
       teamContainer: teams as unknown as HTMLElement,
       projectContainer: projects as unknown as HTMLElement,
+      reservationContainer: reservations as unknown as HTMLElement,
+      projectTab: projectTab as unknown as HTMLButtonElement,
+      reservationTab: reservationTab as unknown as HTMLButtonElement,
+      reservations: [{ id: reservationId, name: "Run" }],
       viewModel: {
         teams: [
           { id: alpha, label: "Team Alpha" },
@@ -74,6 +86,7 @@ describe("renderTimelineShellNavigation", () => {
       } as unknown as TimelineGeometry,
       onTeamSettings: (teamId) => selectedTeams.push(teamId),
       onProjectSelect: (projectId) => selectedProjects.push(projectId),
+      onReservationSelect: (id) => selectedReservations.push(id),
     });
     assert.equal(teams.childNodes.length, 3);
     assert.equal(teams.childNodes[1]!.dataset.teamId, alpha);
@@ -88,8 +101,13 @@ describe("renderTimelineShellNavigation", () => {
     );
     teams.childNodes[2]!.childNodes[1]!.click();
     projects.childNodes[0]!.childNodes[0]!.click();
+    reservationTab.click();
+    reservations.childNodes[0]!.childNodes[0]!.click();
     assert.deepEqual(selectedTeams, [beta]);
     assert.deepEqual(selectedProjects, [projectB]);
+    assert.deepEqual(selectedReservations, [reservationId]);
+    assert.equal(projects.hidden, true);
+    assert.equal(reservations.hidden, false);
     navigation.destroy();
     teams.childNodes[1]!.childNodes[1]!.click();
     assert.deepEqual(selectedTeams, [beta]);

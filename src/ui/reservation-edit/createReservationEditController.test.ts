@@ -1,142 +1,60 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import type {
-  ReplaceTeamReservationsCommand,
-  TeamReservationsEditViewModel,
-} from "../../application/index.js";
-import {
-  createCivilDate,
-  createReservationId,
-  createTeamId,
-  type DomainResult,
-} from "../../domain/index.js";
+import type { ReservationEditViewModel, UpdateReservationCommand } from "../../application/index.js";
+import { createCivilDate, createReservationId, createTeamId, type DomainResult } from "../../domain/index.js";
 import type { ReservationEditControls } from "../renderApp.js";
 import { createReservationEditController } from "./createReservationEditController.js";
 
 type Listener = (event: { preventDefault?: () => void }) => void;
 class FakeDocument {
-  createElement(tagName: string): FakeElement {
-    return new FakeElement(this, tagName);
-  }
+  createElement(tagName: string): FakeElement { return new FakeElement(this, tagName); }
+  createTextNode(): FakeElement { return new FakeElement(this, "#text"); }
 }
 class FakeElement {
-  readonly listeners = new Map<string, Set<Listener>>();
-  readonly dataset: Record<string, string> = {};
-  childNodes: FakeElement[] = [];
-  className = "";
-  textContent: string | null = null;
-  hidden = false;
-  disabled = false;
-  type = "";
-  value = "";
+  readonly listeners = new Map<string, Set<Listener>>(); readonly dataset: Record<string, string> = {}; childNodes: FakeElement[] = [];
+  className = ""; textContent: string | null = null; hidden = false; disabled = false; checked = false; type = ""; value = "";
   constructor(readonly ownerDocument: FakeDocument, readonly tagName: string) {}
-  append(...children: (FakeElement | string)[]): void {
-    this.childNodes.push(...children.filter((item): item is FakeElement => item instanceof FakeElement));
-  }
+  append(...children: (FakeElement | string)[]): void { this.childNodes.push(...children.filter((x): x is FakeElement => x instanceof FakeElement)); }
   prepend(...children: FakeElement[]): void { this.childNodes.unshift(...children); }
   replaceChildren(...children: FakeElement[]): void { this.childNodes = [...children]; }
-  addEventListener(type: string, listener: EventListener): void {
-    const listeners = this.listeners.get(type) ?? new Set<Listener>();
-    listeners.add(listener as Listener);
-    this.listeners.set(type, listeners);
-  }
-  removeEventListener(type: string, listener: EventListener): void {
-    this.listeners.get(type)?.delete(listener as Listener);
-  }
-  dispatch(type: string, event: { preventDefault?: () => void } = {}): void {
-    for (const listener of this.listeners.get(type) ?? []) listener(event);
-  }
+  setAttribute(): void {}
+  addEventListener(type: string, listener: EventListener): void { const set = this.listeners.get(type) ?? new Set(); set.add(listener as Listener); this.listeners.set(type, set); }
+  removeEventListener(type: string, listener: EventListener): void { this.listeners.get(type)?.delete(listener as Listener); }
+  dispatch(type: string, event: { preventDefault?: () => void } = {}): void { for (const listener of this.listeners.get(type) ?? []) listener(event); }
 }
-
-function must<T>(result: DomainResult<T>): T {
-  if (!result.ok) throw new Error(JSON.stringify(result.errors));
-  return result.value;
-}
-const teamId = must(createTeamId("team-alpha"));
-const firstId = must(createReservationId("reservation-a"));
-const addedId = must(createReservationId("reservation-new"));
-const model: TeamReservationsEditViewModel = Object.freeze({
-  teamId,
-  teamLabel: "Team Alpha",
-  reservations: Object.freeze([
-    Object.freeze({
-      reservationId: firstId,
-      startDate: must(createCivilDate("2025-01-01")),
-      endDate: must(createCivilDate("2025-01-31")),
-      ratioPercent: "25",
-      ratioExact: "1/4",
-    }),
+function must<T>(result: DomainResult<T>): T { if (!result.ok) throw new Error(); return result.value; }
+const model: ReservationEditViewModel = Object.freeze({
+  reservationId: must(createReservationId("run")), name: "Run", startDate: must(createCivilDate("2025-01-01")), endDate: must(createCivilDate("2025-01-31")),
+  teamAllocations: Object.freeze([
+    Object.freeze({ teamId: must(createTeamId("alpha")), teamLabel: "Team Alpha", enabled: true, kind: "ratio", value: "33.333", exact: "1/3" }),
+    Object.freeze({ teamId: must(createTeamId("beta")), teamLabel: "Team Beta", enabled: false, kind: "ratio", value: "" }),
   ]),
 });
-
-function fixture(onApply: (command: ReplaceTeamReservationsCommand) => { ok: true } | { ok: false; errors: readonly { code: string; path: string; message: string }[] } = () => ({ ok: true })) {
-  const document = new FakeDocument();
-  const form = document.createElement("form");
-  const container = document.createElement("section");
-  const rows = document.createElement("div");
-  const add = document.createElement("button");
-  const apply = document.createElement("button");
-  const cancel = document.createElement("button");
-  const status = document.createElement("p");
-  const error = document.createElement("p");
-  error.hidden = true;
-  const controller = createReservationEditController({
-    controls: { container, form, rows, add, apply, cancel, status } as unknown as ReservationEditControls,
-    errorContainer: error as unknown as HTMLElement,
-    nextReservationId: () => addedId,
-    onApply,
-  });
-  return { controller, container, form, rows, add, apply, cancel, status, error };
-}
-
-function descendants(root: FakeElement, tagName: string): FakeElement[] {
-  return root.childNodes.flatMap((child) => [
-    ...(child.tagName === tagName ? [child] : []),
-    ...descendants(child, tagName),
-  ]);
+function descendants(root: FakeElement, tag: string): FakeElement[] { return root.childNodes.flatMap((child) => [...(child.tagName === tag ? [child] : []), ...descendants(child, tag)]); }
+function fixture(onApply: (command: UpdateReservationCommand) => { ok: true } | { ok: false; errors: readonly never[] } = () => ({ ok: true })) {
+  const document = new FakeDocument(); const element = (tag: string) => document.createElement(tag);
+  const controls = { container: element("section"), title: element("h3"), form: element("form"), fields: element("div"), apply: element("button"), cancel: element("button"), status: element("p") };
+  const error = element("p"); error.hidden = true;
+  const controller = createReservationEditController({ controls: controls as unknown as ReservationEditControls, errorContainer: error as unknown as HTMLElement, onApply });
+  return { controller, controls, error };
 }
 
 describe("ReservationEditController", () => {
-  it("activates only for a team and renders exact existing reservations", () => {
-    const input = fixture();
-    assert.equal(input.apply.disabled, true);
-    input.controller.setTeam(model);
-    assert.equal(input.apply.disabled, false);
-    assert.equal(input.rows.childNodes.length, 1);
-    assert.deepEqual(descendants(input.rows, "input").map((item) => item.value), [
-      "2025-01-01", "2025-01-31", "25",
-    ]);
+  it("hydrates global fields once and one accessible allocation row per team", () => {
+    const input = fixture(); input.controller.setReservation(model);
+    assert.equal(input.controls.apply.disabled, false);
+    assert.equal(descendants(input.controls.fields, "fieldset").length, 2);
+    assert.equal(descendants(input.controls.fields, "input").filter((field) => field.type === "date").length, 2);
   });
-
-  it("adds and removes rows locally, then Cancel restores without dispatch", () => {
-    let dispatches = 0;
-    const input = fixture(() => { dispatches += 1; return { ok: true }; });
-    input.controller.setTeam(model);
-    input.add.dispatch("click");
-    assert.equal(input.rows.childNodes.length, 2);
-    const firstRemove = descendants(input.rows, "button")[0]!;
-    firstRemove.dispatch("click");
-    assert.equal(input.rows.childNodes.length, 1);
-    input.cancel.dispatch("click");
-    assert.equal(input.rows.childNodes.length, 1);
-    assert.equal(input.rows.childNodes[0]!.dataset.reservationId, firstId);
-    assert.equal(dispatches, 0);
+  it("applies one global command, preserves untouched exact input, and Cancel does not dispatch", () => {
+    const commands: UpdateReservationCommand[] = []; const input = fixture((command) => { commands.push(command); return { ok: true }; });
+    input.controller.setReservation(model); input.controls.form.dispatch("submit", { preventDefault() {} });
+    assert.equal(commands.length, 1); assert.equal(commands[0]!.kind, "update-reservation");
+    input.controls.cancel.dispatch("click"); assert.equal(commands.length, 1);
   });
-
-  it("keeps dirty values on invalid Apply and emits one typed command on success", () => {
-    const commands: ReplaceTeamReservationsCommand[] = [];
-    const input = fixture((command) => { commands.push(command); return { ok: true }; });
-    input.controller.setTeam(model);
-    const fields = descendants(input.rows, "input");
-    fields[2]!.value = "33.33";
-    input.form.dispatch("submit", { preventDefault() {} });
-    assert.equal(commands.length, 1);
-    assert.equal(commands[0]!.kind, "replace-team-reservations");
-
-    fields[2]!.value = "101";
-    input.form.dispatch("submit", { preventDefault() {} });
-    assert.equal(commands.length, 1);
-    assert.equal(input.error.hidden, false);
-    assert.equal(fields[2]!.value, "101");
+  it("clears value when allocation mode changes instead of converting it", () => {
+    const input = fixture(); input.controller.setReservation(model);
+    const select = descendants(input.controls.fields, "select")[0]!; const values = descendants(input.controls.fields, "input").filter((field) => field.type === "text");
+    select.value = "fixed-daily"; select.dispatch("change"); assert.equal(values.at(-2)!.value, "");
   });
 });

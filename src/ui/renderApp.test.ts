@@ -142,7 +142,7 @@ describe("renderApp", () => {
       "form",
     );
     assert.equal(
-      (elements.reservationEditControls.add as unknown as FakeElement).disabled,
+      (elements.reservationEditControls.apply as unknown as FakeElement).disabled,
       true,
     );
     assert.equal(
@@ -169,6 +169,12 @@ describe("renderApp", () => {
       (elements.projectList as unknown as FakeElement).className,
       "project-sidebar-list",
     );
+    assert.equal((elements.projectTab as unknown as FakeElement).tagName, "button");
+    assert.equal((elements.projectTab as unknown as FakeElement).getAttribute("aria-pressed"), "true");
+    assert.equal((elements.reservationTab as unknown as FakeElement).tagName, "button");
+    assert.equal((elements.reservationTab as unknown as FakeElement).getAttribute("aria-pressed"), "false");
+    assert.equal((elements.reservationList as unknown as FakeElement).hidden, true);
+    assert.equal((elements.reservationEditControls.container as unknown as FakeElement).getAttribute("role"), "dialog");
     assert.equal(
       (elements.editorDrawer as unknown as FakeElement).className,
       "planning-editor-drawer",

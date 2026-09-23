@@ -1,148 +1,60 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
-  createCivilDate,
-  createReservationId,
-  createReservationRatio,
-  createTeamId,
-  serializeQuantity,
-  type DomainResult,
+  createCivilDate, createReservationId,
+  createTeamId, serializeQuantity, reservationRatioFromSerialized, capacityFromSerialized, type DomainResult,
 } from "../../domain/index.js";
 import { createDemoPlanningScenario } from "../../main/demo/createDemoPlanningScenario.js";
-import {
-  createPlanningSession,
-  type ReplaceTeamReservationsCommand,
-} from "./planningSession.js";
+import { createPlanningSession, type UpdateReservationCommand } from "./planningSession.js";
 
-function must<T>(result: DomainResult<T>): T {
-  if (!result.ok) throw new Error(JSON.stringify(result.errors));
-  return result.value;
-}
+function must<T>(result: DomainResult<T>): T { if (!result.ok) throw new Error(JSON.stringify(result.errors)); return result.value; }
 
-function replacement(
-  teamId: ReturnType<typeof createDemoPlanningScenario>["portfolio"]["teams"][number]["id"],
-  ratios: readonly string[],
-): ReplaceTeamReservationsCommand {
-  return {
-    kind: "replace-team-reservations",
-    teamId,
-    reservations: ratios.map((ratio, index) => ({
-      reservationId: must(createReservationId(`replacement-${index}`)),
-      startDate: must(createCivilDate("2025-01-01")),
-      endDate: must(createCivilDate("2025-01-31")),
-      ratio: must(createReservationRatio(ratio)),
-    })),
-  };
-}
-
-describe("PlanningSession firm reservation editing", () => {
-  it("atomically adds, edits, and removes a complete team reservation set", () => {
-    const initial = createDemoPlanningScenario();
-    const team = initial.portfolio.teams[1]!;
-    const otherReservations = initial.portfolio.reservations.filter(
-      (item) => item.teamId !== team.id,
-    );
-    const existing = initial.portfolio.reservations.find(
-      (item) => item.teamId === team.id,
-    )!;
-    const session = createPlanningSession(initial);
-    const addedId = must(createReservationId("new-team-reservation"));
-    const result = session.dispatch({
-      kind: "replace-team-reservations",
-      teamId: team.id,
-      reservations: [
-        {
-          reservationId: existing.id,
-          startDate: existing.start,
-          endDate: must(createCivilDate("2025-02-20")),
-          ratio: must(createReservationRatio("0.5")),
-        },
-        {
-          reservationId: addedId,
-          startDate: must(createCivilDate("2025-03-01")),
-          endDate: must(createCivilDate("2025-03-05")),
-          ratio: must(createReservationRatio("0")),
-        },
-      ],
+describe("PlanningSession global reservation editing", () => {
+  const command = (): UpdateReservationCommand => {
+    const state = createDemoPlanningScenario();
+    const reservation = state.portfolio.reservations[0]!;
+    return Object.freeze({
+      kind: "update-reservation",
+      reservationId: reservation.id,
+      name: "Updated Run",
+      startDate: must(createCivilDate("2025-01-02")),
+      endDate: must(createCivilDate("2025-02-20")),
+      teamAllocations: Object.freeze([
+        Object.freeze({ teamId: state.portfolio.teams[0]!.id, kind: "ratio" as const, ratio: must(reservationRatioFromSerialized("1/3")) }),
+        Object.freeze({ teamId: state.portfolio.teams[1]!.id, kind: "fixed-daily" as const, dailyCapacity: must(capacityFromSerialized("3/2")) }),
+      ]),
     });
-    assert.equal(result.ok, true);
-    if (!result.ok) return;
-    const edited = result.state.portfolio.reservations.filter(
-      (item) => item.teamId === team.id,
-    );
-    assert.deepEqual(edited.map((item) => item.id), [existing.id, addedId]);
-    assert.equal(edited[0]!.label, existing.label);
-    assert.equal(serializeQuantity(edited[0]!.ratio), "1/2");
-    assert.equal(serializeQuantity(edited[1]!.ratio), "0/1");
-    assert.ok(
-      otherReservations.every((item) =>
-        result.state.portfolio.reservations.includes(item),
-      ),
-    );
-    assert.ok(
-      result.state.portfolio.teams.every(
-        (item, index) => item === initial.portfolio.teams[index],
-      ),
-    );
-    assert.ok(
-      result.state.portfolio.projects.every(
-        (item, index) => item === initial.portfolio.projects[index],
-      ),
-    );
-    assert.deepEqual(
-      result.state.portfolio.priorityOrder,
-      initial.portfolio.priorityOrder,
-    );
+  };
+
+  it("atomically replaces one reservation and preserves all other state", () => {
+    const initial = createDemoPlanningScenario(); const session = createPlanningSession(initial); const before = session.getState();
+    const result = session.dispatch(command());
+    assert.equal(result.ok, true); if (!result.ok) return;
+    assert.notEqual(result.state, before);
+    const updated = result.state.portfolio.reservations[0]!;
+    assert.equal(updated.name, "Updated Run");
+    assert.equal(updated.startDate, "2025-01-02");
+    assert.equal(updated.teamAllocations[0]!.amount.kind, "ratio");
+    assert.equal(updated.teamAllocations[1]!.amount.kind, "fixed-daily");
+    if (updated.teamAllocations[0]!.amount.kind === "ratio") assert.equal(serializeQuantity(updated.teamAllocations[0]!.amount.ratio), "1/3");
+    if (updated.teamAllocations[1]!.amount.kind === "fixed-daily") assert.equal(serializeQuantity(updated.teamAllocations[1]!.amount.dailyCapacity), "3/2");
+    assert.equal(result.state.portfolio.reservations[1], initial.portfolio.reservations[1]);
+    assert.equal(result.state.portfolio.projects[0], initial.portfolio.projects[0]);
+    assert.equal(result.state.portfolio.teams[0], initial.portfolio.teams[0]);
     assert.equal(result.state.planning, initial.planning);
   });
 
-  it("accepts overlapping reservations whose exact total exceeds one", () => {
-    const initial = createDemoPlanningScenario();
-    const teamId = initial.portfolio.teams[0]!.id;
-    const session = createPlanningSession(initial);
-    const result = session.dispatch(replacement(teamId, ["0.75", "0.5"]));
-    assert.equal(result.ok, true);
-    if (!result.ok) return;
-    assert.deepEqual(
-      result.state.portfolio.reservations
-        .filter((item) => item.teamId === teamId)
-        .map((item) => serializeQuantity(item.ratio)),
-      ["3/4", "1/2"],
-    );
-  });
-
-  it("rejects duplicate IDs, cross-team collisions, unknown teams, and reversed dates", () => {
-    const initial = createDemoPlanningScenario();
-    const teamId = initial.portfolio.teams[0]!.id;
-    const otherReservation = initial.portfolio.reservations.find(
-      (item) => item.teamId !== teamId,
-    )!;
-    const valid = replacement(teamId, ["0.25"]);
-    const cases: ReplaceTeamReservationsCommand[] = [
-      { ...valid, reservations: [valid.reservations[0]!, valid.reservations[0]!] },
-      {
-        ...valid,
-        reservations: [
-          { ...valid.reservations[0]!, reservationId: otherReservation.id },
-        ],
-      },
-      { ...valid, teamId: must(createTeamId("unknown-team")) },
-      {
-        ...valid,
-        reservations: [
-          {
-            ...valid.reservations[0]!,
-            startDate: must(createCivilDate("2025-02-01")),
-            endDate: must(createCivilDate("2025-01-01")),
-          },
-        ],
-      },
+  it("rejects duplicate/unknown teams, unknown reservations, and reversed dates without changing state", () => {
+    const initial = createDemoPlanningScenario(); const valid = command();
+    const cases: UpdateReservationCommand[] = [
+      { ...valid, teamAllocations: [valid.teamAllocations[0]!, valid.teamAllocations[0]!] },
+      { ...valid, teamAllocations: [{ teamId: must(createTeamId("unknown")), kind: "ratio", ratio: must(reservationRatioFromSerialized("1/2")) }] },
+      { ...valid, reservationId: must(createReservationId("unknown")) },
+      { ...valid, startDate: must(createCivilDate("2025-03-01")), endDate: must(createCivilDate("2025-01-01")) },
     ];
-    for (const command of cases) {
-      const session = createPlanningSession(initial);
-      const before = session.getState();
-      assert.equal(session.dispatch(command).ok, false);
-      assert.equal(session.getState(), before);
+    for (const invalid of cases) {
+      const session = createPlanningSession(initial); const before = session.getState();
+      assert.equal(session.dispatch(invalid).ok, false); assert.equal(session.getState(), before);
     }
   });
 });
