@@ -126,6 +126,18 @@ describe("renderApp", () => {
       true,
     );
     assert.equal(
+      (elements.teamEditControls.form as unknown as FakeElement).tagName,
+      "form",
+    );
+    assert.equal(
+      (elements.teamEditControls.fields as unknown as FakeElement).className,
+      "timeline-team-edit-fields",
+    );
+    assert.equal(
+      (elements.teamEditControls.apply as unknown as FakeElement).disabled,
+      true,
+    );
+    assert.equal(
       (elements.applicationError as unknown as FakeElement).getAttribute("role"),
       "alert",
     );

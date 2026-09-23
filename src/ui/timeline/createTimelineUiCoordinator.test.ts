@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import type {
   ProjectEditViewModel,
+  TeamEditViewModel,
   UpdateProjectCommand,
+  UpdateTeamCommand,
 } from "../../application/index.js";
 import type { TimelineGeometry, TimelineViewModel } from "../../adapters/index.js";
 import {
@@ -97,6 +99,13 @@ function fixture() {
     projectCount: 1,
     requirements: Object.freeze([]),
   }) satisfies ProjectEditViewModel;
+  const teamEditModel = Object.freeze({
+    teamId,
+    label: "Team Alpha",
+    maxParallelProjects: 2,
+    workingWeekdays: Object.freeze([1, 2, 3, 4, 5] as const),
+    capacityPeriods: Object.freeze([]),
+  }) satisfies TeamEditViewModel;
   const elements = createElements();
   const lifecycle: string[] = [];
   const viewportInputs: Array<{ initialViewport?: unknown }> = [];
@@ -106,7 +115,10 @@ function fixture() {
     onSelectionChange?: (selected: TimelineHit | undefined) => void;
   }> = [];
   const projectModels: Array<ProjectEditViewModel | undefined> = [];
+  const teamModels: Array<TeamEditViewModel | undefined> = [];
   let applyProject: ((command: UpdateProjectCommand) => { readonly ok: boolean }) | undefined;
+  let applyTeam: ((command: UpdateTeamCommand) => { readonly ok: boolean }) | undefined;
+  let currentSelected: TimelineHit | undefined = allocationHit;
   let generation = 0;
   const dependencies = {
     renderTimeline: () => lifecycle.push("render"),
@@ -137,12 +149,12 @@ function fixture() {
       onSelectionChange?: (selected: TimelineHit | undefined) => void;
     }) => {
       interactionInputs.push(input);
-      const selected = generation === 1 ? allocationHit : input.initialSelected;
-      input.onSelectionChange?.(selected);
+      currentSelected = generation === 1 ? currentSelected : input.initialSelected;
+      input.onSelectionChange?.(currentSelected);
       lifecycle.push(`interaction-${generation}`);
       const ownGeneration = generation;
       return {
-        getState: () => ({ hovered: undefined, selected }),
+        getState: () => ({ hovered: undefined, selected: currentSelected }),
         destroy: () => lifecycle.push(`destroy-interaction-${ownGeneration}`),
       };
     },
@@ -156,6 +168,16 @@ function fixture() {
         destroy: () => lifecycle.push("destroy-project-edit"),
       };
     },
+    createTeamEditController: (input: {
+      onApply: (command: UpdateTeamCommand) => { readonly ok: boolean };
+    }) => {
+      applyTeam = input.onApply;
+      return {
+        setTeam: (model: TeamEditViewModel | undefined) => teamModels.push(model),
+        getTeamId: () => teamModels.at(-1)?.teamId,
+        destroy: () => lifecycle.push("destroy-team-edit"),
+      };
+    },
   } as unknown as TimelineUiCoordinatorDependencies;
   return {
     projectId,
@@ -166,6 +188,7 @@ function fixture() {
     projection,
     nextProjection,
     editModel,
+    teamEditModel,
     elements,
     dependencies,
     lifecycle,
@@ -173,7 +196,13 @@ function fixture() {
     cursorInputs,
     interactionInputs,
     projectModels,
+    teamModels,
     getApplyProject: () => applyProject!,
+    getApplyTeam: () => applyTeam!,
+    select: (selected: TimelineHit | undefined) => {
+      currentSelected = selected;
+      interactionInputs.at(-1)?.onSelectionChange?.(selected);
+    },
   };
 }
 
@@ -187,6 +216,7 @@ describe("TimelineUiCoordinator", () => {
         initialDate: input.firstDate,
         dispatch: () => ({ ok: true, projection: input.nextProjection }),
         getProjectEditViewModel: () => input.editModel,
+        getTeamEditViewModel: () => input.teamEditModel,
       },
       input.dependencies,
     );
@@ -223,6 +253,7 @@ describe("TimelineUiCoordinator", () => {
           errors: [{ code: "INVALID", path: "project.name", message: "Invalid." }],
         }),
         getProjectEditViewModel: () => input.editModel,
+        getTeamEditViewModel: () => input.teamEditModel,
       },
       input.dependencies,
     );
@@ -235,7 +266,7 @@ describe("TimelineUiCoordinator", () => {
     assert.equal(coordinator.getProjection(), input.projection);
   });
 
-  it("disables project editing for team hits and clears a vanished selection", () => {
+  it("alternates project/team editing and clears a vanished selection", () => {
     const input = fixture();
     const coordinator = createTimelineUiCoordinator(
       {
@@ -244,14 +275,19 @@ describe("TimelineUiCoordinator", () => {
         initialDate: input.firstDate,
         dispatch: () => ({ ok: true, projection: input.nextProjection }),
         getProjectEditViewModel: () => input.editModel,
+        getTeamEditViewModel: () => input.teamEditModel,
       },
       input.dependencies,
     );
-    input.interactionInputs[0]?.onSelectionChange?.({
+    input.select({
       kind: "team",
       teamId: input.teamId,
     });
     assert.equal(input.projectModels.at(-1), undefined);
+    assert.equal(input.teamModels.at(-1), input.teamEditModel);
+    input.select(input.allocationHit);
+    assert.equal(input.projectModels.at(-1), input.editModel);
+    assert.equal(input.teamModels.at(-1), undefined);
 
     const withoutAllocation = {
       ...input.nextProjection,
@@ -266,6 +302,29 @@ describe("TimelineUiCoordinator", () => {
     coordinator.renderProjection(withoutAllocation);
     assert.equal(coordinator.getUiSnapshot().selected, undefined);
     assert.equal(input.projectModels.at(-1), undefined);
+    assert.equal(input.teamModels.at(-1), undefined);
+  });
+
+  it("preserves a selected team through a successful team update", () => {
+    const input = fixture();
+    const coordinator = createTimelineUiCoordinator(
+      {
+        elements: input.elements,
+        initialProjection: input.projection,
+        initialDate: input.firstDate,
+        dispatch: () => ({ ok: true, projection: input.nextProjection }),
+        getProjectEditViewModel: () => input.editModel,
+        getTeamEditViewModel: () => input.teamEditModel,
+      },
+      input.dependencies,
+    );
+    const teamHit = { kind: "team", teamId: input.teamId } as const;
+    input.select(teamHit);
+    assert.equal(input.teamModels.at(-1), input.teamEditModel);
+    assert.equal(input.projectModels.at(-1), undefined);
+    input.getApplyTeam()({} as UpdateTeamCommand);
+    assert.deepEqual(coordinator.getUiSnapshot().selected, teamHit);
+    assert.equal(input.teamModels.at(-1), input.teamEditModel);
   });
 });
 
@@ -284,6 +343,13 @@ function createElements(): AppElements {
     tooltip: element() as unknown as HTMLElement,
     selectionSummary: element() as unknown as HTMLElement,
     projectEditControls: {
+      form: element() as unknown as HTMLFormElement,
+      fields: element() as unknown as HTMLElement,
+      apply: element() as unknown as HTMLButtonElement,
+      cancel: element() as unknown as HTMLButtonElement,
+      status: element() as unknown as HTMLElement,
+    },
+    teamEditControls: {
       form: element() as unknown as HTMLFormElement,
       fields: element() as unknown as HTMLElement,
       apply: element() as unknown as HTMLButtonElement,

@@ -4,14 +4,19 @@ import {
   createPlanningSession,
   type PlanningSessionState,
   type UpdateProjectCommand,
+  type UpdateTeamCommand,
 } from "../../application/index.js";
 import {
   createCivilDate,
+  createCapacity,
   createDailyCap,
   createRemainingWorkload,
+  createUnavailabilityRatio,
+  createWorkingPattern,
   serializeQuantity,
   type DomainResult,
   type ProjectId,
+  type TeamId,
 } from "../../domain/index.js";
 import { createDemoPlanningScenario } from "../demo/createDemoPlanningScenario.js";
 import { buildPlanningSessionProjection } from "./buildPlanningSessionProjection.js";
@@ -26,6 +31,29 @@ const geometryViewport = Object.freeze({
 function must<T>(result: DomainResult<T>): T {
   if (!result.ok) throw new Error(JSON.stringify(result.errors));
   return result.value;
+}
+
+function teamCommandFor(
+  state: PlanningSessionState,
+  teamId: TeamId,
+  overrides: Partial<UpdateTeamCommand> = {},
+): UpdateTeamCommand {
+  const team = state.portfolio.teams.find((candidate) => candidate.id === teamId)!;
+  return {
+    kind: "update-team",
+    teamId,
+    name: team.name,
+    maxParallelProjects: team.maxParallelProjects,
+    workingPattern: team.capacitySchedule.workingPattern,
+    capacityPeriods: team.capacitySchedule.periods.map((period) => ({
+      startDate: period.start,
+      endDate: period.end,
+      capacity: period.dailyCapacity,
+      unavailability:
+        period.unavailabilityRatio ?? must(createUnavailabilityRatio("0")),
+    })),
+    ...overrides,
+  };
 }
 
 function commandFor(
@@ -264,5 +292,132 @@ describe("PlanningProjectionDispatcher", () => {
             diagnostic.code === "DEADLINE_MISSED"),
       ),
     );
+  });
+
+  it("keeps planning semantics identical for a team name-only update", () => {
+    const initial = createDemoPlanningScenario();
+    const session = createPlanningSession(initial);
+    const dispatcher = createPlanningProjectionDispatcher({ session, geometryViewport });
+    const before = dispatcher.getProjection();
+    const team = initial.portfolio.teams[0]!;
+    const result = dispatcher.dispatch(
+      teamCommandFor(initial, team.id, { name: "Alpha Renamed" }),
+    );
+    assert.equal(result.ok, true);
+    assert.deepEqual(dispatcher.getProjection().planningResult, before.planningResult);
+    assert.equal(dispatcher.getProjection().viewModel.teams[0]?.label, "Alpha Renamed");
+  });
+
+  it("rebuilds once for valid team edits and never for invalid ones", () => {
+    const initial = createDemoPlanningScenario();
+    const session = createPlanningSession(initial);
+    let buildCount = 0;
+    const dispatcher = createPlanningProjectionDispatcher({
+      session,
+      geometryViewport,
+      buildProjection: (input) => {
+        buildCount += 1;
+        return buildPlanningSessionProjection(input);
+      },
+    });
+    const team = initial.portfolio.teams[0]!;
+    const projection = dispatcher.getProjection();
+    assert.equal(
+      dispatcher.dispatch(
+        teamCommandFor(initial, team.id, { maxParallelProjects: 0 }),
+      ).ok,
+      false,
+    );
+    assert.equal(buildCount, 1);
+    assert.equal(dispatcher.getProjection(), projection);
+    assert.equal(
+      dispatcher.dispatch(
+        teamCommandFor(initial, team.id, { maxParallelProjects: 1 }),
+      ).ok,
+      true,
+    );
+    assert.equal(buildCount, 2);
+  });
+
+  it("lets max parallel change the existing planner admission", () => {
+    const initial = createDemoPlanningScenario();
+    const session = createPlanningSession(initial);
+    const dispatcher = createPlanningProjectionDispatcher({ session, geometryViewport });
+    const team = initial.portfolio.teams[0]!;
+    const date = must(createCivilDate("2025-01-01"));
+    const before = dispatcher
+      .getProjection()
+      .viewModel.teams[0]!.allocations.filter((allocation) => allocation.date === date);
+    assert.equal(before.length, 2);
+    assert.equal(
+      dispatcher.dispatch(
+        teamCommandFor(initial, team.id, { maxParallelProjects: 1 }),
+      ).ok,
+      true,
+    );
+    const after = dispatcher
+      .getProjection()
+      .viewModel.teams[0]!.allocations.filter((allocation) => allocation.date === date);
+    assert.equal(after.length, 1);
+  });
+
+  it("removes capacity and allocations when a weekday is disabled", () => {
+    const initial = createDemoPlanningScenario();
+    const session = createPlanningSession(initial);
+    const dispatcher = createPlanningProjectionDispatcher({ session, geometryViewport });
+    const team = initial.portfolio.teams[0]!;
+    const wednesday = must(createCivilDate("2025-01-08"));
+    assert.ok(
+      dispatcher.getProjection().viewModel.teams[0]!.allocations.some(
+        (allocation) => allocation.date === wednesday,
+      ),
+    );
+    const result = dispatcher.dispatch(
+      teamCommandFor(initial, team.id, {
+        workingPattern: must(
+          createWorkingPattern({ workingWeekdays: [1, 2, 4, 5] }),
+        ),
+      }),
+    );
+    assert.equal(result.ok, true);
+    const after = dispatcher.getProjection().viewModel.teams[0]!;
+    assert.equal(
+      serializeQuantity(
+        after.capacities.find((capacity) => capacity.date === wednesday)!
+          .effectiveCapacity,
+      ),
+      "0/1",
+    );
+    assert.equal(
+      after.allocations.some((allocation) => allocation.date === wednesday),
+      false,
+    );
+  });
+
+  it("recomputes exact effective capacity from capacity and unavailability", () => {
+    const initial = createDemoPlanningScenario();
+    const session = createPlanningSession(initial);
+    const dispatcher = createPlanningProjectionDispatcher({ session, geometryViewport });
+    const team = initial.portfolio.teams[0]!;
+    const base = teamCommandFor(initial, team.id);
+    const result = dispatcher.dispatch({
+      ...base,
+      capacityPeriods: base.capacityPeriods.map((period, index) =>
+        index === 0
+          ? {
+              ...period,
+              capacity: must(createCapacity("4")),
+              unavailability: must(createUnavailabilityRatio("0.5")),
+            }
+          : period,
+      ),
+    });
+    assert.equal(result.ok, true);
+    const day = dispatcher
+      .getProjection()
+      .viewModel.teams[0]!.capacities.find(
+        (capacity) => capacity.date === "2025-01-02",
+      )!;
+    assert.equal(serializeQuantity(day.effectiveCapacity), "2/1");
   });
 });

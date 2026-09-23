@@ -9,10 +9,19 @@ export interface AppElements {
   readonly tooltip: HTMLElement;
   readonly selectionSummary: HTMLElement;
   readonly projectEditControls: ProjectEditControls;
+  readonly teamEditControls: TeamEditControls;
   readonly applicationError: HTMLElement;
 }
 
 export interface ProjectEditControls {
+  readonly form: HTMLFormElement;
+  readonly fields: HTMLElement;
+  readonly apply: HTMLButtonElement;
+  readonly cancel: HTMLButtonElement;
+  readonly status: HTMLElement;
+}
+
+export interface TeamEditControls {
   readonly form: HTMLFormElement;
   readonly fields: HTMLElement;
   readonly apply: HTMLButtonElement;
@@ -114,6 +123,38 @@ export function renderApp(root: HTMLElement): AppElements {
     cancel: projectCancel,
     status: projectEditStatus,
   });
+  const teamEdit = document.createElement("section");
+  teamEdit.className = "timeline-team-edit";
+  teamEdit.setAttribute("aria-label", "Team edit demo");
+  const teamEditTitle = document.createElement("h3");
+  teamEditTitle.textContent = "Selected team";
+  const teamEditStatus = document.createElement("p");
+  teamEditStatus.className = "timeline-team-edit-status";
+  teamEditStatus.textContent = "Select a team lane to edit.";
+  const teamEditForm = document.createElement("form");
+  teamEditForm.className = "timeline-team-edit-form";
+  const teamFields = document.createElement("div");
+  teamFields.className = "timeline-team-edit-fields";
+  const teamApply = document.createElement("button");
+  teamApply.type = "submit";
+  teamApply.textContent = "Apply";
+  teamApply.disabled = true;
+  const teamCancel = document.createElement("button");
+  teamCancel.type = "button";
+  teamCancel.textContent = "Cancel";
+  teamCancel.disabled = true;
+  const teamActions = document.createElement("div");
+  teamActions.className = "timeline-team-edit-actions";
+  teamActions.append(teamApply, teamCancel);
+  teamEditForm.append(teamFields, teamActions);
+  teamEdit.append(teamEditTitle, teamEditStatus, teamEditForm);
+  const teamEditControls = Object.freeze({
+    form: teamEditForm,
+    fields: teamFields,
+    apply: teamApply,
+    cancel: teamCancel,
+    status: teamEditStatus,
+  });
   const applicationError = document.createElement("p");
   applicationError.className = "application-error";
   applicationError.setAttribute("role", "alert");
@@ -127,6 +168,7 @@ export function renderApp(root: HTMLElement): AppElements {
     dateSummary,
     selectionSummary,
     projectEdit,
+    teamEdit,
     applicationError,
     diagnostics,
     tooltip,
@@ -143,6 +185,7 @@ export function renderApp(root: HTMLElement): AppElements {
     tooltip,
     selectionSummary,
     projectEditControls,
+    teamEditControls,
     applicationError,
   });
 }

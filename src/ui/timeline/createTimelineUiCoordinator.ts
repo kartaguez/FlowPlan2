@@ -5,15 +5,19 @@ import type {
 import type {
   PlanningCommand,
   ProjectEditViewModel,
+  TeamEditViewModel,
   UpdateProjectCommand,
+  UpdateTeamCommand,
 } from "../../application/index.js";
 import type {
   CivilDate,
   DomainError,
   ProjectId,
+  TeamId,
 } from "../../domain/index.js";
 import type { AppElements } from "../renderApp.js";
 import { createProjectEditController } from "../project-edit/createProjectEditController.js";
+import { createTeamEditController } from "../team-edit/createTeamEditController.js";
 import { createTimelineCursorController } from "./createTimelineCursorController.js";
 import { createTimelineInteractionController } from "./createTimelineInteractionController.js";
 import { createTimelineViewportController } from "./createTimelineViewportController.js";
@@ -55,6 +59,9 @@ export interface CreateTimelineUiCoordinatorInput {
   readonly getProjectEditViewModel: (
     projectId: ProjectId,
   ) => ProjectEditViewModel | undefined;
+  readonly getTeamEditViewModel: (
+    teamId: TeamId,
+  ) => TeamEditViewModel | undefined;
 }
 
 export interface TimelineUiCoordinatorDependencies {
@@ -64,6 +71,7 @@ export interface TimelineUiCoordinatorDependencies {
   readonly createCursorController: typeof createTimelineCursorController;
   readonly createInteractionController: typeof createTimelineInteractionController;
   readonly createProjectEditController: typeof createProjectEditController;
+  readonly createTeamEditController: typeof createTeamEditController;
 }
 
 const DEFAULT_DEPENDENCIES: TimelineUiCoordinatorDependencies = Object.freeze({
@@ -73,6 +81,7 @@ const DEFAULT_DEPENDENCIES: TimelineUiCoordinatorDependencies = Object.freeze({
   createCursorController: createTimelineCursorController,
   createInteractionController: createTimelineInteractionController,
   createProjectEditController,
+  createTeamEditController,
 });
 
 export function createTimelineUiCoordinator(
@@ -84,9 +93,10 @@ export function createTimelineUiCoordinator(
   let cursorController: ReturnType<typeof createTimelineCursorController>;
   let interactionController: ReturnType<typeof createTimelineInteractionController>;
   let projectEditController: ReturnType<typeof createProjectEditController>;
+  let teamEditController: ReturnType<typeof createTeamEditController>;
   let mounted = false;
 
-  const updateProjectForm = (selected: TimelineHit | undefined): void => {
+  const updateEditForms = (selected: TimelineHit | undefined): void => {
     const selectedProjectId =
       selected?.kind === "allocation" || selected?.kind === "project-marker"
         ? selected.projectId
@@ -96,6 +106,11 @@ export function createTimelineUiCoordinator(
         ? undefined
         : input.getProjectEditViewModel(selectedProjectId);
     projectEditController.setProject(editViewModel);
+    const teamEditViewModel =
+      selected?.kind === "team"
+        ? input.getTeamEditViewModel(selected.teamId)
+        : undefined;
+    teamEditController.setTeam(teamEditViewModel);
   };
 
   const currentSnapshot = (): TimelineUiSnapshot => {
@@ -172,7 +187,7 @@ export function createTimelineUiCoordinator(
       selectionSummaryContainer: input.elements.selectionSummary,
       keyboardControl: input.elements.cursorControl,
       ...(selected === undefined ? {} : { initialSelected: selected }),
-      onSelectionChange: updateProjectForm,
+      onSelectionChange: updateEditForms,
     });
     mounted = true;
   };
@@ -188,11 +203,22 @@ export function createTimelineUiCoordinator(
     renderProjection(result.projection);
     return Object.freeze({ ok: true as const });
   };
+  const applyTeamUpdate = (command: UpdateTeamCommand) => {
+    const result = input.dispatch(command);
+    if (!result.ok) return result;
+    renderProjection(result.projection);
+    return Object.freeze({ ok: true as const });
+  };
 
   projectEditController = dependencies.createProjectEditController({
     controls: input.elements.projectEditControls,
     errorContainer: input.elements.applicationError,
     onApply: applyProjectUpdate,
+  });
+  teamEditController = dependencies.createTeamEditController({
+    controls: input.elements.teamEditControls,
+    errorContainer: input.elements.applicationError,
+    onApply: applyTeamUpdate,
   });
   mountProjection(input.initialProjection, currentSnapshot());
 
@@ -202,6 +228,7 @@ export function createTimelineUiCoordinator(
     renderProjection,
     destroy: () => {
       projectEditController.destroy();
+      teamEditController.destroy();
       destroyControllers();
     },
   });

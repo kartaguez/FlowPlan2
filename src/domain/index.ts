@@ -19,10 +19,12 @@ export {
   createReservationId,
   createReservationRatio,
   createTeamId,
+  createUnavailabilityRatio,
   dailyCapFromSerialized,
   quantityToDecimalString,
   remainingWorkloadFromSerialized,
   reservationRatioFromSerialized,
+  unavailabilityRatioFromSerialized,
   serializeQuantity,
   type Capacity,
   type CapacityRatio,
@@ -33,6 +35,7 @@ export {
   type ReservationId,
   type ReservationRatio,
   type TeamId,
+  type UnavailabilityRatio,
 } from "./model/scalars.js";
 export { createPlanningHorizon, type PlanningHorizon } from "./model/horizon.js";
 export {

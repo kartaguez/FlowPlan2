@@ -21,6 +21,7 @@ declare const remainingWorkloadBrand: unique symbol;
 declare const dailyCapBrand: unique symbol;
 declare const capacityRatioBrand: unique symbol;
 declare const reservationRatioBrand: unique symbol;
+declare const unavailabilityRatioBrand: unique symbol;
 
 export interface Capacity {
   readonly [capacityBrand]: true;
@@ -37,9 +38,17 @@ export interface CapacityRatio {
 export interface ReservationRatio {
   readonly [reservationRatioBrand]: true;
 }
+export interface UnavailabilityRatio {
+  readonly [unavailabilityRatioBrand]: true;
+}
 
 export type DomainQuantity =
-  Capacity | RemainingWorkload | DailyCap | CapacityRatio | ReservationRatio;
+  | Capacity
+  | RemainingWorkload
+  | DailyCap
+  | CapacityRatio
+  | ReservationRatio
+  | UnavailabilityRatio;
 export type MaxParallelProjects = Brand<number, "MaxParallelProjects">;
 
 const rationalByQuantity = new WeakMap<DomainQuantity, Rational>();
@@ -203,6 +212,27 @@ export function createReservationRatio(
   return success(unsafeWrapValidatedQuantity<ReservationRatio>(rational.value));
 }
 
+export function createUnavailabilityRatio(
+  value: string,
+  path = "unavailabilityRatio",
+): DomainResult<UnavailabilityRatio> {
+  const rational = parseDecimalRational(value, path);
+  if (!rational.ok) return rational;
+  const one = rationalFromInteger(1n);
+  if (isNegative(rational.value) || compareRationals(rational.value, one) > 0) {
+    return failure([
+      error(
+        "UNAVAILABILITY_RATIO_OUT_OF_RANGE",
+        path,
+        "Unavailability ratio must be between zero and one.",
+      ),
+    ]);
+  }
+  return success(
+    unsafeWrapValidatedQuantity<UnavailabilityRatio>(rational.value),
+  );
+}
+
 export function quantityToDecimalString(
   value: DomainQuantity,
   precision?: number,
@@ -288,6 +318,19 @@ export function reservationRatioFromSerialized(
     path,
     (rational) => !isNegative(rational) && compareRationals(rational, one) <= 0,
     "Reservation ratio must be between zero and one.",
+  );
+}
+
+export function unavailabilityRatioFromSerialized(
+  value: string,
+  path = "unavailabilityRatio",
+): DomainResult<UnavailabilityRatio> {
+  const one = rationalFromInteger(1n);
+  return quantityFromSerialized(
+    value,
+    path,
+    (rational) => !isNegative(rational) && compareRationals(rational, one) <= 0,
+    "Unavailability ratio must be between zero and one.",
   );
 }
 

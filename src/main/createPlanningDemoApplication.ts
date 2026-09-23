@@ -1,6 +1,7 @@
 import type { TimelineGeometryViewport } from "../adapters/index.js";
 import {
   buildProjectEditViewModel,
+  buildTeamEditViewModel,
   createPlanningSession,
 } from "../application/index.js";
 import type { AppElements } from "../ui/renderApp.js";
@@ -30,5 +31,7 @@ export function createPlanningDemoApplication(
     dispatch: projectionDispatcher.dispatch,
     getProjectEditViewModel: (projectId) =>
       buildProjectEditViewModel(session.getState(), projectId),
+    getTeamEditViewModel: (teamId) =>
+      buildTeamEditViewModel(session.getState(), teamId),
   });
 }

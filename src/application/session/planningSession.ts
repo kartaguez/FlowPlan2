@@ -1,8 +1,17 @@
 import {
+  capacityFromSerialized,
+  compareCivilDates,
+  createCapacityPeriod,
+  createMaxParallelProjects,
   createPortfolio,
   createProject,
   createProjectTeamRequirement,
+  createTeam,
+  createTeamCapacitySchedule,
+  createWorkingPattern,
   serializeQuantity,
+  unavailabilityRatioFromSerialized,
+  type Capacity,
   type CivilDate,
   type DailyCap,
   type DomainError,
@@ -10,7 +19,10 @@ import {
   type Portfolio,
   type ProjectId,
   type RemainingWorkload,
+  type Team,
   type TeamId,
+  type UnavailabilityRatio,
+  type WorkingPattern,
 } from "../../domain/index.js";
 
 export interface PlanningSessionState {
@@ -36,7 +48,24 @@ export interface UpdateProjectCommand {
   readonly teamRequirements: readonly UpdateProjectTeamRequirement[];
 }
 
-export type PlanningCommand = UpdateProjectCommand;
+export interface UpdateTeamCapacityPeriod {
+  readonly startDate: CivilDate;
+  readonly endDate: CivilDate;
+  readonly capacity: Capacity;
+  readonly unavailability: UnavailabilityRatio;
+}
+
+export interface UpdateTeamCommand {
+  readonly kind: "update-team";
+  readonly teamId: TeamId;
+  readonly name: string;
+  readonly maxParallelProjects: number;
+  readonly workingPattern: WorkingPattern;
+  /** Period #i replaces existing period #i; add/remove/reorder is unsupported. */
+  readonly capacityPeriods: readonly UpdateTeamCapacityPeriod[];
+}
+
+export type PlanningCommand = UpdateProjectCommand | UpdateTeamCommand;
 
 export type PlanningCommandResult =
   | Readonly<{ ok: true; state: PlanningSessionState }>
@@ -69,7 +98,152 @@ function applyCommand(
   switch (command.kind) {
     case "update-project":
       return updateProject(state, command);
+    case "update-team":
+      return updateTeam(state, command);
   }
+}
+
+function updateTeam(
+  state: PlanningSessionState,
+  command: UpdateTeamCommand,
+): PlanningCommandResult {
+  const errors: DomainError[] = [];
+  const name = command.name.trim();
+  if (name.length === 0) {
+    errors.push(
+      applicationError(
+        "EMPTY_TEAM_NAME",
+        "team.name",
+        "Team name must not be empty.",
+      ),
+    );
+  }
+  const teamIndex = state.portfolio.teams.findIndex(
+    (team) => team.id === command.teamId,
+  );
+  if (teamIndex < 0) {
+    errors.push(
+      applicationError(
+        "UNKNOWN_TEAM",
+        "teamId",
+        `Team ${command.teamId} does not exist in the current portfolio.`,
+      ),
+    );
+  }
+  const maxParallelProjects = createMaxParallelProjects(
+    command.maxParallelProjects,
+    "team.maxParallelProjects",
+  );
+  if (!maxParallelProjects.ok) errors.push(...maxParallelProjects.errors);
+  const workingPattern = createWorkingPattern({
+    workingWeekdays: command.workingPattern.workingWeekdays,
+  });
+  if (!workingPattern.ok) errors.push(...workingPattern.errors);
+  if (teamIndex >= 0) {
+    const expectedPeriodCount =
+      state.portfolio.teams[teamIndex]!.capacitySchedule.periods.length;
+    if (command.capacityPeriods.length !== expectedPeriodCount) {
+      errors.push(
+        applicationError(
+          "CAPACITY_PERIOD_COUNT_CHANGED",
+          "team.capacityPeriods",
+          `Team update must retain exactly ${expectedPeriodCount} capacity periods.`,
+        ),
+      );
+    }
+  }
+  for (let index = 1; index < command.capacityPeriods.length; index += 1) {
+    const previous = command.capacityPeriods[index - 1]!;
+    const current = command.capacityPeriods[index]!;
+    if (compareCivilDates(previous.startDate, current.startDate) > 0) {
+      errors.push(
+        applicationError(
+          "CAPACITY_PERIOD_ORDER_CHANGED",
+          `team.capacityPeriods[${index}]`,
+          "Capacity period order cannot change in Phase 7C.",
+        ),
+      );
+    }
+  }
+  if (
+    errors.length > 0 ||
+    teamIndex < 0 ||
+    !maxParallelProjects.ok ||
+    !workingPattern.ok
+  ) {
+    return failure(errors);
+  }
+
+  const periodResults = command.capacityPeriods.map((period, index) => {
+    const path = `team.capacityPeriods[${index}]`;
+    const capacity = capacityFromSerialized(
+      serializeQuantity(period.capacity),
+      `${path}.capacity`,
+    );
+    const unavailability = unavailabilityRatioFromSerialized(
+      serializeQuantity(period.unavailability),
+      `${path}.unavailability`,
+    );
+    if (!capacity.ok || !unavailability.ok) {
+      return {
+        ok: false as const,
+        errors: [
+          ...(capacity.ok ? [] : capacity.errors),
+          ...(unavailability.ok ? [] : unavailability.errors),
+        ],
+      };
+    }
+    return createCapacityPeriod({
+      start: period.startDate,
+      end: period.endDate,
+      dailyCapacity: capacity.value,
+      unavailabilityRatio: unavailability.value,
+    });
+  });
+  const periodErrors = periodResults.flatMap((result) =>
+    result.ok ? [] : result.errors,
+  );
+  if (periodErrors.length > 0) return failure(periodErrors);
+  const periods = periodResults.map((result) => {
+    if (!result.ok) throw new TypeError("Validated capacity period failed.");
+    return result.value;
+  });
+  const currentTeam = state.portfolio.teams[teamIndex]!;
+  const capacitySchedule = createTeamCapacitySchedule({
+    workingPattern: workingPattern.value,
+    periods,
+    exceptions: currentTeam.capacitySchedule.exceptions,
+  });
+  if (!capacitySchedule.ok) return failure(capacitySchedule.errors);
+  const updatedTeam = createTeam({
+    id: currentTeam.id,
+    name,
+    maxParallelProjects: maxParallelProjects.value,
+    capacitySchedule: capacitySchedule.value,
+  });
+  if (!updatedTeam.ok) return failure(updatedTeam.errors);
+  return replaceTeam(state, teamIndex, updatedTeam.value);
+}
+
+function replaceTeam(
+  state: PlanningSessionState,
+  teamIndex: number,
+  updatedTeam: Team,
+): PlanningCommandResult {
+  const teams = state.portfolio.teams.map((team, index) =>
+    index === teamIndex ? updatedTeam : team,
+  );
+  const portfolio = createPortfolio({
+    teams,
+    projects: state.portfolio.projects,
+    priorityOrder: state.portfolio.priorityOrder,
+    reservations: state.portfolio.reservations,
+  });
+  if (!portfolio.ok) return failure(portfolio.errors);
+  return Object.freeze({
+    ok: true,
+    state: freezeState({ portfolio: portfolio.value, horizon: state.horizon }),
+  });
 }
 
 function updateProject(

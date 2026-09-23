@@ -9,6 +9,7 @@ import {
   createTeam,
   createTeamCapacitySchedule,
   createTeamId,
+  createUnavailabilityRatio,
   createWorkingPattern,
   effectiveCapacity,
   quantityToDecimalString,
@@ -87,6 +88,44 @@ describe("team capacity schedule", () => {
     assert.equal(rendered(effectiveCapacity(team, date("2025-02-01"))), "1");
     assert.equal(rendered(effectiveCapacity(team, date("2025-01-06"))), "0");
     assert.equal(rendered(effectiveCapacity(team, date("2025-01-06"))), "0");
+  });
+
+  it("applies exact period unavailability without changing exceptions", () => {
+    const schedule = must(
+      createTeamCapacitySchedule({
+        workingPattern: must(
+          createWorkingPattern({ workingWeekdays: [1, 2, 3, 4, 5] }),
+        ),
+        periods: [
+          must(
+            createCapacityPeriod({
+              start: date("2025-01-01"),
+              end: date("2025-01-10"),
+              dailyCapacity: capacity("4"),
+              unavailabilityRatio: must(createUnavailabilityRatio("0.25")),
+            }),
+          ),
+        ],
+        exceptions: [
+          must(
+            createCapacityException({
+              date: date("2025-01-06"),
+              capacity: capacity("2"),
+            }),
+          ),
+        ],
+      }),
+    );
+    const team = must(
+      createTeam({
+        id: must(createTeamId("team-unavailability")),
+        name: "Team Unavailability",
+        maxParallelProjects: must(createMaxParallelProjects(1)),
+        capacitySchedule: schedule,
+      }),
+    );
+    assert.equal(rendered(effectiveCapacity(team, date("2025-01-02"))), "3");
+    assert.equal(rendered(effectiveCapacity(team, date("2025-01-06"))), "2");
   });
 
   it("rejects overlapping periods and duplicate exception dates", () => {

@@ -723,3 +723,73 @@ champs depuis l'état courant sans commande ni recompute.
 Phase 7B modifie uniquement les projets et leurs requirements déjà associés.
 Elle n'ajoute ni suppression d'affectation, édition d'équipe/réservation,
 drag/drop, undo/redo ou persistence.
+
+## Team Capacity Editing — Phase 7C
+
+L'édition d'équipe conserve `PlanningSessionState` comme source de vérité et
+sépare trois niveaux de responsabilité :
+
+```text
+Team-global
+  name
+  maxParallelProjects
+  workingPattern (ISO weekdays 1..7)
+
+Capacity-period
+  inclusive start/end CivilDate
+  exact daily capacity
+  exact unavailability ratio
+
+Separate from team editing
+  firm reservations
+```
+
+L'indisponibilité planifiée d'une période est représentée par le value object
+exact `UnavailabilityRatio`, borné entre zéro et un. Elle est distincte d'une
+`FirmCapacityReservation` et ne modifie jamais `portfolio.reservations`. La
+capacité effective d'une période est calculée dans le domaine par
+`dailyCapacity × (1 - unavailabilityRatio)`; l'UI ne duplique pas cette
+formule. Le formulaire présente le ratio comme un pourcentage exact et le
+convertit sans `parseFloat` ni arrondi flottant.
+
+Les périodes utilisent des bornes inclusives `[start, end]`. Deux périodes
+sont donc adjacentes lorsque la seconde commence le jour suivant la fin de la
+première; partager le même jour constitue un overlap. Les périodes d'une team
+ne peuvent pas se chevaucher. Les gaps restent valides et signifient une
+capacité nulle, sans période implicite.
+
+Phase 7C édite uniquement les périodes existantes. En l'absence d'identifiant
+métier de période, la position canonique `#i` sert d'identité temporaire à la
+frontière applicative. `update-team` exige exactement le même nombre de
+périodes et refuse ajout, suppression ou réordonnancement. La schedule factory
+revalide chronologie et non-overlap.
+
+Le formulaire team contient une section globale (nom, parallélisme, sept
+jours ouvrés) puis un `fieldset` par période existante (début, fin, capacité,
+indisponibilité). Les dates passent par `createCivilDate`, les capacités et
+ratios par leurs factories rationnelles exactes. La capacité zéro et une
+semaine sans jour ouvré restent valides, conformément au domaine existant.
+
+La transaction suit la même frontière que l'édition projet :
+
+```text
+all fields valid
+  -> immutable Team / Portfolio replacement
+  -> exactly one planning projection rebuild
+
+any field invalid
+  -> no state replacement
+  -> no recompute
+  -> current projection remains active
+```
+
+Un hit team active exclusivement le Team editor. Un hit allocation ou marker
+continue d'activer exclusivement le Project editor. Le coordinateur ne parse
+aucun formulaire : il résout les view models d'édition, dispatch les commandes
+typées et réconcilie viewport, date et sélection après rerender. Le hover est
+réinitialisé.
+
+Phase 7C ne modifie jamais projets, priorité globale ou réservations. Une
+capacité modifiée peut néanmoins changer les conséquences et diagnostics des
+réservations existantes. Leur édition commence uniquement en Phase 7D. Aucun
+add/remove team ou période, drag/drop, undo/redo ou persistence n'est ajouté.

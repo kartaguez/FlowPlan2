@@ -6,6 +6,7 @@ import {
   createDailyCap,
   createRemainingWorkload,
   createReservationRatio,
+  createUnavailabilityRatio,
   quantityToDecimalString,
   serializeQuantity,
   type DomainResult,
@@ -99,6 +100,23 @@ describe("opaque rational domain quantities", () => {
     assert.equal(createReservationRatio("1").ok, true);
     assert.equal(createReservationRatio("-0.0000000000000000001").ok, false);
     assert.equal(createReservationRatio("1.0000000000000000001").ok, false);
+  });
+
+  it("keeps period unavailability in its own exact zero-to-one type", () => {
+    assert.equal(
+      serializeQuantity(must(createUnavailabilityRatio("0"))),
+      "0/1",
+    );
+    assert.equal(
+      serializeQuantity(must(createUnavailabilityRatio("1"))),
+      "1/1",
+    );
+    assert.equal(
+      serializeQuantity(must(createUnavailabilityRatio("0.25"))),
+      "1/4",
+    );
+    assert.equal(createUnavailabilityRatio("-0.1").ok, false);
+    assert.equal(createUnavailabilityRatio("1.1").ok, false);
   });
 
   it("serializes exactly and renders periodic values only with explicit precision", () => {

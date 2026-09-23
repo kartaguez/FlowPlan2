@@ -202,13 +202,17 @@ export function createProjectEditController(
     hydrate(model);
     clearError();
   };
+  const setProject = (project: ProjectEditViewModel | undefined): void => {
+    hydrate(project);
+    clearError();
+  };
 
   input.controls.form.addEventListener("submit", onSubmit);
   input.controls.cancel.addEventListener("click", onCancel);
   hydrate(undefined);
 
   return Object.freeze({
-    setProject: hydrate,
+    setProject,
     getProjectId: () => model?.projectId,
     destroy: () => {
       input.controls.form.removeEventListener("submit", onSubmit);

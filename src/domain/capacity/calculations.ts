@@ -48,7 +48,17 @@ export function effectiveCapacity(team: Team, date: CivilDate): Capacity {
   const period = team.capacitySchedule.periods.find(
     (item) => item.start <= date && date <= item.end,
   );
-  return period?.dailyCapacity ?? ZERO_CAPACITY;
+  if (!period) return ZERO_CAPACITY;
+  if (period.unavailabilityRatio === undefined) return period.dailyCapacity;
+  const availability = subtractRationals(
+    ONE,
+    rationalOf(period.unavailabilityRatio),
+  );
+  return unwrapProvenQuantity(
+    capacityFromRational(
+      multiplyRationals(rationalOf(period.dailyCapacity), availability),
+    ),
+  );
 }
 
 /** Applicable ratios are summed exactly in collection order. */

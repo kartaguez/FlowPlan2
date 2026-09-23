@@ -1,5 +1,8 @@
 import { compareCivilDates, isoWeekday, type CivilDate } from "../model/date.js";
-import type { Capacity } from "../model/scalars.js";
+import type {
+  Capacity,
+  UnavailabilityRatio,
+} from "../model/scalars.js";
 import {
   error,
   failure,
@@ -18,6 +21,7 @@ export interface CapacityPeriod {
   readonly start: CivilDate;
   readonly end: CivilDate;
   readonly dailyCapacity: Capacity;
+  readonly unavailabilityRatio?: UnavailabilityRatio;
 }
 
 export interface CapacityException {
@@ -71,6 +75,7 @@ export function createCapacityPeriod(input: {
   readonly start: CivilDate;
   readonly end: CivilDate;
   readonly dailyCapacity: Capacity;
+  readonly unavailabilityRatio?: UnavailabilityRatio;
 }): DomainResult<CapacityPeriod> {
   if (compareCivilDates(input.start, input.end) > 0) {
     return failure([
