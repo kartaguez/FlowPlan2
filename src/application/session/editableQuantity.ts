@@ -1,5 +1,10 @@
 import {
+  divideRationals,
+  parseDecimalRational,
+  parseSerializedRational,
   quantityToDecimalString,
+  rationalFromInteger,
+  rationalToCanonicalString,
   type Capacity,
   type DailyCap,
   type RemainingWorkload,
@@ -46,4 +51,27 @@ export function formatPercentageForEditing(serializedRatio: string): string {
   return fractional.length === 0
     ? `${sign}${integerPart}`
     : `${sign}${integerPart}.${fractional}`;
+}
+
+/** Parses either a finite decimal or a canonical-style rational fraction. */
+export function parseExactQuantityInput(value: string): string | undefined {
+  const trimmed = value.trim();
+  const parsed = trimmed.includes("/")
+    ? parseSerializedRational(trimmed, "quantity")
+    : parseDecimalRational(trimmed, "quantity");
+  return parsed.ok ? rationalToCanonicalString(parsed.value) : undefined;
+}
+
+/** Parses a percentage value, then divides it exactly by one hundred. */
+export function parseExactPercentageInput(value: string): string | undefined {
+  const quantity = parseExactQuantityInput(value);
+  if (quantity === undefined) return undefined;
+  const parsed = parseSerializedRational(quantity, "percentage");
+  if (!parsed.ok) return undefined;
+  const ratio = divideRationals(
+    parsed.value,
+    rationalFromInteger(100n),
+    "percentage",
+  );
+  return ratio.ok ? rationalToCanonicalString(ratio.value) : undefined;
 }

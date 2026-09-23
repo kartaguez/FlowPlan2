@@ -1,8 +1,10 @@
 import type { CivilDate } from "../model/date.js";
 import type { PlanningHorizon } from "../model/horizon.js";
 import type { Portfolio } from "../model/entities.js";
+import type { WorkingPattern } from "../capacity/schedule.js";
 import type {
   Capacity,
+  MaxParallelProjects,
   ProjectId,
   RemainingWorkload,
   TeamId,
@@ -11,6 +13,9 @@ import type {
 export interface PlanningInput {
   readonly portfolio: Portfolio;
   readonly horizon: PlanningHorizon;
+  readonly workingPattern: WorkingPattern;
+  /** Shared value, enforced independently inside every team plan. */
+  readonly maxParallelProjects: MaxParallelProjects;
 }
 
 export interface TeamDayCapacity {

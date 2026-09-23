@@ -3,11 +3,15 @@ import {
   type PlanningHorizon,
   type PlanningResult,
   type Portfolio,
+  type MaxParallelProjects,
+  type WorkingPattern,
 } from "../../domain/index.js";
 
 export interface RecomputePlanningRequest {
   readonly portfolio: Portfolio;
   readonly horizon: PlanningHorizon;
+  readonly workingPattern: WorkingPattern;
+  readonly maxParallelProjects: MaxParallelProjects;
 }
 
 export interface RecomputePlanningResponse {
@@ -21,6 +25,8 @@ export function recomputePlanning(
     planningResult: planPortfolio({
       portfolio: request.portfolio,
       horizon: request.horizon,
+      workingPattern: request.workingPattern,
+      maxParallelProjects: request.maxParallelProjects,
     }),
   };
 }

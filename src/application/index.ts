@@ -9,10 +9,13 @@ export {
   type PlanningCommandResult,
   type PlanningSession,
   type PlanningSessionState,
+  type PlanningSettings,
+  type UpdatePlanningSettingsCommand,
   type UpdateProjectCommand,
   type UpdateProjectTeamRequirement,
   type UpdateTeamCapacityPeriod,
-  type UpdateTeamCommand,
+  type UpdateTeamNameCommand,
+  type UpdateTeamCapacityPeriodsCommand,
   type ReplaceTeamReservation,
   type ReplaceTeamReservationsCommand,
 } from "./session/planningSession.js";
@@ -39,4 +42,10 @@ export {
   EDITING_DECIMAL_PRECISION,
   formatPercentageForEditing,
   formatQuantityForEditing,
+  parseExactPercentageInput,
+  parseExactQuantityInput,
 } from "./session/editableQuantity.js";
+export {
+  buildPlanningSettingsViewModel,
+  type PlanningSettingsViewModel,
+} from "./session/planningSettingsViewModel.js";

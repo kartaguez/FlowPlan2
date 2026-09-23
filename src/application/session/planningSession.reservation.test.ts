@@ -93,7 +93,7 @@ describe("PlanningSession firm reservation editing", () => {
       result.state.portfolio.priorityOrder,
       initial.portfolio.priorityOrder,
     );
-    assert.equal(result.state.horizon, initial.horizon);
+    assert.equal(result.state.planning, initial.planning);
   });
 
   it("accepts overlapping reservations whose exact total exceeds one", () => {

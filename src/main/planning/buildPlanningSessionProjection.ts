@@ -10,6 +10,7 @@ import {
   type PlanningSessionState,
 } from "../../application/index.js";
 import type { PlanningResult } from "../../domain/index.js";
+import { createPlanningHorizon } from "../../domain/index.js";
 
 export interface PlanningSessionProjection {
   readonly planningResult: PlanningResult;
@@ -25,9 +26,23 @@ export interface BuildPlanningSessionProjectionInput {
 export function buildPlanningSessionProjection(
   input: BuildPlanningSessionProjectionInput,
 ): PlanningSessionProjection {
-  const { planningResult } = recomputePlanning(input.state);
+  const horizonResult = createPlanningHorizon({
+    start: input.state.planning.startDate,
+    end: input.state.planning.endDate,
+  });
+  if (!horizonResult.ok) {
+    throw new TypeError("Planning session contains an invalid horizon.");
+  }
+  const planningInput = Object.freeze({
+    portfolio: input.state.portfolio,
+    horizon: horizonResult.value,
+    workingPattern: input.state.planning.workingPattern,
+    maxParallelProjects: input.state.planning.maxParallelProjects,
+  });
+  const { planningResult } = recomputePlanning(planningInput);
   const viewModel = buildTimelineViewModel({
-    ...input.state,
+    portfolio: input.state.portfolio,
+    horizon: horizonResult.value,
     planningResult,
   });
   const geometry = buildTimelineGeometry({

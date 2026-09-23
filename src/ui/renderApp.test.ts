@@ -126,15 +126,15 @@ describe("renderApp", () => {
       true,
     );
     assert.equal(
-      (elements.teamEditControls.form as unknown as FakeElement).tagName,
+      (elements.teamEditControls.capacityForm as unknown as FakeElement).tagName,
       "form",
     );
     assert.equal(
-      (elements.teamEditControls.fields as unknown as FakeElement).className,
+      (elements.teamEditControls.capacityFields as unknown as FakeElement).className,
       "timeline-team-edit-fields",
     );
     assert.equal(
-      (elements.teamEditControls.apply as unknown as FakeElement).disabled,
+      (elements.teamEditControls.capacityApply as unknown as FakeElement).disabled,
       true,
     );
     assert.equal(
@@ -172,6 +172,34 @@ describe("renderApp", () => {
     assert.equal(
       (elements.editorDrawer as unknown as FakeElement).className,
       "planning-editor-drawer",
+    );
+    assert.equal(
+      (elements.planningSettingsButton as unknown as FakeElement).getAttribute(
+        "aria-label",
+      ),
+      "Edit planning settings",
+    );
+    assert.equal(
+      (elements.planningSettingsControls.container as unknown as FakeElement).getAttribute(
+        "role",
+      ),
+      "dialog",
+    );
+    assert.equal(
+      (elements.teamEditControls.container as unknown as FakeElement).getAttribute(
+        "role",
+      ),
+      "dialog",
+    );
+    assert.equal(
+      (elements.teamEditControls.capacityDetails as unknown as FakeElement).tagName,
+      "details",
+    );
+    assert.equal(
+      descendants(elements.teamEditControls.container as unknown as FakeElement).includes(
+        elements.reservationEditControls.container as unknown as FakeElement,
+      ),
+      false,
     );
   });
 });

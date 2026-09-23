@@ -5,13 +5,12 @@ import {
   createCapacityException,
   createCapacityPeriod,
   createCivilDate,
-  createMaxParallelProjects,
   createTeam,
   createTeamCapacitySchedule,
   createTeamId,
   createUnavailabilityRatio,
   createWorkingPattern,
-  effectiveCapacity,
+  effectiveCapacity as calculateEffectiveCapacity,
   quantityToDecimalString,
   type DomainResult,
 } from "../index.js";
@@ -24,15 +23,19 @@ function must<T>(result: DomainResult<T>): T {
 describe("team capacity schedule", () => {
   const date = (value: string) => must(createCivilDate(value));
   const capacity = (value: string) => must(createCapacity(value));
-  const rendered = (value: ReturnType<typeof effectiveCapacity>) =>
+  const workingPattern = must(
+    createWorkingPattern({ workingWeekdays: [1, 2, 3, 4, 5] }),
+  );
+  const effectiveCapacity = (
+    team: Parameters<typeof calculateEffectiveCapacity>[0],
+    value: Parameters<typeof calculateEffectiveCapacity>[1],
+  ) => calculateEffectiveCapacity(team, value, workingPattern);
+  const rendered = (value: ReturnType<typeof calculateEffectiveCapacity>) =>
     must(quantityToDecimalString(value));
 
   function makeTeam() {
     const schedule = must(
       createTeamCapacitySchedule({
-        workingPattern: must(
-          createWorkingPattern({ workingWeekdays: [1, 2, 3, 4, 5] }),
-        ),
         periods: [
           must(
             createCapacityPeriod({
@@ -68,7 +71,6 @@ describe("team capacity schedule", () => {
       createTeam({
         id: must(createTeamId("team-a")),
         name: "Team A",
-        maxParallelProjects: must(createMaxParallelProjects(2)),
         capacitySchedule: schedule,
       }),
     );
@@ -93,9 +95,6 @@ describe("team capacity schedule", () => {
   it("applies exact period unavailability without changing exceptions", () => {
     const schedule = must(
       createTeamCapacitySchedule({
-        workingPattern: must(
-          createWorkingPattern({ workingWeekdays: [1, 2, 3, 4, 5] }),
-        ),
         periods: [
           must(
             createCapacityPeriod({
@@ -120,7 +119,6 @@ describe("team capacity schedule", () => {
       createTeam({
         id: must(createTeamId("team-unavailability")),
         name: "Team Unavailability",
-        maxParallelProjects: must(createMaxParallelProjects(1)),
         capacitySchedule: schedule,
       }),
     );
@@ -150,7 +148,6 @@ describe("team capacity schedule", () => {
       }),
     );
     const result = createTeamCapacitySchedule({
-      workingPattern: must(createWorkingPattern({ workingWeekdays: [1] })),
       periods: [overlap, first],
       exceptions: [exception, exception],
     });
@@ -184,7 +181,6 @@ describe("team capacity schedule", () => {
     const source = [late, early];
     const schedule = must(
       createTeamCapacitySchedule({
-        workingPattern: must(createWorkingPattern({ workingWeekdays: [] })),
         periods: source,
         exceptions: [],
       }),

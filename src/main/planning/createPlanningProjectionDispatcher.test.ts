@@ -4,7 +4,7 @@ import {
   createPlanningSession,
   type PlanningSessionState,
   type UpdateProjectCommand,
-  type UpdateTeamCommand,
+  type UpdateTeamCapacityPeriodsCommand,
 } from "../../application/index.js";
 import {
   createCivilDate,
@@ -40,15 +40,12 @@ function must<T>(result: DomainResult<T>): T {
 function teamCommandFor(
   state: PlanningSessionState,
   teamId: TeamId,
-  overrides: Partial<UpdateTeamCommand> = {},
-): UpdateTeamCommand {
+  overrides: Partial<UpdateTeamCapacityPeriodsCommand> = {},
+): UpdateTeamCapacityPeriodsCommand {
   const team = state.portfolio.teams.find((candidate) => candidate.id === teamId)!;
   return {
-    kind: "update-team",
+    kind: "update-team-capacity-periods",
     teamId,
-    name: team.name,
-    maxParallelProjects: team.maxParallelProjects,
-    workingPattern: team.capacitySchedule.workingPattern,
     capacityPeriods: team.capacitySchedule.periods.map((period) => ({
       startDate: period.start,
       endDate: period.end,
@@ -305,7 +302,7 @@ describe("PlanningProjectionDispatcher", () => {
     const before = dispatcher.getProjection();
     const team = initial.portfolio.teams[0]!;
     const result = dispatcher.dispatch(
-      teamCommandFor(initial, team.id, { name: "Alpha Renamed" }),
+      { kind: "update-team-name", teamId: team.id, name: "Alpha Renamed" },
     );
     assert.equal(result.ok, true);
     assert.deepEqual(dispatcher.getProjection().planningResult, before.planningResult);
@@ -328,7 +325,7 @@ describe("PlanningProjectionDispatcher", () => {
     const projection = dispatcher.getProjection();
     assert.equal(
       dispatcher.dispatch(
-        teamCommandFor(initial, team.id, { maxParallelProjects: 0 }),
+        { ...teamCommandFor(initial, team.id), capacityPeriods: [] },
       ).ok,
       false,
     );
@@ -336,7 +333,7 @@ describe("PlanningProjectionDispatcher", () => {
     assert.equal(dispatcher.getProjection(), projection);
     assert.equal(
       dispatcher.dispatch(
-        teamCommandFor(initial, team.id, { maxParallelProjects: 1 }),
+        teamCommandFor(initial, team.id),
       ).ok,
       true,
     );
@@ -346,8 +343,15 @@ describe("PlanningProjectionDispatcher", () => {
   it("lets max parallel change the existing planner admission", () => {
     const initial = createDemoPlanningScenario();
     const session = createPlanningSession(initial);
-    const dispatcher = createPlanningProjectionDispatcher({ session, geometryViewport });
-    const team = initial.portfolio.teams[0]!;
+    let buildCount = 0;
+    const dispatcher = createPlanningProjectionDispatcher({
+      session,
+      geometryViewport,
+      buildProjection: (input) => {
+        buildCount += 1;
+        return buildPlanningSessionProjection(input);
+      },
+    });
     const date = must(createCivilDate("2025-01-01"));
     const before = dispatcher
       .getProjection()
@@ -355,10 +359,17 @@ describe("PlanningProjectionDispatcher", () => {
     assert.equal(before.length, 2);
     assert.equal(
       dispatcher.dispatch(
-        teamCommandFor(initial, team.id, { maxParallelProjects: 1 }),
+        {
+          kind: "update-planning-settings",
+          startDate: initial.planning.startDate,
+          endDate: initial.planning.endDate,
+          workingPattern: initial.planning.workingPattern,
+          maxParallelProjects: 1,
+        },
       ).ok,
       true,
     );
+    assert.equal(buildCount, 2, "initial projection plus exactly one Apply rebuild");
     const after = dispatcher
       .getProjection()
       .viewModel.teams[0]!.allocations.filter((allocation) => allocation.date === date);
@@ -369,33 +380,35 @@ describe("PlanningProjectionDispatcher", () => {
     const initial = createDemoPlanningScenario();
     const session = createPlanningSession(initial);
     const dispatcher = createPlanningProjectionDispatcher({ session, geometryViewport });
-    const team = initial.portfolio.teams[0]!;
     const wednesday = must(createCivilDate("2025-01-08"));
     assert.ok(
       dispatcher.getProjection().viewModel.teams[0]!.allocations.some(
         (allocation) => allocation.date === wednesday,
       ),
     );
-    const result = dispatcher.dispatch(
-      teamCommandFor(initial, team.id, {
-        workingPattern: must(
-          createWorkingPattern({ workingWeekdays: [1, 2, 4, 5] }),
-        ),
-      }),
-    );
-    assert.equal(result.ok, true);
-    const after = dispatcher.getProjection().viewModel.teams[0]!;
-    assert.equal(
-      serializeQuantity(
-        after.capacities.find((capacity) => capacity.date === wednesday)!
-          .effectiveCapacity,
+    const result = dispatcher.dispatch({
+      kind: "update-planning-settings",
+      startDate: initial.planning.startDate,
+      endDate: initial.planning.endDate,
+      workingPattern: must(
+        createWorkingPattern({ workingWeekdays: [1, 2, 4, 5] }),
       ),
-      "0/1",
-    );
-    assert.equal(
-      after.allocations.some((allocation) => allocation.date === wednesday),
-      false,
-    );
+      maxParallelProjects: initial.planning.maxParallelProjects,
+    });
+    assert.equal(result.ok, true);
+    for (const team of dispatcher.getProjection().viewModel.teams) {
+      assert.equal(
+        serializeQuantity(
+          team.capacities.find((capacity) => capacity.date === wednesday)!
+            .effectiveCapacity,
+        ),
+        "0/1",
+      );
+      assert.equal(
+        team.allocations.some((allocation) => allocation.date === wednesday),
+        false,
+      );
+    }
   });
 
   it("recomputes exact effective capacity from capacity and unavailability", () => {
@@ -458,11 +471,11 @@ describe("PlanningProjectionDispatcher", () => {
     assert.equal(buildCount, 2);
     const state = session.getState();
     assert.equal(
-      serializeQuantity(reservedCapacity(team, date, state.portfolio.reservations)),
+      serializeQuantity(reservedCapacity(team, date, state.portfolio.reservations, state.planning.workingPattern)),
       "15/4",
     );
     assert.equal(
-      serializeQuantity(projectCapacity(team, date, state.portfolio.reservations)),
+      serializeQuantity(projectCapacity(team, date, state.portfolio.reservations, state.planning.workingPattern)),
       "0/1",
     );
     assert.ok(

@@ -6,6 +6,8 @@ export interface AppElements {
   readonly dateSummary: HTMLElement;
   readonly cursorControl: HTMLButtonElement;
   readonly viewportControls: TimelineViewportControls;
+  readonly planningSettingsButton: HTMLButtonElement;
+  readonly planningSettingsControls: PlanningSettingsControls;
   readonly tooltip: HTMLElement;
   readonly selectionSummary: HTMLElement;
   readonly projectEditControls: ProjectEditControls;
@@ -29,11 +31,26 @@ export interface ProjectEditControls {
 
 export interface TeamEditControls {
   readonly container: HTMLElement;
+  readonly title: HTMLElement;
+  readonly nameForm: HTMLFormElement;
+  readonly nameFields: HTMLElement;
+  readonly nameApply: HTMLButtonElement;
+  readonly capacityDetails: HTMLDetailsElement;
+  readonly capacityForm: HTMLFormElement;
+  readonly capacityFields: HTMLElement;
+  readonly capacityApply: HTMLButtonElement;
+  readonly capacityCancel: HTMLButtonElement;
+  readonly close: HTMLButtonElement;
+  readonly status: HTMLElement;
+}
+
+export interface PlanningSettingsControls {
+  readonly container: HTMLElement;
   readonly form: HTMLFormElement;
   readonly fields: HTMLElement;
   readonly apply: HTMLButtonElement;
   readonly cancel: HTMLButtonElement;
-  readonly status: HTMLElement;
+  readonly error: HTMLElement;
 }
 
 export interface ReservationEditControls {
@@ -70,6 +87,14 @@ export function renderApp(root: HTMLElement): AppElements {
   workspace.setAttribute("aria-label", "Planning workspace");
   const workspaceTitle = document.createElement("h2");
   workspaceTitle.textContent = "Planning demo";
+  const planningHeading = document.createElement("div");
+  planningHeading.className = "planning-heading";
+  const planningSettingsButton = document.createElement("button");
+  planningSettingsButton.type = "button";
+  planningSettingsButton.className = "planning-settings-button";
+  planningSettingsButton.setAttribute("aria-label", "Edit planning settings");
+  planningSettingsButton.textContent = "Settings";
+  planningHeading.append(workspaceTitle, planningSettingsButton);
   const description = document.createElement("p");
   description.textContent =
     "Three teams, four projects, exact capacity reservations and daily planning.";
@@ -150,36 +175,66 @@ export function renderApp(root: HTMLElement): AppElements {
   });
   const teamEdit = document.createElement("section");
   teamEdit.className = "timeline-team-edit";
-  teamEdit.setAttribute("aria-label", "Team edit demo");
+  teamEdit.setAttribute("role", "dialog");
+  teamEdit.setAttribute("aria-modal", "true");
+  teamEdit.setAttribute("aria-label", "Team settings");
   teamEdit.hidden = true;
   const teamEditTitle = document.createElement("h3");
-  teamEditTitle.textContent = "Selected team";
+  teamEditTitle.textContent = "Team settings";
   const teamEditStatus = document.createElement("p");
   teamEditStatus.className = "timeline-team-edit-status";
   teamEditStatus.textContent = "Select a team lane to edit.";
-  const teamEditForm = document.createElement("form");
-  teamEditForm.className = "timeline-team-edit-form";
-  const teamFields = document.createElement("div");
-  teamFields.className = "timeline-team-edit-fields";
-  const teamApply = document.createElement("button");
-  teamApply.type = "submit";
-  teamApply.textContent = "Apply";
-  teamApply.disabled = true;
-  const teamCancel = document.createElement("button");
-  teamCancel.type = "button";
-  teamCancel.textContent = "Cancel";
-  teamCancel.disabled = true;
-  const teamActions = document.createElement("div");
-  teamActions.className = "timeline-team-edit-actions";
-  teamActions.append(teamApply, teamCancel);
-  teamEditForm.append(teamFields, teamActions);
-  teamEdit.append(teamEditTitle, teamEditStatus, teamEditForm);
+  const teamNameForm = document.createElement("form");
+  teamNameForm.className = "timeline-team-name-form";
+  const teamNameFields = document.createElement("div");
+  const teamNameApply = document.createElement("button");
+  teamNameApply.type = "submit";
+  teamNameApply.textContent = "Apply name";
+  teamNameApply.disabled = true;
+  teamNameForm.append(teamNameFields, teamNameApply);
+  const capacityDetails = document.createElement("details");
+  capacityDetails.className = "timeline-team-capacity-details";
+  const capacitySummary = document.createElement("summary");
+  capacitySummary.textContent = "Capacity periods";
+  const capacityForm = document.createElement("form");
+  capacityForm.className = "timeline-team-capacity-form";
+  const capacityFields = document.createElement("div");
+  capacityFields.className = "timeline-team-edit-fields";
+  const capacityApply = document.createElement("button");
+  capacityApply.type = "submit";
+  capacityApply.textContent = "Apply periods";
+  capacityApply.disabled = true;
+  const capacityCancel = document.createElement("button");
+  capacityCancel.type = "button";
+  capacityCancel.textContent = "Cancel changes";
+  capacityCancel.disabled = true;
+  const capacityActions = document.createElement("div");
+  capacityActions.className = "timeline-team-edit-actions";
+  capacityActions.append(capacityCancel, capacityApply);
+  capacityForm.append(capacityFields, capacityActions);
+  capacityDetails.append(capacitySummary, capacityForm);
+  const teamClose = document.createElement("button");
+  teamClose.type = "button";
+  teamClose.textContent = "Close";
+  teamEdit.append(
+    teamEditTitle,
+    teamEditStatus,
+    teamNameForm,
+    capacityDetails,
+    teamClose,
+  );
   const teamEditControls = Object.freeze({
     container: teamEdit,
-    form: teamEditForm,
-    fields: teamFields,
-    apply: teamApply,
-    cancel: teamCancel,
+    title: teamEditTitle,
+    nameForm: teamNameForm,
+    nameFields: teamNameFields,
+    nameApply: teamNameApply,
+    capacityDetails,
+    capacityForm,
+    capacityFields,
+    capacityApply,
+    capacityCancel,
+    close: teamClose,
     status: teamEditStatus,
   });
   const reservationEdit = document.createElement("section");
@@ -234,10 +289,49 @@ export function renderApp(root: HTMLElement): AppElements {
   applicationError.className = "application-error";
   applicationError.setAttribute("role", "alert");
   applicationError.hidden = true;
+
+  const planningSettings = document.createElement("section");
+  planningSettings.className = "planning-settings-modal";
+  planningSettings.setAttribute("role", "dialog");
+  planningSettings.setAttribute("aria-modal", "true");
+  planningSettings.setAttribute("aria-label", "Planning settings");
+  planningSettings.hidden = true;
+  const planningSettingsTitle = document.createElement("h3");
+  planningSettingsTitle.textContent = "Planning settings";
+  const planningSettingsForm = document.createElement("form");
+  const planningSettingsFields = document.createElement("div");
+  planningSettingsFields.className = "planning-settings-fields";
+  const planningSettingsCancel = document.createElement("button");
+  planningSettingsCancel.type = "button";
+  planningSettingsCancel.textContent = "Cancel";
+  const planningSettingsApply = document.createElement("button");
+  planningSettingsApply.type = "submit";
+  planningSettingsApply.textContent = "Apply";
+  const planningSettingsActions = document.createElement("div");
+  planningSettingsActions.className = "planning-settings-actions";
+  planningSettingsActions.append(planningSettingsCancel, planningSettingsApply);
+  const planningSettingsError = document.createElement("p");
+  planningSettingsError.className = "planning-settings-error";
+  planningSettingsError.setAttribute("role", "alert");
+  planningSettingsError.hidden = true;
+  planningSettingsForm.append(
+    planningSettingsFields,
+    planningSettingsError,
+    planningSettingsActions,
+  );
+  planningSettings.append(planningSettingsTitle, planningSettingsForm);
+  const planningSettingsControls = Object.freeze({
+    container: planningSettings,
+    form: planningSettingsForm,
+    fields: planningSettingsFields,
+    apply: planningSettingsApply,
+    cancel: planningSettingsCancel,
+    error: planningSettingsError,
+  });
   const planningMain = document.createElement("div");
   planningMain.className = "planning-main";
   planningMain.append(
-    workspaceTitle,
+    planningHeading,
     description,
     cursorControl,
     viewportControlContainer,
@@ -257,16 +351,11 @@ export function renderApp(root: HTMLElement): AppElements {
   const editorDrawer = document.createElement("div");
   editorDrawer.className = "planning-editor-drawer";
   editorDrawer.setAttribute("aria-label", "Planning editor");
-  editorDrawer.append(
-    applicationError,
-    projectEdit,
-    teamEdit,
-    reservationEdit,
-  );
+  editorDrawer.append(applicationError, projectEdit);
   projectSidebar.append(projectSidebarTitle, projectList, editorDrawer);
   workspace.append(planningMain, projectSidebar);
 
-  shell.append(header, workspace);
+  shell.append(header, workspace, planningSettings, teamEdit);
   root.replaceChildren(shell);
   return Object.freeze({
     svg: timeline,
@@ -274,6 +363,8 @@ export function renderApp(root: HTMLElement): AppElements {
     dateSummary,
     cursorControl,
     viewportControls,
+    planningSettingsButton,
+    planningSettingsControls,
     tooltip,
     selectionSummary,
     projectEditControls,

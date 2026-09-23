@@ -104,8 +104,8 @@ describe("parseProjectEditCommand", () => {
     }
   });
 
-  it("accepts finite decimal RAF edits but rejects fractions, negative, and invalid input", () => {
-    for (const remainingWorkload of ["0", "1.25"]) {
+  it("accepts finite decimal or rational RAF edits and rejects invalid input", () => {
+    for (const remainingWorkload of ["0", "1.25", "5/3"]) {
       assert.equal(
         parseProjectEditCommand(
           values({
@@ -122,7 +122,7 @@ describe("parseProjectEditCommand", () => {
         true,
       );
     }
-    for (const remainingWorkload of ["-1", "5/3", "invalid"]) {
+    for (const remainingWorkload of ["-1", "1/0", "/3", "1/", "1/2/3", "invalid"]) {
       assert.equal(
         parseProjectEditCommand(
           values({

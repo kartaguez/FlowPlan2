@@ -3,7 +3,6 @@ import type { FirmCapacityReservation } from "../capacity/reservation.js";
 import type { CivilDate } from "./date.js";
 import type {
   DailyCap,
-  MaxParallelProjects,
   ProjectId,
   RemainingWorkload,
   TeamId,
@@ -19,7 +18,6 @@ import {
 export interface Team {
   readonly id: TeamId;
   readonly name: string;
-  readonly maxParallelProjects: MaxParallelProjects;
   readonly capacitySchedule: TeamCapacitySchedule;
 }
 
@@ -48,10 +46,15 @@ export interface Portfolio {
 export function createTeam(input: {
   readonly id: TeamId;
   readonly name: string;
-  readonly maxParallelProjects: MaxParallelProjects;
   readonly capacitySchedule: TeamCapacitySchedule;
 }): DomainResult<Team> {
-  return success(Object.freeze({ ...input }));
+  return success(
+    Object.freeze({
+      id: input.id,
+      name: input.name,
+      capacitySchedule: input.capacitySchedule,
+    }),
+  );
 }
 
 export function createProjectTeamRequirement(input: {

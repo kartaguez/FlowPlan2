@@ -10,14 +10,12 @@ function must<T>(result: DomainResult<T>): T {
 }
 
 describe("TeamEditViewModel", () => {
-  it("projects team-global settings and position-identified existing periods", () => {
+  it("projects the team name and position-identified existing periods", () => {
     const state = createDemoPlanningScenario();
     const team = state.portfolio.teams[0]!;
     const model = buildTeamEditViewModel(state, team.id)!;
 
     assert.equal(model.label, "Team Alpha");
-    assert.equal(model.maxParallelProjects, 2);
-    assert.deepEqual(model.workingWeekdays, [1, 2, 3, 4, 5]);
     assert.deepEqual(
       model.capacityPeriods.map((period) => ({
         index: period.index,
@@ -43,7 +41,6 @@ describe("TeamEditViewModel", () => {
         },
       ],
     );
-    assert.equal(Object.isFrozen(model.workingWeekdays), true);
     assert.equal(Object.isFrozen(model.capacityPeriods), true);
     assert.ok(model.capacityPeriods.every(Object.isFrozen));
     assert.equal(Object.isFrozen(model), true);

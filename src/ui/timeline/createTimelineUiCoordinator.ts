@@ -4,11 +4,13 @@ import type {
 } from "../../adapters/index.js";
 import type {
   PlanningCommand,
+  PlanningSettingsViewModel,
   ProjectEditViewModel,
   TeamEditViewModel,
   TeamReservationsEditViewModel,
   UpdateProjectCommand,
-  UpdateTeamCommand,
+  UpdateTeamCapacityPeriodsCommand,
+  UpdateTeamNameCommand,
   ReplaceTeamReservationsCommand,
 } from "../../application/index.js";
 import type {
@@ -22,6 +24,7 @@ import type { AppElements } from "../renderApp.js";
 import { createProjectEditController } from "../project-edit/createProjectEditController.js";
 import { createTeamEditController } from "../team-edit/createTeamEditController.js";
 import { createReservationEditController } from "../reservation-edit/createReservationEditController.js";
+import { createPlanningSettingsController } from "../planning-settings/createPlanningSettingsController.js";
 import { createTimelineCursorController } from "./createTimelineCursorController.js";
 import { createTimelineInteractionController } from "./createTimelineInteractionController.js";
 import { createTimelineViewportController } from "./createTimelineViewportController.js";
@@ -71,6 +74,7 @@ export interface CreateTimelineUiCoordinatorInput {
   readonly getProjectEditViewModel: (
     projectId: ProjectId,
   ) => ProjectEditViewModel | undefined;
+  readonly getPlanningSettingsViewModel: () => PlanningSettingsViewModel;
   readonly getTeamEditViewModel: (
     teamId: TeamId,
   ) => TeamEditViewModel | undefined;
@@ -89,6 +93,7 @@ export interface TimelineUiCoordinatorDependencies {
   readonly createProjectEditController: typeof createProjectEditController;
   readonly createTeamEditController: typeof createTeamEditController;
   readonly createReservationEditController: typeof createReservationEditController;
+  readonly createPlanningSettingsController: typeof createPlanningSettingsController;
   readonly renderShellNavigation: typeof renderTimelineShellNavigation;
 }
 
@@ -101,6 +106,7 @@ const DEFAULT_DEPENDENCIES: TimelineUiCoordinatorDependencies = Object.freeze({
   createProjectEditController,
   createTeamEditController,
   createReservationEditController,
+  createPlanningSettingsController,
   renderShellNavigation: renderTimelineShellNavigation,
 });
 
@@ -115,6 +121,7 @@ export function createTimelineUiCoordinator(
   let projectEditController: ReturnType<typeof createProjectEditController>;
   let teamEditController: ReturnType<typeof createTeamEditController>;
   let reservationEditController: ReturnType<typeof createReservationEditController>;
+  let planningSettingsController: ReturnType<typeof createPlanningSettingsController>;
   let shellNavigation: ReturnType<typeof renderTimelineShellNavigation>;
   let editingContext: TimelineEditingContext;
   let editingContextSource: "timeline" | "shell" | undefined;
@@ -132,11 +139,7 @@ export function createTimelineUiCoordinator(
         ? input.getTeamEditViewModel(context.teamId)
         : undefined;
     teamEditController.setTeam(teamEditViewModel);
-    reservationEditController.setTeam(
-      context?.kind === "team"
-        ? input.getTeamReservationsEditViewModel(context.teamId)
-        : undefined,
-    );
+    reservationEditController.setTeam(undefined);
   };
 
   const contextFromHit = (selected: TimelineHit | undefined): TimelineEditingContext =>
@@ -200,6 +203,7 @@ export function createTimelineUiCoordinator(
       container: input.elements.diagnostics,
       viewModel: projection.viewModel,
     });
+    planningSettingsController.setModel(input.getPlanningSettingsViewModel());
     shellNavigation = dependencies.renderShellNavigation({
       teamContainer: input.elements.teamSections,
       projectContainer: input.elements.projectList,
@@ -286,7 +290,9 @@ export function createTimelineUiCoordinator(
     renderProjection(result.projection);
     return Object.freeze({ ok: true as const });
   };
-  const applyTeamUpdate = (command: UpdateTeamCommand) => {
+  const applyTeamUpdate = (
+    command: UpdateTeamNameCommand | UpdateTeamCapacityPeriodsCommand,
+  ) => {
     const result = input.dispatch(command);
     if (!result.ok) return result;
     renderProjection(result.projection);
@@ -307,13 +313,25 @@ export function createTimelineUiCoordinator(
   teamEditController = dependencies.createTeamEditController({
     controls: input.elements.teamEditControls,
     errorContainer: input.elements.applicationError,
-    onApply: applyTeamUpdate,
+    onApplyName: applyTeamUpdate,
+    onApplyPeriods: applyTeamUpdate,
   });
   reservationEditController = dependencies.createReservationEditController({
     controls: input.elements.reservationEditControls,
     errorContainer: input.elements.reservationEditError,
     nextReservationId: input.nextReservationId,
     onApply: applyReservationUpdate,
+  });
+  planningSettingsController = dependencies.createPlanningSettingsController({
+    trigger: input.elements.planningSettingsButton,
+    controls: input.elements.planningSettingsControls,
+    initialModel: input.getPlanningSettingsViewModel(),
+    onApply: (command) => {
+      const result = input.dispatch(command);
+      if (!result.ok) return result;
+      renderProjection(result.projection);
+      return Object.freeze({ ok: true as const });
+    },
   });
   mountProjection(input.initialProjection, currentSnapshot());
 
@@ -325,6 +343,7 @@ export function createTimelineUiCoordinator(
       projectEditController.destroy();
       teamEditController.destroy();
       reservationEditController.destroy();
+      planningSettingsController.destroy();
       destroyControllers();
     },
   });

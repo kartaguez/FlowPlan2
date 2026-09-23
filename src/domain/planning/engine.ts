@@ -28,6 +28,7 @@ import {
   type Rational,
 } from "../model/rational.js";
 import type { DomainResult } from "../model/result.js";
+import type { WorkingPattern } from "../capacity/schedule.js";
 import {
   capacityFromRational,
   rationalOf,
@@ -197,12 +198,15 @@ function deadlineAccessibleCapacity(
   today: CivilDate,
   team: Team,
   portfolio: Portfolio,
+  workingPattern: WorkingPattern,
   residualByDate: Map<CivilDate, Rational>,
   dailyAllocations: ReadonlyMap<ProjectTeamState, Rational>,
 ): Rational {
   let residual = residualByDate.get(date);
   if (residual === undefined) {
-    residual = rationalOf(projectCapacity(team, date, portfolio.reservations));
+    residual = rationalOf(
+      projectCapacity(team, date, portfolio.reservations, workingPattern),
+    );
     residualByDate.set(date, residual);
   }
 
@@ -275,6 +279,7 @@ function sumDeadlineAccessibility(
   today: CivilDate,
   team: Team,
   portfolio: Portfolio,
+  workingPattern: WorkingPattern,
   residualByDate: Map<CivilDate, Rational>,
   dailyAllocations: ReadonlyMap<ProjectTeamState, Rational>,
 ): Rational {
@@ -288,6 +293,7 @@ function sumDeadlineAccessibility(
         today,
         team,
         portfolio,
+        workingPattern,
         residualByDate,
         dailyAllocations,
       ),
@@ -301,6 +307,7 @@ function allocateDeadlineProjects(
   availableCapacity: Rational,
   team: Team,
   portfolio: Portfolio,
+  workingPattern: WorkingPattern,
   admitted: readonly ProjectTeamState[],
   dailyAllocations: Map<ProjectTeamState, Rational>,
   diagnostics: PlanningDiagnostic[],
@@ -330,6 +337,7 @@ function allocateDeadlineProjects(
         today,
         team,
         portfolio,
+        workingPattern,
         residualByDate,
         dailyAllocations,
       );
@@ -367,6 +375,7 @@ function allocateDeadlineProjects(
           today,
           team,
           portfolio,
+          workingPattern,
           residualByDate,
           dailyAllocations,
         );
@@ -391,6 +400,7 @@ function allocateDeadlineProjects(
       today,
       team,
       portfolio,
+      workingPattern,
       residualByDate,
       dailyAllocations,
     );
@@ -476,16 +486,18 @@ function planTeam(
     input.horizon.start,
     input.horizon.end,
   )) {
-    const effective = effectiveCapacity(team, date);
+    const effective = effectiveCapacity(team, date, input.workingPattern);
     const reserved = reservedCapacity(
       team,
       date,
       input.portfolio.reservations,
+      input.workingPattern,
     );
     const available = projectCapacity(
       team,
       date,
       input.portfolio.reservations,
+      input.workingPattern,
     );
     const overReserved = isOverReserved(
       team.id,
@@ -515,7 +527,7 @@ function planTeam(
     const admitted = selectAdmittedProjects(
       date,
       rationalOf(available),
-      team.maxParallelProjects,
+      input.maxParallelProjects,
       states,
     );
     dayAdmissions.push(
@@ -532,6 +544,7 @@ function planTeam(
       rationalOf(available),
       team,
       input.portfolio,
+      input.workingPattern,
       admitted,
       dailyAllocations,
       diagnostics,

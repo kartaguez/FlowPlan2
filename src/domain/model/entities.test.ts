@@ -15,7 +15,6 @@ import {
   createTeam,
   createTeamCapacitySchedule,
   createTeamId,
-  createWorkingPattern,
   serializeQuantity,
   type DomainResult,
   type Project,
@@ -29,9 +28,6 @@ function must<T>(result: DomainResult<T>): T {
 
 const emptySchedule = must(
   createTeamCapacitySchedule({
-    workingPattern: must(
-      createWorkingPattern({ workingWeekdays: [1, 2, 3, 4, 5] }),
-    ),
     periods: [],
     exceptions: [],
   }),
@@ -42,7 +38,6 @@ function makeTeam(id: string): Team {
     createTeam({
       id: must(createTeamId(id)),
       name: id,
-      maxParallelProjects: must(createMaxParallelProjects(2)),
       capacitySchedule: emptySchedule,
     }),
   );

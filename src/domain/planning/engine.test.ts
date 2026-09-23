@@ -50,6 +50,7 @@ function must<T>(result: DomainResult<T>): T {
 const date = (value: string) => must(createCivilDate(value));
 const rendered = (value: Parameters<typeof quantityToDecimalString>[0]) =>
   must(quantityToDecimalString(value));
+const testParallelByTeamId = new Map<string, number>();
 
 function makeTeam(
   id: string,
@@ -57,20 +58,13 @@ function makeTeam(
   maxParallelProjects = 3,
 ): Team {
   const teamId = must(createTeamId(id));
+  testParallelByTeamId.set(teamId, maxParallelProjects);
   return must(
     createTeam({
       id: teamId,
       name: id,
-      maxParallelProjects: must(
-        createMaxParallelProjects(maxParallelProjects),
-      ),
       capacitySchedule: must(
         createTeamCapacitySchedule({
-          workingPattern: must(
-            createWorkingPattern({
-              workingWeekdays: [1, 2, 3, 4, 5, 6, 7],
-            }),
-          ),
           periods: [
             must(
               createCapacityPeriod({
@@ -171,6 +165,12 @@ function makeInput(
     portfolio,
     horizon: must(
       createPlanningHorizon({ start: date(start), end: date(end) }),
+    ),
+    workingPattern: must(
+      createWorkingPattern({ workingWeekdays: [1, 2, 3, 4, 5, 6, 7] }),
+    ),
+    maxParallelProjects: must(
+      createMaxParallelProjects(testParallelByTeamId.get(teams[0]!.id) ?? 3),
     ),
   };
 }
@@ -729,8 +729,8 @@ describe("Phase 2B daily admission", () => {
     ]);
   });
 
-  it("computes independent admissions for teams with different limits", () => {
-    const narrow = makeTeam("narrow", "2", 1);
+  it("applies one global admission limit independently to every team", () => {
+    const narrow = makeTeam("narrow", "2", 2);
     const wide = makeTeam("wide", "2", 2);
     const first = makeProject("first", [
       { team: narrow, workload: "2" },
@@ -751,7 +751,7 @@ describe("Phase 2B daily admission", () => {
 
     assert.deepEqual(
       findTeamPlan(teamPlans, narrow).dayAdmissions[0]?.admittedProjectIds,
-      [first.id],
+      [first.id, second.id],
     );
     assert.deepEqual(
       findTeamPlan(teamPlans, wide).dayAdmissions[0]?.admittedProjectIds,
@@ -1535,7 +1535,8 @@ describe("Planning Engine V1 exact invariants", () => {
 
       for (const admission of teamPlan.dayAdmissions) {
         assert.equal(
-          admission.admittedProjectIds.length <= team.maxParallelProjects,
+          admission.admittedProjectIds.length <=
+            input.maxParallelProjects,
           true,
         );
       }

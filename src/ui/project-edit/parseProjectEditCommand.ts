@@ -2,9 +2,9 @@ import type {
   UpdateProjectCommand,
   UpdateProjectTeamRequirement,
 } from "../../application/index.js";
+import { parseExactQuantityInput } from "../../application/index.js";
 import {
   createCivilDate,
-  createRemainingWorkload,
   dailyCapFromSerialized,
   remainingWorkloadFromSerialized,
   type CivilDate,
@@ -180,8 +180,23 @@ function parseRemainingWorkload(
   errors: DomainError[],
 ): RemainingWorkload | undefined {
   const result = dirty
-    ? createRemainingWorkload(raw.trim(), path)
+    ? (() => {
+        const serialized = parseExactQuantityInput(raw);
+        return serialized === undefined
+          ? undefined
+          : remainingWorkloadFromSerialized(serialized, path);
+      })()
     : remainingWorkloadFromSerialized(originalExact, path);
+  if (result === undefined) {
+    errors.push(
+      error(
+        "INVALID_EXACT_QUANTITY",
+        path,
+        "Value must be a finite decimal or rational fraction.",
+      ),
+    );
+    return undefined;
+  }
   if (!result.ok) {
     errors.push(...result.errors);
     return undefined;

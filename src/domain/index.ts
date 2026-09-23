@@ -1,5 +1,12 @@
 export type { DomainError, DomainResult } from "./model/result.js";
 export {
+  divideRationals,
+  parseDecimalRational,
+  parseSerializedRational,
+  rationalFromInteger,
+  rationalToCanonicalString,
+} from "./model/rational.js";
+export {
   addDays,
   civilDatesInclusive,
   compareCivilDates,

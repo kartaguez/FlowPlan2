@@ -234,4 +234,74 @@ describe("TimelineViewport", () => {
       TypeError,
     );
   });
+
+  it("moves the temporal projection while inversely compensating year/month glyph scaling", () => {
+    const attributes = new Map<string, string>();
+    const yearAttributes = new Map<string, string>([
+      ["data-timeline-label-x", "500"],
+      ["data-timeline-label-y", "10"],
+      ["data-screen-space-typography", "true"],
+    ]);
+    const monthAttributes = new Map<string, string>([
+      ["data-timeline-label-x", "250"],
+      ["data-timeline-label-y", "30"],
+      ["data-screen-space-typography", "true"],
+    ]);
+    const labels = [yearAttributes, monthAttributes].map((values) => ({
+      getAttribute(name: string) {
+        return values.get(name) ?? null;
+      },
+      setAttribute(name: string, value: string) {
+        values.set(name, value);
+      },
+    }));
+    const svg = {
+      setAttribute(name: string, value: string) {
+        attributes.set(name, value);
+      },
+      getBoundingClientRect() {
+        return { width: 1000, height: 200 };
+      },
+      querySelectorAll(selector: string) {
+        assert.equal(selector, "[data-screen-space-typography='true']");
+        return labels;
+      },
+    } as unknown as SVGSVGElement;
+    const geometry = { width: 1000, height: 200 } as TimelineGeometry;
+
+    applyTimelineViewport({ svg, geometry, viewport: { x: 0, width: 1000 } });
+    assert.equal(yearAttributes.get("transform"), "translate(500 10) scale(1 1) translate(-500 -10)");
+
+    applyTimelineViewport({ svg, geometry, viewport: { x: 250, width: 500 } });
+    assert.equal(attributes.get("viewBox"), "250 0 500 200");
+    assert.equal(yearAttributes.get("transform"), "translate(500 10) scale(0.5 1) translate(-500 -10)");
+    assert.equal(monthAttributes.get("transform"), "translate(250 30) scale(0.5 1) translate(-250 -30)");
+    assert.equal(yearAttributes.get("data-timeline-label-x"), "500");
+  });
+
+  it("derives typography compensation from each horizon projection without a magic zoom factor", () => {
+    const label = new Map<string, string>([
+      ["data-timeline-label-x", "1000"],
+      ["data-timeline-label-y", "10"],
+    ]);
+    const svg = {
+      setAttribute() {},
+      getBoundingClientRect() {
+        return { width: 1000, height: 200 };
+      },
+      querySelectorAll() {
+        return [{
+          getAttribute: (name: string) => label.get(name) ?? null,
+          setAttribute: (name: string, value: string) => label.set(name, value),
+        }];
+      },
+    } as unknown as SVGSVGElement;
+
+    applyTimelineViewport({
+      svg,
+      geometry: { width: 2000, height: 200 } as TimelineGeometry,
+      viewport: { x: 0, width: 2000 },
+    });
+    assert.equal(label.get("transform"), "translate(1000 10) scale(2 1) translate(-1000 -10)");
+  });
 });

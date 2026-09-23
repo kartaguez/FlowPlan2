@@ -883,3 +883,88 @@ syntaxe fractionnelle n'est plus exposée dans les formulaires standards.
 
 Phase 8A n'ajoute ni Program/PAS, metrics, Add Team, CRUD structurel, drag/drop
 de priorité, undo/redo, persistence ou actuals/history.
+
+## Phase 8B — Global Planning Settings & Team Panels
+
+Phase 8B remplace explicitement les responsabilités team-level décrites dans
+les sections historiques 7C/8A pour `workingPattern` et
+`maxParallelProjects`. La source de vérité éditable devient :
+
+```text
+Planning
+  startDate
+  endDate
+  workingPattern (working weekdays)
+  maxParallelProjects
+
+Team
+  id
+  name
+  capacity periods
+```
+
+L'horizon, les jours ouvrés et la limite de projets parallèles appartiennent au
+Planning. Aucune Team ni schedule ne conserve une seconde valeur active. La
+limite globale est transmise à chaque simulation d'équipe et s'applique
+indépendamment : une limite de deux autorise jusqu'à deux projets simultanés
+sur Team A et jusqu'à deux sur Team B; elle ne constitue pas une limite de deux
+pour tout le Portfolio. Le même working pattern structure les capacités de
+toutes les équipes. Les périodes de capacité, elles, restent propres à chaque
+Team.
+
+Le bouton accessible `Edit planning settings` ouvre une modal transactionnelle
+qui contient les bornes métier de l'horizon, sept checkboxes compactes sur une
+ligne et la limite globale de parallélisme. Les saisies restent locales. Apply
+produit une seule `UpdatePlanningSettingsCommand`, remplace l'état de session
+et déclenche exactement un pipeline recompute/projections; Cancel abandonne les
+changements sans mutation ni recompute. Le viewport visible reste distinct de
+l'horizon Planning et est clampé/réconcilié après une modification réussie.
+
+Chaque panel Team reste aligné à une lane du SVG partagé et possède son bouton
+Settings. La modal Team sépare deux transactions : Apply name reconstruit la
+Team en conservant son `TeamId`, ses périodes, les réservations et toutes les
+références projet; l'accordéon Capacity periods possède ses propres Apply
+periods et Cancel changes. Les jours ouvrés, le maximum parallèle et les
+réservations ne figurent plus dans Team Settings. Le modèle de réservation
+7D reste néanmoins intact jusqu'à sa refonte globale multi-équipe en 8C.
+
+L'organisation en panels ne crée aucune timeline indépendante. Il subsiste une
+seule géométrie d'horizon, un axe mois/année, un viewport, un zoom/pan, une date
+sélectionnée et un curseur vertical commun à toutes les lanes.
+
+### Typographie temporelle
+
+Le SVG conserve `preserveAspectRatio="none"` pour projeter indépendamment les
+axes horizontal et vertical. Les labels année/mois gardent leur ancre dans le
+repère Timeline, puis reçoivent une transformation inverse dérivée du viewBox
+courant et de la taille CSS affichée. Le zoom déplace donc les ancres et les
+distances temporelles, tandis que la forme et la taille écran des glyphes
+restent constantes. Aucun facteur magique propre à un horizon n'est utilisé.
+
+### Politique numérique d'édition
+
+Les valeurs affichées à l'utilisateur restent décimales. Une quantité exacte
+éditable accepte soit une syntaxe décimale finie (`12`, `12.5`, `0.25`), soit
+une fraction rationnelle (`1/3`, `25/4`, `100/3`). Les deux syntaxes sont
+parsées directement depuis la chaîne vers un rationnel exact, sans
+`parseFloat`, sans passage par IEEE 754 et sans arrondi métier. La syntaxe
+fractionnelle est `numérateur/dénominateur`, avec espaces externes permis et
+dénominateur non nul.
+
+Les champs pourcentage interprètent la saisie comme un pourcentage avant de la
+diviser exactement par cent :
+
+```text
+100/3 % = ratio exact 1/3
+1/3 %   = ratio exact 1/300
+```
+
+Chaque champ conserve l'original exact, l'affichage décimal et son état dirty.
+Une valeur domaine `1/3` affichée `0.333` puis appliquée sans modification
+reste exactement `1/3`. Une saisie explicite `1/3` crée exactement `1/3`,
+tandis qu'une saisie explicite `0.333` crée exactement `333/1000`. Le daily cap
+reste masqué et préservé exactement.
+
+Phase 8B ne commence ni refonte Global Reservation, Program/PAS, cursor
+metrics, réordonnancement drag/drop, CRUD structurel Team/Project, undo/redo,
+persistence ou actuals/history.

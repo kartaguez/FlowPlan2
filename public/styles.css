@@ -49,6 +49,32 @@ p {
   padding: 1.25rem;
 }
 
+.planning-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.planning-heading h2 {
+  margin-bottom: 0;
+}
+
+.planning-settings-button {
+  border: 1px solid #94a3b8;
+  border-radius: 0.4rem;
+  background: #ffffff;
+  padding: 0.4rem 0.7rem;
+  color: #26364d;
+  font: inherit;
+  cursor: pointer;
+}
+
+.planning-settings-button:focus-visible {
+  outline: 3px solid #60a5fa;
+  outline-offset: 2px;
+}
+
 .project-sidebar {
   position: sticky;
   top: 1rem;
@@ -124,10 +150,14 @@ p {
 
 .timeline-team-section {
   display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-content: center;
-  gap: 0.55rem;
+  align-items: center;
+  gap: 0.75rem;
   border-bottom: 1px solid #cbd5e1;
-  padding: 0.7rem;
+  border-left: 4px solid #94a3b8;
+  padding: 0.7rem 0.75rem;
+  box-shadow: inset 0 1px 0 #ffffff;
 }
 
 .timeline-team-section h3 {
@@ -138,7 +168,7 @@ p {
 
 .timeline-team-settings-button {
   width: auto;
-  justify-self: start;
+  justify-self: end;
   padding: 0.35rem 0.55rem;
   font-size: 0.8rem;
 }
@@ -437,13 +467,126 @@ p {
 }
 
 .timeline-project-edit,
-.timeline-team-edit,
 .timeline-reservation-edit {
   margin-top: 1rem;
   border: 1px solid #d9e0ea;
   border-radius: 0.5rem;
   background: #ffffff;
   padding: 0.85rem 1rem;
+}
+
+.planning-settings-modal,
+.timeline-team-edit {
+  position: fixed;
+  z-index: 20;
+  top: 50%;
+  left: 50%;
+  width: min(42rem, calc(100vw - 2rem));
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  transform: translate(-50%, -50%);
+  border: 1px solid #94a3b8;
+  border-radius: 0.65rem;
+  background: #ffffff;
+  padding: 1rem 1.1rem;
+  box-shadow: 0 18px 48px rgb(15 23 42 / 28%);
+}
+
+.planning-settings-modal h3,
+.timeline-team-edit h3 {
+  margin: 0 0 0.8rem;
+}
+
+.planning-settings-fields,
+.timeline-team-name-form,
+.timeline-team-capacity-form {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.planning-settings-fields > label,
+.timeline-team-name-form label,
+.timeline-team-capacity-form label {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.planning-settings-fields input,
+.planning-settings-actions button,
+.timeline-team-name-form input,
+.timeline-team-name-form button,
+.timeline-team-capacity-form input,
+.timeline-team-capacity-form button,
+.timeline-team-edit > button {
+  min-height: 2.25rem;
+  border: 1px solid #94a3b8;
+  border-radius: 0.35rem;
+  background: #ffffff;
+  padding: 0.35rem 0.65rem;
+  color: inherit;
+  font: inherit;
+}
+
+.planning-working-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(2.4rem, 1fr));
+  gap: 0.35rem;
+  margin: 0;
+  border: 1px solid #d9e0ea;
+  border-radius: 0.4rem;
+  padding: 0.65rem;
+}
+
+.planning-working-weekdays legend {
+  padding: 0 0.25rem;
+  font-weight: 600;
+}
+
+.planning-working-weekdays label {
+  display: grid;
+  justify-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+}
+
+.planning-working-weekdays input {
+  min-height: auto;
+  margin: 0;
+}
+
+.planning-settings-actions,
+.timeline-team-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 0.8rem;
+}
+
+.planning-settings-error {
+  margin: 0.75rem 0 0;
+  border-left: 3px solid #b91c1c;
+  background: #fff1f2;
+  padding: 0.6rem 0.75rem;
+  color: #991b1b;
+}
+
+.timeline-team-capacity-details {
+  margin-top: 1rem;
+  border-top: 1px solid #d9e0ea;
+  padding-top: 0.8rem;
+}
+
+.timeline-team-capacity-details > summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.timeline-team-capacity-form {
+  margin-top: 0.8rem;
+}
+
+.timeline-team-edit > button {
+  margin-top: 1rem;
 }
 
 @media (max-width: 70rem) {

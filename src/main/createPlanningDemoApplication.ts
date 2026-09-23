@@ -1,6 +1,7 @@
 import type { TimelineGeometryViewport } from "../adapters/index.js";
 import {
   buildProjectEditViewModel,
+  buildPlanningSettingsViewModel,
   buildTeamEditViewModel,
   buildTeamReservationsEditViewModel,
   createReservationIdGenerator,
@@ -32,10 +33,12 @@ export function createPlanningDemoApplication(
   return createTimelineUiCoordinator({
     elements,
     initialProjection: projectionDispatcher.getProjection(),
-    initialDate: scenario.horizon.start,
+    initialDate: scenario.planning.startDate,
     dispatch: projectionDispatcher.dispatch,
     getProjectEditViewModel: (projectId) =>
       buildProjectEditViewModel(session.getState(), projectId),
+    getPlanningSettingsViewModel: () =>
+      buildPlanningSettingsViewModel(session.getState()),
     getTeamEditViewModel: (teamId) =>
       buildTeamEditViewModel(session.getState(), teamId),
     getTeamReservationsEditViewModel: (teamId) =>

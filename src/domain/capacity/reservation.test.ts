@@ -5,7 +5,6 @@ import {
   createCapacityPeriod,
   createCivilDate,
   createFirmCapacityReservation,
-  createMaxParallelProjects,
   createPlanningHorizon,
   createReservationId,
   createReservationRatio,
@@ -14,9 +13,9 @@ import {
   createTeamId,
   createWorkingPattern,
   isOverReserved,
-  projectCapacity,
+  projectCapacity as calculateProjectCapacity,
   quantityToDecimalString,
-  reservedCapacity,
+  reservedCapacity as calculateReservedCapacity,
   serializeQuantity,
   totalReservationRatio,
   type DomainResult,
@@ -33,20 +32,27 @@ describe("firm capacity reservations", () => {
   const teamId = must(createTeamId("team-a"));
   const rendered = (value: Parameters<typeof quantityToDecimalString>[0]) =>
     must(quantityToDecimalString(value));
+  const workingPattern = must(
+    createWorkingPattern({ workingWeekdays: [1, 2, 3, 4, 5, 6, 7] }),
+  );
+  const reservedCapacity = (
+    team: Parameters<typeof calculateReservedCapacity>[0],
+    day: Parameters<typeof calculateReservedCapacity>[1],
+    reservations: Parameters<typeof calculateReservedCapacity>[2],
+  ) => calculateReservedCapacity(team, day, reservations, workingPattern);
+  const projectCapacity = (
+    team: Parameters<typeof calculateProjectCapacity>[0],
+    day: Parameters<typeof calculateProjectCapacity>[1],
+    reservations: Parameters<typeof calculateProjectCapacity>[2],
+  ) => calculateProjectCapacity(team, day, reservations, workingPattern);
 
   function makeTeam(dailyCapacity: string) {
     return must(
       createTeam({
         id: teamId,
         name: "Team A",
-        maxParallelProjects: must(createMaxParallelProjects(1)),
         capacitySchedule: must(
           createTeamCapacitySchedule({
-            workingPattern: must(
-              createWorkingPattern({
-                workingWeekdays: [1, 2, 3, 4, 5, 6, 7],
-              }),
-            ),
             periods: [
               must(
                 createCapacityPeriod({

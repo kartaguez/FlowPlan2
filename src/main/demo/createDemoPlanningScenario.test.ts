@@ -2,7 +2,11 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { buildTimelineGeometry, buildTimelineViewModel } from "../../adapters/index.js";
 import { recomputePlanning } from "../../application/index.js";
-import { serializeQuantity } from "../../domain/index.js";
+import {
+  createPlanningHorizon,
+  serializeQuantity,
+  type DomainResult,
+} from "../../domain/index.js";
 import { createDemoPlanningScenario } from "./createDemoPlanningScenario.js";
 
 describe("demo planning bootstrap", () => {
@@ -12,15 +16,33 @@ describe("demo planning bootstrap", () => {
 
     assert.ok(first.portfolio.teams.length >= 2);
     assert.ok(first.portfolio.projects.length >= 3);
-    assert.ok(first.horizon.start.slice(0, 7) !== first.horizon.end.slice(0, 7));
+    assert.ok(
+      first.planning.startDate.slice(0, 7) !==
+        first.planning.endDate.slice(0, 7),
+    );
     assert.ok(first.portfolio.reservations.length >= 1);
     assert.deepEqual(first, second);
   });
 
   it("runs through the real application, view-model, and geometry pipeline", () => {
     const scenario = createDemoPlanningScenario();
-    const { planningResult } = recomputePlanning(scenario);
-    const viewModel = buildTimelineViewModel({ ...scenario, planningResult });
+    const horizon = must(
+      createPlanningHorizon({
+        start: scenario.planning.startDate,
+        end: scenario.planning.endDate,
+      }),
+    );
+    const { planningResult } = recomputePlanning({
+      portfolio: scenario.portfolio,
+      horizon,
+      workingPattern: scenario.planning.workingPattern,
+      maxParallelProjects: scenario.planning.maxParallelProjects,
+    });
+    const viewModel = buildTimelineViewModel({
+      portfolio: scenario.portfolio,
+      horizon,
+      planningResult,
+    });
     const geometry = buildTimelineGeometry({
       viewModel,
       viewport: {
@@ -76,3 +98,8 @@ describe("demo planning bootstrap", () => {
     );
   });
 });
+
+function must<T>(result: DomainResult<T>): T {
+  if (!result.ok) throw new Error(JSON.stringify(result.errors));
+  return result.value;
+}

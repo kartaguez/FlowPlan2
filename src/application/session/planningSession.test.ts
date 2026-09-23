@@ -60,7 +60,7 @@ describe("PlanningSession project editing", () => {
     const initial = createDemoPlanningScenario();
     const session = createPlanningSession(initial);
     assert.equal(session.getState().portfolio, initial.portfolio);
-    assert.equal(session.getState().horizon, initial.horizon);
+    assert.equal(session.getState().planning, initial.planning);
     assert.equal(Object.isFrozen(session.getState()), true);
   });
 

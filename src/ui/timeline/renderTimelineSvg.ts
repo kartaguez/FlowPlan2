@@ -86,6 +86,9 @@ function renderTimeSegment(
   label.setAttribute("class", `timeline-${kind}-label`);
   label.setAttribute("x", String(segment.labelX));
   label.setAttribute("y", String(segment.labelY));
+  label.setAttribute("data-timeline-label-x", String(segment.labelX));
+  label.setAttribute("data-timeline-label-y", String(segment.labelY));
+  label.setAttribute("data-screen-space-typography", "true");
   label.setAttribute("text-anchor", "middle");
   label.setAttribute("dominant-baseline", "middle");
   label.textContent = segment.label;

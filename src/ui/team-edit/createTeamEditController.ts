@@ -1,6 +1,7 @@
 import type {
   TeamEditViewModel,
-  UpdateTeamCommand,
+  UpdateTeamCapacityPeriodsCommand,
+  UpdateTeamNameCommand,
 } from "../../application/index.js";
 import type { DomainError, TeamId } from "../../domain/index.js";
 import type { TeamEditControls } from "../renderApp.js";
@@ -22,13 +23,10 @@ export interface TeamEditController {
 export interface CreateTeamEditControllerInput {
   readonly controls: TeamEditControls;
   readonly errorContainer: HTMLElement;
-  readonly onApply: (command: UpdateTeamCommand) => TeamEditApplyResult;
-}
-
-interface GlobalInputs {
-  readonly name: HTMLInputElement;
-  readonly maxParallelProjects: HTMLInputElement;
-  readonly workingWeekdays: readonly HTMLInputElement[];
+  readonly onApplyName: (command: UpdateTeamNameCommand) => TeamEditApplyResult;
+  readonly onApplyPeriods: (
+    command: UpdateTeamCapacityPeriodsCommand,
+  ) => TeamEditApplyResult;
 }
 
 interface PeriodInputs {
@@ -43,21 +41,11 @@ interface PeriodInputs {
   readonly unavailabilityExact: string;
 }
 
-const WEEKDAYS = Object.freeze([
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
-]);
-
 export function createTeamEditController(
   input: CreateTeamEditControllerInput,
 ): TeamEditController {
   let model: TeamEditViewModel | undefined;
-  let globalInputs: GlobalInputs | undefined;
+  let nameInput: HTMLInputElement | undefined;
   let periodInputs: readonly PeriodInputs[] = Object.freeze([]);
 
   const clearError = (): void => {
@@ -73,101 +61,47 @@ export function createTeamEditController(
   const hydrate = (nextModel: TeamEditViewModel | undefined): void => {
     model = nextModel;
     input.controls.container.hidden = nextModel === undefined;
-    input.controls.fields.replaceChildren();
-    input.controls.apply.disabled = nextModel === undefined;
-    input.controls.cancel.disabled = nextModel === undefined;
+    input.controls.nameFields.replaceChildren();
+    input.controls.capacityFields.replaceChildren();
+    input.controls.nameApply.disabled = nextModel === undefined;
+    input.controls.capacityApply.disabled = nextModel === undefined;
+    input.controls.capacityCancel.disabled = nextModel === undefined;
     input.controls.status.textContent = nextModel
       ? `Editing ${nextModel.label}`
-      : "Select a team lane to edit.";
+      : "Select a team to edit.";
+    input.controls.title.textContent = nextModel
+      ? `Team settings — ${nextModel.label}`
+      : "Team settings";
     if (nextModel === undefined) {
-      globalInputs = undefined;
+      nameInput = undefined;
       periodInputs = Object.freeze([]);
       return;
     }
-    const document = input.controls.fields.ownerDocument;
-    const settings = document.createElement("fieldset");
-    settings.className = "timeline-team-edit-global";
-    const legend = document.createElement("legend");
-    legend.textContent = "Team settings";
-    const name = createLabeledInput(document, settings, "Name", "text", "team.name");
-    const maxParallelProjects = createLabeledInput(
+    const document = input.controls.nameFields.ownerDocument;
+    nameInput = createLabeledInput(
       document,
-      settings,
-      "Max parallel projects",
-      "number",
-      "team.maxParallelProjects",
+      input.controls.nameFields,
+      "Name",
+      "text",
+      "team.name",
     );
-    maxParallelProjects.min = "1";
-    maxParallelProjects.step = "1";
-    const weekdays = document.createElement("fieldset");
-    weekdays.className = "timeline-team-edit-weekdays";
-    const weekdaysLegend = document.createElement("legend");
-    weekdaysLegend.textContent = "Working days";
-    weekdays.append(weekdaysLegend);
-    const workingWeekdays = WEEKDAYS.map((weekday, index) => {
-      const label = document.createElement("label");
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.name = `team.workingPattern.${index + 1}`;
-      checkbox.checked = nextModel.workingWeekdays.includes(
-        (index + 1) as 1 | 2 | 3 | 4 | 5 | 6 | 7,
-      );
-      label.append(checkbox, weekday);
-      weekdays.append(label);
-      return checkbox;
-    });
-    settings.prepend(legend);
-    settings.append(weekdays);
-    name.value = nextModel.label;
-    maxParallelProjects.value = String(nextModel.maxParallelProjects);
-    globalInputs = Object.freeze({
-      name,
-      maxParallelProjects,
-      workingWeekdays: Object.freeze(workingWeekdays),
-    });
-    input.controls.fields.append(settings);
-
+    nameInput.value = nextModel.label;
     periodInputs = Object.freeze(
       nextModel.capacityPeriods.map((period) => {
         const fieldset = document.createElement("fieldset");
         fieldset.className = "timeline-team-edit-period";
-        fieldset.dataset.periodIndex = String(period.index);
-        const periodLegend = document.createElement("legend");
-        periodLegend.textContent = `Capacity period ${period.index + 1}`;
-        const startDate = createLabeledInput(
-          document,
-          fieldset,
-          "Start",
-          "date",
-          `team.capacityPeriods[${period.index}].startDate`,
-        );
-        const endDate = createLabeledInput(
-          document,
-          fieldset,
-          "End",
-          "date",
-          `team.capacityPeriods[${period.index}].endDate`,
-        );
-        const capacity = createLabeledInput(
-          document,
-          fieldset,
-          "Capacity / FTE",
-          "text",
-          `team.capacityPeriods[${period.index}].capacity`,
-        );
-        const unavailabilityPercent = createLabeledInput(
-          document,
-          fieldset,
-          "Unavailability %",
-          "text",
-          `team.capacityPeriods[${period.index}].unavailability`,
-        );
-        fieldset.prepend(periodLegend);
+        const legend = document.createElement("legend");
+        legend.textContent = `${period.startDate} → ${period.endDate}`;
+        const startDate = createLabeledInput(document, fieldset, "Start", "date", `team.capacityPeriods[${period.index}].startDate`);
+        const endDate = createLabeledInput(document, fieldset, "End", "date", `team.capacityPeriods[${period.index}].endDate`);
+        const capacity = createLabeledInput(document, fieldset, "Capacity", "text", `team.capacityPeriods[${period.index}].capacity`);
+        const unavailabilityPercent = createLabeledInput(document, fieldset, "Unavailability %", "text", `team.capacityPeriods[${period.index}].unavailability`);
+        fieldset.prepend(legend);
         startDate.value = period.startDate;
         endDate.value = period.endDate;
         capacity.value = period.capacity;
         unavailabilityPercent.value = period.unavailabilityPercent;
-        input.controls.fields.append(fieldset);
+        input.controls.capacityFields.append(fieldset);
         return Object.freeze({
           index: period.index,
           startDate,
@@ -183,82 +117,75 @@ export function createTeamEditController(
     );
   };
 
-  const formValues = (): TeamEditFormValues => {
-    if (model === undefined || globalInputs === undefined) {
-      throw new TypeError("Team edit form has no selected team.");
-    }
+  const periodValues = (): TeamEditFormValues => {
+    if (model === undefined) throw new TypeError("Team edit form has no selected team.");
     return Object.freeze({
       teamId: model.teamId,
-      name: globalInputs.name.value,
-      maxParallelProjects: globalInputs.maxParallelProjects.value,
-      workingWeekdays: Object.freeze(
-        globalInputs.workingWeekdays.flatMap((checkbox, index) =>
-          checkbox.checked ? [index + 1] : [],
-        ),
-      ),
+      name: model.label,
       capacityPeriods: Object.freeze(
-        periodInputs.map((period) =>
-          Object.freeze({
-            index: period.index,
-            startDate: period.startDate.value,
-            endDate: period.endDate.value,
-            capacity: period.capacity.value,
-            capacityExact: period.capacityExact,
-            capacityDirty: period.capacity.value !== period.capacityDisplay,
-            unavailabilityPercent: period.unavailabilityPercent.value,
-            unavailabilityExact: period.unavailabilityExact,
-            unavailabilityDirty:
-              period.unavailabilityPercent.value !== period.unavailabilityDisplay,
-          }),
-        ),
+        periodInputs.map((period) => Object.freeze({
+          index: period.index,
+          startDate: period.startDate.value,
+          endDate: period.endDate.value,
+          capacity: period.capacity.value,
+          capacityExact: period.capacityExact,
+          capacityDirty: period.capacity.value !== period.capacityDisplay,
+          unavailabilityPercent: period.unavailabilityPercent.value,
+          unavailabilityExact: period.unavailabilityExact,
+          unavailabilityDirty: period.unavailabilityPercent.value !== period.unavailabilityDisplay,
+        })),
       ),
     });
   };
 
-  const onSubmit = (event: SubmitEvent): void => {
+  const onNameSubmit = (event: SubmitEvent): void => {
     event.preventDefault();
-    if (model === undefined) return;
-    const parsed = parseTeamEditCommand(formValues());
-    if (!parsed.ok) {
-      showErrors(parsed.errors);
+    if (model === undefined || nameInput === undefined) return;
+    const name = nameInput.value.trim();
+    if (name.length === 0) {
+      showErrors([Object.freeze({ code: "EMPTY_TEAM_NAME", path: "team.name", message: "Team name must not be empty." })]);
       return;
     }
-    const result = input.onApply(parsed.command);
-    if (!result.ok) {
-      showErrors(result.errors);
-      return;
-    }
+    const result = input.onApplyName(Object.freeze({ kind: "update-team-name", teamId: model.teamId, name }));
+    if (!result.ok) return showErrors(result.errors);
     clearError();
   };
-  const onCancel = (): void => {
+  const onPeriodsSubmit = (event: SubmitEvent): void => {
+    event.preventDefault();
+    if (model === undefined) return;
+    const parsed = parseTeamEditCommand(periodValues());
+    if (!parsed.ok) return showErrors(parsed.errors);
+    const result = input.onApplyPeriods(parsed.command);
+    if (!result.ok) return showErrors(result.errors);
+    clearError();
+  };
+  const onCancelPeriods = (): void => {
     hydrate(model);
     clearError();
   };
-  const setTeam = (team: TeamEditViewModel | undefined): void => {
-    hydrate(team);
+  const onClose = (): void => {
+    input.controls.container.hidden = true;
     clearError();
   };
 
-  input.controls.form.addEventListener("submit", onSubmit);
-  input.controls.cancel.addEventListener("click", onCancel);
+  input.controls.nameForm.addEventListener("submit", onNameSubmit);
+  input.controls.capacityForm.addEventListener("submit", onPeriodsSubmit);
+  input.controls.capacityCancel.addEventListener("click", onCancelPeriods);
+  input.controls.close.addEventListener("click", onClose);
   hydrate(undefined);
   return Object.freeze({
-    setTeam,
+    setTeam: (team: TeamEditViewModel | undefined) => { hydrate(team); clearError(); },
     getTeamId: () => model?.teamId,
     destroy: () => {
-      input.controls.form.removeEventListener("submit", onSubmit);
-      input.controls.cancel.removeEventListener("click", onCancel);
+      input.controls.nameForm.removeEventListener("submit", onNameSubmit);
+      input.controls.capacityForm.removeEventListener("submit", onPeriodsSubmit);
+      input.controls.capacityCancel.removeEventListener("click", onCancelPeriods);
+      input.controls.close.removeEventListener("click", onClose);
     },
   });
 }
 
-function createLabeledInput(
-  document: Document,
-  parent: HTMLElement,
-  text: string,
-  type: string,
-  name: string,
-): HTMLInputElement {
+function createLabeledInput(document: Document, parent: HTMLElement, text: string, type: string, name: string): HTMLInputElement {
   const label = document.createElement("label");
   label.textContent = text;
   const field = document.createElement("input");

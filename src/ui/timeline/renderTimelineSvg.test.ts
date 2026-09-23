@@ -339,6 +339,18 @@ describe("renderTimelineSvg", () => {
     assert.equal(withClass(svg, "timeline-month").length, 1);
     assert.equal(withClass(svg, "timeline-year-label")[0]?.textContent, "2025");
     assert.equal(withClass(svg, "timeline-month-label")[0]?.textContent, "Jan");
+    assert.equal(
+      withClass(svg, "timeline-year-label")[0]?.getAttribute(
+        "data-screen-space-typography",
+      ),
+      "true",
+    );
+    assert.equal(
+      withClass(svg, "timeline-month-label")[0]?.getAttribute(
+        "data-screen-space-typography",
+      ),
+      "true",
+    );
     assert.deepEqual(attributes(withClass(svg, "timeline-year-cell")[0]!), {
       class: "timeline-year-cell",
       x: "0",

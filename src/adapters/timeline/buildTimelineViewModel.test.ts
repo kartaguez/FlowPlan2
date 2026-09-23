@@ -45,14 +45,8 @@ function makeTeam(id: string, name: string, dailyCapacity: string): Team {
     createTeam({
       id: must(createTeamId(id)),
       name,
-      maxParallelProjects: must(createMaxParallelProjects(2)),
       capacitySchedule: must(
         createTeamCapacitySchedule({
-          workingPattern: must(
-            createWorkingPattern({
-              workingWeekdays: [1, 2, 3, 4, 5, 6, 7],
-            }),
-          ),
           periods: [
             must(
               createCapacityPeriod({
@@ -425,6 +419,10 @@ describe("buildTimelineViewModel", () => {
     const planningResult = planPortfolio({
       portfolio: input.portfolio,
       horizon: input.horizon,
+      workingPattern: must(
+        createWorkingPattern({ workingWeekdays: [1, 2, 3, 4, 5] }),
+      ),
+      maxParallelProjects: must(createMaxParallelProjects(2)),
     });
     const viewModel = buildTimelineViewModel({
       portfolio: input.portfolio,

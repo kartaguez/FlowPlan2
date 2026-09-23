@@ -4,6 +4,7 @@ import {
   createCapacityPeriod,
   createFirmCapacityReservation,
   createMaxParallelProjects,
+  createPlanningHorizon,
   createPortfolio,
   createProject,
   createProjectTeamRequirement,
@@ -17,7 +18,6 @@ import {
   type CivilDate,
   type DailyCap,
   type DomainError,
-  type PlanningHorizon,
   type Portfolio,
   type ProjectId,
   type ReservationId,
@@ -27,11 +27,27 @@ import {
   type TeamId,
   type UnavailabilityRatio,
   type WorkingPattern,
+  type MaxParallelProjects,
 } from "../../domain/index.js";
+
+export interface PlanningSettings {
+  readonly startDate: CivilDate;
+  readonly endDate: CivilDate;
+  readonly workingPattern: WorkingPattern;
+  readonly maxParallelProjects: MaxParallelProjects;
+}
 
 export interface PlanningSessionState {
   readonly portfolio: Portfolio;
-  readonly horizon: PlanningHorizon;
+  readonly planning: PlanningSettings;
+}
+
+export interface UpdatePlanningSettingsCommand {
+  readonly kind: "update-planning-settings";
+  readonly startDate: CivilDate;
+  readonly endDate: CivilDate;
+  readonly workingPattern: WorkingPattern;
+  readonly maxParallelProjects: number;
 }
 
 export interface UpdateProjectTeamRequirement {
@@ -59,12 +75,15 @@ export interface UpdateTeamCapacityPeriod {
   readonly unavailability: UnavailabilityRatio;
 }
 
-export interface UpdateTeamCommand {
-  readonly kind: "update-team";
+export interface UpdateTeamNameCommand {
+  readonly kind: "update-team-name";
   readonly teamId: TeamId;
   readonly name: string;
-  readonly maxParallelProjects: number;
-  readonly workingPattern: WorkingPattern;
+}
+
+export interface UpdateTeamCapacityPeriodsCommand {
+  readonly kind: "update-team-capacity-periods";
+  readonly teamId: TeamId;
   /** Period #i replaces existing period #i; add/remove/reorder is unsupported. */
   readonly capacityPeriods: readonly UpdateTeamCapacityPeriod[];
 }
@@ -83,8 +102,10 @@ export interface ReplaceTeamReservationsCommand {
 }
 
 export type PlanningCommand =
+  | UpdatePlanningSettingsCommand
   | UpdateProjectCommand
-  | UpdateTeamCommand
+  | UpdateTeamNameCommand
+  | UpdateTeamCapacityPeriodsCommand
   | ReplaceTeamReservationsCommand;
 
 export type PlanningCommandResult =
@@ -116,10 +137,14 @@ function applyCommand(
   command: PlanningCommand,
 ): PlanningCommandResult {
   switch (command.kind) {
+    case "update-planning-settings":
+      return updatePlanningSettings(state, command);
     case "update-project":
       return updateProject(state, command);
-    case "update-team":
-      return updateTeam(state, command);
+    case "update-team-name":
+      return updateTeamName(state, command);
+    case "update-team-capacity-periods":
+      return updateTeamCapacityPeriods(state, command);
     case "replace-team-reservations":
       return replaceTeamReservations(state, command);
   }
@@ -223,46 +248,103 @@ function replaceTeamReservations(
   if (!portfolio.ok) return failure(portfolio.errors);
   return Object.freeze({
     ok: true,
-    state: freezeState({ portfolio: portfolio.value, horizon: state.horizon }),
+    state: freezeState({ portfolio: portfolio.value, planning: state.planning }),
   });
 }
 
-function updateTeam(
+function updatePlanningSettings(
   state: PlanningSessionState,
-  command: UpdateTeamCommand,
+  command: UpdatePlanningSettingsCommand,
 ): PlanningCommandResult {
   const errors: DomainError[] = [];
-  const name = command.name.trim();
-  if (name.length === 0) {
+  const horizon = createPlanningHorizon({
+    start: command.startDate,
+    end: command.endDate,
+  });
+  if (!horizon.ok) errors.push(...horizon.errors);
+  const workingPattern = createWorkingPattern({
+    workingWeekdays: command.workingPattern.workingWeekdays,
+  });
+  if (!workingPattern.ok) errors.push(...workingPattern.errors);
+  if (
+    workingPattern.ok &&
+    workingPattern.value.workingWeekdays.length === 0
+  ) {
     errors.push(
       applicationError(
-        "EMPTY_TEAM_NAME",
-        "team.name",
-        "Team name must not be empty.",
-      ),
-    );
-  }
-  const teamIndex = state.portfolio.teams.findIndex(
-    (team) => team.id === command.teamId,
-  );
-  if (teamIndex < 0) {
-    errors.push(
-      applicationError(
-        "UNKNOWN_TEAM",
-        "teamId",
-        `Team ${command.teamId} does not exist in the current portfolio.`,
+        "EMPTY_WORKING_WEEK",
+        "planning.workingWeekdays",
+        "At least one working weekday is required.",
       ),
     );
   }
   const maxParallelProjects = createMaxParallelProjects(
     command.maxParallelProjects,
-    "team.maxParallelProjects",
+    "planning.maxParallelProjects",
   );
   if (!maxParallelProjects.ok) errors.push(...maxParallelProjects.errors);
-  const workingPattern = createWorkingPattern({
-    workingWeekdays: command.workingPattern.workingWeekdays,
+  if (!horizon.ok || !workingPattern.ok || !maxParallelProjects.ok || errors.length > 0) {
+    return failure(errors);
+  }
+  return Object.freeze({
+    ok: true,
+    state: freezeState({
+      portfolio: state.portfolio,
+      planning: Object.freeze({
+        startDate: horizon.value.start,
+        endDate: horizon.value.end,
+        workingPattern: workingPattern.value,
+        maxParallelProjects: maxParallelProjects.value,
+      }),
+    }),
   });
-  if (!workingPattern.ok) errors.push(...workingPattern.errors);
+}
+
+function updateTeamName(
+  state: PlanningSessionState,
+  command: UpdateTeamNameCommand,
+): PlanningCommandResult {
+  const name = command.name.trim();
+  if (name.length === 0) {
+    return failure([
+      applicationError("EMPTY_TEAM_NAME", "team.name", "Team name must not be empty."),
+    ]);
+  }
+  const teamIndex = state.portfolio.teams.findIndex(
+    (team) => team.id === command.teamId,
+  );
+  if (teamIndex < 0) {
+    return failure([
+      applicationError(
+        "UNKNOWN_TEAM",
+        "teamId",
+        `Team ${command.teamId} does not exist in the current portfolio.`,
+      ),
+    ]);
+  }
+  const currentTeam = state.portfolio.teams[teamIndex]!;
+  const updatedTeam = createTeam({
+    id: currentTeam.id,
+    name,
+    capacitySchedule: currentTeam.capacitySchedule,
+  });
+  if (!updatedTeam.ok) return failure(updatedTeam.errors);
+  return replaceTeam(state, teamIndex, updatedTeam.value);
+}
+
+function updateTeamCapacityPeriods(
+  state: PlanningSessionState,
+  command: UpdateTeamCapacityPeriodsCommand,
+): PlanningCommandResult {
+  const errors: DomainError[] = [];
+  const teamIndex = state.portfolio.teams.findIndex(
+    (team) => team.id === command.teamId,
+  );
+  if (teamIndex < 0) {
+    return failure([
+      applicationError("UNKNOWN_TEAM", "teamId", `Team ${command.teamId} does not exist in the current portfolio.`),
+    ]);
+  }
   if (teamIndex >= 0) {
     const expectedPeriodCount =
       state.portfolio.teams[teamIndex]!.capacitySchedule.periods.length;
@@ -290,10 +372,7 @@ function updateTeam(
     }
   }
   if (
-    errors.length > 0 ||
-    teamIndex < 0 ||
-    !maxParallelProjects.ok ||
-    !workingPattern.ok
+    errors.length > 0
   ) {
     return failure(errors);
   }
@@ -334,15 +413,13 @@ function updateTeam(
   });
   const currentTeam = state.portfolio.teams[teamIndex]!;
   const capacitySchedule = createTeamCapacitySchedule({
-    workingPattern: workingPattern.value,
     periods,
     exceptions: currentTeam.capacitySchedule.exceptions,
   });
   if (!capacitySchedule.ok) return failure(capacitySchedule.errors);
   const updatedTeam = createTeam({
     id: currentTeam.id,
-    name,
-    maxParallelProjects: maxParallelProjects.value,
+    name: currentTeam.name,
     capacitySchedule: capacitySchedule.value,
   });
   if (!updatedTeam.ok) return failure(updatedTeam.errors);
@@ -366,7 +443,7 @@ function replaceTeam(
   if (!portfolio.ok) return failure(portfolio.errors);
   return Object.freeze({
     ok: true,
-    state: freezeState({ portfolio: portfolio.value, horizon: state.horizon }),
+    state: freezeState({ portfolio: portfolio.value, planning: state.planning }),
   });
 }
 
@@ -526,7 +603,7 @@ function updateProject(
 
   return Object.freeze({
     ok: true,
-    state: freezeState({ portfolio: portfolio.value, horizon: state.horizon }),
+    state: freezeState({ portfolio: portfolio.value, planning: state.planning }),
   });
 }
 
@@ -555,5 +632,5 @@ function failure(errors: readonly DomainError[]): PlanningCommandResult {
 }
 
 function freezeState(state: PlanningSessionState): PlanningSessionState {
-  return Object.freeze({ portfolio: state.portfolio, horizon: state.horizon });
+  return Object.freeze({ portfolio: state.portfolio, planning: state.planning });
 }

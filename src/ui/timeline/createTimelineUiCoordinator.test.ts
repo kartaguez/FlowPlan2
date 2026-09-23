@@ -6,7 +6,8 @@ import type {
   TeamReservationsEditViewModel,
   ReplaceTeamReservationsCommand,
   UpdateProjectCommand,
-  UpdateTeamCommand,
+  UpdateTeamCapacityPeriodsCommand,
+  UpdateTeamNameCommand,
 } from "../../application/index.js";
 import type { TimelineGeometry, TimelineViewModel } from "../../adapters/index.js";
 import {
@@ -107,8 +108,6 @@ function fixture() {
   const teamEditModel = Object.freeze({
     teamId,
     label: "Team Alpha",
-    maxParallelProjects: 2,
-    workingWeekdays: Object.freeze([1, 2, 3, 4, 5] as const),
     capacityPeriods: Object.freeze([]),
   }) satisfies TeamEditViewModel;
   const reservationModel = Object.freeze({
@@ -132,7 +131,7 @@ function fixture() {
     onProjectSelect: (projectId: ProjectId) => void;
   }> = [];
   let applyProject: ((command: UpdateProjectCommand) => { readonly ok: boolean }) | undefined;
-  let applyTeam: ((command: UpdateTeamCommand) => { readonly ok: boolean }) | undefined;
+  let applyTeam: ((command: UpdateTeamNameCommand | UpdateTeamCapacityPeriodsCommand) => { readonly ok: boolean }) | undefined;
   let applyReservations:
     | ((command: ReplaceTeamReservationsCommand) => { readonly ok: boolean })
     | undefined;
@@ -187,9 +186,13 @@ function fixture() {
       };
     },
     createTeamEditController: (input: {
-      onApply: (command: UpdateTeamCommand) => { readonly ok: boolean };
+      onApplyName: (command: UpdateTeamNameCommand) => { readonly ok: boolean };
+      onApplyPeriods: (command: UpdateTeamCapacityPeriodsCommand) => { readonly ok: boolean };
     }) => {
-      applyTeam = input.onApply;
+      applyTeam = (command) =>
+        command.kind === "update-team-name"
+          ? input.onApplyName(command)
+          : input.onApplyPeriods(command);
       return {
         setTeam: (model: TeamEditViewModel | undefined) => teamModels.push(model),
         getTeamId: () => teamModels.at(-1)?.teamId,
@@ -207,6 +210,10 @@ function fixture() {
         destroy: () => lifecycle.push("destroy-reservation-edit"),
       };
     },
+    createPlanningSettingsController: () => ({
+      setModel() {},
+      destroy: () => lifecycle.push("destroy-planning-settings"),
+    }),
     renderShellNavigation: (input: {
       onTeamSettings: (teamId: TeamId) => void;
       onProjectSelect: (projectId: ProjectId) => void;
@@ -255,6 +262,7 @@ describe("TimelineUiCoordinator", () => {
         initialProjection: input.projection,
         initialDate: input.firstDate,
         dispatch: () => ({ ok: true, projection: input.nextProjection }),
+        getPlanningSettingsViewModel: () => ({ startDate: input.firstDate, endDate: input.middleDate, workingWeekdays: [1, 2, 3, 4, 5], maxParallelProjects: 2 }),
         getProjectEditViewModel: () => input.editModel,
         getTeamEditViewModel: () => input.teamEditModel,
         getTeamReservationsEditViewModel: () => input.reservationModel,
@@ -296,6 +304,7 @@ describe("TimelineUiCoordinator", () => {
           ok: false,
           errors: [{ code: "INVALID", path: "project.name", message: "Invalid." }],
         }),
+        getPlanningSettingsViewModel: () => ({ startDate: input.firstDate, endDate: input.middleDate, workingWeekdays: [1, 2, 3, 4, 5], maxParallelProjects: 2 }),
         getProjectEditViewModel: () => input.editModel,
         getTeamEditViewModel: () => input.teamEditModel,
         getTeamReservationsEditViewModel: () => input.reservationModel,
@@ -320,6 +329,7 @@ describe("TimelineUiCoordinator", () => {
         initialProjection: input.projection,
         initialDate: input.firstDate,
         dispatch: () => ({ ok: true, projection: input.nextProjection }),
+        getPlanningSettingsViewModel: () => ({ startDate: input.firstDate, endDate: input.middleDate, workingWeekdays: [1, 2, 3, 4, 5], maxParallelProjects: 2 }),
         getProjectEditViewModel: () => input.editModel,
         getTeamEditViewModel: () => input.teamEditModel,
         getTeamReservationsEditViewModel: () => input.reservationModel,
@@ -333,7 +343,7 @@ describe("TimelineUiCoordinator", () => {
     });
     assert.equal(input.projectModels.at(-1), undefined);
     assert.equal(input.teamModels.at(-1), input.teamEditModel);
-    assert.equal(input.reservationModels.at(-1), input.reservationModel);
+    assert.equal(input.reservationModels.at(-1), undefined);
     input.select(input.allocationHit);
     assert.equal(input.projectModels.at(-1), input.editModel);
     assert.equal(input.teamModels.at(-1), undefined);
@@ -363,6 +373,7 @@ describe("TimelineUiCoordinator", () => {
         initialProjection: input.projection,
         initialDate: input.firstDate,
         dispatch: () => ({ ok: true, projection: input.nextProjection }),
+        getPlanningSettingsViewModel: () => ({ startDate: input.firstDate, endDate: input.middleDate, workingWeekdays: [1, 2, 3, 4, 5], maxParallelProjects: 2 }),
         getProjectEditViewModel: () => input.editModel,
         getTeamEditViewModel: () => input.teamEditModel,
         getTeamReservationsEditViewModel: () => input.reservationModel,
@@ -373,12 +384,12 @@ describe("TimelineUiCoordinator", () => {
     const teamHit = { kind: "team", teamId: input.teamId } as const;
     input.select(teamHit);
     assert.equal(input.teamModels.at(-1), input.teamEditModel);
-    assert.equal(input.reservationModels.at(-1), input.reservationModel);
+    assert.equal(input.reservationModels.at(-1), undefined);
     assert.equal(input.projectModels.at(-1), undefined);
-    input.getApplyTeam()({} as UpdateTeamCommand);
+    input.getApplyTeam()({} as UpdateTeamNameCommand);
     assert.deepEqual(coordinator.getUiSnapshot().selected, teamHit);
     assert.equal(input.teamModels.at(-1), input.teamEditModel);
-    assert.equal(input.reservationModels.at(-1), input.reservationModel);
+    assert.equal(input.reservationModels.at(-1), undefined);
   });
 
   it("preserves the team context through a reservation replacement", () => {
@@ -389,6 +400,7 @@ describe("TimelineUiCoordinator", () => {
         initialProjection: input.projection,
         initialDate: input.firstDate,
         dispatch: () => ({ ok: true, projection: input.nextProjection }),
+        getPlanningSettingsViewModel: () => ({ startDate: input.firstDate, endDate: input.middleDate, workingWeekdays: [1, 2, 3, 4, 5], maxParallelProjects: 2 }),
         getProjectEditViewModel: () => input.editModel,
         getTeamEditViewModel: () => input.teamEditModel,
         getTeamReservationsEditViewModel: () => input.reservationModel,
@@ -400,7 +412,7 @@ describe("TimelineUiCoordinator", () => {
     input.select(teamHit);
     input.getApplyReservations()({} as ReplaceTeamReservationsCommand);
     assert.deepEqual(coordinator.getUiSnapshot().selected, teamHit);
-    assert.equal(input.reservationModels.at(-1), input.reservationModel);
+    assert.equal(input.reservationModels.at(-1), undefined);
     assert.equal(input.projectModels.at(-1), undefined);
   });
 
@@ -412,6 +424,7 @@ describe("TimelineUiCoordinator", () => {
         initialProjection: input.projection,
         initialDate: input.firstDate,
         dispatch: () => ({ ok: true, projection: input.nextProjection }),
+        getPlanningSettingsViewModel: () => ({ startDate: input.firstDate, endDate: input.middleDate, workingWeekdays: [1, 2, 3, 4, 5], maxParallelProjects: 2 }),
         getProjectEditViewModel: () => input.editModel,
         getTeamEditViewModel: () => input.teamEditModel,
         getTeamReservationsEditViewModel: () => input.reservationModel,
@@ -421,7 +434,7 @@ describe("TimelineUiCoordinator", () => {
     );
     input.shellInputs.at(-1)!.onTeamSettings(input.teamId);
     assert.equal(input.teamModels.at(-1), input.teamEditModel);
-    assert.equal(input.reservationModels.at(-1), input.reservationModel);
+    assert.equal(input.reservationModels.at(-1), undefined);
     assert.equal(input.projectModels.at(-1), undefined);
     input.shellInputs.at(-1)!.onProjectSelect(input.projectId);
     assert.equal(input.projectModels.at(-1), input.editModel);
@@ -442,6 +455,15 @@ function createElements(): AppElements {
       zoomOut: element() as unknown as HTMLButtonElement,
       reset: element() as unknown as HTMLButtonElement,
     },
+    planningSettingsButton: element() as unknown as HTMLButtonElement,
+    planningSettingsControls: {
+      container: element() as unknown as HTMLElement,
+      form: element() as unknown as HTMLFormElement,
+      fields: element() as unknown as HTMLElement,
+      apply: element() as unknown as HTMLButtonElement,
+      cancel: element() as unknown as HTMLButtonElement,
+      error: element() as unknown as HTMLElement,
+    },
     tooltip: element() as unknown as HTMLElement,
     selectionSummary: element() as unknown as HTMLElement,
     projectEditControls: {
@@ -454,10 +476,16 @@ function createElements(): AppElements {
     },
     teamEditControls: {
       container: element() as unknown as HTMLElement,
-      form: element() as unknown as HTMLFormElement,
-      fields: element() as unknown as HTMLElement,
-      apply: element() as unknown as HTMLButtonElement,
-      cancel: element() as unknown as HTMLButtonElement,
+      title: element() as unknown as HTMLElement,
+      nameForm: element() as unknown as HTMLFormElement,
+      nameFields: element() as unknown as HTMLElement,
+      nameApply: element() as unknown as HTMLButtonElement,
+      capacityDetails: element() as unknown as HTMLDetailsElement,
+      capacityForm: element() as unknown as HTMLFormElement,
+      capacityFields: element() as unknown as HTMLElement,
+      capacityApply: element() as unknown as HTMLButtonElement,
+      capacityCancel: element() as unknown as HTMLButtonElement,
+      close: element() as unknown as HTMLButtonElement,
       status: element() as unknown as HTMLElement,
     },
     reservationEditControls: {

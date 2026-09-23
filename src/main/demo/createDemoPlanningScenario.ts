@@ -19,17 +19,13 @@ import {
   createWorkingPattern,
   type CivilDate,
   type DomainResult,
-  type PlanningHorizon,
-  type Portfolio,
   type ProjectTeamRequirement,
   type Team,
   type TeamId,
 } from "../../domain/index.js";
+import type { PlanningSessionState } from "../../application/index.js";
 
-export interface DemoPlanningScenario {
-  readonly portfolio: Portfolio;
-  readonly horizon: PlanningHorizon;
-}
+export type DemoPlanningScenario = PlanningSessionState;
 
 export function createDemoPlanningScenario(): DemoPlanningScenario {
   const start = date("2025-01-01");
@@ -38,14 +34,14 @@ export function createDemoPlanningScenario(): DemoPlanningScenario {
   const betaId = must(createTeamId("team-beta"));
   const gammaId = must(createTeamId("team-gamma"));
 
-  const alpha = team(alphaId, "Team Alpha", 2, [
+  const alpha = team(alphaId, "Team Alpha", [
     ["2025-01-01", "2025-01-31", "3"],
     ["2025-02-01", "2025-03-31", "2.5"],
   ]);
-  const beta = team(betaId, "Team Beta", 2, [
+  const beta = team(betaId, "Team Beta", [
     ["2025-01-01", "2025-03-31", "2"],
   ]);
-  const gamma = team(gammaId, "Team Gamma", 2, [
+  const gamma = team(gammaId, "Team Gamma", [
     ["2025-01-01", "2025-03-31", "1.5"],
   ]);
 
@@ -139,18 +135,24 @@ export function createDemoPlanningScenario(): DemoPlanningScenario {
     }),
   );
 
-  return Object.freeze({ portfolio, horizon });
+  return Object.freeze({
+    portfolio,
+    planning: Object.freeze({
+      startDate: horizon.start,
+      endDate: horizon.end,
+      workingPattern: must(
+        createWorkingPattern({ workingWeekdays: [1, 2, 3, 4, 5] }),
+      ),
+      maxParallelProjects: must(createMaxParallelProjects(2)),
+    }),
+  });
 }
 
 function team(
   id: TeamId,
   name: string,
-  maxParallelProjects: number,
   periods: readonly (readonly [string, string, string])[],
 ): Team {
-  const workingPattern = must(
-    createWorkingPattern({ workingWeekdays: [1, 2, 3, 4, 5] }),
-  );
   const capacityPeriods = periods.map(([start, end, dailyCapacity]) =>
     must(
       createCapacityPeriod({
@@ -162,7 +164,6 @@ function team(
   );
   const capacitySchedule = must(
     createTeamCapacitySchedule({
-      workingPattern,
       periods: capacityPeriods,
       exceptions: [],
     }),
@@ -171,9 +172,6 @@ function team(
     createTeam({
       id,
       name,
-      maxParallelProjects: must(
-        createMaxParallelProjects(maxParallelProjects),
-      ),
       capacitySchedule,
     }),
   );

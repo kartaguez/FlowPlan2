@@ -30,7 +30,6 @@ export interface CapacityException {
 }
 
 export interface TeamCapacitySchedule {
-  readonly workingPattern: WorkingPattern;
   readonly periods: readonly CapacityPeriod[];
   readonly exceptions: readonly CapacityException[];
 }
@@ -97,7 +96,6 @@ export function createCapacityException(input: {
 }
 
 export function createTeamCapacitySchedule(input: {
-  readonly workingPattern: WorkingPattern;
   readonly periods: readonly CapacityPeriod[];
   readonly exceptions: readonly CapacityException[];
 }): DomainResult<TeamCapacitySchedule> {
@@ -145,7 +143,6 @@ export function createTeamCapacitySchedule(input: {
 
   return success(
     Object.freeze({
-      workingPattern: input.workingPattern,
       periods: Object.freeze(periods),
       exceptions: Object.freeze(exceptions),
     }),

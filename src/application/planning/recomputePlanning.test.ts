@@ -43,14 +43,8 @@ function makeTeam(id: string, capacity: string): Team {
     createTeam({
       id: must(createTeamId(id)),
       name: id,
-      maxParallelProjects: must(createMaxParallelProjects(2)),
       capacitySchedule: must(
         createTeamCapacitySchedule({
-          workingPattern: must(
-            createWorkingPattern({
-              workingWeekdays: [1, 2, 3, 4, 5, 6, 7],
-            }),
-          ),
           periods: [
             must(
               createCapacityPeriod({
@@ -118,6 +112,10 @@ function makeRequest(
     horizon: must(
       createPlanningHorizon({ start: date(start), end: date(end) }),
     ),
+    workingPattern: must(
+      createWorkingPattern({ workingWeekdays: [1, 2, 3, 4, 5, 6, 7] }),
+    ),
+    maxParallelProjects: must(createMaxParallelProjects(2)),
   };
 }
 

@@ -1,7 +1,6 @@
 import {
   serializeQuantity,
   type CivilDate,
-  type IsoWeekday,
   type TeamId,
 } from "../../domain/index.js";
 import type { PlanningSessionState } from "./planningSession.js";
@@ -13,8 +12,6 @@ import {
 export interface TeamEditViewModel {
   readonly teamId: TeamId;
   readonly label: string;
-  readonly maxParallelProjects: number;
-  readonly workingWeekdays: readonly IsoWeekday[];
   readonly capacityPeriods: readonly TeamCapacityPeriodEditViewModel[];
 }
 
@@ -38,10 +35,6 @@ export function buildTeamEditViewModel(
   return Object.freeze({
     teamId: team.id,
     label: team.name,
-    maxParallelProjects: team.maxParallelProjects,
-    workingWeekdays: Object.freeze([
-      ...team.capacitySchedule.workingPattern.workingWeekdays,
-    ]),
     capacityPeriods: Object.freeze(
       team.capacitySchedule.periods.map((period, index) =>
         Object.freeze({

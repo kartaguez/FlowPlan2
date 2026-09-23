@@ -19,7 +19,7 @@ import {
 } from "../model/scalars.js";
 import type { FirmCapacityReservation } from "./reservation.js";
 import { isReservationApplicable } from "./reservation.js";
-import { isWorkingDay } from "./schedule.js";
+import { isWorkingDay, type WorkingPattern } from "./schedule.js";
 
 const ZERO = rationalFromInteger(0n);
 const ONE = rationalFromInteger(1n);
@@ -35,13 +35,17 @@ function unwrapProvenQuantity<T>(result: DomainResult<T>): T {
 
 const ZERO_CAPACITY = unwrapProvenQuantity(capacityFromRational(ZERO));
 
-export function effectiveCapacity(team: Team, date: CivilDate): Capacity {
+export function effectiveCapacity(
+  team: Team,
+  date: CivilDate,
+  workingPattern: WorkingPattern,
+): Capacity {
   const exception = team.capacitySchedule.exceptions.find(
     (item) => item.date === date,
   );
   if (exception) return exception.capacity;
 
-  if (!isWorkingDay(team.capacitySchedule.workingPattern, date)) {
+  if (!isWorkingDay(workingPattern, date)) {
     return ZERO_CAPACITY;
   }
 
@@ -82,9 +86,10 @@ export function reservedCapacity(
   team: Team,
   date: CivilDate,
   reservations: readonly FirmCapacityReservation[],
+  workingPattern: WorkingPattern,
 ): Capacity {
   const reserved = multiplyRationals(
-    rationalOf(effectiveCapacity(team, date)),
+    rationalOf(effectiveCapacity(team, date, workingPattern)),
     rationalOf(totalReservationRatio(team.id, date, reservations)),
   );
   // Both factors are non-negative, so their product is non-negative.
@@ -96,10 +101,11 @@ export function projectCapacity(
   team: Team,
   date: CivilDate,
   reservations: readonly FirmCapacityReservation[],
+  workingPattern: WorkingPattern,
 ): Capacity {
   const available = subtractRationals(
-    rationalOf(effectiveCapacity(team, date)),
-    rationalOf(reservedCapacity(team, date, reservations)),
+    rationalOf(effectiveCapacity(team, date, workingPattern)),
+    rationalOf(reservedCapacity(team, date, reservations, workingPattern)),
   );
   // The maximum with zero is non-negative by construction.
   return unwrapProvenQuantity(

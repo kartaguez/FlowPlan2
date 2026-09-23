@@ -35,4 +35,29 @@ export function applyTimelineViewport(
     "viewBox",
     `${x} 0 ${input.viewport.width} ${input.geometry.height}`,
   );
+  preserveTimelineLabelTypography(input.svg, input.viewport, input.geometry.height);
+}
+
+/** Keeps time-axis glyphs in CSS-pixel space while their anchors stay temporal. */
+function preserveTimelineLabelTypography(
+  svg: SVGSVGElement,
+  viewport: TimelineViewportState,
+  geometryHeight: number,
+): void {
+  if (typeof svg.querySelectorAll !== "function") return;
+  const bounds = svg.getBoundingClientRect();
+  if (bounds.width <= 0 || bounds.height <= 0) return;
+  const inverseX = viewport.width / bounds.width;
+  const inverseY = geometryHeight / bounds.height;
+  for (const node of svg.querySelectorAll<SVGTextElement>(
+    "[data-screen-space-typography='true']",
+  )) {
+    const x = node.getAttribute("data-timeline-label-x");
+    const y = node.getAttribute("data-timeline-label-y");
+    if (x === null || y === null) continue;
+    node.setAttribute(
+      "transform",
+      `translate(${x} ${y}) scale(${inverseX} ${inverseY}) translate(${-Number(x)} ${-Number(y)})`,
+    );
+  }
 }
