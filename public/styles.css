@@ -337,6 +337,53 @@ p {
   margin-bottom: 0.25rem;
 }
 
+.timeline-project-edit {
+  margin-top: 1rem;
+  border: 1px solid #d9e0ea;
+  border-radius: 0.5rem;
+  background: #ffffff;
+  padding: 0.85rem 1rem;
+}
+
+.timeline-project-edit h3 {
+  margin: 0 0 0.4rem;
+  font-size: 1rem;
+}
+
+.timeline-project-edit-status {
+  color: #52627a;
+}
+
+.timeline-project-edit-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.6rem;
+}
+
+.timeline-project-edit-form label {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.timeline-project-edit-form input,
+.timeline-project-edit-form button {
+  min-height: 2.25rem;
+  border: 1px solid #94a3b8;
+  border-radius: 0.35rem;
+  background: #ffffff;
+  padding: 0.35rem 0.65rem;
+  color: inherit;
+}
+
+.application-error {
+  margin-top: 0.75rem;
+  border-left: 3px solid #b91c1c;
+  background: #fff1f2;
+  padding: 0.6rem 0.75rem;
+  color: #991b1b;
+}
+
 .timeline-diagnostics {
   margin-top: 1.25rem;
   border-top: 1px solid #d9e0ea;

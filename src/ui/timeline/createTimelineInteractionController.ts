@@ -39,6 +39,8 @@ export interface CreateTimelineInteractionControllerInput {
   readonly tooltipContainer: HTMLElement;
   readonly selectionSummaryContainer: HTMLElement;
   readonly keyboardControl: HTMLElement;
+  readonly initialSelected?: TimelineHit;
+  readonly onSelectionChange?: (selected: TimelineHit | undefined) => void;
 }
 
 interface PointerPress {
@@ -53,7 +55,7 @@ export function createTimelineInteractionController(
 ): TimelineInteractionController {
   const lookup = createTimelineInteractionLookup(input.viewModel);
   let hovered: TimelineHit | undefined;
-  let selected: TimelineHit | undefined;
+  let selected = input.initialSelected;
   let pointerPress: PointerPress | undefined;
   let ignoredShiftPointerId: number | undefined;
 
@@ -111,6 +113,7 @@ export function createTimelineInteractionController(
       lookup,
       selected,
     });
+    input.onSelectionChange?.(selected);
   };
   const onPointerDown = (event: PointerEvent): void => {
     clearHover();

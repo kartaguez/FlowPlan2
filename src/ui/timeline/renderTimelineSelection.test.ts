@@ -9,7 +9,10 @@ import {
 } from "../../domain/index.js";
 import { renderTimelineSelection } from "./renderTimelineSelection.js";
 import { applyTimelineViewport } from "./applyTimelineViewport.js";
-import { buildTimelineSelectionGeometry } from "./timelineSelectionGeometry.js";
+import {
+  buildTimelineSelectionGeometry,
+  reconcileTimelineHit,
+} from "./timelineSelectionGeometry.js";
 
 function must<T>(result: DomainResult<T>): T {
   if (!result.ok) throw new Error(JSON.stringify(result.errors));
@@ -180,5 +183,21 @@ describe("timeline selection geometry and renderer", () => {
     assert.equal(svg.getAttribute("viewBox"), "100 0 100 150");
     assert.equal(layer.childNodes[0]?.getAttribute("x"), "10");
     assert.equal(layer.childNodes[0]?.getAttribute("width"), "40");
+  });
+
+  it("preserves existing hits and clears references absent from new geometry", () => {
+    const timeline = geometry();
+    const existing = { kind: "allocation", projectId, teamId, date } as const;
+    const missing = {
+      kind: "project-marker",
+      projectId,
+      teamId,
+      date,
+      markerKind: "objective-end",
+    } as const;
+
+    assert.equal(reconcileTimelineHit(timeline, existing), existing);
+    assert.equal(reconcileTimelineHit(timeline, missing), undefined);
+    assert.equal(reconcileTimelineHit(timeline, undefined), undefined);
   });
 });

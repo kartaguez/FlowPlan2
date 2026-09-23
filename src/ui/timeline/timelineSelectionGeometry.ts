@@ -23,10 +23,19 @@ export function buildTimelineSelectionGeometry(
   geometry: TimelineGeometry,
   hit: TimelineHit,
 ): TimelineSelectionGeometry {
-  const team = geometry.teams.find((candidate) => candidate.teamId === hit.teamId);
-  if (team === undefined) {
-    throw new TypeError(`Selection references unknown team ${hit.teamId}.`);
+  const selection = findTimelineSelectionGeometry(geometry, hit);
+  if (selection === undefined) {
+    throw new TypeError("Selection references geometry that no longer exists.");
   }
+  return selection;
+}
+
+function findTimelineSelectionGeometry(
+  geometry: TimelineGeometry,
+  hit: TimelineHit,
+): TimelineSelectionGeometry | undefined {
+  const team = geometry.teams.find((candidate) => candidate.teamId === hit.teamId);
+  if (team === undefined) return undefined;
 
   if (hit.kind === "team") {
     return Object.freeze({
@@ -46,7 +55,7 @@ export function buildTimelineSelectionGeometry(
         candidate.kind === hit.markerKind,
     );
     if (marker === undefined) {
-      throw new TypeError("Selection references unknown project marker geometry.");
+      return undefined;
     }
     return Object.freeze({
       kind: "project-marker",
@@ -72,5 +81,15 @@ export function buildTimelineSelectionGeometry(
       });
     }
   }
-  throw new TypeError("Selection references unknown allocation geometry.");
+  return undefined;
+}
+
+export function reconcileTimelineHit(
+  geometry: TimelineGeometry,
+  hit: TimelineHit | undefined,
+): TimelineHit | undefined {
+  if (hit === undefined) return undefined;
+  return findTimelineSelectionGeometry(geometry, hit) === undefined
+    ? undefined
+    : hit;
 }

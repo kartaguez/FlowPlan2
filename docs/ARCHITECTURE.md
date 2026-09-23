@@ -609,3 +609,54 @@ Phase 6C inspecte et sélectionne exclusivement un planning existant. Phase 7
 portera les changements d'état applicatif et l'édition des projets, équipes ou
 réservations. Aucun recompute, persistence, undo/redo ou comportement
 d'édition n'est introduit ici.
+
+## Application Editing Foundation — Phase 7A
+
+La source de vérité éditable réside désormais dans une `PlanningSession` :
+
+```text
+PlanningSessionState
+  = Portfolio + PlanningHorizon
+```
+
+`TimelineViewModel` et `TimelineGeometry` restent des projections jetables et
+immutables. Elles ne deviennent jamais l'état applicatif. La session ne dépend
+que du domaine, ne connaît ni le DOM ni les adapters et remplace son état par
+une nouvelle valeur après une commande validée.
+
+Le pipeline canonique d'édition est :
+
+```text
+UI intent
+    -> explicit PlanningCommand
+    -> validate candidate through domain factories
+    -> immutable PlanningSessionState replacement
+    -> recomputePlanning
+    -> buildTimelineViewModel
+    -> buildTimelineGeometry
+    -> static SVG rerender
+```
+
+La seule commande de démonstration de 7A est `rename-project`. Elle reconstruit
+le projet et le portfolio par leurs factories, rend le pipeline observable et
+ne modifie aucune sémantique de planning. Un label vide ou un projet inconnu
+échoue atomiquement : l'état courant et la projection courante restent les
+mêmes, aucun recompute n'est exécuté et une erreur applicative distincte des
+diagnostics planning est affichée.
+
+Les responsabilités restent séparées :
+
+- `PlanningSession` possède l'entrée domaine et applique les commandes ;
+- le projection dispatcher lance le recompute et les deux adapters uniquement
+  après un dispatch réussi ;
+- `TimelineUiCoordinator` possède le rendu et le cycle de vie des controllers.
+
+Avant un rerender, le coordinateur capture le viewport, la date sélectionnée
+et le hit sélectionné, puis détruit les anciens controllers. Il reconstruit le
+SVG et les diagnostics, recrée les controllers, clamp le viewport, conserve la
+date si elle appartient toujours à l'horizon et conserve le hit uniquement si
+sa géométrie existe encore. Le hover est volontairement réinitialisé.
+
+Le remplacement immutable de l'état prépare un futur undo/redo, sans stocker
+aucun historique en 7A. Ce lot n'ajoute ni persistence, drag/drop, édition des
+contraintes de planning, changement de priorité, ni fonctionnalités 7B–7D.

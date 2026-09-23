@@ -1,6 +1,7 @@
 import type { TimelineGeometry } from "../../adapters/index.js";
 import { applyTimelineViewport } from "./applyTimelineViewport.js";
 import {
+  clampTimelineViewport,
   createFullTimelineViewport,
   panTimelineViewport,
   zoomTimelineViewport,
@@ -25,6 +26,7 @@ export interface CreateTimelineViewportControllerInput {
   readonly svg: SVGSVGElement;
   readonly geometry: TimelineGeometry;
   readonly controls: TimelineViewportControlElements;
+  readonly initialViewport?: TimelineViewportState;
 }
 
 interface ActivePan {
@@ -41,7 +43,14 @@ export function createTimelineViewportController(
     input.geometry.width,
     MINIMUM_VISIBLE_DAYS * input.geometry.dayWidth,
   );
-  let viewport = fullViewport;
+  let viewport =
+    input.initialViewport === undefined
+      ? fullViewport
+      : clampTimelineViewport({
+          viewport: input.initialViewport,
+          geometryWidth: input.geometry.width,
+          minWidth,
+        });
   let activePan: ActivePan | undefined;
 
   const render = (): void => {

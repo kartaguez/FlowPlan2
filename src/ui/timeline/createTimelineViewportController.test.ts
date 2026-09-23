@@ -96,6 +96,24 @@ describe("createTimelineViewportController", () => {
     assert.equal(input.svg.getAttribute("viewBox"), "0 0 1000 200");
   });
 
+  it("restores and clamps an injected viewport state", () => {
+    const input = fixture();
+    input.controller.destroy();
+    const restored = createTimelineViewportController({
+      svg: input.svg as unknown as SVGSVGElement,
+      geometry: input.geometry,
+      controls: {
+        zoomIn: input.zoomIn as unknown as HTMLButtonElement,
+        zoomOut: input.zoomOut as unknown as HTMLButtonElement,
+        reset: input.reset as unknown as HTMLButtonElement,
+      },
+      initialViewport: { x: 900, width: 800 },
+    });
+
+    assert.deepEqual(restored.getState(), { x: 200, width: 800 });
+    assert.equal(input.svg.getAttribute("viewBox"), "200 0 800 200");
+  });
+
   it("zooms in, zooms out, and resets around the viewport center", () => {
     const input = fixture();
 

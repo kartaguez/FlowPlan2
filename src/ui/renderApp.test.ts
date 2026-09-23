@@ -31,6 +31,9 @@ class FakeElement {
   id = "";
   textContent: string | null = null;
   type = "";
+  name = "";
+  value = "";
+  disabled = false;
 
   constructor(
     readonly ownerDocument: FakeDocument,
@@ -110,5 +113,25 @@ describe("renderApp", () => {
     );
     assert.equal((elements.tooltip as unknown as FakeElement).tagName, "div");
     assert.equal((elements.tooltip as unknown as FakeElement).hidden, true);
+    assert.equal(
+      (elements.projectEditControls.form as unknown as FakeElement).tagName,
+      "form",
+    );
+    assert.equal(
+      (elements.projectEditControls.input as unknown as FakeElement).disabled,
+      true,
+    );
+    assert.equal(
+      (elements.projectEditControls.apply as unknown as FakeElement).disabled,
+      true,
+    );
+    assert.equal(
+      (elements.applicationError as unknown as FakeElement).getAttribute("role"),
+      "alert",
+    );
+    assert.equal(
+      (elements.applicationError as unknown as FakeElement).hidden,
+      true,
+    );
   });
 });

@@ -8,6 +8,16 @@ export interface AppElements {
   readonly viewportControls: TimelineViewportControls;
   readonly tooltip: HTMLElement;
   readonly selectionSummary: HTMLElement;
+  readonly projectEditControls: ProjectEditControls;
+  readonly applicationError: HTMLElement;
+}
+
+export interface ProjectEditControls {
+  readonly form: HTMLFormElement;
+  readonly input: HTMLInputElement;
+  readonly apply: HTMLButtonElement;
+  readonly cancel: HTMLButtonElement;
+  readonly status: HTMLElement;
 }
 
 export interface TimelineViewportControls {
@@ -72,6 +82,44 @@ export function renderApp(root: HTMLElement): AppElements {
   tooltip.className = "timeline-tooltip";
   tooltip.setAttribute("role", "tooltip");
   tooltip.hidden = true;
+  const projectEdit = document.createElement("section");
+  projectEdit.className = "timeline-project-edit";
+  projectEdit.setAttribute("aria-label", "Project edit demo");
+  const projectEditTitle = document.createElement("h3");
+  projectEditTitle.textContent = "Selected project";
+  const projectEditStatus = document.createElement("p");
+  projectEditStatus.className = "timeline-project-edit-status";
+  projectEditStatus.textContent = "Select a project allocation or marker to edit.";
+  const projectEditForm = document.createElement("form");
+  projectEditForm.className = "timeline-project-edit-form";
+  const projectLabel = document.createElement("label");
+  projectLabel.textContent = "Project label";
+  const projectInput = document.createElement("input");
+  projectInput.name = "project-label";
+  projectInput.type = "text";
+  projectInput.disabled = true;
+  projectLabel.append(projectInput);
+  const projectApply = document.createElement("button");
+  projectApply.type = "submit";
+  projectApply.textContent = "Apply";
+  projectApply.disabled = true;
+  const projectCancel = document.createElement("button");
+  projectCancel.type = "button";
+  projectCancel.textContent = "Cancel";
+  projectCancel.disabled = true;
+  projectEditForm.append(projectLabel, projectApply, projectCancel);
+  projectEdit.append(projectEditTitle, projectEditStatus, projectEditForm);
+  const projectEditControls = Object.freeze({
+    form: projectEditForm,
+    input: projectInput,
+    apply: projectApply,
+    cancel: projectCancel,
+    status: projectEditStatus,
+  });
+  const applicationError = document.createElement("p");
+  applicationError.className = "application-error";
+  applicationError.setAttribute("role", "alert");
+  applicationError.hidden = true;
   workspace.append(
     workspaceTitle,
     description,
@@ -80,6 +128,8 @@ export function renderApp(root: HTMLElement): AppElements {
     timelineContainer,
     dateSummary,
     selectionSummary,
+    projectEdit,
+    applicationError,
     diagnostics,
     tooltip,
   );
@@ -94,6 +144,8 @@ export function renderApp(root: HTMLElement): AppElements {
     viewportControls,
     tooltip,
     selectionSummary,
+    projectEditControls,
+    applicationError,
   });
 }
 

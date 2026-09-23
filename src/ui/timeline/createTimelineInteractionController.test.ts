@@ -197,6 +197,43 @@ function fixture() {
 }
 
 describe("createTimelineInteractionController", () => {
+  it("restores a compatible initial selection and reports selection changes", () => {
+    const input = fixture();
+    input.controller.destroy();
+    const changes: Array<string | undefined> = [];
+    const restored = createTimelineInteractionController({
+      svg: input.svg as unknown as SVGSVGElement,
+      geometry: {
+        width: 300,
+        height: 156,
+        teams: [
+          {
+            teamId: input.teamId,
+            x: 0,
+            y: 56,
+            width: 300,
+            height: 100,
+            markers: [],
+            days: [],
+          },
+        ],
+      } as unknown as TimelineGeometry,
+      viewModel: {
+        projects: [],
+        teams: [{ id: input.teamId, label: "Team Alpha" }],
+      } as unknown as TimelineViewModel,
+      getViewport: () => ({ x: 0, width: 300 }),
+      tooltipContainer: input.tooltip as unknown as HTMLElement,
+      selectionSummaryContainer: input.summary as unknown as HTMLElement,
+      keyboardControl: input.keyboard as unknown as HTMLElement,
+      initialSelected: { kind: "team", teamId: input.teamId },
+      onSelectionChange: (selected) => changes.push(selected?.kind),
+    });
+
+    assert.equal(restored.getState().selected?.kind, "team");
+    assert.deepEqual(changes, ["team"]);
+  });
+
   it("keeps hover separate and renders semantic allocation and marker tooltips", () => {
     const input = fixture();
 
