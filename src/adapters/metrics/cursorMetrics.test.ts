@@ -41,6 +41,7 @@ const exact = (value: Rational | undefined) =>
   value === undefined ? undefined : rationalToCanonicalString(value);
 const first = date("2025-01-01");
 const second = date("2025-01-02");
+const third = date("2025-01-03");
 
 function team(id: string): Team {
   return must(createTeam({
@@ -233,7 +234,60 @@ describe("calculateCursorMetrics", () => {
     };
     const metrics = calculateCursorMetrics({ ...input, planningResult });
     assert.equal(exact(metrics.teams[0]!.utilization), "3/2");
+    assert.equal(exact(metrics.teams[0]!.overReservedCapacity), "1/1");
+    assert.equal(exact(metrics.teams[0]!.overReservationRatio), "1/2");
     assert.equal(metrics.teams[1]!.utilization, undefined);
+    assert.equal(metrics.teams[1]!.overReservationRatio, undefined);
+  });
+
+  it("keeps an exact fractional daily excess even when effective capacity is zero", () => {
+    const input = fixture();
+    const x = input.portfolio.teams[0]!;
+    const plan = input.planningResult.teamPlans[1]!;
+    const result = calculateCursorMetrics({
+      ...input,
+      planningResult: {
+        ...input.planningResult,
+        teamPlans: input.planningResult.teamPlans.map((candidate) => candidate.teamId === x.id ? {
+          ...plan,
+          dayCapacities: [day(first, "0", "0.125")],
+          projectPlans: plan.projectPlans.map((projectPlan) => ({ ...projectPlan, allocations: [] })),
+        } : candidate),
+      },
+    });
+    assert.equal(exact(result.teams[0]!.overReservedCapacity), "1/8");
+    assert.equal(result.teams[0]!.overReservationRatio, undefined);
+  });
+
+  it("sums daily over-reservation without compensation from unused days", () => {
+    const input = fixture();
+    const [x, y] = input.portfolio.teams;
+    const planningResult: PlanningResult = {
+      teamPlans: [
+        {
+          ...input.planningResult.teamPlans[1]!,
+          teamId: x!.id,
+          dayCapacities: [day(first, "10", "15"), day(second, "10", "2"), day(third, "10", "3")],
+          projectPlans: input.planningResult.teamPlans[1]!.projectPlans.map((plan) => ({ ...plan, allocations: [] })),
+        },
+        {
+          ...input.planningResult.teamPlans[0]!,
+          teamId: y!.id,
+          dayCapacities: [day(first, "0", "0"), day(second, "0", "0"), day(third, "0", "0")],
+          projectPlans: input.planningResult.teamPlans[0]!.projectPlans.map((plan) => ({ ...plan, allocations: [] })),
+        },
+      ],
+      diagnostics: [],
+    };
+    const horizon = must(createPlanningHorizon({ start: first, end: third }));
+    const atFirst = calculateCursorMetrics({ ...input, horizon, planningResult });
+    assert.equal(exact(atFirst.teams[0]!.overReservedCapacity), "5/1");
+    assert.equal(exact(atFirst.teams[0]!.overReservationRatio), "1/2");
+    const atEnd = calculateCursorMetrics({ ...input, horizon, planningResult, selectedDate: third });
+    assert.equal(exact(atEnd.teams[0]!.effectiveCapacity), "30/1");
+    assert.equal(exact(atEnd.teams[0]!.requestedReservedCapacity), "20/1");
+    assert.equal(exact(atEnd.teams[0]!.overReservedCapacity), "5/1");
+    assert.equal(exact(atEnd.teams[0]!.overReservationRatio), "1/6");
   });
 
   it("preserves non-terminating fractions and reaches exact completion", () => {

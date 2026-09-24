@@ -14,7 +14,7 @@ import { createPlanningProjectionDispatcher } from "./planning/createPlanningPro
 const DEMO_GEOMETRY_VIEWPORT: TimelineGeometryViewport = Object.freeze({
   width: 2160,
   teamLaneHeight: 100,
-  teamHeaderHeight: 48,
+  teamHeaderHeight: 152,
   timeAxisHeight: 56,
 });
 

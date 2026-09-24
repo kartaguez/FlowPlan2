@@ -17,6 +17,7 @@ export interface ProjectNavigationItem {
 }
 
 export interface TimelineShellNavigation {
+  readonly teamMetricsContainers: ReadonlyMap<TeamId, HTMLElement>;
   readonly destroy: () => void;
 }
 
@@ -44,6 +45,7 @@ export function renderTimelineShellNavigation(
     readonly button: HTMLButtonElement;
     readonly listener: () => void;
   }> = [];
+  const teamMetricsContainers = new Map<TeamId, HTMLElement>();
   const axisSpacer = document.createElement("div");
   axisSpacer.className = "timeline-team-axis-spacer";
   axisSpacer.setAttribute("aria-hidden", "true");
@@ -70,6 +72,11 @@ export function renderTimelineShellNavigation(
     settings.addEventListener("click", listener);
     listeners.push({ button: settings, listener });
     header.append(heading, settings);
+    const metrics = document.createElement("div");
+    metrics.className = "team-panel-metrics";
+    metrics.setAttribute("aria-label", `${team.label} cumulative metrics`);
+    teamMetricsContainers.set(team.id, metrics);
+    header.append(metrics);
     const lane = document.createElement("div");
     lane.className = "team-panel-timeline";
     lane.setAttribute("aria-label", `${team.label} timeline lane`);
@@ -145,6 +152,7 @@ export function renderTimelineShellNavigation(
   else showProjects();
 
   return Object.freeze({
+    teamMetricsContainers,
     destroy: () => {
       for (const { button, listener } of listeners) {
         button.removeEventListener("click", listener);

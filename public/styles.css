@@ -183,6 +183,7 @@ p {
   z-index: 2;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr);
   align-items: center;
   gap: 0.75rem;
   border-top: 1px solid #cbd5e1;
@@ -192,6 +193,22 @@ p {
   padding: 0.45rem 0.75rem;
   box-shadow: inset 0 1px 0 #ffffff;
   pointer-events: auto;
+}
+
+.team-panel-metrics {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-content: center;
+  gap: 0.35rem 0.75rem;
+  min-width: 0;
+}
+
+.team-panel-metric {
+  min-width: 0;
+  color: #334155;
+  font-size: 0.78rem;
+  line-height: 1.25;
 }
 
 .team-panel-header h3 {
@@ -450,6 +467,23 @@ p {
   padding: 1rem;
 }
 
+.cursor-progress {
+  margin-top: 1rem;
+  border: 1px solid #d9e0ea;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.cursor-progress h3 { margin: 0 0 0.75rem; }
+.cursor-progress-controls { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.75rem; }
+.cursor-progress-controls button { border: 1px solid #94a3b8; border-radius: 0.35rem; background: #fff; padding: 0.4rem 0.7rem; cursor: pointer; }
+.cursor-progress-controls button.cursor-progress-active { background: #dbeafe; border-color: #2563eb; }
+.cursor-progress-controls button:focus-visible { outline: 3px solid #60a5fa; outline-offset: 2px; }
+.cursor-progress-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: 0.6rem; }
+.cursor-progress-card { border: 1px solid #d9e0ea; border-radius: 0.35rem; padding: 0.7rem; }
+.cursor-progress-card h4 { margin: 0 0 0.4rem; }
+.cursor-progress-card p { margin: 0; font-size: 0.85rem; color: #52657f; }
+
 .timeline-date-summary-heading {
   margin: 0 0 0.75rem;
   font-size: 1rem;
@@ -653,6 +687,8 @@ p {
   .application-shell {
     padding: 1rem;
   }
+
+  .team-panel-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
 }
 

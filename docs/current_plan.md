@@ -27,7 +27,7 @@ is a later trajectory, not a Phase 9 lot.
 ## Ordered remaining lots
 
 ```text
-9C Cursor metrics UI
+9C Cursor metrics UI (IN REVIEW)
         ↓
 9D Priority drag/drop
         ↓
@@ -53,13 +53,14 @@ policy before Project and Reservation membership workflows.
 Present the 9B cumulative metrics for the selected date without changing
 planning or temporal interaction.
 
-**Status: NOT STARTED** — next active lot; 9B is validated.
+**Status: IN REVIEW** — implemented, awaiting human validation; 9B remains the
+validated baseline. 9D remains pending until 9C validation.
 
 **Scope**
 
 Extend the selected-date/cursor information surface with Team cumulative
-Effective, Reserved, Allocated, and utilization plus Project, Program, and PAS
-progress.
+Effective, Reserved, Allocated, utilization, daily non-compensating
+over-reservation and its ratio, plus Project, Program, and PAS progress.
 
 **Domain changes**
 

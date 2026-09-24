@@ -257,6 +257,30 @@ describe("createTimelineCursorController", () => {
     assert.equal(controller.getState().selectedDate, "2025-01-01");
   });
 
+  it("notifies once per effective date change and never for the same day", () => {
+    const input = fixture();
+    const notified: string[] = [];
+    createTimelineCursorController({
+      svg: input.svg as unknown as SVGSVGElement,
+      geometry: input.geometry,
+      viewModel: input.viewModel,
+      summaryContainer: input.summary as unknown as HTMLElement,
+      cursorControl: input.cursorControl as unknown as HTMLButtonElement,
+      initialDate: input.viewModel.horizon.start,
+      getViewport: () => ({ x: 0, width: 300 }),
+      onSelectedDateChange: (date) => notified.push(date),
+    });
+    assert.deepEqual(notified, []);
+    input.cursorControl.dispatch("keydown", keyboard("Home"));
+    input.svg.dispatch("pointerdown", pointer(1, 150));
+    assert.deepEqual(notified, []);
+    input.svg.dispatch("pointermove", pointer(1, 250));
+    assert.deepEqual(notified, ["2025-01-02"]);
+    input.svg.dispatch("pointermove", pointer(1, 250));
+    input.cursorControl.dispatch("keydown", keyboard("ArrowLeft"));
+    assert.deepEqual(notified, ["2025-01-02", "2025-01-01"]);
+  });
+
   it("maps client coordinates through the current rendered SVG bounds", () => {
     assert.equal(
       timelineXFromClientX({

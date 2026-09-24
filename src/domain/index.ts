@@ -3,10 +3,12 @@ export {
   addRationals,
   divideRationals,
   isZero,
+  maxRational,
   parseDecimalRational,
   parseSerializedRational,
   rationalFromInteger,
   rationalToCanonicalString,
+  subtractRationals,
   type Rational,
 } from "./model/rational.js";
 export {

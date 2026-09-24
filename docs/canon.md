@@ -95,6 +95,11 @@ and PriorityFamily/PAS progress divides cumulative allocations across all
 Teams by the sum of their requirements' RAF at the start of that run. A zero
 baseline for a non-empty group means exact completion; an empty catalog group
 has no metric entry. Cursor changes do not recompute planning.
+For each Team, cumulative over-reservation on the same inclusive interval is
+`Σ max(0, Reserved(day) - Effective(day))`, summed day by day; unused capacity
+on another day never offsets an over-reserved day. Its ratio is cumulative
+over-reservation divided by cumulative effective capacity, and is undefined
+when cumulative effective capacity is zero. Both remain exact Rational metrics.
 
 ## Editable application state and transaction pipeline
 

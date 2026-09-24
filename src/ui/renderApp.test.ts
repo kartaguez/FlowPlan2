@@ -103,6 +103,7 @@ describe("renderApp", () => {
       stage.childNodes[1],
       elements.teamPanels as unknown as FakeElement,
     );
+    assert.ok(renderedElements.indexOf(elements.cursorProgress as unknown as FakeElement) > renderedElements.indexOf(elements.dateSummary as unknown as FakeElement));
   });
 
   it("returns a frozen, strictly typed set of application elements", () => {

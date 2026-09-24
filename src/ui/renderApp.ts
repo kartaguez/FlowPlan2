@@ -6,6 +6,7 @@ export interface AppElements {
   readonly svg: SVGSVGElement;
   readonly diagnostics: HTMLElement;
   readonly dateSummary: HTMLElement;
+  readonly cursorProgress: HTMLElement;
   readonly cursorControl: HTMLButtonElement;
   readonly viewportControls: TimelineViewportControls;
   readonly planningSettingsButton: HTMLButtonElement;
@@ -135,6 +136,9 @@ export function renderApp(root: HTMLElement): AppElements {
   const dateSummary = document.createElement("section");
   dateSummary.className = "timeline-date-summary";
   dateSummary.setAttribute("aria-label", "Selected planning date summary");
+  const cursorProgress = document.createElement("section");
+  cursorProgress.className = "cursor-progress";
+  cursorProgress.setAttribute("aria-label", "Cumulative progress at selected date");
   const selectionSummary = document.createElement("section");
   selectionSummary.className = "timeline-selection-summary";
   selectionSummary.setAttribute("aria-label", "Timeline selection summary");
@@ -339,6 +343,7 @@ export function renderApp(root: HTMLElement): AppElements {
     viewportControlContainer,
     timelineStage,
     dateSummary,
+    cursorProgress,
     selectionSummary,
     diagnostics,
     tooltip,
@@ -379,6 +384,7 @@ export function renderApp(root: HTMLElement): AppElements {
     svg: timeline,
     diagnostics,
     dateSummary,
+    cursorProgress,
     cursorControl,
     viewportControls,
     planningSettingsButton,

@@ -31,6 +31,7 @@ export interface CreateTimelineCursorControllerInput {
   readonly cursorControl: HTMLButtonElement;
   readonly initialDate: CivilDate;
   readonly getViewport: () => TimelineViewportState;
+  readonly onSelectedDateChange?: (date: CivilDate) => void;
 }
 
 export function createTimelineCursorController(
@@ -58,6 +59,13 @@ export function createTimelineCursorController(
     );
   };
 
+  const setSelectedDate = (nextDate: CivilDate): void => {
+    if (nextDate === selectedDate) return;
+    selectedDate = nextDate;
+    render();
+    input.onSelectedDateChange?.(selectedDate);
+  };
+
   const selectFromPointer = (event: PointerEvent): void => {
     const bounds = input.svg.getBoundingClientRect();
     const x = timelineXFromClientX({
@@ -66,8 +74,7 @@ export function createTimelineCursorController(
       svgWidth: bounds.width,
       viewport: input.getViewport(),
     });
-    selectedDate = dateAtTimelineX({ geometry: input.geometry, x });
-    render();
+    setSelectedDate(dateAtTimelineX({ geometry: input.geometry, x }));
   };
 
   const onPointerDown = (event: PointerEvent): void => {
@@ -111,8 +118,7 @@ export function createTimelineCursorController(
         return;
     }
     event.preventDefault();
-    selectedDate = dates[nextIndex]!;
-    render();
+    setSelectedDate(dates[nextIndex]!);
   };
 
   input.svg.addEventListener("pointerdown", onPointerDown);

@@ -16,10 +16,14 @@ import type {
 import type {
   CivilDate,
   DomainError,
+  PlanningHorizon,
+  PlanningResult,
+  Portfolio,
   ProjectId,
   TeamId,
   ReservationId,
 } from "../../domain/index.js";
+import { calculateCursorMetrics } from "../../adapters/index.js";
 import type { AppElements } from "../renderApp.js";
 import { createProjectEditController } from "../project-edit/createProjectEditController.js";
 import { createTeamEditController } from "../team-edit/createTeamEditController.js";
@@ -34,8 +38,14 @@ import { renderTimelineShellNavigation, type ProjectNavigationItem } from "./ren
 import type { TimelineHit } from "./timelineHitTesting.js";
 import { reconcileTimelineHit } from "./timelineSelectionGeometry.js";
 import type { TimelineViewportState } from "./timelineViewport.js";
+import { buildCursorMetricsViewModel, type CursorMetricsViewModel, type CursorProgressView } from "./buildCursorMetricsViewModel.js";
+import { renderCursorTeamMetrics } from "./renderCursorTeamMetrics.js";
+import { createCursorProgressSurface } from "./renderCursorProgress.js";
 
 export interface TimelineUiProjection {
+  readonly portfolio: Portfolio;
+  readonly planningResult: PlanningResult;
+  readonly horizon: PlanningHorizon;
   readonly viewModel: TimelineViewModel;
   readonly geometry: TimelineGeometry;
 }
@@ -47,6 +57,7 @@ export type TimelineProjectionCommandResult =
 export interface TimelineUiSnapshot {
   readonly viewport: TimelineViewportState;
   readonly selectedDate: CivilDate;
+  readonly activeProgressView: CursorProgressView;
   readonly selected: TimelineHit | undefined;
   readonly editingContext: TimelineEditingContext;
   readonly editingContextSource: "timeline" | "shell" | undefined;
@@ -100,6 +111,8 @@ export interface TimelineUiCoordinatorDependencies {
   readonly createReservationEditController: typeof createReservationEditController;
   readonly createPlanningSettingsController: typeof createPlanningSettingsController;
   readonly renderShellNavigation: typeof renderTimelineShellNavigation;
+  readonly renderCursorTeamMetrics: typeof renderCursorTeamMetrics;
+  readonly createCursorProgressSurface: typeof createCursorProgressSurface;
 }
 
 const DEFAULT_DEPENDENCIES: TimelineUiCoordinatorDependencies = Object.freeze({
@@ -113,6 +126,8 @@ const DEFAULT_DEPENDENCIES: TimelineUiCoordinatorDependencies = Object.freeze({
   createReservationEditController,
   createPlanningSettingsController,
   renderShellNavigation: renderTimelineShellNavigation,
+  renderCursorTeamMetrics,
+  createCursorProgressSurface,
 });
 
 export function createTimelineUiCoordinator(
@@ -131,6 +146,27 @@ export function createTimelineUiCoordinator(
   let editingContext: TimelineEditingContext;
   let editingContextSource: "timeline" | "shell" | undefined;
   let mounted = false;
+  let activeProgressView: CursorProgressView = "projects";
+  let cursorMetricsModel: CursorMetricsViewModel;
+  const progressSurface = dependencies.createCursorProgressSurface(input.elements.cursorProgress, (view) => {
+    if (view === activeProgressView) return;
+    activeProgressView = view;
+    progressSurface.render(cursorMetricsModel, activeProgressView);
+  });
+
+  const renderCursorMetrics = (selectedDate: CivilDate): void => {
+    cursorMetricsModel = buildCursorMetricsViewModel(
+      projection.portfolio,
+      calculateCursorMetrics({
+        portfolio: projection.portfolio,
+        planningResult: projection.planningResult,
+        horizon: projection.horizon,
+        selectedDate,
+      }),
+    );
+    dependencies.renderCursorTeamMetrics(shellNavigation.teamMetricsContainers, cursorMetricsModel.teams);
+    progressSurface.render(cursorMetricsModel, activeProgressView);
+  };
 
   const updateEditForms = (context: TimelineEditingContext): void => {
     const selectedProjectId = context?.kind === "project" ? context.projectId : undefined;
@@ -175,6 +211,7 @@ export function createTimelineUiCoordinator(
           width: projection.geometry.width,
         }),
         selectedDate: input.initialDate,
+        activeProgressView,
         selected: undefined,
         editingContext: undefined,
         editingContextSource: undefined,
@@ -183,6 +220,7 @@ export function createTimelineUiCoordinator(
     return Object.freeze({
       viewport: viewportController.getState(),
       selectedDate: cursorController.getState().selectedDate,
+      activeProgressView,
       selected: interactionController.getState().selected,
       editingContext,
       editingContextSource,
@@ -204,6 +242,7 @@ export function createTimelineUiCoordinator(
   ): void => {
     destroyControllers();
     projection = nextProjection;
+    activeProgressView = snapshot.activeProgressView;
     dependencies.renderTimeline({
       svg: input.elements.svg,
       geometry: projection.geometry,
@@ -255,7 +294,9 @@ export function createTimelineUiCoordinator(
       cursorControl: input.elements.cursorControl,
       initialDate: selectedDate,
       getViewport: viewportController.getState,
+      onSelectedDateChange: renderCursorMetrics,
     });
+    renderCursorMetrics(selectedDate);
     interactionController = dependencies.createInteractionController({
       svg: input.elements.svg,
       geometry: projection.geometry,
@@ -366,6 +407,7 @@ export function createTimelineUiCoordinator(
       reservationEditController.destroy();
       planningSettingsController.destroy();
       destroyControllers();
+      progressSurface.destroy();
     },
   });
 }

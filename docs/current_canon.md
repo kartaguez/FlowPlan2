@@ -39,8 +39,11 @@ Lot 9B is validated and **DONE**. A pure adapter projects exact
 cumulative Team utilization and Project, Program, and PAS progress for an
 inclusive selected-date interval. The current-run RAF baseline comes from the
 same Portfolio used to plan; Portfolio and horizon references travel with the
-PlanningResult in the disposable session projection. Cursor metrics are not
-rendered yet. Lot 9C is the next active lot and is not started.
+PlanningResult in the disposable session projection. Lot 9C adds exact daily
+non-compensating over-reservation and its ratio, and renders cumulative Team
+metrics plus an exclusive Projects / Programs / PAS progress view at the shared
+cursor date. Lot 9C is **IN REVIEW**, pending human validation; the validated
+baseline remains 9B.
 
 ## Current product trajectory
 
@@ -62,10 +65,10 @@ Planning
 ├── viewport controls
 ├── global time axis
 ├── Team panel
-│   ├── Team header + Settings icon
+│   ├── Team header + Settings icon + cumulative metrics
 │   └── lane
 ├── Team panel...
-└── selected-date summary / selection summary / diagnostics
+└── selected-date summary / cumulative progress / selection summary / diagnostics
 
 Portfolio sidebar
 ├── Projects
@@ -119,8 +122,8 @@ These are current implementation facts, not durable product rules:
 - priority is editable as a numeric position, but there is no drag/drop;
 - Program and PriorityFamily/PAS catalogs are static; they have no create,
   delete, or rename UI;
-- cursor summaries are daily only; cumulative metrics exist as an adapter
-  projection but have no UI rendering yet;
+- selected-date summaries remain daily; cumulative metrics have separate Team
+  and Projects / Programs / PAS surfaces;
 - Reservation allocation rows may be enabled/disabled for existing Teams, but
   the Reservation entity itself cannot be created or deleted;
 - no dedicated automated browser/E2E stack is present; coverage is primarily
@@ -129,7 +132,6 @@ These are current implementation facts, not durable product rules:
 ## Not part of the current implemented canon
 
 - Program / PriorityFamily (PAS) structural CRUD;
-- cumulative cursor metrics UI rendering;
 - priority drag/drop;
 - structural CRUD and referential-integrity workflows around deletion;
 - persistence, import/export, undo/redo;

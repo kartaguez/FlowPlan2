@@ -106,6 +106,9 @@ describe("renderTimelineShellNavigation", () => {
     assert.equal(teams.childNodes[1]!.dataset.teamId, alpha);
     assert.equal(teams.childNodes[1]!.className, "team-panel");
     assert.equal(teams.childNodes[1]!.childNodes[0]!.className, "team-panel-header");
+    assert.equal(teams.childNodes[1]!.childNodes[0]!.childNodes[2]!.className, "team-panel-metrics");
+    assert.equal(navigation.teamMetricsContainers.get(alpha), teams.childNodes[1]!.childNodes[0]!.childNodes[2]);
+    assert.equal(teams.childNodes[1]!.childNodes[0]!.attributes.get("style"), "height: 48px");
     assert.equal(teams.childNodes[1]!.childNodes[1]!.className, "team-panel-timeline");
     assert.equal(
       teams.childNodes[1]!.childNodes[0]!.childNodes[0]!.textContent,

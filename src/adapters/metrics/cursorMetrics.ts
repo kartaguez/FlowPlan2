@@ -3,8 +3,10 @@ import {
   compareCivilDates,
   divideRationals,
   isZero,
+  maxRational,
   rationalFromInteger,
   rationalOf,
+  subtractRationals,
   type CivilDate,
   type PlanningHorizon,
   type PlanningResult,
@@ -29,6 +31,8 @@ export interface CursorTeamMetrics {
   readonly requestedReservedCapacity: Rational;
   readonly allocatedCapacity: Rational;
   readonly utilization: Rational | undefined;
+  readonly overReservedCapacity: Rational;
+  readonly overReservationRatio: Rational | undefined;
 }
 
 export interface CursorProgressMetrics {
@@ -101,6 +105,7 @@ export function calculateCursorMetrics(
     let effectiveCapacity = ZERO;
     let requestedReservedCapacity = ZERO;
     let allocatedCapacity = ZERO;
+    let overReservedCapacity = ZERO;
 
     for (const day of plan.dayCapacities) {
       if (!inSelectedInterval(day.date, input)) continue;
@@ -108,6 +113,16 @@ export function calculateCursorMetrics(
       requestedReservedCapacity = addRationals(
         requestedReservedCapacity,
         rationalOf(day.reservedCapacity),
+      );
+      overReservedCapacity = addRationals(
+        overReservedCapacity,
+        maxRational(
+          ZERO,
+          subtractRationals(
+            rationalOf(day.reservedCapacity),
+            rationalOf(day.effectiveCapacity),
+          ),
+        ),
       );
     }
 
@@ -149,6 +164,10 @@ export function calculateCursorMetrics(
       requestedReservedCapacity,
       allocatedCapacity,
       utilization,
+      overReservedCapacity,
+      overReservationRatio: isZero(effectiveCapacity)
+        ? undefined
+        : ratioOrOne(overReservedCapacity, effectiveCapacity),
     }));
   }
 

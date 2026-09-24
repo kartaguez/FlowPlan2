@@ -15,7 +15,10 @@ import {
   createProjectId,
   createReservationId,
   createTeamId,
+  createPlanningHorizon,
   type DomainResult,
+  type Portfolio,
+  type PlanningResult,
   type ProjectId,
   type ReservationId,
   type TeamId,
@@ -92,8 +95,15 @@ function fixture() {
     teams: [{ id: teamId, label: "Team Alpha" }],
     diagnostics: [],
   } as unknown as TimelineViewModel;
-  const projection = Object.freeze({ geometry, viewModel });
+  const portfolio = { teams: [], projects: [], programs: [], priorityFamilies: [], priorityOrder: [], reservations: [] } as unknown as Portfolio;
+  const planningResult = { teamPlans: [], diagnostics: [] } as PlanningResult;
+  const horizon = must(createPlanningHorizon({ start: firstDate, end: middleDate }));
+  const projection = Object.freeze({ geometry, viewModel, portfolio, planningResult, horizon });
+  const nextPortfolio = { ...portfolio, projects: [{ id: projectId, name: "Atlas Updated", requirements: [] }], priorityOrder: [projectId] } as unknown as Portfolio;
   const nextProjection = Object.freeze({
+    portfolio: nextPortfolio,
+    planningResult: { teamPlans: [], diagnostics: [] } as PlanningResult,
+    horizon: must(createPlanningHorizon({ start: firstDate, end: middleDate })),
     geometry: { ...geometry, teams: [...geometry.teams] } as TimelineGeometry,
     viewModel: {
       ...viewModel,
@@ -124,7 +134,10 @@ function fixture() {
   const elements = createElements();
   const lifecycle: string[] = [];
   const viewportInputs: Array<{ initialViewport?: unknown }> = [];
-  const cursorInputs: Array<{ initialDate: typeof firstDate }> = [];
+  const cursorInputs: Array<{ initialDate: typeof firstDate; onSelectedDateChange?: (date: typeof firstDate) => void }> = [];
+  const renderedProgressViews: string[] = [];
+  const renderedProjectCounts: number[] = [];
+  let onProgressViewChange: ((view: "projects" | "programs" | "pas") => void) | undefined;
   const interactionInputs: Array<{
     initialSelected?: TimelineHit;
     onSelectionChange?: (selected: TimelineHit | undefined) => void;
@@ -158,7 +171,7 @@ function fixture() {
         destroy: () => lifecycle.push(`destroy-viewport-${ownGeneration}`),
       };
     },
-    createCursorController: (input: { initialDate: typeof firstDate }) => {
+    createCursorController: (input: { initialDate: typeof firstDate; onSelectedDateChange?: (date: typeof firstDate) => void }) => {
       cursorInputs.push(input);
       const date = generation === 1 ? middleDate : input.initialDate;
       lifecycle.push(`cursor-${generation}`);
@@ -227,7 +240,15 @@ function fixture() {
       onReservationSelect: (reservationId: ReservationId) => void;
     }) => {
       shellInputs.push(input);
-      return { destroy() {} };
+      return { teamMetricsContainers: new Map(), destroy() {} };
+    },
+    renderCursorTeamMetrics: () => {},
+    createCursorProgressSurface: (_container: HTMLElement, onChange: typeof onProgressViewChange) => {
+      onProgressViewChange = onChange;
+      return { render: (model: { projects: readonly unknown[] }, view: string) => {
+        renderedProgressViews.push(view);
+        renderedProjectCounts.push(model.projects.length);
+      }, destroy() {} };
     },
   } as unknown as TimelineUiCoordinatorDependencies;
   return {
@@ -247,6 +268,9 @@ function fixture() {
     lifecycle,
     viewportInputs,
     cursorInputs,
+    renderedProgressViews,
+    renderedProjectCounts,
+    changeProgressView: (view: "projects" | "programs" | "pas") => onProgressViewChange?.(view),
     interactionInputs,
     projectModels,
     teamModels,
@@ -263,6 +287,34 @@ function fixture() {
 }
 
 describe("TimelineUiCoordinator", () => {
+  it("keeps the progress view in its snapshot and refreshes cursor metrics without dispatch", () => {
+    const input = fixture();
+    let dispatchCount = 0;
+    const coordinator = createTimelineUiCoordinator({
+      elements: input.elements,
+      initialProjection: input.projection,
+      initialDate: input.firstDate,
+      dispatch: () => { dispatchCount += 1; return { ok: true, projection: input.nextProjection }; },
+      getPlanningSettingsViewModel: () => ({ startDate: input.firstDate, endDate: input.middleDate, workingWeekdays: [1, 2, 3, 4, 5], maxParallelProjects: 2 }),
+      getProjectEditViewModel: () => input.editModel,
+      getTeamEditViewModel: () => input.teamEditModel,
+      getReservationEditViewModel: () => input.reservationModel,
+      getProjectNavigationItems: () => [{ id: input.projectId }],
+      getReservationNavigationItems: () => [],
+    }, input.dependencies);
+    assert.deepEqual(input.renderedProgressViews, ["projects"]);
+    input.changeProgressView("programs");
+    assert.equal(coordinator.getUiSnapshot().activeProgressView, "programs");
+    input.cursorInputs.at(-1)!.onSelectedDateChange?.(input.firstDate);
+    assert.deepEqual(input.renderedProgressViews, ["projects", "programs", "programs"]);
+    assert.equal(dispatchCount, 0);
+    input.getApplyProject()({} as UpdateProjectCommand);
+    assert.equal(dispatchCount, 1);
+    assert.equal(coordinator.getUiSnapshot().activeProgressView, "programs");
+    assert.equal(input.renderedProgressViews.at(-1), "programs");
+    assert.deepEqual(input.renderedProjectCounts, [0, 0, 0, 1]);
+  });
+
   it("destroys and recreates controllers while preserving compatible UI state", () => {
     const input = fixture();
     const coordinator = createTimelineUiCoordinator(
@@ -287,6 +339,7 @@ describe("TimelineUiCoordinator", () => {
     assert.deepEqual(coordinator.getUiSnapshot(), {
       viewport: { x: 100, width: 800 },
       selectedDate: input.middleDate,
+      activeProgressView: "projects",
       selected: input.allocationHit,
       editingContext: { kind: "project", projectId: input.projectId },
       editingContextSource: "timeline",
@@ -469,6 +522,7 @@ function createElements(): AppElements {
     svg: element() as unknown as SVGSVGElement,
     diagnostics: element() as unknown as HTMLElement,
     dateSummary: element() as unknown as HTMLElement,
+    cursorProgress: element() as unknown as HTMLElement,
     cursorControl: element() as unknown as HTMLButtonElement,
     viewportControls: {
       zoomIn: element() as unknown as HTMLButtonElement,
