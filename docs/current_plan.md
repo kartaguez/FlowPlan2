@@ -1,13 +1,13 @@
 # FlowPlan2 current plan
 
 Current validated baseline:
-`ff8f00e9df3b7c8ab222f6a4e971aa1baab71b64`
+`00fa92101e2150fbfea220fbc4742d45fa622249`
 
 This is the operational roadmap for the active trajectory. Durable product and
 architecture rules live in [canon](./canon.md); current implementation facts
 and temporary constraints live in [current canon](./current_canon.md).
 
-The roadmap uses `9A`–`9G`: validated 9B is the baseline, and each Phase 9 lot
+The roadmap uses `9A`–`9G`: validated 9C is the baseline, and each Phase 9 lot
 is intended to fit one commit or a small, coherent commit set. Actuals/History
 is a later trajectory, not a Phase 9 lot.
 
@@ -22,14 +22,13 @@ is a later trajectory, not a Phase 9 lot.
 - global multi-Team Reservations with ratio and fixed-daily requests;
 - Portfolio tabs and stacked Team panel UI;
 - 9A Program / PAS foundations (DONE);
-- 9B Cursor metrics projection (DONE).
+- 9B Cursor metrics projection (DONE);
+- 9C Cursor metrics UI (DONE).
 
 ## Ordered remaining lots
 
 ```text
-9C Cursor metrics UI (IN REVIEW)
-        ↓
-9D Priority drag/drop
+9D Priority drag/drop (NOT STARTED)
         ↓
 9E Team structural CRUD
         ↓
@@ -40,63 +39,14 @@ is a later trajectory, not a Phase 9 lot.
 Later trajectory: Actuals / History
 ```
 
-The remaining execution order is `9C` through `9G`. Validated 9B supplies the
-exact metric projection needed by 9C. `9D` has no hard dependency on metrics
-but follows 9C to keep one clear next lot at a time. The CRUD series
-establishes Team referential-integrity
-policy before Project and Reservation membership workflows.
-
-## 9C — Cursor metrics UI
-
-**Goal**
-
-Present the 9B cumulative metrics for the selected date without changing
-planning or temporal interaction.
-
-**Status: IN REVIEW** — implemented, awaiting human validation; 9B remains the
-validated baseline. 9D remains pending until 9C validation.
-
-**Scope**
-
-Extend the selected-date/cursor information surface with Team cumulative
-Effective, Reserved, Allocated, utilization, daily non-compensating
-over-reservation and its ratio, plus Project, Program, and PAS progress.
-
-**Domain changes**
-
-None.
-
-**Application changes**
-
-Wire the pure metric projection into the existing projection/coordinator
-cycle. Cursor movement remains a presentation update and causes no recompute.
-
-**UI changes**
-
-Render exact-derived, human-readable values; render undefined utilization as
-N/A and preserve values above 100%. Keep one selected date and one shared
-cursor for all Team panels.
-
-**Tests**
-
-Cover rendering, selected-date updates, N/A, >100%, grouped progress, keyboard
-cursor changes, and no planning dispatch/recompute on cursor movement.
-
-**Explicit non-goals**
-
-No charts unless separately approved, no editable metrics, no persistence,
-and no actuals/history.
-
-**Exit criteria**
-
-All 9B metrics are visible and update correctly from the shared cursor without
-altering session state or planning output.
-
-**Dependencies**
-
-9B.
+The remaining execution order is `9D` through `9G`. Validated 9C completes
+the cursor metrics UI; 9D is the next active lot. The CRUD series establishes
+Team referential-integrity policy before Project and Reservation membership
+workflows.
 
 ## 9D — Priority drag/drop
+
+**Status: NOT STARTED** — next active lot; 9C is validated.
 
 **Goal**
 

@@ -39,11 +39,10 @@ Lot 9B is validated and **DONE**. A pure adapter projects exact
 cumulative Team utilization and Project, Program, and PAS progress for an
 inclusive selected-date interval. The current-run RAF baseline comes from the
 same Portfolio used to plan; Portfolio and horizon references travel with the
-PlanningResult in the disposable session projection. Lot 9C adds exact daily
-non-compensating over-reservation and its ratio, and renders cumulative Team
-metrics plus an exclusive Projects / Programs / PAS progress view at the shared
-cursor date. Lot 9C is **IN REVIEW**, pending human validation; the validated
-baseline remains 9B.
+PlanningResult in the disposable session projection. Lot 9C is validated and
+**DONE**. It adds exact daily non-compensating over-reservation and its ratio,
+and renders cumulative Team metrics plus an exclusive Projects / Programs / PAS
+progress view at the shared cursor date. Lot 9D is the next active lot.
 
 ## Current product trajectory
 
