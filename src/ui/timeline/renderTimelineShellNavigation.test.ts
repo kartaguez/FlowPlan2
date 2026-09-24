@@ -29,7 +29,15 @@ class FakeElement {
   hidden = false;
   tabIndex = 0;
   focused = false;
-  readonly classList = { add() {}, remove() {}, toggle(_name: string, _force: boolean) {} };
+  readonly classes = new Set<string>();
+  readonly classList = {
+    add: (name: string) => { this.classes.add(name); },
+    remove: (name: string) => { this.classes.delete(name); },
+    toggle: (name: string, force?: boolean) => {
+      if (force ?? !this.classes.has(name)) this.classes.add(name);
+      else this.classes.delete(name);
+    },
+  };
   constructor(readonly ownerDocument: FakeDocument, readonly tagName: string) {}
   append(...nodes: FakeElement[]): void { this.childNodes.push(...nodes); }
   replaceChildren(...nodes: FakeElement[]): void { this.childNodes = [...nodes]; }
@@ -152,10 +160,10 @@ describe("renderTimelineShellNavigation", () => {
     );
     assert.deepEqual(
       projects.childNodes.map((item) => item.childNodes[0]!.childNodes[0]!.textContent),
-      ["1. Boreal", "2. Atlas", "3. Cobalt", "4. Delta"],
+      ["#1", "#2", "#3", "#4"],
     );
     assert.deepEqual(
-      projects.childNodes.map((item) => item.childNodes[0]!.childNodes[1]!.textContent),
+      projects.childNodes.map((item) => item.childNodes[0]!.childNodes[1]!.childNodes[1]!.textContent),
       [
         "Program Phoenix · PaS Strategic",
         "Program Phoenix · PaS —",
@@ -164,12 +172,21 @@ describe("renderTimelineShellNavigation", () => {
       ],
     );
     teams.childNodes[2]!.childNodes[0]!.childNodes[1]!.click();
-    projects.childNodes[0]!.childNodes[0]!.click();
+    assert.equal(navigation.projectCards.get(projectB)?.handle.getAttribute("aria-label"), "Reorder Boreal, position 1 of 4");
+    assert.equal(projects.childNodes[0]!.childNodes[0]!.childNodes[0]!.attributes.get("aria-hidden"), "true");
+    navigation.projectCards.get(projectB)!.button.click();
     navigation.setCardState("project", projectB, true, false);
-    assert.equal(projects.childNodes[0]!.childNodes[0]!.attributes.get("aria-expanded"), "true");
+    assert.equal(navigation.projectCards.get(projectB)!.button.getAttribute("aria-expanded"), "true");
     navigation.setCardState("project", projectA, true, true);
-    assert.equal(projects.childNodes[0]!.childNodes[0]!.attributes.get("aria-expanded"), "true");
-    assert.equal(projects.childNodes[1]!.childNodes[0]!.attributes.get("aria-expanded"), "true");
+    assert.equal(navigation.projectCards.get(projectB)!.button.getAttribute("aria-expanded"), "true");
+    assert.equal(navigation.projectCards.get(projectA)!.button.getAttribute("aria-expanded"), "true");
+    navigation.setReorderPreview(projectD, 2);
+    assert.deepEqual(projects.childNodes.map((item) => item.childNodes[0]!.childNodes[0]!.textContent), ["#1", "#3", "#4", "#2"]);
+    assert.equal(projects.childNodes[3]!.classes.has("project-sidebar-item--dragging"), true);
+    assert.equal(projects.childNodes[1]!.classes.has("project-sidebar-item--insert-before"), true);
+    navigation.setReorderPreview();
+    assert.deepEqual(projects.childNodes.map((item) => item.childNodes[0]!.childNodes[0]!.textContent), ["#1", "#2", "#3", "#4"]);
+    assert.equal(projects.childNodes.some((item) => [...item.classes].some((name) => name.startsWith("project-sidebar-item--"))), false);
     assert.equal(projects.childNodes[0]!.childNodes[1]!.hidden, false);
     assert.equal(projects.childNodes[0]!.childNodes[1]!.childNodes.length, 0);
     reservationTab.click();

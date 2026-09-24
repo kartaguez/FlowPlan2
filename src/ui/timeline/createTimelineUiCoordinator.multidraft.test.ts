@@ -8,6 +8,7 @@ import { createDemoPlanningScenario } from "../../main/demo/createDemoPlanningSc
 import { createPlanningProjectionDispatcher } from "../../main/planning/createPlanningProjectionDispatcher.js";
 import type { AppElements } from "../renderApp.js";
 import type { createProjectEditController } from "../project-edit/createProjectEditController.js";
+import type { createProjectReorderController } from "../portfolio/createProjectReorderController.js";
 import type { createReservationEditController } from "../reservation-edit/createReservationEditController.js";
 import { createTimelineUiCoordinator, type TimelineUiCoordinatorDependencies } from "./createTimelineUiCoordinator.js";
 import type { ProjectId, ReservationId, TeamId } from "../../domain/index.js";
@@ -50,15 +51,18 @@ function fixture() {
     teamEditControls: { container: element }, diagnosticsControls: { dialog: element },
   } as unknown as AppElements;
   let renderCount = 0;
+  let reorderInput: Parameters<typeof createProjectReorderController>[0];
   let shellInput: { onProjectSelect: (id: ProjectId) => void;
     onReservationSelect: (id: ReservationId) => void; onTeamSettings: (id: TeamId) => void };
   const projectHandles = new Map<ProjectId, Parameters<typeof createProjectEditController>[0]>();
   const reservationHandles = new Map<ReservationId, Parameters<typeof createReservationEditController>[0]>();
+  let latestProjectCards: ReturnType<typeof cards>["projectCards"];
   const cards = () => {
     const projectCards = new Map(scenario.portfolio.projects.map((project) => [project.id,
-      { button: document.createElement("button"), host: document.createElement("div"), item: document.createElement("li") }]));
+      { button: document.createElement("button"), handle: document.createElement("button"), host: document.createElement("div"), item: document.createElement("li") }]));
     const reservationCards = new Map(scenario.portfolio.reservations.map((reservation) => [reservation.id,
       { button: document.createElement("button"), host: document.createElement("div"), item: document.createElement("li") }]));
+    latestProjectCards = projectCards;
     return { projectCards, reservationCards };
   };
   const dependencies = {
@@ -75,6 +79,9 @@ function fixture() {
       setProject(model: { projectId: ProjectId } | undefined) { if (model) projectHandles.set(model.projectId, input); },
       getProjectId: () => undefined, destroy() {},
     }),
+    createProjectReorderController: (input: Parameters<typeof createProjectReorderController>[0]) => {
+      reorderInput = input; return { destroy() {} };
+    },
     createReservationEditController: (input: Parameters<typeof createReservationEditController>[0]) => ({
       setReservation(model: { reservationId: ReservationId } | undefined) {
         if (model) reservationHandles.set(model.reservationId, input);
@@ -85,7 +92,7 @@ function fixture() {
     renderShellNavigation: (input: typeof shellInput) => {
       shellInput = input;
       return { teamMetricsContainers: new Map(), ...cards(), getActiveTab: () => "projects",
-        setCardState() {}, destroy() {} };
+        setCardState() {}, setReorderPreview() {}, showReorderError() {}, destroy() {} };
     },
     renderCursorTeamMetrics: () => {}, createCursorProgressSurface: () => ({ render() {}, destroy() {} }),
   } as unknown as TimelineUiCoordinatorDependencies;
@@ -100,12 +107,55 @@ function fixture() {
     getReservationNavigationItems: () => session.getState().portfolio.reservations.map((item) => ({ id: item.id, name: item.name })),
   }, dependencies);
   return { scenario, session, coordinator, projectHandles, reservationHandles,
+    reorder: (id: ProjectId, position: number) => reorderInput.onReorder(id, position),
+    focused: () => document.activeElement,
+    handleFor: (id: ProjectId) => latestProjectCards.get(id)?.handle,
     openProject: (id: ProjectId) => shellInput.onProjectSelect(id),
     openReservation: (id: ReservationId) => shellInput.onReservationSelect(id),
     getRenderCount: () => renderCount };
 }
 
 describe("coordinator multi-draft rerender", () => {
+  it("preserves several dirty Project and Reservation drafts, open cards and focus across reorder", () => {
+    const app = fixture();
+    const projects = app.scenario.portfolio.projects;
+    const reservations = app.scenario.portfolio.reservations;
+    for (const project of projects.slice(0, 3)) app.openProject(project!.id);
+    for (const reservation of reservations) app.openReservation(reservation.id);
+    for (const project of projects.slice(0, 3)) {
+      const input = app.projectHandles.get(project!.id)!;
+      const draft = input.draftStore!.get(project!.id)!;
+      input.draftStore!.update(project!.id, { ...draft.values, name: `${project!.name} local` });
+    }
+    for (const reservation of reservations) {
+      const input = app.reservationHandles.get(reservation.id)!;
+      const draft = input.draftStore!.get(reservation.id)!;
+      input.draftStore!.update(reservation.id, { ...draft.values, name: `${reservation.name} local` });
+    }
+    const before = app.coordinator.getUiSnapshot();
+    const moved = projects[1]!.id;
+    app.reorder(moved, 4);
+    assert.equal(app.getRenderCount(), 2);
+    assert.deepEqual(app.coordinator.getUiSnapshot(), before);
+    assert.equal(app.session.getState().portfolio.priorityOrder[3], moved);
+    for (const project of projects.slice(0, 3)) {
+      const store = app.projectHandles.get(project!.id)!.draftStore!;
+      assert.equal(store.get(project!.id)?.values.name, `${project!.name} local`);
+      assert.equal(store.get(project!.id)?.expanded, true);
+      assert.equal(store.isDirty(project!.id), true);
+    }
+    for (const reservation of reservations) {
+      const store = app.reservationHandles.get(reservation.id)!.draftStore!;
+      assert.equal(store.get(reservation.id)?.values.name, `${reservation.name} local`);
+      assert.equal(store.get(reservation.id)?.expanded, true);
+      assert.equal(store.isDirty(reservation.id), true);
+    }
+    assert.strictEqual(app.focused(), app.handleFor(moved));
+    app.reorder(moved, 4);
+    assert.equal(app.getRenderCount(), 2);
+    app.coordinator.destroy();
+  });
+
   it("keeps another Project and Reservation dirty and expanded after one Project Apply", () => {
     const app = fixture();
     const [a, b] = app.scenario.portfolio.projects;
@@ -127,7 +177,7 @@ describe("coordinator multi-draft rerender", () => {
     assert.equal(app.session.getState().portfolio.reservations.find((item) => item.id === reservation.id)?.name,
       reservation.name);
     const command: UpdateProjectCommand = { kind: "update-project", projectId: a!.id,
-      name: "A applied", priorityPosition: 4,
+      name: "A applied",
       ...(a!.programId === undefined ? {} : { programId: a!.programId }),
       ...(a!.priorityFamilyId === undefined ? {} : { priorityFamilyId: a!.priorityFamilyId }),
       ...(a!.objectiveEndDate === undefined ? {} : { objectiveEndDate: a!.objectiveEndDate }),
@@ -137,7 +187,6 @@ describe("coordinator multi-draft rerender", () => {
     assert.equal(app.projectHandles.get(a!.id)!.onApply(command).ok, true);
     assert.equal(app.getRenderCount(), 2);
     assert.equal(bStore.get(b!.id)?.values.name, "B local draft");
-    assert.equal(bStore.get(b!.id)?.values.priorityPosition, "1");
     assert.equal(bStore.get(b!.id)?.expanded, true);
     assert.equal(bStore.isDirty(b!.id), true);
     assert.equal(rStore.get(reservation.id)?.values.name, "R local draft");

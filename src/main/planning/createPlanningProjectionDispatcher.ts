@@ -39,8 +39,10 @@ export function createPlanningProjectionDispatcher(
   return Object.freeze({
     getProjection: () => projection,
     dispatch: (command: PlanningCommand): PlanningProjectionDispatchResult => {
+      const previousState = input.session.getState();
       const result = input.session.dispatch(command);
       if (!result.ok) return result;
+      if (result.state === previousState) return Object.freeze({ ok: true, projection });
       projection = buildProjection({
         state: result.state,
         geometryViewport: input.geometryViewport,

@@ -16,8 +16,8 @@ describe("ProjectEditViewModel", () => {
     assert.deepEqual(model.priorityFamilies.map(({ name }) => name), ["Strategic", "Regulatory"]);
     assert.equal(Object.isFrozen(model.programs), true);
     assert.equal(Object.isFrozen(model.priorityFamilies), true);
-    assert.equal(model.priorityPosition, 1);
-    assert.equal(model.projectCount, 4);
+    assert.equal("priorityPosition" in model, false);
+    assert.equal("projectCount" in model, false);
     assert.equal(model.earliestStartDate, undefined);
     assert.equal(model.objectiveEndDate, "2025-02-28");
     assert.equal(model.mandatoryDeadline, undefined);

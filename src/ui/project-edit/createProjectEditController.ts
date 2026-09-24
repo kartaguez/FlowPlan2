@@ -34,7 +34,6 @@ interface GlobalInputs {
   readonly name: HTMLInputElement;
   readonly program: HTMLSelectElement;
   readonly priorityFamily: HTMLSelectElement;
-  readonly priority: HTMLInputElement;
   readonly earliestStartDate: HTMLInputElement;
   readonly objectiveEndDate: HTMLInputElement;
   readonly mandatory: HTMLInputElement;
@@ -113,16 +112,6 @@ export function createProjectEditController(
       priorityFamily.append(missing);
     }
     global.append(grouping);
-    const priority = createLabeledInput(
-      document,
-      global,
-      "Priority position",
-      "number",
-      "project.priority",
-    );
-    priority.min = "1";
-    priority.max = String(activeModel.projectCount);
-    priority.step = "1";
     const earliestStartDate = createLabeledInput(
       document,
       global,
@@ -145,7 +134,6 @@ export function createProjectEditController(
     name.value = values!.name;
     program.value = values!.programId;
     priorityFamily.value = values!.priorityFamilyId;
-    priority.value = values!.priorityPosition;
     earliestStartDate.value = values!.earliestStartDate;
     objectiveEndDate.value = values!.objectiveEndDate;
     mandatory.checked = values!.mandatory;
@@ -185,7 +173,6 @@ export function createProjectEditController(
       name,
       program,
       priorityFamily,
-      priority,
       earliestStartDate,
       objectiveEndDate,
       mandatory,
@@ -236,7 +223,7 @@ export function createProjectEditController(
     if (!model || !globalInputs) throw new TypeError("Project edit form has no selected project.");
     const previous = input.draftStore?.get(model.projectId)?.values ?? projectValuesFromModel(model);
     return { name: globalInputs.name.value, programId: globalInputs.program.value,
-      priorityFamilyId: globalInputs.priorityFamily.value, priorityPosition: globalInputs.priority.value,
+      priorityFamilyId: globalInputs.priorityFamily.value,
       earliestStartDate: globalInputs.earliestStartDate.value,
       objectiveEndDate: globalInputs.objectiveEndDate.value, mandatory: globalInputs.mandatory.checked,
       resolution, teams: requirementInputs.map((row) => ({
@@ -261,11 +248,9 @@ export function createProjectEditController(
     }
     return Object.freeze({
       projectId: model.projectId,
-      projectCount: model.projectCount,
       name: globalInputs.name.value,
       programId: globalInputs.program.value,
       priorityFamilyId: globalInputs.priorityFamily.value,
-      priorityPosition: globalInputs.priority.value,
       earliestStartDate: globalInputs.earliestStartDate.value,
       objectiveEndDate: globalInputs.objectiveEndDate.value,
       mandatory: globalInputs.mandatory.checked,

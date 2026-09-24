@@ -8,8 +8,8 @@ function must<T>(result: DomainResult<T>): T { if (!result.ok) throw new Error(J
 const a = must(createProjectId("a"));
 const b = must(createProjectId("b"));
 const teamId = must(createTeamId("alpha"));
-const model = (projectId: typeof a, name = "A", raf = "20", exact = "20/1", priority = 1): ProjectEditViewModel => ({
-  projectId, label: name, programs: [], priorityFamilies: [], priorityPosition: priority, projectCount: 2,
+const model = (projectId: typeof a, name = "A", raf = "20", exact = "20/1"): ProjectEditViewModel => ({
+  projectId, label: name, programs: [], priorityFamilies: [],
   requirements: [{ teamId, teamLabel: "Alpha", enabled: true, remainingWorkload: raf, remainingWorkloadExact: exact }],
 });
 
@@ -36,11 +36,10 @@ describe("ProjectDraftStore", () => {
       remainingWorkload: "21", expanded: true }] });
     store.setErrors(a, ["Local error"]);
     store.setExpanded(a, true);
-    store.rebase(a, model(a, "Session", "22", "22/1", 2));
+    store.rebase(a, model(a, "Session", "22", "22/1"));
     const updated = store.get(a)!;
     assert.equal(updated.reference.name, "Session");
     assert.equal(updated.values.name, "Local");
-    assert.equal(updated.values.priorityPosition, "2");
     assert.equal(updated.values.teams[0]!.remainingWorkload, "21");
     assert.equal(updated.values.teams[0]!.remainingWorkloadExact, "20/1");
     assert.equal(updated.values.teams[0]!.expanded, true);
@@ -50,13 +49,13 @@ describe("ProjectDraftStore", () => {
     assert.equal(store.get(a), undefined);
     assert.equal(store.get(b)?.values.name, "B");
   });
-  it("preserves an explicit local priority through another Project reorder", () => {
+  it("keeps an unrelated local draft dirty after a reorder rebase", () => {
     const store = createProjectDraftStore();
     const first = store.initialize(a, model(a));
-    store.update(a, { ...first.values, priorityPosition: "2" });
-    store.rebase(a, model(a, "A", "20", "20/1", 2));
-    assert.equal(store.get(a)?.values.priorityPosition, "2");
-    assert.equal(store.isDirty(a), false);
+    store.update(a, { ...first.values, name: "Local" });
+    store.rebase(a, model(a));
+    assert.equal(store.get(a)?.values.name, "Local");
+    assert.equal(store.isDirty(a), true);
   });
   it("blocks a structurally vanished active Team without dropping its local draft", () => {
     const store = createProjectDraftStore();

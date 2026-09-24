@@ -12,6 +12,7 @@ export {
   type PlanningSettings,
   type UpdatePlanningSettingsCommand,
   type UpdateProjectCommand,
+  type ReorderProjectCommand,
   type UpdateProjectTeamRequirement,
   type UpdateTeamCapacityPeriod,
   type UpdateTeamNameCommand,

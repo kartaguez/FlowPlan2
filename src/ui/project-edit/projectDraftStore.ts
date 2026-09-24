@@ -14,7 +14,6 @@ export interface ProjectDraftValues {
   readonly name: string;
   readonly programId: string;
   readonly priorityFamilyId: string;
-  readonly priorityPosition: string;
   readonly earliestStartDate: string;
   readonly objectiveEndDate: string;
   readonly mandatory: boolean;
@@ -51,7 +50,6 @@ export function projectValuesFromModel(model: ProjectEditViewModel): ProjectDraf
     name: model.label,
     programId: model.programId ?? "",
     priorityFamilyId: model.priorityFamilyId ?? "",
-    priorityPosition: String(model.priorityPosition),
     earliestStartDate: model.earliestStartDate ?? "",
     objectiveEndDate: model.objectiveEndDate ?? "",
     mandatory: !divergent && model.objectiveEndDate !== undefined &&
@@ -72,7 +70,7 @@ const teamDirty = (a: ProjectTeamDraft, b: ProjectTeamDraft): boolean =>
   a.enabled !== b.enabled || a.remainingWorkload !== b.remainingWorkload;
 const globalDirty = (a: ProjectDraftValues, b: ProjectDraftValues): boolean =>
   a.name !== b.name || a.programId !== b.programId ||
-  a.priorityFamilyId !== b.priorityFamilyId || a.priorityPosition !== b.priorityPosition ||
+  a.priorityFamilyId !== b.priorityFamilyId ||
   a.earliestStartDate !== b.earliestStartDate || a.objectiveEndDate !== b.objectiveEndDate ||
   a.mandatory !== b.mandatory || a.resolution !== b.resolution;
 
@@ -123,7 +121,6 @@ export function createProjectDraftStore(): ProjectDraftStore {
         name: choose(old.values.name, old.reference.name, next.name),
         programId: choose(old.values.programId, old.reference.programId, next.programId),
         priorityFamilyId: choose(old.values.priorityFamilyId, old.reference.priorityFamilyId, next.priorityFamilyId),
-        priorityPosition: choose(old.values.priorityPosition, old.reference.priorityPosition, next.priorityPosition),
         earliestStartDate: choose(old.values.earliestStartDate, old.reference.earliestStartDate, next.earliestStartDate),
         objectiveEndDate: choose(old.values.objectiveEndDate, old.reference.objectiveEndDate, next.objectiveEndDate),
         mandatory: choose(old.values.mandatory, old.reference.mandatory, next.mandatory),

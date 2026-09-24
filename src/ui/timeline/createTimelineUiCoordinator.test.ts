@@ -31,6 +31,7 @@ function fixture() {
     }),
     createInteractionController: () => ({ getState: () => ({ hovered: undefined }), refreshTooltip() {}, destroy() {} }),
     createProjectEditController: () => ({ setProject() {}, getProjectId: () => undefined, destroy() {} }),
+    createProjectReorderController: () => ({ destroy() {} }),
     createReservationEditController: () => ({ setReservation() {}, getReservationId: () => undefined, destroy() {} }),
     createTeamEditController: () => ({ setTeam() {}, getTeamId: () => undefined, destroy() {} }),
     createPlanningSettingsController: () => ({ setModel() {}, destroy() {} }),

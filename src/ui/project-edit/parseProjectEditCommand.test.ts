@@ -29,11 +29,9 @@ function values(
 ): ProjectEditFormValues {
   return {
     projectId,
-    projectCount: 4,
     name: "Project Atlas",
     programId: "",
     priorityFamilyId: "",
-    priorityPosition: "2",
     earliestStartDate: "2025-01-02",
     objectiveEndDate: "2025-02-03",
     mandatory: true,
@@ -109,7 +107,7 @@ describe("parseProjectEditCommand", () => {
     assert.equal(result.ok, true);
     if (!result.ok) return;
     assert.equal(result.command.kind, "update-project");
-    assert.equal(result.command.priorityPosition, 2);
+    assert.equal("priorityPosition" in result.command, false);
     assert.equal(result.command.earliestStartDate, "2025-01-02");
     assert.equal(result.command.objectiveEndDate, "2025-02-03");
     assert.equal(result.command.mandatoryDeadline, "2025-02-03");
@@ -145,14 +143,6 @@ describe("parseProjectEditCommand", () => {
           !("mandatoryDeadline" in requirement),
       ),
     );
-  });
-
-  it("rejects zero, negative, fractional, and out-of-range priority strings", () => {
-    for (const priorityPosition of ["0", "-1", "1.5", "5", "nope"]) {
-      const result = parseProjectEditCommand(values({ priorityPosition }));
-      assert.equal(result.ok, false);
-      if (!result.ok) assert.equal(result.errors[0]?.path, "project.priority");
-    }
   });
 
   it("accepts finite decimal or rational RAF edits and rejects invalid input", () => {
@@ -250,7 +240,6 @@ describe("parseProjectEditCommand", () => {
     const result = parseProjectEditCommand(
       values({
         name: " ",
-        priorityPosition: "x",
         earliestStartDate: "bad",
         requirements: [
           {
@@ -263,7 +252,7 @@ describe("parseProjectEditCommand", () => {
       }),
     );
     assert.equal(result.ok, false);
-    if (!result.ok) assert.ok(result.errors.length >= 4);
+    if (!result.ok) assert.ok(result.errors.length >= 3);
 
     const source = await readFile(
       resolve(process.cwd(), "src/ui/project-edit/parseProjectEditCommand.ts"),

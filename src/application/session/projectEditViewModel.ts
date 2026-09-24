@@ -16,8 +16,6 @@ export interface ProjectEditViewModel {
   readonly priorityFamilyId?: PriorityFamilyId;
   readonly programs: readonly Readonly<{ id: ProgramId; name: string }>[];
   readonly priorityFamilies: readonly Readonly<{ id: PriorityFamilyId; name: string }>[];
-  readonly priorityPosition: number;
-  readonly projectCount: number;
   readonly earliestStartDate?: CivilDate;
   readonly objectiveEndDate?: CivilDate;
   readonly mandatoryDeadline?: CivilDate;
@@ -64,10 +62,6 @@ export function buildProjectEditViewModel(
           : { dailyCapExact: serializeQuantity(requirement.dailyCap) }),
       });
   });
-  const priorityIndex = state.portfolio.priorityOrder.indexOf(project.id);
-  if (priorityIndex < 0) {
-    throw new TypeError(`Project ${project.id} is missing from priority order.`);
-  }
   return Object.freeze({
     projectId: project.id,
     label: project.name,
@@ -75,8 +69,6 @@ export function buildProjectEditViewModel(
     ...(project.priorityFamilyId === undefined ? {} : { priorityFamilyId: project.priorityFamilyId }),
     programs: Object.freeze(state.portfolio.programs.map((program) => Object.freeze({ id: program.id, name: program.name }))),
     priorityFamilies: Object.freeze(state.portfolio.priorityFamilies.map((family) => Object.freeze({ id: family.id, name: family.name }))),
-    priorityPosition: priorityIndex + 1,
-    projectCount: state.portfolio.projects.length,
     ...(project.earliestStartDate === undefined
       ? {}
       : { earliestStartDate: project.earliestStartDate }),

@@ -22,10 +22,12 @@ export type PortfolioTab = "projects" | "reservations";
 export interface TimelineShellNavigation {
   readonly globalMetricsContainer: HTMLElement;
   readonly teamMetricsContainers: ReadonlyMap<TeamId, HTMLElement>;
-  readonly projectCards: ReadonlyMap<ProjectId, { button: HTMLButtonElement; host: HTMLElement; item: HTMLElement }>;
+  readonly projectCards: ReadonlyMap<ProjectId, { button: HTMLButtonElement; handle: HTMLButtonElement; host: HTMLElement; item: HTMLElement }>;
   readonly reservationCards: ReadonlyMap<ReservationId, { button: HTMLButtonElement; host: HTMLElement; item: HTMLElement }>;
   readonly getActiveTab: () => PortfolioTab;
   readonly setCardState: (kind: "project" | "reservation", id: ProjectId | ReservationId, expanded: boolean, dirty: boolean) => void;
+  readonly setReorderPreview: (projectId?: ProjectId, targetPosition?: number) => void;
+  readonly showReorderError: (message: string) => void;
   readonly destroy: () => void;
 }
 
@@ -101,7 +103,8 @@ export function renderTimelineShellNavigation(
   input.teamContainer.replaceChildren(axisSpacer, ...teamPanels);
 
   const projectMetadata = new Map(input.projectItems.map((item) => [item.id, item]));
-  const projectCards = new Map<ProjectId, { button: HTMLButtonElement; host: HTMLElement; item: HTMLElement }>();
+  const projectCards = new Map<ProjectId, { button: HTMLButtonElement; handle: HTMLButtonElement; host: HTMLElement; item: HTMLElement; badge: HTMLElement }>();
+  const projectOrder = input.viewModel.projects.map((project) => project.id);
   const projectItems = input.viewModel.projects.map((project) => {
     const metadata = projectMetadata.get(project.id);
     if (metadata === undefined) throw new TypeError(`Missing Portfolio navigation project ${project.id}.`);
@@ -121,7 +124,18 @@ export function renderTimelineShellNavigation(
     button.setAttribute("aria-controls", host.id);
     const title = document.createElement("span");
     title.className = "project-sidebar-title";
-    title.textContent = `${project.priorityIndex + 1}. ${project.label}`;
+    title.textContent = project.label;
+    const badge = document.createElement("span");
+    badge.className = "project-priority-badge";
+    badge.textContent = `#${project.priorityIndex + 1}`;
+    badge.setAttribute("aria-hidden", "true");
+    const handle = document.createElement("button");
+    handle.type = "button";
+    handle.className = "project-reorder-handle";
+    handle.textContent = "↕";
+    handle.setAttribute("aria-label", `Reorder ${project.label}, position ${project.priorityIndex + 1} of ${projectOrder.length}`);
+    handle.setAttribute("aria-keyshortcuts", "ArrowUp ArrowDown Home End");
+    handle.setAttribute("title", "Move with Up, Down, Home or End");
     const grouping = document.createElement("span");
     grouping.className = "project-sidebar-grouping";
     grouping.textContent = `Program ${programName} · PaS ${priorityFamilyName}`;
@@ -130,11 +144,19 @@ export function renderTimelineShellNavigation(
     const listener = () => input.onProjectSelect(project.id);
     button.addEventListener("click", listener);
     listeners.push({ button, listener });
-    item.append(button, host);
-    projectCards.set(project.id, { button, host, item });
+    const header = document.createElement("div");
+    header.className = "project-sidebar-header";
+    header.append(badge, button, handle);
+    item.append(header, host);
+    projectCards.set(project.id, { button, handle, host, item, badge });
     return item;
   });
   input.projectContainer.replaceChildren(...projectItems);
+  const reorderError = document.createElement("p");
+  reorderError.className = "application-error";
+  reorderError.setAttribute("role", "alert");
+  reorderError.hidden = true;
+  input.projectContainer.after?.(reorderError);
 
   const reservationCards = new Map<ReservationId, { button: HTMLButtonElement; host: HTMLElement; item: HTMLElement }>();
   const reservationItems = input.reservations.map((reservation) => {
@@ -201,6 +223,22 @@ export function renderTimelineShellNavigation(
     card.item.classList.toggle("portfolio-card--expanded", expanded);
   };
 
+  const setReorderPreview = (projectId?: ProjectId, targetPosition?: number): void => {
+    const withoutSource = projectOrder.filter((id) => id !== projectId);
+    const valid = projectId !== undefined && targetPosition !== undefined &&
+      targetPosition >= 1 && targetPosition <= projectOrder.length;
+    const preview = valid ? [...withoutSource] : [...projectOrder];
+    if (valid) preview.splice(targetPosition - 1, 0, projectId!);
+    const insertionId = valid ? withoutSource[targetPosition! - 1] : undefined;
+    const lastId = valid && insertionId === undefined ? withoutSource.at(-1) : undefined;
+    for (const [id, card] of projectCards) {
+      card.badge.textContent = `#${preview.indexOf(id) + 1}`;
+      card.item.classList.toggle("project-sidebar-item--dragging", id === projectId);
+      card.item.classList.toggle("project-sidebar-item--insert-before", id === insertionId);
+      card.item.classList.toggle("project-sidebar-item--insert-after", id === lastId);
+    }
+  };
+
   return Object.freeze({
     globalMetricsContainer,
     teamMetricsContainers,
@@ -208,7 +246,10 @@ export function renderTimelineShellNavigation(
     reservationCards,
     getActiveTab: () => activeTab,
     setCardState,
+    setReorderPreview,
+    showReorderError: (message: string) => { reorderError.textContent = message; reorderError.hidden = message === ""; },
     destroy: () => {
+      reorderError.remove?.();
       for (const { button, listener } of listeners) {
         button.removeEventListener("click", listener);
       }

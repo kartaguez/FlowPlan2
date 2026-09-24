@@ -33,6 +33,31 @@ const geometryViewport = Object.freeze({
   timeAxisHeight: 56,
 });
 
+describe("PlanningProjectionDispatcher reorder", () => {
+  it("rebuilds once for a move and never for same-position or rejected commands", () => {
+    const initial = createDemoPlanningScenario();
+    const session = createPlanningSession(initial);
+    let builds = 0;
+    const dispatcher = createPlanningProjectionDispatcher({ session, geometryViewport,
+      buildProjection: (input) => { builds += 1; return buildPlanningSessionProjection(input); } });
+    const ids = initial.portfolio.priorityOrder;
+    const first = dispatcher.getProjection();
+    const same = dispatcher.dispatch({ kind: "reorder-project", projectId: ids[1]!, targetPosition: 2 });
+    assert.equal(same.ok, true);
+    if (same.ok) assert.strictEqual(same.projection, first);
+    assert.equal(builds, 1);
+    const invalid = dispatcher.dispatch({ kind: "reorder-project", projectId: ids[1]!, targetPosition: 0 });
+    assert.equal(invalid.ok, false);
+    assert.equal(builds, 1);
+    const changed = dispatcher.dispatch({ kind: "reorder-project", projectId: ids[3]!, targetPosition: 1 });
+    assert.equal(changed.ok, true);
+    if (!changed.ok) return;
+    assert.equal(builds, 2);
+    assert.deepEqual(changed.projection.viewModel.projects.map((project) => project.id), [ids[3], ids[0], ids[1], ids[2]]);
+    assert.deepEqual(changed.projection.portfolio.priorityOrder, [ids[3], ids[0], ids[1], ids[2]]);
+  });
+});
+
 function must<T>(result: DomainResult<T>): T {
   if (!result.ok) throw new Error(JSON.stringify(result.errors));
   return result.value;
@@ -70,7 +95,6 @@ function commandFor(
     name: project.name,
     ...(project.programId === undefined ? {} : { programId: project.programId }),
     ...(project.priorityFamilyId === undefined ? {} : { priorityFamilyId: project.priorityFamilyId }),
-    priorityPosition: state.portfolio.priorityOrder.indexOf(projectId) + 1,
     ...(project.earliestStartDate ? { earliestStartDate: project.earliestStartDate } : {}),
     ...(project.objectiveEndDate ? { objectiveEndDate: project.objectiveEndDate } : {}),
     ...(project.mandatoryDeadline ? { mandatoryDeadline: project.mandatoryDeadline } : {}),
@@ -180,7 +204,7 @@ describe("PlanningProjectionDispatcher", () => {
     const projectId = initial.portfolio.projects[0]!.id;
 
     const invalid = dispatcher.dispatch(
-      commandFor(initial, projectId, { priorityPosition: 0 }),
+      { kind: "reorder-project", projectId, targetPosition: 0 },
     );
     assert.equal(invalid.ok, false);
     assert.equal(buildCount, 1);

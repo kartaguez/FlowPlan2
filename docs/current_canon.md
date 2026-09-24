@@ -19,7 +19,7 @@ demo session. The following capabilities are complete and active:
   `maxParallelProjects` value applied independently per Team;
 - one shared timeline with stacked Team panels;
 - Team Settings for name and existing capacity periods;
-- Project editing for name, priority position, dates, and Team requirements;
+- Project editing for name, dates, and Team requirements; Project priority is reordered in Portfolio Projects;
 - global multi-Team Reservations with ratio and fixed-daily modes, edited in
   inline Portfolio cards;
 - Projects / Reservations tabs in the Portfolio sidebar;
@@ -49,8 +49,8 @@ PlanningResult in the disposable session projection. Lot 9C is validated and
 and renders cumulative Team metrics plus an exclusive Projects / Programs / PAS
 progress view at the shared cursor date. Lot 9C.1 is validated and **DONE**.
 The subsequent FlowPlan visual adaptation and corrective pass are also
-validated and **DONE**; their final commit is the current baseline. Lot 9D is
-unblocked and **NOT STARTED**.
+validated and **DONE**; their final commit is the current validated baseline.
+Lot 9D is implemented and **IN REVIEW**, pending ChatGPT audit and human browser validation.
 
 ## Current product trajectory
 
@@ -125,16 +125,19 @@ The editable session currently accepts:
 - `update-planning-settings`: replaces horizon, global working pattern, and
   global parallelism setting;
 - `update-project`: replaces editable fields and the final set of Team
-  requirements, including optional Program/PAS associations and a
-  priority-position move;
+  requirements, including optional Program/PAS associations, without changing
+  Project priority;
+- `reorder-project`: moves one existing Project to a 1-based position in
+  `portfolio.priorityOrder`, leaving every Project field unchanged;
 - `update-team-name`: renames one existing Team;
 - `update-team-capacity-periods`: replaces existing periods by position while
   preserving the period count and order;
 - `update-reservation`: replaces one existing global Reservation and all its
   enabled Team allocations.
 
-Every accepted command immutably replaces session state and triggers one
-projection rebuild. Rejected commands do neither.
+Every accepted change immutably replaces session state and triggers one
+projection rebuild. A same-position reorder retains the existing state and
+projection. Rejected commands do neither.
 
 ## Active temporary constraints
 
@@ -148,7 +151,7 @@ These are current implementation facts, not durable product rules:
 - capacity exceptions exist in the domain but have no editor;
 - Project `dailyCap` remains active in domain/planner but is hidden and
   preserved exactly by unrelated Project Apply;
-- priority is editable as a numeric position, but there is no drag/drop;
+- Project priority is reordered through the Portfolio Projects handles; a card badge shows its derived position;
 - Program and PriorityFamily/PAS catalogs are static; they have no create,
   delete, or rename UI;
 - the former daily Team summary is removed; cumulative metrics remain in Team
@@ -163,7 +166,6 @@ These are current implementation facts, not durable product rules:
 ## Not part of the current implemented canon
 
 - Program / PriorityFamily (PAS) structural CRUD;
-- priority drag/drop;
 - structural CRUD and referential-integrity workflows around deletion;
 - persistence, import/export, undo/redo;
 - actuals/history, resource actual consumption, and snapshots.

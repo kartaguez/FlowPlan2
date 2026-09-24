@@ -2,7 +2,7 @@ import type { TimelineGeometry, TimelineViewModel } from "../../adapters/index.j
 import { calculateCursorMetrics } from "../../adapters/index.js";
 import type {
   PlanningCommand, PlanningSettingsViewModel, ProjectEditViewModel,
-  ReservationEditViewModel, TeamEditViewModel, UpdateProjectCommand,
+  ReorderProjectCommand, ReservationEditViewModel, TeamEditViewModel, UpdateProjectCommand,
   UpdateReservationCommand, UpdateTeamCapacityPeriodsCommand, UpdateTeamNameCommand,
 } from "../../application/index.js";
 import type {
@@ -15,6 +15,7 @@ import { createProjectDraftStore } from "../project-edit/projectDraftStore.js";
 import { createReservationEditController } from "../reservation-edit/createReservationEditController.js";
 import { createReservationDraftStore } from "../reservation-edit/reservationDraftStore.js";
 import { createProjectCardControls, createReservationCardControls } from "../portfolio/createPortfolioEditControls.js";
+import { createProjectReorderController } from "../portfolio/createProjectReorderController.js";
 import { createTeamEditController } from "../team-edit/createTeamEditController.js";
 import { createPlanningSettingsController } from "../planning-settings/createPlanningSettingsController.js";
 import { createTimelineCursorController } from "./createTimelineCursorController.js";
@@ -70,6 +71,7 @@ export interface TimelineUiCoordinatorDependencies {
   readonly createCursorController: typeof createTimelineCursorController;
   readonly createInteractionController: typeof createTimelineInteractionController;
   readonly createProjectEditController: typeof createProjectEditController;
+  readonly createProjectReorderController: typeof createProjectReorderController;
   readonly createTeamEditController: typeof createTeamEditController;
   readonly createReservationEditController: typeof createReservationEditController;
   readonly createPlanningSettingsController: typeof createPlanningSettingsController;
@@ -84,6 +86,7 @@ const DEFAULT_DEPENDENCIES: TimelineUiCoordinatorDependencies = Object.freeze({
   createCursorController: createTimelineCursorController,
   createInteractionController: createTimelineInteractionController,
   createProjectEditController,
+  createProjectReorderController,
   createTeamEditController,
   createReservationEditController,
   createPlanningSettingsController,
@@ -103,6 +106,7 @@ export function createTimelineUiCoordinator(
   let cursorController: ReturnType<typeof createTimelineCursorController>;
   let interactionController: ReturnType<typeof createTimelineInteractionController>;
   let shellNavigation: ReturnType<typeof renderTimelineShellNavigation>;
+  let reorderController: ReturnType<typeof createProjectReorderController>;
   let teamEditingId: TeamId | undefined;
   let mounted = false;
   let activeProgressView: CursorProgressView = "projects";
@@ -225,6 +229,7 @@ export function createTimelineUiCoordinator(
   };
   const destroyControllers = (): void => {
     if (!mounted) return;
+    reorderController.destroy();
     for (const controller of projectControllers.values()) controller.destroy();
     for (const controller of reservationControllers.values()) controller.destroy();
     projectControllers.clear();
@@ -254,6 +259,26 @@ export function createTimelineUiCoordinator(
       },
       onProjectSelect: toggleProject,
       onReservationSelect: toggleReservation,
+    });
+    reorderController = dependencies.createProjectReorderController({
+      list: input.elements.projectList,
+      order: projection.viewModel.projects.map((project) => project.id),
+      cards: shellNavigation.projectCards,
+      setPreview: shellNavigation.setReorderPreview,
+      onReorder: (projectId, targetPosition) => {
+        const command: ReorderProjectCommand = { kind: "reorder-project", projectId, targetPosition };
+        const previousProjection = projection;
+        const result = input.dispatch(command);
+        if (!result.ok) {
+          shellNavigation.showReorderError(result.errors.map((error) => error.message).join(" "));
+          shellNavigation.projectCards.get(projectId)?.handle.focus();
+          return;
+        }
+        if (result.projection === previousProjection) return;
+        rebaseDrafts();
+        renderProjection(result.projection);
+        shellNavigation.projectCards.get(projectId)?.handle.focus();
+      },
     });
     const selectedDate = projection.geometry.dates.some((day) => day.date === snapshot.selectedDate)
       ? snapshot.selectedDate : projection.viewModel.horizon.start;

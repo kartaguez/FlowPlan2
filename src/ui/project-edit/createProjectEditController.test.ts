@@ -93,8 +93,6 @@ function model(label = "Project Atlas"): ProjectEditViewModel {
     priorityFamilyId: strategicId,
     programs: Object.freeze([Object.freeze({ id: phoenixId, name: "Phoenix" })]),
     priorityFamilies: Object.freeze([Object.freeze({ id: strategicId, name: "Strategic" })]),
-    priorityPosition: 2,
-    projectCount: 4,
     earliestStartDate: must(createCivilDate("2025-01-02")),
     objectiveEndDate: must(createCivilDate("2025-02-03")),
     mandatoryDeadline: must(createCivilDate("2025-02-03")),
@@ -164,7 +162,6 @@ describe("ProjectEditController", () => {
       "project.name",
       "project.programId",
       "project.priorityFamilyId",
-      "project.priority",
       "project.earliestStartDate",
       "project.objectiveEndDate",
       "project.mandatory",
@@ -190,7 +187,7 @@ describe("ProjectEditController", () => {
     const familyOptions = field(input.fields, "project.priorityFamilyId").childNodes;
     assert.deepEqual(programOptions.map(({ value, textContent }) => [value, textContent]), [["", "None"], [phoenixId, "Phoenix"]]);
     assert.deepEqual(familyOptions.map(({ value, textContent }) => [value, textContent]), [["", "None"], [strategicId, "Strategic"]]);
-    assert.equal(field(input.fields, "project.priority").value, "2");
+    assert.equal(elements.some((element) => element.name === "project.priority"), false);
     assert.equal(field(input.fields, "project.earliestStartDate").value, "2025-01-02");
     assert.equal(
       field(input.fields, `requirements.${alphaId}.remainingWorkload`).value,
@@ -219,7 +216,6 @@ describe("ProjectEditController", () => {
     field(input.fields, "project.name").value = "Dirty";
     field(input.fields, "project.programId").value = "";
     field(input.fields, "project.priorityFamilyId").value = "";
-    field(input.fields, "project.priority").value = "4";
     field(input.fields, "project.mandatory").checked = false;
     field(input.fields, `requirements.${alphaId}.remainingWorkload`).value = "99";
     input.cancel.dispatch("click");
@@ -227,7 +223,6 @@ describe("ProjectEditController", () => {
     assert.equal(field(input.fields, "project.name").value, "Project Atlas");
     assert.equal(field(input.fields, "project.programId").value, phoenixId);
     assert.equal(field(input.fields, "project.priorityFamilyId").value, strategicId);
-    assert.equal(field(input.fields, "project.priority").value, "2");
     assert.equal(field(input.fields, "project.mandatory").checked, true);
     assert.equal(
       field(input.fields, `requirements.${alphaId}.remainingWorkload`).value,
@@ -267,7 +262,6 @@ describe("ProjectEditController", () => {
     input.error.hidden = false;
     input.error.textContent = "Old error";
     field(input.fields, "project.name").value = "Atlas Updated";
-    field(input.fields, "project.priority").value = "1";
     field(input.fields, `requirements.${betaId}.remainingWorkload`).value = "0.25";
     input.form.dispatch("submit", { preventDefault() {} });
 
@@ -275,7 +269,7 @@ describe("ProjectEditController", () => {
     assert.equal(command?.name, "Atlas Updated");
     assert.equal(command?.programId, phoenixId);
     assert.equal(command?.priorityFamilyId, strategicId);
-    assert.equal(command?.priorityPosition, 1);
+    assert.equal(command === undefined ? false : "priorityPosition" in command, false);
     assert.equal(command?.teamRequirements.length, 2);
     assert.equal(command?.teamRequirements[0]?.dailyCap === undefined, false);
     assert.equal(

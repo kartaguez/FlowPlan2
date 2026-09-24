@@ -6,6 +6,7 @@ import {
   createCivilDate,
   createDailyCap,
   createProjectId,
+  createPortfolio,
   createProgramId,
   createPriorityFamilyId,
   createRemainingWorkload,
@@ -38,7 +39,6 @@ function commandFor(
     name: project.name,
     ...(project.programId === undefined ? {} : { programId: project.programId }),
     ...(project.priorityFamilyId === undefined ? {} : { priorityFamilyId: project.priorityFamilyId }),
-    priorityPosition: state.portfolio.priorityOrder.indexOf(projectId) + 1,
     ...(project.earliestStartDate === undefined
       ? {}
       : { earliestStartDate: project.earliestStartDate }),
@@ -121,7 +121,7 @@ describe("PlanningSession project editing", () => {
     assert.equal(Object.isFrozen(session.getState()), true);
   });
 
-  it("atomically updates global project fields, priority, RAF, and daily caps", () => {
+  it("atomically updates global project fields, RAF, and daily caps without changing priority", () => {
     const initial = createDemoPlanningScenario();
     const previousState = initial;
     const previousProject = initial.portfolio.projects[0]!;
@@ -130,7 +130,6 @@ describe("PlanningSession project editing", () => {
     const result = session.dispatch(
       commandFor(initial, previousProject.id, {
         name: "  Atlas Updated  ",
-        priorityPosition: 4,
         earliestStartDate: must(createCivilDate("2025-01-10")),
         objectiveEndDate: must(createCivilDate("2025-02-10")),
         mandatoryDeadline: must(createCivilDate("2025-03-10")),
@@ -165,12 +164,7 @@ describe("PlanningSession project editing", () => {
     assert.equal(serializeQuantity(updated.requirements[0]!.dailyCap!), "3/2");
     assert.equal(serializeQuantity(updated.requirements[1]!.remainingWorkload), "25/2");
     assert.equal(serializeQuantity(updated.requirements[1]!.dailyCap!), "1/1");
-    assert.deepEqual(result.state.portfolio.priorityOrder, [
-      initial.portfolio.priorityOrder[1],
-      initial.portfolio.priorityOrder[2],
-      initial.portfolio.priorityOrder[3],
-      previousProject.id,
-    ]);
+    assert.deepEqual(result.state.portfolio.priorityOrder, initial.portfolio.priorityOrder);
     assert.equal(previousProject.name, "Project Atlas");
     assert.equal(previousProject.earliestStartDate, undefined);
     assert.equal(previousProject.requirements, previousRequirements);
@@ -184,14 +178,14 @@ describe("PlanningSession project editing", () => {
     );
   });
 
-  it("rejects every invalid priority atomically", () => {
+  it("rejects every invalid reorder position atomically", () => {
     const initial = createDemoPlanningScenario();
     const projectId = initial.portfolio.projects[1]!.id;
-    for (const priorityPosition of [0, -1, 1.5, 5]) {
+    for (const targetPosition of [0, -1, 1.5, 5, Number.NaN]) {
       const session = createPlanningSession(initial);
       const before = session.getState();
       const result = session.dispatch(
-        commandFor(before, projectId, { priorityPosition }),
+        { kind: "reorder-project", projectId, targetPosition },
       );
       assert.equal(result.ok, false);
       assert.equal(session.getState(), before);
@@ -202,18 +196,20 @@ describe("PlanningSession project editing", () => {
     const initial = createDemoPlanningScenario();
     const ids = initial.portfolio.priorityOrder;
     const firstSession = createPlanningSession(initial);
-    firstSession.dispatch(commandFor(initial, ids[0]!, { priorityPosition: 4 }));
+    firstSession.dispatch({ kind: "reorder-project", projectId: ids[0]!, targetPosition: 4 });
     assert.deepEqual(firstSession.getState().portfolio.priorityOrder, [
       ids[1], ids[2], ids[3], ids[0],
     ]);
     const lastSession = createPlanningSession(initial);
-    lastSession.dispatch(commandFor(initial, ids[3]!, { priorityPosition: 1 }));
+    lastSession.dispatch({ kind: "reorder-project", projectId: ids[3]!, targetPosition: 1 });
     assert.deepEqual(lastSession.getState().portfolio.priorityOrder, [
       ids[3], ids[0], ids[1], ids[2],
     ]);
     const middleSession = createPlanningSession(initial);
-    middleSession.dispatch(commandFor(initial, ids[1]!, { priorityPosition: 2 }));
+    const before = middleSession.getState();
+    middleSession.dispatch({ kind: "reorder-project", projectId: ids[1]!, targetPosition: 2 });
     assert.deepEqual(middleSession.getState().portfolio.priorityOrder, ids);
+    assert.strictEqual(middleSession.getState(), before);
   });
 
   it("rejects empty, duplicate, and unknown team requirements", () => {
@@ -324,5 +320,52 @@ describe("PlanningSession project editing", () => {
       requirementContract,
       /earliestStartDate|objectiveEndDate|mandatoryDeadline/,
     );
+  });
+});
+
+describe("PlanningSession project reorder", () => {
+  it("moves in both directions and preserves every other Portfolio value", () => {
+    const initial = createDemoPlanningScenario();
+    const ids = initial.portfolio.priorityOrder;
+    const session = createPlanningSession(initial);
+    const down = session.dispatch({ kind: "reorder-project", projectId: ids[1]!, targetPosition: 3 });
+    assert.equal(down.ok, true);
+    if (!down.ok) return;
+    assert.deepEqual(down.state.portfolio.priorityOrder, [ids[0], ids[2], ids[1], ids[3]]);
+    const up = session.dispatch({ kind: "reorder-project", projectId: ids[2]!, targetPosition: 1 });
+    assert.equal(up.ok, true);
+    if (!up.ok) return;
+    assert.deepEqual(up.state.portfolio.priorityOrder, [ids[2], ids[0], ids[1], ids[3]]);
+    for (const key of ["teams", "projects", "programs", "priorityFamilies", "reservations"] as const) {
+      assert.deepEqual(up.state.portfolio[key], initial.portfolio[key]);
+      up.state.portfolio[key].forEach((value, index) => assert.strictEqual(value, initial.portfolio[key][index]));
+    }
+    assert.strictEqual(up.state.planning, initial.planning);
+    assert.equal(new Set(up.state.portfolio.priorityOrder).size, ids.length);
+    assert.equal(createPortfolio(up.state.portfolio).ok, true);
+  });
+
+  it("rejects an unknown Project and leaves a same-position command as the same state", () => {
+    const initial = createDemoPlanningScenario();
+    const session = createPlanningSession(initial);
+    const before = session.getState();
+    const unknown = session.dispatch({ kind: "reorder-project", projectId: must(createProjectId("absent")), targetPosition: 1 });
+    assert.equal(unknown.ok, false);
+    assert.strictEqual(session.getState(), before);
+    const same = session.dispatch({ kind: "reorder-project", projectId: before.portfolio.priorityOrder[1]!, targetPosition: 2 });
+    assert.equal(same.ok, true);
+    assert.strictEqual(session.getState(), before);
+  });
+
+  it("keeps the reordered priority when a Project draft is later applied", () => {
+    const initial = createDemoPlanningScenario();
+    const session = createPlanningSession(initial);
+    const projectId = initial.portfolio.priorityOrder[0]!;
+    const draftCommand = commandFor(initial, projectId, { name: "Edited after reorder" });
+    session.dispatch({ kind: "reorder-project", projectId, targetPosition: 4 });
+    const order = session.getState().portfolio.priorityOrder;
+    const applied = session.dispatch(draftCommand);
+    assert.equal(applied.ok, true);
+    assert.deepEqual(session.getState().portfolio.priorityOrder, order);
   });
 });

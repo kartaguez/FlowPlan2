@@ -31,7 +31,7 @@ Actuals/History is a later trajectory, not a Phase 9 lot.
 ## Ordered remaining lots
 
 ```text
-9D Priority drag/drop (NOT STARTED)
+9D Priority drag/drop (IN REVIEW)
         ↓
 9E Team structural CRUD
         ↓
@@ -44,7 +44,7 @@ Later trajectory: Actuals / History
 
 The remaining execution order is `9D` through `9G`. Validated 9C.1 completes
 the Planning UI cleanup; the later visual corrective pass is also closed. Lot 9D
-remains unblocked. The CRUD series establishes
+is implemented and awaiting ChatGPT audit and human browser validation. The CRUD series establishes
 Team referential-integrity policy before Project and Reservation membership
 workflows.
 
@@ -74,7 +74,7 @@ anticipating only that narrow part of 9F; Project and Team entity CRUD remain
 future work. A Team lane hit never opens Team Settings and leaves any editing
 context unchanged. Only the Team Settings button opens that editor.
 
-Human validation has closed 9C.1. Lot 9D is unblocked and remains not started.
+Human validation has closed 9C.1. Lot 9D is unblocked and its implementation is in review.
 
 ## FlowPlan visual grammar — corrective lot
 
@@ -102,12 +102,18 @@ adds no new Phase 9 feature and does not change the `9D`–`9G` order.
 
 ## 9D — Priority drag/drop
 
-**Status: NOT STARTED** — unblocked by validation of 9C.1.
+**Status: IN REVIEW** — implementation awaits ChatGPT audit and human browser validation. The validated baseline above remains unchanged.
 
 **Goal**
 
 Provide direct reordering of Projects while preserving the existing priority
 model.
+
+Implementation adds a dedicated `reorder-project` command, a Project-card
+pointer/keyboard handle, derived `#N` badges and a transient insertion preview.
+`update-project` no longer edits priority. Same-position reorder reuses the
+session state and projection, with no Planning recomputation. This is ready for
+audit; it is not a validated or closed lot.
 
 **Scope**
 

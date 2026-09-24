@@ -20,11 +20,9 @@ import {
 
 export interface ProjectEditFormValues {
   readonly projectId: ProjectId;
-  readonly projectCount: number;
   readonly name: string;
   readonly programId: string;
   readonly priorityFamilyId: string;
-  readonly priorityPosition: string;
   readonly earliestStartDate: string;
   readonly objectiveEndDate: string;
   readonly mandatory: boolean;
@@ -61,11 +59,6 @@ export function parseProjectEditCommand(
       ),
     );
   }
-  const priorityPosition = parsePriority(
-    values.priorityPosition,
-    values.projectCount,
-    errors,
-  );
   const earliestStartDate = parseOptionalDate(
     values.earliestStartDate,
     "project.earliestStartDate",
@@ -89,7 +82,6 @@ export function parseProjectEditCommand(
   );
   if (
     errors.length > 0 ||
-    priorityPosition === undefined ||
     teamRequirements.some((requirement) => requirement === undefined)
   ) {
     return Object.freeze({ ok: false, errors: Object.freeze(errors) });
@@ -103,7 +95,6 @@ export function parseProjectEditCommand(
       name,
       ...(programId === undefined ? {} : { programId }),
       ...(priorityFamilyId === undefined ? {} : { priorityFamilyId }),
-      priorityPosition,
       ...(earliestStartDate === undefined ? {} : { earliestStartDate }),
       ...(objectiveEndDate === undefined ? {} : { objectiveEndDate }),
       ...(values.mandatory && objectiveEndDate !== undefined ? { mandatoryDeadline: objectiveEndDate } : {}),
@@ -127,36 +118,6 @@ function parseOptionalId<T>(
     return undefined;
   }
   return result.value;
-}
-
-function parsePriority(
-  raw: string,
-  projectCount: number,
-  errors: DomainError[],
-): number | undefined {
-  const value = raw.trim();
-  if (!/^[1-9]\d*$/.test(value)) {
-    errors.push(
-      error(
-        "INVALID_PROJECT_PRIORITY",
-        "project.priority",
-        `Priority position must be an integer from 1 to ${projectCount}.`,
-      ),
-    );
-    return undefined;
-  }
-  const priority = Number(value);
-  if (!Number.isSafeInteger(priority) || priority > projectCount) {
-    errors.push(
-      error(
-        "PROJECT_PRIORITY_OUT_OF_RANGE",
-        "project.priority",
-        `Priority position must be an integer from 1 to ${projectCount}.`,
-      ),
-    );
-    return undefined;
-  }
-  return priority;
 }
 
 function parseOptionalDate(

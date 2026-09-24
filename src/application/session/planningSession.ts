@@ -65,12 +65,17 @@ export interface UpdateProjectCommand {
   readonly name: string;
   readonly programId?: ProgramId;
   readonly priorityFamilyId?: PriorityFamilyId;
-  /** One is the highest user-facing priority. */
-  readonly priorityPosition: number;
   readonly earliestStartDate?: CivilDate;
   readonly objectiveEndDate?: CivilDate;
   readonly mandatoryDeadline?: CivilDate;
   readonly teamRequirements: readonly UpdateProjectTeamRequirement[];
+}
+
+export interface ReorderProjectCommand {
+  readonly kind: "reorder-project";
+  readonly projectId: ProjectId;
+  /** One is the highest user-facing priority. */
+  readonly targetPosition: number;
 }
 
 export interface UpdateTeamCapacityPeriod {
@@ -109,6 +114,7 @@ export interface UpdateReservationCommand {
 export type PlanningCommand =
   | UpdatePlanningSettingsCommand
   | UpdateProjectCommand
+  | ReorderProjectCommand
   | UpdateTeamNameCommand
   | UpdateTeamCapacityPeriodsCommand
   | UpdateReservationCommand;
@@ -146,6 +152,8 @@ function applyCommand(
       return updatePlanningSettings(state, command);
     case "update-project":
       return updateProject(state, command);
+    case "reorder-project":
+      return reorderProject(state, command);
     case "update-team-name":
       return updateTeamName(state, command);
     case "update-team-capacity-periods":
@@ -458,20 +466,6 @@ function updateProject(
       ),
     );
   }
-  if (
-    !Number.isInteger(command.priorityPosition) ||
-    command.priorityPosition < 1 ||
-    command.priorityPosition > state.portfolio.projects.length
-  ) {
-    errors.push(
-      applicationError(
-        "PROJECT_PRIORITY_OUT_OF_RANGE",
-        "project.priority",
-        `Priority position must be an integer from 1 to ${state.portfolio.projects.length}.`,
-      ),
-    );
-  }
-
   const projectIndex = state.portfolio.projects.findIndex(
     (project) => project.id === command.projectId,
   );
@@ -571,17 +565,12 @@ function updateProject(
   const projects = state.portfolio.projects.map((candidate, index) =>
     index === projectIndex ? updatedProject.value : candidate,
   );
-  const priorityOrder = moveProjectPriority(
-    state.portfolio.priorityOrder,
-    command.projectId,
-    command.priorityPosition,
-  );
   const portfolio = createPortfolio({
     teams: state.portfolio.teams,
     projects,
     programs: state.portfolio.programs,
     priorityFamilies: state.portfolio.priorityFamilies,
-    priorityOrder,
+    priorityOrder: state.portfolio.priorityOrder,
     reservations: state.portfolio.reservations,
   });
   if (!portfolio.ok) return failure(portfolio.errors);
@@ -590,6 +579,35 @@ function updateProject(
     ok: true,
     state: freezeState({ portfolio: portfolio.value, planning: state.planning }),
   });
+}
+
+function reorderProject(
+  state: PlanningSessionState,
+  command: ReorderProjectCommand,
+): PlanningCommandResult {
+  if (!state.portfolio.projects.some((project) => project.id === command.projectId)) {
+    return failure([applicationError("UNKNOWN_PROJECT", "projectId",
+      `Project ${command.projectId} does not exist in the current portfolio.`)]);
+  }
+  const count = state.portfolio.priorityOrder.length;
+  if (!Number.isSafeInteger(command.targetPosition) ||
+    command.targetPosition < 1 || command.targetPosition > count) {
+    return failure([applicationError("PROJECT_PRIORITY_OUT_OF_RANGE", "targetPosition",
+      `Priority position must be an integer from 1 to ${count}.`)]);
+  }
+  if (state.portfolio.priorityOrder[command.targetPosition - 1] === command.projectId) {
+    return Object.freeze({ ok: true, state });
+  }
+  const portfolio = createPortfolio({
+    teams: state.portfolio.teams,
+    projects: state.portfolio.projects,
+    programs: state.portfolio.programs,
+    priorityFamilies: state.portfolio.priorityFamilies,
+    priorityOrder: moveProjectPriority(state.portfolio.priorityOrder, command.projectId, command.targetPosition),
+    reservations: state.portfolio.reservations,
+  });
+  if (!portfolio.ok) return failure(portfolio.errors);
+  return Object.freeze({ ok: true, state: freezeState({ portfolio: portfolio.value, planning: state.planning }) });
 }
 
 function moveProjectPriority(
