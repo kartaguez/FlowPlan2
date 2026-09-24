@@ -25,14 +25,18 @@ export interface CalculateCursorMetricsInput {
   readonly selectedDate: CivilDate;
 }
 
-export interface CursorTeamMetrics {
-  readonly teamId: TeamId;
+export interface CursorCapacityMetrics {
   readonly effectiveCapacity: Rational;
   readonly requestedReservedCapacity: Rational;
   readonly allocatedCapacity: Rational;
+  readonly occupiedCapacity: Rational;
   readonly utilization: Rational | undefined;
   readonly overReservedCapacity: Rational;
   readonly overReservationRatio: Rational | undefined;
+}
+
+export interface CursorTeamMetrics extends CursorCapacityMetrics {
+  readonly teamId: TeamId;
 }
 
 export interface CursorProgressMetrics {
@@ -55,6 +59,7 @@ export interface CursorPriorityFamilyMetrics extends CursorProgressMetrics {
 
 export interface CursorMetricsProjection {
   readonly selectedDate: CivilDate;
+  readonly global: CursorCapacityMetrics;
   readonly teams: readonly CursorTeamMetrics[];
   readonly projects: readonly CursorProjectMetrics[];
   readonly programs: readonly CursorProgramMetrics[];
@@ -152,17 +157,16 @@ export function calculateCursorMetrics(
       }
     }
 
+    const occupiedCapacity = addRationals(requestedReservedCapacity, allocatedCapacity);
     const utilization = isZero(effectiveCapacity)
       ? undefined
-      : ratioOrOne(
-          addRationals(requestedReservedCapacity, allocatedCapacity),
-          effectiveCapacity,
-        );
+      : ratioOrOne(occupiedCapacity, effectiveCapacity);
     teams.push(Object.freeze({
       teamId: team.id,
       effectiveCapacity,
       requestedReservedCapacity,
       allocatedCapacity,
+      occupiedCapacity,
       utilization,
       overReservedCapacity,
       overReservationRatio: isZero(effectiveCapacity)
@@ -170,6 +174,21 @@ export function calculateCursorMetrics(
         : ratioOrOne(overReservedCapacity, effectiveCapacity),
     }));
   }
+
+  const globalCapacity = teams.reduce((sum, team) => addRationals(sum, team.effectiveCapacity), ZERO);
+  const globalReserved = teams.reduce((sum, team) => addRationals(sum, team.requestedReservedCapacity), ZERO);
+  const globalAllocated = teams.reduce((sum, team) => addRationals(sum, team.allocatedCapacity), ZERO);
+  const globalOccupied = addRationals(globalReserved, globalAllocated);
+  const globalOverReserved = teams.reduce((sum, team) => addRationals(sum, team.overReservedCapacity), ZERO);
+  const global: CursorCapacityMetrics = Object.freeze({
+    effectiveCapacity: globalCapacity,
+    requestedReservedCapacity: globalReserved,
+    allocatedCapacity: globalAllocated,
+    occupiedCapacity: globalOccupied,
+    utilization: isZero(globalCapacity) ? undefined : ratioOrOne(globalOccupied, globalCapacity),
+    overReservedCapacity: globalOverReserved,
+    overReservationRatio: isZero(globalCapacity) ? undefined : ratioOrOne(globalOverReserved, globalCapacity),
+  });
 
   const projects: CursorProjectMetrics[] = input.portfolio.projects.map((project) => {
     let baselineRAF = ZERO;
@@ -228,6 +247,7 @@ export function calculateCursorMetrics(
 
   return Object.freeze({
     selectedDate: input.selectedDate,
+    global,
     teams: Object.freeze(teams),
     projects: Object.freeze(projects),
     programs: Object.freeze(programs),

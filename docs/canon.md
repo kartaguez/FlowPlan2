@@ -100,6 +100,11 @@ For each Team, cumulative over-reservation on the same inclusive interval is
 on another day never offsets an over-reserved day. Its ratio is cumulative
 over-reservation divided by cumulative effective capacity, and is undefined
 when cumulative effective capacity is zero. Both remain exact Rational metrics.
+The global capacity summary sums exact Team capacity, occupied capacity
+(`requested reserved + allocated`), and daily over-reservation first, then
+divides the global quantities for occupancy and over-reservation ratios. It
+does not average Team ratios or offset one Team's daily excess with another
+Team's unused capacity.
 
 ## Editable application state and transaction pipeline
 

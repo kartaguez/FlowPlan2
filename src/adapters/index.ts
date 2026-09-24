@@ -49,6 +49,7 @@ export {
   type CalculateCursorMetricsInput,
   type CursorMetricsProjection,
   type CursorTeamMetrics,
+  type CursorCapacityMetrics,
   type CursorProjectMetrics,
   type CursorProgramMetrics,
   type CursorPriorityFamilyMetrics,

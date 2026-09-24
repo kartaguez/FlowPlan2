@@ -5,6 +5,7 @@ import {
 } from "../../adapters/index.js";
 import type { CivilDate } from "../../domain/index.js";
 import { renderTimelineCursor } from "./renderTimelineCursor.js";
+import { preserveTimelineLabelTypography } from "./applyTimelineViewport.js";
 import {
   timelineXFromClientX,
   type TimelineViewportState,
@@ -18,6 +19,7 @@ export interface TimelineCursorState {
 
 export interface TimelineCursorController {
   readonly getState: () => TimelineCursorState;
+  readonly refresh: () => void;
   readonly destroy: () => void;
 }
 
@@ -43,7 +45,14 @@ export function createTimelineCursorController(
       geometry: input.geometry,
       selectedDate,
     });
-    renderTimelineCursor({ svg: input.svg, cursor });
+    const viewport = input.getViewport();
+    const renderedWidth = input.svg.getBoundingClientRect?.().width ?? 0;
+    const labelMargin = renderedWidth > 0
+      ? Math.min(34, renderedWidth / 2) * viewport.width / renderedWidth : 0;
+    const labelX = Math.max(viewport.x + labelMargin,
+      Math.min(cursor.x, viewport.x + viewport.width - labelMargin));
+    renderTimelineCursor({ svg: input.svg, cursor, labelX });
+    preserveTimelineLabelTypography(input.svg, viewport, input.geometry.height);
     input.cursorControl.textContent = `Projection date: ${selectedDate}`;
     input.cursorControl.setAttribute(
       "aria-label",
@@ -136,6 +145,7 @@ export function createTimelineCursorController(
 
   return Object.freeze({
     getState: () => Object.freeze({ selectedDate }),
+    refresh: render,
     destroy: () => {
       input.svg.removeEventListener("pointerdown", onPointerDown);
       input.svg.removeEventListener("pointermove", onPointerMove);

@@ -28,7 +28,7 @@ export function buildTimelineCursorGeometry(
   return Object.freeze({
     date: day.date,
     x: day.x + day.width / 2,
-    y1: input.geometry.timeAxis.height,
+    y1: 0,
     y2: input.geometry.height,
   });
 }

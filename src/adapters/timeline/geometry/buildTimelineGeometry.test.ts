@@ -255,6 +255,25 @@ describe("buildTimelineGeometry", () => {
     assert.equal(geometry.height, 424);
   });
 
+  it("reserves a global metrics row without changing any temporal X coordinate", () => {
+    const viewModel = makeViewModel("2025-01-01", "2025-01-03", ["team-alpha", "team-beta"]);
+    const base = buildTimelineGeometry(buildInput(viewModel, 300, 80, 56, 48));
+    const extended = buildTimelineGeometry({ viewModel, viewport: {
+      width: 300, teamLaneHeight: 80, timeAxisHeight: 76,
+      timeAxisLabelHeight: 20, globalMetricsHeight: 78, teamHeaderHeight: 48,
+    } });
+    assert.deepEqual(extended.dates, base.dates);
+    assert.deepEqual(extended.timeAxis.months.map((month) => [month.x, month.width]),
+      base.timeAxis.months.map((month) => [month.x, month.width]));
+    assert.deepEqual(extended.timeAxis.years.map((year) => [year.x, year.width]),
+      base.timeAxis.years.map((year) => [year.x, year.width]));
+    assert.equal(extended.timeAxis.years[0]!.y, 20);
+    assert.equal(extended.timeAxis.months[0]!.y, 48);
+    assert.equal(extended.globalMetricsHeight, 78);
+    assert.deepEqual(extended.teams.map((team) => team.y), [202, 330]);
+    assert.equal(extended.height, 410);
+  });
+
   it("preserves the TimelineViewModel team order", () => {
     const viewModel = makeViewModel("2025-01-01", "2025-01-01", [
       "team-c",

@@ -1,4 +1,4 @@
-import type { CursorMetricsProjection, TimelineViewModel } from "../../adapters/index.js";
+import type { CursorCapacityMetrics, CursorMetricsProjection, TimelineViewModel } from "../../adapters/index.js";
 import {
   subtractRationals,
   type Portfolio,
@@ -9,15 +9,7 @@ import {
 
 export type CursorProgressView = "projects" | "programs" | "pas";
 
-export interface CursorTeamMetricsViewModel {
-  readonly teamId: TeamId;
-  readonly effectiveCapacity: Rational;
-  readonly requestedReservedCapacity: Rational;
-  readonly allocatedCapacity: Rational;
-  readonly utilization: Rational | undefined;
-  readonly overReservedCapacity: Rational;
-  readonly overReservationRatio: Rational | undefined;
-}
+export interface CursorTeamMetricsViewModel extends CursorCapacityMetrics { readonly teamId: TeamId; }
 
 export interface CursorProgressItemViewModel {
   readonly id: string;
@@ -32,6 +24,7 @@ export interface CursorProgressItemViewModel {
 }
 
 export interface CursorMetricsViewModel {
+  readonly global: CursorCapacityMetrics;
   readonly teams: readonly CursorTeamMetricsViewModel[];
   readonly projects: readonly CursorProgressItemViewModel[];
   readonly programs: readonly CursorProgressItemViewModel[];
@@ -77,6 +70,7 @@ export function buildCursorMetricsViewModel(
     ...end,
   });
   return Object.freeze({
+    global: metrics.global,
     teams: metrics.teams,
     projects: Object.freeze(portfolio.priorityOrder.map((id) => {
       const project = projects.get(id);

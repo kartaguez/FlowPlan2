@@ -19,6 +19,7 @@ class FakeDocument {
 class FakeSvgElement {
   readonly attributes = new Map<string, string>();
   childNodes: FakeSvgElement[] = [];
+  textContent: string | null = null;
 
   constructor(
     readonly ownerDocument: FakeDocument,
@@ -83,7 +84,7 @@ describe("renderTimelineCursor", () => {
       },
     });
 
-    assert.equal(layer.childNodes.length, 1);
+    assert.equal(layer.childNodes.length, 2);
     assert.equal(layer.childNodes[0]?.tagName, "line");
     assert.deepEqual(Object.fromEntries(layer.childNodes[0]!.attributes), {
       class: "timeline-cursor",
@@ -93,6 +94,9 @@ describe("renderTimelineCursor", () => {
       y2: "356",
       "data-selected-date": "2025-01-02",
     });
+    assert.equal(layer.childNodes[1]!.tagName, "text");
+    assert.equal(layer.childNodes[1]!.textContent, "02/01/2025");
+    assert.equal(layer.childNodes[1]!.getAttribute("data-selected-date"), "2025-01-02");
     assert.equal(svg.getAttribute("aria-valuetext"), null);
   });
 
@@ -113,7 +117,7 @@ describe("renderTimelineCursor", () => {
 
     assert.equal(
       svg.querySelector(".timeline-cursor-layer")?.childNodes.length,
-      1,
+      2,
     );
   });
 

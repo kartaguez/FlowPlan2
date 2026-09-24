@@ -70,9 +70,10 @@ Planning
 ├── cumulative Projects / Programs / PAS progress
 ├── compact diagnostics counts → details modal
 ├── viewport controls
-├── global time axis
+├── global time axis with the shared Projection date marker
+├── global cumulative Capacity / Occupied / Occupancy / Over-reservation
 ├── Team panel
-│   ├── Team header + Settings icon + cumulative metrics
+│   ├── Team header + Settings icon + the same four cumulative metrics
 │   └── lane
 ├── Team panel...
 └── Project and Reservation hover tooltips
@@ -83,7 +84,9 @@ Portfolio sidebar
 ```
 
 The Team panels are aligned with lanes in one SVG/Geometry and one temporal
-coordinate system. They are not independent timelines.
+coordinate system. The date marker crosses the year/month axis and Team lanes;
+the global metrics row and Team headers share the SVG's vertical layout. Team
+panels are not independent timelines.
 
 ## Current editing behavior
 

@@ -170,6 +170,10 @@ describe("calculateCursorMetrics", () => {
       ["Y", "12/1", "0/1", "2/1", "1/6"],
     ]);
     assert.equal(exact(atStart.projects[0]!.progress), "1/10");
+    assert.equal(exact(atStart.teams[0]!.occupiedCapacity), "4/1");
+    assert.equal(exact(atStart.global.effectiveCapacity), "22/1");
+    assert.equal(exact(atStart.global.occupiedCapacity), "6/1");
+    assert.equal(exact(atStart.global.utilization), "3/11");
 
     const atEnd = calculateCursorMetrics({ ...input, selectedDate: second });
     assert.deepEqual(atEnd.teams.map((item) => [
@@ -198,6 +202,41 @@ describe("calculateCursorMetrics", () => {
     // The Project-percentage average would be 31/80, not 2/7.
     assert.notEqual(exact(atEnd.programs[0]!.progress), "31/80");
     assert.equal(Object.isFrozen(atEnd.projects), true);
+  });
+
+  it("aggregates exact occupied and daily over-reservation before global ratios", () => {
+    const input = fixture();
+    const [x, y] = input.portfolio.teams;
+    const emptyPlans = (teamId: Team["id"]) => input.planningResult.teamPlans
+      .find((plan) => plan.teamId === teamId)!.projectPlans
+      .map((plan) => ({ ...plan, allocations: [] }));
+    const planningResult: PlanningResult = {
+      teamPlans: [
+        { teamId: x!.id, dayCapacities: [day(first, "2", "3")], dayAdmissions: [], projectPlans: emptyPlans(x!.id) },
+        { teamId: y!.id, dayCapacities: [day(first, "10", "0")], dayAdmissions: [], projectPlans: emptyPlans(y!.id) },
+      ],
+      diagnostics: [],
+    };
+    const result = calculateCursorMetrics({ ...input, planningResult });
+    assert.deepEqual(result.teams.map((teamMetrics) => [
+      exact(teamMetrics.effectiveCapacity), exact(teamMetrics.occupiedCapacity),
+      exact(teamMetrics.utilization), exact(teamMetrics.overReservedCapacity),
+    ]), [["2/1", "3/1", "3/2", "1/1"], ["10/1", "0/1", "0/1", "0/1"]]);
+    assert.equal(exact(result.global.effectiveCapacity), "12/1");
+    assert.equal(exact(result.global.occupiedCapacity), "3/1");
+    assert.equal(exact(result.global.utilization), "1/4");
+    assert.equal(exact(result.global.overReservedCapacity), "1/1");
+    assert.equal(exact(result.global.overReservationRatio), "1/12");
+    assert.notEqual(exact(result.global.utilization), "3/4");
+    assert.notEqual(exact(result.global.overReservationRatio), "1/4");
+
+    const zeroResult = calculateCursorMetrics({ ...input, planningResult: {
+      teamPlans: planningResult.teamPlans.map((plan) => ({ ...plan,
+        dayCapacities: [day(first, "0", "0")] })), diagnostics: [],
+    } });
+    assert.equal(exact(zeroResult.global.effectiveCapacity), "0/1");
+    assert.equal(zeroResult.global.utilization, undefined);
+    assert.equal(zeroResult.global.overReservationRatio, undefined);
   });
 
   it("rejects dates outside either horizon bound", () => {

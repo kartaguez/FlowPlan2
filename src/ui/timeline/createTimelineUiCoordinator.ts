@@ -25,7 +25,7 @@ import { renderTimelineSvg } from "./renderTimelineSvg.js";
 import { renderTimelineShellNavigation, type PortfolioTab, type ProjectNavigationItem } from "./renderTimelineShellNavigation.js";
 import type { TimelineViewportState } from "./timelineViewport.js";
 import { buildCursorMetricsViewModel, type CursorMetricsViewModel, type CursorProgressView } from "./buildCursorMetricsViewModel.js";
-import { renderCursorTeamMetrics } from "./renderCursorTeamMetrics.js";
+import { renderCursorCapacityMetrics, renderCursorTeamMetrics } from "./renderCursorTeamMetrics.js";
 import { createCursorProgressSurface } from "./renderCursorProgress.js";
 
 export interface TimelineUiProjection {
@@ -149,6 +149,9 @@ export function createTimelineUiCoordinator(
         planningResult: projection.planningResult, horizon: projection.horizon, selectedDate: date }),
       projection.viewModel);
     dependencies.renderCursorTeamMetrics(shellNavigation.teamMetricsContainers, cursorMetricsModel.teams);
+    if (shellNavigation.globalMetricsContainer) {
+      renderCursorCapacityMetrics(shellNavigation.globalMetricsContainer, cursorMetricsModel.global);
+    }
     progressSurface.render(cursorMetricsModel, activeProgressView);
   };
   const syncCard = (kind: "project" | "reservation", id: ProjectId | ReservationId): void => {
@@ -256,7 +259,8 @@ export function createTimelineUiCoordinator(
       ? snapshot.selectedDate : projection.viewModel.horizon.start;
     viewportController = dependencies.createViewportController({ svg: input.elements.svg,
       geometry: projection.geometry, controls: input.elements.viewportControls,
-      initialViewport: snapshot.viewport });
+      initialViewport: snapshot.viewport,
+      onViewportChange: () => cursorController?.refresh?.() });
     cursorController = dependencies.createCursorController({ svg: input.elements.svg,
       geometry: projection.geometry, cursorControl: input.elements.cursorControl,
       initialDate: selectedDate, getViewport: viewportController.getState,

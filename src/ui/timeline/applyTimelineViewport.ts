@@ -39,7 +39,7 @@ export function applyTimelineViewport(
 }
 
 /** Keeps time-axis glyphs in CSS-pixel space while their anchors stay temporal. */
-function preserveTimelineLabelTypography(
+export function preserveTimelineLabelTypography(
   svg: SVGSVGElement,
   viewport: TimelineViewportState,
   geometryHeight: number,

@@ -70,13 +70,13 @@ describe("TimelineCursorGeometry", () => {
     );
   });
 
-  it("starts below the time axis and ends at geometry height", () => {
+  it("crosses the global axis and ends at geometry height", () => {
     const cursor = buildTimelineCursorGeometry({
       geometry: geometry(),
       selectedDate: date("2025-01-02"),
     });
 
-    assert.equal(cursor.y1, 56);
+    assert.equal(cursor.y1, 0);
     assert.equal(cursor.y2, 256);
     assert.equal(Object.isFrozen(cursor), true);
   });

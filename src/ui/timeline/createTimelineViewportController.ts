@@ -27,6 +27,7 @@ export interface CreateTimelineViewportControllerInput {
   readonly geometry: TimelineGeometry;
   readonly controls: TimelineViewportControlElements;
   readonly initialViewport?: TimelineViewportState;
+  readonly onViewportChange?: () => void;
 }
 
 interface ActivePan {
@@ -59,6 +60,7 @@ export function createTimelineViewportController(
       geometry: input.geometry,
       viewport,
     });
+    input.onViewportChange?.();
   };
   const zoom = (scale: number): void => {
     const anchorX = viewport.x + viewport.width / 2;

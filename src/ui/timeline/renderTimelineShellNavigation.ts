@@ -20,6 +20,7 @@ export interface ProjectNavigationItem {
 export type PortfolioTab = "projects" | "reservations";
 
 export interface TimelineShellNavigation {
+  readonly globalMetricsContainer: HTMLElement;
   readonly teamMetricsContainers: ReadonlyMap<TeamId, HTMLElement>;
   readonly projectCards: ReadonlyMap<ProjectId, { button: HTMLButtonElement; host: HTMLElement; item: HTMLElement }>;
   readonly reservationCards: ReadonlyMap<ReservationId, { button: HTMLButtonElement; host: HTMLElement; item: HTMLElement }>;
@@ -56,8 +57,13 @@ export function renderTimelineShellNavigation(
   const teamMetricsContainers = new Map<TeamId, HTMLElement>();
   const axisSpacer = document.createElement("div");
   axisSpacer.className = "timeline-team-axis-spacer";
-  axisSpacer.setAttribute("aria-hidden", "true");
-  axisSpacer.setAttribute("style", `height: ${input.geometry.timeAxis.height}px`);
+  const globalMetricsHeight = input.geometry.globalMetricsHeight ?? 0;
+  axisSpacer.setAttribute("style", `height: ${input.geometry.timeAxis.height + globalMetricsHeight}px`);
+  const globalMetricsContainer = document.createElement("div");
+  globalMetricsContainer.className = "timeline-global-metrics capacity-metrics";
+  globalMetricsContainer.setAttribute("style", `top: ${input.geometry.timeAxis.height}px; height: ${globalMetricsHeight}px`);
+  globalMetricsContainer.setAttribute("aria-label", "Planning cumulative capacity metrics");
+  axisSpacer.append(globalMetricsContainer);
   const teamsById = new Map(input.viewModel.teams.map((team) => [team.id, team]));
   const teamPanels = input.geometry.teams.map((teamGeometry) => {
     const team = teamsById.get(teamGeometry.teamId);
@@ -81,7 +87,7 @@ export function renderTimelineShellNavigation(
     listeners.push({ button: settings, listener });
     header.append(heading, settings);
     const metrics = document.createElement("div");
-    metrics.className = "team-panel-metrics";
+    metrics.className = "team-panel-metrics capacity-metrics";
     metrics.setAttribute("aria-label", `${team.label} cumulative metrics`);
     teamMetricsContainers.set(team.id, metrics);
     header.append(metrics);
@@ -196,6 +202,7 @@ export function renderTimelineShellNavigation(
   };
 
   return Object.freeze({
+    globalMetricsContainer,
     teamMetricsContainers,
     projectCards,
     reservationCards,

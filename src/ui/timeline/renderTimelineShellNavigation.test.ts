@@ -101,6 +101,7 @@ describe("renderTimelineShellNavigation", () => {
       } as unknown as TimelineViewModel,
       geometry: {
         timeAxis: { height: 56 },
+        globalMetricsHeight: 78,
         teamHeaderHeight: 48,
         teams: [
           { teamId: alpha, height: 100 },
@@ -113,10 +114,13 @@ describe("renderTimelineShellNavigation", () => {
       onTabChange: (tab) => changedTabs.push(tab),
     });
     assert.equal(teams.childNodes.length, 3);
+    assert.equal(teams.childNodes[0]!.attributes.get("style"), "height: 134px");
+    assert.equal(teams.childNodes[0]!.childNodes[0], navigation.globalMetricsContainer);
+    assert.equal((navigation.globalMetricsContainer as unknown as FakeElement).attributes.get("style"), "top: 56px; height: 78px");
     assert.equal(teams.childNodes[1]!.dataset.teamId, alpha);
     assert.equal(teams.childNodes[1]!.className, "team-panel");
     assert.equal(teams.childNodes[1]!.childNodes[0]!.className, "team-panel-header");
-    assert.equal(teams.childNodes[1]!.childNodes[0]!.childNodes[2]!.className, "team-panel-metrics");
+    assert.equal(teams.childNodes[1]!.childNodes[0]!.childNodes[2]!.className, "team-panel-metrics capacity-metrics");
     assert.equal(navigation.teamMetricsContainers.get(alpha), teams.childNodes[1]!.childNodes[0]!.childNodes[2]);
     assert.equal(teams.childNodes[1]!.childNodes[0]!.attributes.get("style"), "height: 48px");
     assert.equal(teams.childNodes[1]!.childNodes[1]!.className, "team-panel-timeline");

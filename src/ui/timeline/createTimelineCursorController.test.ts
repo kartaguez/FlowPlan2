@@ -205,6 +205,8 @@ describe("createTimelineCursorController", () => {
     });
 
     assert.equal(controller.getState().selectedDate, "2025-01-01");
+    assert.equal(input.svg.querySelector(".timeline-cursor")?.getAttribute("data-selected-date"), "2025-01-01");
+    assert.equal(input.svg.querySelector(".timeline-cursor-date-label")?.textContent, "01/01/2025");
     assert.equal(input.svg.getAttribute("aria-valuetext"), null);
     assert.equal(input.cursorControl.textContent, "Projection date: 2025-01-01");
     assert.equal(
@@ -261,6 +263,8 @@ describe("createTimelineCursorController", () => {
     assert.equal(controller.getState().selectedDate, "2025-01-02");
     input.cursorControl.dispatch("keydown", keyboard("End"));
     assert.equal(controller.getState().selectedDate, "2025-01-03");
+    assert.equal(input.svg.querySelector(".timeline-cursor")?.getAttribute("data-selected-date"), "2025-01-03");
+    assert.equal(input.svg.querySelector(".timeline-cursor-date-label")?.getAttribute("data-selected-date"), "2025-01-03");
     input.cursorControl.dispatch("keydown", keyboard("ArrowRight"));
     assert.equal(controller.getState().selectedDate, "2025-01-03");
     input.cursorControl.dispatch("keydown", keyboard("Home"));

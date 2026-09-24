@@ -7,7 +7,7 @@ import { buildPlanningSessionProjection } from "../../main/planning/buildPlannin
 import { buildCursorMetricsViewModel } from "./buildCursorMetricsViewModel.js";
 import { formatCursorMd, formatCursorPercent } from "./formatCursorMetrics.js";
 import { createCursorProgressSurface } from "./renderCursorProgress.js";
-import { renderCursorTeamMetrics } from "./renderCursorTeamMetrics.js";
+import { renderCursorCapacityMetrics, renderCursorTeamMetrics } from "./renderCursorTeamMetrics.js";
 
 class FakeDocument {
   createElement(tagName: string): FakeElement { return new FakeElement(this, tagName); }
@@ -123,7 +123,7 @@ describe("cursor metrics UI", () => {
     assert.equal(rationalToCanonicalString(model.projects[0]!.progress), rationalToCanonicalString(first.progress));
   });
 
-  it("renders all six Team values and an exclusive progress view", () => {
+  it("renders four matching Team and global values plus an exclusive progress view", () => {
     const { projection, metrics } = run();
     const model = buildCursorMetricsViewModel(projection.portfolio, metrics, projection.viewModel);
     const document = new FakeDocument();
@@ -131,9 +131,9 @@ describe("cursor metrics UI", () => {
     renderCursorTeamMetrics(teamContainers, model.teams);
     for (const container of teamContainers.values()) {
       const children = (container as unknown as FakeElement).childNodes;
-      assert.equal(children.length, 6);
-      assert.match(children[0]!.textContent!, /^Effective: /);
-      assert.match(children[5]!.textContent!, /^Over-reservation ratio: /);
+      assert.equal(children.length, 4);
+      assert.deepEqual(children.map((cell) => cell.childNodes[0]!.textContent),
+        ["Capacity", "Occupied", "Occupancy", "Over-reservation"]);
     }
     renderCursorTeamMetrics(teamContainers, [{
       ...model.teams[0]!,
@@ -141,8 +141,13 @@ describe("cursor metrics UI", () => {
       overReservationRatio: undefined,
     }]);
     const firstTeam = (teamContainers.get(model.teams[0]!.teamId)! as unknown as FakeElement).childNodes;
-    assert.equal(firstTeam[3]!.textContent, "Utilization: 150%");
-    assert.equal(firstTeam[5]!.textContent, "Over-reservation ratio: N/A");
+    assert.equal(firstTeam[2]!.childNodes[1]!.textContent, "150%");
+    assert.equal(firstTeam[3]!.childNodes[1]!.textContent, "N/A");
+    const global = document.createElement("div");
+    renderCursorCapacityMetrics(global as unknown as HTMLElement, model.global);
+    assert.deepEqual(global.childNodes.map((cell) => cell.childNodes[0]!.textContent),
+      ["Capacity", "Occupied", "Occupancy", "Over-reservation"]);
+    assert.equal(global.childNodes[0]!.childNodes[1]!.textContent, formatCursorMd(model.global.effectiveCapacity));
     const root = document.createElement("section");
     let selected: string | undefined;
     const surface = createCursorProgressSurface(root as unknown as HTMLElement, (view) => { selected = view; });

@@ -88,6 +88,29 @@ function fixture() {
 }
 
 describe("createTimelineViewportController", () => {
+  it("refreshes the shared cursor after zoom, pan, and reset", () => {
+    const input = fixture();
+    input.controller.destroy();
+    let refreshes = 0;
+    const controller = createTimelineViewportController({
+      svg: input.svg as unknown as SVGSVGElement,
+      geometry: input.geometry,
+      controls: { zoomIn: input.zoomIn as unknown as HTMLButtonElement,
+        zoomOut: input.zoomOut as unknown as HTMLButtonElement,
+        reset: input.reset as unknown as HTMLButtonElement },
+      onViewportChange: () => { refreshes += 1; },
+    });
+    assert.equal(refreshes, 1);
+    input.zoomIn.dispatch("click");
+    input.svg.dispatch("pointerdown", pointer(7, 500, true));
+    input.svg.dispatch("pointermove", pointer(7, 250, true));
+    input.svg.dispatch("pointerup", pointer(7, 250, true));
+    input.zoomOut.dispatch("click");
+    input.reset.dispatch("click");
+    assert.equal(refreshes, 5);
+    controller.destroy();
+  });
+
   it("starts with the complete immutable geometry view", () => {
     const input = fixture();
 

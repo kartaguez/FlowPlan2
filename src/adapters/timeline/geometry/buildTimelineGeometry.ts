@@ -59,13 +59,20 @@ export function buildTimelineGeometry(
   input: BuildTimelineGeometryInput,
 ): TimelineGeometry {
   const teamHeaderHeight = input.viewport.teamHeaderHeight ?? 0;
+  const globalMetricsHeight = input.viewport.globalMetricsHeight ?? 0;
   validatePositiveFinite(input.viewport.width, "Viewport width");
   validatePositiveFinite(
     input.viewport.teamLaneHeight,
     "Team lane height",
   );
   validateNonNegativeFinite(teamHeaderHeight, "Team header height");
+  validateNonNegativeFinite(globalMetricsHeight, "Global metrics height");
   validatePositiveFinite(input.viewport.timeAxisHeight, "Time axis height");
+  const timeAxisLabelHeight = input.viewport.timeAxisLabelHeight ?? 0;
+  validateNonNegativeFinite(timeAxisLabelHeight, "Time axis label height");
+  if (timeAxisLabelHeight >= input.viewport.timeAxisHeight) {
+    throw new TypeError("Time axis label height must leave room for year and month rows.");
+  }
 
   const expectedDates = datesInHorizon(input.viewModel.horizon);
   const priorityByProjectId = indexProjectPriorities(input.viewModel.projects);
@@ -91,6 +98,7 @@ export function buildTimelineGeometry(
     dayWidth,
     input.viewport.width,
     input.viewport.timeAxisHeight,
+    timeAxisLabelHeight,
   );
   const maxEffectiveCapacity = findMaxEffectiveCapacity(input.viewModel);
   const maxEffectiveCapacityNumber = capacityToGeometryNumber(
@@ -113,6 +121,7 @@ export function buildTimelineGeometry(
 
     const y =
       input.viewport.timeAxisHeight +
+      globalMetricsHeight +
       teamHeaderHeight +
       teamIndex *
         (teamHeaderHeight + input.viewport.teamLaneHeight);
@@ -220,10 +229,12 @@ export function buildTimelineGeometry(
     width: input.viewport.width,
     height:
       input.viewport.timeAxisHeight +
+      globalMetricsHeight +
       input.viewModel.teams.length *
         (teamHeaderHeight + input.viewport.teamLaneHeight),
     dayWidth,
     teamHeaderHeight,
+    globalMetricsHeight,
     dates,
     timeAxis,
     maxEffectiveCapacity,
@@ -382,13 +393,14 @@ function buildTimeAxisGeometry(
   dayWidth: number,
   width: number,
   height: number,
+  labelHeight: number,
 ): TimelineTimeAxisGeometry {
-  const rowHeight = height / 2;
-  const years = buildTimeSegments(dates, dayWidth, 0, rowHeight, "year");
+  const rowHeight = (height - labelHeight) / 2;
+  const years = buildTimeSegments(dates, dayWidth, labelHeight, rowHeight, "year");
   const months = buildTimeSegments(
     dates,
     dayWidth,
-    rowHeight,
+    labelHeight + rowHeight,
     rowHeight,
     "month",
   );
