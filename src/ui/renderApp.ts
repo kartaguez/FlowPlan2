@@ -4,8 +4,7 @@ const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 
 export interface AppElements {
   readonly svg: SVGSVGElement;
-  readonly diagnostics: HTMLElement;
-  readonly dateSummary: HTMLElement;
+  readonly diagnosticsControls: DiagnosticsControls;
   readonly cursorProgress: HTMLElement;
   readonly cursorControl: HTMLButtonElement;
   readonly viewportControls: TimelineViewportControls;
@@ -24,6 +23,15 @@ export interface AppElements {
   readonly projectTab: HTMLButtonElement;
   readonly reservationTab: HTMLButtonElement;
   readonly editorDrawer: HTMLElement;
+}
+
+export interface DiagnosticsControls {
+  readonly summary: HTMLElement;
+  readonly backdrop: HTMLElement;
+  readonly dialog: HTMLElement;
+  readonly title: HTMLElement;
+  readonly list: HTMLElement;
+  readonly close: HTMLButtonElement;
 }
 
 export interface ProjectEditControls {
@@ -100,14 +108,11 @@ export function renderApp(root: HTMLElement): AppElements {
     "Edit planning settings",
   );
   planningHeading.append(workspaceTitle, planningSettingsButton);
-  const description = document.createElement("p");
-  description.textContent =
-    "Three teams, four projects, exact capacity reservations and daily planning.";
   const cursorControl = document.createElement("button");
   cursorControl.type = "button";
   cursorControl.className = "timeline-cursor-control";
-  cursorControl.setAttribute("aria-label", "Timeline date cursor");
-  cursorControl.textContent = "Selected date";
+  cursorControl.setAttribute("aria-label", "Projection date");
+  cursorControl.textContent = "Projection date";
   const viewportControlContainer = document.createElement("div");
   viewportControlContainer.className = "timeline-viewport-controls";
   viewportControlContainer.setAttribute("role", "group");
@@ -133,12 +138,34 @@ export function renderApp(root: HTMLElement): AppElements {
   const diagnostics = document.createElement("section");
   diagnostics.className = "timeline-diagnostics";
   diagnostics.setAttribute("aria-label", "Planning diagnostics");
-  const dateSummary = document.createElement("section");
-  dateSummary.className = "timeline-date-summary";
-  dateSummary.setAttribute("aria-label", "Selected planning date summary");
+  const diagnosticsBackdrop = document.createElement("div");
+  diagnosticsBackdrop.className = "timeline-diagnostics-backdrop";
+  diagnosticsBackdrop.hidden = true;
+  const diagnosticsDialog = document.createElement("section");
+  diagnosticsDialog.className = "planning-settings-modal timeline-diagnostics-dialog";
+  diagnosticsDialog.setAttribute("role", "dialog");
+  diagnosticsDialog.setAttribute("aria-modal", "true");
+  diagnosticsDialog.setAttribute("aria-labelledby", "timeline-diagnostics-dialog-title");
+  diagnosticsDialog.hidden = true;
+  const diagnosticsTitle = document.createElement("h3");
+  diagnosticsTitle.id = "timeline-diagnostics-dialog-title";
+  const diagnosticsList = document.createElement("div");
+  diagnosticsList.className = "timeline-diagnostics-dialog-content";
+  const diagnosticsClose = document.createElement("button");
+  diagnosticsClose.type = "button";
+  diagnosticsClose.textContent = "Close";
+  diagnosticsDialog.append(diagnosticsTitle, diagnosticsList, diagnosticsClose);
+  const diagnosticsControls = Object.freeze({
+    summary: diagnostics,
+    backdrop: diagnosticsBackdrop,
+    dialog: diagnosticsDialog,
+    title: diagnosticsTitle,
+    list: diagnosticsList,
+    close: diagnosticsClose,
+  });
   const cursorProgress = document.createElement("section");
   cursorProgress.className = "cursor-progress";
-  cursorProgress.setAttribute("aria-label", "Cumulative progress at selected date");
+  cursorProgress.setAttribute("aria-label", "Cumulative progress at projection date");
   const selectionSummary = document.createElement("section");
   selectionSummary.className = "timeline-selection-summary";
   selectionSummary.setAttribute("aria-label", "Timeline selection summary");
@@ -191,7 +218,7 @@ export function renderApp(root: HTMLElement): AppElements {
   teamEditTitle.textContent = "Team settings";
   const teamEditStatus = document.createElement("p");
   teamEditStatus.className = "timeline-team-edit-status";
-  teamEditStatus.textContent = "Select a team lane to edit.";
+  teamEditStatus.textContent = "Use a Team Settings button to edit.";
   const teamNameForm = document.createElement("form");
   teamNameForm.className = "timeline-team-name-form";
   const teamNameFields = document.createElement("div");
@@ -338,14 +365,12 @@ export function renderApp(root: HTMLElement): AppElements {
   planningMain.className = "planning-main";
   planningMain.append(
     planningHeading,
-    description,
-    cursorControl,
     viewportControlContainer,
-    timelineStage,
-    dateSummary,
+    cursorControl,
     cursorProgress,
-    selectionSummary,
     diagnostics,
+    timelineStage,
+    selectionSummary,
     tooltip,
   );
   const projectSidebar = document.createElement("aside");
@@ -355,21 +380,35 @@ export function renderApp(root: HTMLElement): AppElements {
   projectSidebarTitle.textContent = "Portfolio";
   const portfolioTabs = document.createElement("div");
   portfolioTabs.className = "portfolio-tabs";
+  portfolioTabs.setAttribute("role", "tablist");
+  portfolioTabs.setAttribute("aria-label", "Portfolio view");
   const projectTab = document.createElement("button");
   projectTab.type = "button";
   projectTab.className = "portfolio-tab portfolio-tab--active";
   projectTab.textContent = "Projects";
-  projectTab.setAttribute("aria-pressed", "true");
+  projectTab.id = "portfolio-projects-tab";
+  projectTab.setAttribute("role", "tab");
+  projectTab.setAttribute("aria-selected", "true");
+  projectTab.setAttribute("aria-controls", "portfolio-projects-panel");
   const reservationTab = document.createElement("button");
   reservationTab.type = "button";
   reservationTab.className = "portfolio-tab";
   reservationTab.textContent = "Reservations";
-  reservationTab.setAttribute("aria-pressed", "false");
+  reservationTab.id = "portfolio-reservations-tab";
+  reservationTab.setAttribute("role", "tab");
+  reservationTab.setAttribute("aria-selected", "false");
+  reservationTab.setAttribute("aria-controls", "portfolio-reservations-panel");
   portfolioTabs.append(projectTab, reservationTab);
   const projectList = document.createElement("ol");
   projectList.className = "project-sidebar-list";
+  projectList.id = "portfolio-projects-panel";
+  projectList.setAttribute("role", "tabpanel");
+  projectList.setAttribute("aria-labelledby", projectTab.id);
   const reservationList = document.createElement("ol");
   reservationList.className = "project-sidebar-list reservation-sidebar-list";
+  reservationList.id = "portfolio-reservations-panel";
+  reservationList.setAttribute("role", "tabpanel");
+  reservationList.setAttribute("aria-labelledby", reservationTab.id);
   reservationList.hidden = true;
   const editorDrawer = document.createElement("div");
   editorDrawer.className = "planning-editor-drawer";
@@ -378,12 +417,11 @@ export function renderApp(root: HTMLElement): AppElements {
   projectSidebar.append(projectSidebarTitle, portfolioTabs, projectList, reservationList, editorDrawer);
   workspace.append(planningMain, projectSidebar);
 
-  shell.append(header, workspace, planningSettings, teamEdit, reservationEdit);
+  shell.append(header, workspace, diagnosticsBackdrop, diagnosticsDialog, planningSettings, teamEdit, reservationEdit);
   root.replaceChildren(shell);
   return Object.freeze({
     svg: timeline,
-    diagnostics,
-    dateSummary,
+    diagnosticsControls,
     cursorProgress,
     cursorControl,
     viewportControls,

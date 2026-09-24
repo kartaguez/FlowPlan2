@@ -7,7 +7,8 @@ This is the operational roadmap for the active trajectory. Durable product and
 architecture rules live in [canon](./canon.md); current implementation facts
 and temporary constraints live in [current canon](./current_canon.md).
 
-The roadmap uses `9A`–`9G`: validated 9C is the baseline, and each Phase 9 lot
+The roadmap uses `9A`–`9G`, with intermediate lot `9C.1` between 9C and 9D.
+Validated 9C remains the baseline, and each Phase 9 lot
 is intended to fit one commit or a small, coherent commit set. Actuals/History
 is a later trajectory, not a Phase 9 lot.
 
@@ -28,7 +29,9 @@ is a later trajectory, not a Phase 9 lot.
 ## Ordered remaining lots
 
 ```text
-9D Priority drag/drop (NOT STARTED)
+9C.1 Planning UI cleanup (IN REVIEW)
+        ↓ human validation
+9D Priority drag/drop (NOT STARTED; waiting for 9C.1 validation)
         ↓
 9E Team structural CRUD
         ↓
@@ -39,14 +42,33 @@ is a later trajectory, not a Phase 9 lot.
 Later trajectory: Actuals / History
 ```
 
-The remaining execution order is `9D` through `9G`. Validated 9C completes
-the cursor metrics UI; 9D is the next active lot. The CRUD series establishes
+The remaining execution order is `9C.1`, then `9D` through `9G`. Validated 9C completes
+the cursor metrics UI; 9C.1 awaits human validation before 9D starts. The CRUD series establishes
 Team referential-integrity policy before Project and Reservation membership
 workflows.
 
+## 9C.1 — Planning UI cleanup
+
+**Status: IN REVIEW** — implementation and automated verification complete;
+validated baseline remains the 9C implementation commit above.
+
+The Planning header now places viewport controls, one Projection date line,
+cumulative progress, and compact red/grey diagnostic counts before the shared
+Timeline stage. Diagnostic details open in a focused modal. The former daily
+Team summary is removed; cumulative Team and Projects / Programs / PAS metrics
+remain at the shared cursor date. Ctrl+ArrowLeft/Right moves that date outside
+editable fields and modals without planning recomputation. Portfolio tabs hide
+their inactive panel. A Team lane hit remains selectable but never opens Team
+Settings; its selection leaves any editing context unchanged. Only the Team
+Settings button opens that editor.
+
+Human validation should confirm the layout, keyboard interactions, modal focus,
+Portfolio exclusivity, and Team lane/editor separation in a browser. Do not
+advance the baseline or start 9D before validation.
+
 ## 9D — Priority drag/drop
 
-**Status: NOT STARTED** — next active lot; 9C is validated.
+**Status: NOT STARTED** — waiting for human validation of 9C.1.
 
 **Goal**
 

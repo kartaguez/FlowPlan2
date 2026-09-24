@@ -16,8 +16,11 @@ export interface ProjectNavigationItem {
   readonly priorityFamilyName?: string;
 }
 
+export type PortfolioTab = "projects" | "reservations";
+
 export interface TimelineShellNavigation {
   readonly teamMetricsContainers: ReadonlyMap<TeamId, HTMLElement>;
+  readonly getActiveTab: () => PortfolioTab;
   readonly destroy: () => void;
 }
 
@@ -29,7 +32,7 @@ export interface RenderTimelineShellNavigationInput {
   readonly reservationTab: HTMLButtonElement;
   readonly reservations: readonly ReservationNavigationItem[];
   readonly projectItems: readonly ProjectNavigationItem[];
-  readonly initialTab?: "projects" | "reservations";
+  readonly initialTab?: PortfolioTab;
   readonly viewModel: TimelineViewModel;
   readonly geometry: TimelineGeometry;
   readonly onTeamSettings: (teamId: TeamId) => void;
@@ -130,35 +133,47 @@ export function renderTimelineShellNavigation(
     return item;
   });
   input.reservationContainer.replaceChildren(...reservationItems);
-  const showProjects = () => {
-    input.projectContainer.hidden = false;
-    input.reservationContainer.hidden = true;
-    input.projectTab.setAttribute("aria-pressed", "true");
-    input.reservationTab.setAttribute("aria-pressed", "false");
-    input.projectTab.classList.add("portfolio-tab--active");
-    input.reservationTab.classList.remove("portfolio-tab--active");
+  let activeTab: PortfolioTab = input.initialTab ?? "projects";
+  const showTab = (next: PortfolioTab): void => {
+    activeTab = next;
+    const projectsActive = next === "projects";
+    input.projectContainer.hidden = !projectsActive;
+    input.reservationContainer.hidden = projectsActive;
+    input.projectTab.setAttribute("aria-selected", String(projectsActive));
+    input.reservationTab.setAttribute("aria-selected", String(!projectsActive));
+    input.projectTab.tabIndex = projectsActive ? 0 : -1;
+    input.reservationTab.tabIndex = projectsActive ? -1 : 0;
+    input.projectTab.classList.toggle("portfolio-tab--active", projectsActive);
+    input.reservationTab.classList.toggle("portfolio-tab--active", !projectsActive);
   };
-  const showReservations = () => {
-    input.projectContainer.hidden = true;
-    input.reservationContainer.hidden = false;
-    input.projectTab.setAttribute("aria-pressed", "false");
-    input.reservationTab.setAttribute("aria-pressed", "true");
-    input.projectTab.classList.remove("portfolio-tab--active");
-    input.reservationTab.classList.add("portfolio-tab--active");
+  const showProjects = () => showTab("projects");
+  const showReservations = () => showTab("reservations");
+  const onTabKeyDown = (event: KeyboardEvent): void => {
+    let next: PortfolioTab;
+    if (event.key === "ArrowLeft" || event.key === "Home") next = "projects";
+    else if (event.key === "ArrowRight" || event.key === "End") next = "reservations";
+    else return;
+    event.preventDefault();
+    showTab(next);
+    (next === "projects" ? input.projectTab : input.reservationTab).focus();
   };
   input.projectTab.addEventListener("click", showProjects);
   input.reservationTab.addEventListener("click", showReservations);
-  if (input.initialTab === "reservations") showReservations();
-  else showProjects();
+  input.projectTab.addEventListener("keydown", onTabKeyDown);
+  input.reservationTab.addEventListener("keydown", onTabKeyDown);
+  showTab(activeTab);
 
   return Object.freeze({
     teamMetricsContainers,
+    getActiveTab: () => activeTab,
     destroy: () => {
       for (const { button, listener } of listeners) {
         button.removeEventListener("click", listener);
       }
       input.projectTab.removeEventListener("click", showProjects);
       input.reservationTab.removeEventListener("click", showReservations);
+      input.projectTab.removeEventListener("keydown", onTabKeyDown);
+      input.reservationTab.removeEventListener("keydown", onTabKeyDown);
     },
   });
 }

@@ -26,6 +26,18 @@ function must<T>(result: DomainResult<T>): T {
 type Listener = (event: unknown) => void;
 
 class FakeDocument {
+  readonly listeners = new Map<string, Set<Listener>>();
+  addEventListener(type: string, listener: EventListener): void {
+    const listeners = this.listeners.get(type) ?? new Set<Listener>();
+    listeners.add(listener as Listener);
+    this.listeners.set(type, listeners);
+  }
+  removeEventListener(type: string, listener: EventListener): void {
+    this.listeners.get(type)?.delete(listener as Listener);
+  }
+  dispatch(type: string, event: object): void {
+    for (const listener of this.listeners.get(type) ?? []) listener(event);
+  }
   createElement(tagName: string): FakeElement {
     return new FakeElement(this, tagName, "http://www.w3.org/1999/xhtml");
   }
@@ -167,9 +179,11 @@ function pointer(
   return { pointerId, clientX, shiftKey } as PointerEvent;
 }
 
-function keyboard(key: string): KeyboardEvent & { prevented: boolean } {
+function keyboard(key: string, options: { ctrlKey?: boolean; target?: unknown } = {}): KeyboardEvent & { prevented: boolean } {
   const event = {
     key,
+    ctrlKey: options.ctrlKey ?? false,
+    target: options.target,
     prevented: false,
     preventDefault() {
       this.prevented = true;
@@ -179,26 +193,24 @@ function keyboard(key: string): KeyboardEvent & { prevented: boolean } {
 }
 
 describe("createTimelineCursorController", () => {
-  it("starts at the supplied horizon start and renders cursor plus summary", () => {
+  it("starts at the supplied horizon start and renders the projection date", () => {
     const input = fixture();
     const controller = createTimelineCursorController({
       svg: input.svg as unknown as SVGSVGElement,
       geometry: input.geometry,
-      viewModel: input.viewModel,
-      summaryContainer: input.summary as unknown as HTMLElement,
       cursorControl: input.cursorControl as unknown as HTMLButtonElement,
       initialDate: input.viewModel.horizon.start,
       getViewport: () => ({ x: 0, width: 300 }),
+      isModalOpen: () => false,
     });
 
     assert.equal(controller.getState().selectedDate, "2025-01-01");
     assert.equal(input.svg.getAttribute("aria-valuetext"), null);
-    assert.equal(input.cursorControl.textContent, "Selected date: 2025-01-01");
+    assert.equal(input.cursorControl.textContent, "Projection date: 2025-01-01");
     assert.equal(
       input.cursorControl.getAttribute("aria-label"),
-      "Timeline date cursor, selected date 2025-01-01",
+      "Projection date 2025-01-01",
     );
-    assert.equal(input.summary.childNodes[0]?.textContent, "Selected date: 2025-01-01");
   });
 
   it("updates on pointerdown and pointermove only during an active drag", () => {
@@ -206,11 +218,10 @@ describe("createTimelineCursorController", () => {
     const controller = createTimelineCursorController({
       svg: input.svg as unknown as SVGSVGElement,
       geometry: input.geometry,
-      viewModel: input.viewModel,
-      summaryContainer: input.summary as unknown as HTMLElement,
       cursorControl: input.cursorControl as unknown as HTMLButtonElement,
       initialDate: input.viewModel.horizon.start,
       getViewport: () => ({ x: 0, width: 300 }),
+      isModalOpen: () => false,
     });
 
     input.svg.dispatch("pointermove", pointer(1, 250));
@@ -234,11 +245,10 @@ describe("createTimelineCursorController", () => {
     const controller = createTimelineCursorController({
       svg: input.svg as unknown as SVGSVGElement,
       geometry: input.geometry,
-      viewModel: input.viewModel,
-      summaryContainer: input.summary as unknown as HTMLElement,
       cursorControl: input.cursorControl as unknown as HTMLButtonElement,
       initialDate: input.viewModel.horizon.start,
       getViewport: () => ({ x: 0, width: 300 }),
+      isModalOpen: () => false,
     });
 
     const leftAtStart = keyboard("ArrowLeft");
@@ -257,17 +267,71 @@ describe("createTimelineCursorController", () => {
     assert.equal(controller.getState().selectedDate, "2025-01-01");
   });
 
+  it("moves globally with Ctrl+arrows, including when the control has focus, without duplicate callbacks", () => {
+    const input = fixture();
+    const notified: string[] = [];
+    const controller = createTimelineCursorController({
+      svg: input.svg as unknown as SVGSVGElement,
+      geometry: input.geometry,
+      cursorControl: input.cursorControl as unknown as HTMLButtonElement,
+      initialDate: input.viewModel.horizon.start,
+      getViewport: () => ({ x: 0, width: 300 }),
+      isModalOpen: () => false,
+      onSelectedDateChange: (date) => notified.push(date),
+    });
+    const document = input.cursorControl.ownerDocument;
+    document.dispatch("keydown", keyboard("ArrowRight", { ctrlKey: true, target: input.svg }));
+    assert.equal(controller.getState().selectedDate, "2025-01-02");
+    const focused = keyboard("ArrowRight", { ctrlKey: true, target: input.cursorControl });
+    input.cursorControl.dispatch("keydown", focused);
+    document.dispatch("keydown", focused);
+    assert.equal(controller.getState().selectedDate, "2025-01-03");
+    assert.deepEqual(notified, ["2025-01-02", "2025-01-03"]);
+    document.dispatch("keydown", keyboard("ArrowRight", { ctrlKey: true, target: input.svg }));
+    assert.deepEqual(notified, ["2025-01-02", "2025-01-03"]);
+    const left = keyboard("ArrowLeft", { ctrlKey: true, target: input.svg });
+    document.dispatch("keydown", left);
+    assert.equal(left.prevented, true);
+    assert.equal(controller.getState().selectedDate, "2025-01-02");
+    controller.destroy();
+    assert.equal(document.listeners.get("keydown")?.size, 0);
+  });
+
+  it("ignores global shortcuts during editing or a modal", () => {
+    const input = fixture();
+    let modalOpen = false;
+    const controller = createTimelineCursorController({
+      svg: input.svg as unknown as SVGSVGElement,
+      geometry: input.geometry,
+      cursorControl: input.cursorControl as unknown as HTMLButtonElement,
+      initialDate: input.viewModel.horizon.start,
+      getViewport: () => ({ x: 0, width: 300 }),
+      isModalOpen: () => modalOpen,
+    });
+    const document = input.cursorControl.ownerDocument;
+    for (const tag of ["input", "select", "textarea"]) {
+      const event = keyboard("ArrowRight", { ctrlKey: true, target: document.createElement(tag) });
+      document.dispatch("keydown", event);
+      assert.equal(event.prevented, false);
+    }
+    const editable = document.createElement("div") as FakeElement & { isContentEditable: boolean };
+    editable.isContentEditable = true;
+    document.dispatch("keydown", keyboard("ArrowRight", { ctrlKey: true, target: editable }));
+    modalOpen = true;
+    document.dispatch("keydown", keyboard("ArrowRight", { ctrlKey: true, target: input.svg }));
+    assert.equal(controller.getState().selectedDate, "2025-01-01");
+  });
+
   it("notifies once per effective date change and never for the same day", () => {
     const input = fixture();
     const notified: string[] = [];
     createTimelineCursorController({
       svg: input.svg as unknown as SVGSVGElement,
       geometry: input.geometry,
-      viewModel: input.viewModel,
-      summaryContainer: input.summary as unknown as HTMLElement,
       cursorControl: input.cursorControl as unknown as HTMLButtonElement,
       initialDate: input.viewModel.horizon.start,
       getViewport: () => ({ x: 0, width: 300 }),
+      isModalOpen: () => false,
       onSelectedDateChange: (date) => notified.push(date),
     });
     assert.deepEqual(notified, []);
@@ -307,11 +371,10 @@ describe("createTimelineCursorController", () => {
     const controller = createTimelineCursorController({
       svg: input.svg as unknown as SVGSVGElement,
       geometry: input.geometry,
-      viewModel: input.viewModel,
-      summaryContainer: input.summary as unknown as HTMLElement,
       cursorControl: input.cursorControl as unknown as HTMLButtonElement,
       initialDate: input.viewModel.horizon.start,
       getViewport: () => ({ x: 100, width: 200 }),
+      isModalOpen: () => false,
     });
 
     input.svg.dispatch("pointerdown", pointer(5, 100));
@@ -324,11 +387,10 @@ describe("createTimelineCursorController", () => {
     const controller = createTimelineCursorController({
       svg: input.svg as unknown as SVGSVGElement,
       geometry: input.geometry,
-      viewModel: input.viewModel,
-      summaryContainer: input.summary as unknown as HTMLElement,
       cursorControl: input.cursorControl as unknown as HTMLButtonElement,
       initialDate: input.viewModel.horizon.start,
       getViewport: () => ({ x: 0, width: 300 }),
+      isModalOpen: () => false,
     });
 
     input.svg.dispatch("pointerdown", pointer(7, 250));
@@ -354,11 +416,10 @@ describe("createTimelineCursorController", () => {
     const controller = createTimelineCursorController({
       svg: svgWithoutCapture as unknown as SVGSVGElement,
       geometry: input.geometry,
-      viewModel: input.viewModel,
-      summaryContainer: input.summary as unknown as HTMLElement,
       cursorControl: input.cursorControl as unknown as HTMLButtonElement,
       initialDate: input.viewModel.horizon.start,
       getViewport: () => ({ x: 0, width: 300 }),
+      isModalOpen: () => false,
     });
 
     input.svg.dispatch("pointerdown", pointer(4, 250));
@@ -373,11 +434,10 @@ describe("createTimelineCursorController", () => {
     const controller = createTimelineCursorController({
       svg: input.svg as unknown as SVGSVGElement,
       geometry: input.geometry,
-      viewModel: input.viewModel,
-      summaryContainer: input.summary as unknown as HTMLElement,
       cursorControl: input.cursorControl as unknown as HTMLButtonElement,
       initialDate: input.viewModel.horizon.start,
       getViewport: () => ({ x: 0, width: 300 }),
+      isModalOpen: () => false,
     });
 
     input.svg.dispatch("pointerdown", pointer(1, 150));

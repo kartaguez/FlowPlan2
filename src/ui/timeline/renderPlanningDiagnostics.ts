@@ -1,7 +1,14 @@
 import type {
   TimelineDiagnostic,
-  TimelineViewModel,
 } from "../../adapters/index.js";
+
+export type DiagnosticPresentationGroup = "red" | "grey";
+
+export function diagnosticPresentationGroup(
+  code: TimelineDiagnostic["code"],
+): DiagnosticPresentationGroup {
+  return code === "PROJECT_REMAINS_UNPLANNED_AT_HORIZON" ? "grey" : "red";
+}
 
 const DIAGNOSTIC_MESSAGES: Readonly<
   Record<TimelineDiagnostic["code"], string>
@@ -15,31 +22,19 @@ const DIAGNOSTIC_MESSAGES: Readonly<
 
 export interface RenderPlanningDiagnosticsInput {
   readonly container: HTMLElement;
-  readonly viewModel: TimelineViewModel;
+  readonly diagnostics: readonly TimelineDiagnostic[];
 }
 
 export function renderPlanningDiagnostics(
   input: RenderPlanningDiagnosticsInput,
 ): void {
   const document = input.container.ownerDocument;
-  const heading = document.createElement("h3");
-  heading.className = "timeline-diagnostics-heading";
-  heading.textContent = "Planning diagnostics";
-
-  if (input.viewModel.diagnostics.length === 0) {
-    const empty = document.createElement("p");
-    empty.className = "timeline-diagnostics-empty";
-    empty.textContent = "No planning diagnostics.";
-    input.container.replaceChildren(heading, empty);
-    return;
-  }
-
   const list = document.createElement("ul");
   list.className = "timeline-diagnostics-list";
-  for (const diagnostic of input.viewModel.diagnostics) {
+  for (const diagnostic of input.diagnostics) {
     list.append(renderDiagnostic(document, diagnostic));
   }
-  input.container.replaceChildren(heading, list);
+  input.container.replaceChildren(list);
 }
 
 function renderDiagnostic(

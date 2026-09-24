@@ -134,7 +134,7 @@ function fixture() {
   const elements = createElements();
   const lifecycle: string[] = [];
   const viewportInputs: Array<{ initialViewport?: unknown }> = [];
-  const cursorInputs: Array<{ initialDate: typeof firstDate; onSelectedDateChange?: (date: typeof firstDate) => void }> = [];
+  const cursorInputs: Array<{ initialDate: typeof firstDate; isModalOpen: () => boolean; onSelectedDateChange?: (date: typeof firstDate) => void }> = [];
   const renderedProgressViews: string[] = [];
   const renderedProjectCounts: number[] = [];
   let onProgressViewChange: ((view: "projects" | "programs" | "pas") => void) | undefined;
@@ -156,10 +156,14 @@ function fixture() {
     | ((command: UpdateReservationCommand) => { readonly ok: boolean })
     | undefined;
   let currentSelected: TimelineHit | undefined = allocationHit;
+  let activePortfolioTab: "projects" | "reservations" = "projects";
   let generation = 0;
   const dependencies = {
     renderTimeline: () => lifecycle.push("render"),
-    renderDiagnostics: () => lifecycle.push("diagnostics"),
+    createDiagnosticsController: () => ({
+      setDiagnostics: () => lifecycle.push("diagnostics"),
+      destroy: () => lifecycle.push("destroy-diagnostics"),
+    }),
     createViewportController: (input: { initialViewport?: unknown }) => {
       generation += 1;
       viewportInputs.push(input);
@@ -171,7 +175,7 @@ function fixture() {
         destroy: () => lifecycle.push(`destroy-viewport-${ownGeneration}`),
       };
     },
-    createCursorController: (input: { initialDate: typeof firstDate; onSelectedDateChange?: (date: typeof firstDate) => void }) => {
+    createCursorController: (input: { initialDate: typeof firstDate; isModalOpen: () => boolean; onSelectedDateChange?: (date: typeof firstDate) => void }) => {
       cursorInputs.push(input);
       const date = generation === 1 ? middleDate : input.initialDate;
       lifecycle.push(`cursor-${generation}`);
@@ -235,12 +239,14 @@ function fixture() {
       destroy: () => lifecycle.push("destroy-planning-settings"),
     }),
     renderShellNavigation: (input: {
+      initialTab?: "projects" | "reservations";
       onTeamSettings: (teamId: TeamId) => void;
       onProjectSelect: (projectId: ProjectId) => void;
       onReservationSelect: (reservationId: ReservationId) => void;
     }) => {
       shellInputs.push(input);
-      return { teamMetricsContainers: new Map(), destroy() {} };
+      activePortfolioTab = input.initialTab ?? "projects";
+      return { teamMetricsContainers: new Map(), getActiveTab: () => activePortfolioTab, destroy() {} };
     },
     renderCursorTeamMetrics: () => {},
     createCursorProgressSurface: (_container: HTMLElement, onChange: typeof onProgressViewChange) => {
@@ -276,6 +282,7 @@ function fixture() {
     teamModels,
     reservationModels,
     shellInputs,
+    setPortfolioTab: (tab: "projects" | "reservations") => { activePortfolioTab = tab; },
     getApplyProject: () => applyProject!,
     getApplyTeam: () => applyTeam!,
     getApplyReservations: () => applyReservations!,
@@ -332,6 +339,7 @@ describe("TimelineUiCoordinator", () => {
       },
       input.dependencies,
     );
+    input.select(input.allocationHit);
     assert.equal(input.projectModels.at(-1), input.editModel);
     input.getApplyProject()({} as UpdateProjectCommand);
 
@@ -340,9 +348,9 @@ describe("TimelineUiCoordinator", () => {
       viewport: { x: 100, width: 800 },
       selectedDate: input.middleDate,
       activeProgressView: "projects",
+      activePortfolioTab: "projects",
       selected: input.allocationHit,
       editingContext: { kind: "project", projectId: input.projectId },
-      editingContextSource: "timeline",
     });
     assert.deepEqual(
       input.lifecycle.slice(5, 8),
@@ -385,7 +393,7 @@ describe("TimelineUiCoordinator", () => {
     assert.equal(coordinator.getProjection(), input.projection);
   });
 
-  it("alternates project/team editing and clears a vanished selection", () => {
+  it("keeps editing context independent of Team and empty Timeline selections", () => {
     const input = fixture();
     const coordinator = createTimelineUiCoordinator(
       {
@@ -402,17 +410,19 @@ describe("TimelineUiCoordinator", () => {
       },
       input.dependencies,
     );
-    input.select({
-      kind: "team",
-      teamId: input.teamId,
-    });
-    assert.equal(input.projectModels.at(-1), undefined);
-    assert.equal(input.teamModels.at(-1), input.teamEditModel);
-    assert.equal(input.reservationModels.at(-1), undefined);
     input.select(input.allocationHit);
+    assert.equal(input.projectModels.at(-1), input.editModel);
+    const teamHit = { kind: "team", teamId: input.teamId } as const;
+    input.select(teamHit);
+    assert.deepEqual(coordinator.getUiSnapshot().selected, teamHit);
+    assert.deepEqual(coordinator.getUiSnapshot().editingContext, { kind: "project", projectId: input.projectId });
     assert.equal(input.projectModels.at(-1), input.editModel);
     assert.equal(input.teamModels.at(-1), undefined);
     assert.equal(input.reservationModels.at(-1), undefined);
+    input.select(undefined);
+    assert.equal(coordinator.getUiSnapshot().selected, undefined);
+    assert.equal(input.projectModels.at(-1), input.editModel);
+    input.select(input.allocationHit);
 
     const withoutAllocation = {
       ...input.nextProjection,
@@ -426,7 +436,7 @@ describe("TimelineUiCoordinator", () => {
     } satisfies TimelineUiProjection;
     coordinator.renderProjection(withoutAllocation);
     assert.equal(coordinator.getUiSnapshot().selected, undefined);
-    assert.equal(input.projectModels.at(-1), undefined);
+    assert.equal(input.projectModels.at(-1), input.editModel);
     assert.equal(input.teamModels.at(-1), undefined);
   });
 
@@ -449,6 +459,8 @@ describe("TimelineUiCoordinator", () => {
     );
     const teamHit = { kind: "team", teamId: input.teamId } as const;
     input.select(teamHit);
+    assert.equal(input.teamModels.at(-1), undefined);
+    input.shellInputs.at(-1)!.onTeamSettings(input.teamId);
     assert.equal(input.teamModels.at(-1), input.teamEditModel);
     assert.equal(input.reservationModels.at(-1), undefined);
     assert.equal(input.projectModels.at(-1), undefined);
@@ -456,6 +468,55 @@ describe("TimelineUiCoordinator", () => {
     assert.deepEqual(coordinator.getUiSnapshot().selected, teamHit);
     assert.equal(input.teamModels.at(-1), input.teamEditModel);
     assert.equal(input.reservationModels.at(-1), undefined);
+  });
+
+  it("preserves the chosen Portfolio tab independently of editing context", () => {
+    const input = fixture();
+    const coordinator = createTimelineUiCoordinator({
+      elements: input.elements,
+      initialProjection: input.projection,
+      initialDate: input.firstDate,
+      dispatch: () => ({ ok: true, projection: input.nextProjection }),
+      getPlanningSettingsViewModel: () => ({ startDate: input.firstDate, endDate: input.middleDate, workingWeekdays: [1, 2, 3, 4, 5], maxParallelProjects: 2 }),
+      getProjectEditViewModel: () => input.editModel,
+      getTeamEditViewModel: () => input.teamEditModel,
+      getReservationEditViewModel: () => input.reservationModel,
+      getProjectNavigationItems: () => [{ id: input.projectId }],
+      getReservationNavigationItems: () => [],
+    }, input.dependencies);
+    input.setPortfolioTab("reservations");
+    assert.equal(coordinator.getUiSnapshot().activePortfolioTab, "reservations");
+    input.getApplyProject()({} as UpdateProjectCommand);
+    assert.equal(coordinator.getUiSnapshot().activePortfolioTab, "reservations");
+  });
+
+  it("uses one explicit modal check for all four dialog surfaces", () => {
+    const input = fixture();
+    createTimelineUiCoordinator({
+      elements: input.elements,
+      initialProjection: input.projection,
+      initialDate: input.firstDate,
+      dispatch: () => ({ ok: true, projection: input.nextProjection }),
+      getPlanningSettingsViewModel: () => ({ startDate: input.firstDate, endDate: input.middleDate, workingWeekdays: [1, 2, 3, 4, 5], maxParallelProjects: 2 }),
+      getProjectEditViewModel: () => input.editModel,
+      getTeamEditViewModel: () => input.teamEditModel,
+      getReservationEditViewModel: () => input.reservationModel,
+      getProjectNavigationItems: () => [{ id: input.projectId }],
+      getReservationNavigationItems: () => [],
+    }, input.dependencies);
+    const isModalOpen = input.cursorInputs[0]!.isModalOpen;
+    assert.equal(isModalOpen(), false);
+    for (const modal of [
+      input.elements.planningSettingsControls.container,
+      input.elements.teamEditControls.container,
+      input.elements.reservationEditControls.container,
+      input.elements.diagnosticsControls.dialog,
+    ]) {
+      modal.hidden = false;
+      assert.equal(isModalOpen(), true);
+      modal.hidden = true;
+    }
+    assert.equal(isModalOpen(), false);
   });
 
   it("preserves the global reservation context through a reservation update", () => {
@@ -518,10 +579,16 @@ describe("TimelineUiCoordinator", () => {
 
 function createElements(): AppElements {
   const element = () => new FakeElement();
-  return {
+  const elements: AppElements = {
     svg: element() as unknown as SVGSVGElement,
-    diagnostics: element() as unknown as HTMLElement,
-    dateSummary: element() as unknown as HTMLElement,
+    diagnosticsControls: {
+      summary: element() as unknown as HTMLElement,
+      backdrop: element() as unknown as HTMLElement,
+      dialog: element() as unknown as HTMLElement,
+      title: element() as unknown as HTMLElement,
+      list: element() as unknown as HTMLElement,
+      close: element() as unknown as HTMLButtonElement,
+    },
     cursorProgress: element() as unknown as HTMLElement,
     cursorControl: element() as unknown as HTMLButtonElement,
     viewportControls: {
@@ -580,4 +647,9 @@ function createElements(): AppElements {
     reservationTab: element() as unknown as HTMLButtonElement,
     editorDrawer: element() as unknown as HTMLElement,
   };
+  elements.planningSettingsControls.container.hidden = true;
+  elements.teamEditControls.container.hidden = true;
+  elements.reservationEditControls.container.hidden = true;
+  elements.diagnosticsControls.dialog.hidden = true;
+  return elements;
 }

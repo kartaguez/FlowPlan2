@@ -24,7 +24,7 @@ demo session. The following capabilities are complete and active:
   testing, and selection;
 - exact rational parsing and untouched exact-value preservation;
 - compact accessible settings icon buttons for Planning and Teams;
-- planning diagnostics and selected-date summaries.
+- planning diagnostics, daily selected-date summaries, and cumulative progress.
 
 The implementation follows the state, atomicity, engine, and projection
 invariants in [canon](./canon.md).
@@ -42,7 +42,12 @@ same Portfolio used to plan; Portfolio and horizon references travel with the
 PlanningResult in the disposable session projection. Lot 9C is validated and
 **DONE**. It adds exact daily non-compensating over-reservation and its ratio,
 and renders cumulative Team metrics plus an exclusive Projects / Programs / PAS
-progress view at the shared cursor date. Lot 9D is the next active lot.
+progress view at the shared cursor date. Lot 9C.1 is **IN REVIEW**; its UI
+cleanup has not advanced the validated baseline. Lot 9D waits for its human
+validation.
+
+The UI structure and interaction descriptions below include the implemented
+9C.1 changes under review; they do not redefine the validated 9C baseline.
 
 ## Current product trajectory
 
@@ -62,12 +67,15 @@ Explicitly deferred:
 Planning
 ├── global Settings icon
 ├── viewport controls
+├── Projection date control
+├── cumulative Projects / Programs / PAS progress
+├── compact diagnostics counts → details modal
 ├── global time axis
 ├── Team panel
 │   ├── Team header + Settings icon + cumulative metrics
 │   └── lane
 ├── Team panel...
-└── selected-date summary / cumulative progress / selection summary / diagnostics
+└── selection summary
 
 Portfolio sidebar
 ├── Projects
@@ -82,12 +90,14 @@ coordinate system. They are not independent timelines.
 The coordinator has one mutually exclusive editing context:
 
 - `project`, opened from the Project list or a marker/allocation hit;
-- `team`, opened from a Team Settings button or Team lane hit;
+- `team`, opened only from a Team Settings button;
 - `reservation`, opened from the Reservations list.
 
 Changing context hydrates only the matching editor and clears the other two.
-Timeline selection and shell-originated editing context are tracked separately
-so a rerender can reconcile both safely.
+Timeline selection and editing context are independent and reconciled
+separately on rerender. Allocation and Project-marker hits open Project editing;
+Team and empty hits only change Timeline selection, leaving any open editor
+unchanged.
 
 ## Current application commands
 
@@ -121,8 +131,10 @@ These are current implementation facts, not durable product rules:
 - priority is editable as a numeric position, but there is no drag/drop;
 - Program and PriorityFamily/PAS catalogs are static; they have no create,
   delete, or rename UI;
-- selected-date summaries remain daily; cumulative metrics have separate Team
-  and Projects / Programs / PAS surfaces;
+- the former daily Team summary is removed; cumulative metrics remain in Team
+  headers and the Projects / Programs / PAS surface;
+- Ctrl+ArrowLeft/Right moves the Projection date outside editable fields and
+  modals without recomputing planning;
 - Reservation allocation rows may be enabled/disabled for existing Teams, but
   the Reservation entity itself cannot be created or deleted;
 - no dedicated automated browser/E2E stack is present; coverage is primarily

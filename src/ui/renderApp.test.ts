@@ -70,8 +70,8 @@ describe("renderApp", () => {
     assert.equal(control.tagName, "button");
     assert.equal(control.type, "button");
     assert.equal(control.className, "timeline-cursor-control");
-    assert.equal(control.getAttribute("aria-label"), "Timeline date cursor");
-    assert.equal(control.textContent, "Selected date");
+    assert.equal(control.getAttribute("aria-label"), "Projection date");
+    assert.equal(control.textContent, "Projection date");
 
     const renderedElements = descendants(root);
     assert.ok(
@@ -103,7 +103,13 @@ describe("renderApp", () => {
       stage.childNodes[1],
       elements.teamPanels as unknown as FakeElement,
     );
-    assert.ok(renderedElements.indexOf(elements.cursorProgress as unknown as FakeElement) > renderedElements.indexOf(elements.dateSummary as unknown as FakeElement));
+    const main = renderedElements.find((element) => element.className === "planning-main")!;
+    assert.deepEqual(main.childNodes.map((element) => element.className), [
+      "planning-heading", "timeline-viewport-controls", "timeline-cursor-control",
+      "cursor-progress", "timeline-diagnostics", "timeline-stage",
+      "timeline-selection-summary", "timeline-tooltip",
+    ]);
+    assert.equal(renderedElements.some((element) => element.className === "timeline-date-summary"), false);
   });
 
   it("returns a frozen, strictly typed set of application elements", () => {
@@ -112,8 +118,10 @@ describe("renderApp", () => {
 
     assert.equal(Object.isFrozen(elements), true);
     assert.equal((elements.svg as unknown as FakeElement).tagName, "svg");
-    assert.equal((elements.dateSummary as unknown as FakeElement).tagName, "section");
-    assert.equal((elements.diagnostics as unknown as FakeElement).tagName, "section");
+    assert.equal((elements.diagnosticsControls.summary as unknown as FakeElement).tagName, "section");
+    assert.equal((elements.diagnosticsControls.dialog as unknown as FakeElement).getAttribute("aria-modal"), "true");
+    assert.equal((elements.diagnosticsControls.dialog as unknown as FakeElement).getAttribute("aria-labelledby"), "timeline-diagnostics-dialog-title");
+    assert.equal((elements.diagnosticsControls.dialog as unknown as FakeElement).hidden, true);
     assert.equal(Object.isFrozen(elements.viewportControls), true);
     assert.equal(
       (elements.viewportControls.zoomIn as unknown as FakeElement).getAttribute(
@@ -196,9 +204,11 @@ describe("renderApp", () => {
       "project-sidebar-list",
     );
     assert.equal((elements.projectTab as unknown as FakeElement).tagName, "button");
-    assert.equal((elements.projectTab as unknown as FakeElement).getAttribute("aria-pressed"), "true");
+    assert.equal((elements.projectTab as unknown as FakeElement).getAttribute("aria-selected"), "true");
+    assert.equal((elements.projectTab as unknown as FakeElement).getAttribute("aria-controls"), "portfolio-projects-panel");
     assert.equal((elements.reservationTab as unknown as FakeElement).tagName, "button");
-    assert.equal((elements.reservationTab as unknown as FakeElement).getAttribute("aria-pressed"), "false");
+    assert.equal((elements.reservationTab as unknown as FakeElement).getAttribute("aria-selected"), "false");
+    assert.equal((elements.reservationList as unknown as FakeElement).getAttribute("role"), "tabpanel");
     assert.equal((elements.reservationList as unknown as FakeElement).hidden, true);
     assert.equal((elements.reservationEditControls.container as unknown as FakeElement).getAttribute("role"), "dialog");
     assert.equal(

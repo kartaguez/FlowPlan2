@@ -116,6 +116,8 @@ p {
   list-style: none;
 }
 
+.project-sidebar-list[hidden] { display: none; }
+
 .project-sidebar-button {
   width: 100%;
   border: 1px solid #cbd5e1;
@@ -423,14 +425,16 @@ p {
 }
 
 .timeline-cursor-control {
-  margin: 0.5rem 0 0.75rem;
-  border: 1px solid #94a3b8;
-  border-radius: 0.4rem;
-  background: #ffffff;
-  padding: 0.45rem 0.75rem;
+  display: block;
+  width: fit-content;
+  margin: 0 0 0.75rem;
+  border: 0;
+  background: transparent;
+  padding: 0.2rem 0;
   color: #26364d;
   font: inherit;
-  cursor: default;
+  text-align: left;
+  cursor: pointer;
 }
 
 .timeline-cursor-control:focus-visible {
@@ -459,16 +463,8 @@ p {
   outline-offset: 2px;
 }
 
-.timeline-date-summary {
-  margin-top: 1.25rem;
-  border: 1px solid #d9e0ea;
-  border-radius: 0.5rem;
-  background: #f8fafc;
-  padding: 1rem;
-}
-
 .cursor-progress {
-  margin-top: 1rem;
+  margin: 0 0 1rem;
   border: 1px solid #d9e0ea;
   border-radius: 0.5rem;
   padding: 1rem;
@@ -483,43 +479,6 @@ p {
 .cursor-progress-card { border: 1px solid #d9e0ea; border-radius: 0.35rem; padding: 0.7rem; }
 .cursor-progress-card h4 { margin: 0 0 0.4rem; }
 .cursor-progress-card p { margin: 0; font-size: 0.85rem; color: #52657f; }
-
-.timeline-date-summary-heading {
-  margin: 0 0 0.75rem;
-  font-size: 1rem;
-}
-
-.timeline-date-summary-teams {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
-  gap: 0.75rem;
-}
-
-.timeline-date-summary-team {
-  border: 1px solid #d9e0ea;
-  border-radius: 0.4rem;
-  background: #ffffff;
-  padding: 0.75rem;
-}
-
-.timeline-date-summary-team-label {
-  margin: 0 0 0.4rem;
-}
-
-.timeline-date-summary-capacities {
-  margin-bottom: 0.5rem;
-  color: #52657f;
-  font-size: 0.85rem;
-}
-
-.timeline-date-summary-allocations {
-  margin: 0;
-  padding-left: 1.1rem;
-}
-
-.timeline-date-summary-allocation-empty {
-  color: #64748b;
-}
 
 .timeline-selection-summary {
   margin-top: 1rem;
@@ -793,15 +752,38 @@ p {
 }
 
 .timeline-diagnostics {
-  margin-top: 1.25rem;
-  border-top: 1px solid #d9e0ea;
-  padding-top: 1rem;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
 }
 
 .timeline-diagnostics-heading {
-  margin: 0 0 0.75rem;
+  margin: 0;
   font-size: 1rem;
 }
+
+.timeline-diagnostics-indicators { display: flex; gap: 0.5rem; }
+.timeline-diagnostics-indicator {
+  min-width: 3rem;
+  border: 1px solid currentColor;
+  border-radius: 0.4rem;
+  background: #fff;
+  padding: 0.3rem 0.6rem;
+  font: inherit;
+  cursor: pointer;
+}
+.timeline-diagnostics-indicator--red { color: #a13b32; }
+.timeline-diagnostics-indicator--grey { color: #64748b; }
+.timeline-diagnostics-indicator:disabled { opacity: 0.55; cursor: default; }
+.timeline-diagnostics-indicator:focus-visible,
+.timeline-diagnostics-dialog button:focus-visible { outline: 3px solid #60a5fa; outline-offset: 2px; }
+.timeline-diagnostics-backdrop { position: fixed; inset: 0; z-index: 19; background: rgb(15 23 42 / 45%); }
+.timeline-diagnostics-dialog { z-index: 20; }
+.timeline-diagnostics-dialog[hidden], .timeline-diagnostics-backdrop[hidden] { display: none; }
+.timeline-diagnostics-dialog-content { margin-bottom: 1rem; }
+.timeline-diagnostics-dialog > button { min-height: 2.25rem; padding: 0.4rem 0.8rem; }
 
 .timeline-diagnostics-list {
   display: grid;

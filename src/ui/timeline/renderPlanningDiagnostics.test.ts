@@ -103,7 +103,7 @@ function render(viewModel: TimelineViewModel): FakeElement {
   const container = new FakeDocument().createElement("section");
   renderPlanningDiagnostics({
     container: container as unknown as HTMLElement,
-    viewModel,
+    diagnostics: viewModel.diagnostics,
   });
   return container;
 }
@@ -151,14 +151,11 @@ describe("renderPlanningDiagnostics", () => {
     );
   });
 
-  it("renders an explicit empty state", () => {
+  it("renders an empty list for an empty category", () => {
     const viewModel = viewModelWithDiagnostics();
     const container = render({ ...viewModel, diagnostics: [] });
 
-    assert.equal(
-      withClass(container, "timeline-diagnostics-empty")[0]?.textContent,
-      "No planning diagnostics.",
-    );
+    assert.equal(withClass(container, "timeline-diagnostics-list").length, 1);
     assert.equal(withClass(container, "timeline-diagnostic").length, 0);
   });
 

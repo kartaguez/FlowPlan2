@@ -9,7 +9,7 @@ import {
 } from "../../domain/index.js";
 import { renderTimelineShellNavigation } from "./renderTimelineShellNavigation.js";
 
-type Listener = () => void;
+type Listener = (event?: unknown) => void;
 class FakeDocument {
   createElement(tagName: string): FakeElement {
     return new FakeElement(this, tagName);
@@ -27,7 +27,9 @@ class FakeElement {
   textContent: string | null = null;
   type = "";
   hidden = false;
-  readonly classList = { add() {}, remove() {} };
+  tabIndex = 0;
+  focused = false;
+  readonly classList = { add() {}, remove() {}, toggle(_name: string, _force: boolean) {} };
   constructor(readonly ownerDocument: FakeDocument, readonly tagName: string) {}
   append(...nodes: FakeElement[]): void { this.childNodes.push(...nodes); }
   replaceChildren(...nodes: FakeElement[]): void { this.childNodes = [...nodes]; }
@@ -41,6 +43,10 @@ class FakeElement {
     this.listeners.get(type)?.delete(listener as Listener);
   }
   click(): void { for (const listener of this.listeners.get("click") ?? []) listener(); }
+  focus(): void { this.focused = true; }
+  keydown(key: string): void {
+    for (const listener of this.listeners.get("keydown") ?? []) listener({ key, preventDefault() {} } as never);
+  }
 }
 function must<T>(result: DomainResult<T>): T {
   if (!result.ok) throw new Error(JSON.stringify(result.errors));
@@ -151,6 +157,16 @@ describe("renderTimelineShellNavigation", () => {
     );
     teams.childNodes[2]!.childNodes[0]!.childNodes[1]!.click();
     projects.childNodes[0]!.childNodes[0]!.click();
+    reservationTab.click();
+    assert.equal(navigation.getActiveTab(), "reservations");
+    assert.equal(projectTab.attributes.get("aria-selected"), "false");
+    assert.equal(reservationTab.attributes.get("aria-selected"), "true");
+    assert.equal(projectTab.tabIndex, -1);
+    assert.equal(projects.hidden, true);
+    assert.equal(reservations.hidden, false);
+    reservationTab.keydown("ArrowLeft");
+    assert.equal(navigation.getActiveTab(), "projects");
+    assert.equal(projectTab.focused, true);
     reservationTab.click();
     reservations.childNodes[0]!.childNodes[0]!.click();
     assert.deepEqual(selectedTeams, [beta]);
