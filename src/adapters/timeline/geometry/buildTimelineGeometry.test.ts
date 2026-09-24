@@ -73,6 +73,19 @@ function buildInput(
 }
 
 describe("buildTimelineGeometry", () => {
+  it("reserves aligned projection bands above the axis and each Team lane", () => {
+    const input = buildInput(makeViewModel("2025-01-01", "2025-01-03", ["team-a", "team-b"]), 300, 80, 56, 40);
+    const geometry = buildTimelineGeometry({ ...input, viewport: {
+      ...input.viewport, timeAxisLabelHeight: 20, teamProjectionBandHeight: 22,
+    } });
+    assert.deepEqual(geometry.timeAxis.projectionBand, { x: 0, y: 0, width: 300, height: 20 });
+    assert.equal(geometry.timeAxis.years[0]?.y, 20);
+    assert.equal(geometry.timeAxis.months[0]?.y, 38);
+    assert.deepEqual(geometry.teams.map((team) => [team.projectionBand?.y, team.y]),
+      [[96, 118], [238, 260]]);
+    assert.equal(geometry.height, 340);
+    assert.equal(geometry.teams[0]!.days[1]!.x + geometry.dayWidth / 2, 150);
+  });
   it("maps an inclusive three-day horizon to three equal columns", () => {
     const viewModel = makeViewModel("2025-01-01", "2025-01-03");
     const geometry = buildTimelineGeometry(buildInput(viewModel, 300));

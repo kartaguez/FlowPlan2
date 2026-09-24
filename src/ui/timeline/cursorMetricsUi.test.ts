@@ -7,6 +7,7 @@ import { buildPlanningSessionProjection } from "../../main/planning/buildPlannin
 import { buildCursorMetricsViewModel } from "./buildCursorMetricsViewModel.js";
 import { formatCursorMd, formatCursorPercent } from "./formatCursorMetrics.js";
 import { createCursorProgressSurface } from "./renderCursorProgress.js";
+import { formatProjectionDate } from "./renderTimelineCursor.js";
 import { renderCursorCapacityMetrics, renderCursorTeamMetrics } from "./renderCursorTeamMetrics.js";
 
 class FakeDocument {
@@ -152,6 +153,7 @@ describe("cursor metrics UI", () => {
     let selected: string | undefined;
     const surface = createCursorProgressSurface(root as unknown as HTMLElement, (view) => { selected = view; });
     surface.render(model, "projects");
+    assert.equal(root.childNodes[0]!.textContent, `Projected progress on ${formatProjectionDate(model.selectedDate)}`);
     const controls = root.childNodes[1]!;
     const cards = root.childNodes[2]!;
     assert.equal(cards.childNodes.length, model.projects.length);

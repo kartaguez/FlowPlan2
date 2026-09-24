@@ -15,6 +15,7 @@ const DEMO_GEOMETRY_VIEWPORT: TimelineGeometryViewport = Object.freeze({
   width: 2160,
   teamLaneHeight: 100,
   teamHeaderHeight: 112,
+  teamProjectionBandHeight: 22,
   timeAxisHeight: 76,
   timeAxisLabelHeight: 20,
   globalMetricsHeight: 100,

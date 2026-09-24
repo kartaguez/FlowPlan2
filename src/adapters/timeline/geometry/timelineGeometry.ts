@@ -11,6 +11,7 @@ export interface TimelineGeometryViewport {
   readonly width: number;
   readonly teamLaneHeight: number;
   readonly teamHeaderHeight?: number;
+  readonly teamProjectionBandHeight?: number;
   readonly timeAxisHeight: number;
   readonly timeAxisLabelHeight?: number;
   readonly globalMetricsHeight?: number;
@@ -22,6 +23,7 @@ export interface TimelineGeometry {
   readonly height: number;
   readonly dayWidth: number;
   readonly teamHeaderHeight: number;
+  readonly teamProjectionBandHeight?: number;
   readonly globalMetricsHeight?: number;
   readonly teamCollectionActionsHeight?: number;
   readonly dates: readonly TimelineDateGeometry[];
@@ -38,6 +40,7 @@ export interface TimelineDateGeometry {
 }
 
 export interface TimelineTimeAxisGeometry extends TimelineRectGeometry {
+  readonly projectionBand?: TimelineRectGeometry;
   readonly years: readonly TimelineYearGeometry[];
   readonly months: readonly TimelineMonthGeometry[];
 }
@@ -63,6 +66,7 @@ export interface TimelineTeamGeometry {
   readonly y: number;
   readonly width: number;
   readonly height: number;
+  readonly projectionBand?: TimelineRectGeometry;
   readonly days: readonly TimelineDayGeometry[];
   readonly markers: readonly TimelineProjectMarkerGeometry[];
 }

@@ -62,22 +62,12 @@ function descendants(root: FakeElement): FakeElement[] {
 }
 
 describe("renderApp", () => {
-  it("creates a native cursor button adjacent to the timeline", () => {
+  it("keeps the projection control out of the planning layout and makes the timeline focusable", () => {
     const root = new FakeDocument().createElement("div");
     const elements = renderApp(root as unknown as HTMLElement);
-    const control = elements.cursorControl as unknown as FakeElement;
-
-    assert.equal(control.tagName, "button");
-    assert.equal(control.type, "button");
-    assert.equal(control.className, "timeline-cursor-control");
-    assert.equal(control.getAttribute("aria-label"), "Projection date");
-    assert.equal(control.textContent, "Projection date");
-
     const renderedElements = descendants(root);
-    assert.ok(
-      renderedElements.indexOf(control) <
-        renderedElements.indexOf(elements.svg as unknown as FakeElement),
-    );
+    assert.equal(renderedElements.some((node) => node.className === "timeline-cursor-control"), false);
+    assert.equal((elements.svg as unknown as FakeElement).getAttribute("tabindex"), "0");
   });
 
   it("uses one full-width timeline stage with stacked team panels", () => {
@@ -105,7 +95,7 @@ describe("renderApp", () => {
     );
     const main = renderedElements.find((element) => element.className === "planning-main")!;
     assert.deepEqual(main.childNodes.map((element) => element.className), [
-      "planning-heading", "timeline-cursor-control", "cursor-progress",
+      "planning-heading", "cursor-progress",
       "timeline-diagnostics", "timeline-viewport-controls", "timeline-stage",
       "timeline-tooltip",
     ]);

@@ -24,6 +24,7 @@ export interface CursorProgressItemViewModel {
 }
 
 export interface CursorMetricsViewModel {
+  readonly selectedDate: CivilDate;
   readonly global: CursorCapacityMetrics;
   readonly teams: readonly CursorTeamMetricsViewModel[];
   readonly projects: readonly CursorProgressItemViewModel[];
@@ -70,6 +71,7 @@ export function buildCursorMetricsViewModel(
     ...end,
   });
   return Object.freeze({
+    selectedDate: metrics.selectedDate,
     global: metrics.global,
     teams: metrics.teams,
     projects: Object.freeze(portfolio.priorityOrder.map((id) => {

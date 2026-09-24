@@ -59,6 +59,7 @@ export function buildTimelineGeometry(
   input: BuildTimelineGeometryInput,
 ): TimelineGeometry {
   const teamHeaderHeight = input.viewport.teamHeaderHeight ?? 0;
+  const teamProjectionBandHeight = input.viewport.teamProjectionBandHeight ?? 0;
   const globalMetricsHeight = input.viewport.globalMetricsHeight ?? 0;
   const teamCollectionActionsHeight = input.viewport.teamCollectionActionsHeight ?? 0;
   validatePositiveFinite(input.viewport.width, "Viewport width");
@@ -67,6 +68,7 @@ export function buildTimelineGeometry(
     "Team lane height",
   );
   validateNonNegativeFinite(teamHeaderHeight, "Team header height");
+  validateNonNegativeFinite(teamProjectionBandHeight, "Team projection band height");
   validateNonNegativeFinite(globalMetricsHeight, "Global metrics height");
   validateNonNegativeFinite(teamCollectionActionsHeight, "Team collection actions height");
   validatePositiveFinite(input.viewport.timeAxisHeight, "Time axis height");
@@ -126,8 +128,9 @@ export function buildTimelineGeometry(
       globalMetricsHeight +
       teamCollectionActionsHeight +
       teamHeaderHeight +
+      teamProjectionBandHeight +
       teamIndex *
-        (teamHeaderHeight + input.viewport.teamLaneHeight);
+        (teamHeaderHeight + teamProjectionBandHeight + input.viewport.teamLaneHeight);
     const laneBottom = y + input.viewport.teamLaneHeight;
     const allocationsByDate = indexAllocationsByDate(
       team,
@@ -223,6 +226,8 @@ export function buildTimelineGeometry(
       y,
       width: input.viewport.width,
       height: input.viewport.teamLaneHeight,
+      projectionBand: freezeRect({ x: 0, y: y - teamProjectionBandHeight,
+        width: input.viewport.width, height: teamProjectionBandHeight }),
       days: Object.freeze(days),
       markers,
     }) satisfies TimelineTeamGeometry;
@@ -235,9 +240,10 @@ export function buildTimelineGeometry(
       globalMetricsHeight +
       teamCollectionActionsHeight +
       input.viewModel.teams.length *
-        (teamHeaderHeight + input.viewport.teamLaneHeight),
+        (teamHeaderHeight + teamProjectionBandHeight + input.viewport.teamLaneHeight),
     dayWidth,
     teamHeaderHeight,
+    teamProjectionBandHeight,
     globalMetricsHeight,
     teamCollectionActionsHeight,
     dates,
@@ -415,6 +421,7 @@ function buildTimeAxisGeometry(
     y: 0,
     width,
     height,
+    projectionBand: freezeRect({ x: 0, y: 0, width, height: labelHeight }),
     years: Object.freeze(years) as readonly TimelineYearGeometry[],
     months: Object.freeze(months) as readonly TimelineMonthGeometry[],
   });

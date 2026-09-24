@@ -306,7 +306,7 @@ describe("renderTimelineSvg", () => {
     render(svg);
 
     assert.equal(svg.getAttribute("viewBox"), "0 0 300 160");
-    assert.equal(svg.getAttribute("role"), "img");
+    assert.equal(svg.getAttribute("role"), "group");
     assert.equal(svg.getAttribute("tabindex"), null);
     assert.equal(svg.getAttribute("aria-valuetext"), null);
     assert.equal(

@@ -1,5 +1,6 @@
 import type { CursorMetricsViewModel, CursorProgressView } from "./buildCursorMetricsViewModel.js";
 import { formatCursorMd, formatCursorPercent } from "./formatCursorMetrics.js";
+import { formatProjectionDate } from "./renderTimelineCursor.js";
 
 function progressWidth(numerator: bigint, denominator: bigint): number {
   if (denominator <= 0n || numerator <= 0n) return 0;
@@ -37,6 +38,7 @@ export function createCursorProgressSurface(
   container.replaceChildren(heading, controls, cards);
   return Object.freeze({
     render: (model: CursorMetricsViewModel, activeView: CursorProgressView) => {
+      heading.textContent = `Projected progress on ${formatProjectionDate(model.selectedDate)}`;
       buttons.forEach((button, index) => {
         const active = views[index] === activeView;
         button.setAttribute("aria-pressed", String(active));

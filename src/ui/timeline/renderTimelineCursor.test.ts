@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { createCivilDate, type DomainResult } from "../../domain/index.js";
+import type { TimelineGeometry } from "../../adapters/index.js";
 import { renderTimelineCursor } from "./renderTimelineCursor.js";
 
 const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
@@ -69,6 +70,23 @@ function svgWithLayer(): FakeSvgElement {
 }
 
 describe("renderTimelineCursor", () => {
+  it("repeats the date in every Team band at the same cursor x", () => {
+    const svg = svgWithLayer();
+    const geometry = { teams: [
+      { teamId: "team-a", projectionBand: { x: 0, y: 80, width: 300, height: 22 } },
+      { teamId: "team-b", projectionBand: { x: 0, y: 220, width: 300, height: 22 } },
+    ] } as unknown as TimelineGeometry;
+    renderTimelineCursor({ svg: svg as unknown as SVGSVGElement,
+      cursor: { date: must(createCivilDate("2025-01-02")), x: 150, y1: 0, y2: 330 },
+      geometry });
+    const children = svg.querySelector(".timeline-cursor-layer")!.childNodes;
+    assert.equal(children.length, 4);
+    assert.deepEqual(children.slice(1).map((node) => node.textContent),
+      ["02/01/2025", "02/01/2025", "02/01/2025"]);
+    assert.deepEqual(children.slice(2).map((node) => node.getAttribute("data-team-id")),
+      ["team-a", "team-b"]);
+    assert.equal(children[0]!.getAttribute("x1"), "150");
+  });
   it("replaces only the cursor layer with supplied line geometry", () => {
     const svg = svgWithLayer();
     const layer = svg.querySelector(".timeline-cursor-layer")!;

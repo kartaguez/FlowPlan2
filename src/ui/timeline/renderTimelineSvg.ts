@@ -23,7 +23,7 @@ export function renderTimelineSvg(input: RenderTimelineSvgInput): void {
     "viewBox",
     `0 0 ${input.geometry.width} ${input.geometry.height}`,
   );
-  input.svg.setAttribute("role", "img");
+  input.svg.setAttribute("role", "group");
   input.svg.setAttribute("width", "100%");
   input.svg.setAttribute("height", String(input.geometry.height));
   input.svg.setAttribute("preserveAspectRatio", "none");
@@ -49,6 +49,7 @@ function renderTimeAxis(
 ): SVGElement {
   const group = createSvgElement(document, "g");
   group.setAttribute("class", "timeline-time-axis");
+  if (axis.projectionBand) group.append(createRect(document, "timeline-projection-band timeline-projection-band--global", axis.projectionBand));
 
   const years = createSvgElement(document, "g");
   years.setAttribute("class", "timeline-years");
@@ -102,6 +103,9 @@ function renderTeam(
   group.setAttribute("data-team-id", team.teamId);
 
   const lane = createRect(document, "timeline-team-lane", team);
+  const projectionBand = team.projectionBand
+    ? createRect(document, "timeline-projection-band timeline-projection-band--team", team.projectionBand)
+    : null;
   const days = createSvgElement(document, "g");
   days.setAttribute("class", "timeline-days");
   for (const day of team.days) {
@@ -112,6 +116,7 @@ function renderTeam(
   for (const marker of team.markers) {
     markers.append(renderProjectMarker(document, marker));
   }
+  if (projectionBand) group.append(projectionBand);
   group.append(lane, days, markers);
   return group;
 }

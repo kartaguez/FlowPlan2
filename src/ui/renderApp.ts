@@ -6,7 +6,6 @@ export interface AppElements {
   readonly svg: SVGSVGElement;
   readonly diagnosticsControls: DiagnosticsControls;
   readonly cursorProgress: HTMLElement;
-  readonly cursorControl: HTMLButtonElement;
   readonly viewportControls: TimelineViewportControls;
   readonly planningSettingsButton: HTMLButtonElement;
   readonly planningSettingsControls: PlanningSettingsControls;
@@ -121,11 +120,6 @@ export function renderApp(root: HTMLElement): AppElements {
     "Edit planning settings",
   );
   planningHeading.append(workspaceTitle, planningSettingsButton);
-  const cursorControl = document.createElement("button");
-  cursorControl.type = "button";
-  cursorControl.className = "timeline-cursor-control";
-  cursorControl.setAttribute("aria-label", "Projection date");
-  cursorControl.textContent = "Projection date";
   const viewportControlContainer = document.createElement("div");
   viewportControlContainer.className = "timeline-viewport-controls";
   viewportControlContainer.setAttribute("role", "group");
@@ -140,6 +134,7 @@ export function renderApp(root: HTMLElement): AppElements {
   const timeline = document.createElementNS(SVG_NAMESPACE, "svg");
   timeline.id = "timeline";
   timeline.classList.add("timeline-svg");
+  timeline.setAttribute("tabindex", "0");
   timeline.setAttribute("aria-label", "FlowPlan planning timeline demo");
   timelineContainer.append(timeline);
   const teamPanels = document.createElement("div");
@@ -365,7 +360,6 @@ export function renderApp(root: HTMLElement): AppElements {
   planningMain.className = "planning-main";
   planningMain.append(
     planningHeading,
-    cursorControl,
     cursorProgress,
     diagnostics,
     viewportControlContainer,
@@ -418,7 +412,6 @@ export function renderApp(root: HTMLElement): AppElements {
     svg: timeline,
     diagnosticsControls,
     cursorProgress,
-    cursorControl,
     viewportControls,
     planningSettingsButton,
     planningSettingsControls,

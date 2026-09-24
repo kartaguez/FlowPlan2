@@ -242,6 +242,34 @@ describe("createTimelineCursorController", () => {
     assert.equal(controller.getState().selectedDate, "2025-01-03");
   });
 
+  it("uses the same x-to-date conversion for axis rows, Team bands, and segments", () => {
+    const input = fixture();
+    const selected: string[] = [];
+    const controller = createTimelineCursorController({
+      svg: input.svg as unknown as SVGSVGElement,
+      geometry: input.geometry,
+      initialDate: input.viewModel.horizon.start,
+      getViewport: () => ({ x: 0, width: 300 }),
+      isModalOpen: () => false,
+      onSelectedDateChange: (date) => selected.push(date),
+    });
+    for (const [index, surface] of ["projection-band", "year-cell", "month-cell",
+      "team-projection-band", "project-allocation", "reservation-segment"].entries()) {
+      const event = { ...pointer(index + 1, 100 + index * 60),
+        target: { className: `timeline-${surface}` }, clientY: index * 50 };
+      input.svg.dispatch("pointerdown", event);
+      input.svg.dispatch("pointerup", event);
+    }
+    assert.deepEqual(selected, ["2025-01-02", "2025-01-03"]);
+    assert.equal(controller.getState().selectedDate, "2025-01-03");
+    input.svg.dispatch("pointerdown", pointer(20, -100));
+    assert.equal(controller.getState().selectedDate, "2025-01-01");
+    input.svg.dispatch("pointerup", pointer(20, -100));
+    input.svg.dispatch("pointerdown", pointer(21, 1000));
+    assert.equal(controller.getState().selectedDate, "2025-01-03");
+    controller.destroy();
+  });
+
   it("supports arrows, Home, and End without wrapping", () => {
     const input = fixture();
     const controller = createTimelineCursorController({
@@ -254,12 +282,12 @@ describe("createTimelineCursorController", () => {
     });
 
     const leftAtStart = keyboard("ArrowLeft");
-    input.svg.dispatch("keydown", keyboard("End"));
+    input.svg.dispatch("keydown", keyboard("Home"));
     assert.equal(controller.getState().selectedDate, "2025-01-01");
     input.cursorControl.dispatch("keydown", leftAtStart);
     assert.equal(controller.getState().selectedDate, "2025-01-01");
     assert.equal(leftAtStart.prevented, true);
-    input.cursorControl.dispatch("keydown", keyboard("ArrowRight"));
+    input.svg.dispatch("keydown", keyboard("ArrowRight"));
     assert.equal(controller.getState().selectedDate, "2025-01-02");
     input.cursorControl.dispatch("keydown", keyboard("End"));
     assert.equal(controller.getState().selectedDate, "2025-01-03");

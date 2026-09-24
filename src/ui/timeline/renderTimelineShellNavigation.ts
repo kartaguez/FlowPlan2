@@ -108,7 +108,7 @@ export function renderTimelineShellNavigation(
     const lane = document.createElement("div");
     lane.className = "team-panel-timeline";
     lane.setAttribute("aria-label", `${team.label} timeline lane`);
-    lane.setAttribute("style", `height: ${teamGeometry.height}px`);
+    lane.setAttribute("style", `height: ${(input.geometry.teamProjectionBandHeight ?? 0) + teamGeometry.height}px`);
     section.append(header, lane);
     return section;
   });

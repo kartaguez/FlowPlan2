@@ -49,7 +49,7 @@ and Reservation membership workflows.
 **Status: DONE** — three corrective passes implemented and validated at
 `d6ae53bd08442f5a391d2db68b29f0b0966c98e0`.
 
-The Planning header places one Projection date, cumulative progress, compact
+The Planning header places dated cumulative progress, compact
 red/grey diagnostic counts, then viewport controls immediately before the
 shared Timeline. Team headers are more compact. The former daily Team summary
 is removed; cumulative Team and Projects / Programs / PAS metrics remain at the
@@ -57,6 +57,11 @@ shared cursor date. Ctrl+ArrowLeft/Right moves that date outside editable
 fields and modals without planning recomputation. Every Timeline click moves
 only the Projection date; Project allocation and named Reservation segments
 retain business tooltips. Timeline selection and its summary have been removed.
+The current in-review UI pass moves the Projection date display into a small
+band above the global year/month axis and repeats it above every Team lane.
+These bands and the other temporal surfaces share a pale blue background and
+the same click-to-date pipeline. This pass remains **IN REVIEW** pending audit
+and human visual validation; it does not close 9F or 9G.
 
 Portfolio Projects and Reservations use compact cards with independent inline
 editors, Apply/Cancel, and Team subcards. Several cards and Teams may remain

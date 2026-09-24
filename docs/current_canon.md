@@ -65,6 +65,12 @@ that Team before dispatch. Successful lifecycle changes follow the existing
 single-reprojection pipeline. The global metrics cartouche is titled, and
 Create Team appears between it and the first Team panel.
 
+The Projection date presentation pass is **IN REVIEW**. Its implementation
+places the date in the global and Team timeline bands and in the projected
+progress heading, while preserving one selected date and one temporal X
+coordinate. This status does not advance the validated implementation baseline
+or close the later structural CRUD lots.
+
 ## Current product trajectory
 
 The trajectory remains **projection planning first**. The current run starts
@@ -82,16 +88,15 @@ Explicitly deferred:
 ```text
 Planning
 ├── global Settings icon
-├── Projection date control
-├── cumulative Projects / Programs / PAS progress
+├── cumulative Projects / Programs / PAS progress, titled with the Projection date
 ├── compact diagnostics counts → details modal
 ├── viewport controls
-├── global time axis with the shared Projection date marker
+├── global Projection date band, then year/month rows with the shared marker
 ├── titled global cumulative Capacity / Occupied / Occupancy / Over-reservation
 ├── Create Team control for the Team panel collection
 ├── Team panel
 │   ├── Team header + Settings icon + the same four cumulative metrics
-│   └── lane
+│   └── Projection date band above the Project/Reservation lane
 ├── Team panel...
 └── Project and Reservation hover tooltips
 
@@ -103,7 +108,11 @@ Portfolio sidebar
 The Team panels are aligned with lanes in one SVG/Geometry and one temporal
 coordinate system. The date marker crosses the year/month axis and Team lanes;
 the global metrics row and Team headers share the SVG's vertical layout. Team
-panels are not independent timelines. The four cumulative metrics use the
+panels are not independent timelines. The pale blue axis rows, Projection date
+bands, and Team lanes are clickable temporal surfaces. Each band repeats the
+formatted date beside the same blue marker. The Timeline itself accepts
+Left/Right, Home/End keyboard navigation; Ctrl+Left/Right remains global outside
+editable fields and modals. The four cumulative metrics use the
 inclusive horizon-start-to-selected-date interval. Occupied is requested
 reservations plus allocations. The global cartouche sums exact Team quantities
 before calculating its ratios; over-reservation remains non-compensating.

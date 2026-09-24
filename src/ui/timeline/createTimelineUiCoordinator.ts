@@ -337,7 +337,7 @@ export function createTimelineUiCoordinator(
       initialViewport: snapshot.viewport,
       onViewportChange: () => cursorController?.refresh?.() });
     cursorController = dependencies.createCursorController({ svg: input.elements.svg,
-      geometry: projection.geometry, cursorControl: input.elements.cursorControl,
+      geometry: projection.geometry,
       initialDate: selectedDate, getViewport: viewportController.getState,
       isModalOpen, onSelectedDateChange: renderCursorMetrics });
     renderCursorMetrics(selectedDate);
