@@ -60,6 +60,7 @@ export function buildTimelineGeometry(
 ): TimelineGeometry {
   const teamHeaderHeight = input.viewport.teamHeaderHeight ?? 0;
   const globalMetricsHeight = input.viewport.globalMetricsHeight ?? 0;
+  const teamCollectionActionsHeight = input.viewport.teamCollectionActionsHeight ?? 0;
   validatePositiveFinite(input.viewport.width, "Viewport width");
   validatePositiveFinite(
     input.viewport.teamLaneHeight,
@@ -67,6 +68,7 @@ export function buildTimelineGeometry(
   );
   validateNonNegativeFinite(teamHeaderHeight, "Team header height");
   validateNonNegativeFinite(globalMetricsHeight, "Global metrics height");
+  validateNonNegativeFinite(teamCollectionActionsHeight, "Team collection actions height");
   validatePositiveFinite(input.viewport.timeAxisHeight, "Time axis height");
   const timeAxisLabelHeight = input.viewport.timeAxisLabelHeight ?? 0;
   validateNonNegativeFinite(timeAxisLabelHeight, "Time axis label height");
@@ -122,6 +124,7 @@ export function buildTimelineGeometry(
     const y =
       input.viewport.timeAxisHeight +
       globalMetricsHeight +
+      teamCollectionActionsHeight +
       teamHeaderHeight +
       teamIndex *
         (teamHeaderHeight + input.viewport.teamLaneHeight);
@@ -230,11 +233,13 @@ export function buildTimelineGeometry(
     height:
       input.viewport.timeAxisHeight +
       globalMetricsHeight +
+      teamCollectionActionsHeight +
       input.viewModel.teams.length *
         (teamHeaderHeight + input.viewport.teamLaneHeight),
     dayWidth,
     teamHeaderHeight,
     globalMetricsHeight,
+    teamCollectionActionsHeight,
     dates,
     timeAxis,
     maxEffectiveCapacity,

@@ -33,6 +33,7 @@ export interface TimelineShellNavigation {
 
 export interface RenderTimelineShellNavigationInput {
   readonly teamContainer: HTMLElement;
+  readonly teamCreateButton: HTMLButtonElement;
   readonly projectContainer: HTMLElement;
   readonly reservationContainer: HTMLElement;
   readonly projectTab: HTMLButtonElement;
@@ -60,12 +61,23 @@ export function renderTimelineShellNavigation(
   const axisSpacer = document.createElement("div");
   axisSpacer.className = "timeline-team-axis-spacer";
   const globalMetricsHeight = input.geometry.globalMetricsHeight ?? 0;
-  axisSpacer.setAttribute("style", `height: ${input.geometry.timeAxis.height + globalMetricsHeight}px`);
+  const teamCollectionActionsHeight = input.geometry.teamCollectionActionsHeight ?? 0;
+  axisSpacer.setAttribute("style", `height: ${input.geometry.timeAxis.height + globalMetricsHeight + teamCollectionActionsHeight}px`);
   const globalMetricsContainer = document.createElement("div");
-  globalMetricsContainer.className = "timeline-global-metrics capacity-metrics";
+  globalMetricsContainer.className = "timeline-global-metrics";
   globalMetricsContainer.setAttribute("style", `top: ${input.geometry.timeAxis.height}px; height: ${globalMetricsHeight}px`);
   globalMetricsContainer.setAttribute("aria-label", "Planning cumulative capacity metrics");
-  axisSpacer.append(globalMetricsContainer);
+  const globalMetricsTitle = document.createElement("h3");
+  globalMetricsTitle.className = "timeline-global-metrics-title";
+  globalMetricsTitle.textContent = "Global capacity metrics";
+  const globalMetricsValues = document.createElement("div");
+  globalMetricsValues.className = "timeline-global-metrics-values capacity-metrics";
+  globalMetricsContainer.append(globalMetricsTitle, globalMetricsValues);
+  const teamCollectionActions = document.createElement("div");
+  teamCollectionActions.className = "team-collection-actions";
+  teamCollectionActions.setAttribute("style", `top: ${input.geometry.timeAxis.height + globalMetricsHeight}px; height: ${teamCollectionActionsHeight}px`);
+  teamCollectionActions.append(input.teamCreateButton);
+  axisSpacer.append(globalMetricsContainer, teamCollectionActions);
   const teamsById = new Map(input.viewModel.teams.map((team) => [team.id, team]));
   const teamPanels = input.geometry.teams.map((teamGeometry) => {
     const team = teamsById.get(teamGeometry.teamId);
@@ -240,7 +252,7 @@ export function renderTimelineShellNavigation(
   };
 
   return Object.freeze({
-    globalMetricsContainer,
+    globalMetricsContainer: globalMetricsValues,
     teamMetricsContainers,
     projectCards,
     reservationCards,

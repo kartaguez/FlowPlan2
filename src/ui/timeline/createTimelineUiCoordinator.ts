@@ -293,6 +293,7 @@ export function createTimelineUiCoordinator(
     planningSettingsController.setModel(input.getPlanningSettingsViewModel());
     shellNavigation = dependencies.renderShellNavigation({
       teamContainer: input.elements.teamPanels,
+      teamCreateButton: input.elements.teamCreateButton,
       projectContainer: input.elements.projectList,
       reservationContainer: input.elements.reservationList,
       projectTab: input.elements.projectTab, reservationTab: input.elements.reservationTab,

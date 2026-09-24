@@ -106,7 +106,7 @@ describe("renderApp", () => {
     const main = renderedElements.find((element) => element.className === "planning-main")!;
     assert.deepEqual(main.childNodes.map((element) => element.className), [
       "planning-heading", "timeline-cursor-control", "cursor-progress",
-      "timeline-diagnostics", "timeline-viewport-controls", "team-collection-actions", "timeline-stage",
+      "timeline-diagnostics", "timeline-viewport-controls", "timeline-stage",
       "timeline-tooltip",
     ]);
     assert.equal(renderedElements.some((element) => element.className === "timeline-date-summary"), false);

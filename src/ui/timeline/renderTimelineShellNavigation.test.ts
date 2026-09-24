@@ -73,6 +73,7 @@ describe("renderTimelineShellNavigation", () => {
     const projectD = must(createProjectId("project-d"));
     const document = new FakeDocument();
     const teams = document.createElement("div");
+    const teamCreateButton = document.createElement("button");
     const projects = document.createElement("ol");
     const reservations = document.createElement("ol");
     const projectTab = document.createElement("button");
@@ -84,6 +85,7 @@ describe("renderTimelineShellNavigation", () => {
     const reservationId = must(createReservationId("run"));
     const navigation = renderTimelineShellNavigation({
       teamContainer: teams as unknown as HTMLElement,
+      teamCreateButton: teamCreateButton as unknown as HTMLButtonElement,
       projectContainer: projects as unknown as HTMLElement,
       reservationContainer: reservations as unknown as HTMLElement,
       projectTab: projectTab as unknown as HTMLButtonElement,
@@ -109,7 +111,8 @@ describe("renderTimelineShellNavigation", () => {
       } as unknown as TimelineViewModel,
       geometry: {
         timeAxis: { height: 56 },
-        globalMetricsHeight: 78,
+        globalMetricsHeight: 100,
+        teamCollectionActionsHeight: 42,
         teamHeaderHeight: 48,
         teams: [
           { teamId: alpha, height: 100 },
@@ -122,9 +125,15 @@ describe("renderTimelineShellNavigation", () => {
       onTabChange: (tab) => changedTabs.push(tab),
     });
     assert.equal(teams.childNodes.length, 3);
-    assert.equal(teams.childNodes[0]!.attributes.get("style"), "height: 134px");
-    assert.equal(teams.childNodes[0]!.childNodes[0], navigation.globalMetricsContainer);
-    assert.equal((navigation.globalMetricsContainer as unknown as FakeElement).attributes.get("style"), "top: 56px; height: 78px");
+    assert.equal(teams.childNodes[0]!.attributes.get("style"), "height: 198px");
+    const globalCard = teams.childNodes[0]!.childNodes[0]!;
+    assert.equal(globalCard.attributes.get("style"), "top: 56px; height: 100px");
+    assert.equal(globalCard.childNodes[0]!.textContent, "Global capacity metrics");
+    assert.equal(globalCard.childNodes[1], navigation.globalMetricsContainer);
+    const createRow = teams.childNodes[0]!.childNodes[1]!;
+    assert.equal(createRow.className, "team-collection-actions");
+    assert.equal(createRow.attributes.get("style"), "top: 156px; height: 42px");
+    assert.equal(createRow.childNodes[0], teamCreateButton);
     assert.equal(teams.childNodes[1]!.dataset.teamId, alpha);
     assert.equal(teams.childNodes[1]!.className, "team-panel");
     assert.equal(teams.childNodes[1]!.childNodes[0]!.className, "team-panel-header");

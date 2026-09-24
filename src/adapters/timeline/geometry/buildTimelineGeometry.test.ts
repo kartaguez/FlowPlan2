@@ -274,6 +274,19 @@ describe("buildTimelineGeometry", () => {
     assert.equal(extended.height, 410);
   });
 
+  it("reserves a separate Team collection action row before the first Team", () => {
+    const viewModel = makeViewModel("2025-01-01", "2025-01-03", ["team-alpha", "team-beta"]);
+    const geometry = buildTimelineGeometry({ viewModel, viewport: {
+      width: 300, teamLaneHeight: 80, timeAxisHeight: 76,
+      timeAxisLabelHeight: 20, globalMetricsHeight: 100,
+      teamCollectionActionsHeight: 42, teamHeaderHeight: 48,
+    } });
+    assert.equal(geometry.globalMetricsHeight, 100);
+    assert.equal(geometry.teamCollectionActionsHeight, 42);
+    assert.deepEqual(geometry.teams.map((team) => team.y), [266, 394]);
+    assert.equal(geometry.height, 474);
+  });
+
   it("preserves the TimelineViewModel team order", () => {
     const viewModel = makeViewModel("2025-01-01", "2025-01-01", [
       "team-c",

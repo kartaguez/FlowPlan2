@@ -86,9 +86,9 @@ Planning
 ├── cumulative Projects / Programs / PAS progress
 ├── compact diagnostics counts → details modal
 ├── viewport controls
-├── Create Team control for the Team panel collection
 ├── global time axis with the shared Projection date marker
-├── global cumulative Capacity / Occupied / Occupancy / Over-reservation
+├── titled global cumulative Capacity / Occupied / Occupancy / Over-reservation
+├── Create Team control for the Team panel collection
 ├── Team panel
 │   ├── Team header + Settings icon + the same four cumulative metrics
 │   └── lane

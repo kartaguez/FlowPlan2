@@ -17,7 +17,8 @@ const DEMO_GEOMETRY_VIEWPORT: TimelineGeometryViewport = Object.freeze({
   teamHeaderHeight: 112,
   timeAxisHeight: 76,
   timeAxisLabelHeight: 20,
-  globalMetricsHeight: 78,
+  globalMetricsHeight: 100,
+  teamCollectionActionsHeight: 42,
 });
 
 export function createPlanningDemoApplication(

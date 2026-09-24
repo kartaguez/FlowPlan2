@@ -282,9 +282,6 @@ export function renderApp(root: HTMLElement): AppElements {
   teamCreateButton.className = "team-create-trigger";
   teamCreateButton.textContent = "Create Team";
   teamCreateButton.setAttribute("aria-label", "Create Team in planning teams");
-  const teamCollectionActions = document.createElement("div");
-  teamCollectionActions.className = "team-collection-actions";
-  teamCollectionActions.append(teamCreateButton);
   const teamCreate = document.createElement("section");
   teamCreate.className = "timeline-team-edit team-create-dialog";
   teamCreate.setAttribute("role", "dialog");
@@ -372,7 +369,6 @@ export function renderApp(root: HTMLElement): AppElements {
     cursorProgress,
     diagnostics,
     viewportControlContainer,
-    teamCollectionActions,
     timelineStage,
     tooltip,
   );

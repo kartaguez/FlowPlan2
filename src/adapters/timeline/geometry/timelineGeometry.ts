@@ -14,6 +14,7 @@ export interface TimelineGeometryViewport {
   readonly timeAxisHeight: number;
   readonly timeAxisLabelHeight?: number;
   readonly globalMetricsHeight?: number;
+  readonly teamCollectionActionsHeight?: number;
 }
 
 export interface TimelineGeometry {
@@ -22,6 +23,7 @@ export interface TimelineGeometry {
   readonly dayWidth: number;
   readonly teamHeaderHeight: number;
   readonly globalMetricsHeight?: number;
+  readonly teamCollectionActionsHeight?: number;
   readonly dates: readonly TimelineDateGeometry[];
   readonly timeAxis: TimelineTimeAxisGeometry;
   readonly maxEffectiveCapacity: Capacity;
