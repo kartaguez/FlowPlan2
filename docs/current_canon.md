@@ -109,7 +109,8 @@ The Team panels are aligned with lanes in one SVG/Geometry and one temporal
 coordinate system. The date marker crosses the year/month axis and Team lanes;
 the global metrics row and Team headers share the SVG's vertical layout. Team
 panels are not independent timelines. The pale blue axis rows, Projection date
-bands, and Team lanes are clickable temporal surfaces. Each band repeats the
+bands, Team collection row outside its Create Team button, and Team lanes are
+clickable temporal surfaces. Each band repeats the
 formatted date beside the same blue marker. The Timeline itself accepts
 Left/Right, Home/End keyboard navigation; Ctrl+Left/Right remains global outside
 editable fields and modals. The four cumulative metrics use the
