@@ -16,7 +16,7 @@ const tscEntryPoint = resolve(
   "node_modules/typescript/bin/tsc",
 );
 const host = "127.0.0.1";
-const port = Number.parseInt(process.env.PORT ?? "4173", 10);
+const port = Number.parseInt(process.env.PORT ?? "4174", 10);
 const mimeTypes = new Map([
   [".css", "text/css; charset=utf-8"],
   [".html", "text/html; charset=utf-8"],
