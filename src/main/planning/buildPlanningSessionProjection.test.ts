@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { describe, it } from "node:test";
 import { createDemoPlanningScenario } from "../demo/createDemoPlanningScenario.js";
+import { calculateCursorMetrics } from "../../adapters/index.js";
 import { buildPlanningSessionProjection } from "./buildPlanningSessionProjection.js";
 
 const geometryViewport = Object.freeze({
@@ -29,6 +30,16 @@ describe("buildPlanningSessionProjection", () => {
     assert.equal(first.geometry.width, geometryViewport.width);
     assert.equal(first.geometry.teams.length, state.portfolio.teams.length);
     assert.equal(Object.isFrozen(first), true);
+    assert.strictEqual(first.portfolio, state.portfolio);
+    assert.equal(first.horizon.start, state.planning.startDate);
+    assert.equal(first.horizon.end, state.planning.endDate);
+    const metrics = calculateCursorMetrics({
+      portfolio: first.portfolio,
+      horizon: first.horizon,
+      planningResult: first.planningResult,
+      selectedDate: state.planning.startDate,
+    });
+    assert.equal(metrics.selectedDate, state.planning.startDate);
   });
 
   it("is a deterministic DOM-free composition boundary", async () => {

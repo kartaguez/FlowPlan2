@@ -86,6 +86,16 @@ Vanilla DOM / SVG UI
 ViewModels and Geometry are immutable, disposable projections. They are never
 sources of truth and are never mutated as application state.
 
+Cursor metrics are a separate exact adapter projection over the current run's
+Portfolio, PlanningResult, horizon, and a presentation-selected date. They
+accumulate inclusive daily Team effective, requested reserved, and allocated
+capacities. Utilization is `(requested reserved + allocated) / effective`,
+undefined when effective is zero and otherwise unclamped. Project, Program,
+and PriorityFamily/PAS progress divides cumulative allocations across all
+Teams by the sum of their requirements' RAF at the start of that run. A zero
+baseline for a non-empty group means exact completion; an empty catalog group
+has no metric entry. Cursor changes do not recompute planning.
+
 ## Editable application state and transaction pipeline
 
 ```text

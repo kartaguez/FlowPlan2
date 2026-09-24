@@ -43,3 +43,12 @@ export {
   GEOMETRY_EPSILON,
   snapToGeometryBoundary,
 } from "./timeline/geometry/geometryNumbers.js";
+export {
+  calculateCursorMetrics,
+  type CalculateCursorMetricsInput,
+  type CursorMetricsProjection,
+  type CursorTeamMetrics,
+  type CursorProjectMetrics,
+  type CursorProgramMetrics,
+  type CursorPriorityFamilyMetrics,
+} from "./metrics/cursorMetrics.js";

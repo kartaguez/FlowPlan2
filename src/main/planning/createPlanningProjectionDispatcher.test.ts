@@ -14,6 +14,7 @@ import {
   createRemainingWorkload,
   createUnavailabilityRatio,
   createWorkingPattern,
+  rationalToCanonicalString,
   serializeQuantity,
   type DomainResult,
   type ProjectId,
@@ -22,6 +23,7 @@ import {
   reservedCapacity,
 } from "../../domain/index.js";
 import { createDemoPlanningScenario } from "../demo/createDemoPlanningScenario.js";
+import { calculateCursorMetrics } from "../../adapters/index.js";
 import { buildPlanningSessionProjection } from "./buildPlanningSessionProjection.js";
 import { createPlanningProjectionDispatcher } from "./createPlanningProjectionDispatcher.js";
 
@@ -78,6 +80,62 @@ function commandFor(
 }
 
 describe("PlanningProjectionDispatcher", () => {
+  it("reuses one run for cursor dates without dispatch and replaces all run references after an edit", () => {
+    const initial = createDemoPlanningScenario();
+    const session = createPlanningSession(initial);
+    let buildCount = 0;
+    const dispatcher = createPlanningProjectionDispatcher({
+      session,
+      geometryViewport,
+      buildProjection: (input) => {
+        buildCount += 1;
+        return buildPlanningSessionProjection(input);
+      },
+    });
+    const before = dispatcher.getProjection();
+    const atStart = calculateCursorMetrics({
+      portfolio: before.portfolio,
+      horizon: before.horizon,
+      planningResult: before.planningResult,
+      selectedDate: before.horizon.start,
+    });
+    const atEnd = calculateCursorMetrics({
+      portfolio: before.portfolio,
+      horizon: before.horizon,
+      planningResult: before.planningResult,
+      selectedDate: before.horizon.end,
+    });
+    assert.equal(atStart.selectedDate, before.horizon.start);
+    assert.equal(atEnd.selectedDate, before.horizon.end);
+    assert.equal(buildCount, 1);
+    assert.strictEqual(dispatcher.getProjection(), before);
+
+    const changed = dispatcher.dispatch(commandFor(initial, initial.portfolio.projects[0]!.id, {
+      teamRequirements: initial.portfolio.projects[0]!.requirements.map((requirement) => ({
+        ...requirement, remainingWorkload: must(createRemainingWorkload("7")),
+      })),
+    }));
+    assert.equal(changed.ok, true);
+    assert.equal(buildCount, 2);
+    const after = dispatcher.getProjection();
+    assert.notStrictEqual(after, before);
+    assert.strictEqual(after.portfolio, session.getState().portfolio);
+    assert.notStrictEqual(after.portfolio, before.portfolio);
+    assert.notStrictEqual(after.planningResult, before.planningResult);
+    const updatedMetrics = calculateCursorMetrics({
+      portfolio: after.portfolio,
+      horizon: after.horizon,
+      planningResult: after.planningResult,
+      selectedDate: after.horizon.start,
+    });
+    assert.equal(updatedMetrics.selectedDate, after.horizon.start);
+    assert.notEqual(
+      rationalToCanonicalString(updatedMetrics.projects[0]!.baselineRAF),
+      rationalToCanonicalString(atStart.projects[0]!.baselineRAF),
+    );
+    assert.equal(buildCount, 2);
+  });
+
   it("recomputes once for a grouping edit and never for an unknown catalog reference", () => {
     const initial = createDemoPlanningScenario();
     const session = createPlanningSession(initial);

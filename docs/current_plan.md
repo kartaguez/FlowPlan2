@@ -1,15 +1,15 @@
 # FlowPlan2 current plan
 
 Current validated baseline:
-`b630e4e0c30acdee82711b4d3f792a5239645ce3`
+`518832cfe84f3d5f76d2ad65cd69a126967f851a`
 
 This is the operational roadmap for the active trajectory. Durable product and
 architecture rules live in [canon](./canon.md); current implementation facts
 and temporary constraints live in [current canon](./current_canon.md).
 
-The roadmap uses `9A`–`9G`: Phase 8C and its validated UI correction are the
-baseline, and each Phase 9 lot is intended to fit one commit or a small,
-coherent commit set. Actuals/History is a later trajectory, not a Phase 9 lot.
+The roadmap uses `9A`–`9G`: validated 9A is the baseline, and each Phase 9 lot
+is intended to fit one commit or a small, coherent commit set. Actuals/History
+is a later trajectory, not a Phase 9 lot.
 
 ## Completed
 
@@ -20,13 +20,12 @@ coherent commit set. Actuals/History is a later trajectory, not a Phase 9 lot.
 - atomic application editing pipeline;
 - global Planning settings, Team settings, and Project editing;
 - global multi-Team Reservations with ratio and fixed-daily requests;
-- Portfolio tabs and stacked Team panel UI.
+- Portfolio tabs and stacked Team panel UI;
+- 9A Program / PAS foundations (DONE).
 
 ## Ordered remaining lots
 
 ```text
-9A Program / PAS foundations
-        ↓
 9B Cursor metrics projection
         ↓
 9C Cursor metrics UI
@@ -42,73 +41,16 @@ coherent commit set. Actuals/History is a later trajectory, not a Phase 9 lot.
 Later trajectory: Actuals / History
 ```
 
-The recommended execution order is `9A` through `9G`. `9A → 9B` is a hard
-dependency because Program/PAS aggregated progress needs the grouping
-dimensions. `9B → 9C` separates metric semantics from rendering. `9D` has no
-hard dependency on metrics but follows them in this roadmap to keep one clear
+The remaining execution order is `9B` through `9G`. Validated 9A supplies the
+grouping dimensions needed by 9B. `9B → 9C` separates metric semantics from
+rendering. `9D` has no hard dependency on metrics but follows them to keep one clear
 next lot at a time. The CRUD series establishes Team referential-integrity
 policy before Project and Reservation membership workflows.
 
-## 9A — Program / PAS foundations
-
-**Goal**
-
-Add the two optional Project grouping dimensions already selected for future
-analysis: Program and `PriorityFamily` / PAS.
-
-**Status: IN REVIEW** — 9A is technically implemented, its new and adapted
-automated tests and TypeScript build pass, and it awaits human review and
-validation. It remains a lot to validate, not a completed validated lot. 9B
-must not be treated as officially unblocked or started until 9A is validated.
-The `Current validated baseline` SHA above remains the previously validated
-baseline; this review implementation does not move it.
-
-**Scope**
-
-- A Project may optionally belong to one Program and one PriorityFamily/PAS.
-- The dimensions are labels/identities for grouping and analysis only.
-- `Portfolio.priorityOrder` remains the sole global Project priority.
-
-**Domain changes**
-
-Introduce the minimum explicit Program and PriorityFamily/PAS identities and
-optional Project references, with Portfolio referential validation. Neither
-dimension affects eligibility, admission, allocation, deadlines, or capacity.
-
-**Application changes**
-
-Carry and preserve the optional associations in Project editing commands and
-edit ViewModels. The initial Program/PAS catalogs are static in the demo
-session; no structural CRUD is part of this lot.
-
-**UI changes**
-
-Expose optional Program and PAS assignment in Project editing and display both
-labels on the second line of every Portfolio Project entry, using `—` for an
-absent association.
-
-**Tests**
-
-Cover optional membership, invalid references, immutable updates, preservation
-through unrelated edits, and proof that planning output is unchanged when only
-grouping changes.
-
-**Explicit non-goals**
-
-No priority semantics, metrics, drag/drop, generalized CRUD, persistence, or
-actuals/history.
-
-**Exit criteria**
-
-Projects can be grouped by both dimensions; both survive the full editing and
-projection path; the full business planning result is invariant under
-grouping-only changes.
-
-**Dependencies**
-
-Current Project/Portfolio model and editing pipeline. Required before 9B.
-
 ## 9B — Cursor metrics projection
+
+**Status: IN REVIEW** — implemented and awaiting human validation. 9C remains
+blocked; the validated baseline above stays on 9A.
 
 **Goal**
 
@@ -125,8 +67,8 @@ For each Team, over the inclusive interval
 - Project Allocated capacity;
 - utilization = `(Reserved + Allocated) / Effective`.
 
-If Effective is zero, utilization is undefined / N/A. Utilization is not
-clamped and may exceed 100% under over-reservation.
+If Effective is zero, utilization is undefined; 9C may render N/A. Utilization
+is not clamped and may exceed 100% under over-reservation.
 
 Project progress is:
 
@@ -135,10 +77,11 @@ cumulative allocations / current-run baseline RAF
 ```
 
 The baseline is the RAF supplied to the current projection run, before that
-run's allocations. Baseline zero means 100% progress. Program and PAS progress
-is workload-weighted: sum cumulative allocations divided by sum current-run
-baseline RAF for the grouped Project requirements, not an average of Project
-percentages.
+run's allocations. Project baseline zero means 100% progress. Program and PAS
+progress is workload-weighted: sum cumulative allocations divided by sum
+current-run baseline RAF for the grouped Project requirements, not an average
+of Project percentages. A non-empty group with zero baseline is 100%; empty
+catalog groups have no metric entry.
 
 **Domain changes**
 
@@ -148,8 +91,9 @@ state.
 
 **Application changes**
 
-Make the current-run RAF baseline and the current `selectedDate` available to
-the metric projection without turning cursor state into domain state.
+The composition exposes Portfolio and horizon references alongside its
+PlanningResult. The adapter derives baseline RAF from that Portfolio; the
+current `selectedDate` remains a separate presentation input.
 
 **UI changes**
 
@@ -181,6 +125,8 @@ Project, Program, and PAS values for any selected horizon date.
 
 Present the 9B cumulative metrics for the selected date without changing
 planning or temporal interaction.
+
+**Status: NOT STARTED** — blocked pending human validation of 9B.
 
 **Scope**
 

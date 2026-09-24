@@ -29,12 +29,18 @@ demo session. The following capabilities are complete and active:
 The implementation follows the state, atomicity, engine, and projection
 invariants in [canon](./canon.md).
 
-Lot 9A is implemented and **IN REVIEW**. Program and PriorityFamily (shown as
+Lot 9A is validated and **DONE**. Program and PriorityFamily (shown as
 PAS) are optional Project associations. Their catalogs are static in the demo
 session; the Project editor offers two optional selects, and each Portfolio
 Project card shows `Program <name or —> · PAS <name or —>` beneath its title.
-The associations have no effect on the planning result. This implementation
-awaits human validation and is not yet part of the validated baseline.
+The associations have no effect on the planning result.
+
+Lot 9B is implemented and **IN REVIEW**. A pure adapter projects exact
+cumulative Team utilization and Project, Program, and PAS progress for an
+inclusive selected-date interval. The current-run RAF baseline comes from the
+same Portfolio used to plan; Portfolio and horizon references travel with the
+PlanningResult in the disposable session projection. Cursor metrics are not
+rendered yet. Lot 9C is not started and awaits human validation of 9B.
 
 ## Current product trajectory
 
@@ -113,8 +119,8 @@ These are current implementation facts, not durable product rules:
 - priority is editable as a numeric position, but there is no drag/drop;
 - Program and PriorityFamily/PAS catalogs are static; they have no create,
   delete, or rename UI;
-- cursor summaries are daily only; cumulative cursor metrics and progress do
-  not exist;
+- cursor summaries are daily only; cumulative metrics exist as an adapter
+  projection but have no UI rendering yet;
 - Reservation allocation rows may be enabled/disabled for existing Teams, but
   the Reservation entity itself cannot be created or deleted;
 - no dedicated automated browser/E2E stack is present; coverage is primarily

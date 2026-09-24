@@ -1,10 +1,13 @@
 export type { DomainError, DomainResult } from "./model/result.js";
 export {
+  addRationals,
   divideRationals,
+  isZero,
   parseDecimalRational,
   parseSerializedRational,
   rationalFromInteger,
   rationalToCanonicalString,
+  type Rational,
 } from "./model/rational.js";
 export {
   addDays,
@@ -31,6 +34,7 @@ export {
   createUnavailabilityRatio,
   dailyCapFromSerialized,
   quantityToDecimalString,
+  rationalOf,
   remainingWorkloadFromSerialized,
   reservationRatioFromSerialized,
   unavailabilityRatioFromSerialized,
