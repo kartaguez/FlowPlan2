@@ -23,15 +23,19 @@ describe("ProjectEditViewModel", () => {
     assert.equal(model.mandatoryDeadline, undefined);
     assert.deepEqual(
       model.requirements.map((requirement) => requirement.teamLabel),
-      ["Team Alpha", "Team Beta"],
+      ["Team Alpha", "Team Beta", "Team Gamma"],
     );
     assert.deepEqual(
       model.requirements.map((requirement) => requirement.remainingWorkload),
-      ["55", "30"],
+      ["55", "30", ""],
     );
     assert.deepEqual(
       model.requirements.map((requirement) => requirement.dailyCapExact),
-      ["3/2", "1/1"],
+      ["3/2", "1/1", undefined],
+    );
+    assert.deepEqual(
+      model.requirements.map((requirement) => requirement.enabled),
+      [true, true, false],
     );
     for (const requirement of model.requirements) {
       assert.equal("earliestStartDate" in requirement, false);

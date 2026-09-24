@@ -196,6 +196,7 @@ function fixture() {
       const ownGeneration = generation;
       return {
         getState: () => ({ hovered: undefined, selected: currentSelected }),
+        refreshTooltip: () => {},
         destroy: () => lifecycle.push(`destroy-interaction-${ownGeneration}`),
       };
     },
@@ -246,7 +247,8 @@ function fixture() {
     }) => {
       shellInputs.push(input);
       activePortfolioTab = input.initialTab ?? "projects";
-      return { teamMetricsContainers: new Map(), getActiveTab: () => activePortfolioTab, destroy() {} };
+      return { teamMetricsContainers: new Map(), getActiveTab: () => activePortfolioTab,
+        showEditingCard: () => {}, destroy() {} };
     },
     renderCursorTeamMetrics: () => {},
     createCursorProgressSurface: (_container: HTMLElement, onChange: typeof onProgressViewChange) => {
@@ -490,7 +492,7 @@ describe("TimelineUiCoordinator", () => {
     assert.equal(coordinator.getUiSnapshot().activePortfolioTab, "reservations");
   });
 
-  it("uses one explicit modal check for all four dialog surfaces", () => {
+  it("uses one explicit modal check for the three remaining dialog surfaces", () => {
     const input = fixture();
     createTimelineUiCoordinator({
       elements: input.elements,
@@ -509,7 +511,6 @@ describe("TimelineUiCoordinator", () => {
     for (const modal of [
       input.elements.planningSettingsControls.container,
       input.elements.teamEditControls.container,
-      input.elements.reservationEditControls.container,
       input.elements.diagnosticsControls.dialog,
     ]) {
       modal.hidden = false;
@@ -572,8 +573,14 @@ describe("TimelineUiCoordinator", () => {
     assert.equal(input.projectModels.at(-1), undefined);
     input.shellInputs.at(-1)!.onProjectSelect(input.projectId);
     assert.equal(input.projectModels.at(-1), input.editModel);
+    const hydrations = input.projectModels.length;
+    input.shellInputs.at(-1)!.onProjectSelect(input.projectId);
+    assert.equal(input.projectModels.length, hydrations);
     assert.equal(input.teamModels.at(-1), undefined);
     assert.equal(input.reservationModels.at(-1), undefined);
+    input.select({ kind: "reservation", reservationId: input.reservationId,
+      teamId: input.teamId, date: input.firstDate });
+    assert.equal(input.reservationModels.at(-1), input.reservationModel);
   });
 });
 
@@ -639,13 +646,13 @@ function createElements(): AppElements {
       status: element() as unknown as HTMLElement,
     },
     applicationError: element() as unknown as HTMLElement,
+    projectEditError: element() as unknown as HTMLElement,
     reservationEditError: element() as unknown as HTMLElement,
     teamPanels: element() as unknown as HTMLElement,
     projectList: element() as unknown as HTMLElement,
     reservationList: element() as unknown as HTMLElement,
     projectTab: element() as unknown as HTMLButtonElement,
     reservationTab: element() as unknown as HTMLButtonElement,
-    editorDrawer: element() as unknown as HTMLElement,
   };
   elements.planningSettingsControls.container.hidden = true;
   elements.teamEditControls.container.hidden = true;

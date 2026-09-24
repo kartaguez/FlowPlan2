@@ -10,6 +10,7 @@ import {
   createCapacity,
   createCivilDate,
   createProjectId,
+  rationalFromInteger,
   createTeamId,
   type DomainResult,
 } from "../../domain/index.js";
@@ -169,7 +170,7 @@ function fixture() {
           },
         ],
         projectStates: [
-          { projectId, teamId, deadlineStatus: "FEASIBLE" },
+          { projectId, teamId, deadlineStatus: "FEASIBLE", initialWorkload: must(createCapacity("4")) },
         ],
       },
     ],
@@ -197,6 +198,35 @@ function fixture() {
 }
 
 describe("createTimelineInteractionController", () => {
+  it("refreshes a visible Project tooltip when exact cursor progress changes", () => {
+    const input = fixture();
+    input.controller.destroy();
+    let progress = rationalFromInteger(0n);
+    const controller = createTimelineInteractionController({
+      svg: input.svg as unknown as SVGSVGElement,
+      geometry: {
+        width: 300, height: 156,
+        teams: [{ teamId: input.teamId, x: 0, y: 56, width: 300, height: 100,
+          markers: [], days: [{ allocations: [{ projectId: input.projectId, teamId: input.teamId,
+            date: input.date, x: 0, y: 106, width: 100, height: 50 }] }] }],
+      } as unknown as TimelineGeometry,
+      viewModel: { projects: [{ id: input.projectId, label: "Project Atlas", priorityIndex: 0,
+        estimatedWithinHorizon: true }], teams: [{ id: input.teamId, label: "Team Alpha", allocations: [],
+        projectStates: [{ projectId: input.projectId, teamId: input.teamId,
+          initialWorkload: must(createCapacity("4")) }] }] } as unknown as TimelineViewModel,
+      getViewport: () => ({ x: 0, width: 300 }),
+      tooltipContainer: input.tooltip as unknown as HTMLElement,
+      selectionSummaryContainer: input.summary as unknown as HTMLElement,
+      keyboardControl: input.keyboard as unknown as HTMLElement,
+      getProjectProgress: () => progress,
+    });
+    input.svg.dispatch("pointermove", pointer(1, 25, 130));
+    assert.match(input.tooltip.textContent ?? "", /Progress: 0%/);
+    progress = rationalFromInteger(1n);
+    controller.refreshTooltip();
+    assert.match(input.tooltip.textContent ?? "", /Progress: 100%/);
+    controller.destroy();
+  });
   it("restores a compatible initial selection and reports selection changes", () => {
     const input = fixture();
     input.controller.destroy();
@@ -234,15 +264,15 @@ describe("createTimelineInteractionController", () => {
     assert.deepEqual(changes, ["team"]);
   });
 
-  it("keeps hover separate and renders semantic allocation and marker tooltips", () => {
+  it("keeps hover separate and shows business tooltips only for allocations", () => {
     const input = fixture();
 
     input.svg.dispatch("pointermove", pointer(1, 25, 130));
     assert.equal(input.controller.getState().hovered?.kind, "allocation");
-    assert.match(input.tooltip.textContent ?? "", /Workload: 3\/2/);
+    assert.match(input.tooltip.textContent ?? "", /Charge: 4 MD/);
     input.svg.dispatch("pointermove", pointer(1, 52, 130));
     assert.equal(input.controller.getState().hovered?.kind, "project-marker");
-    assert.match(input.tooltip.textContent ?? "", /Mandatory deadline/);
+    assert.equal(input.tooltip.hidden, true);
     input.svg.dispatch("pointerleave", pointer(1, 52, 130));
     assert.equal(input.controller.getState().hovered, undefined);
     assert.equal(input.tooltip.hidden, true);

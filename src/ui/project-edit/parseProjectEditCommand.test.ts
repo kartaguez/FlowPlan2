@@ -57,6 +57,20 @@ function values(
 }
 
 describe("parseProjectEditCommand", () => {
+  it("ignores disabled Team rows and requires RAF for a newly enabled row", () => {
+    const disabled = { teamId: betaId, enabled: false, remainingWorkload: "invalid",
+      remainingWorkloadExact: "", remainingWorkloadDirty: true };
+    const skipped = parseProjectEditCommand(values({ requirements: [values().requirements[0]!, disabled] }));
+    assert.equal(skipped.ok, true);
+    if (skipped.ok) assert.deepEqual(skipped.command.teamRequirements.map((item) => item.teamId), [alphaId]);
+    const blank = parseProjectEditCommand(values({ requirements: [values().requirements[0]!, { ...disabled, enabled: true,
+      remainingWorkload: "", remainingWorkloadDirty: false }] }));
+    assert.equal(blank.ok, false);
+    const entered = parseProjectEditCommand(values({ requirements: [values().requirements[0]!, { ...disabled, enabled: true,
+      remainingWorkload: "7.5", remainingWorkloadDirty: true }] }));
+    assert.equal(entered.ok, true);
+    if (entered.ok) assert.equal(serializeQuantity(entered.command.teamRequirements[1]!.remainingWorkload), "15/2");
+  });
   it("parses catalog identities and an explicit empty choice", () => {
     const programId = must(createProgramId("program-phoenix"));
     const priorityFamilyId = must(createPriorityFamilyId("pas-strategic"));

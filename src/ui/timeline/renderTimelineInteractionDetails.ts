@@ -1,18 +1,25 @@
 import type {
   TimelineProject,
+  TimelineReservation,
   TimelineTeam,
   TimelineViewModel,
 } from "../../adapters/index.js";
 import {
   serializeQuantity,
+  rationalOf,
   type ProjectId,
+  type ReservationId,
+  type Rational,
   type TeamId,
 } from "../../domain/index.js";
 import type { TimelineHit } from "./timelineHitTesting.js";
+import { formatCursorMd, formatCursorPercent } from "./formatCursorMetrics.js";
+import { formatPercentageForEditing } from "../../application/session/editableQuantity.js";
 
 export interface TimelineInteractionLookup {
   readonly projectsById: ReadonlyMap<ProjectId, TimelineProject>;
   readonly teamsById: ReadonlyMap<TeamId, TimelineTeam>;
+  readonly reservationsById: ReadonlyMap<ReservationId, TimelineReservation>;
 }
 
 export function createTimelineInteractionLookup(
@@ -21,6 +28,7 @@ export function createTimelineInteractionLookup(
   return Object.freeze({
     projectsById: indexUnique(viewModel.projects, "project"),
     teamsById: indexUnique(viewModel.teams, "team"),
+    reservationsById: indexUnique(viewModel.reservations ?? [], "reservation"),
   });
 }
 
@@ -30,17 +38,18 @@ export interface RenderTimelineTooltipInput {
   readonly hit: TimelineHit | undefined;
   readonly clientX: number;
   readonly clientY: number;
+  readonly getProjectProgress?: (projectId: ProjectId) => Rational | undefined;
 }
 
 export function renderTimelineTooltip(
   input: RenderTimelineTooltipInput,
 ): void {
-  if (input.hit === undefined) {
+  if (input.hit === undefined || input.hit.kind === "team" || input.hit.kind === "project-marker") {
     input.container.hidden = true;
     input.container.textContent = "";
     return;
   }
-  input.container.textContent = describeHit(input.lookup, input.hit).join("\n");
+  input.container.textContent = tooltipLines(input.lookup, input.hit, input.getProjectProgress).join("\n");
   input.container.style.left = `${input.clientX + 12}px`;
   input.container.style.top = `${input.clientY + 12}px`;
   input.container.hidden = false;
@@ -81,6 +90,11 @@ function describeHit(
   const team = lookup.teamsById.get(hit.teamId);
   if (team === undefined) throw new TypeError(`Unknown timeline team ${hit.teamId}.`);
   if (hit.kind === "team") return Object.freeze([team.label]);
+  if (hit.kind === "reservation") {
+    const reservation = lookup.reservationsById.get(hit.reservationId);
+    if (reservation === undefined) throw new TypeError(`Unknown reservation ${hit.reservationId}.`);
+    return Object.freeze([reservation.label, team.label, hit.date]);
+  }
 
   const project = lookup.projectsById.get(hit.projectId);
   if (project === undefined) {
@@ -122,7 +136,36 @@ function selectionHeading(hit: TimelineHit): string {
       return "Selected project marker";
     case "team":
       return "Selected team";
+    case "reservation":
+      return "Selected reservation";
   }
+}
+
+function tooltipLines(
+  lookup: TimelineInteractionLookup,
+  hit: Extract<TimelineHit, { kind: "allocation" | "reservation" }>,
+  getProjectProgress?: (projectId: ProjectId) => Rational | undefined,
+): readonly string[] {
+  const team = lookup.teamsById.get(hit.teamId);
+  if (team === undefined) throw new TypeError(`Unknown timeline team ${hit.teamId}.`);
+  if (hit.kind === "reservation") {
+    const reservation = lookup.reservationsById.get(hit.reservationId);
+    const allocation = reservation?.teamAllocations.find((item) => item.teamId === hit.teamId);
+    if (reservation === undefined || allocation === undefined) throw new TypeError("Unknown reservation allocation.");
+    const amount = allocation.amount.kind === "ratio"
+      ? `Ratio: ${formatPercentageForEditing(serializeQuantity(allocation.amount.ratio))}%`
+      : `Fixed daily: ${formatCursorMd(rationalOf(allocation.amount.dailyCapacity))}`;
+    return [reservation.label, `Team: ${team.label}`,
+      `Period: ${reservation.startDate} – ${reservation.endDate}`, amount];
+  }
+  const project = lookup.projectsById.get(hit.projectId);
+  const state = team.projectStates.find((item) => item.projectId === hit.projectId);
+  if (project === undefined || state?.initialWorkload === undefined) throw new TypeError("Unknown Project requirement.");
+  return [project.label,
+    `Charge: ${formatCursorMd(rationalOf(state.initialWorkload))}`,
+    `Objective end: ${project.objectiveEndDate ?? "—"}`,
+    `Estimated end: ${project.estimatedWithinHorizon === false ? "not estimated within horizon" : project.estimatedEndDate ?? "—"}`,
+    `Progress: ${formatCursorPercent(getProjectProgress?.(project.id))}`];
 }
 
 function markerKindLabel(
@@ -139,7 +182,7 @@ function markerKindLabel(
 }
 
 function indexUnique<
-  T extends { readonly id: ProjectId | TeamId },
+  T extends { readonly id: ProjectId | TeamId | ReservationId },
 >(items: readonly T[], label: string): ReadonlyMap<T["id"], T> {
   const indexed = new Map<T["id"], T>();
   for (const item of items) {

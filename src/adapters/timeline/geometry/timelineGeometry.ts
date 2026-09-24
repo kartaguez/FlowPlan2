@@ -3,6 +3,7 @@ import type {
   CivilDate,
   DeadlineStatus,
   ProjectId,
+  ReservationId,
   TeamId,
 } from "../../../domain/index.js";
 
@@ -89,6 +90,14 @@ export interface TimelineDayGeometry {
   readonly overReserved: boolean;
   readonly capacityTube: TimelineCapacityTubeGeometry;
   readonly allocations: readonly TimelineAllocationGeometry[];
+  readonly reservationSegments?: readonly TimelineReservationSegmentGeometry[];
+}
+
+export interface TimelineReservationSegmentGeometry extends TimelineRectGeometry {
+  readonly reservationId: ReservationId;
+  readonly teamId: TeamId;
+  readonly date: CivilDate;
+  readonly capacity: Capacity;
 }
 
 export interface TimelineAllocationGeometry {

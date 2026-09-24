@@ -10,6 +10,7 @@ import {
 import type {
   CivilDate,
   ProjectId,
+  ReservationId,
   TeamId,
 } from "../../domain/index.js";
 
@@ -33,9 +34,17 @@ export interface TimelineTeamHit {
   readonly teamId: TeamId;
 }
 
+export interface TimelineReservationHit {
+  readonly kind: "reservation";
+  readonly reservationId: ReservationId;
+  readonly teamId: TeamId;
+  readonly date: CivilDate;
+}
+
 export type TimelineHit =
   | TimelineAllocationHit
   | TimelineProjectMarkerHit
+  | TimelineReservationHit
   | TimelineTeamHit;
 
 export interface HitTestTimelineGeometryInput {
@@ -88,6 +97,17 @@ export function hitTestTimelineGeometry(
       const allocation = allocations[index]!;
       if (containsPointHalfOpen(allocation, x, y)) {
         return freezeAllocationHit(allocation);
+      }
+    }
+  }
+
+  for (let dayIndex = team.days.length - 1; dayIndex >= 0; dayIndex -= 1) {
+    const segments = team.days[dayIndex]!.reservationSegments ?? [];
+    for (let index = segments.length - 1; index >= 0; index -= 1) {
+      const segment = segments[index]!;
+      if (segment.height > 0 && containsPointHalfOpen(segment, x, y)) {
+        return Object.freeze({ kind: "reservation", reservationId: segment.reservationId,
+          teamId: segment.teamId, date: segment.date });
       }
     }
   }

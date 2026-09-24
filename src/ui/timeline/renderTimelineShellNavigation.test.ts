@@ -34,6 +34,7 @@ class FakeElement {
   append(...nodes: FakeElement[]): void { this.childNodes.push(...nodes); }
   replaceChildren(...nodes: FakeElement[]): void { this.childNodes = [...nodes]; }
   setAttribute(name: string, value: string): void { this.attributes.set(name, value); }
+  getAttribute(name: string): string | null { return this.attributes.get(name) ?? null; }
   addEventListener(type: string, listener: EventListener): void {
     const set = this.listeners.get(type) ?? new Set<Listener>();
     set.add(listener as Listener);
@@ -67,6 +68,9 @@ describe("renderTimelineShellNavigation", () => {
     const reservations = document.createElement("ol");
     const projectTab = document.createElement("button");
     const reservationTab = document.createElement("button");
+    const projectEditor = document.createElement("section");
+    const reservationEditor = document.createElement("section");
+    const changedTabs: string[] = [];
     const selectedTeams: string[] = [];
     const selectedProjects: string[] = [];
     const selectedReservations: string[] = [];
@@ -107,6 +111,9 @@ describe("renderTimelineShellNavigation", () => {
       onTeamSettings: (teamId) => selectedTeams.push(teamId),
       onProjectSelect: (projectId) => selectedProjects.push(projectId),
       onReservationSelect: (id) => selectedReservations.push(id),
+      projectEditContainer: projectEditor as unknown as HTMLElement,
+      reservationEditContainer: reservationEditor as unknown as HTMLElement,
+      onTabChange: (tab) => changedTabs.push(tab),
     });
     assert.equal(teams.childNodes.length, 3);
     assert.equal(teams.childNodes[1]!.dataset.teamId, alpha);
@@ -157,7 +164,12 @@ describe("renderTimelineShellNavigation", () => {
     );
     teams.childNodes[2]!.childNodes[0]!.childNodes[1]!.click();
     projects.childNodes[0]!.childNodes[0]!.click();
+    navigation.showEditingCard("project", projectB);
+    assert.equal(projects.childNodes[0]!.childNodes[0]!.attributes.get("aria-expanded"), "true");
+    assert.equal(projects.childNodes[0]!.childNodes[1]!.hidden, false);
+    assert.equal(projects.childNodes[0]!.childNodes[1]!.childNodes[0], projectEditor);
     reservationTab.click();
+    assert.deepEqual(changedTabs, ["reservations"]);
     assert.equal(navigation.getActiveTab(), "reservations");
     assert.equal(projectTab.attributes.get("aria-selected"), "false");
     assert.equal(reservationTab.attributes.get("aria-selected"), "true");
@@ -169,6 +181,13 @@ describe("renderTimelineShellNavigation", () => {
     assert.equal(projectTab.focused, true);
     reservationTab.click();
     reservations.childNodes[0]!.childNodes[0]!.click();
+    navigation.showEditingCard("reservation", reservationId, true);
+    assert.equal(reservations.childNodes[0]!.childNodes[0]!.attributes.get("aria-expanded"), "true");
+    assert.equal(reservations.childNodes[0]!.childNodes[0]!.focused, true);
+    assert.equal(reservations.childNodes[0]!.childNodes[1]!.childNodes[0], reservationEditor);
+    navigation.showEditingCard(undefined, undefined, true);
+    assert.equal(reservations.childNodes[0]!.childNodes[0]!.attributes.get("aria-expanded"), "false");
+    assert.equal(reservations.childNodes[0]!.childNodes[1]!.hidden, true);
     assert.deepEqual(selectedTeams, [beta]);
     assert.deepEqual(selectedProjects, [projectB]);
     assert.deepEqual(selectedReservations, [reservationId]);

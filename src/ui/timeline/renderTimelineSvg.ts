@@ -175,13 +175,21 @@ function renderDay(document: Document, day: TimelineDayGeometry): SVGElement {
     "timeline-project-region",
     day.capacityTube.projectRegion,
   );
+  const reservationSegments = createSvgElement(document, "g");
+  reservationSegments.setAttribute("class", "timeline-reservation-segments");
+  for (const segment of day.reservationSegments ?? []) {
+    if (segment.height <= 0) continue;
+    const rectangle = createRect(document, "timeline-reservation-segment", segment);
+    rectangle.setAttribute("data-reservation-id", segment.reservationId);
+    reservationSegments.append(rectangle);
+  }
   const allocations = createSvgElement(document, "g");
   allocations.setAttribute("class", "timeline-allocations");
   for (const allocation of day.allocations) {
     allocations.append(renderAllocation(document, allocation));
   }
 
-  group.append(cell, tube, reservedRegion, projectRegion, allocations);
+  group.append(cell, tube, reservedRegion, reservationSegments, projectRegion, allocations);
   return group;
 }
 

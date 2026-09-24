@@ -46,6 +46,7 @@ export function buildPlanningSessionProjection(
     portfolio: input.state.portfolio,
     horizon: horizonResult.value,
     planningResult,
+    workingPattern: input.state.planning.workingPattern,
   });
   const geometry = buildTimelineGeometry({
     viewModel,

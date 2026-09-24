@@ -4,6 +4,7 @@ import {
   addDays,
   createCapacity,
   createCivilDate,
+  createReservationId,
   createTeamId,
   serializeQuantity,
   type DomainResult,
@@ -61,6 +62,28 @@ const day = (
 ): DaySpec => ({ effective, reserved, project, overReserved });
 
 describe("TimelineGeometry capacity tubes", () => {
+  it("subdivides only the visible reserved region for named over-reservations", () => {
+    const viewModel = makeViewModel([[day("1", "3", "0", true)]]);
+    const team = viewModel.teams[0]!;
+    const currentDate = team.capacities[0]!.date;
+    const withContributions = { ...viewModel, teams: [{ ...team,
+      reservationContributions: [
+        { reservationId: must(createReservationId("first")), teamId: team.id, date: currentDate, capacity: capacity("1") },
+        { reservationId: must(createReservationId("second")), teamId: team.id, date: currentDate, capacity: capacity("2") },
+        { reservationId: must(createReservationId("zero")), teamId: team.id, date: currentDate, capacity: capacity("0") },
+      ],
+    }] };
+    const geometry = buildTimelineGeometry({ viewModel: withContributions,
+      viewport: { width: 100, teamLaneHeight: 100, timeAxisHeight: 40 } });
+    const projected = geometry.teams[0]!.days[0]!;
+    const segments = projected.reservationSegments!;
+    assert.deepEqual(segments.map((segment) => segment.reservationId), [
+      must(createReservationId("first")), must(createReservationId("second"))]);
+    assert.equal(projected.capacityTube.reservedRegion.height, 100);
+    assert.equal(segments[0]!.height + segments[1]!.height, 100);
+    assert.equal(segments[0]!.y, projected.capacityTube.reservedRegion.y);
+    assert.equal(segments[1]!.y + segments[1]!.height, projected.capacityTube.reservedRegion.y + 100);
+  });
   it("uses the maximum effective capacity across every team and day", () => {
     const geometry = buildTimelineGeometry({
       viewModel: makeViewModel([

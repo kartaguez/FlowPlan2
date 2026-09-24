@@ -3,7 +3,9 @@ import { describe, it } from "node:test";
 import type { TimelineGeometry } from "../../adapters/index.js";
 import {
   createCivilDate,
+  createCapacity,
   createProjectId,
+  createReservationId,
   createTeamId,
   type DomainResult,
 } from "../../domain/index.js";
@@ -19,6 +21,7 @@ const firstProjectId = must(createProjectId("project-one"));
 const secondProjectId = must(createProjectId("project-two"));
 const firstDate = must(createCivilDate("2025-01-01"));
 const secondDate = must(createCivilDate("2025-01-02"));
+const reservationId = must(createReservationId("reservation-run"));
 
 function geometry(): TimelineGeometry {
   return {
@@ -70,6 +73,8 @@ function geometry(): TimelineGeometry {
                 height: 50,
               },
             ],
+            reservationSegments: [{ reservationId, teamId, date: firstDate,
+              capacity: must(createCapacity("1")), x: 0, y: 56, width: 300, height: 30 }],
           },
           {
             date: secondDate,
@@ -96,6 +101,12 @@ function geometry(): TimelineGeometry {
 }
 
 describe("hitTestTimelineGeometry", () => {
+  it("hits an identifiable Reservation segment without replacing Team hits", () => {
+    assert.deepEqual(hitTestTimelineGeometry({ geometry: geometry(), x: 50, y: 70,
+      markerHitTolerance: 4 }), { kind: "reservation", reservationId, teamId, date: firstDate });
+    assert.equal(hitTestTimelineGeometry({ geometry: geometry(), x: 50, y: 95,
+      markerHitTolerance: 4 })?.kind, "team");
+  });
   it("hits an allocation at its center", () => {
     assert.deepEqual(
       hitTestTimelineGeometry({

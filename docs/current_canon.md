@@ -16,9 +16,9 @@ demo session. The following capabilities are complete and active:
   `maxParallelProjects` value applied independently per Team;
 - one shared timeline with stacked Team panels;
 - Team Settings for name and existing capacity periods;
-- Project editing for name, priority position, dates, and RAF by existing Team
-  requirement;
-- global multi-Team Reservations with ratio and fixed-daily modes;
+- Project editing for name, priority position, dates, and Team requirements;
+- global multi-Team Reservations with ratio and fixed-daily modes, edited in
+  inline Portfolio cards;
 - Projects / Reservations tabs in the Portfolio sidebar;
 - shared viewport, zoom, pan, selected date, cursor, hover, semantic hit
   testing, and selection;
@@ -67,10 +67,10 @@ Explicitly deferred:
 ```text
 Planning
 ├── global Settings icon
-├── viewport controls
 ├── Projection date control
 ├── cumulative Projects / Programs / PAS progress
 ├── compact diagnostics counts → details modal
+├── viewport controls
 ├── global time axis
 ├── Team panel
 │   ├── Team header + Settings icon + cumulative metrics
@@ -79,8 +79,8 @@ Planning
 └── selection summary
 
 Portfolio sidebar
-├── Projects
-└── Reservations
+├── Projects → expandable cards with inline editor and Team subcards
+└── Reservations → expandable cards with inline editor and Team subcards
 ```
 
 The Team panels are aligned with lanes in one SVG/Geometry and one temporal
@@ -92,13 +92,25 @@ The coordinator has one mutually exclusive editing context:
 
 - `project`, opened from the Project list or a marker/allocation hit;
 - `team`, opened only from a Team Settings button;
-- `reservation`, opened from the Reservations list.
+- `reservation`, opened from the Reservations list or a Reservation segment hit.
 
 Changing context hydrates only the matching editor and clears the other two.
 Timeline selection and editing context are independent and reconciled
-separately on rerender. Allocation and Project-marker hits open Project editing;
-Team and empty hits only change Timeline selection, leaving any open editor
-unchanged.
+separately on rerender. Allocation and Project-marker hits open the Project
+card; a named Reservation segment opens its Reservation card. Team and empty
+hits only change Timeline selection, leaving any open editor unchanged. The
+reserved Timeline region remains one aggregate capacity surface subdivided
+visually into identifiable Reservation contributions. Only allocation and
+Reservation-segment hits show a business tooltip. The Project tooltip uses the
+Team requirement's initial RAF, a global Project estimated end date when all
+requirements complete within the horizon, and exact whole-Project progress at
+the shared Projection date.
+
+Only one Portfolio card is edited at a time. Team association and detail
+expansion are independent local draft states. Cancel discards the draft;
+opening another card or changing tabs also discards it. A successful Apply
+keeps the card open and rehydrates it from session state; a rejected Apply
+preserves the draft without recomputation.
 
 ## Current application commands
 
@@ -106,7 +118,7 @@ The editable session currently accepts:
 
 - `update-planning-settings`: replaces horizon, global working pattern, and
   global parallelism setting;
-- `update-project`: replaces editable fields and all existing Team
+- `update-project`: replaces editable fields and the final set of Team
   requirements, including optional Program/PAS associations and a
   priority-position move;
 - `update-team-name`: renames one existing Team;
@@ -124,7 +136,8 @@ These are current implementation facts, not durable product rules:
 
 - the browser starts from a hard-coded demo scenario; there is no persistence;
 - structural CRUD is absent for Teams, Projects, and Reservations;
-- Project Team-requirement membership cannot be added or removed;
+- Project Team-requirement membership can be added or removed through the
+  existing Project update command; this is a targeted anticipation of 9F;
 - capacity periods can be edited but not added, removed, or reordered;
 - capacity exceptions exist in the domain but have no editor;
 - Project `dailyCap` remains active in domain/planner but is hidden and

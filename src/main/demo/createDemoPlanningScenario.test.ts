@@ -53,6 +53,7 @@ describe("demo planning bootstrap", () => {
       portfolio: scenario.portfolio,
       horizon,
       planningResult,
+      workingPattern: scenario.planning.workingPattern,
     });
     const geometry = buildTimelineGeometry({
       viewModel,
@@ -78,6 +79,16 @@ describe("demo planning bootstrap", () => {
         ),
       ),
     );
+    assert.ok(geometry.teams.some((team) => team.days.some((day) => (day.reservationSegments?.length ?? 0) > 0)));
+    for (const team of geometry.teams) for (const day of team.days) {
+      const region = day.capacityTube.reservedRegion;
+      for (const segment of day.reservationSegments ?? []) {
+        assert.ok(segment.y >= region.y);
+        assert.ok(segment.y + segment.height <= region.y + region.height + 1e-9);
+        assert.equal(segment.x, region.x);
+        assert.equal(segment.width, region.width);
+      }
+    }
     assert.ok(
       viewModel.teams.some((team) =>
         team.capacities.some(

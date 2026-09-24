@@ -52,18 +52,26 @@ workflows.
 **Status: IN REVIEW** — implementation and automated verification complete;
 validated baseline remains the 9C implementation commit above.
 
-The Planning header now places viewport controls, one Projection date line,
-cumulative progress, and compact red/grey diagnostic counts before the shared
-Timeline stage. Diagnostic details open in a focused modal. The former daily
-Team summary is removed; cumulative Team and Projects / Programs / PAS metrics
-remain at the shared cursor date. Ctrl+ArrowLeft/Right moves that date outside
-editable fields and modals without planning recomputation. Portfolio tabs hide
-their inactive panel. A Team lane hit remains selectable but never opens Team
-Settings; its selection leaves any editing context unchanged. Only the Team
-Settings button opens that editor.
+The Planning header places one Projection date, cumulative progress, compact
+red/grey diagnostic counts, then viewport controls immediately before the
+shared Timeline. Team headers are more compact. The former daily Team summary
+is removed; cumulative Team and Projects / Programs / PAS metrics remain at the
+shared cursor date. Ctrl+ArrowLeft/Right moves that date outside editable
+fields and modals without planning recomputation. Project allocation and named
+Reservation segments have business tooltips; Team lanes and Project markers
+remain selectable without tooltips.
+
+Portfolio Projects and Reservations use compact cards with inline editors,
+global Apply/Cancel, and independently expandable Team subcards. Their Team
+toggles change only a local draft until Apply. One card is edited at a time;
+Cancel closes it, while a successful Apply keeps it open with current session
+values. The Project update command now adds/removes Team requirements atomically,
+anticipating only that narrow part of 9F; Project and Team entity CRUD remain
+future work. A Team lane hit never opens Team Settings and leaves any editing
+context unchanged. Only the Team Settings button opens that editor.
 
 Human validation should confirm the layout, keyboard interactions, modal focus,
-Portfolio exclusivity, and Team lane/editor separation in a browser. Do not
+inline card drafts, Portfolio exclusivity, and Team lane/editor separation in a browser. Do not
 advance the baseline or start 9D before validation.
 
 ## 9D — Priority drag/drop
@@ -171,8 +179,9 @@ Create/remove Projects and structurally edit their Team requirements.
 
 **Scope**
 
-Add/remove Project entities; add/remove Team requirements; keep
-`portfolio.priorityOrder` complete and unique.
+Add/remove Project entities and finish structural workflows around Team
+requirements; keep `portfolio.priorityOrder` complete and unique. Editing the
+requirement membership of an existing Project was delivered early in 9C.1.
 
 **Domain changes**
 
@@ -181,13 +190,14 @@ requirement. Define insertion position in global priority explicitly.
 
 **Application changes**
 
-Add atomic commands for Project lifecycle and requirement membership, with RAF
-and hidden `dailyCap` preservation where a requirement is untouched.
+Add atomic commands for Project lifecycle; retain the existing atomic
+`update-project` membership path, RAF validation, and hidden `dailyCap`
+preservation where a requirement is untouched.
 
 **UI changes**
 
-Provide Project creation/removal and Team-assignment controls, including
-confirmation and editing-context reconciliation.
+Provide Project creation/removal and their confirmation and editing-context
+reconciliation; retain the Team-assignment controls introduced in 9C.1.
 
 **Tests**
 

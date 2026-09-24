@@ -16,13 +16,13 @@ export interface AppElements {
   readonly teamEditControls: TeamEditControls;
   readonly reservationEditControls: ReservationEditControls;
   readonly applicationError: HTMLElement;
+  readonly projectEditError: HTMLElement;
   readonly reservationEditError: HTMLElement;
   readonly teamPanels: HTMLElement;
   readonly projectList: HTMLElement;
   readonly reservationList: HTMLElement;
   readonly projectTab: HTMLButtonElement;
   readonly reservationTab: HTMLButtonElement;
-  readonly editorDrawer: HTMLElement;
 }
 
 export interface DiagnosticsControls {
@@ -176,7 +176,7 @@ export function renderApp(root: HTMLElement): AppElements {
   tooltip.hidden = true;
   const projectEdit = document.createElement("section");
   projectEdit.className = "timeline-project-edit";
-  projectEdit.setAttribute("aria-label", "Project edit demo");
+  projectEdit.setAttribute("aria-label", "Project editor");
   projectEdit.hidden = true;
   const projectEditTitle = document.createElement("h3");
   projectEditTitle.textContent = "Selected project";
@@ -197,7 +197,7 @@ export function renderApp(root: HTMLElement): AppElements {
   projectCancel.disabled = true;
   const projectActions = document.createElement("div");
   projectActions.className = "timeline-project-edit-actions";
-  projectActions.append(projectApply, projectCancel);
+  projectActions.append(projectCancel, projectApply);
   projectEditForm.append(projectFields, projectActions);
   projectEdit.append(projectEditTitle, projectEditStatus, projectEditForm);
   const projectEditControls = Object.freeze({
@@ -208,6 +208,13 @@ export function renderApp(root: HTMLElement): AppElements {
     cancel: projectCancel,
     status: projectEditStatus,
   });
+  const projectEditError = document.createElement("p");
+  projectEditError.id = "project-edit-error";
+  projectEditError.className = "application-error";
+  projectEditError.setAttribute("role", "alert");
+  projectEditError.hidden = true;
+  projectEditForm.setAttribute("aria-describedby", projectEditError.id);
+  projectEdit.append(projectEditError);
   const teamEdit = document.createElement("section");
   teamEdit.className = "timeline-team-edit";
   teamEdit.setAttribute("role", "dialog");
@@ -273,9 +280,7 @@ export function renderApp(root: HTMLElement): AppElements {
     status: teamEditStatus,
   });
   const reservationEdit = document.createElement("section");
-  reservationEdit.className = "timeline-reservation-edit planning-settings-modal";
-  reservationEdit.setAttribute("role", "dialog");
-  reservationEdit.setAttribute("aria-modal", "true");
+  reservationEdit.className = "timeline-reservation-edit";
   reservationEdit.setAttribute("aria-label", "Reservation editor");
   reservationEdit.hidden = true;
   const reservationTitle = document.createElement("h3");
@@ -289,7 +294,7 @@ export function renderApp(root: HTMLElement): AppElements {
   reservationFields.className = "timeline-reservation-edit-fields";
   const reservationApply = document.createElement("button");
   reservationApply.type = "submit";
-  reservationApply.textContent = "Apply reservations";
+  reservationApply.textContent = "Apply";
   reservationApply.disabled = true;
   const reservationCancel = document.createElement("button");
   reservationCancel.type = "button";
@@ -300,9 +305,11 @@ export function renderApp(root: HTMLElement): AppElements {
   reservationActions.append(reservationCancel, reservationApply);
   reservationForm.append(reservationFields, reservationActions);
   const reservationEditError = document.createElement("p");
+  reservationEditError.id = "reservation-edit-error";
   reservationEditError.className = "reservation-edit-error";
   reservationEditError.setAttribute("role", "alert");
   reservationEditError.hidden = true;
+  reservationForm.setAttribute("aria-describedby", reservationEditError.id);
   reservationEdit.append(
     reservationTitle,
     reservationStatus,
@@ -322,6 +329,7 @@ export function renderApp(root: HTMLElement): AppElements {
   applicationError.className = "application-error";
   applicationError.setAttribute("role", "alert");
   applicationError.hidden = true;
+  teamEdit.append(applicationError);
 
   const planningSettings = document.createElement("section");
   planningSettings.className = "planning-settings-modal";
@@ -365,10 +373,10 @@ export function renderApp(root: HTMLElement): AppElements {
   planningMain.className = "planning-main";
   planningMain.append(
     planningHeading,
-    viewportControlContainer,
     cursorControl,
     cursorProgress,
     diagnostics,
+    viewportControlContainer,
     timelineStage,
     selectionSummary,
     tooltip,
@@ -410,14 +418,10 @@ export function renderApp(root: HTMLElement): AppElements {
   reservationList.setAttribute("role", "tabpanel");
   reservationList.setAttribute("aria-labelledby", reservationTab.id);
   reservationList.hidden = true;
-  const editorDrawer = document.createElement("div");
-  editorDrawer.className = "planning-editor-drawer";
-  editorDrawer.setAttribute("aria-label", "Planning editor");
-  editorDrawer.append(applicationError, projectEdit);
-  projectSidebar.append(projectSidebarTitle, portfolioTabs, projectList, reservationList, editorDrawer);
+  projectSidebar.append(projectSidebarTitle, portfolioTabs, projectList, reservationList);
   workspace.append(planningMain, projectSidebar);
 
-  shell.append(header, workspace, diagnosticsBackdrop, diagnosticsDialog, planningSettings, teamEdit, reservationEdit);
+  shell.append(header, workspace, diagnosticsBackdrop, diagnosticsDialog, planningSettings, teamEdit);
   root.replaceChildren(shell);
   return Object.freeze({
     svg: timeline,
@@ -439,7 +443,7 @@ export function renderApp(root: HTMLElement): AppElements {
     reservationList,
     projectTab,
     reservationTab,
-    editorDrawer,
+    projectEditError,
   });
 }
 

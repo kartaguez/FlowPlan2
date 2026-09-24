@@ -9,7 +9,7 @@ export type TimelineSelectionGeometry =
   | TimelineSelectionLineGeometry;
 
 export interface TimelineSelectionRectGeometry extends TimelineRectGeometry {
-  readonly kind: "allocation" | "team";
+  readonly kind: "allocation" | "team" | "reservation";
 }
 
 export interface TimelineSelectionLineGeometry {
@@ -63,6 +63,14 @@ function findTimelineSelectionGeometry(
       y1: marker.y1,
       y2: marker.y2,
     });
+  }
+
+  if (hit.kind === "reservation") {
+    const segment = team.days.flatMap((day) => day.reservationSegments ?? []).find((candidate) =>
+      candidate.reservationId === hit.reservationId && candidate.date === hit.date && candidate.height > 0,
+    );
+    return segment === undefined ? undefined : Object.freeze({ kind: "reservation", x: segment.x,
+      y: segment.y, width: segment.width, height: segment.height });
   }
 
   for (const day of team.days) {

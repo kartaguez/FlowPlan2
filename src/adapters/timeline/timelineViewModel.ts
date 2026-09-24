@@ -4,6 +4,8 @@ import type {
   DeadlineStatus,
   PlanningDiagnosticCode,
   ProjectId,
+  ReservationId,
+  ReservationAmount,
   RemainingWorkload,
   TeamId,
 } from "../../domain/index.js";
@@ -13,6 +15,22 @@ export interface TimelineViewModel {
   readonly teams: readonly TimelineTeam[];
   readonly projects: readonly TimelineProject[];
   readonly diagnostics: readonly TimelineDiagnostic[];
+  readonly reservations?: readonly TimelineReservation[];
+}
+
+export interface TimelineReservation {
+  readonly id: ReservationId;
+  readonly label: string;
+  readonly startDate: CivilDate;
+  readonly endDate: CivilDate;
+  readonly teamAllocations: readonly Readonly<{ teamId: TeamId; amount: ReservationAmount }>[];
+}
+
+export interface TimelineReservationContribution {
+  readonly reservationId: ReservationId;
+  readonly teamId: TeamId;
+  readonly date: CivilDate;
+  readonly capacity: Capacity;
 }
 
 export interface TimelineHorizon {
@@ -28,6 +46,8 @@ export interface TimelineProject {
   readonly earliestStartDate?: CivilDate;
   readonly objectiveEndDate?: CivilDate;
   readonly mandatoryDeadline?: CivilDate;
+  readonly estimatedEndDate?: CivilDate;
+  readonly estimatedWithinHorizon?: boolean;
 }
 
 export interface TimelineTeam {
@@ -36,6 +56,7 @@ export interface TimelineTeam {
   readonly capacities: readonly TimelineCapacityDay[];
   readonly allocations: readonly TimelineAllocation[];
   readonly projectStates: readonly TimelineProjectTeamState[];
+  readonly reservationContributions?: readonly TimelineReservationContribution[];
 }
 
 export interface TimelineCapacityDay {
@@ -60,6 +81,7 @@ export interface TimelineProjectTeamState {
   readonly projectedEndDate?: CivilDate;
   readonly deadlineStatus?: DeadlineStatus;
   readonly remainingUnplannedWorkload: RemainingWorkload;
+  readonly initialWorkload?: RemainingWorkload;
 }
 
 export interface TimelineDiagnostic {

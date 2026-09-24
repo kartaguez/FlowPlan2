@@ -33,6 +33,7 @@ export interface ProjectEditFormValues {
 
 export interface ProjectRequirementFormValues {
   readonly teamId: TeamId;
+  readonly enabled?: boolean;
   readonly remainingWorkload: string;
   readonly remainingWorkloadExact: string;
   readonly remainingWorkloadDirty: boolean;
@@ -79,7 +80,7 @@ export function parseProjectEditCommand(
     "project.mandatoryDeadline",
     errors,
   );
-  const teamRequirements = values.requirements.map((requirement) =>
+  const teamRequirements = values.requirements.filter((requirement) => requirement.enabled !== false).map((requirement) =>
     parseRequirement(requirement, errors),
   );
   if (

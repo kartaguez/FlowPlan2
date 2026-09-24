@@ -164,7 +164,7 @@ describe("PlanningSession project editing", () => {
     );
     assert.equal(serializeQuantity(updated.requirements[0]!.dailyCap!), "3/2");
     assert.equal(serializeQuantity(updated.requirements[1]!.remainingWorkload), "25/2");
-    assert.equal(updated.requirements[1]!.dailyCap, undefined);
+    assert.equal(serializeQuantity(updated.requirements[1]!.dailyCap!), "1/1");
     assert.deepEqual(result.state.portfolio.priorityOrder, [
       initial.portfolio.priorityOrder[1],
       initial.portfolio.priorityOrder[2],
@@ -216,13 +216,13 @@ describe("PlanningSession project editing", () => {
     assert.deepEqual(middleSession.getState().portfolio.priorityOrder, ids);
   });
 
-  it("rejects missing, duplicate, and unknown team requirements", () => {
+  it("rejects empty, duplicate, and unknown team requirements", () => {
     const initial = createDemoPlanningScenario();
     const project = initial.portfolio.projects[0]!;
     const base = commandFor(initial, project.id);
     const unknownTeamId = must(createTeamId("unknown-team"));
     const cases = [
-      base.teamRequirements.slice(0, 1),
+      [],
       [base.teamRequirements[0]!, base.teamRequirements[0]!],
       [
         ...base.teamRequirements,
@@ -241,6 +241,35 @@ describe("PlanningSession project editing", () => {
       );
       assert.equal(session.getState(), before);
     }
+  });
+
+  it("atomically changes Project Team membership and never revives a removed daily cap", () => {
+    const initial = createDemoPlanningScenario();
+    const project = initial.portfolio.projects[0]!;
+    const session = createPlanningSession(initial);
+    const beta = project.requirements[1]!;
+    const gamma = initial.portfolio.teams[2]!;
+    const changed = session.dispatch(commandFor(initial, project.id, {
+      teamRequirements: [
+        { teamId: gamma.id, remainingWorkload: must(createRemainingWorkload("8")) },
+        { teamId: beta.teamId, remainingWorkload: beta.remainingWorkload },
+      ],
+    }));
+    assert.equal(changed.ok, true);
+    if (!changed.ok) return;
+    const requirements = changed.state.portfolio.projects[0]!.requirements;
+    assert.deepEqual(requirements.map((item) => item.teamId), [beta.teamId, gamma.id]);
+    assert.equal(serializeQuantity(requirements[0]!.dailyCap!), "1/1");
+    assert.equal(requirements[1]!.dailyCap, undefined);
+    const alpha = project.requirements[0]!;
+    const restored = session.dispatch(commandFor(changed.state, project.id, {
+      teamRequirements: [
+        ...requirements,
+        { teamId: alpha.teamId, remainingWorkload: must(createRemainingWorkload("3")) },
+      ],
+    }));
+    assert.equal(restored.ok, true);
+    if (restored.ok) assert.equal(restored.state.portfolio.projects[0]!.requirements[0]!.dailyCap, undefined);
   });
 
   it("rejects a typed zero daily cap at the application boundary", () => {

@@ -487,15 +487,14 @@ function updateProject(
   if (errors.length > 0 || projectIndex < 0) return failure(errors);
 
   const project = state.portfolio.projects[projectIndex]!;
-  const currentTeamIds = new Set(
-    project.requirements.map((requirement) => requirement.teamId),
-  );
+  const validTeamIds = new Set(state.portfolio.teams.map((team) => team.id));
   const currentRequirementsByTeam = new Map(
     project.requirements.map((requirement) => [requirement.teamId, requirement]),
   );
   const replacements = new Map<TeamId, UpdateProjectTeamRequirement>();
   command.teamRequirements.forEach((requirement, index) => {
     const path = `requirements.${requirement.teamId}`;
+    const currentDailyCap = currentRequirementsByTeam.get(requirement.teamId)?.dailyCap;
     if (replacements.has(requirement.teamId)) {
       errors.push(
         applicationError(
@@ -504,22 +503,19 @@ function updateProject(
           "A project team requirement may appear only once.",
         ),
       );
-    } else if (!currentTeamIds.has(requirement.teamId)) {
+    } else if (!validTeamIds.has(requirement.teamId)) {
       errors.push(
         applicationError(
           "UNKNOWN_PROJECT_TEAM_REQUIREMENT",
           `teamRequirements[${index}].teamId`,
-          "Project update cannot add a team requirement.",
+          "Project requirement Team must exist in the portfolio.",
         ),
       );
     }
     if (
       requirement.dailyCap !== undefined &&
       serializeQuantity(requirement.dailyCap) === "0/1" &&
-      serializeQuantity(
-        currentRequirementsByTeam.get(requirement.teamId)?.dailyCap ??
-          requirement.dailyCap,
-      ) !== "0/1"
+      (currentDailyCap === undefined || serializeQuantity(currentDailyCap) !== "0/1")
     ) {
       errors.push(
         applicationError(
@@ -531,28 +527,17 @@ function updateProject(
     }
     replacements.set(requirement.teamId, requirement);
   });
-  for (const requirement of project.requirements) {
-    if (!replacements.has(requirement.teamId)) {
-      errors.push(
-        applicationError(
-          "MISSING_PROJECT_TEAM_REQUIREMENT",
-          `requirements.${requirement.teamId}`,
-          "Project update must retain every existing team requirement.",
-        ),
-      );
-    }
-  }
   if (errors.length > 0) return failure(errors);
 
-  const requirementResults = project.requirements.map((current) => {
-    const replacement = replacements.get(current.teamId)!;
-    return createProjectTeamRequirement({
-      teamId: current.teamId,
+  const requirementResults = state.portfolio.teams.flatMap((team) => {
+    const replacement = replacements.get(team.id);
+    if (replacement === undefined) return [];
+    const dailyCap = replacement.dailyCap ?? currentRequirementsByTeam.get(team.id)?.dailyCap;
+    return [createProjectTeamRequirement({
+      teamId: team.id,
       remainingWorkload: replacement.remainingWorkload,
-      ...(replacement.dailyCap === undefined
-        ? {}
-        : { dailyCap: replacement.dailyCap }),
-    });
+      ...(dailyCap === undefined ? {} : { dailyCap }),
+    })];
   });
   const requirementErrors = requirementResults.flatMap((result) =>
     result.ok ? [] : result.errors,

@@ -40,6 +40,20 @@ function fixture(onApply: (command: UpdateReservationCommand) => { ok: true } | 
 }
 
 describe("ReservationEditController", () => {
+  it("retains a Team value across OFF then ON within one draft", () => {
+    const input = fixture();
+    input.controller.setReservation(model);
+    const checkboxes = descendants(input.controls.fields, "input").filter((field) => field.type === "checkbox");
+    const values = descendants(input.controls.fields, "input").filter((field) => field.type === "text");
+    const first = checkboxes[0]!;
+    const value = values[1]!;
+    value.value = "40";
+    first.checked = false;
+    first.dispatch("change");
+    first.checked = true;
+    first.dispatch("change");
+    assert.equal(value.value, "40");
+  });
   it("hydrates global fields once and one accessible allocation row per team", () => {
     const input = fixture(); input.controller.setReservation(model);
     assert.equal(input.controls.apply.disabled, false);

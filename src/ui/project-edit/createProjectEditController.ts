@@ -4,6 +4,7 @@ import type {
 } from "../../application/index.js";
 import type { DomainError, ProjectId, TeamId } from "../../domain/index.js";
 import type { ProjectEditControls } from "../renderApp.js";
+import { createTeamSubcard } from "../portfolio/createTeamSubcard.js";
 import {
   parseProjectEditCommand,
   type ProjectEditFormValues,
@@ -23,6 +24,7 @@ export interface CreateProjectEditControllerInput {
   readonly controls: ProjectEditControls;
   readonly errorContainer: HTMLElement;
   readonly onApply: (command: UpdateProjectCommand) => ProjectEditApplyResult;
+  readonly onCancel?: () => void;
 }
 
 interface GlobalInputs {
@@ -37,6 +39,7 @@ interface GlobalInputs {
 
 interface RequirementInputs {
   readonly teamId: TeamId;
+  readonly enabled: HTMLInputElement;
   readonly remainingWorkload: HTMLInputElement;
   readonly originalDisplay: string;
   readonly remainingWorkloadExact: string;
@@ -140,8 +143,6 @@ export function createProjectEditController(
         const fieldset = document.createElement("fieldset");
         fieldset.className = "timeline-project-edit-requirement";
         fieldset.dataset.teamId = requirement.teamId;
-        const teamLegend = document.createElement("legend");
-        teamLegend.textContent = requirement.teamLabel;
         const remainingWorkload = createLabeledInput(
           document,
           fieldset,
@@ -149,11 +150,12 @@ export function createProjectEditController(
           "text",
           `requirements.${requirement.teamId}.remainingWorkload`,
         );
-        fieldset.prepend(teamLegend);
         remainingWorkload.value = requirement.remainingWorkload;
-        input.controls.fields.append(fieldset);
+        const subcard = createTeamSubcard(input.controls.fields, "Project", requirement.teamId,
+          requirement.teamLabel, requirement.enabled, fieldset);
         return Object.freeze({
           teamId: requirement.teamId,
+          enabled: subcard.enabled,
           remainingWorkload,
           originalDisplay: requirement.remainingWorkload,
           remainingWorkloadExact: requirement.remainingWorkloadExact,
@@ -184,6 +186,7 @@ export function createProjectEditController(
         requirementInputs.map((requirement) =>
           Object.freeze({
             teamId: requirement.teamId,
+            enabled: requirement.enabled.checked,
             remainingWorkload: requirement.remainingWorkload.value,
             remainingWorkloadExact: requirement.remainingWorkloadExact,
             remainingWorkloadDirty:
@@ -215,6 +218,7 @@ export function createProjectEditController(
   const onCancel = (): void => {
     hydrate(model);
     clearError();
+    input.onCancel?.();
   };
   const setProject = (project: ProjectEditViewModel | undefined): void => {
     hydrate(project);

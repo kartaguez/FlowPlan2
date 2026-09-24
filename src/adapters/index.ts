@@ -4,6 +4,7 @@ export type {
   TimelineDiagnostic,
   TimelineHorizon,
   TimelineProject,
+  TimelineReservation,
   TimelineProjectTeamState,
   TimelineTeam,
   TimelineViewModel,

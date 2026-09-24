@@ -105,8 +105,8 @@ describe("renderApp", () => {
     );
     const main = renderedElements.find((element) => element.className === "planning-main")!;
     assert.deepEqual(main.childNodes.map((element) => element.className), [
-      "planning-heading", "timeline-viewport-controls", "timeline-cursor-control",
-      "cursor-progress", "timeline-diagnostics", "timeline-stage",
+      "planning-heading", "timeline-cursor-control", "cursor-progress",
+      "timeline-diagnostics", "timeline-viewport-controls", "timeline-stage",
       "timeline-selection-summary", "timeline-tooltip",
     ]);
     assert.equal(renderedElements.some((element) => element.className === "timeline-date-summary"), false);
@@ -210,11 +210,7 @@ describe("renderApp", () => {
     assert.equal((elements.reservationTab as unknown as FakeElement).getAttribute("aria-selected"), "false");
     assert.equal((elements.reservationList as unknown as FakeElement).getAttribute("role"), "tabpanel");
     assert.equal((elements.reservationList as unknown as FakeElement).hidden, true);
-    assert.equal((elements.reservationEditControls.container as unknown as FakeElement).getAttribute("role"), "dialog");
-    assert.equal(
-      (elements.editorDrawer as unknown as FakeElement).className,
-      "planning-editor-drawer",
-    );
+    assert.equal((elements.reservationEditControls.container as unknown as FakeElement).getAttribute("role"), null);
     assert.equal(
       (elements.planningSettingsButton as unknown as FakeElement).getAttribute(
         "aria-label",

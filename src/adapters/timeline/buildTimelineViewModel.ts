@@ -1,13 +1,16 @@
-import type {
-  PlanningHorizon,
-  PlanningResult,
-  Portfolio,
-  Project,
-  ProjectId,
-  ProjectTeamPlanningResult,
-  Team,
-  TeamId,
-  TeamPlanningResult,
+import {
+  requestedReservationCapacity,
+  type PlanningHorizon,
+  type PlanningResult,
+  type Portfolio,
+  type Project,
+  type ProjectId,
+  type ProjectTeamPlanningResult,
+  type Team,
+  type TeamId,
+  type TeamPlanningResult,
+  type WorkingPattern,
+  type Reservation,
 } from "../../domain/index.js";
 import type {
   TimelineAllocation,
@@ -23,6 +26,7 @@ export interface BuildTimelineViewModelInput {
   readonly portfolio: Portfolio;
   readonly horizon: PlanningHorizon;
   readonly planningResult: PlanningResult;
+  readonly workingPattern: WorkingPattern;
 }
 
 export function buildTimelineViewModel(
@@ -66,6 +70,8 @@ export function buildTimelineViewModel(
       requireTeamPlan(teamPlansById, team.id),
       input.portfolio.priorityOrder,
       projectsById,
+      input.portfolio.reservations,
+      input.workingPattern,
     ),
   );
   const diagnostics = input.planningResult.diagnostics.map((diagnostic) => {
@@ -95,9 +101,25 @@ export function buildTimelineViewModel(
       start: input.horizon.start,
       end: input.horizon.end,
     }),
-    projects: Object.freeze(orderedProjects),
+    projects: Object.freeze(orderedProjects.map((project) => {
+      const states = teams.flatMap((team) => team.projectStates.filter((state) => state.projectId === project.id));
+      const estimatedWithinHorizon = states.every((state) => state.complete);
+      const dates = states.flatMap((state) => state.projectedEndDate === undefined ? [] : [state.projectedEndDate]);
+      const estimatedEndDate = estimatedWithinHorizon && dates.length > 0
+        ? dates.reduce((latest, date) => date > latest ? date : latest)
+        : undefined;
+      return Object.freeze({ ...project, estimatedWithinHorizon,
+        ...(estimatedEndDate === undefined ? {} : { estimatedEndDate }) });
+    })),
     teams: Object.freeze(teams),
     diagnostics: Object.freeze(diagnostics),
+    reservations: Object.freeze(input.portfolio.reservations.map((reservation) => Object.freeze({
+      id: reservation.id,
+      label: reservation.name,
+      startDate: reservation.startDate,
+      endDate: reservation.endDate,
+      teamAllocations: reservation.teamAllocations,
+    }))),
   });
 }
 
@@ -106,6 +128,8 @@ function buildTimelineTeam(
   teamPlan: TeamPlanningResult,
   priorityOrder: readonly ProjectId[],
   projectsById: ReadonlyMap<ProjectId, Project>,
+  reservations: readonly Reservation[],
+  workingPattern: WorkingPattern,
 ): TimelineTeam {
   const projectPlansById = indexProjectPlans(teamPlan, projectsById);
   const expectedProjectIds = priorityOrder.filter((projectId) =>
@@ -157,6 +181,8 @@ function buildTimelineTeam(
           ? { deadlineStatus: projectPlan.deadlineStatus }
           : {}),
         remainingUnplannedWorkload: projectPlan.remainingUnplannedWorkload,
+        initialWorkload: projectsById.get(projectPlan.projectId)!.requirements.find((requirement) =>
+          requirement.teamId === team.id)!.remainingWorkload,
       }) satisfies TimelineProjectTeamState,
   );
 
@@ -166,6 +192,14 @@ function buildTimelineTeam(
     capacities: Object.freeze(capacities),
     allocations: Object.freeze(allocations),
     projectStates: Object.freeze(projectStates),
+    reservationContributions: Object.freeze(capacities.flatMap((day) =>
+      reservations.map((reservation) => Object.freeze({
+        reservationId: reservation.id,
+        teamId: team.id,
+        date: day.date,
+        capacity: requestedReservationCapacity(reservation, team, day.date, workingPattern),
+      })),
+    )),
   });
 }
 

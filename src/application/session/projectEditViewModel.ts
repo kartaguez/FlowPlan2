@@ -27,6 +27,7 @@ export interface ProjectEditViewModel {
 export interface ProjectRequirementEditViewModel {
   readonly teamId: TeamId;
   readonly teamLabel: string;
+  readonly enabled: boolean;
   readonly remainingWorkload: string;
   readonly remainingWorkloadExact: string;
   readonly dailyCapExact?: string;
@@ -43,20 +44,25 @@ export function buildProjectEditViewModel(
   const requirementsByTeam = new Map(
     project.requirements.map((requirement) => [requirement.teamId, requirement]),
   );
-  const requirements = state.portfolio.teams.flatMap((team) => {
+  const requirements = state.portfolio.teams.map((team) => {
     const requirement = requirementsByTeam.get(team.id);
-    if (requirement === undefined) return [];
-    return [
-      Object.freeze({
+    if (requirement === undefined) return Object.freeze({
+      teamId: team.id,
+      teamLabel: team.name,
+      enabled: false,
+      remainingWorkload: "",
+      remainingWorkloadExact: "",
+    });
+    return Object.freeze({
         teamId: team.id,
         teamLabel: team.name,
+        enabled: true,
         remainingWorkload: formatQuantityForEditing(requirement.remainingWorkload),
         remainingWorkloadExact: serializeQuantity(requirement.remainingWorkload),
         ...(requirement.dailyCap === undefined
           ? {}
           : { dailyCapExact: serializeQuantity(requirement.dailyCap) }),
-      }),
-    ];
+      });
   });
   const priorityIndex = state.portfolio.priorityOrder.indexOf(project.id);
   if (priorityIndex < 0) {

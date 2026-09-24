@@ -151,11 +151,11 @@ export function createTimelineUiCoordinator(
     if (view === activeProgressView) return;
     activeProgressView = view;
     progressSurface.render(cursorMetricsModel, activeProgressView);
+    if (mounted) interactionController.refreshTooltip();
   });
   const isModalOpen = (): boolean => [
     input.elements.planningSettingsControls.container,
     input.elements.teamEditControls.container,
-    input.elements.reservationEditControls.container,
     input.elements.diagnosticsControls.dialog,
   ].some((container) => !container.hidden);
   const diagnosticsController = dependencies.createDiagnosticsController({
@@ -196,9 +196,14 @@ export function createTimelineUiCoordinator(
     );
   };
 
-  const setEditingContext = (context: TimelineEditingContext): void => {
+  const setEditingContext = (context: TimelineEditingContext, focusOnClose = false): void => {
     editingContext = context;
     updateEditForms(context);
+    shellNavigation?.showEditingCard(
+      context?.kind === "project" || context?.kind === "reservation" ? context.kind : undefined,
+      context?.kind === "project" ? context.projectId : context?.kind === "reservation" ? context.reservationId : undefined,
+      focusOnClose,
+    );
   };
 
   const currentSnapshot = (): TimelineUiSnapshot => {
@@ -260,10 +265,19 @@ export function createTimelineUiCoordinator(
       geometry: projection.geometry,
       onTeamSettings: (teamId) =>
         setEditingContext(Object.freeze({ kind: "team", teamId })),
-      onProjectSelect: (projectId) =>
-        setEditingContext(Object.freeze({ kind: "project", projectId })),
-      onReservationSelect: (reservationId) =>
-        setEditingContext(Object.freeze({ kind: "reservation", reservationId })),
+      onProjectSelect: (projectId) => {
+        if (editingContext?.kind === "project" && editingContext.projectId === projectId) return;
+        setEditingContext(Object.freeze({ kind: "project", projectId }));
+      },
+      onReservationSelect: (reservationId) => {
+        if (editingContext?.kind === "reservation" && editingContext.reservationId === reservationId) return;
+        setEditingContext(Object.freeze({ kind: "reservation", reservationId }));
+      },
+      projectEditContainer: input.elements.projectEditControls.container,
+      reservationEditContainer: input.elements.reservationEditControls.container,
+      onTabChange: () => {
+        if (editingContext?.kind === "project" || editingContext?.kind === "reservation") setEditingContext(undefined);
+      },
     });
 
     const selectedDate = projection.geometry.dates.some(
@@ -304,9 +318,18 @@ export function createTimelineUiCoordinator(
       onSelectionChange: (hit) => {
         if (restoringSelection) return;
         if (hit?.kind === "allocation" || hit?.kind === "project-marker") {
-          setEditingContext(Object.freeze({ kind: "project", projectId: hit.projectId }));
+          if (editingContext?.kind !== "project" || editingContext.projectId !== hit.projectId) {
+            setEditingContext(Object.freeze({ kind: "project", projectId: hit.projectId }));
+          }
+          shellNavigation.showEditingCard("project", hit.projectId, true);
+        } else if (hit?.kind === "reservation") {
+          if (editingContext?.kind !== "reservation" || editingContext.reservationId !== hit.reservationId) {
+            setEditingContext(Object.freeze({ kind: "reservation", reservationId: hit.reservationId }));
+          }
+          shellNavigation.showEditingCard("reservation", hit.reservationId, true);
         }
       },
+      getProjectProgress: (projectId) => cursorMetricsModel.projects.find((item) => item.id === projectId)?.progress,
     });
     restoringSelection = false;
     setEditingContext(reconcileEditingContext(snapshot.editingContext));
@@ -362,8 +385,9 @@ export function createTimelineUiCoordinator(
 
   projectEditController = dependencies.createProjectEditController({
     controls: input.elements.projectEditControls,
-    errorContainer: input.elements.applicationError,
+    errorContainer: input.elements.projectEditError,
     onApply: applyProjectUpdate,
+    onCancel: () => setEditingContext(undefined, true),
   });
   teamEditController = dependencies.createTeamEditController({
     controls: input.elements.teamEditControls,
@@ -375,6 +399,7 @@ export function createTimelineUiCoordinator(
     controls: input.elements.reservationEditControls,
     errorContainer: input.elements.reservationEditError,
     onApply: applyReservationUpdate,
+    onCancel: () => setEditingContext(undefined, true),
   });
   planningSettingsController = dependencies.createPlanningSettingsController({
     trigger: input.elements.planningSettingsButton,

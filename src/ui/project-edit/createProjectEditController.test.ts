@@ -38,6 +38,8 @@ class FakeElement {
   min = "";
   max = "";
   step = "";
+  checked = false;
+  readonly attributes = new Map<string, string>();
 
   constructor(
     readonly ownerDocument: FakeDocument,
@@ -55,6 +57,7 @@ class FakeElement {
   replaceChildren(...children: FakeElement[]): void {
     this.childNodes = [...children];
   }
+  setAttribute(name: string, value: string): void { this.attributes.set(name, value); }
 
   addEventListener(type: string, listener: EventListener): void {
     const listeners = this.listeners.get(type) ?? new Set<Listener>();
@@ -99,6 +102,7 @@ function model(label = "Project Atlas"): ProjectEditViewModel {
       Object.freeze({
         teamId: alphaId,
         teamLabel: "Team Alpha",
+        enabled: true,
         remainingWorkload: "12.5",
         remainingWorkloadExact: "25/2",
         dailyCapExact: "3/2",
@@ -106,6 +110,7 @@ function model(label = "Project Atlas"): ProjectEditViewModel {
       Object.freeze({
         teamId: betaId,
         teamLabel: "Team Beta",
+        enabled: true,
         remainingWorkload: "0",
         remainingWorkloadExact: "0/1",
       }),

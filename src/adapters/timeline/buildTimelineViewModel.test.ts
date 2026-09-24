@@ -218,7 +218,8 @@ function makeFixture(): Fixture {
   };
 
   return {
-    input: { portfolio, horizon, planningResult },
+    input: { portfolio, horizon, planningResult,
+      workingPattern: must(createWorkingPattern({ workingWeekdays: [1, 2, 3, 4, 5] })) },
     firstTeam,
     secondTeam,
     highPriority,
@@ -227,6 +228,24 @@ function makeFixture(): Fixture {
 }
 
 describe("buildTimelineViewModel", () => {
+  it("projects the Project's latest Team completion as its global estimated end", () => {
+    const { input, highPriority } = makeFixture();
+    const dates = [date("2025-01-07"), date("2025-01-06")];
+    const planningResult = { ...input.planningResult,
+      teamPlans: input.planningResult.teamPlans.map((teamPlan, index) => ({ ...teamPlan,
+        projectPlans: teamPlan.projectPlans.map((plan) => plan.projectId === highPriority.id
+          ? { ...plan, complete: true, remainingUnplannedWorkload: workload("0"),
+            projectedEndDate: dates[index]! }
+          : plan),
+      })) };
+    const projected = buildTimelineViewModel({ ...input, planningResult }).projects.find((project) =>
+      project.id === highPriority.id)!;
+    assert.equal(projected.estimatedWithinHorizon, true);
+    assert.equal(projected.estimatedEndDate, date("2025-01-07"));
+    const incomplete = buildTimelineViewModel(input).projects.find((project) => project.id === highPriority.id)!;
+    assert.equal(incomplete.estimatedWithinHorizon, false);
+    assert.equal(incomplete.estimatedEndDate, undefined);
+  });
   it("projects the supplied planning horizon exactly", () => {
     const { input } = makeFixture();
     const viewModel = buildTimelineViewModel(input);
@@ -430,6 +449,7 @@ describe("buildTimelineViewModel", () => {
       portfolio: input.portfolio,
       horizon: input.horizon,
       planningResult,
+      workingPattern: input.workingPattern,
     });
 
     assert.equal(viewModel.teams[0]?.id, firstTeam.id);

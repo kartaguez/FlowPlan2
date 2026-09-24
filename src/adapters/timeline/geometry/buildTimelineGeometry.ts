@@ -197,6 +197,11 @@ export function buildTimelineGeometry(
           reservedRegion,
         }),
         allocations,
+        reservationSegments: buildReservationSegments(
+          team,
+          capacity.date,
+          reservedRegion,
+        ),
       }) satisfies TimelineDayGeometry;
     });
 
@@ -225,6 +230,36 @@ export function buildTimelineGeometry(
     pixelsPerCapacityUnit,
     teams: Object.freeze(teams),
   });
+}
+
+function buildReservationSegments(
+  team: TimelineTeam,
+  date: CivilDate,
+  region: TimelineRectGeometry,
+): readonly import("./timelineGeometry.js").TimelineReservationSegmentGeometry[] {
+  const contributions = (team.reservationContributions ?? []).filter((entry) =>
+    entry.date === date && capacityToGeometryNumber(entry.capacity) > 0,
+  );
+  const total = contributions.reduce((sum, entry) => sum + capacityToGeometryNumber(entry.capacity), 0);
+  if (total === 0 || region.height <= 0) return Object.freeze([]);
+  let usedHeight = 0;
+  return Object.freeze(contributions.map((entry, index) => {
+    const height = index === contributions.length - 1
+      ? Math.max(0, region.height - usedHeight)
+      : region.height * capacityToGeometryNumber(entry.capacity) / total;
+    const segment = Object.freeze({
+      reservationId: entry.reservationId,
+      teamId: entry.teamId,
+      date,
+      capacity: entry.capacity,
+      x: region.x,
+      y: region.y + usedHeight,
+      width: region.width,
+      height,
+    });
+    usedHeight += height;
+    return segment;
+  }));
 }
 
 function buildProjectMarkers(

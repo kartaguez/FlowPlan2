@@ -2,6 +2,7 @@ import type {
   TimelineGeometry,
   TimelineViewModel,
 } from "../../adapters/index.js";
+import type { ProjectId, Rational } from "../../domain/index.js";
 import { renderTimelineSelection } from "./renderTimelineSelection.js";
 import {
   createTimelineInteractionLookup,
@@ -28,6 +29,7 @@ export interface TimelineInteractionState {
 
 export interface TimelineInteractionController {
   readonly getState: () => TimelineInteractionState;
+  readonly refreshTooltip: () => void;
   readonly destroy: () => void;
 }
 
@@ -41,6 +43,7 @@ export interface CreateTimelineInteractionControllerInput {
   readonly keyboardControl: HTMLElement;
   readonly initialSelected?: TimelineHit;
   readonly onSelectionChange?: (selected: TimelineHit | undefined) => void;
+  readonly getProjectProgress?: (projectId: ProjectId) => Rational | undefined;
 }
 
 interface PointerPress {
@@ -55,6 +58,7 @@ export function createTimelineInteractionController(
 ): TimelineInteractionController {
   const lookup = createTimelineInteractionLookup(input.viewModel);
   let hovered: TimelineHit | undefined;
+  let hoverPoint = { clientX: 0, clientY: 0 };
   let selected = input.initialSelected;
   let pointerPress: PointerPress | undefined;
   let ignoredShiftPointerId: number | undefined;
@@ -92,12 +96,14 @@ export function createTimelineInteractionController(
   };
   const showHover = (event: PointerEvent): void => {
     hovered = hitAtPointer(event);
+    hoverPoint = { clientX: event.clientX, clientY: event.clientY };
     renderTimelineTooltip({
       container: input.tooltipContainer,
       lookup,
       hit: hovered,
       clientX: event.clientX,
       clientY: event.clientY,
+      ...(input.getProjectProgress === undefined ? {} : { getProjectProgress: input.getProjectProgress }),
     });
   };
   const renderSelection = (): void => {
@@ -196,6 +202,9 @@ export function createTimelineInteractionController(
 
   return Object.freeze({
     getState: () => Object.freeze({ hovered, selected }),
+    refreshTooltip: () => renderTimelineTooltip({ container: input.tooltipContainer, lookup,
+      hit: hovered, ...hoverPoint,
+      ...(input.getProjectProgress === undefined ? {} : { getProjectProgress: input.getProjectProgress }) }),
     destroy: () => {
       input.svg.removeEventListener("pointerdown", onPointerDown);
       input.svg.removeEventListener("pointermove", onPointerMove);

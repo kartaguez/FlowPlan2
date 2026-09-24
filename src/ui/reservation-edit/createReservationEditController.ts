@@ -4,6 +4,7 @@ import type {
 } from "../../application/index.js";
 import type { DomainError, ReservationId, TeamId } from "../../domain/index.js";
 import type { ReservationEditControls } from "../renderApp.js";
+import { createTeamSubcard } from "../portfolio/createTeamSubcard.js";
 import {
   parseReservationEditCommand,
   type ReservationTeamAllocationFormValues,
@@ -23,6 +24,7 @@ export interface CreateReservationEditControllerInput {
   readonly controls: ReservationEditControls;
   readonly errorContainer: HTMLElement;
   readonly onApply: (command: UpdateReservationCommand) => ReservationEditApplyResult;
+  readonly onCancel?: () => void;
 }
 
 interface RenderedAllocation {
@@ -73,14 +75,6 @@ export function createReservationEditController(
     for (const allocation of next.teamAllocations) {
       const fieldset = document.createElement("fieldset");
       fieldset.className = "timeline-reservation-team-allocation";
-      const legend = document.createElement("legend");
-      legend.textContent = allocation.teamLabel;
-      const enabledLabel = document.createElement("label");
-      const enabled = document.createElement("input");
-      enabled.type = "checkbox";
-      enabled.checked = allocation.enabled;
-      enabled.setAttribute("aria-label", `${allocation.teamLabel} allocated`);
-      enabledLabel.append(enabled, document.createTextNode(" Allocated"));
       const modeLabel = document.createElement("label");
       modeLabel.textContent = "Mode";
       const kind = document.createElement("select");
@@ -105,14 +99,16 @@ export function createReservationEditController(
         kind.disabled = !enabled.checked;
         value.disabled = !enabled.checked;
       };
-      enabled.addEventListener("change", updateEnabled);
       kind.addEventListener("change", () => {
         value.value = "";
         value.dataset.modeChanged = "true";
       });
+      fieldset.prepend(modeLabel);
+      const subcard = createTeamSubcard(input.controls.fields, "Reservation", allocation.teamId,
+        allocation.teamLabel, allocation.enabled, fieldset);
+      const enabled = subcard.enabled;
+      enabled.addEventListener("change", updateEnabled);
       updateEnabled();
-      fieldset.prepend(legend, enabledLabel, modeLabel);
-      input.controls.fields.append(fieldset);
       rendered.push(Object.freeze({
         teamId: allocation.teamId,
         enabled,
@@ -163,6 +159,7 @@ export function createReservationEditController(
   const onCancel = (): void => {
     hydrate(model);
     clearError();
+    input.onCancel?.();
   };
   input.controls.form.addEventListener("submit", onSubmit);
   input.controls.cancel.addEventListener("click", onCancel);

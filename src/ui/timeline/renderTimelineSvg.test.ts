@@ -6,6 +6,7 @@ import {
   createCapacity,
   createCivilDate,
   createProjectId,
+  createReservationId,
   createTeamId,
   type CivilDate,
   type DomainResult,
@@ -270,6 +271,22 @@ function render(
 }
 
 describe("renderTimelineSvg", () => {
+  it("renders named Reservation segments inside the aggregate region", () => {
+    const geometry = makeGeometry();
+    const team = geometry.teams[0]!;
+    const day = team.days[0]!;
+    const reservationId = must(createReservationId("reservation-run"));
+    const withSegments = { ...geometry, teams: [{ ...team, days: [{ ...day,
+      reservationSegments: [{ reservationId, teamId: team.teamId, date: day.date,
+        capacity: capacity("0.5"), ...day.capacityTube.reservedRegion }],
+    }, ...team.days.slice(1)] }, ...geometry.teams.slice(1)] };
+    const svg = createSvg();
+    renderTimelineSvg({ svg: svg as unknown as SVGSVGElement, geometry: withSegments });
+    const segments = withClass(svg, "timeline-reservation-segment");
+    assert.equal(segments.length, 1);
+    assert.equal(segments[0]!.getAttribute("data-reservation-id"), reservationId);
+    assert.equal(segments[0]!.getAttribute("height"), String(day.capacityTube.reservedRegion.height));
+  });
   it("clears existing SVG children before rebuilding", () => {
     const svg = createSvg();
     const obsolete = svg.ownerDocument.createElementNS(SVG_NAMESPACE, "g");
