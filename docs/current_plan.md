@@ -1,14 +1,14 @@
 # FlowPlan2 current plan
 
 Current validated baseline:
-`a85d4b569a458d811e03dccc314476e8a5fb2e47`
+`29f67e65ebd384505c1abcf23570a7ce4467be2e`
 
 This is the operational roadmap for the active trajectory. Durable product and
 architecture rules live in [canon](./canon.md); current implementation facts
 and temporary constraints live in [current canon](./current_canon.md).
 
 The roadmap uses `9A`–`9G`, with intermediate lot `9C.1` between 9C and 9D.
-Validated 9D priority drag/drop forms the baseline.
+Validated 9E Team structural CRUD forms the baseline.
 Each Phase 9 lot is intended to fit one commit or a small, coherent commit set.
 Actuals/History is a later trajectory, not a Phase 9 lot.
 
@@ -27,13 +27,12 @@ Actuals/History is a later trajectory, not a Phase 9 lot.
 - 9C Cursor metrics UI (DONE);
 - 9C.1 Planning UI cleanup (DONE);
 - FlowPlan visual grammar adaptation and corrective pass (DONE);
-- 9D Priority drag/drop (DONE).
+- 9D Priority drag/drop (DONE);
+- 9E Team structural CRUD (DONE).
 
 ## Ordered remaining lots
 
 ```text
-9E Team structural CRUD
-        ↓
 9F Project structural CRUD
         ↓
 9G Reservation and capacity-period structural CRUD
@@ -41,11 +40,9 @@ Actuals/History is a later trajectory, not a Phase 9 lot.
 Later trajectory: Actuals / History
 ```
 
-The remaining execution order is `9E` through `9G`. Lot 9D is closed and
-provides the validated priority-reordering baseline. 9E is in review; 9F and
-9G remain downstream until audit and human validation. The CRUD series
-establishes Team referential-integrity policy before Project and Reservation
-membership workflows.
+The remaining execution order is `9F` then `9G`. Lot 9E is closed and provides
+the validated Team lifecycle and referential-integrity baseline for Project
+and Reservation membership workflows.
 
 ## 9C.1 — Planning UI cleanup
 
@@ -115,58 +112,25 @@ typecheck, 434 automated tests, and build before closure.
 
 ## 9E — Team structural CRUD
 
-**Status: IN REVIEW** — implementation awaiting pushed-commit audit and human
-validation. The validated baseline remains the 9D commit above. Do not mark
-9E DONE or advance the baseline in the implementation commit.
+**Status: DONE** — validated implementation at
+`29f67e65ebd384505c1abcf23570a7ce4467be2e` (lifecycle
+`3ff540c7f4528c9cc8713b2d5eda1a706efe1445`, followed by the validated
+UI placement correction).
 
-**Goal**
+Create Team accepts a name and 1..N exact initial capacity periods; the
+Application validates the schedule atomically and generates a collision-safe
+session Team ID. Delete Team is restrictive: persisted Project requirements
+and Reservation allocations block removal, with no cascade. A separate UI
+guard protects unapplied draft changes concerning the Team before dispatch;
+unmodified Team options and unrelated dirty fields do not block removal.
+Accepted operations reproject once, while refusals preserve state and
+projection. Team Settings protects local edits across context changes and
+rerenders. The global metrics cartouche has a title, and Create Team sits
+between it and the first Team panel, aligned with the shared Timeline.
 
-Add and remove Teams with explicit referential-integrity behavior.
-
-**Scope**
-
-Create Team with at least one initial capacity period and remove Team only when
-no persisted Project requirement or Reservation allocation references it.
-
-**Domain changes**
-
-Retain unique IDs and Portfolio reference validation. Deletion is restrictive:
-there is no implicit cascade and no dangling Project or Reservation reference.
-
-**Application changes**
-
-Typed create/remove commands use collision-safe session Team IDs and atomic
-schedule/Portfolio validation. Accepted changes reproject once; rejected
-commands leave state and projection unchanged.
-
-**UI changes**
-
-The collection-level Create Team form accepts 1..N initial periods. Team
-Settings confirms deletion and reports persisted blockers. A separate UI guard
-protects unapplied Project/Reservation draft changes concerning that Team;
-unchanged inactive Team options and independent dirty fields do not block it.
-Team Settings fields are protected across context changes and reprojections.
-
-**Tests**
-
-Cover ID collisions, exact initial schedule validation, referenced deletion,
-immutable failure, projection rebuild count, independent and Team-specific
-draft changes, and editing-context cleanup.
-
-**Explicit non-goals**
-
-No Project or Reservation entity CRUD, period row CRUD, persistence, or
-actuals/history.
-
-**Exit criteria**
-
-Teams can be safely created and removed with no dangling references and one
-recompute per accepted structural change.
-
-**Dependencies**
-
-Existing Portfolio validation and session commands. Establishes policy used by
-9F and 9G.
+Validation before closure: TypeScript typecheck, 454 automated tests, build,
+and desktop browser inspection passed. Project/Reservation entity CRUD and
+structural editing of existing capacity periods remain in 9F/9G.
 
 ## 9F — Project structural CRUD and Team membership
 

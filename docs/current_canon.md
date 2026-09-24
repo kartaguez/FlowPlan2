@@ -9,8 +9,8 @@ active implementation and trajectory. The remaining work is in the
 
 ## Validated implementation baseline
 
-`a85d4b569a458d811e03dccc314476e8a5fb2e47` (validated lot 9D priority
-drag/drop).
+`29f67e65ebd384505c1abcf23570a7ce4467be2e` (validated lot 9E Team
+structural CRUD, including its UI placement correction).
 
 The active application implements a pure planning projection over an in-memory
 demo session. The following capabilities are complete and active:
@@ -18,7 +18,8 @@ demo session. The following capabilities are complete and active:
 - global Planning settings: horizon, working weekdays, and one
   `maxParallelProjects` value applied independently per Team;
 - one shared timeline with stacked Team panels;
-- Team Settings for name and existing capacity periods;
+- Team creation with one or more initial capacity periods, restrictive Team
+  deletion, and Team Settings for name and existing capacity periods;
 - Project editing for name, dates, and Team requirements; Project priority is
   reordered from Portfolio Projects;
 - global multi-Team Reservations with ratio and fixed-daily modes, edited in
@@ -50,20 +51,19 @@ PlanningResult in the disposable session projection. Lot 9C is validated and
 and renders cumulative Team metrics plus an exclusive Projects / Programs / PAS
 progress view at the shared cursor date. Lot 9C.1 is validated and **DONE**.
 The subsequent FlowPlan visual adaptation and corrective pass are also
-validated and **DONE**. Lot 9D priority drag/drop is validated and **DONE**;
-its implementation commit is the current validated baseline. It adds dedicated
-pointer and keyboard handles, derived `#N` badges, and a temporary insertion
-preview to Portfolio Projects. Reordering preserves independent Project and
+validated and **DONE**. Lot 9D priority drag/drop is validated and **DONE**.
+It adds pointer and keyboard handles, derived `#N` badges, and a temporary
+insertion preview to Portfolio Projects. Reordering preserves Project and
 Reservation drafts and the current projection controls.
 
-Lot 9E Team structural CRUD is implemented **IN REVIEW**, pending pushed-commit
-audit and human validation. Create Team accepts a name and one or more exact
-initial capacity periods, validated as one schedule under a session-generated
-ID. Confirmed deletion is refused while a persisted Project requirement or
-Reservation allocation references the Team. The UI separately protects
-unapplied Project and Reservation draft changes concerning that Team before
-dispatch. Successful lifecycle changes follow the existing single-reprojection
-pipeline. The validated baseline above remains unchanged.
+Lot 9E Team structural CRUD is validated and **DONE**. Create Team accepts a
+name and one or more exact initial capacity periods, validated as one schedule
+under a session-generated ID. Confirmed deletion is refused while a persisted
+Project requirement or Reservation allocation references the Team. The UI
+separately protects unapplied Project and Reservation draft changes concerning
+that Team before dispatch. Successful lifecycle changes follow the existing
+single-reprojection pipeline. The global metrics cartouche is titled, and
+Create Team appears between it and the first Team panel.
 
 ## Current product trajectory
 
@@ -161,8 +161,7 @@ projection. Rejected commands do neither.
 These are current implementation facts, not durable product rules:
 
 - the browser starts from a hard-coded demo scenario; there is no persistence;
-- Team creation/deletion is in review; structural CRUD remains absent for
-  Projects and Reservations;
+- structural CRUD remains absent for Projects and Reservations;
 - Project Team-requirement membership can be added or removed through the
   existing Project update command; this is a targeted anticipation of 9F;
 - capacity periods can be supplied when creating a Team; periods of an
