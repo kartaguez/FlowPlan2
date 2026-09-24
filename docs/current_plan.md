@@ -1,14 +1,14 @@
 # FlowPlan2 current plan
 
 Current validated baseline:
-`8a8c7537f8b64327533223a4a5dfc864aa8eb3bd`
+`a85d4b569a458d811e03dccc314476e8a5fb2e47`
 
 This is the operational roadmap for the active trajectory. Durable product and
 architecture rules live in [canon](./canon.md); current implementation facts
 and temporary constraints live in [current canon](./current_canon.md).
 
 The roadmap uses `9A`–`9G`, with intermediate lot `9C.1` between 9C and 9D.
-Validated 9C.1 and the subsequent visual corrective lot form the baseline.
+Validated 9D priority drag/drop forms the baseline.
 Each Phase 9 lot is intended to fit one commit or a small, coherent commit set.
 Actuals/History is a later trajectory, not a Phase 9 lot.
 
@@ -26,13 +26,12 @@ Actuals/History is a later trajectory, not a Phase 9 lot.
 - 9B Cursor metrics projection (DONE);
 - 9C Cursor metrics UI (DONE);
 - 9C.1 Planning UI cleanup (DONE);
-- FlowPlan visual grammar adaptation and corrective pass (DONE).
+- FlowPlan visual grammar adaptation and corrective pass (DONE);
+- 9D Priority drag/drop (DONE).
 
 ## Ordered remaining lots
 
 ```text
-9D Priority drag/drop (IN REVIEW)
-        ↓
 9E Team structural CRUD
         ↓
 9F Project structural CRUD
@@ -42,11 +41,10 @@ Actuals/History is a later trajectory, not a Phase 9 lot.
 Later trajectory: Actuals / History
 ```
 
-The remaining execution order is `9D` through `9G`. Validated 9C.1 completes
-the Planning UI cleanup; the later visual corrective pass is also closed. Lot 9D
-is implemented and awaiting ChatGPT audit and human browser validation. The CRUD series establishes
-Team referential-integrity policy before Project and Reservation membership
-workflows.
+The remaining execution order is `9E` through `9G`. Lot 9D is closed and
+provides the validated priority-reordering baseline. The CRUD series
+establishes Team referential-integrity policy before Project and Reservation
+membership workflows.
 
 ## 9C.1 — Planning UI cleanup
 
@@ -74,7 +72,7 @@ anticipating only that narrow part of 9F; Project and Team entity CRUD remain
 future work. A Team lane hit never opens Team Settings and leaves any editing
 context unchanged. Only the Team Settings button opens that editor.
 
-Human validation has closed 9C.1. Lot 9D is unblocked and its implementation is in review.
+Human validation has closed 9C.1; 9D has since also closed.
 
 ## FlowPlan visual grammar — corrective lot
 
@@ -98,63 +96,21 @@ Validation at closure: `npm run typecheck`, `npm test` (425 tests, 62 suites),
 and `npm run build` passed. Desktop (1440 px) and narrow (390 px) browser checks
 covered the metric cartouches, cursor, zoom/date changes, and horizontal
 overflow; no overflow was observed. No corrective item remains open. This lot
-adds no new Phase 9 feature and does not change the `9D`–`9G` order.
+adds no new Phase 9 feature.
 
 ## 9D — Priority drag/drop
 
-**Status: IN REVIEW** — implementation awaits ChatGPT audit and human browser validation. The validated baseline above remains unchanged.
+**Status: DONE** — validated implementation at
+`a85d4b569a458d811e03dccc314476e8a5fb2e47`.
 
-**Goal**
-
-Provide direct reordering of Projects while preserving the existing priority
-model.
-
-Implementation adds a dedicated `reorder-project` command, a Project-card
-pointer/keyboard handle, derived `#N` badges and a transient insertion preview.
-`update-project` no longer edits priority. Same-position reorder reuses the
-session state and projection, with no Planning recomputation. This is ready for
-audit; it is not a validated or closed lot.
-
-**Scope**
-
-Drag/drop changes only `portfolio.priorityOrder`. It triggers the normal
-atomic application command and a business recompute because admission order
-can change.
-
-**Domain changes**
-
-No new priority source. Continue enforcing that every Project appears exactly
-once in `priorityOrder`.
-
-**Application changes**
-
-Add a focused reorder command or reuse a clearly atomic reorder use case.
-Dates, RAF, Team requirements, and Project metadata must remain unchanged.
-
-**UI changes**
-
-Add accessible pointer and keyboard reordering to the Project list, with clear
-drop position and failure recovery.
-
-**Tests**
-
-Cover upward/downward/no-op moves, boundary positions, keyboard parity,
-unchanged Project fields, one recompute on success, and none on rejection.
-
-**Explicit non-goals**
-
-No date dragging, RAF editing by drag, Team assignment, multi-select, or
-Program/PAS priority.
-
-**Exit criteria**
-
-The displayed order and `portfolio.priorityOrder` stay identical after every
-supported reorder, and successful reorder performs exactly one recompute.
-
-**Dependencies**
-
-Existing Portfolio sidebar and editing pipeline; independent of 9A–9C after
-integration conflicts are avoided.
+Portfolio → Projects provides a dedicated pointer and keyboard reorder handle
+on each card, derived `#N` badges, and a transient insertion preview. The
+`reorder-project` command changes only `Portfolio.priorityOrder`; a real move
+rebuilds Planning once, while a same-position move reuses the existing state
+and projection. The Project editor no longer exposes priority. Independent
+Project and Reservation drafts, open cards, Projection date, viewport, progress
+view, and focus survive reordering. The implementation passed TypeScript
+typecheck, 434 automated tests, and build before closure.
 
 ## 9E — Team structural CRUD
 

@@ -9,8 +9,8 @@ active implementation and trajectory. The remaining work is in the
 
 ## Validated implementation baseline
 
-`8a8c7537f8b64327533223a4a5dfc864aa8eb3bd` (closed FlowPlan visual
-corrective lot, after 9C.1).
+`a85d4b569a458d811e03dccc314476e8a5fb2e47` (validated lot 9D priority
+drag/drop).
 
 The active application implements a pure planning projection over an in-memory
 demo session. The following capabilities are complete and active:
@@ -19,7 +19,8 @@ demo session. The following capabilities are complete and active:
   `maxParallelProjects` value applied independently per Team;
 - one shared timeline with stacked Team panels;
 - Team Settings for name and existing capacity periods;
-- Project editing for name, dates, and Team requirements; Project priority is reordered in Portfolio Projects;
+- Project editing for name, dates, and Team requirements; Project priority is
+  reordered from Portfolio Projects;
 - global multi-Team Reservations with ratio and fixed-daily modes, edited in
   inline Portfolio cards;
 - Projects / Reservations tabs in the Portfolio sidebar;
@@ -49,8 +50,11 @@ PlanningResult in the disposable session projection. Lot 9C is validated and
 and renders cumulative Team metrics plus an exclusive Projects / Programs / PAS
 progress view at the shared cursor date. Lot 9C.1 is validated and **DONE**.
 The subsequent FlowPlan visual adaptation and corrective pass are also
-validated and **DONE**; their final commit is the current validated baseline.
-Lot 9D is implemented and **IN REVIEW**, pending ChatGPT audit and human browser validation.
+validated and **DONE**. Lot 9D priority drag/drop is validated and **DONE**;
+its implementation commit is the current validated baseline. It adds dedicated
+pointer and keyboard handles, derived `#N` badges, and a temporary insertion
+preview to Portfolio Projects. Reordering preserves independent Project and
+Reservation drafts and the current projection controls.
 
 ## Current product trajectory
 
@@ -82,7 +86,7 @@ Planning
 └── Project and Reservation hover tooltips
 
 Portfolio sidebar
-├── Projects → expandable cards with inline editor and Team subcards
+├── Projects → reorder handles and #N badges; expandable cards with inline editor and Team subcards
 └── Reservations → expandable cards with inline editor and Team subcards
 ```
 
@@ -151,7 +155,8 @@ These are current implementation facts, not durable product rules:
 - capacity exceptions exist in the domain but have no editor;
 - Project `dailyCap` remains active in domain/planner but is hidden and
   preserved exactly by unrelated Project Apply;
-- Project priority is reordered through the Portfolio Projects handles; a card badge shows its derived position;
+- Project priority is reordered through Portfolio Projects handles; card
+  badges show derived positions;
 - Program and PriorityFamily/PAS catalogs are static; they have no create,
   delete, or rename UI;
 - the former daily Team summary is removed; cumulative metrics remain in Team
