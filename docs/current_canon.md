@@ -24,7 +24,8 @@ demo session. The following capabilities are complete and active:
   testing, and selection;
 - exact rational parsing and untouched exact-value preservation;
 - compact accessible settings icon buttons for Planning and Teams;
-- planning diagnostics, daily selected-date summaries, and cumulative progress.
+- planning diagnostics, cumulative Team metrics, and Project / Program / PAS
+  progress at the shared cursor date.
 
 The implementation follows the state, atomicity, engine, and projection
 invariants in [canon](./canon.md).
