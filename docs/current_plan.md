@@ -1,13 +1,13 @@
 # FlowPlan2 current plan
 
 Current validated baseline:
-`518832cfe84f3d5f76d2ad65cd69a126967f851a`
+`ff8f00e9df3b7c8ab222f6a4e971aa1baab71b64`
 
 This is the operational roadmap for the active trajectory. Durable product and
 architecture rules live in [canon](./canon.md); current implementation facts
 and temporary constraints live in [current canon](./current_canon.md).
 
-The roadmap uses `9A`–`9G`: validated 9A is the baseline, and each Phase 9 lot
+The roadmap uses `9A`–`9G`: validated 9B is the baseline, and each Phase 9 lot
 is intended to fit one commit or a small, coherent commit set. Actuals/History
 is a later trajectory, not a Phase 9 lot.
 
@@ -21,13 +21,12 @@ is a later trajectory, not a Phase 9 lot.
 - global Planning settings, Team settings, and Project editing;
 - global multi-Team Reservations with ratio and fixed-daily requests;
 - Portfolio tabs and stacked Team panel UI;
-- 9A Program / PAS foundations (DONE).
+- 9A Program / PAS foundations (DONE);
+- 9B Cursor metrics projection (DONE).
 
 ## Ordered remaining lots
 
 ```text
-9B Cursor metrics projection
-        ↓
 9C Cursor metrics UI
         ↓
 9D Priority drag/drop
@@ -41,83 +40,11 @@ is a later trajectory, not a Phase 9 lot.
 Later trajectory: Actuals / History
 ```
 
-The remaining execution order is `9B` through `9G`. Validated 9A supplies the
-grouping dimensions needed by 9B. `9B → 9C` separates metric semantics from
-rendering. `9D` has no hard dependency on metrics but follows them to keep one clear
-next lot at a time. The CRUD series establishes Team referential-integrity
+The remaining execution order is `9C` through `9G`. Validated 9B supplies the
+exact metric projection needed by 9C. `9D` has no hard dependency on metrics
+but follows 9C to keep one clear next lot at a time. The CRUD series
+establishes Team referential-integrity
 policy before Project and Reservation membership workflows.
-
-## 9B — Cursor metrics projection
-
-**Status: IN REVIEW** — implemented and awaiting human validation. 9C remains
-blocked; the validated baseline above stays on 9A.
-
-**Goal**
-
-Define and compute exact cumulative metrics for the current planning run,
-independently of UI layout.
-
-**Scope**
-
-For each Team, over the inclusive interval
-`[planning.horizon.start, selectedDate]`, compute:
-
-- Effective capacity;
-- requested Reserved capacity;
-- Project Allocated capacity;
-- utilization = `(Reserved + Allocated) / Effective`.
-
-If Effective is zero, utilization is undefined; 9C may render N/A. Utilization
-is not clamped and may exceed 100% under over-reservation.
-
-Project progress is:
-
-```text
-cumulative allocations / current-run baseline RAF
-```
-
-The baseline is the RAF supplied to the current projection run, before that
-run's allocations. Project baseline zero means 100% progress. Program and PAS
-progress is workload-weighted: sum cumulative allocations divided by sum
-current-run baseline RAF for the grouped Project requirements, not an average
-of Project percentages. A non-empty group with zero baseline is 100%; empty
-catalog groups have no metric entry.
-
-**Domain changes**
-
-None to planning decisions. Add a pure exact metric contract/calculator at the
-appropriate result/adapter boundary; do not mutate `PlanningResult` or session
-state.
-
-**Application changes**
-
-The composition exposes Portfolio and horizon references alongside its
-PlanningResult. The adapter derives baseline RAF from that Portfolio; the
-current `selectedDate` remains a separate presentation input.
-
-**UI changes**
-
-None beyond any minimal contract integration required for 9C.
-
-**Tests**
-
-Cover inclusive date bounds, cross-Team aggregation, zero Effective, values
-above 100%, zero RAF, partial completion, and workload-weighted Program/PAS
-aggregation using exact rationals.
-
-**Explicit non-goals**
-
-No visual dashboard, historical baseline, actual consumption, forecast
-mutation, or monthly snapshot.
-
-**Exit criteria**
-
-A pure, deterministic, exact metric projection produces all defined Team,
-Project, Program, and PAS values for any selected horizon date.
-
-**Dependencies**
-
-9A and the existing `TimelineViewModel`/cursor date semantics.
 
 ## 9C — Cursor metrics UI
 
@@ -126,7 +53,7 @@ Project, Program, and PAS values for any selected horizon date.
 Present the 9B cumulative metrics for the selected date without changing
 planning or temporal interaction.
 
-**Status: NOT STARTED** — blocked pending human validation of 9B.
+**Status: NOT STARTED** — next active lot; 9B is validated.
 
 **Scope**
 

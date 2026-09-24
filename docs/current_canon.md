@@ -7,7 +7,7 @@ For durable invariants and architecture, see [canon](./canon.md).
 active implementation and trajectory. The remaining work is in the
 [current plan](./current_plan.md).
 
-## Validated implementation baseline and current review
+## Validated implementation baseline
 
 The active application implements a pure planning projection over an in-memory
 demo session. The following capabilities are complete and active:
@@ -35,12 +35,12 @@ session; the Project editor offers two optional selects, and each Portfolio
 Project card shows `Program <name or —> · PAS <name or —>` beneath its title.
 The associations have no effect on the planning result.
 
-Lot 9B is implemented and **IN REVIEW**. A pure adapter projects exact
+Lot 9B is validated and **DONE**. A pure adapter projects exact
 cumulative Team utilization and Project, Program, and PAS progress for an
 inclusive selected-date interval. The current-run RAF baseline comes from the
 same Portfolio used to plan; Portfolio and horizon references travel with the
 PlanningResult in the disposable session projection. Cursor metrics are not
-rendered yet. Lot 9C is not started and awaits human validation of 9B.
+rendered yet. Lot 9C is the next active lot and is not started.
 
 ## Current product trajectory
 
@@ -129,7 +129,7 @@ These are current implementation facts, not durable product rules:
 ## Not part of the current implemented canon
 
 - Program / PriorityFamily (PAS) structural CRUD;
-- cumulative cursor metrics and aggregated progress;
+- cumulative cursor metrics UI rendering;
 - priority drag/drop;
 - structural CRUD and referential-integrity workflows around deletion;
 - persistence, import/export, undo/redo;
