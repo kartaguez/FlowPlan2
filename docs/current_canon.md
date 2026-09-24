@@ -7,7 +7,7 @@ For durable invariants and architecture, see [canon](./canon.md).
 active implementation and trajectory. The remaining work is in the
 [current plan](./current_plan.md).
 
-## Validated implementation baseline
+## Validated implementation baseline and current review
 
 The active application implements a pure planning projection over an in-memory
 demo session. The following capabilities are complete and active:
@@ -28,6 +28,13 @@ demo session. The following capabilities are complete and active:
 
 The implementation follows the state, atomicity, engine, and projection
 invariants in [canon](./canon.md).
+
+Lot 9A is implemented and **IN REVIEW**. Program and PriorityFamily (shown as
+PAS) are optional Project associations. Their catalogs are static in the demo
+session; the Project editor offers two optional selects, and each Portfolio
+Project card shows `Program <name or —> · PAS <name or —>` beneath its title.
+The associations have no effect on the planning result. This implementation
+awaits human validation and is not yet part of the validated baseline.
 
 ## Current product trajectory
 
@@ -81,7 +88,8 @@ The editable session currently accepts:
 - `update-planning-settings`: replaces horizon, global working pattern, and
   global parallelism setting;
 - `update-project`: replaces editable fields and all existing Team
-  requirements, including a priority-position move;
+  requirements, including optional Program/PAS associations and a
+  priority-position move;
 - `update-team-name`: renames one existing Team;
 - `update-team-capacity-periods`: replaces existing periods by position while
   preserving the period count and order;
@@ -103,7 +111,8 @@ These are current implementation facts, not durable product rules:
 - Project `dailyCap` remains active in domain/planner but is hidden and
   preserved exactly by unrelated Project Apply;
 - priority is editable as a numeric position, but there is no drag/drop;
-- Program and PriorityFamily/PAS dimensions do not exist yet;
+- Program and PriorityFamily/PAS catalogs are static; they have no create,
+  delete, or rename UI;
 - cursor summaries are daily only; cumulative cursor metrics and progress do
   not exist;
 - Reservation allocation rows may be enabled/disabled for existing Teams, but
@@ -113,7 +122,7 @@ These are current implementation facts, not durable product rules:
 
 ## Not part of the current implemented canon
 
-- Program / PriorityFamily (PAS);
+- Program / PriorityFamily (PAS) structural CRUD;
 - cumulative cursor metrics and aggregated progress;
 - priority drag/drop;
 - structural CRUD and referential-integrity workflows around deletion;

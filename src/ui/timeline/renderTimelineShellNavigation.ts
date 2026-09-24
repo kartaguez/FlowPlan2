@@ -10,6 +10,12 @@ export interface ReservationNavigationItem {
   readonly name: string;
 }
 
+export interface ProjectNavigationItem {
+  readonly id: ProjectId;
+  readonly programName?: string;
+  readonly priorityFamilyName?: string;
+}
+
 export interface TimelineShellNavigation {
   readonly destroy: () => void;
 }
@@ -21,6 +27,7 @@ export interface RenderTimelineShellNavigationInput {
   readonly projectTab: HTMLButtonElement;
   readonly reservationTab: HTMLButtonElement;
   readonly reservations: readonly ReservationNavigationItem[];
+  readonly projectItems: readonly ProjectNavigationItem[];
   readonly initialTab?: "projects" | "reservations";
   readonly viewModel: TimelineViewModel;
   readonly geometry: TimelineGeometry;
@@ -72,15 +79,26 @@ export function renderTimelineShellNavigation(
   });
   input.teamContainer.replaceChildren(axisSpacer, ...teamPanels);
 
+  const projectMetadata = new Map(input.projectItems.map((item) => [item.id, item]));
   const projectItems = input.viewModel.projects.map((project) => {
+    const metadata = projectMetadata.get(project.id);
+    if (metadata === undefined) throw new TypeError(`Missing Portfolio navigation project ${project.id}.`);
+    const programName = metadata.programName ?? "—";
+    const priorityFamilyName = metadata.priorityFamilyName ?? "—";
     const item = document.createElement("li");
     item.className = "project-sidebar-item";
     item.dataset.projectId = project.id;
     const button = document.createElement("button");
     button.type = "button";
     button.className = "project-sidebar-button";
-    button.textContent = `${project.priorityIndex + 1}. ${project.label}`;
-    button.setAttribute("aria-label", `Edit project ${project.label}`);
+    const title = document.createElement("span");
+    title.className = "project-sidebar-title";
+    title.textContent = `${project.priorityIndex + 1}. ${project.label}`;
+    const grouping = document.createElement("span");
+    grouping.className = "project-sidebar-grouping";
+    grouping.textContent = `Program ${programName} · PAS ${priorityFamilyName}`;
+    button.append(title, grouping);
+    button.setAttribute("aria-label", `Edit project ${project.label}, Program ${programName}, PAS ${priorityFamilyName}`);
     const listener = () => input.onProjectSelect(project.id);
     button.addEventListener("click", listener);
     listeners.push({ button, listener });

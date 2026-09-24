@@ -48,7 +48,7 @@ describe("global multi-team reservations", () => {
     assert.equal(serializeQuantity(reservedCapacity(unavailable, day, reservations, everyDay)), "1/1");
     assert.equal(serializeQuantity(projectCapacity(unavailable, day, reservations, everyDay)), "0/1");
     assert.equal(isOverReserved(unavailable, day, reservations, everyDay), true);
-    const portfolio = must(createPortfolio({ teams: [unavailable], projects: [], priorityOrder: [], reservations }));
+    const portfolio = must(createPortfolio({ teams: [unavailable], projects: [], programs: [], priorityFamilies: [], priorityOrder: [], reservations }));
     const result = planPortfolio({
       portfolio,
       horizon: must(createPlanningHorizon({ start: day, end: day })),

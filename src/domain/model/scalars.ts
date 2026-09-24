@@ -15,6 +15,8 @@ type Brand<T, Name extends string> = T & { readonly __brand: Name };
 export type TeamId = Brand<string, "TeamId">;
 export type ProjectId = Brand<string, "ProjectId">;
 export type ReservationId = Brand<string, "ReservationId">;
+export type ProgramId = Brand<string, "ProgramId">;
+export type PriorityFamilyId = Brand<string, "PriorityFamilyId">;
 
 declare const capacityBrand: unique symbol;
 declare const remainingWorkloadBrand: unique symbol;
@@ -114,7 +116,7 @@ export function remainingWorkloadFromRational(
   );
 }
 
-function createId<T extends TeamId | ProjectId | ReservationId>(
+function createId<T extends TeamId | ProjectId | ReservationId | ProgramId | PriorityFamilyId>(
   value: string,
   path: string,
   code: string,
@@ -145,6 +147,20 @@ export function createReservationId(
   path = "reservationId",
 ): DomainResult<ReservationId> {
   return createId(value, path, "INVALID_RESERVATION_ID", "Reservation id");
+}
+
+export function createProgramId(
+  value: string,
+  path = "programId",
+): DomainResult<ProgramId> {
+  return createId(value, path, "INVALID_PROGRAM_ID", "Program id");
+}
+
+export function createPriorityFamilyId(
+  value: string,
+  path = "priorityFamilyId",
+): DomainResult<PriorityFamilyId> {
+  return createId(value, path, "INVALID_PRIORITY_FAMILY_ID", "Priority family id");
 }
 
 function createNonNegative<T extends DomainQuantity>(

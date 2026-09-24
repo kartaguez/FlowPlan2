@@ -7,6 +7,8 @@ import type {
 import {
   createCivilDate,
   createProjectId,
+  createProgramId,
+  createPriorityFamilyId,
   createTeamId,
   serializeQuantity,
   type DomainResult,
@@ -77,11 +79,17 @@ function must<T>(result: DomainResult<T>): T {
 const projectId = must(createProjectId("project-atlas"));
 const alphaId = must(createTeamId("team-alpha"));
 const betaId = must(createTeamId("team-beta"));
+const phoenixId = must(createProgramId("program-phoenix"));
+const strategicId = must(createPriorityFamilyId("pas-strategic"));
 
 function model(label = "Project Atlas"): ProjectEditViewModel {
   return Object.freeze({
     projectId,
     label,
+    programId: phoenixId,
+    priorityFamilyId: strategicId,
+    programs: Object.freeze([Object.freeze({ id: phoenixId, name: "Phoenix" })]),
+    priorityFamilies: Object.freeze([Object.freeze({ id: strategicId, name: "Strategic" })]),
     priorityPosition: 2,
     projectCount: 4,
     earliestStartDate: must(createCivilDate("2025-01-02")),
@@ -149,6 +157,8 @@ describe("ProjectEditController", () => {
 
     for (const name of [
       "project.name",
+      "project.programId",
+      "project.priorityFamilyId",
       "project.priority",
       "project.earliestStartDate",
       "project.objectiveEndDate",
@@ -169,6 +179,12 @@ describe("ProjectEditController", () => {
       3,
     );
     assert.equal(field(input.fields, "project.name").value, "Project Atlas");
+    assert.equal(field(input.fields, "project.programId").value, phoenixId);
+    assert.equal(field(input.fields, "project.priorityFamilyId").value, strategicId);
+    const programOptions = field(input.fields, "project.programId").childNodes;
+    const familyOptions = field(input.fields, "project.priorityFamilyId").childNodes;
+    assert.deepEqual(programOptions.map(({ value, textContent }) => [value, textContent]), [["", "None"], [phoenixId, "Phoenix"]]);
+    assert.deepEqual(familyOptions.map(({ value, textContent }) => [value, textContent]), [["", "None"], [strategicId, "Strategic"]]);
     assert.equal(field(input.fields, "project.priority").value, "2");
     assert.equal(field(input.fields, "project.earliestStartDate").value, "2025-01-02");
     assert.equal(
@@ -196,12 +212,16 @@ describe("ProjectEditController", () => {
     });
     input.controller.setProject(model());
     field(input.fields, "project.name").value = "Dirty";
+    field(input.fields, "project.programId").value = "";
+    field(input.fields, "project.priorityFamilyId").value = "";
     field(input.fields, "project.priority").value = "4";
     field(input.fields, "project.mandatoryDeadline").value = "";
     field(input.fields, `requirements.${alphaId}.remainingWorkload`).value = "99";
     input.cancel.dispatch("click");
 
     assert.equal(field(input.fields, "project.name").value, "Project Atlas");
+    assert.equal(field(input.fields, "project.programId").value, phoenixId);
+    assert.equal(field(input.fields, "project.priorityFamilyId").value, strategicId);
     assert.equal(field(input.fields, "project.priority").value, "2");
     assert.equal(field(input.fields, "project.mandatoryDeadline").value, "2025-03-04");
     assert.equal(
@@ -248,6 +268,8 @@ describe("ProjectEditController", () => {
 
     assert.equal(command?.kind, "update-project");
     assert.equal(command?.name, "Atlas Updated");
+    assert.equal(command?.programId, phoenixId);
+    assert.equal(command?.priorityFamilyId, strategicId);
     assert.equal(command?.priorityPosition, 1);
     assert.equal(command?.teamRequirements.length, 2);
     assert.equal(command?.teamRequirements[0]?.dailyCap === undefined, false);
@@ -257,5 +279,21 @@ describe("ProjectEditController", () => {
     );
     assert.equal(input.error.hidden, true);
     assert.equal(input.error.textContent, "");
+  });
+
+  it("keeps select changes local until Apply and emits empty associations", () => {
+    const commands: UpdateProjectCommand[] = [];
+    const input = fixture((command) => {
+      commands.push(command);
+      return { ok: true };
+    });
+    input.controller.setProject(model());
+    field(input.fields, "project.programId").value = "";
+    field(input.fields, "project.priorityFamilyId").value = "";
+    assert.equal(commands.length, 0);
+    input.form.dispatch("submit", { preventDefault() {} });
+    assert.equal(commands.length, 1);
+    assert.equal(commands[0]!.programId, undefined);
+    assert.equal(commands[0]!.priorityFamilyId, undefined);
   });
 });

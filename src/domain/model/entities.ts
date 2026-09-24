@@ -4,6 +4,8 @@ import type { CivilDate } from "./date.js";
 import type {
   DailyCap,
   ProjectId,
+  ProgramId,
+  PriorityFamilyId,
   RemainingWorkload,
   TeamId,
 } from "./scalars.js";
@@ -27,9 +29,21 @@ export interface ProjectTeamRequirement {
   readonly dailyCap?: DailyCap;
 }
 
+export interface Program {
+  readonly id: ProgramId;
+  readonly name: string;
+}
+
+export interface PriorityFamily {
+  readonly id: PriorityFamilyId;
+  readonly name: string;
+}
+
 export interface Project {
   readonly id: ProjectId;
   readonly name: string;
+  readonly programId?: ProgramId;
+  readonly priorityFamilyId?: PriorityFamilyId;
   readonly earliestStartDate?: CivilDate;
   readonly objectiveEndDate?: CivilDate;
   readonly mandatoryDeadline?: CivilDate;
@@ -39,8 +53,24 @@ export interface Project {
 export interface Portfolio {
   readonly teams: readonly Team[];
   readonly projects: readonly Project[];
+  readonly programs: readonly Program[];
+  readonly priorityFamilies: readonly PriorityFamily[];
   readonly priorityOrder: readonly ProjectId[];
   readonly reservations: readonly Reservation[];
+}
+
+export function createProgram(input: {
+  readonly id: ProgramId;
+  readonly name: string;
+}): DomainResult<Program> {
+  return success(Object.freeze({ id: input.id, name: input.name }));
+}
+
+export function createPriorityFamily(input: {
+  readonly id: PriorityFamilyId;
+  readonly name: string;
+}): DomainResult<PriorityFamily> {
+  return success(Object.freeze({ id: input.id, name: input.name }));
 }
 
 export function createTeam(input: {
@@ -68,6 +98,8 @@ export function createProjectTeamRequirement(input: {
 export function createProject(input: {
   readonly id: ProjectId;
   readonly name: string;
+  readonly programId?: ProgramId;
+  readonly priorityFamilyId?: PriorityFamilyId;
   readonly earliestStartDate?: CivilDate;
   readonly objectiveEndDate?: CivilDate;
   readonly mandatoryDeadline?: CivilDate;
@@ -109,6 +141,8 @@ export function createProject(input: {
 export function createPortfolio(input: {
   readonly teams: readonly Team[];
   readonly projects: readonly Project[];
+  readonly programs: readonly Program[];
+  readonly priorityFamilies: readonly PriorityFamily[];
   readonly priorityOrder: readonly ProjectId[];
   readonly reservations: readonly Reservation[];
 }): DomainResult<Portfolio> {
@@ -129,6 +163,22 @@ export function createPortfolio(input: {
     "Project id must be unique in the portfolio.",
     errors,
   );
+  const programIds = collectUniqueIds(
+    input.programs,
+    (program) => program.id,
+    "programs",
+    "DUPLICATE_PROGRAM_ID",
+    "Program id must be unique in the portfolio.",
+    errors,
+  );
+  const priorityFamilyIds = collectUniqueIds(
+    input.priorityFamilies,
+    (family) => family.id,
+    "priorityFamilies",
+    "DUPLICATE_PRIORITY_FAMILY_ID",
+    "Priority family id must be unique in the portfolio.",
+    errors,
+  );
   collectUniqueIds(
     input.reservations,
     (reservation) => reservation.id,
@@ -139,6 +189,20 @@ export function createPortfolio(input: {
   );
 
   input.projects.forEach((project, projectIndex) => {
+    if (project.programId !== undefined && !programIds.has(project.programId)) {
+      errors.push(error(
+        "UNKNOWN_PROJECT_PROGRAM",
+        `projects[${projectIndex}].programId`,
+        "Project program must reference a program in the portfolio.",
+      ));
+    }
+    if (project.priorityFamilyId !== undefined && !priorityFamilyIds.has(project.priorityFamilyId)) {
+      errors.push(error(
+        "UNKNOWN_PROJECT_PRIORITY_FAMILY",
+        `projects[${projectIndex}].priorityFamilyId`,
+        "Project priority family must reference a priority family in the portfolio.",
+      ));
+    }
     project.requirements.forEach((requirement, requirementIndex) => {
       if (!teamIds.has(requirement.teamId)) {
         errors.push(
@@ -215,6 +279,8 @@ export function createPortfolio(input: {
     Object.freeze({
       teams: Object.freeze([...input.teams]),
       projects: Object.freeze([...input.projects]),
+      programs: Object.freeze([...input.programs]),
+      priorityFamilies: Object.freeze([...input.priorityFamilies]),
       priorityOrder: Object.freeze([...input.priorityOrder]),
       reservations: Object.freeze([...input.reservations]),
     }),

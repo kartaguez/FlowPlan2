@@ -30,7 +30,7 @@ import { createTimelineInteractionController } from "./createTimelineInteraction
 import { createTimelineViewportController } from "./createTimelineViewportController.js";
 import { renderPlanningDiagnostics } from "./renderPlanningDiagnostics.js";
 import { renderTimelineSvg } from "./renderTimelineSvg.js";
-import { renderTimelineShellNavigation } from "./renderTimelineShellNavigation.js";
+import { renderTimelineShellNavigation, type ProjectNavigationItem } from "./renderTimelineShellNavigation.js";
 import type { TimelineHit } from "./timelineHitTesting.js";
 import { reconcileTimelineHit } from "./timelineSelectionGeometry.js";
 import type { TimelineViewportState } from "./timelineViewport.js";
@@ -75,6 +75,7 @@ export interface CreateTimelineUiCoordinatorInput {
   readonly getProjectEditViewModel: (
     projectId: ProjectId,
   ) => ProjectEditViewModel | undefined;
+  readonly getProjectNavigationItems: () => readonly ProjectNavigationItem[];
   readonly getPlanningSettingsViewModel: () => PlanningSettingsViewModel;
   readonly getTeamEditViewModel: (
     teamId: TeamId,
@@ -219,6 +220,7 @@ export function createTimelineUiCoordinator(
       projectTab: input.elements.projectTab,
       reservationTab: input.elements.reservationTab,
       reservations: input.getReservationNavigationItems(),
+      projectItems: input.getProjectNavigationItems(),
       initialTab: snapshot.editingContext?.kind === "reservation" ? "reservations" : "projects",
       viewModel: projection.viewModel,
       geometry: projection.geometry,

@@ -56,6 +56,13 @@ policy before Project and Reservation membership workflows.
 Add the two optional Project grouping dimensions already selected for future
 analysis: Program and `PriorityFamily` / PAS.
 
+**Status: IN REVIEW** — 9A is technically implemented, its new and adapted
+automated tests and TypeScript build pass, and it awaits human review and
+validation. It remains a lot to validate, not a completed validated lot. 9B
+must not be treated as officially unblocked or started until 9A is validated.
+The `Current validated baseline` SHA above remains the previously validated
+baseline; this review implementation does not move it.
+
 **Scope**
 
 - A Project may optionally belong to one Program and one PriorityFamily/PAS.
@@ -71,13 +78,14 @@ dimension affects eligibility, admission, allocation, deadlines, or capacity.
 **Application changes**
 
 Carry and preserve the optional associations in Project editing commands and
-edit ViewModels. Decide the initial catalog/source representation explicitly;
-do not smuggle general structural CRUD into this lot.
+edit ViewModels. The initial Program/PAS catalogs are static in the demo
+session; no structural CRUD is part of this lot.
 
 **UI changes**
 
-Expose optional Program and PAS assignment in Project editing and display the
-grouping labels where useful in the Portfolio surface.
+Expose optional Program and PAS assignment in Project editing and display both
+labels on the second line of every Portfolio Project entry, using `—` for an
+absent association.
 
 **Tests**
 
@@ -93,7 +101,8 @@ actuals/history.
 **Exit criteria**
 
 Projects can be grouped by both dimensions; both survive the full editing and
-projection path; engine allocations are invariant under grouping-only changes.
+projection path; the full business planning result is invariant under
+grouping-only changes.
 
 **Dependencies**
 
@@ -430,6 +439,10 @@ No fine implementation slicing is fixed yet.
 - No opportunistic persistence, synchronization, or framework migration.
 
 ## Maintenance protocol
+
+After implementing a lot, record **IN REVIEW** only when code, automated tests,
+TypeScript build, and documentation are consistent. Keep the validated baseline
+SHA and downstream dependency status unchanged until human validation.
 
 After each validated lot:
 

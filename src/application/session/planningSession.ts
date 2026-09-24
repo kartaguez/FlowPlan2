@@ -21,6 +21,8 @@ import {
   type DomainError,
   type Portfolio,
   type ProjectId,
+  type ProgramId,
+  type PriorityFamilyId,
   type ReservationId,
   type ReservationRatio,
   type RemainingWorkload,
@@ -61,6 +63,8 @@ export interface UpdateProjectCommand {
   readonly kind: "update-project";
   readonly projectId: ProjectId;
   readonly name: string;
+  readonly programId?: ProgramId;
+  readonly priorityFamilyId?: PriorityFamilyId;
   /** One is the highest user-facing priority. */
   readonly priorityPosition: number;
   readonly earliestStartDate?: CivilDate;
@@ -230,6 +234,8 @@ function updateReservation(
   const portfolio = createPortfolio({
     teams: state.portfolio.teams,
     projects: state.portfolio.projects,
+    programs: state.portfolio.programs,
+    priorityFamilies: state.portfolio.priorityFamilies,
     priorityOrder: state.portfolio.priorityOrder,
     reservations,
   });
@@ -425,6 +431,8 @@ function replaceTeam(
   const portfolio = createPortfolio({
     teams,
     projects: state.portfolio.projects,
+    programs: state.portfolio.programs,
+    priorityFamilies: state.portfolio.priorityFamilies,
     priorityOrder: state.portfolio.priorityOrder,
     reservations: state.portfolio.reservations,
   });
@@ -560,6 +568,8 @@ function updateProject(
   const updatedProject = createProject({
     id: project.id,
     name,
+    ...(command.programId === undefined ? {} : { programId: command.programId }),
+    ...(command.priorityFamilyId === undefined ? {} : { priorityFamilyId: command.priorityFamilyId }),
     ...(command.earliestStartDate === undefined
       ? {}
       : { earliestStartDate: command.earliestStartDate }),
@@ -584,6 +594,8 @@ function updateProject(
   const portfolio = createPortfolio({
     teams: state.portfolio.teams,
     projects,
+    programs: state.portfolio.programs,
+    priorityFamilies: state.portfolio.priorityFamilies,
     priorityOrder,
     reservations: state.portfolio.reservations,
   });

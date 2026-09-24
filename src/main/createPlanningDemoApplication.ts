@@ -34,6 +34,16 @@ export function createPlanningDemoApplication(
     dispatch: projectionDispatcher.dispatch,
     getProjectEditViewModel: (projectId) =>
       buildProjectEditViewModel(session.getState(), projectId),
+    getProjectNavigationItems: () => {
+      const { portfolio } = session.getState();
+      const programs = new Map(portfolio.programs.map((program) => [program.id, program.name]));
+      const priorityFamilies = new Map(portfolio.priorityFamilies.map((family) => [family.id, family.name]));
+      return Object.freeze(portfolio.projects.map((project) => Object.freeze({
+        id: project.id,
+        ...(project.programId === undefined ? {} : { programName: programs.get(project.programId)! }),
+        ...(project.priorityFamilyId === undefined ? {} : { priorityFamilyName: priorityFamilies.get(project.priorityFamilyId)! }),
+      })));
+    },
     getPlanningSettingsViewModel: () =>
       buildPlanningSettingsViewModel(session.getState()),
     getTeamEditViewModel: (teamId) =>

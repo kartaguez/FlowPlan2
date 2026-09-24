@@ -10,6 +10,12 @@ describe("ProjectEditViewModel", () => {
     const model = buildProjectEditViewModel(state, project.id)!;
 
     assert.equal(model.label, "Project Atlas");
+    assert.equal(model.programId, state.portfolio.programs[0]!.id);
+    assert.equal(model.priorityFamilyId, state.portfolio.priorityFamilies[0]!.id);
+    assert.deepEqual(model.programs.map(({ name }) => name), ["Phoenix"]);
+    assert.deepEqual(model.priorityFamilies.map(({ name }) => name), ["Strategic", "Regulatory"]);
+    assert.equal(Object.isFrozen(model.programs), true);
+    assert.equal(Object.isFrozen(model.priorityFamilies), true);
     assert.equal(model.priorityPosition, 1);
     assert.equal(model.projectCount, 4);
     assert.equal(model.earliestStartDate, undefined);

@@ -10,6 +10,7 @@ import {
   createCivilDate,
   createCapacity,
   createDailyCap,
+  createPriorityFamilyId,
   createRemainingWorkload,
   createUnavailabilityRatio,
   createWorkingPattern,
@@ -65,6 +66,8 @@ function commandFor(
     kind: "update-project",
     projectId,
     name: project.name,
+    ...(project.programId === undefined ? {} : { programId: project.programId }),
+    ...(project.priorityFamilyId === undefined ? {} : { priorityFamilyId: project.priorityFamilyId }),
     priorityPosition: state.portfolio.priorityOrder.indexOf(projectId) + 1,
     ...(project.earliestStartDate ? { earliestStartDate: project.earliestStartDate } : {}),
     ...(project.objectiveEndDate ? { objectiveEndDate: project.objectiveEndDate } : {}),
@@ -75,6 +78,34 @@ function commandFor(
 }
 
 describe("PlanningProjectionDispatcher", () => {
+  it("recomputes once for a grouping edit and never for an unknown catalog reference", () => {
+    const initial = createDemoPlanningScenario();
+    const session = createPlanningSession(initial);
+    let buildCount = 0;
+    const dispatcher = createPlanningProjectionDispatcher({
+      session,
+      geometryViewport,
+      buildProjection: (input) => {
+        buildCount += 1;
+        return buildPlanningSessionProjection(input);
+      },
+    });
+    const projectId = initial.portfolio.projects[1]!.id;
+    const before = dispatcher.getProjection();
+    const valid = dispatcher.dispatch(commandFor(initial, projectId, {
+      priorityFamilyId: initial.portfolio.priorityFamilies[0]!.id,
+    }));
+    assert.equal(valid.ok, true);
+    assert.equal(buildCount, 2);
+    assert.notEqual(dispatcher.getProjection(), before);
+    const current = dispatcher.getProjection();
+    const rejected = dispatcher.dispatch(commandFor(session.getState(), projectId, {
+      priorityFamilyId: must(createPriorityFamilyId("unknown-family")),
+    }));
+    assert.equal(rejected.ok, false);
+    assert.equal(buildCount, 2);
+    assert.equal(dispatcher.getProjection(), current);
+  });
   it("rebuilds exactly once after success and never after invalid commands", () => {
     const initial = createDemoPlanningScenario();
     const session = createPlanningSession(initial);

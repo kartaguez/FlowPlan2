@@ -53,6 +53,8 @@ describe("renderTimelineShellNavigation", () => {
     const beta = must(createTeamId("team-beta"));
     const projectB = must(createProjectId("project-b"));
     const projectA = must(createProjectId("project-a"));
+    const projectC = must(createProjectId("project-c"));
+    const projectD = must(createProjectId("project-d"));
     const document = new FakeDocument();
     const teams = document.createElement("div");
     const projects = document.createElement("ol");
@@ -70,6 +72,12 @@ describe("renderTimelineShellNavigation", () => {
       projectTab: projectTab as unknown as HTMLButtonElement,
       reservationTab: reservationTab as unknown as HTMLButtonElement,
       reservations: [{ id: reservationId, name: "Run" }],
+      projectItems: [
+        { id: projectB, programName: "Phoenix", priorityFamilyName: "Strategic" },
+        { id: projectA, programName: "Phoenix" },
+        { id: projectC, priorityFamilyName: "Regulatory" },
+        { id: projectD },
+      ],
       viewModel: {
         teams: [
           { id: alpha, label: "Team Alpha" },
@@ -78,6 +86,8 @@ describe("renderTimelineShellNavigation", () => {
         projects: [
           { id: projectB, label: "Boreal", priorityIndex: 0 },
           { id: projectA, label: "Atlas", priorityIndex: 1 },
+          { id: projectC, label: "Cobalt", priorityIndex: 2 },
+          { id: projectD, label: "Delta", priorityIndex: 3 },
         ],
       } as unknown as TimelineViewModel,
       geometry: {
@@ -124,8 +134,17 @@ describe("renderTimelineShellNavigation", () => {
       ],
     );
     assert.deepEqual(
-      projects.childNodes.map((item) => item.childNodes[0]!.textContent),
-      ["1. Boreal", "2. Atlas"],
+      projects.childNodes.map((item) => item.childNodes[0]!.childNodes[0]!.textContent),
+      ["1. Boreal", "2. Atlas", "3. Cobalt", "4. Delta"],
+    );
+    assert.deepEqual(
+      projects.childNodes.map((item) => item.childNodes[0]!.childNodes[1]!.textContent),
+      [
+        "Program Phoenix · PAS Strategic",
+        "Program Phoenix · PAS —",
+        "Program — · PAS Regulatory",
+        "Program — · PAS —",
+      ],
     );
     teams.childNodes[2]!.childNodes[0]!.childNodes[1]!.click();
     projects.childNodes[0]!.childNodes[0]!.click();

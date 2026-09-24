@@ -5,11 +5,14 @@ import type {
 import { parseExactQuantityInput } from "../../application/index.js";
 import {
   createCivilDate,
+  createProgramId,
+  createPriorityFamilyId,
   dailyCapFromSerialized,
   remainingWorkloadFromSerialized,
   type CivilDate,
   type DailyCap,
   type DomainError,
+  type DomainResult,
   type ProjectId,
   type RemainingWorkload,
   type TeamId,
@@ -19,6 +22,8 @@ export interface ProjectEditFormValues {
   readonly projectId: ProjectId;
   readonly projectCount: number;
   readonly name: string;
+  readonly programId: string;
+  readonly priorityFamilyId: string;
   readonly priorityPosition: string;
   readonly earliestStartDate: string;
   readonly objectiveEndDate: string;
@@ -43,6 +48,8 @@ export function parseProjectEditCommand(
 ): ProjectEditCommandParseResult {
   const errors: DomainError[] = [];
   const name = values.name.trim();
+  const programId = parseOptionalId(values.programId, createProgramId, "project.programId", errors);
+  const priorityFamilyId = parseOptionalId(values.priorityFamilyId, createPriorityFamilyId, "project.priorityFamilyId", errors);
   if (name.length === 0) {
     errors.push(
       error(
@@ -89,6 +96,8 @@ export function parseProjectEditCommand(
       kind: "update-project",
       projectId: values.projectId,
       name,
+      ...(programId === undefined ? {} : { programId }),
+      ...(priorityFamilyId === undefined ? {} : { priorityFamilyId }),
       priorityPosition,
       ...(earliestStartDate === undefined ? {} : { earliestStartDate }),
       ...(objectiveEndDate === undefined ? {} : { objectiveEndDate }),
@@ -98,6 +107,21 @@ export function parseProjectEditCommand(
       ),
     }),
   });
+}
+
+function parseOptionalId<T>(
+  raw: string,
+  create: (value: string, path: string) => DomainResult<T>,
+  path: string,
+  errors: DomainError[],
+): T | undefined {
+  if (raw === "") return undefined;
+  const result = create(raw, path);
+  if (!result.ok) {
+    errors.push(...result.errors);
+    return undefined;
+  }
+  return result.value;
 }
 
 function parsePriority(

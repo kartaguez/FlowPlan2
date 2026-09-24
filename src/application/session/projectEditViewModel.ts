@@ -2,6 +2,8 @@ import {
   serializeQuantity,
   type CivilDate,
   type ProjectId,
+  type ProgramId,
+  type PriorityFamilyId,
   type TeamId,
 } from "../../domain/index.js";
 import { formatQuantityForEditing } from "./editableQuantity.js";
@@ -10,6 +12,10 @@ import type { PlanningSessionState } from "./planningSession.js";
 export interface ProjectEditViewModel {
   readonly projectId: ProjectId;
   readonly label: string;
+  readonly programId?: ProgramId;
+  readonly priorityFamilyId?: PriorityFamilyId;
+  readonly programs: readonly Readonly<{ id: ProgramId; name: string }>[];
+  readonly priorityFamilies: readonly Readonly<{ id: PriorityFamilyId; name: string }>[];
   readonly priorityPosition: number;
   readonly projectCount: number;
   readonly earliestStartDate?: CivilDate;
@@ -59,6 +65,10 @@ export function buildProjectEditViewModel(
   return Object.freeze({
     projectId: project.id,
     label: project.name,
+    ...(project.programId === undefined ? {} : { programId: project.programId }),
+    ...(project.priorityFamilyId === undefined ? {} : { priorityFamilyId: project.priorityFamilyId }),
+    programs: Object.freeze(state.portfolio.programs.map((program) => Object.freeze({ id: program.id, name: program.name }))),
+    priorityFamilies: Object.freeze(state.portfolio.priorityFamilies.map((family) => Object.freeze({ id: family.id, name: family.name }))),
     priorityPosition: priorityIndex + 1,
     projectCount: state.portfolio.projects.length,
     ...(project.earliestStartDate === undefined

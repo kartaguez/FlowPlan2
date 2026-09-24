@@ -4,6 +4,8 @@ import { resolve } from "node:path";
 import { describe, it } from "node:test";
 import {
   createProjectId,
+  createProgramId,
+  createPriorityFamilyId,
   createTeamId,
   serializeQuantity,
   type DomainResult,
@@ -29,6 +31,8 @@ function values(
     projectId,
     projectCount: 4,
     name: "Project Atlas",
+    programId: "",
+    priorityFamilyId: "",
     priorityPosition: "2",
     earliestStartDate: "2025-01-02",
     objectiveEndDate: "2025-02-03",
@@ -53,6 +57,23 @@ function values(
 }
 
 describe("parseProjectEditCommand", () => {
+  it("parses catalog identities and an explicit empty choice", () => {
+    const programId = must(createProgramId("program-phoenix"));
+    const priorityFamilyId = must(createPriorityFamilyId("pas-strategic"));
+    const selected = parseProjectEditCommand(values({ programId, priorityFamilyId }));
+    assert.equal(selected.ok, true);
+    if (selected.ok) {
+      assert.equal(selected.command.programId, programId);
+      assert.equal(selected.command.priorityFamilyId, priorityFamilyId);
+    }
+    const empty = parseProjectEditCommand(values());
+    assert.equal(empty.ok, true);
+    if (empty.ok) {
+      assert.equal(Object.hasOwn(empty.command, "programId"), false);
+      assert.equal(Object.hasOwn(empty.command, "priorityFamilyId"), false);
+    }
+    assert.equal(parseProjectEditCommand(values({ programId: "   " })).ok, false);
+  });
   it("maps all strings to one typed update-project command with exact quantities", () => {
     const result = parseProjectEditCommand(values());
     assert.equal(result.ok, true);

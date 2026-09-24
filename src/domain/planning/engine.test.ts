@@ -12,6 +12,10 @@ import {
   createPortfolio,
   createProject,
   createProjectId,
+  createProgram,
+  createProgramId,
+  createPriorityFamily,
+  createPriorityFamilyId,
   createProjectTeamRequirement,
   createRemainingWorkload,
   createReservationId,
@@ -160,6 +164,8 @@ function makeInput(
     createPortfolio({
       teams,
       projects,
+      programs: [],
+      priorityFamilies: [],
       priorityOrder: priorityOrder.map((project) => project.id),
       reservations,
     }),
@@ -217,9 +223,9 @@ function comparableResult(result: PlanningResult) {
       teamId: teamPlan.teamId,
       days: teamPlan.dayCapacities.map((day) => ({
         date: day.date,
-        effective: rendered(day.effectiveCapacity),
-        reserved: rendered(day.reservedCapacity),
-        project: rendered(day.projectCapacity),
+        effective: serializeQuantity(day.effectiveCapacity),
+        reserved: serializeQuantity(day.reservedCapacity),
+        project: serializeQuantity(day.projectCapacity),
         overReserved: day.overReserved,
       })),
       admissions: teamPlan.dayAdmissions.map((admission) => ({
@@ -228,13 +234,13 @@ function comparableResult(result: PlanningResult) {
       })),
       projects: teamPlan.projectPlans.map((projectPlan) => ({
         projectId: projectPlan.projectId,
-        allocations: allocations(projectPlan),
-        planned: rendered(projectPlan.plannedWorkload),
-        remaining: rendered(projectPlan.remainingUnplannedWorkload),
+        allocations: projectPlan.allocations.map(({ date, workload }) => [date, serializeQuantity(workload)]),
+        planned: serializeQuantity(projectPlan.plannedWorkload),
+        remaining: serializeQuantity(projectPlan.remainingUnplannedWorkload),
         complete: projectPlan.complete,
         projectedEndDate: projectPlan.projectedEndDate,
         deadlineStatus: projectPlan.deadlineStatus,
-        deadlineStatuses: projectPlan.deadlineStatuses,
+        deadlineStatuses: projectPlan.deadlineStatuses?.map(({ date, status }) => ({ date, status })),
       })),
     })),
     diagnostics: result.diagnostics,
@@ -257,6 +263,37 @@ function allocationOn(
 }
 
 describe("Phase 2A planning engine", () => {
+  it("ignores Program/PAS membership while priorityOrder still controls admission", () => {
+    const team = makeTeam("team-grouping", "1");
+    const first = makeProject("first-grouping", [{ team, workload: "2" }]);
+    const second = makeProject("second-grouping", [{ team, workload: "2" }]);
+    const program = must(createProgram({ id: must(createProgramId("phoenix")), name: "Phoenix" }));
+    const family = must(createPriorityFamily({ id: must(createPriorityFamilyId("strategic")), name: "Strategic" }));
+    const baseline = makeInput([team], [first, second], "2025-01-01", "2025-01-02");
+    const portfolioWith = (associatedFirst: boolean) => must(createPortfolio({
+      teams: [team],
+      projects: [
+        must(createProject({ ...first, ...(associatedFirst ? { programId: program.id, priorityFamilyId: family.id } : {}) })),
+        must(createProject({ ...second, ...(!associatedFirst ? { programId: program.id, priorityFamilyId: family.id } : {}) })),
+      ],
+      programs: [program], priorityFamilies: [family],
+      priorityOrder: [first.id, second.id], reservations: [],
+    }));
+    const input = {
+      ...baseline,
+      maxParallelProjects: must(createMaxParallelProjects(1)),
+    };
+    const firstResult = planPortfolio({ ...input, portfolio: portfolioWith(true) });
+    const secondResult = planPortfolio({ ...input, portfolio: portfolioWith(false) });
+    assert.deepEqual(comparableResult(firstResult), comparableResult(secondResult));
+    assert.deepEqual(firstResult.teamPlans[0]!.dayAdmissions[0]!.admittedProjectIds, [first.id]);
+    const reversed = must(createPortfolio({
+      ...portfolioWith(true), priorityOrder: [second.id, first.id],
+    }));
+    const reorderedResult = planPortfolio({ ...input, portfolio: reversed });
+    assert.deepEqual(reorderedResult.teamPlans[0]!.dayAdmissions[0]!.admittedProjectIds, [second.id]);
+    assert.notDeepEqual(comparableResult(firstResult), comparableResult(reorderedResult));
+  });
   it("plans a simple workload over an inclusive horizon", () => {
     const team = makeTeam("team-a", "2");
     const project = makeProject("project-a", [

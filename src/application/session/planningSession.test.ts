@@ -6,6 +6,8 @@ import {
   createCivilDate,
   createDailyCap,
   createProjectId,
+  createProgramId,
+  createPriorityFamilyId,
   createRemainingWorkload,
   createTeamId,
   serializeQuantity,
@@ -34,6 +36,8 @@ function commandFor(
     kind: "update-project",
     projectId,
     name: project.name,
+    ...(project.programId === undefined ? {} : { programId: project.programId }),
+    ...(project.priorityFamilyId === undefined ? {} : { priorityFamilyId: project.priorityFamilyId }),
     priorityPosition: state.portfolio.priorityOrder.indexOf(projectId) + 1,
     ...(project.earliestStartDate === undefined
       ? {}
@@ -56,6 +60,59 @@ function commandFor(
 }
 
 describe("PlanningSession project editing", () => {
+  it("updates memberships and preserves them on unrelated Project Apply", () => {
+    const initial = createDemoPlanningScenario();
+    const atlas = initial.portfolio.projects[0]!;
+    const boreal = initial.portfolio.projects[1]!;
+    const session = createPlanningSession(initial);
+    const assigned = session.dispatch(commandFor(initial, boreal.id, {
+      priorityFamilyId: initial.portfolio.priorityFamilies[1]!.id,
+    }));
+    assert.equal(assigned.ok, true);
+    if (!assigned.ok) return;
+    assert.equal(assigned.state.portfolio.projects[1]!.programId, boreal.programId);
+    assert.equal(assigned.state.portfolio.projects[1]!.priorityFamilyId, initial.portfolio.priorityFamilies[1]!.id);
+    assert.deepEqual(assigned.state.portfolio.programs, initial.portfolio.programs);
+    assert.deepEqual(assigned.state.portfolio.priorityFamilies, initial.portfolio.priorityFamilies);
+    const renamed = session.dispatch(commandFor(session.getState(), atlas.id, { name: "Atlas renamed" }));
+    assert.equal(renamed.ok, true);
+    if (!renamed.ok) return;
+    assert.equal(renamed.state.portfolio.projects[0]!.programId, atlas.programId);
+    assert.equal(renamed.state.portfolio.projects[0]!.priorityFamilyId, atlas.priorityFamilyId);
+    assert.equal(serializeQuantity(renamed.state.portfolio.projects[0]!.requirements[0]!.dailyCap!), "3/2");
+  });
+
+  it("clears either membership and rejects unknown references atomically", () => {
+    const initial = createDemoPlanningScenario();
+    const atlas = initial.portfolio.projects[0]!;
+    const session = createPlanningSession(initial);
+    const { programId: _programOnly, ...withoutProgram } = commandFor(initial, atlas.id);
+    const oneCleared = session.dispatch(withoutProgram);
+    assert.equal(oneCleared.ok, true);
+    if (!oneCleared.ok) return;
+    assert.equal(oneCleared.state.portfolio.projects[0]!.programId, undefined);
+    assert.equal(oneCleared.state.portfolio.projects[0]!.priorityFamilyId, atlas.priorityFamilyId);
+    const { programId: _programId, priorityFamilyId: _priorityFamilyId, ...clear } = commandFor(initial, atlas.id);
+    const cleared = session.dispatch(clear);
+    assert.equal(cleared.ok, true);
+    if (!cleared.ok) return;
+    assert.equal(cleared.state.portfolio.projects[0]!.programId, undefined);
+    assert.equal(cleared.state.portfolio.projects[0]!.priorityFamilyId, undefined);
+    for (const membership of [
+      { programId: must(createProgramId("unknown")) },
+      { priorityFamilyId: must(createPriorityFamilyId("unknown")) },
+    ]) {
+      const before = session.getState();
+      const rejected = session.dispatch({ ...commandFor(before, atlas.id), ...membership });
+      assert.equal(rejected.ok, false);
+      if (!rejected.ok) {
+        assert.equal(rejected.errors[0]?.code, "programId" in membership
+          ? "UNKNOWN_PROJECT_PROGRAM"
+          : "UNKNOWN_PROJECT_PRIORITY_FAMILY");
+      }
+      assert.equal(session.getState(), before);
+    }
+  });
   it("owns the initial immutable domain/application state", () => {
     const initial = createDemoPlanningScenario();
     const session = createPlanningSession(initial);

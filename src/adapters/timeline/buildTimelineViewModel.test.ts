@@ -126,6 +126,8 @@ function makeFixture(): Fixture {
   const secondDate = date("2025-01-07");
   const portfolio = must(
     createPortfolio({
+      programs: [],
+      priorityFamilies: [],
       teams: [firstTeam, secondTeam],
       projects: [lowPriority, highPriority],
       priorityOrder: [highPriority.id, lowPriority.id],

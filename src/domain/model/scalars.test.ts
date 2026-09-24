@@ -4,6 +4,8 @@ import {
   capacityFromSerialized,
   createCapacity,
   createDailyCap,
+  createProgramId,
+  createPriorityFamilyId,
   createRemainingWorkload,
   createReservationRatio,
   createUnavailabilityRatio,
@@ -24,6 +26,14 @@ function must<T>(result: DomainResult<T>): T {
 }
 
 describe("opaque rational domain quantities", () => {
+  it("creates distinct Program and PriorityFamily IDs and rejects blank values", () => {
+    assert.equal(must(createProgramId("program-phoenix")), "program-phoenix");
+    assert.equal(must(createPriorityFamilyId("pas-strategic")), "pas-strategic");
+    for (const factory of [createProgramId, createPriorityFamilyId]) {
+      assert.equal(factory(" ").ok, false);
+      assert.equal(factory("").ok, false);
+    }
+  });
   it("rejects invalid capacities created from internal rationals", () => {
     const result = capacityFromRational(rationalFromInteger(-1n));
     assert.equal(result.ok, false);

@@ -27,6 +27,8 @@ export interface CreateProjectEditControllerInput {
 
 interface GlobalInputs {
   readonly name: HTMLInputElement;
+  readonly program: HTMLSelectElement;
+  readonly priorityFamily: HTMLSelectElement;
   readonly priority: HTMLInputElement;
   readonly earliestStartDate: HTMLInputElement;
   readonly objectiveEndDate: HTMLInputElement;
@@ -82,6 +84,8 @@ export function createProjectEditController(
     const legend = document.createElement("legend");
     legend.textContent = "Project settings";
     const name = createLabeledInput(document, global, "Label", "text", "project.name");
+    const program = createLabeledSelect(document, global, "Program", "project.programId", activeModel.programs);
+    const priorityFamily = createLabeledSelect(document, global, "PAS", "project.priorityFamilyId", activeModel.priorityFamilies);
     const priority = createLabeledInput(
       document,
       global,
@@ -115,12 +119,16 @@ export function createProjectEditController(
     );
     global.prepend(legend);
     name.value = activeModel.label;
+    program.value = activeModel.programId ?? "";
+    priorityFamily.value = activeModel.priorityFamilyId ?? "";
     priority.value = String(activeModel.priorityPosition);
     earliestStartDate.value = activeModel.earliestStartDate ?? "";
     objectiveEndDate.value = activeModel.objectiveEndDate ?? "";
     mandatoryDeadline.value = activeModel.mandatoryDeadline ?? "";
     globalInputs = Object.freeze({
       name,
+      program,
+      priorityFamily,
       priority,
       earliestStartDate,
       objectiveEndDate,
@@ -166,6 +174,8 @@ export function createProjectEditController(
       projectId: model.projectId,
       projectCount: model.projectCount,
       name: globalInputs.name.value,
+      programId: globalInputs.program.value,
+      priorityFamilyId: globalInputs.priorityFamily.value,
       priorityPosition: globalInputs.priority.value,
       earliestStartDate: globalInputs.earliestStartDate.value,
       objectiveEndDate: globalInputs.objectiveEndDate.value,
@@ -223,6 +233,33 @@ export function createProjectEditController(
       input.controls.cancel.removeEventListener("click", onCancel);
     },
   });
+}
+
+function createLabeledSelect(
+  document: Document,
+  parent: HTMLElement,
+  text: string,
+  name: string,
+  options: readonly Readonly<{ id: string; name: string }>[],
+): HTMLSelectElement {
+  const label = document.createElement("label");
+  label.textContent = text;
+  const field = document.createElement("select");
+  field.name = name;
+  field.dataset.fieldPath = name;
+  const none = document.createElement("option");
+  none.value = "";
+  none.textContent = "None";
+  field.append(none);
+  for (const item of options) {
+    const option = document.createElement("option");
+    option.value = item.id;
+    option.textContent = item.name;
+    field.append(option);
+  }
+  label.append(field);
+  parent.append(label);
+  return field;
 }
 
 function createLabeledInput(

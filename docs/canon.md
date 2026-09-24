@@ -27,6 +27,8 @@ Planning
 Portfolio
 ├── Teams
 ├── Projects
+├── Programs
+├── PriorityFamilies
 ├── priorityOrder
 └── Reservations
 ```
@@ -168,6 +170,8 @@ does not edit them.
 Project
 ├── id
 ├── name
+├── programId?                         (optional grouping)
+├── priorityFamilyId?                  (optional grouping; PAS in UI)
 ├── global priority                     (in Portfolio.priorityOrder)
 ├── earliestStartDate?
 ├── objectiveEndDate?
@@ -190,6 +194,15 @@ Project dates are global to the Project, not duplicated per Team:
 
 `dailyCap` remains a domain and planner concept. It may be hidden from a UI,
 but an unrelated Project Apply must preserve any existing exact value.
+
+Program and PriorityFamily are independent Portfolio catalogs of immutable
+identities and names. Each Project may reference at most one entry from each
+catalog. Portfolio validation enforces unique catalog IDs and valid Project
+references. These dimensions support grouping and analysis only: they have no
+priority or planning semantics. `Portfolio.priorityOrder` remains the sole
+global Project priority. Application Project editing carries the associations;
+Portfolio UI resolves and displays their labels without passing them into
+planning decisions or timeline geometry.
 
 ## Global multi-Team Reservation
 

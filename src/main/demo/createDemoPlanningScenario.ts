@@ -10,6 +10,10 @@ import {
   createPortfolio,
   createProject,
   createProjectId,
+  createProgram,
+  createProgramId,
+  createPriorityFamily,
+  createPriorityFamilyId,
   createProjectTeamRequirement,
   createRemainingWorkload,
   createReservationId,
@@ -50,10 +54,15 @@ export function createDemoPlanningScenario(): DemoPlanningScenario {
   const borealId = must(createProjectId("project-boreal"));
   const cobaltId = must(createProjectId("project-cobalt"));
   const deltaId = must(createProjectId("project-delta"));
+  const phoenix = must(createProgram({ id: must(createProgramId("program-phoenix")), name: "Phoenix" }));
+  const strategic = must(createPriorityFamily({ id: must(createPriorityFamilyId("pas-strategic")), name: "Strategic" }));
+  const regulatory = must(createPriorityFamily({ id: must(createPriorityFamilyId("pas-regulatory")), name: "Regulatory" }));
   const atlas = must(
     createProject({
       id: atlasId,
       name: "Project Atlas",
+      programId: phoenix.id,
+      priorityFamilyId: strategic.id,
       objectiveEndDate: date("2025-02-28"),
       requirements: [
         requirement(alphaId, "55", "1.5"),
@@ -65,6 +74,7 @@ export function createDemoPlanningScenario(): DemoPlanningScenario {
     createProject({
       id: borealId,
       name: "Project Boreal",
+      programId: phoenix.id,
       earliestStartDate: date("2025-02-03"),
       objectiveEndDate: date("2025-03-21"),
       requirements: [
@@ -77,6 +87,7 @@ export function createDemoPlanningScenario(): DemoPlanningScenario {
     createProject({
       id: cobaltId,
       name: "Project Cobalt",
+      priorityFamilyId: regulatory.id,
       mandatoryDeadline: date("2025-03-14"),
       requirements: [requirement(betaId, "38", "1")],
     }),
@@ -137,6 +148,8 @@ export function createDemoPlanningScenario(): DemoPlanningScenario {
     createPortfolio({
       teams: [alpha, beta, gamma],
       projects: [atlas, boreal, cobalt, delta],
+      programs: [phoenix],
+      priorityFamilies: [strategic, regulatory],
       priorityOrder: [atlasId, borealId, cobaltId, deltaId],
       reservations,
     }),

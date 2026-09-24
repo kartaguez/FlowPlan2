@@ -16,6 +16,12 @@ describe("demo planning bootstrap", () => {
 
     assert.ok(first.portfolio.teams.length >= 2);
     assert.ok(first.portfolio.projects.length >= 3);
+    assert.deepEqual(
+      first.portfolio.projects.map(({ programId, priorityFamilyId }) => [programId !== undefined, priorityFamilyId !== undefined]),
+      [[true, true], [true, false], [false, true], [false, false]],
+    );
+    assert.deepEqual(first.portfolio.programs.map(({ name }) => name), ["Phoenix"]);
+    assert.deepEqual(first.portfolio.priorityFamilies.map(({ name }) => name), ["Strategic", "Regulatory"]);
     assert.ok(
       first.planning.startDate.slice(0, 7) !==
         first.planning.endDate.slice(0, 7),

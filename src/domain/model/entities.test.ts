@@ -9,6 +9,10 @@ import {
   createPortfolio,
   createProject,
   createProjectId,
+  createProgram,
+  createProgramId,
+  createPriorityFamily,
+  createPriorityFamilyId,
   createProjectTeamRequirement,
   createRemainingWorkload,
   createReservationId,
@@ -131,6 +135,62 @@ describe("projects and teams", () => {
 });
 
 describe("Portfolio invariants", () => {
+  it("supports independent optional Program and PAS membership with immutable catalogs", () => {
+    const team = makeTeam("team-a");
+    const program = must(createProgram({ id: must(createProgramId("phoenix")), name: "Phoenix" }));
+    const family = must(createPriorityFamily({ id: must(createPriorityFamilyId("strategic")), name: "Strategic" }));
+    const cases = [
+      {},
+      { programId: program.id },
+      { priorityFamilyId: family.id },
+      { programId: program.id, priorityFamilyId: family.id },
+    ];
+    const projects = cases.map((membership, index) => {
+      const base = makeProject(`project-${index}`, team);
+      return must(createProject({ ...base, ...membership }));
+    });
+    const programs = [program];
+    const priorityFamilies = [family];
+    const result = createPortfolio({
+      teams: [team], projects, programs, priorityFamilies,
+      priorityOrder: projects.map((project) => project.id), reservations: [],
+    });
+    assert.equal(result.ok, true);
+    if (!result.ok) return;
+    assert.deepEqual(result.value.projects.map(({ programId, priorityFamilyId }) => [programId, priorityFamilyId]), [
+      [undefined, undefined], [program.id, undefined], [undefined, family.id], [program.id, family.id],
+    ]);
+    programs.pop();
+    priorityFamilies.pop();
+    assert.deepEqual(result.value.programs, [program]);
+    assert.deepEqual(result.value.priorityFamilies, [family]);
+    for (const value of [...projects, program, family, result.value.programs, result.value.priorityFamilies]) {
+      assert.equal(Object.isFrozen(value), true);
+    }
+  });
+
+  it("rejects duplicate catalog IDs and unknown Project memberships", () => {
+    const team = makeTeam("team-a");
+    const program = must(createProgram({ id: must(createProgramId("phoenix")), name: "Phoenix" }));
+    const family = must(createPriorityFamily({ id: must(createPriorityFamilyId("strategic")), name: "Strategic" }));
+    const project = must(createProject({
+      ...makeProject("project", team),
+      programId: must(createProgramId("unknown-program")),
+      priorityFamilyId: must(createPriorityFamilyId("unknown-family")),
+    }));
+    const result = createPortfolio({
+      teams: [team], projects: [project], programs: [program, program],
+      priorityFamilies: [family, family], priorityOrder: [project.id], reservations: [],
+    });
+    assert.equal(result.ok, false);
+    if (result.ok) return;
+    assert.deepEqual(result.errors.map(({ code, path }) => [code, path]), [
+      ["DUPLICATE_PROGRAM_ID", "programs[1].id"],
+      ["DUPLICATE_PRIORITY_FAMILY_ID", "priorityFamilies[1].id"],
+      ["UNKNOWN_PROJECT_PROGRAM", "projects[0].programId"],
+      ["UNKNOWN_PROJECT_PRIORITY_FAMILY", "projects[0].priorityFamilyId"],
+    ]);
+  });
   it("preserves all meaningful input orders and copies collections", () => {
     const team = makeTeam("team-a");
     const first = makeProject("first", team);
@@ -141,6 +201,8 @@ describe("Portfolio invariants", () => {
       createPortfolio({
         teams: [team],
         projects,
+        programs: [],
+        priorityFamilies: [],
         priorityOrder: priorities,
         reservations: [],
       }),
@@ -173,6 +235,8 @@ describe("Portfolio invariants", () => {
     const result = createPortfolio({
       teams: [team, team],
       projects: [project, project],
+      programs: [],
+      priorityFamilies: [],
       priorityOrder: [project.id, project.id],
       reservations: [reservation, reservation],
     });
@@ -208,6 +272,8 @@ describe("Portfolio invariants", () => {
     const result = createPortfolio({
       teams: [known],
       projects: [project],
+      programs: [],
+      priorityFamilies: [],
       priorityOrder: [project.id],
       reservations: [reservation],
     });
@@ -237,6 +303,8 @@ describe("Portfolio invariants", () => {
     const result = createPortfolio({
       teams: [team],
       projects: [first, second],
+      programs: [],
+      priorityFamilies: [],
       priorityOrder: [first.id, first.id, unknown],
       reservations: [],
     });

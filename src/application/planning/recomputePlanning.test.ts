@@ -103,6 +103,8 @@ function makeRequest(
   return {
     portfolio: must(
       createPortfolio({
+        programs: [],
+        priorityFamilies: [],
         teams,
         projects,
         priorityOrder: projects.map((project) => project.id),
