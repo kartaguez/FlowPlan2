@@ -9,7 +9,8 @@ active implementation and trajectory. The remaining work is in the
 
 ## Validated implementation baseline
 
-`d6ae53bd08442f5a391d2db68b29f0b0966c98e0` (lot 9C.1).
+`8a8c7537f8b64327533223a4a5dfc864aa8eb3bd` (closed FlowPlan visual
+corrective lot, after 9C.1).
 
 The active application implements a pure planning projection over an in-memory
 demo session. The following capabilities are complete and active:
@@ -26,8 +27,9 @@ demo session. The following capabilities are complete and active:
   and hover;
 - exact rational parsing and untouched exact-value preservation;
 - compact accessible settings icon buttons for Planning and Teams;
-- planning diagnostics, cumulative Team metrics, and Project / Program / PAS
-  progress at the shared cursor date.
+- planning diagnostics, cumulative Team and global Capacity / Occupied /
+  Occupancy / Over-reservation metrics, and Project / Program / PAS progress at
+  the shared cursor date.
 
 The implementation follows the state, atomicity, engine, and projection
 invariants in [canon](./canon.md).
@@ -45,9 +47,10 @@ same Portfolio used to plan; Portfolio and horizon references travel with the
 PlanningResult in the disposable session projection. Lot 9C is validated and
 **DONE**. It adds exact daily non-compensating over-reservation and its ratio,
 and renders cumulative Team metrics plus an exclusive Projects / Programs / PAS
-progress view at the shared cursor date. Lot 9C.1 is validated and **DONE**;
-its UI cleanup is the current validated baseline. Lot 9D is unblocked and
-**NOT STARTED**.
+progress view at the shared cursor date. Lot 9C.1 is validated and **DONE**.
+The subsequent FlowPlan visual adaptation and corrective pass are also
+validated and **DONE**; their final commit is the current baseline. Lot 9D is
+unblocked and **NOT STARTED**.
 
 ## Current product trajectory
 
@@ -86,7 +89,10 @@ Portfolio sidebar
 The Team panels are aligned with lanes in one SVG/Geometry and one temporal
 coordinate system. The date marker crosses the year/month axis and Team lanes;
 the global metrics row and Team headers share the SVG's vertical layout. Team
-panels are not independent timelines.
+panels are not independent timelines. The four cumulative metrics use the
+inclusive horizon-start-to-selected-date interval. Occupied is requested
+reservations plus allocations. The global cartouche sums exact Team quantities
+before calculating its ratios; over-reservation remains non-compensating.
 
 ## Current editing behavior
 

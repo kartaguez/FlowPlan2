@@ -1,16 +1,16 @@
 # FlowPlan2 current plan
 
 Current validated baseline:
-`d6ae53bd08442f5a391d2db68b29f0b0966c98e0`
+`8a8c7537f8b64327533223a4a5dfc864aa8eb3bd`
 
 This is the operational roadmap for the active trajectory. Durable product and
 architecture rules live in [canon](./canon.md); current implementation facts
 and temporary constraints live in [current canon](./current_canon.md).
 
 The roadmap uses `9A`–`9G`, with intermediate lot `9C.1` between 9C and 9D.
-Validated 9C.1 is the baseline, and each Phase 9 lot
-is intended to fit one commit or a small, coherent commit set. Actuals/History
-is a later trajectory, not a Phase 9 lot.
+Validated 9C.1 and the subsequent visual corrective lot form the baseline.
+Each Phase 9 lot is intended to fit one commit or a small, coherent commit set.
+Actuals/History is a later trajectory, not a Phase 9 lot.
 
 ## Completed
 
@@ -25,7 +25,8 @@ is a later trajectory, not a Phase 9 lot.
 - 9A Program / PAS foundations (DONE);
 - 9B Cursor metrics projection (DONE);
 - 9C Cursor metrics UI (DONE);
-- 9C.1 Planning UI cleanup (DONE).
+- 9C.1 Planning UI cleanup (DONE);
+- FlowPlan visual grammar adaptation and corrective pass (DONE).
 
 ## Ordered remaining lots
 
@@ -42,7 +43,8 @@ Later trajectory: Actuals / History
 ```
 
 The remaining execution order is `9D` through `9G`. Validated 9C.1 completes
-the Planning UI cleanup and unblocks 9D. The CRUD series establishes
+the Planning UI cleanup; the later visual corrective pass is also closed. Lot 9D
+remains unblocked. The CRUD series establishes
 Team referential-integrity policy before Project and Reservation membership
 workflows.
 
@@ -73,6 +75,30 @@ future work. A Team lane hit never opens Team Settings and leaves any editing
 context unchanged. Only the Team Settings button opens that editor.
 
 Human validation has closed 9C.1. Lot 9D is unblocked and remains not started.
+
+## FlowPlan visual grammar — corrective lot
+
+**Status: DONE** — visual adaptation `92cc5ee`, followed by the corrective
+pass `8a8c7537f8b64327533223a4a5dfc864aa8eb3bd`.
+
+The corrective pass displays four cumulative metrics in the same compact
+cartouche for each Team and globally: Capacity, Occupied (requested
+reservations plus allocations), Occupancy, and Over-reservation ratio. Global
+values aggregate exact Team quantities before dividing; daily over-reservation
+remains non-compensating. All values use the inclusive interval from the
+horizon start through the selected Projection date.
+
+The global year/month axis sits below the zoom controls. One blue Projection
+date marker and date label use the shared temporal coordinate system across
+the axis and Team lanes. Zoom, date changes, and rerenders retain alignment.
+The visual changes preserve the Domain → Application → adapters → DOM/SVG
+boundary and existing editing interactions.
+
+Validation at closure: `npm run typecheck`, `npm test` (425 tests, 62 suites),
+and `npm run build` passed. Desktop (1440 px) and narrow (390 px) browser checks
+covered the metric cartouches, cursor, zoom/date changes, and horizontal
+overflow; no overflow was observed. No corrective item remains open. This lot
+adds no new Phase 9 feature and does not change the `9D`–`9G` order.
 
 ## 9D — Priority drag/drop
 

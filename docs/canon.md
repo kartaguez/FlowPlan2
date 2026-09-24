@@ -425,17 +425,20 @@ This remains true with multiple Team panels. The validated layout is:
 
 ```text
 global time axis
+global cumulative capacity metrics
 
-Team header
+Team header + cumulative capacity metrics
 Team lane
 
-Team header
+Team header + cumulative capacity metrics
 Team lane
 
 ...
 ```
 
 Panels are visual groupings, not independent timelines.
+The Projection date marker uses the same temporal X coordinate in the global
+year/month axis and every Team lane. Zoom and pan preserve that alignment.
 
 Temporal positioning belongs to timeline space; glyphs and controls belong to
 screen/UI space. Zoom changes temporal positions and distances but must not
