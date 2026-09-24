@@ -1,14 +1,14 @@
 # FlowPlan2 current plan
 
 Current validated baseline:
-`00fa92101e2150fbfea220fbc4742d45fa622249`
+`d6ae53bd08442f5a391d2db68b29f0b0966c98e0`
 
 This is the operational roadmap for the active trajectory. Durable product and
 architecture rules live in [canon](./canon.md); current implementation facts
 and temporary constraints live in [current canon](./current_canon.md).
 
 The roadmap uses `9A`–`9G`, with intermediate lot `9C.1` between 9C and 9D.
-Validated 9C remains the baseline, and each Phase 9 lot
+Validated 9C.1 is the baseline, and each Phase 9 lot
 is intended to fit one commit or a small, coherent commit set. Actuals/History
 is a later trajectory, not a Phase 9 lot.
 
@@ -24,14 +24,13 @@ is a later trajectory, not a Phase 9 lot.
 - Portfolio tabs and stacked Team panel UI;
 - 9A Program / PAS foundations (DONE);
 - 9B Cursor metrics projection (DONE);
-- 9C Cursor metrics UI (DONE).
+- 9C Cursor metrics UI (DONE);
+- 9C.1 Planning UI cleanup (DONE).
 
 ## Ordered remaining lots
 
 ```text
-9C.1 Planning UI cleanup (IN REVIEW)
-        ↓ human validation
-9D Priority drag/drop (NOT STARTED; waiting for 9C.1 validation)
+9D Priority drag/drop (NOT STARTED)
         ↓
 9E Team structural CRUD
         ↓
@@ -42,15 +41,15 @@ is a later trajectory, not a Phase 9 lot.
 Later trajectory: Actuals / History
 ```
 
-The remaining execution order is `9C.1`, then `9D` through `9G`. Validated 9C completes
-the cursor metrics UI; 9C.1 awaits human validation before 9D starts. The CRUD series establishes
+The remaining execution order is `9D` through `9G`. Validated 9C.1 completes
+the Planning UI cleanup and unblocks 9D. The CRUD series establishes
 Team referential-integrity policy before Project and Reservation membership
 workflows.
 
 ## 9C.1 — Planning UI cleanup
 
-**Status: IN REVIEW** — three corrective passes implemented and awaiting human validation;
-validated baseline remains the 9C implementation commit above.
+**Status: DONE** — three corrective passes implemented and validated at
+`d6ae53bd08442f5a391d2db68b29f0b0966c98e0`.
 
 The Planning header places one Projection date, cumulative progress, compact
 red/grey diagnostic counts, then viewport controls immediately before the
@@ -73,13 +72,11 @@ anticipating only that narrow part of 9F; Project and Team entity CRUD remain
 future work. A Team lane hit never opens Team Settings and leaves any editing
 context unchanged. Only the Team Settings button opens that editor.
 
-Human validation should confirm layout, keyboard interactions, modal focus,
-multiple drafts and cards, dirty state, and Team lane/editor separation in a browser. Do not
-advance the baseline or start 9D before validation.
+Human validation has closed 9C.1. Lot 9D is unblocked and remains not started.
 
 ## 9D — Priority drag/drop
 
-**Status: NOT STARTED** — waiting for human validation of 9C.1.
+**Status: NOT STARTED** — unblocked by validation of 9C.1.
 
 **Goal**
 

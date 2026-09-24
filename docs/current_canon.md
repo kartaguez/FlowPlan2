@@ -9,6 +9,8 @@ active implementation and trajectory. The remaining work is in the
 
 ## Validated implementation baseline
 
+`d6ae53bd08442f5a391d2db68b29f0b0966c98e0` (lot 9C.1).
+
 The active application implements a pure planning projection over an in-memory
 demo session. The following capabilities are complete and active:
 
@@ -20,8 +22,8 @@ demo session. The following capabilities are complete and active:
 - global multi-Team Reservations with ratio and fixed-daily modes, edited in
   inline Portfolio cards;
 - Projects / Reservations tabs in the Portfolio sidebar;
-- shared viewport, zoom, pan, selected date, cursor, hover, semantic hit
-  testing, and hover;
+- shared viewport, zoom, pan, selected date, cursor, semantic hit testing,
+  and hover;
 - exact rational parsing and untouched exact-value preservation;
 - compact accessible settings icon buttons for Planning and Teams;
 - planning diagnostics, cumulative Team metrics, and Project / Program / PAS
@@ -43,12 +45,9 @@ same Portfolio used to plan; Portfolio and horizon references travel with the
 PlanningResult in the disposable session projection. Lot 9C is validated and
 **DONE**. It adds exact daily non-compensating over-reservation and its ratio,
 and renders cumulative Team metrics plus an exclusive Projects / Programs / PAS
-progress view at the shared cursor date. Lot 9C.1 is **IN REVIEW**; its UI
-cleanup has not advanced the validated baseline. Lot 9D waits for its human
-validation.
-
-The UI structure and interaction descriptions below include the implemented
-9C.1 changes under review; they do not redefine the validated 9C baseline.
+progress view at the shared cursor date. Lot 9C.1 is validated and **DONE**;
+its UI cleanup is the current validated baseline. Lot 9D is unblocked and
+**NOT STARTED**.
 
 ## Current product trajectory
 
