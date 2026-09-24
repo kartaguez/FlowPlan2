@@ -7,6 +7,7 @@ function must<T>(result: DomainResult<T>): T { if (!result.ok) throw new Error(J
 const a = must(createReservationId("a"));
 const b = must(createReservationId("b"));
 const teamId = must(createTeamId("alpha"));
+const optionalTeamId = must(createTeamId("optional"));
 const model = (reservationId: typeof a, name = "A", value = "20", exact = "1/5"): ReservationEditViewModel => ({
   reservationId, name, startDate: "2025-01-01" as never, endDate: "2025-02-01" as never,
   teamAllocations: [{ teamId, teamLabel: "Alpha", enabled: true, kind: "ratio", value, exact }],
@@ -49,5 +50,31 @@ describe("ReservationDraftStore", () => {
     store.rebase(a, model(a, "A", "33.333", "1/3"));
     assert.equal(store.get(a)?.values.teams[0]?.exact, "1/3");
     assert.equal(store.isDirty(a), false);
+  });
+  it("drops an unchanged missing Team option while retaining independent edits", () => {
+    const store = createReservationDraftStore();
+    const option = { teamId: optionalTeamId, teamLabel: "Optional", enabled: false,
+      kind: "ratio" as const, value: "" };
+    const first = store.initialize(a, { ...model(a), teamAllocations: [...model(a).teamAllocations, option] });
+    store.update(a, { ...first.values, name: "Local" });
+    assert.equal(store.isTeamDirty(a, optionalTeamId), false);
+    store.rebase(a, model(a));
+    assert.equal(store.get(a)?.values.teams.some((team) => team.teamId === optionalTeamId), false);
+    assert.equal(store.get(a)?.values.name, "Local");
+    assert.equal(store.isDirty(a), true);
+    assert.equal(store.get(a)?.invalidReference, false);
+  });
+  it("retains a changed missing Team option across repeated rebases", () => {
+    const store = createReservationDraftStore();
+    const option = { teamId: optionalTeamId, teamLabel: "Optional", enabled: false,
+      kind: "ratio" as const, value: "" };
+    const first = store.initialize(a, { ...model(a), teamAllocations: [...model(a).teamAllocations, option] });
+    store.update(a, { ...first.values, teams: first.values.teams.map((team) =>
+      team.teamId === optionalTeamId ? { ...team, kind: "fixed-daily" as const, value: "2" } : team) });
+    assert.equal(store.isTeamDirty(a, optionalTeamId), true);
+    store.rebase(a, model(a));
+    store.rebase(a, model(a));
+    assert.equal(store.get(a)?.invalidReference, true);
+    assert.equal(store.get(a)?.values.teams.find((team) => team.teamId === optionalTeamId)?.value, "2");
   });
 });

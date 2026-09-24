@@ -53,6 +53,8 @@ export function reservationValuesFromModel(model: ReservationEditViewModel): Res
 const choose = <T>(local: T, old: T, next: T): T => local === old ? next : local;
 const teamDirty = (a: ReservationTeamDraft, b: ReservationTeamDraft): boolean =>
   a.enabled !== b.enabled || a.kind !== b.kind || a.value !== b.value;
+const retainMissingTeam = (team: ReservationTeamDraft, reference?: ReservationTeamDraft): boolean =>
+  reference === undefined || team.enabled || teamDirty(team, reference);
 
 export function createReservationDraftStore(): ReservationDraftStore {
   const entries = new Map<ReservationId, ReservationDraft>();
@@ -100,10 +102,12 @@ export function createReservationDraftStore(): ReservationDraftStore {
         name: choose(old.values.name, old.reference.name, next.name),
         startDate: choose(old.values.startDate, old.reference.startDate, next.startDate),
         endDate: choose(old.values.endDate, old.reference.endDate, next.endDate),
-        teams: [...teams, ...old.values.teams.filter((team) => !nextTeamIds.has(team.teamId))],
+        teams: [...teams, ...old.values.teams.filter((team) =>
+          !nextTeamIds.has(team.teamId) &&
+          retainMissingTeam(team, oldTeams.get(team.teamId)))],
       };
       const invalidReference = values.teams.some((team) => !nextTeamIds.has(team.teamId) &&
-        (team.enabled || teamDirty(team, oldTeams.get(team.teamId)!)));
+        retainMissingTeam(team, oldTeams.get(team.teamId)));
       entries.set(id, { ...old, reference: next, values, model, invalidReference });
     },
     isDirty: (id) => {

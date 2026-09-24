@@ -40,8 +40,24 @@ export type TeamEditCommandParseResult =
 export function parseTeamEditCommand(
   values: TeamEditFormValues,
 ): TeamEditCommandParseResult {
+  const parsed = parseTeamCapacityPeriodRows(values.capacityPeriods);
+  if (!parsed.ok) return parsed;
+  return Object.freeze({
+    ok: true,
+    command: Object.freeze({
+      kind: "update-team-capacity-periods",
+      teamId: values.teamId,
+      capacityPeriods: parsed.capacityPeriods,
+    }),
+  });
+}
+
+export function parseTeamCapacityPeriodRows(
+  rows: readonly TeamCapacityPeriodFormValues[],
+): Readonly<{ ok: true; capacityPeriods: readonly UpdateTeamCapacityPeriod[] }> |
+  Readonly<{ ok: false; errors: readonly DomainError[] }> {
   const errors: DomainError[] = [];
-  const capacityPeriods = values.capacityPeriods.map((period) =>
+  const capacityPeriods = rows.map((period) =>
     parsePeriod(period, errors),
   );
   if (
@@ -52,13 +68,7 @@ export function parseTeamEditCommand(
   }
   return Object.freeze({
     ok: true,
-    command: Object.freeze({
-      kind: "update-team-capacity-periods",
-      teamId: values.teamId,
-      capacityPeriods: Object.freeze(
-        capacityPeriods as readonly UpdateTeamCapacityPeriod[],
-      ),
-    }),
+    capacityPeriods: Object.freeze(capacityPeriods as readonly UpdateTeamCapacityPeriod[]),
   });
 }
 

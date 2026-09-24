@@ -58,6 +58,41 @@ describe("PlanningProjectionDispatcher reorder", () => {
   });
 });
 
+describe("PlanningProjectionDispatcher Team lifecycle", () => {
+  it("projects each accepted structural change once and never projects a refusal", () => {
+    const initial = createDemoPlanningScenario();
+    const session = createPlanningSession(initial);
+    let builds = 0;
+    const dispatcher = createPlanningProjectionDispatcher({ session, geometryViewport,
+      buildProjection: (input) => { builds += 1; return buildPlanningSessionProjection(input); } });
+    const invalid = dispatcher.dispatch({ kind: "create-team", name: "No schedule", capacityPeriods: [] });
+    assert.equal(invalid.ok, false);
+    assert.equal(builds, 1);
+    const created = dispatcher.dispatch({ kind: "create-team", name: "New Team", capacityPeriods: [{
+      startDate: must(createCivilDate("2025-01-01")), endDate: must(createCivilDate("2025-01-31")),
+      capacity: must(createCapacity("1")), unavailability: must(createUnavailabilityRatio("0")),
+    }] });
+    assert.equal(created.ok, true);
+    assert.equal(builds, 2);
+    if (!created.ok) return;
+    const teamId = created.projection.portfolio.teams.at(-1)!.id;
+    assert.ok(created.projection.viewModel.teams.some((team) => team.id === teamId));
+    assert.ok(created.projection.geometry.teams.some((team) => team.teamId === teamId));
+    const beforeRefusal = dispatcher.getProjection();
+    const blocked = dispatcher.dispatch({ kind: "remove-team", teamId: initial.portfolio.teams[0]!.id });
+    assert.equal(blocked.ok, false);
+    assert.equal(builds, 2);
+    assert.equal(dispatcher.getProjection(), beforeRefusal);
+    const removed = dispatcher.dispatch({ kind: "remove-team", teamId });
+    assert.equal(removed.ok, true);
+    assert.equal(builds, 3);
+    if (!removed.ok) return;
+    assert.equal(removed.projection.viewModel.teams.some((team) => team.id === teamId), false);
+    assert.equal(removed.projection.geometry.teams.some((team) => team.teamId === teamId), false);
+    assert.deepEqual(removed.projection.portfolio.priorityOrder, initial.portfolio.priorityOrder);
+  });
+});
+
 function must<T>(result: DomainResult<T>): T {
   if (!result.ok) throw new Error(JSON.stringify(result.errors));
   return result.value;

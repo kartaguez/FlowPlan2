@@ -56,6 +56,15 @@ pointer and keyboard handles, derived `#N` badges, and a temporary insertion
 preview to Portfolio Projects. Reordering preserves independent Project and
 Reservation drafts and the current projection controls.
 
+Lot 9E Team structural CRUD is implemented **IN REVIEW**, pending pushed-commit
+audit and human validation. Create Team accepts a name and one or more exact
+initial capacity periods, validated as one schedule under a session-generated
+ID. Confirmed deletion is refused while a persisted Project requirement or
+Reservation allocation references the Team. The UI separately protects
+unapplied Project and Reservation draft changes concerning that Team before
+dispatch. Successful lifecycle changes follow the existing single-reprojection
+pipeline. The validated baseline above remains unchanged.
+
 ## Current product trajectory
 
 The trajectory remains **projection planning first**. The current run starts
@@ -77,6 +86,7 @@ Planning
 ├── cumulative Projects / Programs / PAS progress
 ├── compact diagnostics counts → details modal
 ├── viewport controls
+├── Create Team control for the Team panel collection
 ├── global time axis with the shared Projection date marker
 ├── global cumulative Capacity / Occupied / Occupancy / Over-reservation
 ├── Team panel
@@ -133,6 +143,9 @@ The editable session currently accepts:
   Project priority;
 - `reorder-project`: moves one existing Project to a 1-based position in
   `portfolio.priorityOrder`, leaving every Project field unchanged;
+- `create-team`: creates a Team with one or more initial capacity periods and a
+  collision-safe session ID;
+- `remove-team`: removes only an unreferenced Team, without cascade;
 - `update-team-name`: renames one existing Team;
 - `update-team-capacity-periods`: replaces existing periods by position while
   preserving the period count and order;
@@ -148,10 +161,12 @@ projection. Rejected commands do neither.
 These are current implementation facts, not durable product rules:
 
 - the browser starts from a hard-coded demo scenario; there is no persistence;
-- structural CRUD is absent for Teams, Projects, and Reservations;
+- Team creation/deletion is in review; structural CRUD remains absent for
+  Projects and Reservations;
 - Project Team-requirement membership can be added or removed through the
   existing Project update command; this is a targeted anticipation of 9F;
-- capacity periods can be edited but not added, removed, or reordered;
+- capacity periods can be supplied when creating a Team; periods of an
+  existing Team can be edited but not added, removed, or reordered;
 - capacity exceptions exist in the domain but have no editor;
 - Project `dailyCap` remains active in domain/planner but is hidden and
   preserved exactly by unrelated Project Apply;
@@ -171,7 +186,7 @@ These are current implementation facts, not durable product rules:
 ## Not part of the current implemented canon
 
 - Program / PriorityFamily (PAS) structural CRUD;
-- structural CRUD and referential-integrity workflows around deletion;
+- Project and Reservation structural CRUD and their deletion workflows;
 - persistence, import/export, undo/redo;
 - actuals/history, resource actual consumption, and snapshots.
 

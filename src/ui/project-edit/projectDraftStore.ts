@@ -68,6 +68,8 @@ export function projectValuesFromModel(model: ProjectEditViewModel): ProjectDraf
 const choose = <T>(local: T, old: T, next: T): T => local === old ? next : local;
 const teamDirty = (a: ProjectTeamDraft, b: ProjectTeamDraft): boolean =>
   a.enabled !== b.enabled || a.remainingWorkload !== b.remainingWorkload;
+const retainMissingTeam = (team: ProjectTeamDraft, reference?: ProjectTeamDraft): boolean =>
+  reference === undefined || team.enabled || teamDirty(team, reference);
 const globalDirty = (a: ProjectDraftValues, b: ProjectDraftValues): boolean =>
   a.name !== b.name || a.programId !== b.programId ||
   a.priorityFamilyId !== b.priorityFamilyId ||
@@ -125,10 +127,12 @@ export function createProjectDraftStore(): ProjectDraftStore {
         objectiveEndDate: choose(old.values.objectiveEndDate, old.reference.objectiveEndDate, next.objectiveEndDate),
         mandatory: choose(old.values.mandatory, old.reference.mandatory, next.mandatory),
         resolution: choose(old.values.resolution, old.reference.resolution, next.resolution),
-        teams: [...teams, ...old.values.teams.filter((team) => !nextTeamIds.has(team.teamId))],
+        teams: [...teams, ...old.values.teams.filter((team) =>
+          !nextTeamIds.has(team.teamId) &&
+          retainMissingTeam(team, oldTeams.get(team.teamId)))],
       };
       const invalidReference = values.teams.some((team) => !nextTeamIds.has(team.teamId) &&
-        (team.enabled || teamDirty(team, oldTeams.get(team.teamId)!))) ||
+        retainMissingTeam(team, oldTeams.get(team.teamId))) ||
         (values.programId !== "" && !model.programs.some((program) => program.id === values.programId)) ||
         (values.priorityFamilyId !== "" && !model.priorityFamilies.some((family) => family.id === values.priorityFamilyId));
       entries.set(id, { ...old, reference: next, values, model, invalidReference });

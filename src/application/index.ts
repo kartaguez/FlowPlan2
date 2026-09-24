@@ -16,6 +16,8 @@ export {
   type UpdateProjectTeamRequirement,
   type UpdateTeamCapacityPeriod,
   type UpdateTeamNameCommand,
+  type CreateTeamCommand,
+  type RemoveTeamCommand,
   type UpdateTeamCapacityPeriodsCommand,
   type UpdateReservationCommand,
   type UpdateReservationTeamAllocation,

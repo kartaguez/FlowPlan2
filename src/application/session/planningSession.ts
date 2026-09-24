@@ -16,6 +16,7 @@ import {
   reservationRatioFromSerialized,
   unavailabilityRatioFromSerialized,
   type Capacity,
+  type CapacityPeriod,
   type CivilDate,
   type DailyCap,
   type DomainError,
@@ -32,6 +33,7 @@ import {
   type WorkingPattern,
   type MaxParallelProjects,
 } from "../../domain/index.js";
+import { createTeamIdGenerator, type TeamIdGenerator } from "./teamIdGenerator.js";
 
 export interface PlanningSettings {
   readonly startDate: CivilDate;
@@ -91,6 +93,17 @@ export interface UpdateTeamNameCommand {
   readonly name: string;
 }
 
+export interface CreateTeamCommand {
+  readonly kind: "create-team";
+  readonly name: string;
+  readonly capacityPeriods: readonly UpdateTeamCapacityPeriod[];
+}
+
+export interface RemoveTeamCommand {
+  readonly kind: "remove-team";
+  readonly teamId: TeamId;
+}
+
 export interface UpdateTeamCapacityPeriodsCommand {
   readonly kind: "update-team-capacity-periods";
   readonly teamId: TeamId;
@@ -115,6 +128,8 @@ export type PlanningCommand =
   | UpdatePlanningSettingsCommand
   | UpdateProjectCommand
   | ReorderProjectCommand
+  | CreateTeamCommand
+  | RemoveTeamCommand
   | UpdateTeamNameCommand
   | UpdateTeamCapacityPeriodsCommand
   | UpdateReservationCommand;
@@ -132,10 +147,11 @@ export function createPlanningSession(
   initialState: PlanningSessionState,
 ): PlanningSession {
   let state = freezeState(initialState);
+  const teamIds = createTeamIdGenerator(() => state.portfolio.teams.map((team) => team.id));
   return Object.freeze({
     getState: () => state,
     dispatch: (command: PlanningCommand): PlanningCommandResult => {
-      const candidate = applyCommand(state, command);
+      const candidate = applyCommand(state, command, teamIds);
       if (!candidate.ok) return candidate;
       state = candidate.state;
       return Object.freeze({ ok: true, state });
@@ -146,6 +162,7 @@ export function createPlanningSession(
 function applyCommand(
   state: PlanningSessionState,
   command: PlanningCommand,
+  teamIds: TeamIdGenerator,
 ): PlanningCommandResult {
   switch (command.kind) {
     case "update-planning-settings":
@@ -154,6 +171,10 @@ function applyCommand(
       return updateProject(state, command);
     case "reorder-project":
       return reorderProject(state, command);
+    case "create-team":
+      return addTeam(state, command, teamIds);
+    case "remove-team":
+      return removeTeam(state, command);
     case "update-team-name":
       return updateTeamName(state, command);
     case "update-team-capacity-periods":
@@ -334,6 +355,100 @@ function updateTeamName(
   return replaceTeam(state, teamIndex, updatedTeam.value);
 }
 
+function addTeam(
+  state: PlanningSessionState,
+  command: CreateTeamCommand,
+  teamIds: TeamIdGenerator,
+): PlanningCommandResult {
+  const name = command.name.trim();
+  if (name.length === 0) {
+    return failure([applicationError("EMPTY_TEAM_NAME", "team.name", "Team name must not be empty.")]);
+  }
+  if (command.capacityPeriods.length === 0) {
+    return failure([applicationError("EMPTY_TEAM_CAPACITY_PERIODS", "team.capacityPeriods",
+      "A new Team needs at least one capacity period.")]);
+  }
+  const periodResult = buildTeamCapacityPeriods(command.capacityPeriods);
+  if (!periodResult.ok) return failure(periodResult.errors);
+  const schedule = createTeamCapacitySchedule({ periods: periodResult.periods, exceptions: [] });
+  if (!schedule.ok) return failure(schedule.errors);
+  const team = createTeam({ id: teamIds.next(), name, capacitySchedule: schedule.value });
+  if (!team.ok) return failure(team.errors);
+  const portfolio = createPortfolio({
+    teams: [...state.portfolio.teams, team.value],
+    projects: state.portfolio.projects,
+    programs: state.portfolio.programs,
+    priorityFamilies: state.portfolio.priorityFamilies,
+    priorityOrder: state.portfolio.priorityOrder,
+    reservations: state.portfolio.reservations,
+  });
+  if (!portfolio.ok) return failure(portfolio.errors);
+  return Object.freeze({ ok: true, state: freezeState({ portfolio: portfolio.value, planning: state.planning }) });
+}
+
+function removeTeam(
+  state: PlanningSessionState,
+  command: RemoveTeamCommand,
+): PlanningCommandResult {
+  if (!state.portfolio.teams.some((team) => team.id === command.teamId)) {
+    return failure([applicationError("UNKNOWN_TEAM", "teamId",
+      `Team ${command.teamId} does not exist in the current portfolio.`)]);
+  }
+  const errors: DomainError[] = [];
+  state.portfolio.projects.forEach((project, projectIndex) => {
+    project.requirements.forEach((requirement, requirementIndex) => {
+      if (requirement.teamId === command.teamId) errors.push(applicationError(
+        "TEAM_REFERENCED_BY_PROJECT",
+        `projects[${projectIndex}].requirements[${requirementIndex}].teamId`,
+        `Team ${command.teamId} is used by Project ${project.name}.`,
+      ));
+    });
+  });
+  state.portfolio.reservations.forEach((reservation, reservationIndex) => {
+    reservation.teamAllocations.forEach((allocation, allocationIndex) => {
+      if (allocation.teamId === command.teamId) errors.push(applicationError(
+        "TEAM_REFERENCED_BY_RESERVATION",
+        `reservations[${reservationIndex}].teamAllocations[${allocationIndex}].teamId`,
+        `Team ${command.teamId} is used by Reservation ${reservation.name}.`,
+      ));
+    });
+  });
+  if (errors.length > 0) return failure(errors);
+  const portfolio = createPortfolio({
+    teams: state.portfolio.teams.filter((team) => team.id !== command.teamId),
+    projects: state.portfolio.projects,
+    programs: state.portfolio.programs,
+    priorityFamilies: state.portfolio.priorityFamilies,
+    priorityOrder: state.portfolio.priorityOrder,
+    reservations: state.portfolio.reservations,
+  });
+  if (!portfolio.ok) return failure(portfolio.errors);
+  return Object.freeze({ ok: true, state: freezeState({ portfolio: portfolio.value, planning: state.planning }) });
+}
+
+function buildTeamCapacityPeriods(
+  inputs: readonly UpdateTeamCapacityPeriod[],
+): Readonly<{ ok: true; periods: readonly CapacityPeriod[] }> | Readonly<{ ok: false; errors: readonly DomainError[] }> {
+  const results = inputs.map((period, index) => {
+    const path = `team.capacityPeriods[${index}]`;
+    const capacity = capacityFromSerialized(serializeQuantity(period.capacity), `${path}.capacity`);
+    const unavailability = unavailabilityRatioFromSerialized(
+      serializeQuantity(period.unavailability), `${path}.unavailability`);
+    if (!capacity.ok || !unavailability.ok) return {
+      ok: false as const,
+      errors: [...(capacity.ok ? [] : capacity.errors), ...(unavailability.ok ? [] : unavailability.errors)],
+    };
+    return createCapacityPeriod({ start: period.startDate, end: period.endDate,
+      dailyCapacity: capacity.value, unavailabilityRatio: unavailability.value });
+  });
+  const errors = results.flatMap((result) => result.ok ? [] : result.errors);
+  if (errors.length > 0) return { ok: false, errors };
+  return { ok: true, periods: results.map((result) => {
+    if (!result.ok) throw new TypeError("Validated capacity period failed.");
+    return result.value;
+  }) };
+}
+
 function updateTeamCapacityPeriods(
   state: PlanningSessionState,
   command: UpdateTeamCapacityPeriodsCommand,
@@ -379,43 +494,11 @@ function updateTeamCapacityPeriods(
     return failure(errors);
   }
 
-  const periodResults = command.capacityPeriods.map((period, index) => {
-    const path = `team.capacityPeriods[${index}]`;
-    const capacity = capacityFromSerialized(
-      serializeQuantity(period.capacity),
-      `${path}.capacity`,
-    );
-    const unavailability = unavailabilityRatioFromSerialized(
-      serializeQuantity(period.unavailability),
-      `${path}.unavailability`,
-    );
-    if (!capacity.ok || !unavailability.ok) {
-      return {
-        ok: false as const,
-        errors: [
-          ...(capacity.ok ? [] : capacity.errors),
-          ...(unavailability.ok ? [] : unavailability.errors),
-        ],
-      };
-    }
-    return createCapacityPeriod({
-      start: period.startDate,
-      end: period.endDate,
-      dailyCapacity: capacity.value,
-      unavailabilityRatio: unavailability.value,
-    });
-  });
-  const periodErrors = periodResults.flatMap((result) =>
-    result.ok ? [] : result.errors,
-  );
-  if (periodErrors.length > 0) return failure(periodErrors);
-  const periods = periodResults.map((result) => {
-    if (!result.ok) throw new TypeError("Validated capacity period failed.");
-    return result.value;
-  });
+  const periodResult = buildTeamCapacityPeriods(command.capacityPeriods);
+  if (!periodResult.ok) return failure(periodResult.errors);
   const currentTeam = state.portfolio.teams[teamIndex]!;
   const capacitySchedule = createTeamCapacitySchedule({
-    periods,
+    periods: periodResult.periods,
     exceptions: currentTeam.capacitySchedule.exceptions,
   });
   if (!capacitySchedule.ok) return failure(capacitySchedule.errors);

@@ -2,7 +2,7 @@ import type { TimelineGeometry, TimelineViewModel } from "../../adapters/index.j
 import { calculateCursorMetrics } from "../../adapters/index.js";
 import type {
   PlanningCommand, PlanningSettingsViewModel, ProjectEditViewModel,
-  ReorderProjectCommand, ReservationEditViewModel, TeamEditViewModel, UpdateProjectCommand,
+  CreateTeamCommand, ReorderProjectCommand, ReservationEditViewModel, TeamEditViewModel, UpdateProjectCommand,
   UpdateReservationCommand, UpdateTeamCapacityPeriodsCommand, UpdateTeamNameCommand,
 } from "../../application/index.js";
 import type {
@@ -17,6 +17,7 @@ import { createReservationDraftStore } from "../reservation-edit/reservationDraf
 import { createProjectCardControls, createReservationCardControls } from "../portfolio/createPortfolioEditControls.js";
 import { createProjectReorderController } from "../portfolio/createProjectReorderController.js";
 import { createTeamEditController } from "../team-edit/createTeamEditController.js";
+import { createTeamCreateController } from "../team-edit/createTeamCreateController.js";
 import { createPlanningSettingsController } from "../planning-settings/createPlanningSettingsController.js";
 import { createTimelineCursorController } from "./createTimelineCursorController.js";
 import { createTimelineInteractionController } from "./createTimelineInteractionController.js";
@@ -73,6 +74,7 @@ export interface TimelineUiCoordinatorDependencies {
   readonly createProjectEditController: typeof createProjectEditController;
   readonly createProjectReorderController: typeof createProjectReorderController;
   readonly createTeamEditController: typeof createTeamEditController;
+  readonly createTeamCreateController: typeof createTeamCreateController;
   readonly createReservationEditController: typeof createReservationEditController;
   readonly createPlanningSettingsController: typeof createPlanningSettingsController;
   readonly renderShellNavigation: typeof renderTimelineShellNavigation;
@@ -88,6 +90,7 @@ const DEFAULT_DEPENDENCIES: TimelineUiCoordinatorDependencies = Object.freeze({
   createProjectEditController,
   createProjectReorderController,
   createTeamEditController,
+  createTeamCreateController,
   createReservationEditController,
   createPlanningSettingsController,
   renderShellNavigation: renderTimelineShellNavigation,
@@ -122,8 +125,11 @@ export function createTimelineUiCoordinator(
   const isModalOpen = (): boolean => [
     input.elements.planningSettingsControls.container,
     input.elements.teamEditControls.container,
+    input.elements.teamCreateControls?.container,
     input.elements.diagnosticsControls.dialog,
-  ].some((container) => !container.hidden);
+  ].some((container) => container !== undefined && !container.hidden);
+  const confirmDiscard = (message: string): boolean =>
+    input.elements.teamEditControls.container.ownerDocument?.defaultView?.confirm(message) ?? false;
   const diagnosticsController = dependencies.createDiagnosticsController({
     controls: input.elements.diagnosticsControls, isModalOpen,
   });
@@ -133,7 +139,47 @@ export function createTimelineUiCoordinator(
     onApplyName: (command: UpdateTeamNameCommand) => applyTeamUpdate(command),
     onApplyPeriods: (command: UpdateTeamCapacityPeriodsCommand) => applyTeamUpdate(command),
     onClose: () => { teamEditingId = undefined; },
+    confirmDiscard,
+    onDelete: (teamId) => {
+      const projects = projectDrafts.ids().filter((id) => projectDrafts.isTeamDirty(id, teamId));
+      const reservations = reservationDrafts.ids().filter((id) => reservationDrafts.isTeamDirty(id, teamId));
+      if (projects.length > 0 || reservations.length > 0) {
+        const names = [
+          ...projects.map((id) => `Project ${projectDrafts.get(id)?.model.label ?? id}`),
+          ...reservations.map((id) => `Reservation ${reservationDrafts.get(id)?.model.name ?? id}`),
+        ];
+        return { ok: false as const, reason: "draft" as const,
+          message: `Unapplied changes concern this Team in ${names.join(", ")}. Apply or cancel those changes before deleting it.` };
+      }
+      const result = input.dispatch({ kind: "remove-team", teamId });
+      if (!result.ok) return { ok: false as const, reason: "application" as const, errors: result.errors };
+      teamEditingId = undefined;
+      teamEditController.setTeam(undefined);
+      rebaseDrafts();
+      renderProjection(result.projection);
+      input.elements.teamCreateButton?.focus();
+      return { ok: true as const };
+    },
   });
+  const teamCreateController = input.elements.teamCreateControls
+    ? dependencies.createTeamCreateController({
+      controls: input.elements.teamCreateControls,
+      confirmDiscard,
+      onCreate: (command: CreateTeamCommand) => {
+        const result = input.dispatch(command);
+        if (!result.ok) return result;
+        rebaseDrafts();
+        renderProjection(result.projection);
+        return { ok: true as const };
+      },
+      onClose: () => input.elements.teamCreateButton.focus(),
+    }) : undefined;
+  const onCreateTeamClick = (): void => {
+    if (teamCreateController?.isOpen()) return;
+    if (teamEditingId !== undefined && !teamEditController.requestClose()) return;
+    teamCreateController?.open();
+  };
+  input.elements.teamCreateButton?.addEventListener("click", onCreateTeamClick);
   const planningSettingsController = dependencies.createPlanningSettingsController({
     trigger: input.elements.planningSettingsButton,
     controls: input.elements.planningSettingsControls,
@@ -254,6 +300,9 @@ export function createTimelineUiCoordinator(
       projectItems: input.getProjectNavigationItems(), initialTab: snapshot.activePortfolioTab,
       viewModel: projection.viewModel, geometry: projection.geometry,
       onTeamSettings: (id) => {
+        if (teamCreateController?.isOpen() && !teamCreateController.requestClose()) return;
+        if (teamEditingId !== undefined && teamEditingId !== id &&
+          !teamEditController.requestClose()) return;
         teamEditingId = id;
         teamEditController.setTeam(input.getTeamEditViewModel(id));
       },
@@ -305,7 +354,11 @@ export function createTimelineUiCoordinator(
       syncCard("reservation", id);
     }
     teamEditingId = snapshot.teamEditingId;
-    if (teamEditingId) teamEditController.setTeam(input.getTeamEditViewModel(teamEditingId));
+    if (teamEditingId) {
+      const teamModel = input.getTeamEditViewModel(teamEditingId);
+      if (teamModel) teamEditController.setTeam(teamModel);
+      else { teamEditingId = undefined; teamEditController.setTeam(undefined); }
+    }
     mounted = true;
   };
   const rebaseDrafts = (): void => {
@@ -362,6 +415,8 @@ export function createTimelineUiCoordinator(
     getProjection: () => projection, getUiSnapshot: currentSnapshot, renderProjection,
     destroy: () => {
       destroyControllers(); teamEditController.destroy(); planningSettingsController.destroy();
+      teamCreateController?.destroy();
+      input.elements.teamCreateButton?.removeEventListener("click", onCreateTeamClick);
       progressSurface.destroy(); diagnosticsController.destroy();
     },
   };

@@ -8,6 +8,7 @@ function must<T>(result: DomainResult<T>): T { if (!result.ok) throw new Error(J
 const a = must(createProjectId("a"));
 const b = must(createProjectId("b"));
 const teamId = must(createTeamId("alpha"));
+const optionalTeamId = must(createTeamId("optional"));
 const model = (projectId: typeof a, name = "A", raf = "20", exact = "20/1"): ProjectEditViewModel => ({
   projectId, label: name, programs: [], priorityFamilies: [],
   requirements: [{ teamId, teamLabel: "Alpha", enabled: true, remainingWorkload: raf, remainingWorkloadExact: exact }],
@@ -76,5 +77,32 @@ describe("ProjectDraftStore", () => {
     assert.equal(store.isDirty(a), true);
     store.cancel(a);
     assert.equal(store.get(a), undefined);
+  });
+  it("drops an unchanged missing Team option and preserves unrelated local edits", () => {
+    const store = createProjectDraftStore();
+    const option = { teamId: optionalTeamId, teamLabel: "Optional", enabled: false,
+      remainingWorkload: "", remainingWorkloadExact: "" };
+    const initialModel = { ...model(a), requirements: [...model(a).requirements, option] };
+    const first = store.initialize(a, initialModel);
+    store.update(a, { ...first.values, name: "Locally changed" });
+    assert.equal(store.isTeamDirty(a, optionalTeamId), false);
+    store.rebase(a, model(a));
+    assert.equal(store.get(a)?.values.teams.some((team) => team.teamId === optionalTeamId), false);
+    assert.equal(store.get(a)?.values.name, "Locally changed");
+    assert.equal(store.isDirty(a), true);
+    assert.equal(store.get(a)?.invalidReference, false);
+  });
+  it("keeps a changed missing Team row across repeated rebases", () => {
+    const store = createProjectDraftStore();
+    const option = { teamId: optionalTeamId, teamLabel: "Optional", enabled: false,
+      remainingWorkload: "", remainingWorkloadExact: "" };
+    const first = store.initialize(a, { ...model(a), requirements: [...model(a).requirements, option] });
+    store.update(a, { ...first.values, teams: first.values.teams.map((team) =>
+      team.teamId === optionalTeamId ? { ...team, remainingWorkload: "5" } : team) });
+    assert.equal(store.isTeamDirty(a, optionalTeamId), true);
+    store.rebase(a, model(a));
+    store.rebase(a, model(a));
+    assert.equal(store.get(a)?.invalidReference, true);
+    assert.equal(store.get(a)?.values.teams.find((team) => team.teamId === optionalTeamId)?.remainingWorkload, "5");
   });
 });

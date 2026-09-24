@@ -17,6 +17,7 @@ class FakeElement {
   append(...children: (FakeElement | string)[]): void { this.childNodes.push(...children.filter((value): value is FakeElement => value instanceof FakeElement)); }
   prepend(...children: FakeElement[]): void { this.childNodes.unshift(...children); }
   replaceChildren(...children: FakeElement[]): void { this.childNodes = [...children]; }
+  focus(): void {}
   addEventListener(type: string, listener: EventListener): void { const set = this.listeners.get(type) ?? new Set<Listener>(); set.add(listener as Listener); this.listeners.set(type, set); }
   removeEventListener(type: string, listener: EventListener): void { this.listeners.get(type)?.delete(listener as Listener); }
   dispatch(type: string, event: object = {}): void { for (const listener of this.listeners.get(type) ?? []) listener(event); }
@@ -28,7 +29,7 @@ function model(): TeamEditViewModel { return Object.freeze({
     Object.freeze({ index: 0, startDate: must(createCivilDate("2025-01-01")), endDate: must(createCivilDate("2025-01-31")), capacity: "0.333", capacityExact: "1/3", unavailabilityPercent: "33.333", unavailabilityExact: "1/3" }),
   ]),
 }); }
-function fixture() {
+function fixture(confirmDiscard = true) {
   const document = new FakeDocument();
   const element = (tag: string) => document.createElement(tag);
   const controls = {
@@ -36,16 +37,20 @@ function fixture() {
     nameForm: element("form"), nameFields: element("div"), nameApply: element("button"),
     capacityDetails: element("details"), capacityForm: element("form"), capacityFields: element("div"),
     capacityApply: element("button"), capacityCancel: element("button"), close: element("button"),
+    discard: element("button"), deleteButton: element("button"),
+    deleteConfirmation: element("div"), deleteConfirm: element("button"), deleteCancel: element("button"),
   };
   const error = element("p"); error.hidden = true;
-  const nameCommands: unknown[] = []; const periodCommands: unknown[] = [];
+  const nameCommands: unknown[] = []; const periodCommands: unknown[] = []; const deleteIds: unknown[] = [];
   const controller = createTeamEditController({
     controls: controls as unknown as TeamEditControls,
     errorContainer: error as unknown as HTMLElement,
     onApplyName: (command) => { nameCommands.push(command); return { ok: true }; },
     onApplyPeriods: (command) => { periodCommands.push(command); return { ok: true }; },
+    confirmDiscard: () => confirmDiscard,
+    onDelete: (id) => { deleteIds.push(id); return { ok: false, reason: "draft", message: "Unapplied changes concern this Team." }; },
   });
-  return { controls, error, controller, nameCommands, periodCommands };
+  return { controls, error, controller, nameCommands, periodCommands, deleteIds };
 }
 function descendants(root: FakeElement): FakeElement[] { return root.childNodes.flatMap((child) => [child, ...descendants(child)]); }
 function field(root: FakeElement, name: string): FakeElement { const found = descendants(root).find((item) => item.name === name); if (!found) throw new Error(`Missing ${name}`); return found; }
@@ -78,5 +83,30 @@ describe("TeamEditController", () => {
     input.controls.capacityCancel.dispatch("click");
     assert.equal(field(input.controls.capacityFields, "team.capacityPeriods[0].capacity").value, "0.333");
     assert.equal(input.periodCommands.length, 0);
+  });
+  it("preserves unapplied fields on a same-Team refresh and guards context changes", () => {
+    const input = fixture(false); input.controller.setTeam(model());
+    field(input.controls.nameFields, "team.name").value = "Local name";
+    field(input.controls.capacityFields, "team.capacityPeriods[0].capacity").value = "2/3";
+    input.controller.setTeam({ ...model(), label: "Remote name" });
+    assert.equal(field(input.controls.nameFields, "team.name").value, "Local name");
+    assert.equal(field(input.controls.capacityFields, "team.capacityPeriods[0].capacity").value, "2/3");
+    assert.equal(input.controller.hasUnappliedChanges(), true);
+    assert.equal(input.controller.requestClose(), false);
+    assert.equal(input.controls.container.hidden, false);
+    input.controls.discard.dispatch("click");
+    assert.equal(input.controller.hasUnappliedChanges(), false);
+    assert.equal(field(input.controls.nameFields, "team.name").value, "Remote name");
+  });
+
+  it("requires explicit deletion confirmation and distinguishes a local draft warning", () => {
+    const input = fixture(); input.controller.setTeam(model());
+    input.controls.deleteButton.dispatch("click");
+    assert.equal(input.controls.deleteConfirmation.hidden, false);
+    assert.equal(input.deleteIds.length, 0);
+    input.controls.deleteConfirm.dispatch("click");
+    assert.deepEqual(input.deleteIds, [teamId]);
+    assert.match(input.error.textContent ?? "", /Unapplied changes/);
+    assert.equal(input.controls.deleteConfirmation.hidden, true);
   });
 });

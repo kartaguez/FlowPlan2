@@ -12,6 +12,8 @@ export interface AppElements {
   readonly planningSettingsControls: PlanningSettingsControls;
   readonly tooltip: HTMLElement;
   readonly teamEditControls: TeamEditControls;
+  readonly teamCreateButton: HTMLButtonElement;
+  readonly teamCreateControls: TeamCreateControls;
   readonly applicationError: HTMLElement;
   readonly teamPanels: HTMLElement;
   readonly projectList: HTMLElement;
@@ -50,7 +52,23 @@ export interface TeamEditControls {
   readonly capacityApply: HTMLButtonElement;
   readonly capacityCancel: HTMLButtonElement;
   readonly close: HTMLButtonElement;
+  readonly discard: HTMLButtonElement;
+  readonly deleteButton: HTMLButtonElement;
+  readonly deleteConfirmation: HTMLElement;
+  readonly deleteConfirm: HTMLButtonElement;
+  readonly deleteCancel: HTMLButtonElement;
   readonly status: HTMLElement;
+}
+
+export interface TeamCreateControls {
+  readonly container: HTMLElement;
+  readonly form: HTMLFormElement;
+  readonly name: HTMLInputElement;
+  readonly periodFields: HTMLElement;
+  readonly addPeriod: HTMLButtonElement;
+  readonly cancel: HTMLButtonElement;
+  readonly create: HTMLButtonElement;
+  readonly error: HTMLElement;
 }
 
 export interface PlanningSettingsControls {
@@ -215,6 +233,25 @@ export function renderApp(root: HTMLElement): AppElements {
     capacityDetails,
     teamClose,
   );
+  const teamDiscard = document.createElement("button");
+  teamDiscard.type = "button";
+  teamDiscard.textContent = "Discard changes";
+  const teamDeleteButton = document.createElement("button");
+  teamDeleteButton.type = "button";
+  teamDeleteButton.textContent = "Delete Team";
+  const teamDeleteConfirmation = document.createElement("div");
+  teamDeleteConfirmation.className = "team-delete-confirmation";
+  teamDeleteConfirmation.hidden = true;
+  const teamDeleteMessage = document.createElement("p");
+  teamDeleteMessage.textContent = "Delete this Team? This action cannot be undone.";
+  const teamDeleteConfirm = document.createElement("button");
+  teamDeleteConfirm.type = "button";
+  teamDeleteConfirm.textContent = "Confirm delete";
+  const teamDeleteCancel = document.createElement("button");
+  teamDeleteCancel.type = "button";
+  teamDeleteCancel.textContent = "Cancel deletion";
+  teamDeleteConfirmation.append(teamDeleteMessage, teamDeleteCancel, teamDeleteConfirm);
+  teamEdit.append(teamDiscard, teamDeleteButton, teamDeleteConfirmation);
   const teamEditControls = Object.freeze({
     container: teamEdit,
     title: teamEditTitle,
@@ -227,6 +264,11 @@ export function renderApp(root: HTMLElement): AppElements {
     capacityApply,
     capacityCancel,
     close: teamClose,
+    discard: teamDiscard,
+    deleteButton: teamDeleteButton,
+    deleteConfirmation: teamDeleteConfirmation,
+    deleteConfirm: teamDeleteConfirm,
+    deleteCancel: teamDeleteCancel,
     status: teamEditStatus,
   });
   const applicationError = document.createElement("p");
@@ -234,6 +276,55 @@ export function renderApp(root: HTMLElement): AppElements {
   applicationError.setAttribute("role", "alert");
   applicationError.hidden = true;
   teamEdit.append(applicationError);
+
+  const teamCreateButton = document.createElement("button");
+  teamCreateButton.type = "button";
+  teamCreateButton.className = "team-create-trigger";
+  teamCreateButton.textContent = "Create Team";
+  teamCreateButton.setAttribute("aria-label", "Create Team in planning teams");
+  const teamCollectionActions = document.createElement("div");
+  teamCollectionActions.className = "team-collection-actions";
+  teamCollectionActions.append(teamCreateButton);
+  const teamCreate = document.createElement("section");
+  teamCreate.className = "timeline-team-edit team-create-dialog";
+  teamCreate.setAttribute("role", "dialog");
+  teamCreate.setAttribute("aria-modal", "true");
+  teamCreate.setAttribute("aria-label", "Create Team");
+  teamCreate.hidden = true;
+  const teamCreateTitle = document.createElement("h3");
+  teamCreateTitle.textContent = "Create Team";
+  const teamCreateForm = document.createElement("form");
+  teamCreateForm.className = "timeline-team-capacity-form";
+  const teamCreateNameLabel = document.createElement("label");
+  teamCreateNameLabel.textContent = "Name";
+  const teamCreateName = document.createElement("input");
+  teamCreateName.type = "text";
+  teamCreateName.name = "team.name";
+  teamCreateNameLabel.append(teamCreateName);
+  const teamCreatePeriodFields = document.createElement("div");
+  teamCreatePeriodFields.className = "timeline-team-edit-fields";
+  const teamCreateAddPeriod = document.createElement("button");
+  teamCreateAddPeriod.type = "button";
+  teamCreateAddPeriod.textContent = "Add period";
+  const teamCreateCancel = document.createElement("button");
+  teamCreateCancel.type = "button";
+  teamCreateCancel.textContent = "Cancel";
+  const teamCreateSubmit = document.createElement("button");
+  teamCreateSubmit.type = "submit";
+  teamCreateSubmit.textContent = "Create";
+  const teamCreateError = document.createElement("p");
+  teamCreateError.className = "application-error";
+  teamCreateError.setAttribute("role", "alert");
+  teamCreateError.hidden = true;
+  const teamCreateActions = document.createElement("div");
+  teamCreateActions.className = "timeline-team-edit-actions";
+  teamCreateActions.append(teamCreateCancel, teamCreateSubmit);
+  teamCreateForm.append(teamCreateNameLabel, teamCreatePeriodFields,
+    teamCreateAddPeriod, teamCreateError, teamCreateActions);
+  teamCreate.append(teamCreateTitle, teamCreateForm);
+  const teamCreateControls = Object.freeze({ container: teamCreate, form: teamCreateForm,
+    name: teamCreateName, periodFields: teamCreatePeriodFields, addPeriod: teamCreateAddPeriod,
+    cancel: teamCreateCancel, create: teamCreateSubmit, error: teamCreateError });
 
   const planningSettings = document.createElement("section");
   planningSettings.className = "planning-settings-modal";
@@ -281,6 +372,7 @@ export function renderApp(root: HTMLElement): AppElements {
     cursorProgress,
     diagnostics,
     viewportControlContainer,
+    teamCollectionActions,
     timelineStage,
     tooltip,
   );
@@ -324,7 +416,7 @@ export function renderApp(root: HTMLElement): AppElements {
   projectSidebar.append(projectSidebarTitle, portfolioTabs, projectList, reservationList);
   workspace.append(planningMain, projectSidebar);
 
-  shell.append(header, workspace, diagnosticsBackdrop, diagnosticsDialog, planningSettings, teamEdit);
+  shell.append(header, workspace, diagnosticsBackdrop, diagnosticsDialog, planningSettings, teamEdit, teamCreate);
   root.replaceChildren(shell);
   return Object.freeze({
     svg: timeline,
@@ -336,6 +428,8 @@ export function renderApp(root: HTMLElement): AppElements {
     planningSettingsControls,
     tooltip,
     teamEditControls,
+    teamCreateButton,
+    teamCreateControls,
     applicationError,
     teamPanels,
     projectList,

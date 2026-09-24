@@ -17,6 +17,8 @@ export type TeamEditApplyResult =
 export interface TeamEditController {
   readonly setTeam: (team: TeamEditViewModel | undefined) => void;
   readonly getTeamId: () => TeamId | undefined;
+  readonly requestClose: () => boolean;
+  readonly hasUnappliedChanges: () => boolean;
   readonly destroy: () => void;
 }
 
@@ -28,6 +30,11 @@ export interface CreateTeamEditControllerInput {
     command: UpdateTeamCapacityPeriodsCommand,
   ) => TeamEditApplyResult;
   readonly onClose?: () => void;
+  readonly confirmDiscard?: (message: string) => boolean;
+  readonly onDelete?: (teamId: TeamId) =>
+    | Readonly<{ ok: true }>
+    | Readonly<{ ok: false; reason: "draft"; message: string }>
+    | Readonly<{ ok: false; reason: "application"; errors: readonly DomainError[] }>;
 }
 
 interface PeriodInputs {
@@ -59,7 +66,32 @@ export function createTeamEditController(
       .join(" ");
     input.errorContainer.hidden = false;
   };
-  const hydrate = (nextModel: TeamEditViewModel | undefined): void => {
+  const showLocalMessage = (message: string): void => {
+    input.errorContainer.textContent = message;
+    input.errorContainer.hidden = false;
+  };
+  const hasUnappliedChanges = (): boolean => model !== undefined && (
+    nameInput?.value !== model.label || periodInputs.some((period) => {
+      const reference = model!.capacityPeriods[period.index];
+      return !reference || period.startDate.value !== reference.startDate ||
+        period.endDate.value !== reference.endDate ||
+        period.capacity.value !== reference.capacity ||
+        period.unavailabilityPercent.value !== reference.unavailabilityPercent;
+    }));
+  const hydrate = (nextModel: TeamEditViewModel | undefined, preserve = true): void => {
+    const sameTeam = preserve && nextModel !== undefined && model?.teamId === nextModel.teamId &&
+      !input.controls.container.hidden;
+    const oldName = sameTeam && nameInput?.value !== model?.label ? nameInput?.value : undefined;
+    const oldPeriods = sameTeam ? periodInputs.map((period) => {
+      const reference = model!.capacityPeriods[period.index];
+      return reference ? {
+        startDate: period.startDate.value !== reference.startDate ? period.startDate.value : undefined,
+        endDate: period.endDate.value !== reference.endDate ? period.endDate.value : undefined,
+        capacity: period.capacity.value !== reference.capacity ? period.capacity.value : undefined,
+        unavailability: period.unavailabilityPercent.value !== reference.unavailabilityPercent
+          ? period.unavailabilityPercent.value : undefined,
+      } : undefined;
+    }) : [];
     model = nextModel;
     input.controls.container.hidden = nextModel === undefined;
     input.controls.nameFields.replaceChildren();
@@ -73,6 +105,9 @@ export function createTeamEditController(
     input.controls.title.textContent = nextModel
       ? `Team settings — ${nextModel.label}`
       : "Team settings";
+    input.controls.deleteButton.disabled = nextModel === undefined;
+    input.controls.discard.disabled = nextModel === undefined;
+    input.controls.deleteConfirmation.hidden = true;
     if (nextModel === undefined) {
       nameInput = undefined;
       periodInputs = Object.freeze([]);
@@ -87,6 +122,7 @@ export function createTeamEditController(
       "team.name",
     );
     nameInput.value = nextModel.label;
+    if (oldName !== undefined) nameInput.value = oldName;
     periodInputs = Object.freeze(
       nextModel.capacityPeriods.map((period) => {
         const fieldset = document.createElement("fieldset");
@@ -102,6 +138,11 @@ export function createTeamEditController(
         endDate.value = period.endDate;
         capacity.value = period.capacity;
         unavailabilityPercent.value = period.unavailabilityPercent;
+        const old = oldPeriods[period.index];
+        if (old?.startDate !== undefined) startDate.value = old.startDate;
+        if (old?.endDate !== undefined) endDate.value = old.endDate;
+        if (old?.capacity !== undefined) capacity.value = old.capacity;
+        if (old?.unavailability !== undefined) unavailabilityPercent.value = old.unavailability;
         input.controls.capacityFields.append(fieldset);
         return Object.freeze({
           index: period.index,
@@ -149,6 +190,7 @@ export function createTeamEditController(
     }
     const result = input.onApplyName(Object.freeze({ kind: "update-team-name", teamId: model.teamId, name }));
     if (!result.ok) return showErrors(result.errors);
+    if (nameInput && model) nameInput.value = model.label;
     clearError();
   };
   const onPeriodsSubmit = (event: SubmitEvent): void => {
@@ -158,31 +200,75 @@ export function createTeamEditController(
     if (!parsed.ok) return showErrors(parsed.errors);
     const result = input.onApplyPeriods(parsed.command);
     if (!result.ok) return showErrors(result.errors);
+    const currentName = nameInput?.value;
+    hydrate(model, false);
+    if (nameInput && currentName !== undefined) nameInput.value = currentName;
     clearError();
   };
   const onCancelPeriods = (): void => {
-    hydrate(model);
+    const currentName = nameInput?.value;
+    hydrate(model, false);
+    if (nameInput && currentName !== undefined) nameInput.value = currentName;
     clearError();
   };
-  const onClose = (): void => {
-    input.controls.container.hidden = true;
+  const onDiscard = (): void => { hydrate(model, false); clearError(); };
+  const requestClose = (): boolean => {
+    if (input.controls.container.hidden) return true;
+    if (hasUnappliedChanges() && !input.confirmDiscard?.("Discard unapplied Team settings changes?")) return false;
+    hydrate(undefined, false);
     clearError();
     input.onClose?.();
+    return true;
+  };
+  const onClose = (): void => { requestClose(); };
+  const onDeleteClick = (): void => {
+    if (!model) return;
+    if (hasUnappliedChanges()) {
+      if (!input.confirmDiscard?.("Discard unapplied Team settings changes before deletion?")) return;
+      onDiscard();
+    }
+    input.controls.deleteConfirmation.hidden = false;
+    input.controls.deleteConfirm.focus();
+  };
+  const onDeleteCancel = (): void => { input.controls.deleteConfirmation.hidden = true; };
+  const onDeleteConfirm = (): void => {
+    if (!model || !input.onDelete) return;
+    const result = input.onDelete(model.teamId);
+    if (!result.ok) {
+      if (result.reason === "application") showErrors(result.errors);
+      else showLocalMessage(result.message);
+      input.controls.deleteConfirmation.hidden = true;
+    }
   };
 
   input.controls.nameForm.addEventListener("submit", onNameSubmit);
   input.controls.capacityForm.addEventListener("submit", onPeriodsSubmit);
   input.controls.capacityCancel.addEventListener("click", onCancelPeriods);
   input.controls.close.addEventListener("click", onClose);
+  input.controls.discard.addEventListener("click", onDiscard);
+  input.controls.deleteButton.addEventListener("click", onDeleteClick);
+  input.controls.deleteCancel.addEventListener("click", onDeleteCancel);
+  input.controls.deleteConfirm.addEventListener("click", onDeleteConfirm);
   hydrate(undefined);
   return Object.freeze({
-    setTeam: (team: TeamEditViewModel | undefined) => { hydrate(team); clearError(); },
+    setTeam: (team: TeamEditViewModel | undefined) => {
+      const entering = team !== undefined && (model?.teamId !== team.teamId || input.controls.container.hidden);
+      hydrate(team);
+      clearError();
+      if (entering) nameInput?.focus();
+    },
     getTeamId: () => model?.teamId,
+    requestClose,
+    hasUnappliedChanges,
     destroy: () => {
       input.controls.nameForm.removeEventListener("submit", onNameSubmit);
       input.controls.capacityForm.removeEventListener("submit", onPeriodsSubmit);
       input.controls.capacityCancel.removeEventListener("click", onCancelPeriods);
       input.controls.close.removeEventListener("click", onClose);
+      input.controls.discard.removeEventListener("click", onDiscard);
+      input.controls.deleteButton.removeEventListener("click", onDeleteClick);
+      input.controls.deleteCancel.removeEventListener("click", onDeleteCancel);
+      input.controls.deleteConfirm.removeEventListener("click", onDeleteConfirm);
     },
   });
 }

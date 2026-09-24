@@ -42,7 +42,8 @@ Later trajectory: Actuals / History
 ```
 
 The remaining execution order is `9E` through `9G`. Lot 9D is closed and
-provides the validated priority-reordering baseline. The CRUD series
+provides the validated priority-reordering baseline. 9E is in review; 9F and
+9G remain downstream until audit and human validation. The CRUD series
 establishes Team referential-integrity policy before Project and Reservation
 membership workflows.
 
@@ -114,35 +115,43 @@ typecheck, 434 automated tests, and build before closure.
 
 ## 9E — Team structural CRUD
 
+**Status: IN REVIEW** — implementation awaiting pushed-commit audit and human
+validation. The validated baseline remains the 9D commit above. Do not mark
+9E DONE or advance the baseline in the implementation commit.
+
 **Goal**
 
 Add and remove Teams with explicit referential-integrity behavior.
 
 **Scope**
 
-Create Team with a valid schedule and remove Team only through a deliberate
-policy for Project requirements and Reservation allocations.
+Create Team with at least one initial capacity period and remove Team only when
+no persisted Project requirement or Reservation allocation references it.
 
 **Domain changes**
 
-Retain unique IDs and Portfolio reference validation. Specify whether deletion
-is blocked while referenced or uses an explicit atomic cascade; never leave
-dangling Project or Reservation references.
+Retain unique IDs and Portfolio reference validation. Deletion is restrictive:
+there is no implicit cascade and no dangling Project or Reservation reference.
 
 **Application changes**
 
-Add typed create/remove commands, deterministic ID handling, and atomic
-candidate validation.
+Typed create/remove commands use collision-safe session Team IDs and atomic
+schedule/Portfolio validation. Accepted changes reproject once; rejected
+commands leave state and projection unchanged.
 
 **UI changes**
 
-Add Team creation/removal flows with reference-impact confirmation and safe
-editing-context reconciliation.
+The collection-level Create Team form accepts 1..N initial periods. Team
+Settings confirms deletion and reports persisted blockers. A separate UI guard
+protects unapplied Project/Reservation draft changes concerning that Team;
+unchanged inactive Team options and independent dirty fields do not block it.
+Team Settings fields are protected across context changes and reprojections.
 
 **Tests**
 
-Cover ID collisions, referenced deletion policy, immutable failure, projection
-rebuild count, and selection/context cleanup.
+Cover ID collisions, exact initial schedule validation, referenced deletion,
+immutable failure, projection rebuild count, independent and Team-specific
+draft changes, and editing-context cleanup.
 
 **Explicit non-goals**
 
