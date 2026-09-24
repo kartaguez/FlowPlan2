@@ -14,7 +14,7 @@
   --fp-time-surface: #eef5fd;
   --fp-time-border: #d5e3f3;
   --fp-projection: #2f6fd1;
-  --fp-metric-surface: #f3f4f6;
+  --fp-metric-header-surface: #f3f4f6;
   --fp-radius-sm: 7px;
   --fp-radius-card: 9px;
   --fp-radius-surface: 18px;
@@ -270,6 +270,7 @@ h1 { margin-bottom: 0; font-size: 2rem; letter-spacing: -0.04em; }
   color: var(--fp-text);
   font-size: 0.72rem;
   font-weight: 700;
+  background: var(--fp-metric-header-surface);
 }
 
 .timeline-global-metrics .timeline-global-metrics-values {
@@ -278,7 +279,7 @@ h1 { margin-bottom: 0; font-size: 2rem; letter-spacing: -0.04em; }
   border: 0;
   border-radius: 0;
   box-shadow: none;
-  background: var(--fp-metric-surface);
+  background: var(--fp-surface);
 }
 
 .capacity-metrics {
@@ -308,7 +309,6 @@ h1 { margin-bottom: 0; font-size: 2rem; letter-spacing: -0.04em; }
 .capacity-metric-value { color: var(--fp-text); font-size: 0.77rem; overflow-wrap: anywhere; }
 .timeline-global-metrics .capacity-metric {
   border-color: var(--fp-border);
-  background: var(--fp-metric-surface);
 }
 
 .team-panel {
@@ -327,7 +327,7 @@ h1 { margin-bottom: 0; font-size: 2rem; letter-spacing: -0.04em; }
   border-top: 1px solid #cbd5e1;
   border-bottom: 1px solid #cbd5e1;
   border-left: 4px solid #94a3b8;
-  background: var(--fp-surface);
+  background: var(--fp-metric-header-surface);
   padding: 0.3rem 0.65rem;
   box-shadow: inset 0 1px 0 #ffffff;
   pointer-events: auto;
@@ -340,11 +340,7 @@ h1 { margin-bottom: 0; font-size: 2rem; letter-spacing: -0.04em; }
   align-content: center;
   gap: 0;
   min-width: 0;
-  background: var(--fp-metric-surface);
-}
-
-.team-panel-metrics .capacity-metric {
-  background: var(--fp-metric-surface);
+  background: var(--fp-surface);
 }
 
 .team-panel-metric {
