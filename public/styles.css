@@ -14,7 +14,7 @@
   --fp-time-surface: #eef5fd;
   --fp-time-border: #d5e3f3;
   --fp-projection: #2f6fd1;
-  --fp-team-metric-surface: #f3f4f6;
+  --fp-metric-surface: #f3f4f6;
   --fp-radius-sm: 7px;
   --fp-radius-card: 9px;
   --fp-radius-surface: 18px;
@@ -278,6 +278,7 @@ h1 { margin-bottom: 0; font-size: 2rem; letter-spacing: -0.04em; }
   border: 0;
   border-radius: 0;
   box-shadow: none;
+  background: var(--fp-metric-surface);
 }
 
 .capacity-metrics {
@@ -305,7 +306,10 @@ h1 { margin-bottom: 0; font-size: 2rem; letter-spacing: -0.04em; }
 
 .capacity-metric-label { color: var(--fp-muted); font-size: 0.61rem; overflow-wrap: anywhere; }
 .capacity-metric-value { color: var(--fp-text); font-size: 0.77rem; overflow-wrap: anywhere; }
-.timeline-global-metrics .capacity-metric { border-color: var(--fp-border); }
+.timeline-global-metrics .capacity-metric {
+  border-color: var(--fp-border);
+  background: var(--fp-metric-surface);
+}
 
 .team-panel {
   pointer-events: none;
@@ -336,11 +340,11 @@ h1 { margin-bottom: 0; font-size: 2rem; letter-spacing: -0.04em; }
   align-content: center;
   gap: 0;
   min-width: 0;
-  background: var(--fp-team-metric-surface);
+  background: var(--fp-metric-surface);
 }
 
 .team-panel-metrics .capacity-metric {
-  background: var(--fp-team-metric-surface);
+  background: var(--fp-metric-surface);
 }
 
 .team-panel-metric {
