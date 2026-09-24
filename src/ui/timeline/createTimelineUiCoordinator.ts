@@ -146,7 +146,8 @@ export function createTimelineUiCoordinator(
   const renderCursorMetrics = (date: CivilDate): void => {
     cursorMetricsModel = buildCursorMetricsViewModel(projection.portfolio,
       calculateCursorMetrics({ portfolio: projection.portfolio,
-        planningResult: projection.planningResult, horizon: projection.horizon, selectedDate: date }));
+        planningResult: projection.planningResult, horizon: projection.horizon, selectedDate: date }),
+      projection.viewModel);
     dependencies.renderCursorTeamMetrics(shellNavigation.teamMetricsContainers, cursorMetricsModel.teams);
     progressSurface.render(cursorMetricsModel, activeProgressView);
   };

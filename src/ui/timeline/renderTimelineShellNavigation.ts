@@ -4,6 +4,7 @@ import type {
 } from "../../adapters/index.js";
 import type { ProjectId, ReservationId, TeamId } from "../../domain/index.js";
 import { createSettingsIconButton } from "../createSettingsIconButton.js";
+import { projectColorIndex } from "./projectVisualIdentity.js";
 
 export interface ReservationNavigationItem {
   readonly id: ReservationId;
@@ -101,7 +102,7 @@ export function renderTimelineShellNavigation(
     const programName = metadata.programName ?? "—";
     const priorityFamilyName = metadata.priorityFamilyName ?? "—";
     const item = document.createElement("li");
-    item.className = "project-sidebar-item";
+    item.className = `project-sidebar-item project-sidebar-item--color-${projectColorIndex(project.id)}`;
     item.dataset.projectId = project.id;
     const button = document.createElement("button");
     button.type = "button";
@@ -191,6 +192,7 @@ export function renderTimelineShellNavigation(
     card.host.hidden = !expanded;
     card.button.setAttribute("aria-expanded", String(expanded));
     card.item.classList.toggle("portfolio-card--dirty", dirty);
+    card.item.classList.toggle("portfolio-card--expanded", expanded);
   };
 
   return Object.freeze({

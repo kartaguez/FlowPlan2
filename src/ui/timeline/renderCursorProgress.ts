@@ -1,6 +1,12 @@
 import type { CursorMetricsViewModel, CursorProgressView } from "./buildCursorMetricsViewModel.js";
 import { formatCursorMd, formatCursorPercent } from "./formatCursorMetrics.js";
 
+function progressWidth(numerator: bigint, denominator: bigint): number {
+  if (denominator <= 0n || numerator <= 0n) return 0;
+  if (numerator >= denominator) return 100;
+  return Number((numerator * 10_000n / denominator + 50n) / 100n);
+}
+
 export interface CursorProgressSurface {
   readonly render: (model: CursorMetricsViewModel, activeView: CursorProgressView) => void;
   readonly destroy: () => void;
@@ -12,7 +18,7 @@ export function createCursorProgressSurface(
 ): CursorProgressSurface {
   const document = container.ownerDocument;
   const heading = document.createElement("h3");
-  heading.textContent = "Cumulative progress";
+  heading.textContent = "Projected progress";
   const controls = document.createElement("div");
   controls.className = "cursor-progress-controls";
   controls.setAttribute("role", "group");
@@ -38,13 +44,53 @@ export function createCursorProgressSurface(
       });
       cards.replaceChildren(...model[activeView].map((item) => {
         const card = document.createElement("article");
-        card.className = "cursor-progress-card";
+        const width = progressWidth(item.progress.numerator, item.progress.denominator);
+        const status = item.progress.numerator >= item.progress.denominator
+          ? "completed" : item.progress.numerator > 0n ? "in-progress" : "not-started";
+        card.className = `cursor-progress-card cursor-progress-card--${status}`;
         card.dataset.itemId = item.id;
+        const head = document.createElement("div");
+        head.className = "cursor-progress-card-heading";
+        const identity = document.createElement("div");
+        identity.className = "cursor-progress-card-identity";
         const title = document.createElement("h4");
         title.textContent = item.name;
-        const detail = document.createElement("p");
-        detail.textContent = `${formatCursorPercent(item.progress)} complete · ${formatCursorMd(item.allocatedWorkload)} consumed · ${formatCursorMd(item.remainingWorkload)} remaining`;
-        card.append(title, detail);
+        const metadata = document.createElement("p");
+        metadata.className = "cursor-progress-card-metadata";
+        metadata.textContent = item.metadata;
+        identity.append(title, metadata);
+        const end = document.createElement("div");
+        end.className = `cursor-progress-card-end${item.estimatedWithinHorizon && item.estimatedEndDate ? "" : " cursor-progress-card-end--incomplete"}`;
+        const endLabel = document.createElement("span");
+        endLabel.textContent = "Projected end";
+        const endValue = document.createElement("strong");
+        endValue.textContent = item.estimatedEndDate ?? "Incomplete in horizon";
+        end.append(endLabel, endValue);
+        head.append(identity, end);
+        const load = document.createElement("div");
+        load.className = "cursor-progress-card-load";
+        const loadRow = document.createElement("div");
+        loadRow.className = "cursor-progress-card-load-row";
+        const loadLabel = document.createElement("strong");
+        loadLabel.textContent = "Workload";
+        const loadValues = document.createElement("span");
+        loadValues.textContent = `${formatCursorMd(item.allocatedWorkload)} / ${formatCursorMd(item.baselineWorkload)} allocated to date`;
+        const percentage = document.createElement("b");
+        percentage.textContent = formatCursorPercent(item.progress);
+        loadRow.append(loadLabel, loadValues, percentage);
+        const track = document.createElement("div");
+        track.className = "cursor-progress-card-track";
+        track.setAttribute("role", "progressbar");
+        track.setAttribute("aria-label", `${item.name} projected progress at selected date`);
+        track.setAttribute("aria-valuemin", "0");
+        track.setAttribute("aria-valuemax", "100");
+        track.setAttribute("aria-valuenow", String(width));
+        track.setAttribute("aria-valuetext", formatCursorPercent(item.progress));
+        const fill = document.createElement("span");
+        fill.setAttribute("style", `width: ${width}%`);
+        track.append(fill);
+        load.append(loadRow, track);
+        card.append(head, load);
         return card;
       }));
     },

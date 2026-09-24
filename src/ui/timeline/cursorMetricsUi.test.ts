@@ -55,7 +55,7 @@ describe("cursor metrics UI", () => {
 
   it("joins one card per Project, uses catalog order, and keeps negative remaining exact", () => {
     const { projection, metrics } = run();
-    const model = buildCursorMetricsViewModel(projection.portfolio, metrics);
+    const model = buildCursorMetricsViewModel(projection.portfolio, metrics, projection.viewModel);
     assert.deepEqual(model.projects.map((item) => item.id), projection.portfolio.priorityOrder);
     assert.equal(model.projects.length, projection.portfolio.projects.length);
     const atlasCards = model.projects.filter((item) => item.id === "project-atlas");
@@ -70,7 +70,7 @@ describe("cursor metrics UI", () => {
       horizon: projection.horizon,
       selectedDate: projection.horizon.start,
     });
-    const atStart = buildCursorMetricsViewModel(projection.portfolio, startMetrics);
+    const atStart = buildCursorMetricsViewModel(projection.portfolio, startMetrics, projection.viewModel);
     assert.deepEqual(atStart.projects.map((item) => item.id), model.projects.map((item) => item.id));
     assert.deepEqual(atStart.programs.map((item) => item.id), model.programs.map((item) => item.id));
     assert.deepEqual(atStart.pas.map((item) => item.id), model.pas.map((item) => item.id));
@@ -83,18 +83,41 @@ describe("cursor metrics UI", () => {
       const source = metrics.priorityFamilies.find((item) => item.priorityFamilyId === group.id)!;
       assert.equal(rationalToCanonicalString(group.allocatedWorkload), rationalToCanonicalString(source.allocatedWorkload));
     }
+    const firstProject = model.projects[0]!;
+    assert.match(firstProject.metadata, /^Priority 1 · Program /);
+    assert.equal(rationalToCanonicalString(firstProject.baselineWorkload),
+      rationalToCanonicalString(metrics.projects[0]!.baselineRAF));
+    const program = projection.portfolio.programs[0]!;
+    const members = projection.portfolio.projects.filter((project) => project.programId === program.id);
+    const datedTimeline = { ...projection.viewModel, projects: projection.viewModel.projects.map((project) =>
+      members.some((member) => member.id === project.id)
+        ? { ...project, estimatedWithinHorizon: true, estimatedEndDate: project.id === members[0]!.id
+          ? projection.horizon.start : projection.horizon.end }
+        : project) };
+    const datedGroup = buildCursorMetricsViewModel(projection.portfolio, metrics, datedTimeline)
+      .programs.find((item) => item.id === program.id)!;
+    assert.equal(datedGroup.estimatedEndDate, members.length > 1 ? projection.horizon.end : projection.horizon.start);
+    const incompleteTimeline = { ...datedTimeline, projects: datedTimeline.projects.map((project) => {
+      if (project.id !== members[0]!.id) return project;
+      const { estimatedEndDate: _end, ...withoutEnd } = project;
+      return { ...withoutEnd, estimatedWithinHorizon: false };
+    }) };
+    const incompleteGroup = buildCursorMetricsViewModel(projection.portfolio, metrics, incompleteTimeline)
+      .programs.find((item) => item.id === program.id)!;
+    assert.equal(incompleteGroup.estimatedWithinHorizon, false);
+    assert.equal(incompleteGroup.estimatedEndDate, undefined);
     const withoutGroups = buildCursorMetricsViewModel(projection.portfolio, {
       ...metrics,
       programs: [],
       priorityFamilies: [],
-    });
+    }, projection.viewModel);
     assert.deepEqual(withoutGroups.programs, []);
     assert.deepEqual(withoutGroups.pas, []);
     const first = metrics.projects[0]!;
     const excess = buildCursorMetricsViewModel(projection.portfolio, {
       ...metrics,
       projects: [{ ...first, allocatedWorkload: rationalFromInteger(999n) }, ...metrics.projects.slice(1)],
-    });
+    }, projection.viewModel);
     assert.equal(excess.projects[0]!.allocatedWorkload.numerator, 999n);
     assert.ok(excess.projects[0]!.remainingWorkload.numerator < 0n);
     assert.equal(rationalToCanonicalString(model.projects[0]!.progress), rationalToCanonicalString(first.progress));
@@ -102,7 +125,7 @@ describe("cursor metrics UI", () => {
 
   it("renders all six Team values and an exclusive progress view", () => {
     const { projection, metrics } = run();
-    const model = buildCursorMetricsViewModel(projection.portfolio, metrics);
+    const model = buildCursorMetricsViewModel(projection.portfolio, metrics, projection.viewModel);
     const document = new FakeDocument();
     const teamContainers = new Map(projection.portfolio.teams.map((team) => [team.id, document.createElement("div") as unknown as HTMLElement]));
     renderCursorTeamMetrics(teamContainers, model.teams);
@@ -128,7 +151,14 @@ describe("cursor metrics UI", () => {
     const cards = root.childNodes[2]!;
     assert.equal(cards.childNodes.length, model.projects.length);
     assert.equal(controls.childNodes[0]!.attributes.get("aria-pressed"), "true");
-    assert.match(cards.childNodes[0]!.childNodes[1]!.textContent!, /consumed.*remaining/);
+    const firstCard = cards.childNodes[0]!;
+    assert.match(firstCard.className, /cursor-progress-card--/);
+    assert.equal(firstCard.childNodes[0]!.childNodes[0]!.childNodes[1]!.textContent, model.projects[0]!.metadata);
+    const load = firstCard.childNodes[1]!;
+    assert.match(load.childNodes[0]!.childNodes[1]!.textContent!, /allocated to date/);
+    assert.equal(load.childNodes[0]!.childNodes[2]!.textContent, formatCursorPercent(model.projects[0]!.progress));
+    assert.equal(load.childNodes[1]!.attributes.get("role"), "progressbar");
+    assert.equal(load.childNodes[1]!.attributes.get("aria-valuetext"), formatCursorPercent(model.projects[0]!.progress));
     controls.childNodes[1]!.click();
     assert.equal(selected, "programs");
     surface.render(model, "programs");
@@ -137,5 +167,25 @@ describe("cursor metrics UI", () => {
     assert.equal(controls.childNodes[1]!.attributes.get("aria-pressed"), "true");
     surface.render(model, "pas");
     assert.equal(cards.childNodes.length, model.pas.length);
+    for (const view of ["projects", "programs", "pas"] as const) {
+      surface.render(model, view);
+      for (const card of cards.childNodes) {
+        assert.equal(card.childNodes.length, 2);
+        assert.equal(card.childNodes[1]!.childNodes[1]!.attributes.get("role"), "progressbar");
+      }
+    }
+    const samples = model.projects.slice(0, 3).map((item, index) => ({
+      ...item,
+      progress: index === 0 ? rationalFromInteger(0n)
+        : index === 1 ? { numerator: 1n, denominator: 2n }
+          : rationalFromInteger(1n),
+      estimatedWithinHorizon: index !== 0,
+    }));
+    surface.render({ ...model, projects: samples }, "projects");
+    assert.deepEqual(cards.childNodes.map((card) => card.className.split("--")[1]),
+      ["not-started", "in-progress", "completed"]);
+    assert.match(cards.childNodes[0]!.childNodes[0]!.childNodes[1]!.className, /incomplete/);
+    assert.deepEqual(cards.childNodes.map((card) => card.childNodes[1]!.childNodes[1]!.attributes.get("aria-valuenow")),
+      ["0", "50", "100"]);
   });
 });
