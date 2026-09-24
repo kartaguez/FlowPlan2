@@ -27,7 +27,8 @@ export interface ProjectEditFormValues {
   readonly priorityPosition: string;
   readonly earliestStartDate: string;
   readonly objectiveEndDate: string;
-  readonly mandatoryDeadline: string;
+  readonly mandatory: boolean;
+  readonly legacyDeadlineResolution?: "unresolved" | "align" | "remove";
   readonly requirements: readonly ProjectRequirementFormValues[];
 }
 
@@ -75,11 +76,14 @@ export function parseProjectEditCommand(
     "project.objectiveEndDate",
     errors,
   );
-  const mandatoryDeadline = parseOptionalDate(
-    values.mandatoryDeadline,
-    "project.mandatoryDeadline",
-    errors,
-  );
+  if (values.legacyDeadlineResolution === "unresolved") {
+    errors.push(error("UNRESOLVED_LEGACY_DEADLINE", "project.mandatoryDeadline",
+      "Resolve the historical deadline before applying."));
+  }
+  if (values.mandatory && objectiveEndDate === undefined) {
+    errors.push(error("MANDATORY_REQUIRES_OBJECTIVE", "project.objectiveEndDate",
+      "Enter an objective end date before enabling Mandatory."));
+  }
   const teamRequirements = values.requirements.filter((requirement) => requirement.enabled !== false).map((requirement) =>
     parseRequirement(requirement, errors),
   );
@@ -102,7 +106,7 @@ export function parseProjectEditCommand(
       priorityPosition,
       ...(earliestStartDate === undefined ? {} : { earliestStartDate }),
       ...(objectiveEndDate === undefined ? {} : { objectiveEndDate }),
-      ...(mandatoryDeadline === undefined ? {} : { mandatoryDeadline }),
+      ...(values.mandatory && objectiveEndDate !== undefined ? { mandatoryDeadline: objectiveEndDate } : {}),
       teamRequirements: Object.freeze(
         teamRequirements as readonly UpdateProjectTeamRequirement[],
       ),

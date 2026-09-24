@@ -97,7 +97,7 @@ function model(label = "Project Atlas"): ProjectEditViewModel {
     projectCount: 4,
     earliestStartDate: must(createCivilDate("2025-01-02")),
     objectiveEndDate: must(createCivilDate("2025-02-03")),
-    mandatoryDeadline: must(createCivilDate("2025-03-04")),
+    mandatoryDeadline: must(createCivilDate("2025-02-03")),
     requirements: Object.freeze([
       Object.freeze({
         teamId: alphaId,
@@ -167,7 +167,7 @@ describe("ProjectEditController", () => {
       "project.priority",
       "project.earliestStartDate",
       "project.objectiveEndDate",
-      "project.mandatoryDeadline",
+      "project.mandatory",
     ]) {
       assert.equal(elements.filter((element) => element.name === name).length, 1);
     }
@@ -206,7 +206,7 @@ describe("ProjectEditController", () => {
     assert.equal(input.fields.childNodes.length, 0);
     assert.equal(input.apply.disabled, true);
     assert.equal(input.cancel.disabled, true);
-    assert.match(input.status.textContent ?? "", /Select a project/);
+    assert.equal(input.status.textContent, "");
   });
 
   it("Cancel restores every field without dispatching", () => {
@@ -220,7 +220,7 @@ describe("ProjectEditController", () => {
     field(input.fields, "project.programId").value = "";
     field(input.fields, "project.priorityFamilyId").value = "";
     field(input.fields, "project.priority").value = "4";
-    field(input.fields, "project.mandatoryDeadline").value = "";
+    field(input.fields, "project.mandatory").checked = false;
     field(input.fields, `requirements.${alphaId}.remainingWorkload`).value = "99";
     input.cancel.dispatch("click");
 
@@ -228,7 +228,7 @@ describe("ProjectEditController", () => {
     assert.equal(field(input.fields, "project.programId").value, phoenixId);
     assert.equal(field(input.fields, "project.priorityFamilyId").value, strategicId);
     assert.equal(field(input.fields, "project.priority").value, "2");
-    assert.equal(field(input.fields, "project.mandatoryDeadline").value, "2025-03-04");
+    assert.equal(field(input.fields, "project.mandatory").checked, true);
     assert.equal(
       field(input.fields, `requirements.${alphaId}.remainingWorkload`).value,
       "12.5",

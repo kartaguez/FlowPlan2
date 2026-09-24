@@ -390,27 +390,6 @@ p {
   stroke-width: 2;
 }
 
-.timeline-selection {
-  pointer-events: none;
-  fill: none;
-  stroke: #0f172a;
-  stroke-width: 2.5;
-}
-
-.timeline-selection--allocation {
-  fill: rgb(255 255 255 / 18%);
-}
-
-.timeline-selection--reservation { fill: rgb(255 255 255 / 18%); }
-
-.timeline-selection--project-marker {
-  stroke-width: 4;
-}
-
-.timeline-selection--team {
-  stroke-dasharray: 8 4;
-}
-
 .timeline-tooltip {
   position: fixed;
   z-index: 10;
@@ -483,23 +462,6 @@ p {
 .cursor-progress-card h4 { margin: 0 0 0.4rem; }
 .cursor-progress-card p { margin: 0; font-size: 0.85rem; color: #52657f; }
 
-.timeline-selection-summary {
-  margin-top: 1rem;
-  border: 1px solid #d9e0ea;
-  border-radius: 0.5rem;
-  background: #ffffff;
-  padding: 0.85rem 1rem;
-}
-
-.timeline-selection-summary-heading {
-  margin: 0 0 0.5rem;
-  font-size: 1rem;
-}
-
-.timeline-selection-summary p {
-  margin-bottom: 0.25rem;
-}
-
 .timeline-project-edit,
 .timeline-reservation-edit {
   margin: 0;
@@ -515,6 +477,10 @@ p {
 .portfolio-team-toggle { display: flex !important; align-items: center; gap: 0.25rem; font-size: 0.85rem; font-weight: 600; }
 .portfolio-team-toggle input { min-height: auto !important; }
 .portfolio-team-expand { min-height: auto !important; padding: 0.2rem 0.45rem !important; font-size: 0.8rem !important; }
+.portfolio-team-expand[hidden] { display: none !important; }
+.portfolio-card--dirty > .project-sidebar-button,
+.portfolio-team-card.portfolio-card--dirty { border: 2px solid #8b6508; }
+.timeline-project-grouping-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
 .portfolio-team-details { padding-top: 0.4rem; }
 .portfolio-team-details fieldset { width: 100%; margin: 0; }
 

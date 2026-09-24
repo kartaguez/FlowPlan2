@@ -20,8 +20,10 @@ export type PortfolioTab = "projects" | "reservations";
 
 export interface TimelineShellNavigation {
   readonly teamMetricsContainers: ReadonlyMap<TeamId, HTMLElement>;
+  readonly projectCards: ReadonlyMap<ProjectId, { button: HTMLButtonElement; host: HTMLElement; item: HTMLElement }>;
+  readonly reservationCards: ReadonlyMap<ReservationId, { button: HTMLButtonElement; host: HTMLElement; item: HTMLElement }>;
   readonly getActiveTab: () => PortfolioTab;
-  readonly showEditingCard: (kind: "project" | "reservation" | undefined, id?: ProjectId | ReservationId, focus?: boolean) => void;
+  readonly setCardState: (kind: "project" | "reservation", id: ProjectId | ReservationId, expanded: boolean, dirty: boolean) => void;
   readonly destroy: () => void;
 }
 
@@ -39,8 +41,6 @@ export interface RenderTimelineShellNavigationInput {
   readonly onTeamSettings: (teamId: TeamId) => void;
   readonly onProjectSelect: (projectId: ProjectId) => void;
   readonly onReservationSelect: (reservationId: ReservationId) => void;
-  readonly projectEditContainer?: HTMLElement;
-  readonly reservationEditContainer?: HTMLElement;
   readonly onTabChange?: (tab: PortfolioTab) => void;
 }
 
@@ -94,7 +94,7 @@ export function renderTimelineShellNavigation(
   input.teamContainer.replaceChildren(axisSpacer, ...teamPanels);
 
   const projectMetadata = new Map(input.projectItems.map((item) => [item.id, item]));
-  const projectCards = new Map<ProjectId, { button: HTMLButtonElement; host: HTMLElement }>();
+  const projectCards = new Map<ProjectId, { button: HTMLButtonElement; host: HTMLElement; item: HTMLElement }>();
   const projectItems = input.viewModel.projects.map((project) => {
     const metadata = projectMetadata.get(project.id);
     if (metadata === undefined) throw new TypeError(`Missing Portfolio navigation project ${project.id}.`);
@@ -117,19 +117,19 @@ export function renderTimelineShellNavigation(
     title.textContent = `${project.priorityIndex + 1}. ${project.label}`;
     const grouping = document.createElement("span");
     grouping.className = "project-sidebar-grouping";
-    grouping.textContent = `Program ${programName} · PAS ${priorityFamilyName}`;
+    grouping.textContent = `Program ${programName} · PaS ${priorityFamilyName}`;
     button.append(title, grouping);
-    button.setAttribute("aria-label", `Edit project ${project.label}, Program ${programName}, PAS ${priorityFamilyName}`);
+    button.setAttribute("aria-label", `Toggle project ${project.label}, Program ${programName}, PaS ${priorityFamilyName}`);
     const listener = () => input.onProjectSelect(project.id);
     button.addEventListener("click", listener);
     listeners.push({ button, listener });
     item.append(button, host);
-    projectCards.set(project.id, { button, host });
+    projectCards.set(project.id, { button, host, item });
     return item;
   });
   input.projectContainer.replaceChildren(...projectItems);
 
-  const reservationCards = new Map<ReservationId, { button: HTMLButtonElement; host: HTMLElement }>();
+  const reservationCards = new Map<ReservationId, { button: HTMLButtonElement; host: HTMLElement; item: HTMLElement }>();
   const reservationItems = input.reservations.map((reservation) => {
     const item = document.createElement("li");
     item.className = "project-sidebar-item reservation-sidebar-item";
@@ -149,7 +149,7 @@ export function renderTimelineShellNavigation(
     button.addEventListener("click", listener);
     listeners.push({ button, listener });
     item.append(button, host);
-    reservationCards.set(reservation.id, { button, host });
+    reservationCards.set(reservation.id, { button, host, item });
     return item;
   });
   input.reservationContainer.replaceChildren(...reservationItems);
@@ -184,35 +184,21 @@ export function renderTimelineShellNavigation(
   input.reservationTab.addEventListener("keydown", onTabKeyDown);
   showTab(activeTab);
 
-  const showEditingCard = (kind: "project" | "reservation" | undefined, id?: ProjectId | ReservationId, focus = false): void => {
-    const previous = [...projectCards.values(), ...reservationCards.values()].find((card) =>
-      card.button.getAttribute("aria-expanded") === "true")?.button;
-    for (const card of projectCards.values()) {
-      card.host.hidden = true;
-      card.button.setAttribute("aria-expanded", "false");
-    }
-    for (const card of reservationCards.values()) {
-      card.host.hidden = true;
-      card.button.setAttribute("aria-expanded", "false");
-    }
-    if (kind === undefined || id === undefined) {
-      if (focus) previous?.focus();
-      return;
-    }
+  const setCardState = (kind: "project" | "reservation", id: ProjectId | ReservationId, expanded: boolean, dirty: boolean): void => {
     const card = kind === "project" ? projectCards.get(id as ProjectId) : reservationCards.get(id as ReservationId);
-    const editor = kind === "project" ? input.projectEditContainer : input.reservationEditContainer;
-    if (card === undefined || editor === undefined) return;
-    showTab(kind === "project" ? "projects" : "reservations");
-    card.host.append(editor);
-    card.host.hidden = false;
-    card.button.setAttribute("aria-expanded", "true");
-    if (focus) card.button.focus();
+    if (!card) return;
+    if (!expanded && card.host.contains(document.activeElement)) card.button.focus();
+    card.host.hidden = !expanded;
+    card.button.setAttribute("aria-expanded", String(expanded));
+    card.item.classList.toggle("portfolio-card--dirty", dirty);
   };
 
   return Object.freeze({
     teamMetricsContainers,
+    projectCards,
+    reservationCards,
     getActiveTab: () => activeTab,
-    showEditingCard,
+    setCardState,
     destroy: () => {
       for (const { button, listener } of listeners) {
         button.removeEventListener("click", listener);

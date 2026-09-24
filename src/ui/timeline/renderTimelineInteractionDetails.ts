@@ -55,92 +55,6 @@ export function renderTimelineTooltip(
   input.container.hidden = false;
 }
 
-export interface RenderTimelineSelectionSummaryInput {
-  readonly container: HTMLElement;
-  readonly lookup: TimelineInteractionLookup;
-  readonly selected: TimelineHit | undefined;
-}
-
-export function renderTimelineSelectionSummary(
-  input: RenderTimelineSelectionSummaryInput,
-): void {
-  const document = input.container.ownerDocument;
-  if (input.selected === undefined) {
-    const empty = document.createElement("p");
-    empty.textContent = "No timeline selection.";
-    input.container.replaceChildren(empty);
-    return;
-  }
-
-  const heading = document.createElement("h3");
-  heading.className = "timeline-selection-summary-heading";
-  heading.textContent = selectionHeading(input.selected);
-  const details = describeHit(input.lookup, input.selected).map((text) => {
-    const paragraph = document.createElement("p");
-    paragraph.textContent = text;
-    return paragraph;
-  });
-  input.container.replaceChildren(heading, ...details);
-}
-
-function describeHit(
-  lookup: TimelineInteractionLookup,
-  hit: TimelineHit,
-): readonly string[] {
-  const team = lookup.teamsById.get(hit.teamId);
-  if (team === undefined) throw new TypeError(`Unknown timeline team ${hit.teamId}.`);
-  if (hit.kind === "team") return Object.freeze([team.label]);
-  if (hit.kind === "reservation") {
-    const reservation = lookup.reservationsById.get(hit.reservationId);
-    if (reservation === undefined) throw new TypeError(`Unknown reservation ${hit.reservationId}.`);
-    return Object.freeze([reservation.label, team.label, hit.date]);
-  }
-
-  const project = lookup.projectsById.get(hit.projectId);
-  if (project === undefined) {
-    throw new TypeError(`Unknown timeline project ${hit.projectId}.`);
-  }
-  if (hit.kind === "allocation") {
-    const allocation = team.allocations.find(
-      (candidate) =>
-        candidate.projectId === hit.projectId && candidate.date === hit.date,
-    );
-    if (allocation === undefined) {
-      throw new TypeError("Allocation hit has no semantic allocation.");
-    }
-    return Object.freeze([
-      project.label,
-      team.label,
-      hit.date,
-      `Workload: ${serializeQuantity(allocation.workload)}`,
-    ]);
-  }
-
-  const lines = [project.label, team.label, markerKindLabel(hit.markerKind), hit.date];
-  if (hit.markerKind === "mandatory-deadline") {
-    const state = team.projectStates.find(
-      (candidate) => candidate.projectId === hit.projectId,
-    );
-    if (state?.deadlineStatus !== undefined) {
-      lines.push(`Deadline status: ${state.deadlineStatus}`);
-    }
-  }
-  return Object.freeze(lines);
-}
-
-function selectionHeading(hit: TimelineHit): string {
-  switch (hit.kind) {
-    case "allocation":
-      return "Selected allocation";
-    case "project-marker":
-      return "Selected project marker";
-    case "team":
-      return "Selected team";
-    case "reservation":
-      return "Selected reservation";
-  }
-}
-
 function tooltipLines(
   lookup: TimelineInteractionLookup,
   hit: Extract<TimelineHit, { kind: "allocation" | "reservation" }>,
@@ -166,19 +80,6 @@ function tooltipLines(
     `Objective end: ${project.objectiveEndDate ?? "—"}`,
     `Estimated end: ${project.estimatedWithinHorizon === false ? "not estimated within horizon" : project.estimatedEndDate ?? "—"}`,
     `Progress: ${formatCursorPercent(getProjectProgress?.(project.id))}`];
-}
-
-function markerKindLabel(
-  kind: Extract<TimelineHit, { kind: "project-marker" }>["markerKind"],
-): string {
-  switch (kind) {
-    case "earliest-start":
-      return "Earliest start";
-    case "objective-end":
-      return "Objective end";
-    case "mandatory-deadline":
-      return "Mandatory deadline";
-  }
 }
 
 function indexUnique<

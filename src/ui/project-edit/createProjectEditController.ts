@@ -5,6 +5,7 @@ import type {
 import type { DomainError, ProjectId, TeamId } from "../../domain/index.js";
 import type { ProjectEditControls } from "../renderApp.js";
 import { createTeamSubcard } from "../portfolio/createTeamSubcard.js";
+import { projectValuesFromModel, type ProjectDraftStore, type ProjectDraftValues } from "./projectDraftStore.js";
 import {
   parseProjectEditCommand,
   type ProjectEditFormValues,
@@ -25,6 +26,8 @@ export interface CreateProjectEditControllerInput {
   readonly errorContainer: HTMLElement;
   readonly onApply: (command: UpdateProjectCommand) => ProjectEditApplyResult;
   readonly onCancel?: () => void;
+  readonly draftStore?: ProjectDraftStore;
+  readonly onDraftChange?: () => void;
 }
 
 interface GlobalInputs {
@@ -34,13 +37,15 @@ interface GlobalInputs {
   readonly priority: HTMLInputElement;
   readonly earliestStartDate: HTMLInputElement;
   readonly objectiveEndDate: HTMLInputElement;
-  readonly mandatoryDeadline: HTMLInputElement;
+  readonly mandatory: HTMLInputElement;
 }
 
 interface RequirementInputs {
   readonly teamId: TeamId;
   readonly enabled: HTMLInputElement;
   readonly remainingWorkload: HTMLInputElement;
+  readonly isExpanded: () => boolean;
+  readonly card: HTMLElement;
   readonly originalDisplay: string;
   readonly remainingWorkloadExact: string;
   readonly dailyCapExact?: string;
@@ -52,29 +57,33 @@ export function createProjectEditController(
   let model: ProjectEditViewModel | undefined;
   let globalInputs: GlobalInputs | undefined;
   let requirementInputs: readonly RequirementInputs[] = Object.freeze([]);
+  let resolution: ProjectDraftValues["resolution"] = "remove";
 
   const clearError = (): void => {
     input.errorContainer.textContent = "";
     input.errorContainer.hidden = true;
+    if (model) input.draftStore?.setErrors(model.projectId, []);
   };
   const showErrors = (errors: readonly DomainError[]): void => {
     input.errorContainer.textContent = errors
       .map((domainError) => `${domainError.path}: ${domainError.message}`)
       .join(" ");
     input.errorContainer.hidden = false;
+    if (model) input.draftStore?.setErrors(model.projectId,
+      errors.map((domainError) => `${domainError.path}: ${domainError.message}`));
   };
 
   const hydrate = (nextModel: ProjectEditViewModel | undefined): void => {
     model = nextModel;
     input.controls.fields.replaceChildren();
     const activeModel = nextModel;
+    const draft = nextModel === undefined ? undefined : input.draftStore?.initialize(nextModel.projectId, nextModel);
+    const values = draft?.values ?? (nextModel === undefined ? undefined : projectValuesFromModel(nextModel));
     const enabled = activeModel !== undefined;
     input.controls.container.hidden = !enabled;
     input.controls.apply.disabled = !enabled;
     input.controls.cancel.disabled = !enabled;
-    input.controls.status.textContent = enabled
-      ? `Editing ${activeModel.label}`
-      : "Select a project allocation or marker to edit.";
+    input.controls.status.textContent = "";
     if (activeModel === undefined) {
       globalInputs = undefined;
       requirementInputs = Object.freeze([]);
@@ -87,8 +96,23 @@ export function createProjectEditController(
     const legend = document.createElement("legend");
     legend.textContent = "Project settings";
     const name = createLabeledInput(document, global, "Label", "text", "project.name");
-    const program = createLabeledSelect(document, global, "Program", "project.programId", activeModel.programs);
-    const priorityFamily = createLabeledSelect(document, global, "PAS", "project.priorityFamilyId", activeModel.priorityFamilies);
+    const grouping = document.createElement("div");
+    grouping.className = "timeline-project-grouping-fields";
+    const program = createLabeledSelect(document, grouping, "Program", "project.programId", activeModel.programs);
+    const priorityFamily = createLabeledSelect(document, grouping, "PaS", "project.priorityFamilyId", activeModel.priorityFamilies);
+    if (values!.programId && !activeModel.programs.some((item) => item.id === values!.programId)) {
+      const missing = document.createElement("option");
+      missing.value = values!.programId;
+      missing.textContent = `Unavailable Program (${values!.programId})`;
+      program.append(missing);
+    }
+    if (values!.priorityFamilyId && !activeModel.priorityFamilies.some((item) => item.id === values!.priorityFamilyId)) {
+      const missing = document.createElement("option");
+      missing.value = values!.priorityFamilyId;
+      missing.textContent = `Unavailable PaS (${values!.priorityFamilyId})`;
+      priorityFamily.append(missing);
+    }
+    global.append(grouping);
     const priority = createLabeledInput(
       document,
       global,
@@ -109,25 +133,54 @@ export function createProjectEditController(
     const objectiveEndDate = createLabeledInput(
       document,
       global,
-      "Objective end",
+      "Project objective end date",
       "date",
       "project.objectiveEndDate",
     );
-    const mandatoryDeadline = createLabeledInput(
-      document,
-      global,
-      "Mandatory deadline",
-      "date",
-      "project.mandatoryDeadline",
-    );
+    const mandatory = createLabeledInput(document, global, "Mandatory", "checkbox", "project.mandatory");
+    mandatory.addEventListener("change", () => { syncMandatory(); notifyDraftChange(); });
+    objectiveEndDate.addEventListener("change", () => { syncMandatory(); notifyDraftChange(); });
+    objectiveEndDate.addEventListener("input", () => { syncMandatory(); notifyDraftChange(); });
     global.prepend(legend);
-    name.value = activeModel.label;
-    program.value = activeModel.programId ?? "";
-    priorityFamily.value = activeModel.priorityFamilyId ?? "";
-    priority.value = String(activeModel.priorityPosition);
-    earliestStartDate.value = activeModel.earliestStartDate ?? "";
-    objectiveEndDate.value = activeModel.objectiveEndDate ?? "";
-    mandatoryDeadline.value = activeModel.mandatoryDeadline ?? "";
+    name.value = values!.name;
+    program.value = values!.programId;
+    priorityFamily.value = values!.priorityFamilyId;
+    priority.value = values!.priorityPosition;
+    earliestStartDate.value = values!.earliestStartDate;
+    objectiveEndDate.value = values!.objectiveEndDate;
+    mandatory.checked = values!.mandatory;
+    resolution = values!.resolution;
+    const syncMandatory = (): void => {
+      mandatory.disabled = objectiveEndDate.value === "";
+      if (mandatory.disabled) mandatory.checked = false;
+    };
+    syncMandatory();
+    if (draft?.invalidReference) {
+      const warning = document.createElement("p");
+      warning.textContent = "A referenced Team, Program or PaS no longer exists. Apply is unavailable.";
+      global.append(warning);
+      input.controls.apply.disabled = true;
+    }
+    if (activeModel.mandatoryDeadline !== undefined &&
+      activeModel.mandatoryDeadline !== activeModel.objectiveEndDate && resolution === "unresolved") {
+      const warning = document.createElement("p");
+      warning.textContent = `Historical mandatory deadline: ${activeModel.mandatoryDeadline}. Resolve before Apply.`;
+      const align = document.createElement("button");
+      align.type = "button";
+      align.textContent = "Align with objective";
+      align.disabled = objectiveEndDate.value === "";
+      align.hidden = align.disabled;
+      objectiveEndDate.addEventListener("input", () => {
+        align.disabled = objectiveEndDate.value === "";
+        align.hidden = align.disabled;
+      });
+      align.addEventListener("click", () => { resolution = "align"; mandatory.checked = true; warning.hidden = true; align.hidden = true; remove.hidden = true; notifyDraftChange(); });
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.textContent = "Remove deadline";
+      remove.addEventListener("click", () => { resolution = "remove"; mandatory.checked = false; warning.hidden = true; align.hidden = true; remove.hidden = true; notifyDraftChange(); });
+      global.append(warning, align, remove);
+    }
     globalInputs = Object.freeze({
       name,
       program,
@@ -135,11 +188,12 @@ export function createProjectEditController(
       priority,
       earliestStartDate,
       objectiveEndDate,
-      mandatoryDeadline,
+      mandatory,
     });
 
     requirementInputs = Object.freeze(
       activeModel.requirements.map((requirement) => {
+        const saved = values!.teams.find((team) => team.teamId === requirement.teamId);
         const fieldset = document.createElement("fieldset");
         fieldset.className = "timeline-project-edit-requirement";
         fieldset.dataset.teamId = requirement.teamId;
@@ -150,15 +204,21 @@ export function createProjectEditController(
           "text",
           `requirements.${requirement.teamId}.remainingWorkload`,
         );
-        remainingWorkload.value = requirement.remainingWorkload;
+        remainingWorkload.value = saved?.remainingWorkload ?? requirement.remainingWorkload;
         const subcard = createTeamSubcard(input.controls.fields, "Project", requirement.teamId,
-          requirement.teamLabel, requirement.enabled, fieldset);
+          requirement.teamLabel, saved?.enabled ?? requirement.enabled, fieldset,
+          saved?.expanded ?? false, notifyDraftChange);
+        subcard.card.classList?.toggle("portfolio-card--dirty",
+          input.draftStore?.isTeamDirty(activeModel.projectId, requirement.teamId) ?? false);
         return Object.freeze({
           teamId: requirement.teamId,
           enabled: subcard.enabled,
           remainingWorkload,
-          originalDisplay: requirement.remainingWorkload,
-          remainingWorkloadExact: requirement.remainingWorkloadExact,
+          isExpanded: subcard.isExpanded,
+          card: subcard.card,
+          originalDisplay: draft?.reference.teams.find((team) => team.teamId === requirement.teamId)?.remainingWorkload ?? requirement.remainingWorkload,
+          remainingWorkloadExact: draft?.reference.teams.find((team) => team.teamId === requirement.teamId)?.remainingWorkloadExact
+            ?? requirement.remainingWorkloadExact,
           ...(requirement.dailyCapExact === undefined
             ? {}
             : { dailyCapExact: requirement.dailyCapExact }),
@@ -166,6 +226,33 @@ export function createProjectEditController(
       }),
     );
     input.controls.fields.prepend(global);
+    if (draft?.errors.length) {
+      input.errorContainer.textContent = draft.errors.join(" ");
+      input.errorContainer.hidden = false;
+    }
+  };
+
+  const readDraftValues = (): ProjectDraftValues => {
+    if (!model || !globalInputs) throw new TypeError("Project edit form has no selected project.");
+    const previous = input.draftStore?.get(model.projectId)?.values ?? projectValuesFromModel(model);
+    return { name: globalInputs.name.value, programId: globalInputs.program.value,
+      priorityFamilyId: globalInputs.priorityFamily.value, priorityPosition: globalInputs.priority.value,
+      earliestStartDate: globalInputs.earliestStartDate.value,
+      objectiveEndDate: globalInputs.objectiveEndDate.value, mandatory: globalInputs.mandatory.checked,
+      resolution, teams: requirementInputs.map((row) => ({
+        teamId: row.teamId, enabled: row.enabled.checked,
+        remainingWorkload: row.remainingWorkload.value,
+        remainingWorkloadExact: row.remainingWorkloadExact,
+        ...(row.dailyCapExact === undefined ? {} : { dailyCapExact: row.dailyCapExact }),
+        expanded: row.isExpanded(),
+      })).concat(previous.teams.filter((team) => !requirementInputs.some((row) => row.teamId === team.teamId))) };
+  };
+  const notifyDraftChange = (): void => {
+    if (!model || !globalInputs || !input.draftStore) return;
+    input.draftStore.update(model.projectId, readDraftValues());
+    for (const row of requirementInputs) row.card.classList?.toggle("portfolio-card--dirty",
+      input.draftStore.isTeamDirty(model.projectId, row.teamId));
+    input.onDraftChange?.();
   };
 
   const formValues = (): ProjectEditFormValues => {
@@ -181,7 +268,8 @@ export function createProjectEditController(
       priorityPosition: globalInputs.priority.value,
       earliestStartDate: globalInputs.earliestStartDate.value,
       objectiveEndDate: globalInputs.objectiveEndDate.value,
-      mandatoryDeadline: globalInputs.mandatoryDeadline.value,
+      mandatory: globalInputs.mandatory.checked,
+      legacyDeadlineResolution: resolution,
       requirements: Object.freeze(
         requirementInputs.map((requirement) =>
           Object.freeze({
@@ -203,6 +291,11 @@ export function createProjectEditController(
   const onSubmit = (event: SubmitEvent): void => {
     event.preventDefault();
     if (model === undefined) return;
+    notifyDraftChange();
+    if (input.draftStore?.get(model.projectId)?.invalidReference) {
+      showErrors([{ code: "INVALID_DRAFT_REFERENCE", path: "project", message: "A referenced Team, Program or PaS no longer exists." }]);
+      return;
+    }
     const parsed = parseProjectEditCommand(formValues());
     if (!parsed.ok) {
       showErrors(parsed.errors);
@@ -216,16 +309,24 @@ export function createProjectEditController(
     clearError();
   };
   const onCancel = (): void => {
+    if (model && input.draftStore) {
+      const expanded = input.draftStore.get(model.projectId)?.expanded ?? true;
+      input.draftStore.cancel(model.projectId);
+      input.draftStore.initialize(model.projectId, model);
+      input.draftStore.setExpanded(model.projectId, expanded);
+    }
     hydrate(model);
     clearError();
+    input.onDraftChange?.();
     input.onCancel?.();
   };
   const setProject = (project: ProjectEditViewModel | undefined): void => {
     hydrate(project);
-    clearError();
   };
 
   input.controls.form.addEventListener("submit", onSubmit);
+  input.controls.form.addEventListener("input", notifyDraftChange);
+  input.controls.form.addEventListener("change", notifyDraftChange);
   input.controls.cancel.addEventListener("click", onCancel);
   hydrate(undefined);
 
@@ -234,6 +335,8 @@ export function createProjectEditController(
     getProjectId: () => model?.projectId,
     destroy: () => {
       input.controls.form.removeEventListener("submit", onSubmit);
+      input.controls.form.removeEventListener("input", notifyDraftChange);
+      input.controls.form.removeEventListener("change", notifyDraftChange);
       input.controls.cancel.removeEventListener("click", onCancel);
     },
   });

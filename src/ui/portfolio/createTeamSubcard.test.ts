@@ -47,6 +47,9 @@ describe("Team subcard draft controls", () => {
     const expand = card.childNodes[0]!.childNodes[1]!;
     assert.equal(subcard.enabled.checked, true);
     assert.equal(subcard.details.hidden, true);
+    assert.equal(expand.attributes.get("aria-controls"), subcard.details.id);
+    assert.equal(expand.attributes.get("aria-expanded"), "false");
+    assert.match(expand.attributes.get("aria-label") ?? "", /Alpha details/);
     expand.dispatch("click");
     assert.equal(subcard.details.hidden, false);
     expand.dispatch("click");
@@ -55,7 +58,8 @@ describe("Team subcard draft controls", () => {
     const enabled = subcard.enabled as unknown as FakeElement;
     enabled.checked = false;
     enabled.dispatch("change");
-    assert.equal(expand.disabled, true);
+    assert.equal(expand.hidden, true);
+    assert.equal(expand.attributes.get("aria-expanded"), "false");
     enabled.checked = true;
     enabled.dispatch("change");
     assert.equal(subcard.details.hidden, false);

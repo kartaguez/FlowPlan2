@@ -21,7 +21,7 @@ demo session. The following capabilities are complete and active:
   inline Portfolio cards;
 - Projects / Reservations tabs in the Portfolio sidebar;
 - shared viewport, zoom, pan, selected date, cursor, hover, semantic hit
-  testing, and selection;
+  testing, and hover;
 - exact rational parsing and untouched exact-value preservation;
 - compact accessible settings icon buttons for Planning and Teams;
 - planning diagnostics, cumulative Team metrics, and Project / Program / PAS
@@ -33,7 +33,7 @@ invariants in [canon](./canon.md).
 Lot 9A is validated and **DONE**. Program and PriorityFamily (shown as
 PAS) are optional Project associations. Their catalogs are static in the demo
 session; the Project editor offers two optional selects, and each Portfolio
-Project card shows `Program <name or —> · PAS <name or —>` beneath its title.
+Project card shows `Program <name or —> · PaS <name or —>` beneath its title.
 The associations have no effect on the planning result.
 
 Lot 9B is validated and **DONE**. A pure adapter projects exact
@@ -76,7 +76,7 @@ Planning
 │   ├── Team header + Settings icon + cumulative metrics
 │   └── lane
 ├── Team panel...
-└── selection summary
+└── Project and Reservation hover tooltips
 
 Portfolio sidebar
 ├── Projects → expandable cards with inline editor and Team subcards
@@ -86,19 +86,19 @@ Portfolio sidebar
 The Team panels are aligned with lanes in one SVG/Geometry and one temporal
 coordinate system. They are not independent timelines.
 
-## Current editing contexts
+## Current editing behavior
 
-The coordinator has one mutually exclusive editing context:
+Project and Reservation cards open independently from the Portfolio lists.
+Several cards can stay open and dirty across tab changes. Each card has a
+local UI draft; input and change events never dispatch Planning commands.
+Apply updates only its entity and rebases other drafts against the new session;
+Cancel abandons only its own draft. Dirty borders reflect actual differences
+from the current session reference, including Team subcards. Collapsing a card
+or Team leaves its draft intact. Team Settings remains a separate modal opened
+only from its Settings button.
 
-- `project`, opened from the Project list or a marker/allocation hit;
-- `team`, opened only from a Team Settings button;
-- `reservation`, opened from the Reservations list or a Reservation segment hit.
-
-Changing context hydrates only the matching editor and clears the other two.
-Timeline selection and editing context are independent and reconciled
-separately on rerender. Allocation and Project-marker hits open the Project
-card; a named Reservation segment opens its Reservation card. Team and empty
-hits only change Timeline selection, leaving any open editor unchanged. The
+Every Timeline click moves only the Projection date according to its temporal
+X coordinate. The Timeline has no selected entity or selection summary. The
 reserved Timeline region remains one aggregate capacity surface subdivided
 visually into identifiable Reservation contributions. Only allocation and
 Reservation-segment hits show a business tooltip. The Project tooltip uses the
@@ -106,11 +106,9 @@ Team requirement's initial RAF, a global Project estimated end date when all
 requirements complete within the horizon, and exact whole-Project progress at
 the shared Projection date.
 
-Only one Portfolio card is edited at a time. Team association and detail
-expansion are independent local draft states. Cancel discards the draft;
-opening another card or changing tabs also discards it. A successful Apply
-keeps the card open and rehydrates it from session state; a rejected Apply
-preserves the draft without recomputation.
+Project Objective end and Mandatory are presented as one date and a toggle.
+Mandatory maps to the same date in the existing deadline field; historical
+divergent deadlines must be explicitly aligned or removed before Apply.
 
 ## Current application commands
 

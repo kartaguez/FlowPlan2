@@ -5,6 +5,7 @@ import type {
 import type { DomainError, ReservationId, TeamId } from "../../domain/index.js";
 import type { ReservationEditControls } from "../renderApp.js";
 import { createTeamSubcard } from "../portfolio/createTeamSubcard.js";
+import { reservationValuesFromModel, type ReservationDraftStore, type ReservationDraftValues } from "./reservationDraftStore.js";
 import {
   parseReservationEditCommand,
   type ReservationTeamAllocationFormValues,
@@ -25,11 +26,15 @@ export interface CreateReservationEditControllerInput {
   readonly errorContainer: HTMLElement;
   readonly onApply: (command: UpdateReservationCommand) => ReservationEditApplyResult;
   readonly onCancel?: () => void;
+  readonly draftStore?: ReservationDraftStore;
+  readonly onDraftChange?: () => void;
 }
 
 interface RenderedAllocation {
   readonly teamId: TeamId;
   readonly enabled: HTMLInputElement;
+  readonly isExpanded: () => boolean;
+  readonly card: HTMLElement;
   readonly kind: HTMLSelectElement;
   readonly value: HTMLInputElement;
   readonly originalKind: "ratio" | "fixed-daily";
@@ -49,13 +54,18 @@ export function createReservationEditController(
   const clearError = (): void => {
     input.errorContainer.textContent = "";
     input.errorContainer.hidden = true;
+    if (model) input.draftStore?.setErrors(model.reservationId, []);
   };
   const showErrors = (errors: readonly DomainError[]): void => {
     input.errorContainer.textContent = errors.map((entry) => `${entry.path}: ${entry.message}`).join(" ");
     input.errorContainer.hidden = false;
+    if (model) input.draftStore?.setErrors(model.reservationId,
+      errors.map((entry) => `${entry.path}: ${entry.message}`));
   };
   const hydrate = (next: ReservationEditViewModel | undefined): void => {
     model = next;
+    const draft = next === undefined ? undefined : input.draftStore?.initialize(next.reservationId, next);
+    const values = draft?.values ?? (next === undefined ? undefined : reservationValuesFromModel(next));
     input.controls.container.hidden = next === undefined;
     input.controls.fields.replaceChildren();
     allocations = Object.freeze([]);
@@ -65,14 +75,15 @@ export function createReservationEditController(
       input.controls.status.textContent = "Select a reservation to edit.";
       return;
     }
-    input.controls.title.textContent = `Reservation — ${next.name}`;
-    input.controls.status.textContent = `Editing global reservation ${next.name}`;
+    input.controls.title.textContent = "";
+    input.controls.status.textContent = "";
     const document = input.controls.fields.ownerDocument;
-    nameInput = createInput(document, input.controls.fields, "Reservation name", "text", next.name);
-    startInput = createInput(document, input.controls.fields, "Start date", "date", next.startDate);
-    endInput = createInput(document, input.controls.fields, "End date", "date", next.endDate);
+    nameInput = createInput(document, input.controls.fields, "Reservation name", "text", values!.name);
+    startInput = createInput(document, input.controls.fields, "Start date", "date", values!.startDate);
+    endInput = createInput(document, input.controls.fields, "End date", "date", values!.endDate);
     const rendered: RenderedAllocation[] = [];
     for (const allocation of next.teamAllocations) {
+      const saved = values!.teams.find((team) => team.teamId === allocation.teamId);
       const fieldset = document.createElement("fieldset");
       fieldset.className = "timeline-reservation-team-allocation";
       const modeLabel = document.createElement("label");
@@ -86,14 +97,14 @@ export function createReservationEditController(
       fixed.value = "fixed-daily";
       fixed.textContent = "md/day";
       kind.append(ratio, fixed);
-      kind.value = allocation.kind;
+      kind.value = saved?.kind ?? allocation.kind;
       modeLabel.append(kind);
       const value = createInput(
         document,
         fieldset,
         `${allocation.teamLabel} reservation value`,
         "text",
-        allocation.value,
+        saved?.value ?? allocation.value,
       );
       const updateEnabled = () => {
         kind.disabled = !enabled.checked;
@@ -101,25 +112,61 @@ export function createReservationEditController(
       };
       kind.addEventListener("change", () => {
         value.value = "";
-        value.dataset.modeChanged = "true";
+        notifyDraftChange();
       });
       fieldset.prepend(modeLabel);
       const subcard = createTeamSubcard(input.controls.fields, "Reservation", allocation.teamId,
-        allocation.teamLabel, allocation.enabled, fieldset);
+        allocation.teamLabel, saved?.enabled ?? allocation.enabled, fieldset,
+        saved?.expanded ?? false, notifyDraftChange);
+      subcard.card.classList?.toggle("portfolio-card--dirty",
+        input.draftStore?.isTeamDirty(next.reservationId, allocation.teamId) ?? false);
       const enabled = subcard.enabled;
       enabled.addEventListener("change", updateEnabled);
       updateEnabled();
       rendered.push(Object.freeze({
         teamId: allocation.teamId,
         enabled,
+        isExpanded: subcard.isExpanded,
+        card: subcard.card,
         kind,
         value,
-        originalKind: allocation.kind,
-        originalDisplay: allocation.value,
-        ...(allocation.exact === undefined ? {} : { originalExact: allocation.exact }),
+        originalKind: draft?.reference.teams.find((team) => team.teamId === allocation.teamId)?.kind ?? allocation.kind,
+        originalDisplay: draft?.reference.teams.find((team) => team.teamId === allocation.teamId)?.value ?? allocation.value,
+        ...((draft?.reference.teams.find((team) => team.teamId === allocation.teamId)?.exact
+          ?? allocation.exact) === undefined ? {} : {
+          originalExact: draft?.reference.teams.find((team) => team.teamId === allocation.teamId)?.exact
+            ?? allocation.exact!,
+        }),
       }));
     }
     allocations = Object.freeze(rendered);
+    if (draft?.invalidReference) {
+      const warning = document.createElement("p");
+      warning.textContent = "A referenced Team no longer exists. Apply is unavailable.";
+      input.controls.fields.append(warning);
+      input.controls.apply.disabled = true;
+    }
+    if (draft?.errors.length) {
+      input.errorContainer.textContent = draft.errors.join(" ");
+      input.errorContainer.hidden = false;
+    }
+  };
+  const readDraftValues = (): ReservationDraftValues => {
+    if (!model || !nameInput || !startInput || !endInput) throw new TypeError("Reservation form has no model.");
+    const previous = input.draftStore?.get(model.reservationId)?.values ?? reservationValuesFromModel(model);
+    return { name: nameInput.value, startDate: startInput.value, endDate: endInput.value,
+      teams: allocations.map((row) => ({ teamId: row.teamId, enabled: row.enabled.checked,
+        kind: row.kind.value as "ratio" | "fixed-daily", value: row.value.value,
+        ...(row.originalExact === undefined ? {} : { exact: row.originalExact }),
+        expanded: row.isExpanded(),
+      })).concat(previous.teams.filter((team) => !allocations.some((row) => row.teamId === team.teamId))) };
+  };
+  const notifyDraftChange = (): void => {
+    if (!model || !nameInput || !input.draftStore) return;
+    input.draftStore.update(model.reservationId, readDraftValues());
+    for (const row of allocations) row.card.classList?.toggle("portfolio-card--dirty",
+      input.draftStore.isTeamDirty(model.reservationId, row.teamId));
+    input.onDraftChange?.();
   };
   const readAllocations = (): readonly ReservationTeamAllocationFormValues[] =>
     Object.freeze(allocations.map((row) => Object.freeze({
@@ -131,13 +178,17 @@ export function createReservationEditController(
       originalDisplay: row.originalDisplay,
       ...(row.originalExact === undefined ? {} : { originalExact: row.originalExact }),
       dirty:
-        row.value.dataset.modeChanged === "true" ||
         row.kind.value !== row.originalKind ||
         row.value.value !== row.originalDisplay,
     })));
   const onSubmit = (event: SubmitEvent): void => {
     event.preventDefault();
     if (model === undefined || nameInput === undefined || startInput === undefined || endInput === undefined) return;
+    notifyDraftChange();
+    if (input.draftStore?.get(model.reservationId)?.invalidReference) {
+      showErrors([{ code: "INVALID_DRAFT_REFERENCE", path: "reservation", message: "A referenced Team no longer exists." }]);
+      return;
+    }
     const parsed = parseReservationEditCommand({
       reservationId: model.reservationId,
       name: nameInput.value,
@@ -157,21 +208,31 @@ export function createReservationEditController(
     clearError();
   };
   const onCancel = (): void => {
+    if (model && input.draftStore) {
+      const expanded = input.draftStore.get(model.reservationId)?.expanded ?? true;
+      input.draftStore.cancel(model.reservationId);
+      input.draftStore.initialize(model.reservationId, model);
+      input.draftStore.setExpanded(model.reservationId, expanded);
+    }
     hydrate(model);
     clearError();
+    input.onDraftChange?.();
     input.onCancel?.();
   };
   input.controls.form.addEventListener("submit", onSubmit);
+  input.controls.form.addEventListener("input", notifyDraftChange);
+  input.controls.form.addEventListener("change", notifyDraftChange);
   input.controls.cancel.addEventListener("click", onCancel);
   hydrate(undefined);
   return Object.freeze({
     setReservation: (next: ReservationEditViewModel | undefined) => {
       hydrate(next);
-      clearError();
     },
     getReservationId: () => model?.reservationId,
     destroy: () => {
       input.controls.form.removeEventListener("submit", onSubmit);
+      input.controls.form.removeEventListener("input", notifyDraftChange);
+      input.controls.form.removeEventListener("change", notifyDraftChange);
       input.controls.cancel.removeEventListener("click", onCancel);
     },
   });

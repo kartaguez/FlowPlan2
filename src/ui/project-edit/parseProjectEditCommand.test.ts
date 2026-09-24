@@ -36,7 +36,7 @@ function values(
     priorityPosition: "2",
     earliestStartDate: "2025-01-02",
     objectiveEndDate: "2025-02-03",
-    mandatoryDeadline: "2025-03-04",
+    mandatory: true,
     requirements: [
       {
         teamId: alphaId,
@@ -57,6 +57,22 @@ function values(
 }
 
 describe("parseProjectEditCommand", () => {
+  it("maps Mandatory to Objective end and requires explicit legacy resolution", () => {
+    const optional = parseProjectEditCommand(values({ mandatory: false }));
+    assert.equal(optional.ok, true);
+    if (optional.ok) assert.equal(optional.command.mandatoryDeadline, undefined);
+    const required = parseProjectEditCommand(values({ mandatory: true }));
+    assert.equal(required.ok, true);
+    if (required.ok) assert.equal(required.command.mandatoryDeadline, required.command.objectiveEndDate);
+    const absent = parseProjectEditCommand(values({ objectiveEndDate: "", mandatory: true }));
+    assert.equal(absent.ok, false);
+    const divergent = parseProjectEditCommand(values({ legacyDeadlineResolution: "unresolved" }));
+    assert.equal(divergent.ok, false);
+    if (!divergent.ok) assert.ok(divergent.errors.some((entry) => entry.code === "UNRESOLVED_LEGACY_DEADLINE"));
+    const removed = parseProjectEditCommand(values({ objectiveEndDate: "", mandatory: false,
+      legacyDeadlineResolution: "remove" }));
+    assert.equal(removed.ok, true);
+  });
   it("ignores disabled Team rows and requires RAF for a newly enabled row", () => {
     const disabled = { teamId: betaId, enabled: false, remainingWorkload: "invalid",
       remainingWorkloadExact: "", remainingWorkloadDirty: true };
@@ -96,7 +112,7 @@ describe("parseProjectEditCommand", () => {
     assert.equal(result.command.priorityPosition, 2);
     assert.equal(result.command.earliestStartDate, "2025-01-02");
     assert.equal(result.command.objectiveEndDate, "2025-02-03");
-    assert.equal(result.command.mandatoryDeadline, "2025-03-04");
+    assert.equal(result.command.mandatoryDeadline, "2025-02-03");
     assert.equal(
       serializeQuantity(result.command.teamRequirements[0]!.remainingWorkload),
       "25/2",
@@ -114,7 +130,7 @@ describe("parseProjectEditCommand", () => {
 
   it("accepts empty optional global dates and keeps them off requirements", () => {
     const result = parseProjectEditCommand(
-      values({ earliestStartDate: "", objectiveEndDate: " ", mandatoryDeadline: "" }),
+      values({ earliestStartDate: "", objectiveEndDate: " ", mandatory: false }),
     );
     assert.equal(result.ok, true);
     if (!result.ok) return;
@@ -215,7 +231,6 @@ describe("parseProjectEditCommand", () => {
     for (const key of [
       "earliestStartDate",
       "objectiveEndDate",
-      "mandatoryDeadline",
     ] as const) {
       const invalid = parseProjectEditCommand(values({ [key]: "2025-02-30" }));
       assert.equal(invalid.ok, false);
@@ -225,7 +240,7 @@ describe("parseProjectEditCommand", () => {
       values({
         earliestStartDate: "2025-03-20",
         objectiveEndDate: "2025-01-01",
-        mandatoryDeadline: "2025-01-02",
+        mandatory: true,
       }),
     );
     assert.equal(reversed.ok, true);

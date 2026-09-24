@@ -107,7 +107,7 @@ describe("renderApp", () => {
     assert.deepEqual(main.childNodes.map((element) => element.className), [
       "planning-heading", "timeline-cursor-control", "cursor-progress",
       "timeline-diagnostics", "timeline-viewport-controls", "timeline-stage",
-      "timeline-selection-summary", "timeline-tooltip",
+      "timeline-tooltip",
     ]);
     assert.equal(renderedElements.some((element) => element.className === "timeline-date-summary"), false);
   });
@@ -139,26 +139,8 @@ describe("renderApp", () => {
       (elements.viewportControls.reset as unknown as FakeElement).textContent,
       "Reset view",
     );
-    assert.equal(
-      (elements.selectionSummary as unknown as FakeElement).getAttribute(
-        "aria-live",
-      ),
-      "polite",
-    );
     assert.equal((elements.tooltip as unknown as FakeElement).tagName, "div");
     assert.equal((elements.tooltip as unknown as FakeElement).hidden, true);
-    assert.equal(
-      (elements.projectEditControls.form as unknown as FakeElement).tagName,
-      "form",
-    );
-    assert.equal(
-      (elements.projectEditControls.fields as unknown as FakeElement).className,
-      "timeline-project-edit-fields",
-    );
-    assert.equal(
-      (elements.projectEditControls.apply as unknown as FakeElement).disabled,
-      true,
-    );
     assert.equal(
       (elements.teamEditControls.capacityForm as unknown as FakeElement).tagName,
       "form",
@@ -170,18 +152,6 @@ describe("renderApp", () => {
     assert.equal(
       (elements.teamEditControls.capacityApply as unknown as FakeElement).disabled,
       true,
-    );
-    assert.equal(
-      (elements.reservationEditControls.form as unknown as FakeElement).tagName,
-      "form",
-    );
-    assert.equal(
-      (elements.reservationEditControls.apply as unknown as FakeElement).disabled,
-      true,
-    );
-    assert.equal(
-      (elements.reservationEditError as unknown as FakeElement).getAttribute("role"),
-      "alert",
     );
     assert.equal(
       (elements.applicationError as unknown as FakeElement).getAttribute("role"),
@@ -210,7 +180,6 @@ describe("renderApp", () => {
     assert.equal((elements.reservationTab as unknown as FakeElement).getAttribute("aria-selected"), "false");
     assert.equal((elements.reservationList as unknown as FakeElement).getAttribute("role"), "tabpanel");
     assert.equal((elements.reservationList as unknown as FakeElement).hidden, true);
-    assert.equal((elements.reservationEditControls.container as unknown as FakeElement).getAttribute("role"), null);
     assert.equal(
       (elements.planningSettingsButton as unknown as FakeElement).getAttribute(
         "aria-label",
@@ -247,12 +216,6 @@ describe("renderApp", () => {
     assert.equal(
       (elements.teamEditControls.capacityDetails as unknown as FakeElement).tagName,
       "details",
-    );
-    assert.equal(
-      descendants(elements.teamEditControls.container as unknown as FakeElement).includes(
-        elements.reservationEditControls.container as unknown as FakeElement,
-      ),
-      false,
     );
   });
 });

@@ -5,6 +5,8 @@ let nextId = 0;
 export interface TeamSubcard {
   readonly enabled: HTMLInputElement;
   readonly details: HTMLElement;
+  readonly card: HTMLElement;
+  readonly isExpanded: () => boolean;
 }
 
 export function createTeamSubcard(
@@ -14,6 +16,8 @@ export function createTeamSubcard(
   teamLabel: string,
   initiallyEnabled: boolean,
   content: HTMLElement,
+  initialExpanded = false,
+  onExpandedChange?: (expanded: boolean) => void,
 ): TeamSubcard {
   const document = parent.ownerDocument;
   const card = document.createElement("section");
@@ -32,33 +36,35 @@ export function createTeamSubcard(
   const expand = document.createElement("button");
   expand.type = "button";
   expand.className = "portfolio-team-expand";
-  expand.textContent = "Details";
+  expand.textContent = "▸";
   expand.setAttribute("aria-label", `Show ${teamLabel} details`);
   const details = document.createElement("div");
   details.className = "portfolio-team-details";
   details.id = `portfolio-team-details-${++nextId}`;
   expand.setAttribute("aria-controls", details.id);
-  let expanded = false;
+  let expanded = initiallyEnabled && initialExpanded;
   const sync = (): void => {
     details.hidden = !expanded;
-    expand.disabled = !enabled.checked;
+    expand.hidden = !enabled.checked;
     expand.setAttribute("aria-expanded", String(expanded));
-    expand.textContent = expanded ? "Hide details" : "Show details";
+    expand.textContent = expanded ? "▾" : "▸";
     expand.setAttribute("aria-label", `${expanded ? "Hide" : "Show"} ${teamLabel} details`);
   };
   enabled.addEventListener("change", () => {
     expanded = enabled.checked;
     sync();
+    onExpandedChange?.(expanded);
   });
   expand.addEventListener("click", () => {
     if (!enabled.checked) return;
     expanded = !expanded;
     sync();
+    onExpandedChange?.(expanded);
   });
   details.append(content);
   header.append(label, expand);
   card.append(header, details);
   parent.append(card);
   sync();
-  return Object.freeze({ enabled, details });
+  return Object.freeze({ enabled, details, card, isExpanded: () => expanded });
 }

@@ -45,6 +45,7 @@ class FakeElement {
   }
   click(): void { for (const listener of this.listeners.get("click") ?? []) listener(); }
   focus(): void { this.focused = true; }
+  contains(element: FakeElement | undefined): boolean { return element !== undefined && (this === element || this.childNodes.some((child) => child.contains(element))); }
   keydown(key: string): void {
     for (const listener of this.listeners.get("keydown") ?? []) listener({ key, preventDefault() {} } as never);
   }
@@ -68,8 +69,6 @@ describe("renderTimelineShellNavigation", () => {
     const reservations = document.createElement("ol");
     const projectTab = document.createElement("button");
     const reservationTab = document.createElement("button");
-    const projectEditor = document.createElement("section");
-    const reservationEditor = document.createElement("section");
     const changedTabs: string[] = [];
     const selectedTeams: string[] = [];
     const selectedProjects: string[] = [];
@@ -111,8 +110,6 @@ describe("renderTimelineShellNavigation", () => {
       onTeamSettings: (teamId) => selectedTeams.push(teamId),
       onProjectSelect: (projectId) => selectedProjects.push(projectId),
       onReservationSelect: (id) => selectedReservations.push(id),
-      projectEditContainer: projectEditor as unknown as HTMLElement,
-      reservationEditContainer: reservationEditor as unknown as HTMLElement,
       onTabChange: (tab) => changedTabs.push(tab),
     });
     assert.equal(teams.childNodes.length, 3);
@@ -156,18 +153,21 @@ describe("renderTimelineShellNavigation", () => {
     assert.deepEqual(
       projects.childNodes.map((item) => item.childNodes[0]!.childNodes[1]!.textContent),
       [
-        "Program Phoenix · PAS Strategic",
-        "Program Phoenix · PAS —",
-        "Program — · PAS Regulatory",
-        "Program — · PAS —",
+        "Program Phoenix · PaS Strategic",
+        "Program Phoenix · PaS —",
+        "Program — · PaS Regulatory",
+        "Program — · PaS —",
       ],
     );
     teams.childNodes[2]!.childNodes[0]!.childNodes[1]!.click();
     projects.childNodes[0]!.childNodes[0]!.click();
-    navigation.showEditingCard("project", projectB);
+    navigation.setCardState("project", projectB, true, false);
     assert.equal(projects.childNodes[0]!.childNodes[0]!.attributes.get("aria-expanded"), "true");
+    navigation.setCardState("project", projectA, true, true);
+    assert.equal(projects.childNodes[0]!.childNodes[0]!.attributes.get("aria-expanded"), "true");
+    assert.equal(projects.childNodes[1]!.childNodes[0]!.attributes.get("aria-expanded"), "true");
     assert.equal(projects.childNodes[0]!.childNodes[1]!.hidden, false);
-    assert.equal(projects.childNodes[0]!.childNodes[1]!.childNodes[0], projectEditor);
+    assert.equal(projects.childNodes[0]!.childNodes[1]!.childNodes.length, 0);
     reservationTab.click();
     assert.deepEqual(changedTabs, ["reservations"]);
     assert.equal(navigation.getActiveTab(), "reservations");
@@ -181,11 +181,12 @@ describe("renderTimelineShellNavigation", () => {
     assert.equal(projectTab.focused, true);
     reservationTab.click();
     reservations.childNodes[0]!.childNodes[0]!.click();
-    navigation.showEditingCard("reservation", reservationId, true);
+    navigation.setCardState("reservation", reservationId, true, false);
+    reservations.childNodes[0]!.childNodes[0]!.focus();
     assert.equal(reservations.childNodes[0]!.childNodes[0]!.attributes.get("aria-expanded"), "true");
     assert.equal(reservations.childNodes[0]!.childNodes[0]!.focused, true);
-    assert.equal(reservations.childNodes[0]!.childNodes[1]!.childNodes[0], reservationEditor);
-    navigation.showEditingCard(undefined, undefined, true);
+    assert.equal(reservations.childNodes[0]!.childNodes[1]!.childNodes.length, 0);
+    navigation.setCardState("reservation", reservationId, false, false);
     assert.equal(reservations.childNodes[0]!.childNodes[0]!.attributes.get("aria-expanded"), "false");
     assert.equal(reservations.childNodes[0]!.childNodes[1]!.hidden, true);
     assert.deepEqual(selectedTeams, [beta]);

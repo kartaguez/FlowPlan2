@@ -1,33 +1,21 @@
+import type { TimelineGeometry, TimelineViewModel } from "../../adapters/index.js";
+import { calculateCursorMetrics } from "../../adapters/index.js";
 import type {
-  TimelineGeometry,
-  TimelineViewModel,
-} from "../../adapters/index.js";
-import type {
-  PlanningCommand,
-  PlanningSettingsViewModel,
-  ProjectEditViewModel,
-  ReservationEditViewModel,
-  TeamEditViewModel,
-  UpdateProjectCommand,
-  UpdateTeamCapacityPeriodsCommand,
-  UpdateTeamNameCommand,
-  UpdateReservationCommand,
+  PlanningCommand, PlanningSettingsViewModel, ProjectEditViewModel,
+  ReservationEditViewModel, TeamEditViewModel, UpdateProjectCommand,
+  UpdateReservationCommand, UpdateTeamCapacityPeriodsCommand, UpdateTeamNameCommand,
 } from "../../application/index.js";
 import type {
-  CivilDate,
-  DomainError,
-  PlanningHorizon,
-  PlanningResult,
-  Portfolio,
-  ProjectId,
-  TeamId,
-  ReservationId,
+  CivilDate, DomainError, PlanningHorizon, PlanningResult, Portfolio,
+  ProjectId, ReservationId, TeamId,
 } from "../../domain/index.js";
-import { calculateCursorMetrics } from "../../adapters/index.js";
 import type { AppElements } from "../renderApp.js";
 import { createProjectEditController } from "../project-edit/createProjectEditController.js";
-import { createTeamEditController } from "../team-edit/createTeamEditController.js";
+import { createProjectDraftStore } from "../project-edit/projectDraftStore.js";
 import { createReservationEditController } from "../reservation-edit/createReservationEditController.js";
+import { createReservationDraftStore } from "../reservation-edit/reservationDraftStore.js";
+import { createProjectCardControls, createReservationCardControls } from "../portfolio/createPortfolioEditControls.js";
+import { createTeamEditController } from "../team-edit/createTeamEditController.js";
 import { createPlanningSettingsController } from "../planning-settings/createPlanningSettingsController.js";
 import { createTimelineCursorController } from "./createTimelineCursorController.js";
 import { createTimelineInteractionController } from "./createTimelineInteractionController.js";
@@ -35,8 +23,6 @@ import { createTimelineViewportController } from "./createTimelineViewportContro
 import { createPlanningDiagnosticsController } from "./createPlanningDiagnosticsController.js";
 import { renderTimelineSvg } from "./renderTimelineSvg.js";
 import { renderTimelineShellNavigation, type PortfolioTab, type ProjectNavigationItem } from "./renderTimelineShellNavigation.js";
-import type { TimelineHit } from "./timelineHitTesting.js";
-import { reconcileTimelineHit } from "./timelineSelectionGeometry.js";
 import type { TimelineViewportState } from "./timelineViewport.js";
 import { buildCursorMetricsViewModel, type CursorMetricsViewModel, type CursorProgressView } from "./buildCursorMetricsViewModel.js";
 import { renderCursorTeamMetrics } from "./renderCursorTeamMetrics.js";
@@ -49,57 +35,34 @@ export interface TimelineUiProjection {
   readonly viewModel: TimelineViewModel;
   readonly geometry: TimelineGeometry;
 }
-
 export type TimelineProjectionCommandResult =
   | Readonly<{ ok: true; projection: TimelineUiProjection }>
   | Readonly<{ ok: false; errors: readonly DomainError[] }>;
-
 export interface TimelineUiSnapshot {
   readonly viewport: TimelineViewportState;
   readonly selectedDate: CivilDate;
   readonly activeProgressView: CursorProgressView;
   readonly activePortfolioTab: PortfolioTab;
-  readonly selected: TimelineHit | undefined;
-  readonly editingContext: TimelineEditingContext;
+  readonly teamEditingId?: TeamId;
 }
-
-export type TimelineEditingContext =
-  | Readonly<{ kind: "project"; projectId: ProjectId }>
-  | Readonly<{ kind: "team"; teamId: TeamId }>
-  | Readonly<{ kind: "reservation"; reservationId: ReservationId }>
-  | undefined;
-
 export interface TimelineUiCoordinator {
   readonly getProjection: () => TimelineUiProjection;
   readonly getUiSnapshot: () => TimelineUiSnapshot;
   readonly renderProjection: (projection: TimelineUiProjection) => void;
   readonly destroy: () => void;
 }
-
 export interface CreateTimelineUiCoordinatorInput {
   readonly elements: AppElements;
   readonly initialProjection: TimelineUiProjection;
   readonly initialDate: CivilDate;
-  readonly dispatch: (
-    command: PlanningCommand,
-  ) => TimelineProjectionCommandResult;
-  readonly getProjectEditViewModel: (
-    projectId: ProjectId,
-  ) => ProjectEditViewModel | undefined;
+  readonly dispatch: (command: PlanningCommand) => TimelineProjectionCommandResult;
+  readonly getProjectEditViewModel: (id: ProjectId) => ProjectEditViewModel | undefined;
   readonly getProjectNavigationItems: () => readonly ProjectNavigationItem[];
   readonly getPlanningSettingsViewModel: () => PlanningSettingsViewModel;
-  readonly getTeamEditViewModel: (
-    teamId: TeamId,
-  ) => TeamEditViewModel | undefined;
-  readonly getReservationEditViewModel: (
-    reservationId: ReservationId,
-  ) => ReservationEditViewModel | undefined;
-  readonly getReservationNavigationItems: () => readonly Readonly<{
-    id: ReservationId;
-    name: string;
-  }>[];
+  readonly getTeamEditViewModel: (id: TeamId) => TeamEditViewModel | undefined;
+  readonly getReservationEditViewModel: (id: ReservationId) => ReservationEditViewModel | undefined;
+  readonly getReservationNavigationItems: () => readonly Readonly<{ id: ReservationId; name: string }>[];
 }
-
 export interface TimelineUiCoordinatorDependencies {
   readonly renderTimeline: typeof renderTimelineSvg;
   readonly createDiagnosticsController: typeof createPlanningDiagnosticsController;
@@ -114,7 +77,6 @@ export interface TimelineUiCoordinatorDependencies {
   readonly renderCursorTeamMetrics: typeof renderCursorTeamMetrics;
   readonly createCursorProgressSurface: typeof createCursorProgressSurface;
 }
-
 const DEFAULT_DEPENDENCIES: TimelineUiCoordinatorDependencies = Object.freeze({
   renderTimeline: renderTimelineSvg,
   createDiagnosticsController: createPlanningDiagnosticsController,
@@ -134,19 +96,19 @@ export function createTimelineUiCoordinator(
   input: CreateTimelineUiCoordinatorInput,
   dependencies: TimelineUiCoordinatorDependencies = DEFAULT_DEPENDENCIES,
 ): TimelineUiCoordinator {
+  const projectDrafts = createProjectDraftStore();
+  const reservationDrafts = createReservationDraftStore();
   let projection = input.initialProjection;
   let viewportController: ReturnType<typeof createTimelineViewportController>;
   let cursorController: ReturnType<typeof createTimelineCursorController>;
   let interactionController: ReturnType<typeof createTimelineInteractionController>;
-  let projectEditController: ReturnType<typeof createProjectEditController>;
-  let teamEditController: ReturnType<typeof createTeamEditController>;
-  let reservationEditController: ReturnType<typeof createReservationEditController>;
-  let planningSettingsController: ReturnType<typeof createPlanningSettingsController>;
   let shellNavigation: ReturnType<typeof renderTimelineShellNavigation>;
-  let editingContext: TimelineEditingContext;
+  let teamEditingId: TeamId | undefined;
   let mounted = false;
   let activeProgressView: CursorProgressView = "projects";
   let cursorMetricsModel: CursorMetricsViewModel;
+  const projectControllers = new Map<ProjectId, ReturnType<typeof createProjectEditController>>();
+  const reservationControllers = new Map<ReservationId, ReturnType<typeof createReservationEditController>>();
   const progressSurface = dependencies.createCursorProgressSurface(input.elements.cursorProgress, (view) => {
     if (view === activeProgressView) return;
     activeProgressView = view;
@@ -159,273 +121,218 @@ export function createTimelineUiCoordinator(
     input.elements.diagnosticsControls.dialog,
   ].some((container) => !container.hidden);
   const diagnosticsController = dependencies.createDiagnosticsController({
-    controls: input.elements.diagnosticsControls,
-    isModalOpen,
+    controls: input.elements.diagnosticsControls, isModalOpen,
   });
-
-  const renderCursorMetrics = (selectedDate: CivilDate): void => {
-    cursorMetricsModel = buildCursorMetricsViewModel(
-      projection.portfolio,
-      calculateCursorMetrics({
-        portfolio: projection.portfolio,
-        planningResult: projection.planningResult,
-        horizon: projection.horizon,
-        selectedDate,
-      }),
-    );
-    dependencies.renderCursorTeamMetrics(shellNavigation.teamMetricsContainers, cursorMetricsModel.teams);
-    progressSurface.render(cursorMetricsModel, activeProgressView);
-  };
-
-  const updateEditForms = (context: TimelineEditingContext): void => {
-    const selectedProjectId = context?.kind === "project" ? context.projectId : undefined;
-    const editViewModel =
-      selectedProjectId === undefined
-        ? undefined
-        : input.getProjectEditViewModel(selectedProjectId);
-    projectEditController.setProject(editViewModel);
-    const teamEditViewModel =
-      context?.kind === "team"
-        ? input.getTeamEditViewModel(context.teamId)
-        : undefined;
-    teamEditController.setTeam(teamEditViewModel);
-    reservationEditController.setReservation(
-      context?.kind === "reservation"
-        ? input.getReservationEditViewModel(context.reservationId)
-        : undefined,
-    );
-  };
-
-  const setEditingContext = (context: TimelineEditingContext, focusOnClose = false): void => {
-    editingContext = context;
-    updateEditForms(context);
-    shellNavigation?.showEditingCard(
-      context?.kind === "project" || context?.kind === "reservation" ? context.kind : undefined,
-      context?.kind === "project" ? context.projectId : context?.kind === "reservation" ? context.reservationId : undefined,
-      focusOnClose,
-    );
-  };
-
-  const currentSnapshot = (): TimelineUiSnapshot => {
-    if (!mounted) {
-      return Object.freeze({
-        viewport: Object.freeze({
-          x: 0,
-          width: projection.geometry.width,
-        }),
-        selectedDate: input.initialDate,
-        activeProgressView,
-        activePortfolioTab: "projects",
-        selected: undefined,
-        editingContext: undefined,
-      });
-    }
-    return Object.freeze({
-      viewport: viewportController.getState(),
-      selectedDate: cursorController.getState().selectedDate,
-      activeProgressView,
-      activePortfolioTab: shellNavigation.getActiveTab(),
-      selected: interactionController.getState().selected,
-      editingContext,
-    });
-  };
-
-  const destroyControllers = (): void => {
-    if (!mounted) return;
-    interactionController.destroy();
-    cursorController.destroy();
-    viewportController.destroy();
-    shellNavigation.destroy();
-    mounted = false;
-  };
-
-  const mountProjection = (
-    nextProjection: TimelineUiProjection,
-    snapshot: TimelineUiSnapshot,
-  ): void => {
-    destroyControllers();
-    projection = nextProjection;
-    activeProgressView = snapshot.activeProgressView;
-    dependencies.renderTimeline({
-      svg: input.elements.svg,
-      geometry: projection.geometry,
-    });
-    diagnosticsController.setDiagnostics(projection.viewModel.diagnostics);
-    planningSettingsController.setModel(input.getPlanningSettingsViewModel());
-    shellNavigation = dependencies.renderShellNavigation({
-      teamContainer: input.elements.teamPanels,
-      projectContainer: input.elements.projectList,
-      reservationContainer: input.elements.reservationList,
-      projectTab: input.elements.projectTab,
-      reservationTab: input.elements.reservationTab,
-      reservations: input.getReservationNavigationItems(),
-      projectItems: input.getProjectNavigationItems(),
-      initialTab: snapshot.activePortfolioTab,
-      viewModel: projection.viewModel,
-      geometry: projection.geometry,
-      onTeamSettings: (teamId) =>
-        setEditingContext(Object.freeze({ kind: "team", teamId })),
-      onProjectSelect: (projectId) => {
-        if (editingContext?.kind === "project" && editingContext.projectId === projectId) return;
-        setEditingContext(Object.freeze({ kind: "project", projectId }));
-      },
-      onReservationSelect: (reservationId) => {
-        if (editingContext?.kind === "reservation" && editingContext.reservationId === reservationId) return;
-        setEditingContext(Object.freeze({ kind: "reservation", reservationId }));
-      },
-      projectEditContainer: input.elements.projectEditControls.container,
-      reservationEditContainer: input.elements.reservationEditControls.container,
-      onTabChange: () => {
-        if (editingContext?.kind === "project" || editingContext?.kind === "reservation") setEditingContext(undefined);
-      },
-    });
-
-    const selectedDate = projection.geometry.dates.some(
-      (candidate) => candidate.date === snapshot.selectedDate,
-    )
-      ? snapshot.selectedDate
-      : projection.viewModel.horizon.start;
-    const selected = reconcileTimelineHit(
-      projection.geometry,
-      snapshot.selected,
-    );
-    viewportController = dependencies.createViewportController({
-      svg: input.elements.svg,
-      geometry: projection.geometry,
-      controls: input.elements.viewportControls,
-      initialViewport: snapshot.viewport,
-    });
-    cursorController = dependencies.createCursorController({
-      svg: input.elements.svg,
-      geometry: projection.geometry,
-      cursorControl: input.elements.cursorControl,
-      initialDate: selectedDate,
-      getViewport: viewportController.getState,
-      isModalOpen,
-      onSelectedDateChange: renderCursorMetrics,
-    });
-    renderCursorMetrics(selectedDate);
-    let restoringSelection = true;
-    interactionController = dependencies.createInteractionController({
-      svg: input.elements.svg,
-      geometry: projection.geometry,
-      viewModel: projection.viewModel,
-      getViewport: viewportController.getState,
-      tooltipContainer: input.elements.tooltip,
-      selectionSummaryContainer: input.elements.selectionSummary,
-      keyboardControl: input.elements.cursorControl,
-      ...(selected === undefined ? {} : { initialSelected: selected }),
-      onSelectionChange: (hit) => {
-        if (restoringSelection) return;
-        if (hit?.kind === "allocation" || hit?.kind === "project-marker") {
-          if (editingContext?.kind !== "project" || editingContext.projectId !== hit.projectId) {
-            setEditingContext(Object.freeze({ kind: "project", projectId: hit.projectId }));
-          }
-          shellNavigation.showEditingCard("project", hit.projectId, true);
-        } else if (hit?.kind === "reservation") {
-          if (editingContext?.kind !== "reservation" || editingContext.reservationId !== hit.reservationId) {
-            setEditingContext(Object.freeze({ kind: "reservation", reservationId: hit.reservationId }));
-          }
-          shellNavigation.showEditingCard("reservation", hit.reservationId, true);
-        }
-      },
-      getProjectProgress: (projectId) => cursorMetricsModel.projects.find((item) => item.id === projectId)?.progress,
-    });
-    restoringSelection = false;
-    setEditingContext(reconcileEditingContext(snapshot.editingContext));
-    mounted = true;
-  };
-
-  const reconcileEditingContext = (
-    context: TimelineEditingContext,
-  ): TimelineEditingContext => {
-    if (context?.kind === "project") {
-      return input.getProjectEditViewModel(context.projectId) === undefined
-        ? undefined
-        : context;
-    }
-    if (context?.kind === "team") {
-      return input.getTeamEditViewModel(context.teamId) === undefined
-        ? undefined
-        : context;
-    }
-    if (context?.kind === "reservation") {
-      return input.getReservationEditViewModel(context.reservationId) === undefined
-        ? undefined
-        : context;
-    }
-    return undefined;
-  };
-
-  const renderProjection = (nextProjection: TimelineUiProjection): void => {
-    const snapshot = currentSnapshot();
-    mountProjection(nextProjection, snapshot);
-  };
-
-  const applyProjectUpdate = (command: UpdateProjectCommand) => {
-    const result = input.dispatch(command);
-    if (!result.ok) return result;
-    renderProjection(result.projection);
-    return Object.freeze({ ok: true as const });
-  };
-  const applyTeamUpdate = (
-    command: UpdateTeamNameCommand | UpdateTeamCapacityPeriodsCommand,
-  ) => {
-    const result = input.dispatch(command);
-    if (!result.ok) return result;
-    renderProjection(result.projection);
-    return Object.freeze({ ok: true as const });
-  };
-  const applyReservationUpdate = (command: UpdateReservationCommand) => {
-    const result = input.dispatch(command);
-    if (!result.ok) return result;
-    renderProjection(result.projection);
-    return Object.freeze({ ok: true as const });
-  };
-
-  projectEditController = dependencies.createProjectEditController({
-    controls: input.elements.projectEditControls,
-    errorContainer: input.elements.projectEditError,
-    onApply: applyProjectUpdate,
-    onCancel: () => setEditingContext(undefined, true),
-  });
-  teamEditController = dependencies.createTeamEditController({
+  const teamEditController = dependencies.createTeamEditController({
     controls: input.elements.teamEditControls,
     errorContainer: input.elements.applicationError,
-    onApplyName: applyTeamUpdate,
-    onApplyPeriods: applyTeamUpdate,
+    onApplyName: (command: UpdateTeamNameCommand) => applyTeamUpdate(command),
+    onApplyPeriods: (command: UpdateTeamCapacityPeriodsCommand) => applyTeamUpdate(command),
+    onClose: () => { teamEditingId = undefined; },
   });
-  reservationEditController = dependencies.createReservationEditController({
-    controls: input.elements.reservationEditControls,
-    errorContainer: input.elements.reservationEditError,
-    onApply: applyReservationUpdate,
-    onCancel: () => setEditingContext(undefined, true),
-  });
-  planningSettingsController = dependencies.createPlanningSettingsController({
+  const planningSettingsController = dependencies.createPlanningSettingsController({
     trigger: input.elements.planningSettingsButton,
     controls: input.elements.planningSettingsControls,
     initialModel: input.getPlanningSettingsViewModel(),
     onApply: (command) => {
       const result = input.dispatch(command);
       if (!result.ok) return result;
+      rebaseDrafts();
       renderProjection(result.projection);
-      return Object.freeze({ ok: true as const });
+      return { ok: true as const };
     },
   });
-  mountProjection(input.initialProjection, currentSnapshot());
 
-  return Object.freeze({
-    getProjection: () => projection,
-    getUiSnapshot: currentSnapshot,
-    renderProjection,
+  const renderCursorMetrics = (date: CivilDate): void => {
+    cursorMetricsModel = buildCursorMetricsViewModel(projection.portfolio,
+      calculateCursorMetrics({ portfolio: projection.portfolio,
+        planningResult: projection.planningResult, horizon: projection.horizon, selectedDate: date }));
+    dependencies.renderCursorTeamMetrics(shellNavigation.teamMetricsContainers, cursorMetricsModel.teams);
+    progressSurface.render(cursorMetricsModel, activeProgressView);
+  };
+  const syncCard = (kind: "project" | "reservation", id: ProjectId | ReservationId): void => {
+    if (kind === "project") {
+      const draft = projectDrafts.get(id as ProjectId);
+      shellNavigation.setCardState("project", id, draft?.expanded ?? false, projectDrafts.isDirty(id as ProjectId));
+    } else {
+      const draft = reservationDrafts.get(id as ReservationId);
+      shellNavigation.setCardState("reservation", id, draft?.expanded ?? false, reservationDrafts.isDirty(id as ReservationId));
+    }
+  };
+  const ensureProjectController = (id: ProjectId): void => {
+    if (projectControllers.has(id)) return;
+    const card = shellNavigation.projectCards.get(id);
+    const model = input.getProjectEditViewModel(id);
+    if (!card || !model) return;
+    projectDrafts.initialize(id, model);
+    const { controls, error } = createProjectCardControls(card.host.ownerDocument, String(id));
+    card.host.append(controls.container);
+    const controller = dependencies.createProjectEditController({
+      controls, errorContainer: error, draftStore: projectDrafts,
+      onDraftChange: () => syncCard("project", id),
+      onApply: (command: UpdateProjectCommand) => applyProjectUpdate(command),
+      onCancel: () => { syncCard("project", id); card.button.focus(); },
+    });
+    controller.setProject(model);
+    projectControllers.set(id, controller);
+  };
+  const ensureReservationController = (id: ReservationId): void => {
+    if (reservationControllers.has(id)) return;
+    const card = shellNavigation.reservationCards.get(id);
+    const model = input.getReservationEditViewModel(id);
+    if (!card || !model) return;
+    reservationDrafts.initialize(id, model);
+    const { controls, error } = createReservationCardControls(card.host.ownerDocument, String(id));
+    card.host.append(controls.container);
+    const controller = dependencies.createReservationEditController({
+      controls, errorContainer: error, draftStore: reservationDrafts,
+      onDraftChange: () => syncCard("reservation", id),
+      onApply: (command: UpdateReservationCommand) => applyReservationUpdate(command),
+      onCancel: () => { syncCard("reservation", id); card.button.focus(); },
+    });
+    controller.setReservation(model);
+    reservationControllers.set(id, controller);
+  };
+  const toggleProject = (id: ProjectId): void => {
+    const model = input.getProjectEditViewModel(id);
+    if (!model) return;
+    const current = projectDrafts.initialize(id, model);
+    const expanded = !current.expanded;
+    projectDrafts.setExpanded(id, expanded);
+    if (expanded) ensureProjectController(id);
+    syncCard("project", id);
+  };
+  const toggleReservation = (id: ReservationId): void => {
+    const model = input.getReservationEditViewModel(id);
+    if (!model) return;
+    const current = reservationDrafts.initialize(id, model);
+    const expanded = !current.expanded;
+    reservationDrafts.setExpanded(id, expanded);
+    if (expanded) ensureReservationController(id);
+    syncCard("reservation", id);
+  };
+  const currentSnapshot = (): TimelineUiSnapshot => mounted ? {
+    viewport: viewportController.getState(), selectedDate: cursorController.getState().selectedDate,
+    activeProgressView, activePortfolioTab: shellNavigation.getActiveTab(),
+    ...(teamEditingId === undefined ? {} : { teamEditingId }),
+  } : {
+    viewport: { x: 0, width: projection.geometry.width }, selectedDate: input.initialDate,
+    activeProgressView, activePortfolioTab: "projects",
+  };
+  const destroyControllers = (): void => {
+    if (!mounted) return;
+    for (const controller of projectControllers.values()) controller.destroy();
+    for (const controller of reservationControllers.values()) controller.destroy();
+    projectControllers.clear();
+    reservationControllers.clear();
+    interactionController.destroy(); cursorController.destroy(); viewportController.destroy();
+    shellNavigation.destroy();
+    mounted = false;
+  };
+  const mountProjection = (nextProjection: TimelineUiProjection, snapshot: TimelineUiSnapshot): void => {
+    destroyControllers();
+    projection = nextProjection;
+    activeProgressView = snapshot.activeProgressView;
+    dependencies.renderTimeline({ svg: input.elements.svg, geometry: projection.geometry });
+    diagnosticsController.setDiagnostics(projection.viewModel.diagnostics);
+    planningSettingsController.setModel(input.getPlanningSettingsViewModel());
+    shellNavigation = dependencies.renderShellNavigation({
+      teamContainer: input.elements.teamPanels,
+      projectContainer: input.elements.projectList,
+      reservationContainer: input.elements.reservationList,
+      projectTab: input.elements.projectTab, reservationTab: input.elements.reservationTab,
+      reservations: input.getReservationNavigationItems(),
+      projectItems: input.getProjectNavigationItems(), initialTab: snapshot.activePortfolioTab,
+      viewModel: projection.viewModel, geometry: projection.geometry,
+      onTeamSettings: (id) => {
+        teamEditingId = id;
+        teamEditController.setTeam(input.getTeamEditViewModel(id));
+      },
+      onProjectSelect: toggleProject,
+      onReservationSelect: toggleReservation,
+    });
+    const selectedDate = projection.geometry.dates.some((day) => day.date === snapshot.selectedDate)
+      ? snapshot.selectedDate : projection.viewModel.horizon.start;
+    viewportController = dependencies.createViewportController({ svg: input.elements.svg,
+      geometry: projection.geometry, controls: input.elements.viewportControls,
+      initialViewport: snapshot.viewport });
+    cursorController = dependencies.createCursorController({ svg: input.elements.svg,
+      geometry: projection.geometry, cursorControl: input.elements.cursorControl,
+      initialDate: selectedDate, getViewport: viewportController.getState,
+      isModalOpen, onSelectedDateChange: renderCursorMetrics });
+    renderCursorMetrics(selectedDate);
+    interactionController = dependencies.createInteractionController({
+      svg: input.elements.svg, geometry: projection.geometry, viewModel: projection.viewModel,
+      getViewport: viewportController.getState, tooltipContainer: input.elements.tooltip,
+      getProjectProgress: (id) => cursorMetricsModel.projects.find((item) => item.id === id)?.progress,
+    });
+    for (const id of projectDrafts.ids()) {
+      if (projectDrafts.get(id)?.expanded) ensureProjectController(id);
+      syncCard("project", id);
+    }
+    for (const id of reservationDrafts.ids()) {
+      if (reservationDrafts.get(id)?.expanded) ensureReservationController(id);
+      syncCard("reservation", id);
+    }
+    teamEditingId = snapshot.teamEditingId;
+    if (teamEditingId) teamEditController.setTeam(input.getTeamEditViewModel(teamEditingId));
+    mounted = true;
+  };
+  const rebaseDrafts = (): void => {
+    for (const id of projectDrafts.ids()) {
+      const model = input.getProjectEditViewModel(id);
+      if (model) projectDrafts.rebase(id, model);
+    }
+    for (const id of reservationDrafts.ids()) {
+      const model = input.getReservationEditViewModel(id);
+      if (model) reservationDrafts.rebase(id, model);
+    }
+  };
+  const renderProjection = (nextProjection: TimelineUiProjection): void => {
+    const snapshot = currentSnapshot();
+    mountProjection(nextProjection, snapshot);
+  };
+  const applyProjectUpdate = (command: UpdateProjectCommand) => {
+    const result = input.dispatch(command);
+    if (!result.ok) return result;
+    projectDrafts.cancel(command.projectId);
+    const model = input.getProjectEditViewModel(command.projectId);
+    if (model) {
+      projectDrafts.initialize(command.projectId, model);
+      projectDrafts.setExpanded(command.projectId, true);
+    }
+    rebaseDrafts();
+    renderProjection(result.projection);
+    shellNavigation.projectCards.get(command.projectId)?.button.focus();
+    return { ok: true as const };
+  };
+  const applyReservationUpdate = (command: UpdateReservationCommand) => {
+    const result = input.dispatch(command);
+    if (!result.ok) return result;
+    reservationDrafts.cancel(command.reservationId);
+    const model = input.getReservationEditViewModel(command.reservationId);
+    if (model) {
+      reservationDrafts.initialize(command.reservationId, model);
+      reservationDrafts.setExpanded(command.reservationId, true);
+    }
+    rebaseDrafts();
+    renderProjection(result.projection);
+    shellNavigation.reservationCards.get(command.reservationId)?.button.focus();
+    return { ok: true as const };
+  };
+  const applyTeamUpdate = (command: UpdateTeamNameCommand | UpdateTeamCapacityPeriodsCommand) => {
+    const result = input.dispatch(command);
+    if (!result.ok) return result;
+    rebaseDrafts();
+    renderProjection(result.projection);
+    return { ok: true as const };
+  };
+  mountProjection(input.initialProjection, currentSnapshot());
+  return {
+    getProjection: () => projection, getUiSnapshot: currentSnapshot, renderProjection,
     destroy: () => {
-      projectEditController.destroy();
-      teamEditController.destroy();
-      reservationEditController.destroy();
-      planningSettingsController.destroy();
-      destroyControllers();
-      progressSurface.destroy();
-      diagnosticsController.destroy();
+      destroyControllers(); teamEditController.destroy(); planningSettingsController.destroy();
+      progressSurface.destroy(); diagnosticsController.destroy();
     },
-  });
+  };
 }

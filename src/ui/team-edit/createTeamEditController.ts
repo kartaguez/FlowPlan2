@@ -27,6 +27,7 @@ export interface CreateTeamEditControllerInput {
   readonly onApplyPeriods: (
     command: UpdateTeamCapacityPeriodsCommand,
   ) => TeamEditApplyResult;
+  readonly onClose?: () => void;
 }
 
 interface PeriodInputs {
@@ -166,6 +167,7 @@ export function createTeamEditController(
   const onClose = (): void => {
     input.controls.container.hidden = true;
     clearError();
+    input.onClose?.();
   };
 
   input.controls.nameForm.addEventListener("submit", onNameSubmit);

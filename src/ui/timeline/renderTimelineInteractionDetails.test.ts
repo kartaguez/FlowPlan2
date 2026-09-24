@@ -13,7 +13,6 @@ import {
 } from "../../domain/index.js";
 import {
   createTimelineInteractionLookup,
-  renderTimelineSelectionSummary,
   renderTimelineTooltip,
 } from "./renderTimelineInteractionDetails.js";
 import type { TimelineHit } from "./timelineHitTesting.js";
@@ -176,28 +175,4 @@ describe("timeline interaction details", () => {
     assert.equal(container.textContent, "");
   });
 
-  it("renders accessible summaries for every hit kind and empty state", () => {
-    const input = fixture();
-    const container = new FakeDocument().createElement("section");
-    const lookup = createTimelineInteractionLookup(input.viewModel);
-
-    for (const [hit, heading] of [
-      [input.allocation, "Selected allocation"],
-      [input.marker, "Selected project marker"],
-      [input.team, "Selected team"],
-    ] as const) {
-      renderTimelineSelectionSummary({
-        container: container as unknown as HTMLElement,
-        lookup,
-        selected: hit,
-      });
-      assert.equal(container.childNodes[0]?.textContent, heading);
-    }
-    renderTimelineSelectionSummary({
-      container: container as unknown as HTMLElement,
-      lookup,
-      selected: undefined,
-    });
-    assert.equal(container.childNodes[0]?.textContent, "No timeline selection.");
-  });
 });

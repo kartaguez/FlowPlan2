@@ -246,6 +246,31 @@ describe("buildTimelineViewModel", () => {
     assert.equal(incomplete.estimatedWithinHorizon, false);
     assert.equal(incomplete.estimatedEndDate, undefined);
   });
+  it("uses the single Team end and does not fabricate a date for zero RAF", () => {
+    const { input, lowPriority } = makeFixture();
+    const completed = { ...input.planningResult,
+      teamPlans: input.planningResult.teamPlans.map((teamPlan) => ({ ...teamPlan,
+        projectPlans: teamPlan.projectPlans.map((plan) => plan.projectId === lowPriority.id
+          ? { ...plan, complete: true, remainingUnplannedWorkload: workload("0"),
+            projectedEndDate: date("2025-01-07") } : plan),
+      })) };
+    const single = buildTimelineViewModel({ ...input, planningResult: completed }).projects.find((project) =>
+      project.id === lowPriority.id)!;
+    assert.equal(single.estimatedWithinHorizon, true);
+    assert.equal(single.estimatedEndDate, date("2025-01-07"));
+    const zero = { ...completed, teamPlans: completed.teamPlans.map((teamPlan) => ({ ...teamPlan,
+      projectPlans: teamPlan.projectPlans.map((plan) => {
+        if (plan.projectId !== lowPriority.id) return plan;
+        const { projectedEndDate: _projectedEndDate, ...withoutDate } = plan;
+        return { ...withoutDate, allocations: [], complete: true,
+          plannedWorkload: capacity("0"), remainingUnplannedWorkload: workload("0") };
+      }),
+    })) };
+    const empty = buildTimelineViewModel({ ...input, planningResult: zero }).projects.find((project) =>
+      project.id === lowPriority.id)!;
+    assert.equal(empty.estimatedWithinHorizon, true);
+    assert.equal(empty.estimatedEndDate, undefined);
+  });
   it("projects the supplied planning horizon exactly", () => {
     const { input } = makeFixture();
     const viewModel = buildTimelineViewModel(input);

@@ -8,6 +8,7 @@ import {
   type DomainResult,
 } from "../../domain/index.js";
 import { createDemoPlanningScenario } from "./createDemoPlanningScenario.js";
+import { createTimelineInteractionLookup, renderTimelineTooltip } from "../../ui/timeline/renderTimelineInteractionDetails.js";
 
 describe("demo planning bootstrap", () => {
   it("provides a deterministic multi-team, multi-project domain scenario", () => {
@@ -118,6 +119,32 @@ describe("demo planning bootstrap", () => {
         (diagnostic) => diagnostic.code === "TEAM_OVER_RESERVED",
       ),
     );
+  });
+
+  it("projects actual demo completion dates into Project tooltips", () => {
+    const scenario = createDemoPlanningScenario();
+    const horizon = must(createPlanningHorizon({ start: scenario.planning.startDate,
+      end: scenario.planning.endDate }));
+    const { planningResult } = recomputePlanning({ portfolio: scenario.portfolio, horizon,
+      workingPattern: scenario.planning.workingPattern,
+      maxParallelProjects: scenario.planning.maxParallelProjects });
+    const viewModel = buildTimelineViewModel({ portfolio: scenario.portfolio, horizon,
+      planningResult, workingPattern: scenario.planning.workingPattern });
+    const lookup = createTimelineInteractionLookup(viewModel);
+    const expected = new Map([
+      ["project-atlas", "2025-03-11"], ["project-cobalt", "2025-03-14"],
+      ["project-boreal", "not estimated within horizon"],
+      ["project-delta", "not estimated within horizon"],
+    ]);
+    for (const [id, end] of expected) {
+      const project = viewModel.projects.find((item) => item.id === id)!;
+      const team = viewModel.teams.find((item) => item.projectStates.some((state) => state.projectId === id))!;
+      const container = { hidden: true, textContent: "", style: { left: "", top: "" } };
+      renderTimelineTooltip({ container: container as unknown as HTMLElement, lookup,
+        hit: { kind: "allocation", projectId: project.id, teamId: team.id,
+          date: horizon.start }, clientX: 0, clientY: 0 });
+      assert.match(container.textContent, new RegExp(`Estimated end: ${end}`));
+    }
   });
 });
 
