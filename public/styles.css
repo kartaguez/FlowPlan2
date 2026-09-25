@@ -133,6 +133,15 @@ h1 { margin-bottom: 0; font-size: 2rem; letter-spacing: -0.04em; }
 }
 
 .portfolio-tabs { display: flex; gap: 0.2rem; margin-bottom: 0.75rem; border-radius: var(--fp-radius-sm); background: #e7e9ee; padding: 0.2rem; }
+.project-create-section { margin-bottom: 0.75rem; }
+.project-create-section[hidden], .project-create-panel[hidden] { display: none; }
+.project-create-trigger, .project-delete-trigger, .project-delete-confirmation button {
+  min-height: 2.25rem; border: 1px solid var(--fp-border); border-radius: var(--fp-radius-sm);
+  background: #fff; color: var(--fp-text); padding: 0.35rem 0.65rem; cursor: pointer;
+}
+.project-create-panel { margin-top: 0.55rem; }
+.project-delete-trigger { margin: 0.5rem 0 0.1rem; }
+.project-delete-confirmation { margin-top: 0.5rem; }
 .portfolio-tab { flex: 1; min-width: 0; border: 0; border-radius: 5px; background: transparent; padding: 0.4rem 0.55rem; color: var(--fp-muted); font: inherit; font-size: 0.72rem; cursor: pointer; }
 .portfolio-tab--active { background: var(--fp-surface); color: var(--fp-action); box-shadow: 0 1px 4px rgb(40 44 55 / 14%); font-weight: 700; }
 .portfolio-tab:focus-visible { outline: 3px solid #60a5fa; outline-offset: 2px; }

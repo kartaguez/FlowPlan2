@@ -20,8 +20,8 @@ demo session. The following capabilities are complete and active:
 - one shared timeline with stacked Team panels;
 - Team creation with one or more initial capacity periods, restrictive Team
   deletion, and Team Settings for name and existing capacity periods;
-- Project editing for name, dates, and Team requirements; Project priority is
-  reordered from Portfolio Projects;
+- Project creation and confirmed deletion, plus editing of name, dates, and
+  Team requirements; Project priority is reordered from Portfolio Projects;
 - global multi-Team Reservations with ratio and fixed-daily modes, edited in
   inline Portfolio cards;
 - Projects / Reservations tabs in the Portfolio sidebar;
@@ -65,6 +65,19 @@ that Team before dispatch. Successful lifecycle changes follow the existing
 single-reprojection pipeline. The global metrics cartouche is titled, and
 Create Team appears between it and the first Team panel.
 
+Lot 9F Project structural CRUD is **IN REVIEW**. Create Project starts with no
+Team enabled and requires at least one explicit Team requirement with exact
+RAF. A session-generated Project ID is collision-safe; creation appends the
+Project once at the end of `Portfolio.priorityOrder`, where 9D can then reorder
+it. Delete Project follows the Team deletion pattern: dirty local edits are
+discarded only after confirmation, followed by an inline deletion
+confirmation. The deleted Project's card and draft disappear; other Project
+and Reservation drafts, temporal controls, and the progress view survive the
+reprojection. The Delete Team UI guard also protects a Team enabled in an
+unapplied Create Project draft. Persisted Project requirements continue to
+block Team deletion restrictively. This lot does not advance the validated
+baseline.
+
 The Projection date presentation pass is **IN REVIEW**. Its implementation
 places the date in the global and Team timeline bands and in the projected
 progress heading, while preserving one selected date and one temporal X
@@ -101,7 +114,7 @@ Planning
 └── Project and Reservation hover tooltips
 
 Portfolio sidebar
-├── Projects → reorder handles and #N badges; expandable cards with inline editor and Team subcards
+├── Projects → Create Project; reorder handles and #N badges; expandable cards with inline editor, Team subcards and Delete Project
 └── Reservations → expandable cards with inline editor and Team subcards
 ```
 
@@ -152,6 +165,9 @@ The editable session currently accepts:
 - `update-project`: replaces editable fields and the final set of Team
   requirements, including optional Program/PAS associations, without changing
   Project priority;
+- `create-project`: creates one Project with explicitly supplied Team
+  requirements and appends it to global priority;
+- `remove-project`: removes one Project and its priority entry atomically;
 - `reorder-project`: moves one existing Project to a 1-based position in
   `portfolio.priorityOrder`, leaving every Project field unchanged;
 - `create-team`: creates a Team with one or more initial capacity periods and a
@@ -172,9 +188,8 @@ projection. Rejected commands do neither.
 These are current implementation facts, not durable product rules:
 
 - the browser starts from a hard-coded demo scenario; there is no persistence;
-- structural CRUD remains absent for Projects and Reservations;
-- Project Team-requirement membership can be added or removed through the
-  existing Project update command; this is a targeted anticipation of 9F;
+- structural CRUD remains absent for Reservations; existing Project Team
+  requirement membership continues to use `update-project`;
 - capacity periods can be supplied when creating a Team; periods of an
   existing Team can be edited but not added, removed, or reordered;
 - capacity exceptions exist in the domain but have no editor;
@@ -196,7 +211,7 @@ These are current implementation facts, not durable product rules:
 ## Not part of the current implemented canon
 
 - Program / PriorityFamily (PAS) structural CRUD;
-- Project and Reservation structural CRUD and their deletion workflows;
+- Reservation structural CRUD and its deletion workflow;
 - persistence, import/export, undo/redo;
 - actuals/history, resource actual consumption, and snapshots.
 

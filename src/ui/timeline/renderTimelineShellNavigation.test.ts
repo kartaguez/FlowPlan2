@@ -75,6 +75,7 @@ describe("renderTimelineShellNavigation", () => {
     const teams = document.createElement("div");
     const teamCreateButton = document.createElement("button");
     const projects = document.createElement("ol");
+    const projectCreateSection = document.createElement("div");
     const reservations = document.createElement("ol");
     const projectTab = document.createElement("button");
     const reservationTab = document.createElement("button");
@@ -87,6 +88,7 @@ describe("renderTimelineShellNavigation", () => {
       teamContainer: teams as unknown as HTMLElement,
       teamCreateButton: teamCreateButton as unknown as HTMLButtonElement,
       projectContainer: projects as unknown as HTMLElement,
+      projectCreateSection: projectCreateSection as unknown as HTMLElement,
       reservationContainer: reservations as unknown as HTMLElement,
       projectTab: projectTab as unknown as HTMLButtonElement,
       reservationTab: reservationTab as unknown as HTMLButtonElement,
@@ -125,6 +127,7 @@ describe("renderTimelineShellNavigation", () => {
       onTabChange: (tab) => changedTabs.push(tab),
     });
     assert.equal(teams.childNodes.length, 3);
+    assert.equal(projectCreateSection.hidden, false);
     assert.equal(teams.childNodes[0]!.attributes.get("style"), "height: 198px");
     const globalCard = teams.childNodes[0]!.childNodes[0]!;
     assert.equal(globalCard.attributes.get("style"), "top: 56px; height: 100px");
@@ -205,9 +208,11 @@ describe("renderTimelineShellNavigation", () => {
     assert.equal(reservationTab.attributes.get("aria-selected"), "true");
     assert.equal(projectTab.tabIndex, -1);
     assert.equal(projects.hidden, true);
+    assert.equal(projectCreateSection.hidden, true);
     assert.equal(reservations.hidden, false);
     reservationTab.keydown("ArrowLeft");
     assert.equal(navigation.getActiveTab(), "projects");
+    assert.equal(projectCreateSection.hidden, false);
     assert.equal(projectTab.focused, true);
     reservationTab.click();
     reservations.childNodes[0]!.childNodes[0]!.click();

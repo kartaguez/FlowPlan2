@@ -25,6 +25,8 @@ export interface CreateProjectEditControllerInput {
   readonly controls: ProjectEditControls;
   readonly errorContainer: HTMLElement;
   readonly onApply: (command: UpdateProjectCommand) => ProjectEditApplyResult;
+  readonly onDelete?: (projectId: ProjectId) => ProjectEditApplyResult;
+  readonly confirmDiscard?: (message: string) => boolean;
   readonly onCancel?: () => void;
   readonly draftStore?: ProjectDraftStore;
   readonly onDraftChange?: () => void;
@@ -83,6 +85,7 @@ export function createProjectEditController(
     input.controls.apply.disabled = !enabled;
     input.controls.cancel.disabled = !enabled;
     input.controls.status.textContent = "";
+    if (input.controls.deleteConfirmation) input.controls.deleteConfirmation.hidden = true;
     if (activeModel === undefined) {
       globalInputs = undefined;
       requirementInputs = Object.freeze([]);
@@ -305,6 +308,36 @@ export function createProjectEditController(
     input.onDraftChange?.();
     input.onCancel?.();
   };
+  const onDeleteClick = (): void => {
+    if (!model) return;
+    notifyDraftChange();
+    if (input.draftStore?.isDirty(model.projectId)) {
+      if (!input.confirmDiscard?.("Discard unapplied Project changes before deletion?")) return;
+      const id = model.projectId;
+      const expanded = input.draftStore.get(id)?.expanded ?? true;
+      input.draftStore.cancel(id);
+      input.draftStore.initialize(id, model);
+      input.draftStore.setExpanded(id, expanded);
+      hydrate(model);
+      clearError();
+      input.onDraftChange?.();
+    }
+    input.controls.deleteConfirmation.hidden = false;
+    input.controls.deleteConfirm.focus();
+  };
+  const onDeleteCancel = (): void => {
+    input.controls.deleteConfirmation.hidden = true;
+    input.controls.deleteButton.focus();
+  };
+  const onDeleteConfirm = (): void => {
+    if (!model || !input.onDelete) return;
+    const result = input.onDelete(model.projectId);
+    if (!result.ok) {
+      showErrors(result.errors);
+      input.controls.deleteConfirmation.hidden = true;
+      input.controls.deleteButton.focus();
+    }
+  };
   const setProject = (project: ProjectEditViewModel | undefined): void => {
     hydrate(project);
   };
@@ -313,6 +346,9 @@ export function createProjectEditController(
   input.controls.form.addEventListener("input", notifyDraftChange);
   input.controls.form.addEventListener("change", notifyDraftChange);
   input.controls.cancel.addEventListener("click", onCancel);
+  input.controls.deleteButton?.addEventListener("click", onDeleteClick);
+  input.controls.deleteCancel?.addEventListener("click", onDeleteCancel);
+  input.controls.deleteConfirm?.addEventListener("click", onDeleteConfirm);
   hydrate(undefined);
 
   return Object.freeze({
@@ -323,6 +359,9 @@ export function createProjectEditController(
       input.controls.form.removeEventListener("input", notifyDraftChange);
       input.controls.form.removeEventListener("change", notifyDraftChange);
       input.controls.cancel.removeEventListener("click", onCancel);
+      input.controls.deleteButton?.removeEventListener("click", onDeleteClick);
+      input.controls.deleteCancel?.removeEventListener("click", onDeleteCancel);
+      input.controls.deleteConfirm?.removeEventListener("click", onDeleteConfirm);
     },
   });
 }

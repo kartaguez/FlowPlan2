@@ -139,6 +139,21 @@ structural editing of existing capacity periods remain in 9F/9G.
 
 ## 9F — Project structural CRUD and Team membership
 
+**Status: IN REVIEW** — Project creation and confirmed removal are implemented.
+Creation requires explicit Team activation and exact RAF, assigns a
+collision-safe session ID, and appends the Project to `priorityOrder`.
+Deletion removes the Project and its priority entry while preserving unrelated
+drafts and projection controls. The 9E Team deletion UI guard now includes
+enabled Teams in an unapplied Create Project draft. The existing
+`update-project` membership path remains in use. The validated 9E baseline and
+the separate Projection date IN REVIEW status are unchanged. Human audit and
+visual validation remain pending.
+
+Implementation checks: TypeScript typecheck, 472 automated tests across 70
+suites, and build passed. Edge browser checks at 1440 px and 390 px covered
+empty Team selection, exact RAF creation, derived priority badge, dirty-draft
+delete confirmation/cancel, successful removal, and narrow Portfolio layout.
+
 **Goal**
 
 Create/remove Projects and structurally edit their Team requirements.

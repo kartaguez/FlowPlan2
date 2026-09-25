@@ -2,7 +2,7 @@ import type { TimelineGeometry, TimelineViewModel } from "../../adapters/index.j
 import { calculateCursorMetrics } from "../../adapters/index.js";
 import type {
   PlanningCommand, PlanningSettingsViewModel, ProjectEditViewModel,
-  CreateTeamCommand, ReorderProjectCommand, ReservationEditViewModel, TeamEditViewModel, UpdateProjectCommand,
+  CreateProjectCommand, CreateTeamCommand, ReorderProjectCommand, ReservationEditViewModel, TeamEditViewModel, UpdateProjectCommand,
   UpdateReservationCommand, UpdateTeamCapacityPeriodsCommand, UpdateTeamNameCommand,
 } from "../../application/index.js";
 import type {
@@ -11,6 +11,7 @@ import type {
 } from "../../domain/index.js";
 import type { AppElements } from "../renderApp.js";
 import { createProjectEditController } from "../project-edit/createProjectEditController.js";
+import { createProjectCreateController } from "../project-edit/createProjectCreateController.js";
 import { createProjectDraftStore } from "../project-edit/projectDraftStore.js";
 import { createReservationEditController } from "../reservation-edit/createReservationEditController.js";
 import { createReservationDraftStore } from "../reservation-edit/reservationDraftStore.js";
@@ -72,6 +73,7 @@ export interface TimelineUiCoordinatorDependencies {
   readonly createCursorController: typeof createTimelineCursorController;
   readonly createInteractionController: typeof createTimelineInteractionController;
   readonly createProjectEditController: typeof createProjectEditController;
+  readonly createProjectCreateController: typeof createProjectCreateController;
   readonly createProjectReorderController: typeof createProjectReorderController;
   readonly createTeamEditController: typeof createTeamEditController;
   readonly createTeamCreateController: typeof createTeamCreateController;
@@ -88,6 +90,7 @@ const DEFAULT_DEPENDENCIES: TimelineUiCoordinatorDependencies = Object.freeze({
   createCursorController: createTimelineCursorController,
   createInteractionController: createTimelineInteractionController,
   createProjectEditController,
+  createProjectCreateController,
   createProjectReorderController,
   createTeamEditController,
   createTeamCreateController,
@@ -104,6 +107,7 @@ export function createTimelineUiCoordinator(
 ): TimelineUiCoordinator {
   const projectDrafts = createProjectDraftStore();
   const reservationDrafts = createReservationDraftStore();
+  let projectCreateController: ReturnType<typeof createProjectCreateController> | undefined;
   let projection = input.initialProjection;
   let viewportController: ReturnType<typeof createTimelineViewportController>;
   let cursorController: ReturnType<typeof createTimelineCursorController>;
@@ -143,10 +147,11 @@ export function createTimelineUiCoordinator(
     onDelete: (teamId) => {
       const projects = projectDrafts.ids().filter((id) => projectDrafts.isTeamDirty(id, teamId));
       const reservations = reservationDrafts.ids().filter((id) => reservationDrafts.isTeamDirty(id, teamId));
-      if (projects.length > 0 || reservations.length > 0) {
+      if (projects.length > 0 || reservations.length > 0 || projectCreateController?.isTeamEnabled(teamId)) {
         const names = [
           ...projects.map((id) => `Project ${projectDrafts.get(id)?.model.label ?? id}`),
           ...reservations.map((id) => `Reservation ${reservationDrafts.get(id)?.model.name ?? id}`),
+          ...(projectCreateController?.isTeamEnabled(teamId) ? ["Create Project"] : []),
         ];
         return { ok: false as const, reason: "draft" as const,
           message: `Unapplied changes concern this Team in ${names.join(", ")}. Apply or cancel those changes before deleting it.` };
@@ -174,6 +179,31 @@ export function createTimelineUiCoordinator(
       },
       onClose: () => input.elements.teamCreateButton.focus(),
     }) : undefined;
+  projectCreateController = input.elements.projectCreateControls
+    ? dependencies.createProjectCreateController({
+      controls: input.elements.projectCreateControls,
+      portfolio: projection.portfolio,
+      confirmDiscard,
+      onClose: () => input.elements.projectCreateButton?.focus(),
+      onCreate: (command: CreateProjectCommand) => {
+        const result = input.dispatch(command);
+        if (!result.ok) return result;
+        const id = result.projection.portfolio.priorityOrder.at(-1)!;
+        const model = input.getProjectEditViewModel(id);
+        if (model) {
+          projectDrafts.initialize(id, model);
+          projectDrafts.setExpanded(id, true);
+        }
+        rebaseDrafts();
+        renderProjection(result.projection);
+        shellNavigation.projectCards.get(id)?.button.focus();
+        return { ok: true as const };
+      },
+    }) : undefined;
+  const onCreateProjectClick = (): void => {
+    if (!projectCreateController?.isOpen()) projectCreateController?.open();
+  };
+  input.elements.projectCreateButton?.addEventListener("click", onCreateProjectClick);
   const onCreateTeamClick = (): void => {
     if (teamCreateController?.isOpen()) return;
     if (teamEditingId !== undefined && !teamEditController.requestClose()) return;
@@ -225,6 +255,20 @@ export function createTimelineUiCoordinator(
       controls, errorContainer: error, draftStore: projectDrafts,
       onDraftChange: () => syncCard("project", id),
       onApply: (command: UpdateProjectCommand) => applyProjectUpdate(command),
+      onDelete: (projectId) => {
+        const order = projection.viewModel.projects.map((project) => project.id);
+        const index = order.indexOf(projectId);
+        const focusId = order[index + 1] ?? order[index - 1];
+        const result = input.dispatch({ kind: "remove-project", projectId });
+        if (!result.ok) return result;
+        projectDrafts.cancel(projectId);
+        rebaseDrafts();
+        renderProjection(result.projection);
+        if (focusId) shellNavigation.projectCards.get(focusId)?.button.focus();
+        else input.elements.projectCreateButton?.focus();
+        return { ok: true as const };
+      },
+      confirmDiscard,
       onCancel: () => { syncCard("project", id); card.button.focus(); },
     });
     controller.setProject(model);
@@ -291,10 +335,12 @@ export function createTimelineUiCoordinator(
     dependencies.renderTimeline({ svg: input.elements.svg, geometry: projection.geometry });
     diagnosticsController.setDiagnostics(projection.viewModel.diagnostics);
     planningSettingsController.setModel(input.getPlanningSettingsViewModel());
+    projectCreateController?.setPortfolio(projection.portfolio);
     shellNavigation = dependencies.renderShellNavigation({
       teamContainer: input.elements.teamPanels,
       teamCreateButton: input.elements.teamCreateButton,
       projectContainer: input.elements.projectList,
+      projectCreateSection: input.elements.projectCreateSection,
       reservationContainer: input.elements.reservationList,
       projectTab: input.elements.projectTab, reservationTab: input.elements.reservationTab,
       reservations: input.getReservationNavigationItems(),
@@ -419,7 +465,9 @@ export function createTimelineUiCoordinator(
     destroy: () => {
       destroyControllers(); teamEditController.destroy(); planningSettingsController.destroy();
       teamCreateController?.destroy();
+      projectCreateController?.destroy();
       input.elements.teamCreateButton?.removeEventListener("click", onCreateTeamClick);
+      input.elements.projectCreateButton?.removeEventListener("click", onCreateProjectClick);
       progressSurface.destroy(); diagnosticsController.destroy();
     },
   };

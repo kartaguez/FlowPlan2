@@ -13,6 +13,9 @@ export interface AppElements {
   readonly teamEditControls: TeamEditControls;
   readonly teamCreateButton: HTMLButtonElement;
   readonly teamCreateControls: TeamCreateControls;
+  readonly projectCreateControls: ProjectCreateControls;
+  readonly projectCreateButton: HTMLButtonElement;
+  readonly projectCreateSection: HTMLElement;
   readonly applicationError: HTMLElement;
   readonly teamPanels: HTMLElement;
   readonly projectList: HTMLElement;
@@ -37,6 +40,19 @@ export interface ProjectEditControls {
   readonly apply: HTMLButtonElement;
   readonly cancel: HTMLButtonElement;
   readonly status: HTMLElement;
+  readonly deleteButton: HTMLButtonElement;
+  readonly deleteConfirmation: HTMLElement;
+  readonly deleteConfirm: HTMLButtonElement;
+  readonly deleteCancel: HTMLButtonElement;
+}
+
+export interface ProjectCreateControls {
+  readonly container: HTMLElement;
+  readonly form: HTMLFormElement;
+  readonly fields: HTMLElement;
+  readonly error: HTMLElement;
+  readonly create: HTMLButtonElement;
+  readonly cancel: HTMLButtonElement;
 }
 
 export interface TeamEditControls {
@@ -392,6 +408,39 @@ export function renderApp(root: HTMLElement): AppElements {
   reservationTab.setAttribute("aria-selected", "false");
   reservationTab.setAttribute("aria-controls", "portfolio-reservations-panel");
   portfolioTabs.append(projectTab, reservationTab);
+  const projectCreateSection = document.createElement("div");
+  projectCreateSection.className = "project-create-section";
+  const projectCreateButton = document.createElement("button");
+  projectCreateButton.type = "button";
+  projectCreateButton.className = "project-create-trigger";
+  projectCreateButton.textContent = "Create Project";
+  const projectCreateContainer = document.createElement("section");
+  projectCreateContainer.className = "timeline-project-edit project-create-panel";
+  projectCreateContainer.setAttribute("aria-label", "Create Project");
+  projectCreateContainer.hidden = true;
+  const projectCreateForm = document.createElement("form");
+  projectCreateForm.className = "timeline-project-edit-form";
+  const projectCreateFields = document.createElement("div");
+  projectCreateFields.className = "timeline-project-edit-fields";
+  const projectCreateError = document.createElement("p");
+  projectCreateError.className = "application-error";
+  projectCreateError.setAttribute("role", "alert");
+  projectCreateError.hidden = true;
+  const projectCreateCancel = document.createElement("button");
+  projectCreateCancel.type = "button";
+  projectCreateCancel.textContent = "Cancel";
+  const projectCreateSubmit = document.createElement("button");
+  projectCreateSubmit.type = "submit";
+  projectCreateSubmit.textContent = "Create";
+  const projectCreateActions = document.createElement("div");
+  projectCreateActions.className = "timeline-project-edit-actions";
+  projectCreateActions.append(projectCreateCancel, projectCreateSubmit);
+  projectCreateForm.append(projectCreateFields, projectCreateError, projectCreateActions);
+  projectCreateContainer.append(projectCreateForm);
+  projectCreateSection.append(projectCreateButton, projectCreateContainer);
+  const projectCreateControls = Object.freeze({ container: projectCreateContainer,
+    form: projectCreateForm, fields: projectCreateFields, error: projectCreateError,
+    create: projectCreateSubmit, cancel: projectCreateCancel });
   const projectList = document.createElement("ol");
   projectList.className = "project-sidebar-list";
   projectList.id = "portfolio-projects-panel";
@@ -403,7 +452,7 @@ export function renderApp(root: HTMLElement): AppElements {
   reservationList.setAttribute("role", "tabpanel");
   reservationList.setAttribute("aria-labelledby", reservationTab.id);
   reservationList.hidden = true;
-  projectSidebar.append(projectSidebarTitle, portfolioTabs, projectList, reservationList);
+  projectSidebar.append(projectSidebarTitle, portfolioTabs, projectCreateSection, projectList, reservationList);
   workspace.append(planningMain, projectSidebar);
 
   shell.append(header, workspace, diagnosticsBackdrop, diagnosticsDialog, planningSettings, teamEdit, teamCreate);
@@ -419,6 +468,9 @@ export function renderApp(root: HTMLElement): AppElements {
     teamEditControls,
     teamCreateButton,
     teamCreateControls,
+    projectCreateControls,
+    projectCreateButton,
+    projectCreateSection,
     applicationError,
     teamPanels,
     projectList,

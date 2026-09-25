@@ -34,6 +34,7 @@ import {
   type MaxParallelProjects,
 } from "../../domain/index.js";
 import { createTeamIdGenerator, type TeamIdGenerator } from "./teamIdGenerator.js";
+import { createProjectIdGenerator, type ProjectIdGenerator } from "./projectIdGenerator.js";
 
 export interface PlanningSettings {
   readonly startDate: CivilDate;
@@ -71,6 +72,22 @@ export interface UpdateProjectCommand {
   readonly objectiveEndDate?: CivilDate;
   readonly mandatoryDeadline?: CivilDate;
   readonly teamRequirements: readonly UpdateProjectTeamRequirement[];
+}
+
+export interface CreateProjectCommand {
+  readonly kind: "create-project";
+  readonly name: string;
+  readonly programId?: ProgramId;
+  readonly priorityFamilyId?: PriorityFamilyId;
+  readonly earliestStartDate?: CivilDate;
+  readonly objectiveEndDate?: CivilDate;
+  readonly mandatoryDeadline?: CivilDate;
+  readonly teamRequirements: readonly UpdateProjectTeamRequirement[];
+}
+
+export interface RemoveProjectCommand {
+  readonly kind: "remove-project";
+  readonly projectId: ProjectId;
 }
 
 export interface ReorderProjectCommand {
@@ -127,6 +144,8 @@ export interface UpdateReservationCommand {
 export type PlanningCommand =
   | UpdatePlanningSettingsCommand
   | UpdateProjectCommand
+  | CreateProjectCommand
+  | RemoveProjectCommand
   | ReorderProjectCommand
   | CreateTeamCommand
   | RemoveTeamCommand
@@ -148,10 +167,11 @@ export function createPlanningSession(
 ): PlanningSession {
   let state = freezeState(initialState);
   const teamIds = createTeamIdGenerator(() => state.portfolio.teams.map((team) => team.id));
+  const projectIds = createProjectIdGenerator(() => state.portfolio.projects.map((project) => project.id));
   return Object.freeze({
     getState: () => state,
     dispatch: (command: PlanningCommand): PlanningCommandResult => {
-      const candidate = applyCommand(state, command, teamIds);
+      const candidate = applyCommand(state, command, teamIds, projectIds);
       if (!candidate.ok) return candidate;
       state = candidate.state;
       return Object.freeze({ ok: true, state });
@@ -163,12 +183,17 @@ function applyCommand(
   state: PlanningSessionState,
   command: PlanningCommand,
   teamIds: TeamIdGenerator,
+  projectIds: ProjectIdGenerator,
 ): PlanningCommandResult {
   switch (command.kind) {
     case "update-planning-settings":
       return updatePlanningSettings(state, command);
     case "update-project":
       return updateProject(state, command);
+    case "create-project":
+      return addProject(state, command, projectIds);
+    case "remove-project":
+      return removeProject(state, command);
     case "reorder-project":
       return reorderProject(state, command);
     case "create-team":
@@ -532,6 +557,66 @@ function replaceTeam(
     ok: true,
     state: freezeState({ portfolio: portfolio.value, planning: state.planning }),
   });
+}
+
+function addProject(
+  state: PlanningSessionState,
+  command: CreateProjectCommand,
+  projectIds: ProjectIdGenerator,
+): PlanningCommandResult {
+  const name = command.name.trim();
+  if (name.length === 0) {
+    return failure([applicationError("EMPTY_PROJECT_LABEL", "project.name", "Project label must not be empty.")]);
+  }
+  const requirementResults = command.teamRequirements.map((requirement) =>
+    createProjectTeamRequirement(requirement));
+  const errors = requirementResults.flatMap((result) => result.ok ? [] : result.errors);
+  if (errors.length > 0) return failure(errors);
+  const requirements = requirementResults.map((result) => {
+    if (!result.ok) throw new TypeError("Validated Project requirement failed.");
+    return result.value;
+  });
+  const id = projectIds.next();
+  const project = createProject({
+    id, name,
+    ...(command.programId === undefined ? {} : { programId: command.programId }),
+    ...(command.priorityFamilyId === undefined ? {} : { priorityFamilyId: command.priorityFamilyId }),
+    ...(command.earliestStartDate === undefined ? {} : { earliestStartDate: command.earliestStartDate }),
+    ...(command.objectiveEndDate === undefined ? {} : { objectiveEndDate: command.objectiveEndDate }),
+    ...(command.mandatoryDeadline === undefined ? {} : { mandatoryDeadline: command.mandatoryDeadline }),
+    requirements,
+  });
+  if (!project.ok) return failure(project.errors);
+  const portfolio = createPortfolio({
+    teams: state.portfolio.teams,
+    projects: [...state.portfolio.projects, project.value],
+    programs: state.portfolio.programs,
+    priorityFamilies: state.portfolio.priorityFamilies,
+    priorityOrder: [...state.portfolio.priorityOrder, id],
+    reservations: state.portfolio.reservations,
+  });
+  if (!portfolio.ok) return failure(portfolio.errors);
+  return Object.freeze({ ok: true, state: freezeState({ portfolio: portfolio.value, planning: state.planning }) });
+}
+
+function removeProject(
+  state: PlanningSessionState,
+  command: RemoveProjectCommand,
+): PlanningCommandResult {
+  if (!state.portfolio.projects.some((project) => project.id === command.projectId)) {
+    return failure([applicationError("UNKNOWN_PROJECT", "projectId",
+      `Project ${command.projectId} does not exist in the current portfolio.`)]);
+  }
+  const portfolio = createPortfolio({
+    teams: state.portfolio.teams,
+    projects: state.portfolio.projects.filter((project) => project.id !== command.projectId),
+    programs: state.portfolio.programs,
+    priorityFamilies: state.portfolio.priorityFamilies,
+    priorityOrder: state.portfolio.priorityOrder.filter((id) => id !== command.projectId),
+    reservations: state.portfolio.reservations,
+  });
+  if (!portfolio.ok) return failure(portfolio.errors);
+  return Object.freeze({ ok: true, state: freezeState({ portfolio: portfolio.value, planning: state.planning }) });
 }
 
 function updateProject(

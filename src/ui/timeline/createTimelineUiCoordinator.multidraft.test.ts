@@ -2,13 +2,14 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   buildPlanningSettingsViewModel, buildProjectEditViewModel, buildReservationEditViewModel,
-  buildTeamEditViewModel, createPlanningSession, type UpdateProjectCommand,
+  buildTeamEditViewModel, createPlanningSession, type CreateProjectCommand, type UpdateProjectCommand,
 } from "../../application/index.js";
 import type { createTeamEditController } from "../team-edit/createTeamEditController.js";
 import { createDemoPlanningScenario } from "../../main/demo/createDemoPlanningScenario.js";
 import { createPlanningProjectionDispatcher } from "../../main/planning/createPlanningProjectionDispatcher.js";
 import type { AppElements } from "../renderApp.js";
 import type { createProjectEditController } from "../project-edit/createProjectEditController.js";
+import type { createProjectCreateController } from "../project-edit/createProjectCreateController.js";
 import type { createProjectReorderController } from "../portfolio/createProjectReorderController.js";
 import type { createReservationEditController } from "../reservation-edit/createReservationEditController.js";
 import { createTimelineUiCoordinator, type TimelineUiCoordinatorDependencies } from "./createTimelineUiCoordinator.js";
@@ -34,6 +35,8 @@ class FakeElement {
   readonly classList = { toggle: (_name: string, _force?: boolean) => {} };
   constructor(readonly ownerDocument: FakeDocument, readonly tagName: string) {}
   append(...children: FakeElement[]): void { this.children.push(...children); }
+  addEventListener(): void {}
+  removeEventListener(): void {}
   setAttribute(name: string, value: string): void { this.attributes.set(name, value); }
   focus(): void { this.ownerDocument.activeElement = this; }
   contains(target: FakeElement | undefined): boolean { return !!target &&
@@ -61,17 +64,21 @@ function fixture(withUnusedTeam = false) {
     projectTab: element, reservationTab: element, applicationError: element,
     planningSettingsButton: element, planningSettingsControls: { container: element },
     teamEditControls: { container: element }, diagnosticsControls: { dialog: element },
+    projectCreateControls: { container: element }, projectCreateButton: document.createElement("button"),
+    projectCreateSection: element,
   } as unknown as AppElements;
   let renderCount = 0;
   let reorderInput: Parameters<typeof createProjectReorderController>[0];
   let teamEditInput: Parameters<typeof createTeamEditController>[0];
+  let projectCreateInput: Parameters<typeof createProjectCreateController>[0];
+  const createEnabledTeams = new Set<TeamId>();
   let shellInput: { onProjectSelect: (id: ProjectId) => void;
     onReservationSelect: (id: ReservationId) => void; onTeamSettings: (id: TeamId) => void };
   const projectHandles = new Map<ProjectId, Parameters<typeof createProjectEditController>[0]>();
   const reservationHandles = new Map<ReservationId, Parameters<typeof createReservationEditController>[0]>();
   let latestProjectCards: ReturnType<typeof cards>["projectCards"];
   const cards = () => {
-    const projectCards = new Map(scenario.portfolio.projects.map((project) => [project.id,
+    const projectCards = new Map(session.getState().portfolio.projects.map((project) => [project.id,
       { button: document.createElement("button"), handle: document.createElement("button"), host: document.createElement("div"), item: document.createElement("li") }]));
     const reservationCards = new Map(scenario.portfolio.reservations.map((reservation) => [reservation.id,
       { button: document.createElement("button"), host: document.createElement("div"), item: document.createElement("li") }]));
@@ -92,6 +99,12 @@ function fixture(withUnusedTeam = false) {
       setProject(model: { projectId: ProjectId } | undefined) { if (model) projectHandles.set(model.projectId, input); },
       getProjectId: () => undefined, destroy() {},
     }),
+    createProjectCreateController: (input: Parameters<typeof createProjectCreateController>[0]) => {
+      projectCreateInput = input;
+      return { open() {}, requestClose: () => true, isOpen: () => false,
+        isTeamEnabled: (id: TeamId) => createEnabledTeams.has(id),
+        setPortfolio() {}, destroy() {} };
+    },
     createProjectReorderController: (input: Parameters<typeof createProjectReorderController>[0]) => {
       reorderInput = input; return { destroy() {} };
     },
@@ -124,17 +137,78 @@ function fixture(withUnusedTeam = false) {
     getReservationNavigationItems: () => session.getState().portfolio.reservations.map((item) => ({ id: item.id, name: item.name })),
   }, dependencies);
   return { scenario, session, coordinator, projectHandles, reservationHandles,
+    createProject: (command: CreateProjectCommand) => projectCreateInput.onCreate(command),
+    deleteProject: (id: ProjectId) => projectHandles.get(id)!.onDelete!(id),
+    enableTeamInCreate: (id: TeamId) => createEnabledTeams.add(id),
+    disableTeamInCreate: (id: TeamId) => createEnabledTeams.delete(id),
     deleteTeam: (id: TeamId) => teamEditInput.onDelete!(id),
     unusedTeamId: withUnusedTeam ? session.getState().portfolio.teams.at(-1)!.id : undefined,
     reorder: (id: ProjectId, position: number) => reorderInput.onReorder(id, position),
     focused: () => document.activeElement,
     handleFor: (id: ProjectId) => latestProjectCards.get(id)?.handle,
+    buttonFor: (id: ProjectId) => latestProjectCards.get(id)?.button,
     openProject: (id: ProjectId) => shellInput.onProjectSelect(id),
     openReservation: (id: ReservationId) => shellInput.onReservationSelect(id),
     getRenderCount: () => renderCount };
 }
 
 describe("coordinator multi-draft rerender", () => {
+  it("creates, reorders and deletes a Project while preserving independent dirty drafts and focus", () => {
+    const app = fixture();
+    const [first, second] = app.scenario.portfolio.projects;
+    const reservation = app.scenario.portfolio.reservations[0]!;
+    app.openProject(first!.id);
+    app.openProject(second!.id);
+    app.openReservation(reservation.id);
+    const secondStore = app.projectHandles.get(second!.id)!.draftStore!;
+    const secondDraft = secondStore.get(second!.id)!;
+    secondStore.update(second!.id, { ...secondDraft.values, name: "Second local" });
+    const reservationStore = app.reservationHandles.get(reservation.id)!.draftStore!;
+    const reservationDraft = reservationStore.get(reservation.id)!;
+    reservationStore.update(reservation.id, { ...reservationDraft.values, name: "Reservation local" });
+    const snapshot = app.coordinator.getUiSnapshot();
+    const created = app.createProject({ kind: "create-project", name: "Fresh",
+      teamRequirements: [{ teamId: first!.requirements[0]!.teamId,
+        remainingWorkload: first!.requirements[0]!.remainingWorkload }] });
+    assert.equal(created.ok, true);
+    const id = app.session.getState().portfolio.priorityOrder.at(-1)!;
+    assert.strictEqual(app.focused(), app.buttonFor(id));
+    assert.equal(app.projectHandles.get(id)!.draftStore!.get(id)?.expanded, true);
+    app.reorder(id, 1);
+    assert.equal(app.session.getState().portfolio.priorityOrder[0], id);
+    assert.equal(app.deleteProject(id).ok, true);
+    assert.equal(app.session.getState().portfolio.projects.some((project) => project.id === id), false);
+    assert.equal(app.projectHandles.get(id)!.draftStore!.get(id), undefined);
+    assert.equal(secondStore.get(second!.id)?.values.name, "Second local");
+    assert.equal(secondStore.isDirty(second!.id), true);
+    assert.equal(reservationStore.get(reservation.id)?.values.name, "Reservation local");
+    assert.equal(reservationStore.isDirty(reservation.id), true);
+    assert.deepEqual(app.coordinator.getUiSnapshot(), snapshot);
+    assert.strictEqual(app.focused(), app.buttonFor(first!.id));
+    assert.equal(app.getRenderCount(), 4);
+    app.coordinator.destroy();
+  });
+
+  it("guards a Create Project draft Team, then uses persisted references after creation", () => {
+    const app = fixture(true);
+    const id = app.unusedTeamId!;
+    app.enableTeamInCreate(id);
+    const blockedDraft = app.deleteTeam(id);
+    assert.equal(blockedDraft.ok, false);
+    if (!blockedDraft.ok) assert.equal(blockedDraft.reason, "draft");
+    assert.equal(app.getRenderCount(), 1);
+    app.disableTeamInCreate(id);
+    const raf = app.scenario.portfolio.projects[0]!.requirements[0]!.remainingWorkload;
+    assert.equal(app.createProject({ kind: "create-project", name: "Uses Team",
+      teamRequirements: [{ teamId: id, remainingWorkload: raf }] }).ok, true);
+    const projectId = app.session.getState().portfolio.priorityOrder.at(-1)!;
+    const blockedPersisted = app.deleteTeam(id);
+    assert.equal(blockedPersisted.ok, false);
+    if (!blockedPersisted.ok) assert.equal(blockedPersisted.reason, "application");
+    assert.equal(app.deleteProject(projectId).ok, true);
+    assert.equal(app.deleteTeam(id).ok, true);
+    app.coordinator.destroy();
+  });
   it("deletes an unused Team while independent Project and Reservation drafts stay dirty", () => {
     const app = fixture(true);
     const teamId = app.unusedTeamId!;

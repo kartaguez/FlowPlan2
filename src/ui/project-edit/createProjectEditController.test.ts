@@ -15,10 +15,12 @@ import {
 } from "../../domain/index.js";
 import type { ProjectEditControls } from "../renderApp.js";
 import { createProjectEditController } from "./createProjectEditController.js";
+import { createProjectDraftStore } from "./projectDraftStore.js";
 
 type Listener = (event: unknown) => void;
 
 class FakeDocument {
+  activeElement?: FakeElement;
   createElement(tagName: string): FakeElement {
     return new FakeElement(this, tagName);
   }
@@ -58,6 +60,7 @@ class FakeElement {
     this.childNodes = [...children];
   }
   setAttribute(name: string, value: string): void { this.attributes.set(name, value); }
+  focus(): void { this.ownerDocument.activeElement = this; }
 
   addEventListener(type: string, listener: EventListener): void {
     const listeners = this.listeners.get(type) ?? new Set<Listener>();
@@ -116,7 +119,9 @@ function model(label = "Project Atlas"): ProjectEditViewModel {
   });
 }
 
-function fixture(onApply: (command: UpdateProjectCommand) => { ok: true } | { ok: false; errors: readonly { code: string; path: string; message: string }[] } = () => ({ ok: true })) {
+function fixture(onApply: (command: UpdateProjectCommand) => { ok: true } | { ok: false; errors: readonly { code: string; path: string; message: string }[] } = () => ({ ok: true }),
+  options?: { draftStore?: boolean; confirmDiscard?: boolean; onDelete?: (id: typeof projectId) =>
+    { ok: true } | { ok: false; errors: readonly { code: string; path: string; message: string }[] } }) {
   const document = new FakeDocument();
   const form = document.createElement("form");
   const container = document.createElement("section");
@@ -125,6 +130,10 @@ function fixture(onApply: (command: UpdateProjectCommand) => { ok: true } | { ok
   const cancel = document.createElement("button");
   const status = document.createElement("p");
   const error = document.createElement("p");
+  const deleteButton = document.createElement("button");
+  const deleteConfirmation = document.createElement("div");
+  const deleteConfirm = document.createElement("button");
+  const deleteCancel = document.createElement("button");
   error.hidden = true;
   const controls = {
     container,
@@ -133,13 +142,19 @@ function fixture(onApply: (command: UpdateProjectCommand) => { ok: true } | { ok
     apply,
     cancel,
     status,
+    deleteButton, deleteConfirmation, deleteConfirm, deleteCancel,
   } as unknown as ProjectEditControls;
+  const draftStore = options?.draftStore ? createProjectDraftStore() : undefined;
   const controller = createProjectEditController({
     controls,
     errorContainer: error as unknown as HTMLElement,
     onApply,
+    ...(draftStore ? { draftStore } : {}),
+    ...(options?.onDelete ? { onDelete: options.onDelete } : {}),
+    confirmDiscard: () => options?.confirmDiscard ?? true,
   });
-  return { container, form, fields, apply, cancel, status, error, controller };
+  return { container, form, fields, apply, cancel, status, error, controller,
+    deleteButton, deleteConfirmation, deleteConfirm, deleteCancel, draftStore, document };
 }
 
 function descendants(root: FakeElement): FakeElement[] {
@@ -153,6 +168,40 @@ function field(root: FakeElement, name: string): FakeElement {
 }
 
 describe("ProjectEditController", () => {
+  it("uses Team deletion's dirty-discard and inline confirmation pattern", () => {
+    let deleted = 0;
+    const input = fixture(undefined, { draftStore: true,
+      onDelete: () => { deleted += 1; return { ok: true }; } });
+    input.controller.setProject(model());
+    field(input.fields, "project.name").value = "Dirty";
+    input.deleteButton.dispatch("click");
+    assert.equal(input.deleteConfirmation.hidden, false);
+    assert.equal(field(input.fields, "project.name").value, "Project Atlas");
+    assert.equal(input.draftStore?.isDirty(projectId), false);
+    assert.equal(input.document.activeElement, input.deleteConfirm);
+    input.deleteCancel.dispatch("click");
+    assert.equal(input.deleteConfirmation.hidden, true);
+    assert.equal(deleted, 0);
+    input.deleteButton.dispatch("click");
+    input.deleteConfirm.dispatch("click");
+    assert.equal(deleted, 1);
+  });
+
+  it("retains a dirty draft when discard is refused and shows application deletion errors", () => {
+    const input = fixture(undefined, { draftStore: true, confirmDiscard: false,
+      onDelete: () => ({ ok: false, errors: [{ code: "UNKNOWN_PROJECT", path: "projectId", message: "Missing" }] }) });
+    input.controller.setProject(model());
+    field(input.fields, "project.name").value = "Dirty";
+    input.deleteButton.dispatch("click");
+    assert.equal(input.deleteConfirmation.hidden, true);
+    assert.equal(field(input.fields, "project.name").value, "Dirty");
+    input.cancel.dispatch("click");
+    input.deleteButton.dispatch("click");
+    input.deleteConfirm.dispatch("click");
+    assert.equal(input.deleteConfirmation.hidden, true);
+    assert.match(input.error.textContent ?? "", /projectId: Missing/);
+    assert.equal(input.document.activeElement, input.deleteButton);
+  });
   it("renders global dates and decimal RAF while hiding daily caps", () => {
     const input = fixture();
     input.controller.setProject(model());

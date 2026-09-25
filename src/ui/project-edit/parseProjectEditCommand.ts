@@ -46,6 +46,18 @@ export type ProjectEditCommandParseResult =
 export function parseProjectEditCommand(
   values: ProjectEditFormValues,
 ): ProjectEditCommandParseResult {
+  const parsed = parseProjectFields(values);
+  if (!parsed.ok) return parsed;
+  return Object.freeze({ ok: true, command: Object.freeze({
+    kind: "update-project", projectId: values.projectId, ...parsed.fields,
+  }) });
+}
+
+export type ProjectFields = Omit<UpdateProjectCommand, "kind" | "projectId">;
+
+export function parseProjectFields(
+  values: Omit<ProjectEditFormValues, "projectId">,
+): Readonly<{ ok: true; fields: ProjectFields }> | Readonly<{ ok: false; errors: readonly DomainError[] }> {
   const errors: DomainError[] = [];
   const name = values.name.trim();
   const programId = parseOptionalId(values.programId, createProgramId, "project.programId", errors);
@@ -89,9 +101,7 @@ export function parseProjectEditCommand(
 
   return Object.freeze({
     ok: true,
-    command: Object.freeze({
-      kind: "update-project",
-      projectId: values.projectId,
+    fields: Object.freeze({
       name,
       ...(programId === undefined ? {} : { programId }),
       ...(priorityFamilyId === undefined ? {} : { priorityFamilyId }),
