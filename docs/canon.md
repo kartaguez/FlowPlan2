@@ -139,6 +139,13 @@ valid Apply
 → one recompute
 ```
 
+When browser persistence is active, a candidate edit is validated, projected,
+encoded, and written as one complete versioned document before the in-memory
+session publishes it. A failed write leaves the session and prior document
+unchanged. The Domain and session know no browser storage API. Import validates
+the complete document and projection before replacing the single stored value;
+an invalid import never clears existing planning data.
+
 Typing changes local form state only. It must not recompute planning.
 
 ## Planning

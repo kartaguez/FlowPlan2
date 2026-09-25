@@ -45,6 +45,7 @@ export {
   type Capacity,
   type CapacityRatio,
   type DailyCap,
+  type DomainQuantity,
   type MaxParallelProjects,
   type ProjectId,
   type ProgramId,

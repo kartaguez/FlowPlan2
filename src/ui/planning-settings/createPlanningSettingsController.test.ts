@@ -24,6 +24,7 @@ class FakeElement {
   checked = false;
   min = "";
   step = "";
+  files: { text: () => Promise<string> }[] = [];
 
   constructor(readonly ownerDocument: FakeDocument, readonly tagName: string) {}
 
@@ -50,6 +51,8 @@ class FakeElement {
   dispatch(type: string, event: object = {}): void {
     for (const listener of this.listeners.get(type) ?? []) listener(event);
   }
+
+  click(): void { this.dispatch("click"); }
 }
 
 const model = (maxParallelProjects = 2): PlanningSettingsViewModel => ({
@@ -79,6 +82,9 @@ function fixture() {
     apply: element("button"),
     cancel: element("button"),
     error: element("p"),
+    importButton: element("button"),
+    exportButton: element("button"),
+    fileInput: element("input"),
   };
   controls.container.hidden = true;
   controls.error.hidden = true;
@@ -92,11 +98,22 @@ function fixture() {
       commands.push(command);
       return { ok: true };
     },
+    onImport: () => "failed",
   });
   return { controls, trigger, commands, controller };
 }
 
 describe("PlanningSettingsController", () => {
+  it("opens the native file input and reports a failed import without submitting planning settings", async () => {
+    const input = fixture();
+    input.trigger.dispatch("click");
+    input.controls.importButton.click();
+    input.controls.fileInput.files = [{ text: async () => "broken" }];
+    input.controls.fileInput.dispatch("change");
+    await new Promise((resolve) => setImmediate(resolve));
+    assert.equal(input.commands.length, 0);
+    assert.equal(input.controls.error.textContent, "Import failed.");
+  });
   it("renders seven compact weekday inputs and keeps all edits local until Apply", () => {
     const input = fixture();
     input.trigger.dispatch("click");

@@ -66,6 +66,9 @@ export interface CreateTimelineUiCoordinatorInput {
   readonly getTeamEditViewModel: (id: TeamId) => TeamEditViewModel | undefined;
   readonly getReservationEditViewModel: (id: ReservationId) => ReservationEditViewModel | undefined;
   readonly getReservationNavigationItems: () => readonly Readonly<{ id: ReservationId; name: string }>[];
+  readonly onImport?: (document: string) => "imported" | "cancelled" | "failed";
+  readonly onExport?: () => string;
+  readonly invalidStartupBackup?: boolean;
 }
 export interface TimelineUiCoordinatorDependencies {
   readonly renderTimeline: typeof renderTimelineSvg;
@@ -246,6 +249,8 @@ export function createTimelineUiCoordinator(
     trigger: input.elements.planningSettingsButton,
     controls: input.elements.planningSettingsControls,
     initialModel: input.getPlanningSettingsViewModel(),
+    ...(input.onImport ? { onImport: input.onImport } : {}),
+    ...(input.onExport ? { onExport: input.onExport } : {}),
     onApply: (command) => {
       const result = input.dispatch(command);
       if (!result.ok) return result;
@@ -508,6 +513,7 @@ export function createTimelineUiCoordinator(
     return { ok: true as const };
   };
   mountProjection(input.initialProjection, currentSnapshot());
+  if (input.invalidStartupBackup) planningSettingsController.showStartupError();
   return {
     getProjection: () => projection, getUiSnapshot: currentSnapshot, renderProjection,
     destroy: () => {

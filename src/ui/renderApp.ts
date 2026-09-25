@@ -97,6 +97,9 @@ export interface PlanningSettingsControls {
   readonly apply: HTMLButtonElement;
   readonly cancel: HTMLButtonElement;
   readonly error: HTMLElement;
+  readonly importButton: HTMLButtonElement;
+  readonly exportButton: HTMLButtonElement;
+  readonly fileInput: HTMLInputElement;
 }
 
 export interface ReservationEditControls {
@@ -367,12 +370,26 @@ export function renderApp(root: HTMLElement): AppElements {
   const planningSettingsActions = document.createElement("div");
   planningSettingsActions.className = "planning-settings-actions";
   planningSettingsActions.append(planningSettingsCancel, planningSettingsApply);
+  const planningImport = document.createElement("button");
+  planningImport.type = "button";
+  planningImport.textContent = "Import";
+  const planningExport = document.createElement("button");
+  planningExport.type = "button";
+  planningExport.textContent = "Export";
+  const planningFileInput = document.createElement("input");
+  planningFileInput.type = "file";
+  planningFileInput.accept = ".json,application/json";
+  planningFileInput.hidden = true;
+  const planningTransferActions = document.createElement("div");
+  planningTransferActions.className = "planning-settings-actions";
+  planningTransferActions.append(planningImport, planningExport, planningFileInput);
   const planningSettingsError = document.createElement("p");
   planningSettingsError.className = "planning-settings-error";
   planningSettingsError.setAttribute("role", "alert");
   planningSettingsError.hidden = true;
   planningSettingsForm.append(
     planningSettingsFields,
+    planningTransferActions,
     planningSettingsError,
     planningSettingsActions,
   );
@@ -384,6 +401,9 @@ export function renderApp(root: HTMLElement): AppElements {
     apply: planningSettingsApply,
     cancel: planningSettingsCancel,
     error: planningSettingsError,
+    importButton: planningImport,
+    exportButton: planningExport,
+    fileInput: planningFileInput,
   });
   const planningMain = document.createElement("div");
   planningMain.className = "planning-main";

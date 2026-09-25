@@ -8,6 +8,8 @@ architecture rules live in [canon](./canon.md); current implementation facts
 and temporary constraints live in [current canon](./current_canon.md).
 
 Validated 9G Reservation and capacity-period structural CRUD forms the baseline.
+Lot 9H local backup/restore is implemented and **IN REVIEW**; it does not advance
+the validated baseline until human validation.
 Lot 10 — Actuals & History is the current objective. Its next sub-lot is 10A;
 this framing pass does not plan or implement it in detail.
 
@@ -38,8 +40,8 @@ Lot 10 — Actuals & History (OPEN)
 10A → 10B → 10C → 10D → 10E
 ```
 
-All Phase 9 lots are validated. The separate Projection date presentation pass
-remains IN REVIEW.
+Lots through 9G are validated. Lot 9H and the separate Projection date
+presentation pass remain IN REVIEW.
 
 ## 9C.1 — Planning UI cleanup
 
@@ -181,9 +183,23 @@ suites, and build passed. Local Edge checks at 1440 px and 390 px covered
 Reservation creation/deletion and focus, the narrow Portfolio panel without
 horizontal overflow, and Team period Add/Cancel/empty-schedule Apply.
 
-No capacity-exception editor, persistence, recurrence, actuals/history,
+No capacity-exception editor, recurrence, actuals/history,
 snapshots, or new analytics are included. The separate Projection date pass
 remains IN REVIEW on its own track.
+
+## 9H — Complete planning backup and restore
+
+**Status: IN REVIEW** — implemented at the current working tree, pending human
+validation. One versioned JSON document contains the full current
+`PlanningSessionState`. The same document is stored under one localStorage key;
+successful edits persist before the session commits. Planning Settings provides
+Import and Export. Import validates the full state and projection before asking
+for confirmation, then replaces the key and reloads the page. Invalid startup
+data is preserved and reported while the demo loads in memory. Actuals/history
+are absent from the current schema because they are not implemented yet.
+
+Implementation checks: TypeScript typecheck, 498 automated tests across 76
+suites, and build passed. Browser interaction review remains pending.
 
 ## 10A — Actuals model & deterministic reconstruction
 
@@ -256,7 +272,7 @@ by this framing pass.
 - No second priority source for Program or PAS.
 - No independent Team horizons, cursors, viewports, or time axes.
 - No floating-point business quantities.
-- No opportunistic persistence, synchronization, or framework migration.
+- No opportunistic synchronization or framework migration.
 
 ## Maintenance protocol
 

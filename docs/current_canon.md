@@ -37,6 +37,14 @@ demo session. The following capabilities are complete and active:
 The implementation follows the state, atomicity, engine, and projection
 invariants in [canon](./canon.md).
 
+Lot 9H complete local planning backup/restore is **IN REVIEW**. The browser
+loads a validated versioned document from one localStorage key, or the demo
+when the key is absent. A present but invalid document is reported and left
+untouched at startup. Accepted commands persist their candidate state before
+the session publishes it. Planning Settings can export the complete business
+state to JSON or import a validated file after confirmation; a successful
+import reloads the page. This has not advanced the validated 9G baseline.
+
 Lot 9A is validated and **DONE**. Program and PriorityFamily (shown as
 PAS) are optional Project associations. Their catalogs are static in the demo
 session; the Project editor offers two optional selects, and each Portfolio
@@ -297,7 +305,7 @@ projection. Rejected commands do neither.
 
 These are current implementation facts, not durable product rules:
 
-- the browser starts from a hard-coded demo scenario; there is no persistence;
+- the browser starts from a hard-coded demo only when no valid local backup is available;
 - existing Project Team requirement membership continues to use
   `update-project`;
 - capacity periods can be added or removed for an existing Team, but have no
@@ -320,7 +328,7 @@ These are current implementation facts, not durable product rules:
 ## Not part of the current implemented canon
 
 - Program / PriorityFamily (PAS) structural CRUD;
-- persistence, import/export, undo/redo;
+- undo/redo;
 - actuals records, resource actual consumption, and knowledge snapshots
   (the Lot 10 target above, not yet implemented).
 

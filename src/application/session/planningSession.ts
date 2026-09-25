@@ -175,7 +175,7 @@ export type PlanningCommandResult =
 
 export interface PlanningSession {
   readonly getState: () => PlanningSessionState;
-  readonly dispatch: (command: PlanningCommand) => PlanningCommandResult;
+  readonly dispatch: (command: PlanningCommand, beforeCommit?: (candidate: PlanningSessionState) => void) => PlanningCommandResult;
 }
 
 export function createPlanningSession(
@@ -187,9 +187,18 @@ export function createPlanningSession(
   const reservationIds = createReservationIdGenerator(() => state.portfolio.reservations.map((reservation) => reservation.id));
   return Object.freeze({
     getState: () => state,
-    dispatch: (command: PlanningCommand): PlanningCommandResult => {
+    dispatch: (command: PlanningCommand, beforeCommit?: (candidate: PlanningSessionState) => void): PlanningCommandResult => {
       const candidate = applyCommand(state, command, teamIds, projectIds, reservationIds);
       if (!candidate.ok) return candidate;
+      if (candidate.state === state) return Object.freeze({ ok: true, state });
+      try {
+        beforeCommit?.(candidate.state);
+      } catch {
+        return failure([applicationError("COMMIT_FAILED", "planning", "Planning change could not be saved.")]);
+      }
+      if (command.kind === "create-team") teamIds.next();
+      if (command.kind === "create-project") projectIds.next();
+      if (command.kind === "create-reservation") reservationIds.next();
       state = candidate.state;
       return Object.freeze({ ok: true, state });
     },
@@ -238,9 +247,7 @@ function addReservation(
 ): PlanningCommandResult {
   const validated = buildReservation(state, command, ids.peek());
   if (!validated.ok) return failure(validated.errors);
-  const replaced = replaceReservations(state, [...state.portfolio.reservations, validated.value]);
-  if (replaced.ok) ids.next();
-  return replaced;
+  return replaceReservations(state, [...state.portfolio.reservations, validated.value]);
 }
 
 function removeReservation(state: PlanningSessionState, command: RemoveReservationCommand): PlanningCommandResult {
@@ -451,7 +458,7 @@ function addTeam(
   if (!periodResult.ok) return failure(periodResult.errors);
   const schedule = createTeamCapacitySchedule({ periods: periodResult.periods, exceptions: [] });
   if (!schedule.ok) return failure(schedule.errors);
-  const team = createTeam({ id: teamIds.next(), name, capacitySchedule: schedule.value });
+  const team = createTeam({ id: teamIds.peek(), name, capacitySchedule: schedule.value });
   if (!team.ok) return failure(team.errors);
   const portfolio = createPortfolio({
     teams: [...state.portfolio.teams, team.value],
@@ -597,7 +604,7 @@ function addProject(
     if (!result.ok) throw new TypeError("Validated Project requirement failed.");
     return result.value;
   });
-  const id = projectIds.next();
+  const id = projectIds.peek();
   const project = createProject({
     id, name,
     ...(command.programId === undefined ? {} : { programId: command.programId }),

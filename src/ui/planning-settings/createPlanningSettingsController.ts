@@ -10,6 +10,7 @@ const WEEKDAYS = Object.freeze(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
 export interface PlanningSettingsController {
   readonly setModel: (model: PlanningSettingsViewModel) => void;
+  readonly showStartupError: () => void;
   readonly destroy: () => void;
 }
 
@@ -20,6 +21,8 @@ export function createPlanningSettingsController(input: {
   readonly onApply: (
     command: UpdatePlanningSettingsCommand,
   ) => Readonly<{ ok: true }> | Readonly<{ ok: false; errors: readonly DomainError[] }>;
+  readonly onImport?: (document: string) => "imported" | "cancelled" | "failed";
+  readonly onExport?: () => string;
 }): PlanningSettingsController {
   let model = input.initialModel;
   let startDate: HTMLInputElement;
@@ -28,7 +31,7 @@ export function createPlanningSettingsController(input: {
   let maxParallel: HTMLInputElement;
 
   const showErrors = (errors: readonly DomainError[]): void => {
-    input.controls.error.textContent = errors.map((item) => `${item.path}: ${item.message}`).join(" ");
+    input.controls.error.textContent = errors.map((item) => item.path ? `${item.path}: ${item.message}` : item.message).join(" ");
     input.controls.error.hidden = false;
   };
   const clearError = (): void => {
@@ -87,17 +90,51 @@ export function createPlanningSettingsController(input: {
     clearError();
     input.controls.container.hidden = true;
   };
+  const startImport = (): void => { input.controls.fileInput.value = ""; input.controls.fileInput.click(); };
+  const importFile = async (): Promise<void> => {
+    const file = input.controls.fileInput.files?.[0];
+    if (!file || !input.onImport) return;
+    try {
+      const result = input.onImport(await file.text());
+      if (result === "failed") showErrors([{ code: "IMPORT_FAILED", path: "", message: "Import failed." }]);
+    } catch {
+      showErrors([{ code: "IMPORT_FAILED", path: "", message: "Import failed." }]);
+    }
+  };
+  const exportFile = (): void => {
+    try {
+      if (!input.onExport) throw new Error("Export unavailable.");
+      const document = input.controls.fields.ownerDocument;
+      const blob = new Blob([input.onExport()], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      try {
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `flowplan-${new Date().toISOString().slice(0, 10)}.json`;
+        link.click();
+      } finally { URL.revokeObjectURL(url); }
+    } catch {
+      showErrors([{ code: "EXPORT_FAILED", path: "", message: "Export failed." }]);
+    }
+  };
 
   input.trigger.addEventListener("click", open);
   input.controls.cancel.addEventListener("click", cancel);
   input.controls.form.addEventListener("submit", submit);
+  input.controls.importButton?.addEventListener("click", startImport);
+  input.controls.fileInput?.addEventListener("change", importFile);
+  input.controls.exportButton?.addEventListener("click", exportFile);
   hydrate();
   return Object.freeze({
     setModel: (next: PlanningSettingsViewModel) => { model = next; if (!input.controls.container.hidden) hydrate(); },
+    showStartupError: () => { open(); showErrors([{ code: "INVALID_LOCAL_BACKUP", path: "", message: "Saved planning data is invalid. Demo loaded; the saved data was preserved." }]); },
     destroy: () => {
       input.trigger.removeEventListener("click", open);
       input.controls.cancel.removeEventListener("click", cancel);
       input.controls.form.removeEventListener("submit", submit);
+      input.controls.importButton?.removeEventListener("click", startImport);
+      input.controls.fileInput?.removeEventListener("change", importFile);
+      input.controls.exportButton?.removeEventListener("click", exportFile);
     },
   });
 }

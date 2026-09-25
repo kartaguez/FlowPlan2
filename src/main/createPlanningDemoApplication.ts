@@ -10,6 +10,10 @@ import type { AppElements } from "../ui/renderApp.js";
 import { createTimelineUiCoordinator } from "../ui/timeline/createTimelineUiCoordinator.js";
 import type { DemoPlanningScenario } from "./demo/createDemoPlanningScenario.js";
 import { createPlanningProjectionDispatcher } from "./planning/createPlanningProjectionDispatcher.js";
+import { buildPlanningSessionProjection } from "./planning/buildPlanningSessionProjection.js";
+import { importPlanningBackup, loadPlanningBackup } from "./planning/planningBackupOperations.js";
+import { encodeFlowplanBackupV1 } from "../application/backup/flowplanBackupV1.js";
+import type { PlanningBackupStore } from "../infrastructure/backup/localPlanningBackup.js";
 
 const DEMO_GEOMETRY_VIEWPORT: TimelineGeometryViewport = Object.freeze({
   width: 2160,
@@ -25,16 +29,29 @@ const DEMO_GEOMETRY_VIEWPORT: TimelineGeometryViewport = Object.freeze({
 export function createPlanningDemoApplication(
   elements: AppElements,
   scenario: DemoPlanningScenario,
+  backupStore?: PlanningBackupStore,
 ): ReturnType<typeof createTimelineUiCoordinator> {
-  const session = createPlanningSession(scenario);
+  const preflight = (state: DemoPlanningScenario): void => { buildPlanningSessionProjection({ state, geometryViewport: DEMO_GEOMETRY_VIEWPORT }); };
+  const loaded = backupStore ? loadPlanningBackup(backupStore, scenario, preflight) : { state: scenario, invalid: false };
+  const session = createPlanningSession(loaded.state);
   const projectionDispatcher = createPlanningProjectionDispatcher({
     session,
     geometryViewport: DEMO_GEOMETRY_VIEWPORT,
+    ...(backupStore ? { backupStore } : {}),
   });
   return createTimelineUiCoordinator({
     elements,
     initialProjection: projectionDispatcher.getProjection(),
-    initialDate: scenario.planning.startDate,
+    initialDate: loaded.state.planning.startDate,
+    invalidStartupBackup: loaded.invalid,
+    onExport: () => encodeFlowplanBackupV1(session.getState()),
+    ...(backupStore ? { onImport: (document: string) => importPlanningBackup({
+      document, store: backupStore, preflight,
+      confirm: () => elements.planningSettingsControls.container.ownerDocument.defaultView?.confirm(
+        "Importing this file will replace all current planning data. Continue?",
+      ) ?? false,
+      reload: () => elements.planningSettingsControls.container.ownerDocument.defaultView?.location.reload(),
+    }) } : {}),
     dispatch: projectionDispatcher.dispatch,
     getProjectEditViewModel: (projectId) =>
       buildProjectEditViewModel(session.getState(), projectId),
