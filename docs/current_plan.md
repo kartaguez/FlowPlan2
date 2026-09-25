@@ -7,10 +7,9 @@ This is the operational roadmap for the active trajectory. Durable product and
 architecture rules live in [canon](./canon.md); current implementation facts
 and temporary constraints live in [current canon](./current_canon.md).
 
-The roadmap uses `9A`–`9G`, with intermediate lot `9C.1` between 9C and 9D.
 Validated 9G Reservation and capacity-period structural CRUD forms the baseline.
-Each Phase 9 lot is intended to fit one commit or a small, coherent commit set.
-Actuals/History is a later trajectory, not a Phase 9 lot.
+Lot 10 — Actuals & History is the current objective. Its next sub-lot is 10A;
+this framing pass does not plan or implement it in detail.
 
 ## Completed
 
@@ -32,10 +31,11 @@ Actuals/History is a later trajectory, not a Phase 9 lot.
 - 9F Project structural CRUD and Team membership (DONE);
 - 9G Reservation and capacity-period structural CRUD (DONE).
 
-## Ordered remaining lots
+## Current objective and ordered sub-lots
 
 ```text
-Later trajectory: Actuals / History
+Lot 10 — Actuals & History (OPEN)
+10A → 10B → 10C → 10D → 10E
 ```
 
 All Phase 9 lots are validated. The separate Projection date presentation pass
@@ -185,23 +185,70 @@ No capacity-exception editor, persistence, recurrence, actuals/history,
 snapshots, or new analytics are included. The separate Projection date pass
 remains IN REVIEW on its own track.
 
-## Later trajectory — Actuals / History
+## 10A — Actuals model & deterministic reconstruction
 
-Actuals/History begins only after the current projection and structural
-planning surface are stable:
+**Status: NEXT — to plan, then implement; not started.**
 
-```text
-periodic progression
-→ actual consumed
-→ revised RAF
-→ next planning snapshot
-```
+Establish immutable dated Actuals Records as business knowledge for each
+Project and Reservation, independently of any global actuals cutoff. Project
+records retain per-Team cumulative consumed work and the RAF estimate known at
+the same date; Reservation records retain per-Team cumulative consumed work.
+Define Domain validation and successive-record invariants, including dates,
+Team association, cumulative deltas, and the initial record boundary after
+inspecting current entity lifecycles. Preserve the existing Project
+requirement RAF and Reservation ratio/fixed-daily forecast semantics.
 
-Historical snapshots preserve prior runs while the next run receives only the
-revised current RAF. This later trajectory may introduce persistence and
-snapshot navigation, but it must preserve the boundary defined in
-[canon](./canon.md): actuals/history stay upstream of the pure Planning Engine.
-No fine implementation slicing is fixed yet.
+Reconstruct exact daily actual occupation deterministically from aggregated
+deltas between records. Effective Team capacity weights eligible days but
+never limits the declared consumption. Cover zero-capacity periods with a
+deterministic fallback, overlapping actual loads, consumption beyond capacity,
+and successive periods with meaningful Domain tests. Reconstruction must
+remain a derived projection, not persisted observed daily consumption. 10A
+does not introduce historical knowledge snapshots, historical version
+selection, or a Planning Engine integration contract; those follow in 10B–10E.
+The next PLAN pass should decide the exact record types, eligible interval and
+first-record rules, validation, and ownership within the existing Domain and
+Application boundaries before coding.
+
+## 10B — Actuals-aware planning projection
+
+Feed calculated daily actual occupation into planning without passing raw
+history. Preserve all Project and Reservation actuals even above effective
+capacity, retain non-clamped forecast Reservation demand, and limit Project
+forecast to remaining capacity. Extend the relevant planning, diagnostics,
+timeline, and cursor-metric projections; distinguish actual overload from
+forecast Reservation overload. Review deadline capacity lookahead as well as
+daily allocation. Exact contract shapes and diagnostic names are 10B decisions.
+
+## 10C — Actuals workflows & UI
+
+Provide Project and Reservation Update actuals workflows: a new per-object
+actuals date and per-Team cumulative consumed values. For Projects, propose
+`max(0, previousRemaining - consumedDelta)` as the new RAF while allowing user
+correction. Apply each update atomically and integrate actuals and diagnostics
+into timelines and metrics. Detailed interaction design remains open.
+
+## 10D — Knowledge snapshots
+
+Capture immutable knowledge of FlowPlan2 at a snapshot date independent of
+each object's `actualsThroughDate`. One snapshot may contain Projects and
+Reservations whose actuals are known through different dates. The snapshot
+contract and persistence mechanism remain open.
+
+## 10E — Historical reconstruction & drift comparison
+
+Reconstruct knowledge at different snapshot dates and compare changes in
+consumed work, RAF, projection, estimated dates, capacity/overload, and other
+relevant results. The comparison UI and drift visualization remain open.
+
+The [current canon](./current_canon.md) gives the Lot 10 business and
+architecture target. The durable [canon](./canon.md) still has an RAF-only
+Actuals → Engine diagram: preserve its rule that history stays upstream, then
+refine that diagram when 10B adds calculated daily actual occupation to the
+projection input. The current `PlanningInput`, capacity/day diagnostics,
+timeline adapter, cursor metrics, and application recomputation describe the
+forecast-only baseline. They are likely 10B touchpoints, not contracts fixed
+by this framing pass.
 
 ## Cross-cutting non-goals for Phase 9
 

@@ -104,17 +104,104 @@ capacity exceptions. Cancel restores the persisted schedule without a session
 mutation or planning recomputation. Create Team still requires at least one
 initial period. There is no manual period reorder or Domain period ID.
 
-## Current product trajectory
+## Current objective — Lot 10: Actuals & History
 
-The trajectory remains **projection planning first**. The current run starts
-from the RAF stored on each Project/Team requirement and produces a disposable
-projection. It has no persistence or historical progression model.
+Lot 10 is the active product and architecture target; none of 10A–10E is
+implemented yet. The current run still starts from the RAF stored on each
+Project/Team requirement and produces a disposable projection. The in-memory
+session has no actuals records, historical progression, or snapshots.
 
-Explicitly deferred:
+### Business knowledge and dates
 
-- actuals/history and actual resource consumption;
-- periodic or monthly snapshots;
-- persistence, synchronization, import/export, and undo/redo.
+Each Project and each Reservation has its own `actualsThroughDate`: its
+consumption is known through that date. These dates may differ between objects;
+there is no required global consumption cutoff. A later knowledge snapshot has
+its own date, distinct from every object's `actualsThroughDate`, and may contain
+objects with different actuals dates.
+
+Successive actuals updates preserve immutable business records. A Project
+record carries its actuals date and, for each Team, cumulative consumed work
+and remaining workload (RAF) known at that date. A Reservation record carries
+its own actuals date and cumulative consumed work per Team. Exact types and
+names remain to be designed in 10A. A Project's new RAF is a new business
+estimate, not a value derivable forever from its initial RAF. For consecutive
+Project records, `consumedDelta = newCumulativeConsumed -
+previousCumulativeConsumed`; the later workflow proposes
+`max(0, previousRemaining - consumedDelta)` but lets the user correct it.
+
+Reservation actual consumption is separate from Reservation forecast demand.
+The latter remains a ratio of effective daily capacity or an exact fixed-daily
+request over applicable dates. Fixed-daily is neither RAF nor a total workload
+to spread across the interval. Actual/forecast and Project/Reservation are
+independent axes.
+
+### Reconstructed daily occupation and forecast
+
+Users declare cumulative consumption at dated records, not observed daily
+values. For the delta between successive records, FlowPlan2 reconstructs a
+deterministic daily distribution. This distribution is a computed projection,
+not a historical claim or a persisted user observation. Effective Team
+capacity weights eligible days. When the period's positive effective capacity
+sum is nonzero, each day's share is `consumedDelta ×
+effectiveCapacity(day) / totalEffectiveCapacity(period)`; zero-capacity days
+normally receive zero. If all eligible days have zero effective capacity, a
+deterministic fallback still distributes the entire declared delta across
+eligible days. Capacity is a weight, never a ceiling on actuals. Multiple
+Project and Reservation actuals can overlap and exceed capacity. The precise
+eligibility and first-record boundary rules belong to 10A.
+
+For each Team/day, actual Project occupation and actual Reservation occupation
+are preserved in full. Forecast Reservation demand retains its current
+non-clamped semantics, including over-reservation. Forecast Project allocation
+alone is bounded by remaining capacity. Conceptually, the order is Project
+actual, Reservation actual, Reservation forecast, then Project forecast, and
+`capacityForProjectForecast = max(0, effectiveCapacity - actualLoad -
+forecastReservationLoad)`. This expresses the target business behavior, not a
+premature engine API. Actual overload and forecast Reservation overload need
+distinct diagnostics; a combined overload flag would lose their causes.
+
+### Architecture and historical knowledge
+
+The intended boundary is:
+
+```text
+immutable Actuals Records
+→ deterministic reconstruction
+→ calculated daily actual occupation
+→ Planning Engine
+→ forecast and disposable presentation projections
+```
+
+Actuals records, their knowledge dates, snapshots, historical version
+selection, and drift comparison stay upstream of the Planning Engine. The
+engine will need calculated daily occupation to determine Project forecast
+capacity, including in deadline feasibility calculations; it must not become
+the owner of historical records or replay. The current `PlanningInput`,
+`TeamDayCapacity`, diagnostics, timeline adapter, cursor metrics, and session
+recomputation contain forecast-only contracts and will need deliberate review
+in 10B. The Project requirement's `remainingWorkload` currently initializes
+the engine's per-Team RAF; future current RAF must remain consistent with the
+latest known Project estimate without treating forecast allocations as actuals.
+
+Knowledge snapshots in 10D preserve immutable views of what FlowPlan2 knew
+at a snapshot date; they are distinct from per-object actuals records. In 10E,
+historical reconstruction and drift comparison may compare consumed work,
+RAF, projections, estimated dates, and capacity/overload using the knowledge
+available at different snapshot dates.
+
+The durable [canon](./canon.md) currently says actuals/history feed only a
+revised RAF into the engine. Its enduring prohibition on historical state in
+the engine stands; its RAF-only diagram and wording require refinement when
+10B introduces calculated daily actual occupation as a projection input.
+The current formulas for `projectCapacity`, `TEAM_OVER_RESERVED`, and occupied
+cursor metrics describe the implemented forecast-only system and cannot be
+read as complete Lot 10 formulas. No code or durable canon change is made by
+this documentary framing pass.
+
+Open decisions include exact record types, date/Team validation and the
+first-record interval, snapshot contract and storage, migration, 10C UI,
+historical comparison UX, and drift visualization. Persistence,
+synchronization, import/export, and undo/redo are not specified here.
 
 ## Current UI structure
 
@@ -234,7 +321,8 @@ These are current implementation facts, not durable product rules:
 
 - Program / PriorityFamily (PAS) structural CRUD;
 - persistence, import/export, undo/redo;
-- actuals/history, resource actual consumption, and snapshots.
+- actuals records, resource actual consumption, and knowledge snapshots
+  (the Lot 10 target above, not yet implemented).
 
 These omissions are ordered as future work in the
 [current plan](./current_plan.md); they must not be inferred from visual
