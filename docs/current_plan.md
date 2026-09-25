@@ -177,7 +177,7 @@ quantities and existing exceptions, rejects overlaps, allows gaps, and displays
 the Domain-normalized chronological schedule. There is no manual reorder or
 Domain period identity. Create Team still requires an initial period.
 
-Implementation checks: TypeScript typecheck, 486 automated tests across 73
+Implementation checks: TypeScript typecheck, 489 automated tests across 73
 suites, and build passed. Local Edge checks at 1440 px and 390 px covered
 Reservation creation/deletion and focus, the narrow Portfolio panel without
 horizontal overflow, and Team period Add/Cancel/empty-schedule Apply.

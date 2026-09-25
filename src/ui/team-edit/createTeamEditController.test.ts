@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import type { TeamEditViewModel } from "../../application/index.js";
-import { createCivilDate, createTeamId, serializeQuantity, type Capacity, type DomainResult } from "../../domain/index.js";
+import { createCivilDate, createTeamId, serializeQuantity, type Capacity, type DomainResult,
+  type UnavailabilityRatio } from "../../domain/index.js";
 import type { TeamEditControls } from "../renderApp.js";
 import { createTeamEditController } from "./createTeamEditController.js";
 
@@ -29,6 +30,15 @@ function model(): TeamEditViewModel { return Object.freeze({
     Object.freeze({ index: 0, startDate: must(createCivilDate("2025-01-01")), endDate: must(createCivilDate("2025-01-31")), capacity: "0.333", capacityExact: "1/3", unavailabilityPercent: "33.333", unavailabilityExact: "1/3" }),
   ]),
 }); }
+function modelWithTwoPeriods(): TeamEditViewModel {
+  return Object.freeze({ ...model(), capacityPeriods: Object.freeze([
+    model().capacityPeriods[0]!,
+    Object.freeze({ index: 1, startDate: must(createCivilDate("2025-02-01")),
+      endDate: must(createCivilDate("2025-02-28")), capacity: "0.286",
+      capacityExact: "2/7", unavailabilityPercent: "14.286",
+      unavailabilityExact: "1/7" }),
+  ]) });
+}
 function fixture(confirmDiscard = true) {
   const document = new FakeDocument();
   const element = (tag: string) => document.createElement(tag);
@@ -84,6 +94,59 @@ describe("TeamEditController", () => {
     input.controls.capacityCancel.dispatch("click");
     assert.equal(field(input.controls.capacityFields, "team.capacityPeriods[0].capacity").value, "0.333");
     assert.equal(input.periodCommands.length, 0);
+  });
+
+  it("tracks a deleted first period by reference and Applies the untouched following exact values", () => {
+    const input = fixture(false);
+    input.controller.setTeam(modelWithTwoPeriods());
+    assert.equal(input.controller.hasUnappliedChanges(), false);
+    descendants(input.controls.capacityFields).find((item) =>
+      item.textContent === "Delete period")!.dispatch("click");
+    assert.equal(input.controller.hasUnappliedChanges(), true);
+    assert.equal(field(input.controls.capacityFields, "team.capacityPeriods[1].capacity").value, "0.286");
+    assert.equal(field(input.controls.capacityFields, "team.capacityPeriods[1].unavailability").value, "14.286");
+    assert.equal(input.controller.requestClose(), false);
+    assert.equal(input.controls.container.hidden, false);
+    input.controller.setTeam(modelWithTwoPeriods());
+    assert.equal(input.controller.hasUnappliedChanges(), true);
+    input.controls.capacityForm.dispatch("submit", { preventDefault() {} });
+    assert.equal(input.periodCommands.length, 1);
+    const command = input.periodCommands[0] as {
+      capacityPeriods: { startDate: string; endDate: string; capacity: Capacity;
+        unavailability: UnavailabilityRatio }[];
+    };
+    assert.equal(command.capacityPeriods.length, 1);
+    assert.equal(command.capacityPeriods[0]!.startDate, "2025-02-01");
+    assert.equal(command.capacityPeriods[0]!.endDate, "2025-02-28");
+    assert.equal(serializeQuantity(command.capacityPeriods[0]!.capacity), "2/7");
+    assert.equal(serializeQuantity(command.capacityPeriods[0]!.unavailability), "1/7");
+  });
+
+  it("Cancel restores every persisted period and clears deletion dirty-state without dispatch", () => {
+    const input = fixture(false);
+    input.controller.setTeam(modelWithTwoPeriods());
+    descendants(input.controls.capacityFields).find((item) =>
+      item.textContent === "Delete period")!.dispatch("click");
+    assert.equal(input.controller.hasUnappliedChanges(), true);
+    input.controls.capacityCancel.dispatch("click");
+    assert.equal(input.controller.hasUnappliedChanges(), false);
+    assert.equal(field(input.controls.capacityFields, "team.capacityPeriods[0].capacity").value, "0.333");
+    assert.equal(field(input.controls.capacityFields, "team.capacityPeriods[1].capacity").value, "0.286");
+    assert.equal(input.periodCommands.length, 0);
+    assert.equal(input.controller.requestClose(), true);
+    assert.equal(input.controls.container.hidden, true);
+  });
+
+  it("Add is dirty and deleting only that new row restores a clean draft", () => {
+    const input = fixture(false);
+    input.controller.setTeam(modelWithTwoPeriods());
+    input.controls.capacityAdd.dispatch("click");
+    assert.equal(input.controller.hasUnappliedChanges(), true);
+    assert.equal(input.controller.requestClose(), false);
+    descendants(input.controls.capacityFields).filter((item) =>
+      item.textContent === "Delete period").at(-1)!.dispatch("click");
+    assert.equal(input.controller.hasUnappliedChanges(), false);
+    assert.equal(input.controller.requestClose(), true);
   });
 
   it("keeps added and deleted rows local, then Cancel restores the persisted schedule", () => {

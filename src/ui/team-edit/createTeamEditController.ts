@@ -73,17 +73,22 @@ export function createTeamEditController(
     input.errorContainer.textContent = message;
     input.errorContainer.hidden = false;
   };
-  const hasUnappliedChanges = (): boolean => model !== undefined && (
-    nameInput?.value !== model.label ||
-    periodInputs.length !== model.capacityPeriods.length ||
-    periodInputs.some((period, index) => {
-      const reference = model!.capacityPeriods[index];
-      return !reference || period.referenceIndex !== index ||
-        period.startDate.value !== reference.startDate ||
+  const hasUnappliedChanges = (): boolean => {
+    if (model === undefined) return false;
+    if (nameInput?.value !== model.label) return true;
+    const presentReferences = new Set<number>();
+    for (const period of periodInputs) {
+      if (period.referenceIndex === undefined) return true;
+      const reference = model.capacityPeriods[period.referenceIndex];
+      if (reference === undefined) return true;
+      presentReferences.add(period.referenceIndex);
+      if (period.startDate.value !== reference.startDate ||
         period.endDate.value !== reference.endDate ||
         period.capacity.value !== reference.capacity ||
-        period.unavailabilityPercent.value !== reference.unavailabilityPercent;
-    }));
+        period.unavailabilityPercent.value !== reference.unavailabilityPercent) return true;
+    }
+    return model.capacityPeriods.some((_, index) => !presentReferences.has(index));
+  };
   const renderPeriod = (row: {
     readonly key: number; readonly referenceIndex?: number;
     readonly startDate: string; readonly endDate: string;
