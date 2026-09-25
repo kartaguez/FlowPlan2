@@ -237,6 +237,18 @@ h1 { margin-bottom: 0; font-size: 2rem; letter-spacing: -0.04em; }
   border-radius: var(--fp-radius-sm); background: var(--fp-surface); color: var(--fp-text);
   padding: 0.35rem 0.7rem; font: inherit; cursor: pointer; }
 .team-create-trigger { padding-left: 0.6rem; pointer-events: auto; }
+.team-collection-actions::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--fp-collection-cursor-x, -1rem);
+  z-index: 1;
+  width: 3px;
+  background: var(--fp-projection);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
 .team-delete-confirmation { margin-top: 0.7rem; border: 1px solid var(--fp-border-soft);
   border-radius: var(--fp-radius-sm); padding: 0.65rem; }
 .team-delete-confirmation button { margin-right: 0.5rem; }

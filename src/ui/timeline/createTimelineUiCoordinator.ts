@@ -336,8 +336,10 @@ export function createTimelineUiCoordinator(
       geometry: projection.geometry, controls: input.elements.viewportControls,
       initialViewport: snapshot.viewport,
       onViewportChange: () => cursorController?.refresh?.() });
+    const teamCollectionRow = input.elements.teamCreateButton?.parentElement;
     cursorController = dependencies.createCursorController({ svg: input.elements.svg,
       geometry: projection.geometry,
+      ...(teamCollectionRow ? { teamCollectionRow } : {}),
       initialDate: selectedDate, getViewport: viewportController.getState,
       isModalOpen, onSelectedDateChange: renderCursorMetrics });
     renderCursorMetrics(selectedDate);

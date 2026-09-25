@@ -26,6 +26,7 @@ export interface TimelineCursorController {
 export interface CreateTimelineCursorControllerInput {
   readonly svg: SVGSVGElement;
   readonly geometry: TimelineGeometry;
+  readonly teamCollectionRow?: HTMLElement;
   readonly cursorControl?: HTMLButtonElement;
   readonly initialDate: CivilDate;
   readonly getViewport: () => TimelineViewportState;
@@ -52,6 +53,10 @@ export function createTimelineCursorController(
     const labelX = Math.max(viewport.x + labelMargin,
       Math.min(cursor.x, viewport.x + viewport.width - labelMargin));
     renderTimelineCursor({ svg: input.svg, cursor, labelX, geometry: input.geometry });
+    input.teamCollectionRow?.style.setProperty(
+      "--fp-collection-cursor-x",
+      `${(cursor.x - viewport.x) / viewport.width * 100}%`,
+    );
     preserveTimelineLabelTypography(input.svg, viewport, input.geometry.height);
     if (input.cursorControl) {
       input.cursorControl.textContent = `Projection date: ${selectedDate}`;

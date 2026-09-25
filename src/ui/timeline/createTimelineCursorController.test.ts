@@ -193,6 +193,29 @@ function keyboard(key: string, options: { ctrlKey?: boolean; target?: unknown } 
 }
 
 describe("createTimelineCursorController", () => {
+  it("keeps the Team collection segment aligned through date and viewport changes without adding a label", () => {
+    const input = fixture();
+    const styles = new Map<string, string>();
+    const row = { style: { setProperty: (name: string, value: string) => styles.set(name, value) },
+      textContent: "Create Team" } as unknown as HTMLElement;
+    let viewport = { x: 0, width: 300 };
+    const controller = createTimelineCursorController({
+      svg: input.svg as unknown as SVGSVGElement,
+      geometry: input.geometry,
+      teamCollectionRow: row,
+      initialDate: must(createCivilDate("2025-01-02")),
+      getViewport: () => viewport,
+      isModalOpen: () => false,
+    });
+    assert.equal(styles.get("--fp-collection-cursor-x"), "50%");
+    input.svg.dispatch("keydown", keyboard("ArrowRight"));
+    assert.equal(styles.get("--fp-collection-cursor-x"), `${250 / 300 * 100}%`);
+    viewport = { x: 200, width: 100 };
+    controller.refresh();
+    assert.equal(styles.get("--fp-collection-cursor-x"), "50%");
+    assert.equal(row.textContent, "Create Team");
+    controller.destroy();
+  });
   it("starts at the supplied horizon start and renders the projection date", () => {
     const input = fixture();
     const controller = createTimelineCursorController({
