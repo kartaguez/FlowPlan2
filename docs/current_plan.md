@@ -1,14 +1,14 @@
 # FlowPlan2 current plan
 
 Current validated baseline:
-`87bc3c4f9f8a0c19c5e9fb8ba86c27e2344c730c`
+`5700731671f0a6fa3ad5cba98ca81850ddb02d03`
 
 This is the operational roadmap for the active trajectory. Durable product and
 architecture rules live in [canon](./canon.md); current implementation facts
 and temporary constraints live in [current canon](./current_canon.md).
 
 The roadmap uses `9A`–`9G`, with intermediate lot `9C.1` between 9C and 9D.
-Validated 9F Project structural CRUD forms the baseline.
+Validated 9G Reservation and capacity-period structural CRUD forms the baseline.
 Each Phase 9 lot is intended to fit one commit or a small, coherent commit set.
 Actuals/History is a later trajectory, not a Phase 9 lot.
 
@@ -29,18 +29,17 @@ Actuals/History is a later trajectory, not a Phase 9 lot.
 - FlowPlan visual grammar adaptation and corrective pass (DONE);
 - 9D Priority drag/drop (DONE);
 - 9E Team structural CRUD (DONE);
-- 9F Project structural CRUD and Team membership (DONE).
+- 9F Project structural CRUD and Team membership (DONE);
+- 9G Reservation and capacity-period structural CRUD (DONE).
 
 ## Ordered remaining lots
 
 ```text
-9G Reservation and capacity-period structural CRUD
-
 Later trajectory: Actuals / History
 ```
 
-Lot 9G is the remaining Phase 9 lot. Validated 9E and 9F provide the Team and
-Project lifecycle and referential-integrity baseline for its workflows.
+All Phase 9 lots are validated. The separate Projection date presentation pass
+remains IN REVIEW.
 
 ## 9C.1 — Planning UI cleanup
 
@@ -133,7 +132,7 @@ between it and the first Team panel, aligned with the shared Timeline.
 
 Validation before closure: TypeScript typecheck, 454 automated tests, build,
 and desktop browser inspection passed. Reservation entity CRUD and structural
-editing of existing capacity periods remain in 9G.
+editing of existing capacity periods were subsequently completed in 9G.
 
 ## 9F — Project structural CRUD and Team membership
 
@@ -155,8 +154,8 @@ delete confirmation/cancel, successful removal, and narrow Portfolio layout.
 
 ## 9G — Reservation and capacity-period structural CRUD
 
-**Status: IN REVIEW** — implemented; pending audit of the pushed commit and
-human validation. The validated 9F baseline above is unchanged.
+**Status: DONE** — validated implementation at
+`5700731671f0a6fa3ad5cba98ca81850ddb02d03`.
 
 Create Reservation starts as a local draft with an empty name, horizon dates,
 and no enabled Team. The Application validates it under a collision-safe

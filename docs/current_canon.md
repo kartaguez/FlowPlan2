@@ -9,9 +9,9 @@ active implementation and trajectory. The remaining work is in the
 
 ## Validated implementation baseline
 
-`87bc3c4f9f8a0c19c5e9fb8ba86c27e2344c730c` (validated lot 9F Project
-structural CRUD). Subsequent in-review work remains outside this validated
-baseline.
+`5700731671f0a6fa3ad5cba98ca81850ddb02d03` (validated lot 9G Reservation
+and capacity-period structural CRUD). The separate Projection date presentation
+pass remains in review outside this validated baseline.
 
 The active application implements a pure planning projection over an in-memory
 demo session. The following capabilities are complete and active:
@@ -82,9 +82,10 @@ The Projection date presentation pass is **IN REVIEW**. Its implementation
 places the date in the global and Team timeline bands and in the projected
 progress heading, while preserving one selected date and one temporal X
 coordinate. This separate status does not advance the validated implementation
-baseline or close 9G.
+baseline.
 
-Lot 9G Reservation and capacity-period structural CRUD is **IN REVIEW**.
+Lot 9G Reservation and capacity-period structural CRUD is validated and
+**DONE**.
 Create Reservation begins with a local empty-name draft at the planning horizon
 and no enabled Team; a validated Reservation may have zero allocations even
 when no Team exists. Session-generated IDs skip collisions. Confirmed deletion
@@ -101,9 +102,7 @@ Unapplied rows may be invalid; Apply validates and sorts the final schedule
 chronologically while preserving exact untouched quantities and all existing
 capacity exceptions. Cancel restores the persisted schedule without a session
 mutation or planning recomputation. Create Team still requires at least one
-initial period. There is no manual period reorder or Domain period ID. The
-validated baseline above remains 9F until the pushed 9G implementation is
-audited and approved.
+initial period. There is no manual period reorder or Domain period ID.
 
 ## Current product trajectory
 
@@ -136,7 +135,7 @@ Planning
 
 Portfolio sidebar
 ├── Projects → Create Project; reorder handles and #N badges; expandable cards with inline editor, Team subcards and Delete Project
-└── Reservations → expandable cards with inline editor and Team subcards
+└── Reservations → Create Reservation; expandable cards with inline editor, Team subcards and Delete Reservation
 ```
 
 The Team panels are aligned with lanes in one SVG/Geometry and one temporal
@@ -195,10 +194,13 @@ The editable session currently accepts:
   collision-safe session ID;
 - `remove-team`: removes only an unreferenced Team, without cascade;
 - `update-team-name`: renames one existing Team;
-- `update-team-capacity-periods`: replaces existing periods by position while
-  preserving the period count and order;
+- `update-team-capacity-periods`: atomically replaces a Team's capacity periods
+  with a validated schedule, including an empty schedule;
+- `create-reservation`: creates one validated global Reservation with a
+  collision-safe session ID and optionally zero Team allocations;
 - `update-reservation`: replaces one existing global Reservation and all its
-  enabled Team allocations.
+  enabled Team allocations;
+- `remove-reservation`: removes one existing global Reservation.
 
 Every accepted change immutably replaces session state and triggers one
 projection rebuild. A same-position reorder retains the existing state and
@@ -209,10 +211,10 @@ projection. Rejected commands do neither.
 These are current implementation facts, not durable product rules:
 
 - the browser starts from a hard-coded demo scenario; there is no persistence;
-- structural CRUD remains absent for Reservations; existing Project Team
-  requirement membership continues to use `update-project`;
-- capacity periods can be supplied when creating a Team; periods of an
-  existing Team can be edited but not added, removed, or reordered;
+- existing Project Team requirement membership continues to use
+  `update-project`;
+- capacity periods can be added or removed for an existing Team, but have no
+  manual reorder control;
 - capacity exceptions exist in the domain but have no editor;
 - Project `dailyCap` remains active in domain/planner but is hidden and
   preserved exactly by unrelated Project Apply;
@@ -224,15 +226,13 @@ These are current implementation facts, not durable product rules:
   headers and the Projects / Programs / PAS surface;
 - Ctrl+ArrowLeft/Right moves the Projection date outside editable fields and
   modals without recomputing planning;
-- Reservation allocation rows may be enabled/disabled for existing Teams, but
-  the Reservation entity itself cannot be created or deleted;
+- Reservation allocation rows may be enabled/disabled for existing Teams;
 - no dedicated automated browser/E2E stack is present; coverage is primarily
   domain, application, adapter, geometry, controller, and DOM unit tests.
 
 ## Not part of the current implemented canon
 
 - Program / PriorityFamily (PAS) structural CRUD;
-- Reservation structural CRUD and its deletion workflow;
 - persistence, import/export, undo/redo;
 - actuals/history, resource actual consumption, and snapshots.
 
