@@ -469,9 +469,10 @@ describe("PlanningProjectionDispatcher", () => {
     });
     const team = initial.portfolio.teams[0]!;
     const projection = dispatcher.getProjection();
+    const unchanged = teamCommandFor(initial, team.id);
     assert.equal(
       dispatcher.dispatch(
-        { ...teamCommandFor(initial, team.id), capacityPeriods: [] },
+        { ...unchanged, capacityPeriods: [...unchanged.capacityPeriods, unchanged.capacityPeriods[0]!] },
       ).ok,
       false,
     );

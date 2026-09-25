@@ -36,6 +36,7 @@ export interface RenderTimelineShellNavigationInput {
   readonly teamCreateButton: HTMLButtonElement;
   readonly projectContainer: HTMLElement;
   readonly projectCreateSection?: HTMLElement;
+  readonly reservationCreateSection?: HTMLElement;
   readonly reservationContainer: HTMLElement;
   readonly projectTab: HTMLButtonElement;
   readonly reservationTab: HTMLButtonElement;
@@ -202,6 +203,7 @@ export function renderTimelineShellNavigation(
     const projectsActive = next === "projects";
     input.projectContainer.hidden = !projectsActive;
     if (input.projectCreateSection) input.projectCreateSection.hidden = !projectsActive;
+    if (input.reservationCreateSection) input.reservationCreateSection.hidden = projectsActive;
     input.reservationContainer.hidden = projectsActive;
     input.projectTab.setAttribute("aria-selected", String(projectsActive));
     input.reservationTab.setAttribute("aria-selected", String(!projectsActive));

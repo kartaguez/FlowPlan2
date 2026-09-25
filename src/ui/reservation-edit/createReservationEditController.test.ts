@@ -4,9 +4,11 @@ import type { ReservationEditViewModel, UpdateReservationCommand } from "../../a
 import { createCivilDate, createReservationId, createTeamId, type DomainResult } from "../../domain/index.js";
 import type { ReservationEditControls } from "../renderApp.js";
 import { createReservationEditController } from "./createReservationEditController.js";
+import { createReservationDraftStore } from "./reservationDraftStore.js";
 
 type Listener = (event: { preventDefault?: () => void }) => void;
 class FakeDocument {
+  activeElement?: FakeElement;
   createElement(tagName: string): FakeElement { return new FakeElement(this, tagName); }
   createTextNode(): FakeElement { return new FakeElement(this, "#text"); }
 }
@@ -18,6 +20,7 @@ class FakeElement {
   prepend(...children: FakeElement[]): void { this.childNodes.unshift(...children); }
   replaceChildren(...children: FakeElement[]): void { this.childNodes = [...children]; }
   setAttribute(): void {}
+  focus(): void { this.ownerDocument.activeElement = this; }
   addEventListener(type: string, listener: EventListener): void { const set = this.listeners.get(type) ?? new Set(); set.add(listener as Listener); this.listeners.set(type, set); }
   removeEventListener(type: string, listener: EventListener): void { this.listeners.get(type)?.delete(listener as Listener); }
   dispatch(type: string, event: { preventDefault?: () => void } = {}): void { for (const listener of this.listeners.get(type) ?? []) listener(event); }
@@ -31,12 +34,20 @@ const model: ReservationEditViewModel = Object.freeze({
   ]),
 });
 function descendants(root: FakeElement, tag: string): FakeElement[] { return root.childNodes.flatMap((child) => [...(child.tagName === tag ? [child] : []), ...descendants(child, tag)]); }
-function fixture(onApply: (command: UpdateReservationCommand) => { ok: true } | { ok: false; errors: readonly never[] } = () => ({ ok: true })) {
+function fixture(onApply: (command: UpdateReservationCommand) => { ok: true } | { ok: false; errors: readonly never[] } = () => ({ ok: true }),
+  onDelete?: (id: typeof model.reservationId) => { ok: true }) {
   const document = new FakeDocument(); const element = (tag: string) => document.createElement(tag);
-  const controls = { container: element("section"), title: element("h3"), form: element("form"), fields: element("div"), apply: element("button"), cancel: element("button"), status: element("p") };
+  const controls = { container: element("section"), title: element("h3"), form: element("form"), fields: element("div"), apply: element("button"), cancel: element("button"), status: element("p"),
+    deleteButton: element("button"), deleteConfirmation: element("div"), deleteConfirm: element("button"), deleteCancel: element("button") };
   const error = element("p"); error.hidden = true;
-  const controller = createReservationEditController({ controls: controls as unknown as ReservationEditControls, errorContainer: error as unknown as HTMLElement, onApply });
-  return { controller, controls, error };
+  let allowDiscard = true;
+  const drafts = createReservationDraftStore();
+  const controller = createReservationEditController({ controls: controls as unknown as ReservationEditControls,
+    errorContainer: error as unknown as HTMLElement, onApply, draftStore: drafts,
+    confirmDiscard: () => allowDiscard,
+    ...(onDelete ? { onDelete } : {}) });
+  return { controller, controls, error, document, drafts,
+    setAllowDiscard: (value: boolean) => { allowDiscard = value; } };
 }
 
 describe("ReservationEditController", () => {
@@ -82,5 +93,25 @@ describe("ReservationEditController", () => {
     assert.equal(commands.length, 0);
     assert.equal(input.error.hidden, false);
     assert.match(input.error.textContent ?? "", /end date must be on or after its start date/i);
+  });
+  it("follows Project deletion: dirty warning, inline confirmation, cancel focus, then delete", () => {
+    const deleted: string[] = [];
+    const input = fixture(undefined, (id) => { deleted.push(id); return { ok: true }; });
+    input.controller.setReservation(model);
+    descendants(input.controls.fields, "input").find((field) => field.value === "Run")!.value = "Changed";
+    input.setAllowDiscard(false);
+    input.controls.deleteButton.dispatch("click");
+    assert.equal(input.controls.deleteConfirmation.hidden, true);
+    assert.equal(input.drafts.isDirty(model.reservationId), true);
+    input.setAllowDiscard(true);
+    input.controls.deleteButton.dispatch("click");
+    assert.equal(input.controls.deleteConfirmation.hidden, false);
+    assert.equal(input.drafts.isDirty(model.reservationId), false);
+    assert.equal(input.document.activeElement, input.controls.deleteConfirm);
+    input.controls.deleteCancel.dispatch("click");
+    assert.equal(input.document.activeElement, input.controls.deleteButton);
+    input.controls.deleteButton.dispatch("click");
+    input.controls.deleteConfirm.dispatch("click");
+    assert.deepEqual(deleted, [model.reservationId]);
   });
 });

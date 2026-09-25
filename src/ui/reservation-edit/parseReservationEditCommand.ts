@@ -39,6 +39,17 @@ export type ReservationEditCommandParseResult =
 export function parseReservationEditCommand(
   values: ReservationEditFormValues,
 ): ReservationEditCommandParseResult {
+  const parsed = parseReservationFields(values);
+  if (!parsed.ok) return parsed;
+  return Object.freeze({ ok: true, command: Object.freeze({
+    kind: "update-reservation", reservationId: values.reservationId, ...parsed.fields,
+  }) });
+}
+
+export function parseReservationFields(
+  values: Omit<ReservationEditFormValues, "reservationId">,
+): Readonly<{ ok: true; fields: Omit<UpdateReservationCommand, "kind" | "reservationId"> }> |
+  Readonly<{ ok: false; errors: readonly DomainError[] }> {
   const errors: DomainError[] = [];
   const name = values.name.trim();
   if (name.length === 0) {
@@ -65,9 +76,7 @@ export function parseReservationEditCommand(
   }
   return Object.freeze({
     ok: true,
-    command: Object.freeze({
-      kind: "update-reservation",
-      reservationId: values.reservationId,
+    fields: Object.freeze({
       name,
       startDate: start.value,
       endDate: end.value,

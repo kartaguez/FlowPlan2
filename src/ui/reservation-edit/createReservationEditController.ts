@@ -18,6 +18,7 @@ export type ReservationEditApplyResult =
 export interface ReservationEditController {
   readonly setReservation: (model: ReservationEditViewModel | undefined) => void;
   readonly getReservationId: () => ReservationId | undefined;
+  readonly focusName?: () => void;
   readonly destroy: () => void;
 }
 
@@ -25,6 +26,8 @@ export interface CreateReservationEditControllerInput {
   readonly controls: ReservationEditControls;
   readonly errorContainer: HTMLElement;
   readonly onApply: (command: UpdateReservationCommand) => ReservationEditApplyResult;
+  readonly onDelete?: (reservationId: ReservationId) => ReservationEditApplyResult;
+  readonly confirmDiscard?: (message: string) => boolean;
   readonly onCancel?: () => void;
   readonly draftStore?: ReservationDraftStore;
   readonly onDraftChange?: () => void;
@@ -71,6 +74,7 @@ export function createReservationEditController(
     allocations = Object.freeze([]);
     input.controls.apply.disabled = next === undefined;
     input.controls.cancel.disabled = next === undefined;
+    if (input.controls.deleteConfirmation) input.controls.deleteConfirmation.hidden = true;
     if (next === undefined) {
       input.controls.status.textContent = "Select a reservation to edit.";
       return;
@@ -219,21 +223,58 @@ export function createReservationEditController(
     input.onDraftChange?.();
     input.onCancel?.();
   };
+  const onDeleteClick = (): void => {
+    if (!model) return;
+    notifyDraftChange();
+    if (input.draftStore?.isDirty(model.reservationId)) {
+      if (!input.confirmDiscard?.("Discard unapplied Reservation changes before deletion?")) return;
+      const id = model.reservationId;
+      const expanded = input.draftStore.get(id)?.expanded ?? true;
+      input.draftStore.cancel(id);
+      input.draftStore.initialize(id, model);
+      input.draftStore.setExpanded(id, expanded);
+      hydrate(model);
+      clearError();
+      input.onDraftChange?.();
+    }
+    if (input.controls.deleteConfirmation) input.controls.deleteConfirmation.hidden = false;
+    input.controls.deleteConfirm?.focus();
+  };
+  const onDeleteCancel = (): void => {
+    if (input.controls.deleteConfirmation) input.controls.deleteConfirmation.hidden = true;
+    input.controls.deleteButton?.focus();
+  };
+  const onDeleteConfirm = (): void => {
+    if (!model || !input.onDelete) return;
+    const result = input.onDelete(model.reservationId);
+    if (!result.ok) {
+      showErrors(result.errors);
+      if (input.controls.deleteConfirmation) input.controls.deleteConfirmation.hidden = true;
+      input.controls.deleteButton?.focus();
+    }
+  };
   input.controls.form.addEventListener("submit", onSubmit);
   input.controls.form.addEventListener("input", notifyDraftChange);
   input.controls.form.addEventListener("change", notifyDraftChange);
   input.controls.cancel.addEventListener("click", onCancel);
+  input.controls.deleteButton?.addEventListener("click", onDeleteClick);
+  input.controls.deleteCancel?.addEventListener("click", onDeleteCancel);
+  input.controls.deleteConfirm?.addEventListener("click", onDeleteConfirm);
   hydrate(undefined);
   return Object.freeze({
     setReservation: (next: ReservationEditViewModel | undefined) => {
       hydrate(next);
     },
     getReservationId: () => model?.reservationId,
+    focusName: () => nameInput?.focus(),
     destroy: () => {
       input.controls.form.removeEventListener("submit", onSubmit);
       input.controls.form.removeEventListener("input", notifyDraftChange);
       input.controls.form.removeEventListener("change", notifyDraftChange);
       input.controls.cancel.removeEventListener("click", onCancel);
+      input.controls.deleteButton?.removeEventListener("click", onDeleteClick);
+      input.controls.deleteCancel?.removeEventListener("click", onDeleteCancel);
+      input.controls.deleteConfirm?.removeEventListener("click", onDeleteConfirm);
     },
   });
 }

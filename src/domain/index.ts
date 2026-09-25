@@ -1,6 +1,7 @@
 export type { DomainError, DomainResult } from "./model/result.js";
 export {
   addRationals,
+  compareRationals,
   divideRationals,
   isZero,
   maxRational,

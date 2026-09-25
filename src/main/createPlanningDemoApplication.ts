@@ -1,4 +1,4 @@
-import type { TimelineGeometryViewport } from "../adapters/index.js";
+import { buildReservationNavigationItems, type TimelineGeometryViewport } from "../adapters/index.js";
 import {
   buildProjectEditViewModel,
   buildPlanningSettingsViewModel,
@@ -54,11 +54,9 @@ export function createPlanningDemoApplication(
       buildTeamEditViewModel(session.getState(), teamId),
     getReservationEditViewModel: (reservationId) =>
       buildReservationEditViewModel(session.getState(), reservationId),
-    getReservationNavigationItems: () =>
-      Object.freeze(
-        session.getState().portfolio.reservations.map((reservation) =>
-          Object.freeze({ id: reservation.id, name: reservation.name }),
-        ),
-      ),
+    getReservationNavigationItems: () => {
+      const state = session.getState();
+      return buildReservationNavigationItems(state.portfolio, state.planning.workingPattern);
+    },
   });
 }

@@ -10,7 +10,7 @@ active implementation and trajectory. The remaining work is in the
 ## Validated implementation baseline
 
 `87bc3c4f9f8a0c19c5e9fb8ba86c27e2344c730c` (validated lot 9F Project
-structural CRUD). Later visual adjustments remain outside this validated
+structural CRUD). Subsequent in-review work remains outside this validated
 baseline.
 
 The active application implements a pure planning projection over an in-memory
@@ -20,11 +20,11 @@ demo session. The following capabilities are complete and active:
   `maxParallelProjects` value applied independently per Team;
 - one shared timeline with stacked Team panels;
 - Team creation with one or more initial capacity periods, restrictive Team
-  deletion, and Team Settings for name and existing capacity periods;
+  deletion, and Team Settings for name and structural capacity-period editing;
 - Project creation and confirmed deletion, plus editing of name, dates, and
   Team requirements; Project priority is reordered from Portfolio Projects;
-- global multi-Team Reservations with ratio and fixed-daily modes, edited in
-  inline Portfolio cards;
+- global multi-Team Reservations with ratio and fixed-daily modes, created,
+  edited, and deleted in inline Portfolio cards;
 - Projects / Reservations tabs in the Portfolio sidebar;
 - shared viewport, zoom, pan, selected date, cursor, semantic hit testing,
   and hover;
@@ -83,6 +83,27 @@ places the date in the global and Team timeline bands and in the projected
 progress heading, while preserving one selected date and one temporal X
 coordinate. This separate status does not advance the validated implementation
 baseline or close 9G.
+
+Lot 9G Reservation and capacity-period structural CRUD is **IN REVIEW**.
+Create Reservation begins with a local empty-name draft at the planning horizon
+and no enabled Team; a validated Reservation may have zero allocations even
+when no Team exists. Session-generated IDs skip collisions. Confirmed deletion
+discards only the target Reservation draft and preserves independent drafts.
+Cards use a derived start/end/exact-requested-total/name display order, with ID
+only as a deterministic tie-break; Portfolio order is not changed. The total
+uses canonical daily Reservation request calculations across the full inclusive
+interval and Team schedules and exceptions, including dates outside the
+planning horizon. Delete Team also protects a Team enabled in a local Create
+Reservation draft.
+
+Team Settings now adds and removes capacity periods, including the last one.
+Unapplied rows may be invalid; Apply validates and sorts the final schedule
+chronologically while preserving exact untouched quantities and all existing
+capacity exceptions. Cancel restores the persisted schedule without a session
+mutation or planning recomputation. Create Team still requires at least one
+initial period. There is no manual period reorder or Domain period ID. The
+validated baseline above remains 9F until the pushed 9G implementation is
+audited and approved.
 
 ## Current product trajectory
 

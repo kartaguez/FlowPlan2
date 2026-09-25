@@ -16,6 +16,9 @@ export interface AppElements {
   readonly projectCreateControls: ProjectCreateControls;
   readonly projectCreateButton: HTMLButtonElement;
   readonly projectCreateSection: HTMLElement;
+  readonly reservationCreateControls: ProjectCreateControls;
+  readonly reservationCreateButton: HTMLButtonElement;
+  readonly reservationCreateSection: HTMLElement;
   readonly applicationError: HTMLElement;
   readonly teamPanels: HTMLElement;
   readonly projectList: HTMLElement;
@@ -64,6 +67,7 @@ export interface TeamEditControls {
   readonly capacityDetails: HTMLDetailsElement;
   readonly capacityForm: HTMLFormElement;
   readonly capacityFields: HTMLElement;
+  readonly capacityAdd?: HTMLButtonElement;
   readonly capacityApply: HTMLButtonElement;
   readonly capacityCancel: HTMLButtonElement;
   readonly close: HTMLButtonElement;
@@ -103,6 +107,10 @@ export interface ReservationEditControls {
   readonly apply: HTMLButtonElement;
   readonly cancel: HTMLButtonElement;
   readonly status: HTMLElement;
+  readonly deleteButton?: HTMLButtonElement;
+  readonly deleteConfirmation?: HTMLElement;
+  readonly deleteConfirm?: HTMLButtonElement;
+  readonly deleteCancel?: HTMLButtonElement;
 }
 
 export interface TimelineViewportControls {
@@ -221,6 +229,10 @@ export function renderApp(root: HTMLElement): AppElements {
   capacityForm.className = "timeline-team-capacity-form";
   const capacityFields = document.createElement("div");
   capacityFields.className = "timeline-team-edit-fields";
+  const capacityAdd = document.createElement("button");
+  capacityAdd.type = "button";
+  capacityAdd.className = "timeline-team-period-action";
+  capacityAdd.textContent = "Add period";
   const capacityApply = document.createElement("button");
   capacityApply.type = "submit";
   capacityApply.textContent = "Apply periods";
@@ -232,7 +244,7 @@ export function renderApp(root: HTMLElement): AppElements {
   const capacityActions = document.createElement("div");
   capacityActions.className = "timeline-team-edit-actions";
   capacityActions.append(capacityCancel, capacityApply);
-  capacityForm.append(capacityFields, capacityActions);
+  capacityForm.append(capacityFields, capacityAdd, capacityActions);
   capacityDetails.append(capacitySummary, capacityForm);
   const teamClose = document.createElement("button");
   teamClose.type = "button";
@@ -272,6 +284,7 @@ export function renderApp(root: HTMLElement): AppElements {
     capacityDetails,
     capacityForm,
     capacityFields,
+    capacityAdd,
     capacityApply,
     capacityCancel,
     close: teamClose,
@@ -452,7 +465,41 @@ export function renderApp(root: HTMLElement): AppElements {
   reservationList.setAttribute("role", "tabpanel");
   reservationList.setAttribute("aria-labelledby", reservationTab.id);
   reservationList.hidden = true;
-  projectSidebar.append(projectSidebarTitle, portfolioTabs, projectCreateSection, projectList, reservationList);
+  const reservationCreateSection = document.createElement("div");
+  reservationCreateSection.className = "project-create-section";
+  const reservationCreateButton = document.createElement("button");
+  reservationCreateButton.type = "button";
+  reservationCreateButton.className = "project-create-trigger";
+  reservationCreateButton.textContent = "Create Reservation";
+  const reservationCreateContainer = document.createElement("section");
+  reservationCreateContainer.className = "timeline-reservation-edit project-create-panel";
+  reservationCreateContainer.setAttribute("aria-label", "Create Reservation");
+  reservationCreateContainer.hidden = true;
+  const reservationCreateForm = document.createElement("form");
+  reservationCreateForm.className = "timeline-reservation-edit-form";
+  const reservationCreateFields = document.createElement("div");
+  reservationCreateFields.className = "timeline-reservation-edit-fields";
+  const reservationCreateError = document.createElement("p");
+  reservationCreateError.className = "reservation-edit-error";
+  reservationCreateError.setAttribute("role", "alert");
+  reservationCreateError.hidden = true;
+  const reservationCreateCancel = document.createElement("button");
+  reservationCreateCancel.type = "button";
+  reservationCreateCancel.textContent = "Cancel";
+  const reservationCreateSubmit = document.createElement("button");
+  reservationCreateSubmit.type = "submit";
+  reservationCreateSubmit.textContent = "Create";
+  const reservationCreateActions = document.createElement("div");
+  reservationCreateActions.className = "timeline-reservation-edit-actions";
+  reservationCreateActions.append(reservationCreateCancel, reservationCreateSubmit);
+  reservationCreateForm.append(reservationCreateFields, reservationCreateError, reservationCreateActions);
+  reservationCreateContainer.append(reservationCreateForm);
+  reservationCreateSection.append(reservationCreateButton, reservationCreateContainer);
+  const reservationCreateControls = Object.freeze({ container: reservationCreateContainer,
+    form: reservationCreateForm, fields: reservationCreateFields, error: reservationCreateError,
+    create: reservationCreateSubmit, cancel: reservationCreateCancel });
+  projectSidebar.append(projectSidebarTitle, portfolioTabs, projectCreateSection, projectList,
+    reservationCreateSection, reservationList);
   workspace.append(planningMain, projectSidebar);
 
   shell.append(header, workspace, diagnosticsBackdrop, diagnosticsDialog, planningSettings, teamEdit, teamCreate);
@@ -469,6 +516,9 @@ export function renderApp(root: HTMLElement): AppElements {
     teamCreateButton,
     teamCreateControls,
     projectCreateControls,
+    reservationCreateControls,
+    reservationCreateButton,
+    reservationCreateSection,
     projectCreateButton,
     projectCreateSection,
     applicationError,

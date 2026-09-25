@@ -38,7 +38,9 @@ export interface CreateTeamEditControllerInput {
 }
 
 interface PeriodInputs {
-  readonly index: number;
+  readonly key: number;
+  readonly referenceIndex?: number;
+  readonly fieldset: HTMLElement;
   readonly startDate: HTMLInputElement;
   readonly endDate: HTMLInputElement;
   readonly capacity: HTMLInputElement;
@@ -55,6 +57,7 @@ export function createTeamEditController(
   let model: TeamEditViewModel | undefined;
   let nameInput: HTMLInputElement | undefined;
   let periodInputs: readonly PeriodInputs[] = Object.freeze([]);
+  let nextRowKey = 0;
 
   const clearError = (): void => {
     input.errorContainer.textContent = "";
@@ -71,27 +74,71 @@ export function createTeamEditController(
     input.errorContainer.hidden = false;
   };
   const hasUnappliedChanges = (): boolean => model !== undefined && (
-    nameInput?.value !== model.label || periodInputs.some((period) => {
-      const reference = model!.capacityPeriods[period.index];
-      return !reference || period.startDate.value !== reference.startDate ||
+    nameInput?.value !== model.label ||
+    periodInputs.length !== model.capacityPeriods.length ||
+    periodInputs.some((period, index) => {
+      const reference = model!.capacityPeriods[index];
+      return !reference || period.referenceIndex !== index ||
+        period.startDate.value !== reference.startDate ||
         period.endDate.value !== reference.endDate ||
         period.capacity.value !== reference.capacity ||
         period.unavailabilityPercent.value !== reference.unavailabilityPercent;
     }));
+  const renderPeriod = (row: {
+    readonly key: number; readonly referenceIndex?: number;
+    readonly startDate: string; readonly endDate: string;
+    readonly capacity: string; readonly capacityDisplay: string; readonly capacityExact: string;
+    readonly unavailabilityPercent: string; readonly unavailabilityDisplay: string;
+    readonly unavailabilityExact: string;
+  }): PeriodInputs => {
+    const document = input.controls.capacityFields.ownerDocument;
+    const fieldset = document.createElement("fieldset");
+    fieldset.className = "timeline-team-edit-period";
+    const legend = document.createElement("legend");
+    legend.textContent = row.startDate && row.endDate
+      ? `${row.startDate} → ${row.endDate}` : "New capacity period";
+    const path = `team.capacityPeriods[${row.key}]`;
+    const startDate = createLabeledInput(document, fieldset, "Start", "date", `${path}.startDate`);
+    const endDate = createLabeledInput(document, fieldset, "End", "date", `${path}.endDate`);
+    const capacity = createLabeledInput(document, fieldset, "Capacity", "text", `${path}.capacity`);
+    const unavailabilityPercent = createLabeledInput(document, fieldset, "Unavailability %", "text", `${path}.unavailability`);
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "timeline-team-period-action";
+    remove.textContent = "Delete period";
+    remove.setAttribute?.("aria-label", `Delete capacity period ${row.key + 1}`);
+    remove.addEventListener("click", () => {
+      periodInputs = Object.freeze(periodInputs.filter((period) => period.key !== row.key));
+      input.controls.capacityFields.replaceChildren(...periodInputs.map((period) => period.fieldset));
+      clearError();
+    });
+    fieldset.prepend(legend);
+    fieldset.append(remove);
+    startDate.value = row.startDate;
+    endDate.value = row.endDate;
+    capacity.value = row.capacity;
+    unavailabilityPercent.value = row.unavailabilityPercent;
+    input.controls.capacityFields.append(fieldset);
+    return Object.freeze({ key: row.key, ...(row.referenceIndex === undefined ? {} : { referenceIndex: row.referenceIndex }),
+      fieldset, startDate, endDate, capacity, capacityDisplay: row.capacityDisplay,
+      capacityExact: row.capacityExact, unavailabilityPercent,
+      unavailabilityDisplay: row.unavailabilityDisplay,
+      unavailabilityExact: row.unavailabilityExact });
+  };
   const hydrate = (nextModel: TeamEditViewModel | undefined, preserve = true): void => {
     const sameTeam = preserve && nextModel !== undefined && model?.teamId === nextModel.teamId &&
       !input.controls.container.hidden;
     const oldName = sameTeam && nameInput?.value !== model?.label ? nameInput?.value : undefined;
-    const oldPeriods = sameTeam ? periodInputs.map((period) => {
-      const reference = model!.capacityPeriods[period.index];
-      return reference ? {
-        startDate: period.startDate.value !== reference.startDate ? period.startDate.value : undefined,
-        endDate: period.endDate.value !== reference.endDate ? period.endDate.value : undefined,
-        capacity: period.capacity.value !== reference.capacity ? period.capacity.value : undefined,
-        unavailability: period.unavailabilityPercent.value !== reference.unavailabilityPercent
-          ? period.unavailabilityPercent.value : undefined,
-      } : undefined;
-    }) : [];
+    const oldPeriods = sameTeam ? periodInputs.map((period) => ({
+      key: period.key, ...(period.referenceIndex === undefined ? {} : { referenceIndex: period.referenceIndex }),
+      startDate: period.startDate.value, endDate: period.endDate.value,
+      capacity: period.capacity.value, capacityDisplay: period.capacityDisplay,
+      capacityExact: period.capacityExact,
+      unavailabilityPercent: period.unavailabilityPercent.value,
+      unavailabilityDisplay: period.unavailabilityDisplay,
+      unavailabilityExact: period.unavailabilityExact,
+    })) : undefined;
+    if (!sameTeam) nextRowKey = 0;
     model = nextModel;
     input.controls.container.hidden = nextModel === undefined;
     input.controls.nameFields.replaceChildren();
@@ -99,6 +146,7 @@ export function createTeamEditController(
     input.controls.nameApply.disabled = nextModel === undefined;
     input.controls.capacityApply.disabled = nextModel === undefined;
     input.controls.capacityCancel.disabled = nextModel === undefined;
+    if (input.controls.capacityAdd) input.controls.capacityAdd.disabled = nextModel === undefined;
     input.controls.status.textContent = nextModel
       ? `Editing ${nextModel.label}`
       : "Select a team to edit.";
@@ -123,40 +171,15 @@ export function createTeamEditController(
     );
     nameInput.value = nextModel.label;
     if (oldName !== undefined) nameInput.value = oldName;
-    periodInputs = Object.freeze(
-      nextModel.capacityPeriods.map((period) => {
-        const fieldset = document.createElement("fieldset");
-        fieldset.className = "timeline-team-edit-period";
-        const legend = document.createElement("legend");
-        legend.textContent = `${period.startDate} → ${period.endDate}`;
-        const startDate = createLabeledInput(document, fieldset, "Start", "date", `team.capacityPeriods[${period.index}].startDate`);
-        const endDate = createLabeledInput(document, fieldset, "End", "date", `team.capacityPeriods[${period.index}].endDate`);
-        const capacity = createLabeledInput(document, fieldset, "Capacity", "text", `team.capacityPeriods[${period.index}].capacity`);
-        const unavailabilityPercent = createLabeledInput(document, fieldset, "Unavailability %", "text", `team.capacityPeriods[${period.index}].unavailability`);
-        fieldset.prepend(legend);
-        startDate.value = period.startDate;
-        endDate.value = period.endDate;
-        capacity.value = period.capacity;
-        unavailabilityPercent.value = period.unavailabilityPercent;
-        const old = oldPeriods[period.index];
-        if (old?.startDate !== undefined) startDate.value = old.startDate;
-        if (old?.endDate !== undefined) endDate.value = old.endDate;
-        if (old?.capacity !== undefined) capacity.value = old.capacity;
-        if (old?.unavailability !== undefined) unavailabilityPercent.value = old.unavailability;
-        input.controls.capacityFields.append(fieldset);
-        return Object.freeze({
-          index: period.index,
-          startDate,
-          endDate,
-          capacity,
-          capacityDisplay: period.capacity,
-          capacityExact: period.capacityExact,
-          unavailabilityPercent,
-          unavailabilityDisplay: period.unavailabilityPercent,
-          unavailabilityExact: period.unavailabilityExact,
-        });
-      }),
-    );
+    const rows = oldPeriods ?? nextModel.capacityPeriods.map((period) => ({
+      key: nextRowKey++, referenceIndex: period.index,
+      startDate: period.startDate, endDate: period.endDate,
+      capacity: period.capacity, capacityDisplay: period.capacity, capacityExact: period.capacityExact,
+      unavailabilityPercent: period.unavailabilityPercent,
+      unavailabilityDisplay: period.unavailabilityPercent,
+      unavailabilityExact: period.unavailabilityExact,
+    }));
+    periodInputs = Object.freeze(rows.map(renderPeriod));
   };
 
   const periodValues = (): TeamEditFormValues => {
@@ -166,15 +189,16 @@ export function createTeamEditController(
       name: model.label,
       capacityPeriods: Object.freeze(
         periodInputs.map((period) => Object.freeze({
-          index: period.index,
+          index: period.key,
           startDate: period.startDate.value,
           endDate: period.endDate.value,
           capacity: period.capacity.value,
           capacityExact: period.capacityExact,
-          capacityDirty: period.capacity.value !== period.capacityDisplay,
+          capacityDirty: period.referenceIndex === undefined || period.capacity.value !== period.capacityDisplay,
           unavailabilityPercent: period.unavailabilityPercent.value,
           unavailabilityExact: period.unavailabilityExact,
-          unavailabilityDirty: period.unavailabilityPercent.value !== period.unavailabilityDisplay,
+          unavailabilityDirty: period.referenceIndex === undefined ||
+            period.unavailabilityPercent.value !== period.unavailabilityDisplay,
         })),
       ),
     });
@@ -211,6 +235,15 @@ export function createTeamEditController(
     if (nameInput && currentName !== undefined) nameInput.value = currentName;
     clearError();
   };
+  const onAddPeriod = (): void => {
+    if (!model) return;
+    const row = renderPeriod({ key: nextRowKey++, startDate: "", endDate: "",
+      capacity: "", capacityDisplay: "", capacityExact: "",
+      unavailabilityPercent: "0", unavailabilityDisplay: "0", unavailabilityExact: "0/1" });
+    periodInputs = Object.freeze([...periodInputs, row]);
+    row.startDate.focus();
+    clearError();
+  };
   const onDiscard = (): void => { hydrate(model, false); clearError(); };
   const requestClose = (): boolean => {
     if (input.controls.container.hidden) return true;
@@ -244,6 +277,7 @@ export function createTeamEditController(
   input.controls.nameForm.addEventListener("submit", onNameSubmit);
   input.controls.capacityForm.addEventListener("submit", onPeriodsSubmit);
   input.controls.capacityCancel.addEventListener("click", onCancelPeriods);
+  input.controls.capacityAdd?.addEventListener("click", onAddPeriod);
   input.controls.close.addEventListener("click", onClose);
   input.controls.discard.addEventListener("click", onDiscard);
   input.controls.deleteButton.addEventListener("click", onDeleteClick);
@@ -264,6 +298,7 @@ export function createTeamEditController(
       input.controls.nameForm.removeEventListener("submit", onNameSubmit);
       input.controls.capacityForm.removeEventListener("submit", onPeriodsSubmit);
       input.controls.capacityCancel.removeEventListener("click", onCancelPeriods);
+      input.controls.capacityAdd?.removeEventListener("click", onAddPeriod);
       input.controls.close.removeEventListener("click", onClose);
       input.controls.discard.removeEventListener("click", onDiscard);
       input.controls.deleteButton.removeEventListener("click", onDeleteClick);

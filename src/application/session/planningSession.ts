@@ -1,6 +1,5 @@
 import {
   capacityFromSerialized,
-  compareCivilDates,
   createCapacityPeriod,
   createReservation,
   createReservationTeamAllocation,
@@ -25,6 +24,7 @@ import {
   type ProgramId,
   type PriorityFamilyId,
   type ReservationId,
+  type Reservation,
   type ReservationRatio,
   type RemainingWorkload,
   type Team,
@@ -35,6 +35,7 @@ import {
 } from "../../domain/index.js";
 import { createTeamIdGenerator, type TeamIdGenerator } from "./teamIdGenerator.js";
 import { createProjectIdGenerator, type ProjectIdGenerator } from "./projectIdGenerator.js";
+import { createReservationIdGenerator, type ReservationIdGenerator } from "./reservationIdGenerator.js";
 
 export interface PlanningSettings {
   readonly startDate: CivilDate;
@@ -124,7 +125,7 @@ export interface RemoveTeamCommand {
 export interface UpdateTeamCapacityPeriodsCommand {
   readonly kind: "update-team-capacity-periods";
   readonly teamId: TeamId;
-  /** Period #i replaces existing period #i; add/remove/reorder is unsupported. */
+  /** Complete replacement; the Domain normalizes chronological order. */
   readonly capacityPeriods: readonly UpdateTeamCapacityPeriod[];
 }
 
@@ -141,6 +142,19 @@ export interface UpdateReservationCommand {
   readonly teamAllocations: readonly UpdateReservationTeamAllocation[];
 }
 
+export interface CreateReservationCommand {
+  readonly kind: "create-reservation";
+  readonly name: string;
+  readonly startDate: CivilDate;
+  readonly endDate: CivilDate;
+  readonly teamAllocations: readonly UpdateReservationTeamAllocation[];
+}
+
+export interface RemoveReservationCommand {
+  readonly kind: "remove-reservation";
+  readonly reservationId: ReservationId;
+}
+
 export type PlanningCommand =
   | UpdatePlanningSettingsCommand
   | UpdateProjectCommand
@@ -151,7 +165,9 @@ export type PlanningCommand =
   | RemoveTeamCommand
   | UpdateTeamNameCommand
   | UpdateTeamCapacityPeriodsCommand
-  | UpdateReservationCommand;
+  | UpdateReservationCommand
+  | CreateReservationCommand
+  | RemoveReservationCommand;
 
 export type PlanningCommandResult =
   | Readonly<{ ok: true; state: PlanningSessionState }>
@@ -168,10 +184,11 @@ export function createPlanningSession(
   let state = freezeState(initialState);
   const teamIds = createTeamIdGenerator(() => state.portfolio.teams.map((team) => team.id));
   const projectIds = createProjectIdGenerator(() => state.portfolio.projects.map((project) => project.id));
+  const reservationIds = createReservationIdGenerator(() => state.portfolio.reservations.map((reservation) => reservation.id));
   return Object.freeze({
     getState: () => state,
     dispatch: (command: PlanningCommand): PlanningCommandResult => {
-      const candidate = applyCommand(state, command, teamIds, projectIds);
+      const candidate = applyCommand(state, command, teamIds, projectIds, reservationIds);
       if (!candidate.ok) return candidate;
       state = candidate.state;
       return Object.freeze({ ok: true, state });
@@ -184,6 +201,7 @@ function applyCommand(
   command: PlanningCommand,
   teamIds: TeamIdGenerator,
   projectIds: ProjectIdGenerator,
+  reservationIds: ReservationIdGenerator,
 ): PlanningCommandResult {
   switch (command.kind) {
     case "update-planning-settings":
@@ -206,7 +224,31 @@ function applyCommand(
       return updateTeamCapacityPeriods(state, command);
     case "update-reservation":
       return updateReservation(state, command);
+    case "create-reservation":
+      return addReservation(state, command, reservationIds);
+    case "remove-reservation":
+      return removeReservation(state, command);
   }
+}
+
+function addReservation(
+  state: PlanningSessionState,
+  command: CreateReservationCommand,
+  ids: ReservationIdGenerator,
+): PlanningCommandResult {
+  const validated = buildReservation(state, command, ids.peek());
+  if (!validated.ok) return failure(validated.errors);
+  const replaced = replaceReservations(state, [...state.portfolio.reservations, validated.value]);
+  if (replaced.ok) ids.next();
+  return replaced;
+}
+
+function removeReservation(state: PlanningSessionState, command: RemoveReservationCommand): PlanningCommandResult {
+  if (!state.portfolio.reservations.some((reservation) => reservation.id === command.reservationId)) {
+    return failure([applicationError("UNKNOWN_RESERVATION", "reservationId",
+      `Reservation ${command.reservationId} does not exist in the current portfolio.`)]);
+  }
+  return replaceReservations(state, state.portfolio.reservations.filter((reservation) => reservation.id !== command.reservationId));
 }
 
 function updateReservation(
@@ -225,6 +267,19 @@ function updateReservation(
       ),
     ]);
   }
+  const updated = buildReservation(state, command, command.reservationId);
+  if (!updated.ok) return failure(updated.errors);
+  const reservations = state.portfolio.reservations.map((reservation, index) =>
+    index === reservationIndex ? updated.value : reservation,
+  );
+  return replaceReservations(state, reservations);
+}
+
+function buildReservation(
+  state: PlanningSessionState,
+  command: CreateReservationCommand | UpdateReservationCommand,
+  id: ReservationId,
+): ReturnType<typeof createReservation> {
   const errors: DomainError[] = [];
   const teamIds = new Set<TeamId>();
   const knownTeamIds = new Set(state.portfolio.teams.map((team) => team.id));
@@ -269,22 +324,21 @@ function updateReservation(
     return result.value;
   });
   if (errors.length > 0 || allocations.some((item) => item === undefined)) {
-    return failure(errors);
+    return { ok: false, errors };
   }
   const validated = allocations.filter(
     (item): item is NonNullable<typeof item> => item !== undefined,
   );
-  const updated = createReservation({
-    id: command.reservationId,
+  return createReservation({
+    id,
     name: command.name,
     startDate: command.startDate,
     endDate: command.endDate,
     teamAllocations: validated,
   });
-  if (!updated.ok) return failure(updated.errors);
-  const reservations = state.portfolio.reservations.map((reservation, index) =>
-    index === reservationIndex ? updated.value : reservation,
-  );
+}
+
+function replaceReservations(state: PlanningSessionState, reservations: readonly Reservation[]): PlanningCommandResult {
   const portfolio = createPortfolio({
     teams: state.portfolio.teams,
     projects: state.portfolio.projects,
@@ -478,7 +532,6 @@ function updateTeamCapacityPeriods(
   state: PlanningSessionState,
   command: UpdateTeamCapacityPeriodsCommand,
 ): PlanningCommandResult {
-  const errors: DomainError[] = [];
   const teamIndex = state.portfolio.teams.findIndex(
     (team) => team.id === command.teamId,
   );
@@ -487,38 +540,6 @@ function updateTeamCapacityPeriods(
       applicationError("UNKNOWN_TEAM", "teamId", `Team ${command.teamId} does not exist in the current portfolio.`),
     ]);
   }
-  if (teamIndex >= 0) {
-    const expectedPeriodCount =
-      state.portfolio.teams[teamIndex]!.capacitySchedule.periods.length;
-    if (command.capacityPeriods.length !== expectedPeriodCount) {
-      errors.push(
-        applicationError(
-          "CAPACITY_PERIOD_COUNT_CHANGED",
-          "team.capacityPeriods",
-          `Team update must retain exactly ${expectedPeriodCount} capacity periods.`,
-        ),
-      );
-    }
-  }
-  for (let index = 1; index < command.capacityPeriods.length; index += 1) {
-    const previous = command.capacityPeriods[index - 1]!;
-    const current = command.capacityPeriods[index]!;
-    if (compareCivilDates(previous.startDate, current.startDate) > 0) {
-      errors.push(
-        applicationError(
-          "CAPACITY_PERIOD_ORDER_CHANGED",
-          `team.capacityPeriods[${index}]`,
-          "Capacity period order cannot change in Phase 7C.",
-        ),
-      );
-    }
-  }
-  if (
-    errors.length > 0
-  ) {
-    return failure(errors);
-  }
-
   const periodResult = buildTeamCapacityPeriods(command.capacityPeriods);
   if (!periodResult.ok) return failure(periodResult.errors);
   const currentTeam = state.portfolio.teams[teamIndex]!;

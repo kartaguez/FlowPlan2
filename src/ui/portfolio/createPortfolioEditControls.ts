@@ -78,7 +78,24 @@ export function createReservationCardControls(document: Document, id: string): {
   const actions = document.createElement("div");
   actions.className = "timeline-reservation-edit-actions";
   actions.append(cancel, apply);
-  form.append(fields, error, actions);
+  const deleteButton = document.createElement("button");
+  deleteButton.type = "button";
+  deleteButton.className = "project-delete-trigger";
+  deleteButton.textContent = "Delete Reservation";
+  const deleteConfirmation = document.createElement("div");
+  deleteConfirmation.className = "team-delete-confirmation project-delete-confirmation";
+  deleteConfirmation.hidden = true;
+  const message = document.createElement("p");
+  message.textContent = "Delete this Reservation? This action cannot be undone.";
+  const deleteConfirm = document.createElement("button");
+  deleteConfirm.type = "button";
+  deleteConfirm.textContent = "Confirm delete";
+  const deleteCancel = document.createElement("button");
+  deleteCancel.type = "button";
+  deleteCancel.textContent = "Cancel deletion";
+  deleteConfirmation.append(message, deleteCancel, deleteConfirm);
+  form.append(fields, error, actions, deleteButton, deleteConfirmation);
   container.append(form);
-  return { controls: { container, title, form, fields, status, apply, cancel }, error };
+  return { controls: { container, title, form, fields, status, apply, cancel,
+    deleteButton, deleteConfirmation, deleteConfirm, deleteCancel }, error };
 }

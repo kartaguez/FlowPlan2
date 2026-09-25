@@ -155,53 +155,36 @@ delete confirmation/cancel, successful removal, and narrow Portfolio layout.
 
 ## 9G — Reservation and capacity-period structural CRUD
 
-**Goal**
+**Status: IN REVIEW** — implemented; pending audit of the pushed commit and
+human validation. The validated 9F baseline above is unchanged.
 
-Complete current planning-structure editing without mixing in analytics or
-actuals.
+Create Reservation starts as a local draft with an empty name, horizon dates,
+and no enabled Team. The Application validates it under a collision-safe
+session ID; zero allocations and zero Teams are allowed. Delete Reservation
+uses the validated Project dirty-draft and inline confirmation sequence.
+Successful lifecycle operations preserve independent drafts and reproject once.
 
-**Scope**
+Reservation cards use a derived display order: start date, end date, exact
+requested total descending over the entire inclusive interval, name, then ID
+as a deterministic tie-break. The total uses Domain daily request semantics,
+including Team capacity schedules and exceptions. Portfolio storage order is
+unchanged.
 
-- add/remove global Reservations;
-- add/remove/reorder Team capacity periods;
-- preserve inclusive dates, exact quantities, chronological non-overlap, and
-  Reservation Team-reference integrity.
+Existing Teams may add or delete capacity periods, including the last one.
+The UI keeps invalid and structural changes local until Apply; Cancel restores
+the persisted schedule without recomputation. Apply preserves exact untouched
+quantities and existing exceptions, rejects overlaps, allows gaps, and displays
+the Domain-normalized chronological schedule. There is no manual reorder or
+Domain period identity. Create Team still requires an initial period.
 
-**Domain changes**
+Implementation checks: TypeScript typecheck, 486 automated tests across 73
+suites, and build passed. Local Edge checks at 1440 px and 390 px covered
+Reservation creation/deletion and focus, the narrow Portfolio panel without
+horizontal overflow, and Team period Add/Cancel/empty-schedule Apply.
 
-No change to Reservation capacity semantics. Period identity/order policy must
-be explicit; schedules remain normalized and non-overlapping.
-
-**Application changes**
-
-Replace position-only period editing with atomic structural commands and add
-Reservation lifecycle commands with collision-safe IDs.
-
-**UI changes**
-
-Add Reservation create/delete actions and capacity-period row controls with
-accessible ordering and validation feedback.
-
-**Tests**
-
-Cover empty schedules, period add/remove/reorder, overlap rejection, exact
-value preservation, Reservation ID collisions, Team references, editor
-reconciliation, and one recompute per successful Apply.
-
-**Explicit non-goals**
-
-No capacity-exception editor unless separately scoped, no persistence,
-recurrence, actuals/history, or snapshot UI.
-
-**Exit criteria**
-
-Reservations and capacity-period structures can be maintained end to end with
-all Portfolio/schedule invariants and atomic projection updates intact.
-
-**Dependencies**
-
-9E Team lifecycle/reference policy. Integrates with 9F Project lifecycle but
-does not depend on Project CRUD semantics.
+No capacity-exception editor, persistence, recurrence, actuals/history,
+snapshots, or new analytics are included. The separate Projection date pass
+remains IN REVIEW on its own track.
 
 ## Later trajectory — Actuals / History
 

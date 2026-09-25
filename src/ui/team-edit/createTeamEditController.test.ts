@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import type { TeamEditViewModel } from "../../application/index.js";
-import { createCivilDate, createTeamId, type DomainResult } from "../../domain/index.js";
+import { createCivilDate, createTeamId, serializeQuantity, type Capacity, type DomainResult } from "../../domain/index.js";
 import type { TeamEditControls } from "../renderApp.js";
 import { createTeamEditController } from "./createTeamEditController.js";
 
@@ -36,6 +36,7 @@ function fixture(confirmDiscard = true) {
     container: element("section"), title: element("h3"), status: element("p"),
     nameForm: element("form"), nameFields: element("div"), nameApply: element("button"),
     capacityDetails: element("details"), capacityForm: element("form"), capacityFields: element("div"),
+    capacityAdd: element("button"),
     capacityApply: element("button"), capacityCancel: element("button"), close: element("button"),
     discard: element("button"), deleteButton: element("button"),
     deleteConfirmation: element("div"), deleteConfirm: element("button"), deleteCancel: element("button"),
@@ -83,6 +84,53 @@ describe("TeamEditController", () => {
     input.controls.capacityCancel.dispatch("click");
     assert.equal(field(input.controls.capacityFields, "team.capacityPeriods[0].capacity").value, "0.333");
     assert.equal(input.periodCommands.length, 0);
+  });
+
+  it("keeps added and deleted rows local, then Cancel restores the persisted schedule", () => {
+    const input = fixture(); input.controller.setTeam(model());
+    input.controls.capacityAdd.dispatch("click");
+    field(input.controls.capacityFields, "team.capacityPeriods[1].startDate").value = "invalid";
+    const deleteButtons = descendants(input.controls.capacityFields).filter((item) =>
+      item.textContent === "Delete period");
+    deleteButtons[0]!.dispatch("click");
+    assert.equal(input.controller.hasUnappliedChanges(), true);
+    input.controls.capacityCancel.dispatch("click");
+    assert.equal(field(input.controls.capacityFields, "team.capacityPeriods[0].capacity").value, "0.333");
+    assert.equal(descendants(input.controls.capacityFields).filter((item) =>
+      item.textContent === "Delete period").length, 1);
+    assert.equal(input.periodCommands.length, 0);
+  });
+
+  it("can Apply deletion of the last period as an empty schedule", () => {
+    const input = fixture(); input.controller.setTeam(model());
+    descendants(input.controls.capacityFields).find((item) =>
+      item.textContent === "Delete period")!.dispatch("click");
+    input.controls.capacityForm.dispatch("submit", { preventDefault() {} });
+    assert.equal(input.periodCommands.length, 1);
+    assert.deepEqual((input.periodCommands[0] as { capacityPeriods: unknown[] }).capacityPeriods, []);
+  });
+
+  it("parses an added period without rounding an untouched existing quantity", () => {
+    const input = fixture(); input.controller.setTeam(model());
+    input.controls.capacityAdd.dispatch("click");
+    field(input.controls.capacityFields, "team.capacityPeriods[1].startDate").value = "2025-02-01";
+    field(input.controls.capacityFields, "team.capacityPeriods[1].endDate").value = "2025-02-28";
+    field(input.controls.capacityFields, "team.capacityPeriods[1].capacity").value = "2/3";
+    input.controls.capacityForm.dispatch("submit", { preventDefault() {} });
+    assert.equal(input.periodCommands.length, 1);
+    const command = input.periodCommands[0] as { capacityPeriods: { capacity: unknown }[] };
+    assert.equal(serializeQuantity(command.capacityPeriods[0]!.capacity as Capacity), "1/3");
+    assert.equal(serializeQuantity(command.capacityPeriods[1]!.capacity as Capacity), "2/3");
+  });
+
+  it("retains invalid added rows after parsing refusal", () => {
+    const input = fixture(); input.controller.setTeam(model());
+    input.controls.capacityAdd.dispatch("click");
+    field(input.controls.capacityFields, "team.capacityPeriods[1].startDate").value = "invalid";
+    input.controls.capacityForm.dispatch("submit", { preventDefault() {} });
+    assert.equal(input.periodCommands.length, 0);
+    assert.equal(field(input.controls.capacityFields, "team.capacityPeriods[1].startDate").value, "invalid");
+    assert.equal(input.error.hidden, false);
   });
   it("preserves unapplied fields on a same-Team refresh and guards context changes", () => {
     const input = fixture(false); input.controller.setTeam(model());

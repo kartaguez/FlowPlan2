@@ -22,6 +22,8 @@ export {
   type RemoveTeamCommand,
   type UpdateTeamCapacityPeriodsCommand,
   type UpdateReservationCommand,
+  type CreateReservationCommand,
+  type RemoveReservationCommand,
   type UpdateReservationTeamAllocation,
 } from "./session/planningSession.js";
 export {

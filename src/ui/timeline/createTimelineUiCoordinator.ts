@@ -2,7 +2,7 @@ import type { TimelineGeometry, TimelineViewModel } from "../../adapters/index.j
 import { calculateCursorMetrics } from "../../adapters/index.js";
 import type {
   PlanningCommand, PlanningSettingsViewModel, ProjectEditViewModel,
-  CreateProjectCommand, CreateTeamCommand, ReorderProjectCommand, ReservationEditViewModel, TeamEditViewModel, UpdateProjectCommand,
+  CreateProjectCommand, CreateReservationCommand, CreateTeamCommand, ReorderProjectCommand, ReservationEditViewModel, TeamEditViewModel, UpdateProjectCommand,
   UpdateReservationCommand, UpdateTeamCapacityPeriodsCommand, UpdateTeamNameCommand,
 } from "../../application/index.js";
 import type {
@@ -14,6 +14,7 @@ import { createProjectEditController } from "../project-edit/createProjectEditCo
 import { createProjectCreateController } from "../project-edit/createProjectCreateController.js";
 import { createProjectDraftStore } from "../project-edit/projectDraftStore.js";
 import { createReservationEditController } from "../reservation-edit/createReservationEditController.js";
+import { createReservationCreateController } from "../reservation-edit/createReservationCreateController.js";
 import { createReservationDraftStore } from "../reservation-edit/reservationDraftStore.js";
 import { createProjectCardControls, createReservationCardControls } from "../portfolio/createPortfolioEditControls.js";
 import { createProjectReorderController } from "../portfolio/createProjectReorderController.js";
@@ -78,6 +79,7 @@ export interface TimelineUiCoordinatorDependencies {
   readonly createTeamEditController: typeof createTeamEditController;
   readonly createTeamCreateController: typeof createTeamCreateController;
   readonly createReservationEditController: typeof createReservationEditController;
+  readonly createReservationCreateController: typeof createReservationCreateController;
   readonly createPlanningSettingsController: typeof createPlanningSettingsController;
   readonly renderShellNavigation: typeof renderTimelineShellNavigation;
   readonly renderCursorTeamMetrics: typeof renderCursorTeamMetrics;
@@ -95,6 +97,7 @@ const DEFAULT_DEPENDENCIES: TimelineUiCoordinatorDependencies = Object.freeze({
   createTeamEditController,
   createTeamCreateController,
   createReservationEditController,
+  createReservationCreateController,
   createPlanningSettingsController,
   renderShellNavigation: renderTimelineShellNavigation,
   renderCursorTeamMetrics,
@@ -108,6 +111,7 @@ export function createTimelineUiCoordinator(
   const projectDrafts = createProjectDraftStore();
   const reservationDrafts = createReservationDraftStore();
   let projectCreateController: ReturnType<typeof createProjectCreateController> | undefined;
+  let reservationCreateController: ReturnType<typeof createReservationCreateController> | undefined;
   let projection = input.initialProjection;
   let viewportController: ReturnType<typeof createTimelineViewportController>;
   let cursorController: ReturnType<typeof createTimelineCursorController>;
@@ -147,11 +151,13 @@ export function createTimelineUiCoordinator(
     onDelete: (teamId) => {
       const projects = projectDrafts.ids().filter((id) => projectDrafts.isTeamDirty(id, teamId));
       const reservations = reservationDrafts.ids().filter((id) => reservationDrafts.isTeamDirty(id, teamId));
-      if (projects.length > 0 || reservations.length > 0 || projectCreateController?.isTeamEnabled(teamId)) {
+      if (projects.length > 0 || reservations.length > 0 || projectCreateController?.isTeamEnabled(teamId) ||
+        reservationCreateController?.isTeamEnabled(teamId)) {
         const names = [
           ...projects.map((id) => `Project ${projectDrafts.get(id)?.model.label ?? id}`),
           ...reservations.map((id) => `Reservation ${reservationDrafts.get(id)?.model.name ?? id}`),
           ...(projectCreateController?.isTeamEnabled(teamId) ? ["Create Project"] : []),
+          ...(reservationCreateController?.isTeamEnabled(teamId) ? ["Create Reservation"] : []),
         ];
         return { ok: false as const, reason: "draft" as const,
           message: `Unapplied changes concern this Team in ${names.join(", ")}. Apply or cancel those changes before deleting it.` };
@@ -200,10 +206,36 @@ export function createTimelineUiCoordinator(
         return { ok: true as const };
       },
     }) : undefined;
+  reservationCreateController = input.elements.reservationCreateControls
+    ? dependencies.createReservationCreateController({
+      controls: input.elements.reservationCreateControls,
+      portfolio: projection.portfolio,
+      horizon: projection.horizon,
+      confirmDiscard,
+      onClose: () => input.elements.reservationCreateButton?.focus(),
+      onCreate: (command: CreateReservationCommand) => {
+        const result = input.dispatch(command);
+        if (!result.ok) return result;
+        const id = result.projection.portfolio.reservations.at(-1)!.id;
+        const model = input.getReservationEditViewModel(id);
+        if (model) {
+          reservationDrafts.initialize(id, model);
+          reservationDrafts.setExpanded(id, true);
+        }
+        rebaseDrafts();
+        renderProjection(result.projection);
+        reservationControllers.get(id)?.focusName?.();
+        return { ok: true as const };
+      },
+    }) : undefined;
   const onCreateProjectClick = (): void => {
     if (!projectCreateController?.isOpen()) projectCreateController?.open();
   };
   input.elements.projectCreateButton?.addEventListener("click", onCreateProjectClick);
+  const onCreateReservationClick = (): void => {
+    if (!reservationCreateController?.isOpen()) reservationCreateController?.open();
+  };
+  input.elements.reservationCreateButton?.addEventListener("click", onCreateReservationClick);
   const onCreateTeamClick = (): void => {
     if (teamCreateController?.isOpen()) return;
     if (teamEditingId !== undefined && !teamEditController.requestClose()) return;
@@ -286,6 +318,20 @@ export function createTimelineUiCoordinator(
       controls, errorContainer: error, draftStore: reservationDrafts,
       onDraftChange: () => syncCard("reservation", id),
       onApply: (command: UpdateReservationCommand) => applyReservationUpdate(command),
+      onDelete: (reservationId) => {
+        const order = input.getReservationNavigationItems().map((item) => item.id);
+        const index = order.indexOf(reservationId);
+        const focusId = order[index + 1] ?? order[index - 1];
+        const result = input.dispatch({ kind: "remove-reservation", reservationId });
+        if (!result.ok) return result;
+        reservationDrafts.cancel(reservationId);
+        rebaseDrafts();
+        renderProjection(result.projection);
+        if (focusId) shellNavigation.reservationCards.get(focusId)?.button.focus();
+        else input.elements.reservationCreateButton?.focus();
+        return { ok: true as const };
+      },
+      confirmDiscard,
       onCancel: () => { syncCard("reservation", id); card.button.focus(); },
     });
     controller.setReservation(model);
@@ -336,11 +382,13 @@ export function createTimelineUiCoordinator(
     diagnosticsController.setDiagnostics(projection.viewModel.diagnostics);
     planningSettingsController.setModel(input.getPlanningSettingsViewModel());
     projectCreateController?.setPortfolio(projection.portfolio);
+    reservationCreateController?.setContext(projection.portfolio, projection.horizon);
     shellNavigation = dependencies.renderShellNavigation({
       teamContainer: input.elements.teamPanels,
       teamCreateButton: input.elements.teamCreateButton,
       projectContainer: input.elements.projectList,
       projectCreateSection: input.elements.projectCreateSection,
+      reservationCreateSection: input.elements.reservationCreateSection,
       reservationContainer: input.elements.reservationList,
       projectTab: input.elements.projectTab, reservationTab: input.elements.reservationTab,
       reservations: input.getReservationNavigationItems(),
@@ -466,8 +514,10 @@ export function createTimelineUiCoordinator(
       destroyControllers(); teamEditController.destroy(); planningSettingsController.destroy();
       teamCreateController?.destroy();
       projectCreateController?.destroy();
+      reservationCreateController?.destroy();
       input.elements.teamCreateButton?.removeEventListener("click", onCreateTeamClick);
       input.elements.projectCreateButton?.removeEventListener("click", onCreateProjectClick);
+      input.elements.reservationCreateButton?.removeEventListener("click", onCreateReservationClick);
       progressSurface.destroy(); diagnosticsController.destroy();
     },
   };

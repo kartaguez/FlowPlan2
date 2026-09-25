@@ -16,7 +16,7 @@ export interface TeamEditViewModel {
 }
 
 export interface TeamCapacityPeriodEditViewModel {
-  /** Position is the temporary Phase 7C identity of an existing period. */
+  /** Index of this period in the persisted chronological schedule. */
   readonly index: number;
   readonly startDate: CivilDate;
   readonly endDate: CivilDate;
