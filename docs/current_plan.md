@@ -1,14 +1,14 @@
 # FlowPlan2 current plan
 
 Current validated baseline:
-`29f67e65ebd384505c1abcf23570a7ce4467be2e`
+`87bc3c4f9f8a0c19c5e9fb8ba86c27e2344c730c`
 
 This is the operational roadmap for the active trajectory. Durable product and
 architecture rules live in [canon](./canon.md); current implementation facts
 and temporary constraints live in [current canon](./current_canon.md).
 
 The roadmap uses `9A`–`9G`, with intermediate lot `9C.1` between 9C and 9D.
-Validated 9E Team structural CRUD forms the baseline.
+Validated 9F Project structural CRUD forms the baseline.
 Each Phase 9 lot is intended to fit one commit or a small, coherent commit set.
 Actuals/History is a later trajectory, not a Phase 9 lot.
 
@@ -28,21 +28,19 @@ Actuals/History is a later trajectory, not a Phase 9 lot.
 - 9C.1 Planning UI cleanup (DONE);
 - FlowPlan visual grammar adaptation and corrective pass (DONE);
 - 9D Priority drag/drop (DONE);
-- 9E Team structural CRUD (DONE).
+- 9E Team structural CRUD (DONE);
+- 9F Project structural CRUD and Team membership (DONE).
 
 ## Ordered remaining lots
 
 ```text
-9F Project structural CRUD
-        ↓
 9G Reservation and capacity-period structural CRUD
 
 Later trajectory: Actuals / History
 ```
 
-The remaining execution order is `9F` then `9G`. Lot 9E is closed and provides
-the validated Team lifecycle and referential-integrity baseline for Project
-and Reservation membership workflows.
+Lot 9G is the remaining Phase 9 lot. Validated 9E and 9F provide the Team and
+Project lifecycle and referential-integrity baseline for its workflows.
 
 ## 9C.1 — Planning UI cleanup
 
@@ -57,11 +55,11 @@ shared cursor date. Ctrl+ArrowLeft/Right moves that date outside editable
 fields and modals without planning recomputation. Every Timeline click moves
 only the Projection date; Project allocation and named Reservation segments
 retain business tooltips. Timeline selection and its summary have been removed.
-The current in-review UI pass moves the Projection date display into a small
+The separate in-review UI pass moves the Projection date display into a small
 band above the global year/month axis and repeats it above every Team lane.
 These bands and the other temporal surfaces share a pale blue background and
 the same click-to-date pipeline. This pass remains **IN REVIEW** pending audit
-and human visual validation; it does not close 9F or 9G.
+and human visual validation, independently of the completed 9F lot and 9G.
 
 Portfolio Projects and Reservations use compact cards with independent inline
 editors, Apply/Cancel, and Team subcards. Several cards and Teams may remain
@@ -70,10 +68,10 @@ collapse and projection rerenders; an Apply cleans only its own card and rebases
 other drafts on the new session. A Team OFF has no visible details control.
 Project Objective end has one Mandatory toggle that maps to the existing Domain
 deadline field; divergent historical deadlines require explicit resolution.
-The Project update command now adds/removes Team requirements atomically,
-anticipating only that narrow part of 9F; Project and Team entity CRUD remain
-future work. A Team lane hit never opens Team Settings and leaves any editing
-context unchanged. Only the Team Settings button opens that editor.
+The Project update command adds/removes Team requirements atomically; 9F
+subsequently completed Project entity CRUD. A Team lane hit never opens Team
+Settings and leaves any editing context unchanged. Only the Team Settings
+button opens that editor.
 
 Human validation has closed 9C.1; 9D has since also closed.
 
@@ -134,70 +132,26 @@ rerenders. The global metrics cartouche has a title, and Create Team sits
 between it and the first Team panel, aligned with the shared Timeline.
 
 Validation before closure: TypeScript typecheck, 454 automated tests, build,
-and desktop browser inspection passed. Project/Reservation entity CRUD and
-structural editing of existing capacity periods remain in 9F/9G.
+and desktop browser inspection passed. Reservation entity CRUD and structural
+editing of existing capacity periods remain in 9G.
 
 ## 9F — Project structural CRUD and Team membership
 
-**Status: IN REVIEW** — Project creation and confirmed removal are implemented.
+**Status: DONE** — validated implementation at
+`87bc3c4f9f8a0c19c5e9fb8ba86c27e2344c730c`.
+Project creation and confirmed removal are implemented.
 Creation requires explicit Team activation and exact RAF, assigns a
 collision-safe session ID, and appends the Project to `priorityOrder`.
 Deletion removes the Project and its priority entry while preserving unrelated
 drafts and projection controls. The 9E Team deletion UI guard now includes
 enabled Teams in an unapplied Create Project draft. The existing
-`update-project` membership path remains in use. The validated 9E baseline and
-the separate Projection date IN REVIEW status are unchanged. Human audit and
-visual validation remain pending.
+`update-project` membership path remains in use. The separate Projection date
+presentation pass remains IN REVIEW.
 
 Implementation checks: TypeScript typecheck, 472 automated tests across 70
 suites, and build passed. Edge browser checks at 1440 px and 390 px covered
 empty Team selection, exact RAF creation, derived priority badge, dirty-draft
 delete confirmation/cancel, successful removal, and narrow Portfolio layout.
-
-**Goal**
-
-Create/remove Projects and structurally edit their Team requirements.
-
-**Scope**
-
-Add/remove Project entities and finish structural workflows around Team
-requirements; keep `portfolio.priorityOrder` complete and unique. Editing the
-requirement membership of an existing Project was delivered early in 9C.1.
-
-**Domain changes**
-
-Preserve the rule that a Project has at least one unique, valid Team
-requirement. Define insertion position in global priority explicitly.
-
-**Application changes**
-
-Add atomic commands for Project lifecycle; retain the existing atomic
-`update-project` membership path, RAF validation, and hidden `dailyCap`
-preservation where a requirement is untouched.
-
-**UI changes**
-
-Provide Project creation/removal and their confirmation and editing-context
-reconciliation; retain the Team-assignment controls introduced in 9C.1.
-
-**Tests**
-
-Cover empty/duplicate/unknown requirements, priority-order integrity, removal
-of selected Projects, exact quantity preservation, and recompute atomicity.
-
-**Explicit non-goals**
-
-No Team or Reservation lifecycle, capacity-period row CRUD, persistence, or
-actuals/history.
-
-**Exit criteria**
-
-Project lifecycle and Team membership are fully editable while every valid
-Portfolio maintains priority and reference invariants.
-
-**Dependencies**
-
-9E referential-integrity policy; 9A associations must be preserved if present.
 
 ## 9G — Reservation and capacity-period structural CRUD
 

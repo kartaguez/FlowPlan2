@@ -9,8 +9,9 @@ active implementation and trajectory. The remaining work is in the
 
 ## Validated implementation baseline
 
-`29f67e65ebd384505c1abcf23570a7ce4467be2e` (validated lot 9E Team
-structural CRUD, including its UI placement correction).
+`87bc3c4f9f8a0c19c5e9fb8ba86c27e2344c730c` (validated lot 9F Project
+structural CRUD). Later visual adjustments remain outside this validated
+baseline.
 
 The active application implements a pure planning projection over an in-memory
 demo session. The following capabilities are complete and active:
@@ -65,9 +66,9 @@ that Team before dispatch. Successful lifecycle changes follow the existing
 single-reprojection pipeline. The global metrics cartouche is titled, and
 Create Team appears between it and the first Team panel.
 
-Lot 9F Project structural CRUD is **IN REVIEW**. Create Project starts with no
-Team enabled and requires at least one explicit Team requirement with exact
-RAF. A session-generated Project ID is collision-safe; creation appends the
+Lot 9F Project structural CRUD is validated and **DONE**. Create Project starts
+with no Team enabled and requires at least one explicit Team requirement with
+exact RAF. A session-generated Project ID is collision-safe; creation appends the
 Project once at the end of `Portfolio.priorityOrder`, where 9D can then reorder
 it. Delete Project follows the Team deletion pattern: dirty local edits are
 discarded only after confirmation, followed by an inline deletion
@@ -75,14 +76,13 @@ confirmation. The deleted Project's card and draft disappear; other Project
 and Reservation drafts, temporal controls, and the progress view survive the
 reprojection. The Delete Team UI guard also protects a Team enabled in an
 unapplied Create Project draft. Persisted Project requirements continue to
-block Team deletion restrictively. This lot does not advance the validated
-baseline.
+block Team deletion restrictively.
 
 The Projection date presentation pass is **IN REVIEW**. Its implementation
 places the date in the global and Team timeline bands and in the projected
 progress heading, while preserving one selected date and one temporal X
-coordinate. This status does not advance the validated implementation baseline
-or close the later structural CRUD lots.
+coordinate. This separate status does not advance the validated implementation
+baseline or close 9G.
 
 ## Current product trajectory
 
