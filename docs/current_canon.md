@@ -9,12 +9,13 @@ active implementation and trajectory. The remaining work is in the
 
 ## Validated implementation baseline
 
-`5700731671f0a6fa3ad5cba98ca81850ddb02d03` (validated lot 9G Reservation
-and capacity-period structural CRUD). The separate Projection date presentation
-pass remains in review outside this validated baseline.
+`ad087b75d9613830b712bd505423726ab6ac6065` (validated lot 9H complete
+planning backup and restore, with the separate Projection date presentation
+pass also validated).
 
-The active application implements a pure planning projection over an in-memory
-demo session. The following capabilities are complete and active:
+The active application implements a pure planning projection over an editable
+session, restored from a local backup when available and otherwise initialized
+from the demo. The following capabilities are complete and active:
 
 - global Planning settings: horizon, working weekdays, and one
   `maxParallelProjects` value applied independently per Team;
@@ -37,13 +38,13 @@ demo session. The following capabilities are complete and active:
 The implementation follows the state, atomicity, engine, and projection
 invariants in [canon](./canon.md).
 
-Lot 9H complete local planning backup/restore is **IN REVIEW**. The browser
-loads a validated versioned document from one localStorage key, or the demo
-when the key is absent. A present but invalid document is reported and left
+Lot 9H complete local planning backup/restore is validated and **DONE**. The
+browser loads a validated versioned document from one localStorage key, or the
+demo when the key is absent. A present but invalid document is reported and left
 untouched at startup. Accepted commands persist their candidate state before
 the session publishes it. Planning Settings can export the complete business
 state to JSON or import a validated file after confirmation; a successful
-import reloads the page. This has not advanced the validated 9G baseline.
+import reloads the page.
 
 Lot 9A is validated and **DONE**. Program and PriorityFamily (shown as
 PAS) are optional Project associations. Their catalogs are static in the demo
@@ -86,11 +87,10 @@ reprojection. The Delete Team UI guard also protects a Team enabled in an
 unapplied Create Project draft. Persisted Project requirements continue to
 block Team deletion restrictively.
 
-The Projection date presentation pass is **IN REVIEW**. Its implementation
+The Projection date presentation pass is validated and **DONE**. Its implementation
 places the date in the global and Team timeline bands and in the projected
 progress heading, while preserving one selected date and one temporal X
-coordinate. This separate status does not advance the validated implementation
-baseline.
+coordinate.
 
 Lot 9G Reservation and capacity-period structural CRUD is validated and
 **DONE**.
@@ -305,7 +305,8 @@ projection. Rejected commands do neither.
 
 These are current implementation facts, not durable product rules:
 
-- the browser starts from a hard-coded demo only when no valid local backup is available;
+- the browser starts from the hard-coded demo when no valid local backup is
+  available; an invalid stored document is preserved and reported;
 - existing Project Team requirement membership continues to use
   `update-project`;
 - capacity periods can be added or removed for an existing Team, but have no

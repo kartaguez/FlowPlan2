@@ -1,17 +1,15 @@
 # FlowPlan2 current plan
 
 Current validated baseline:
-`5700731671f0a6fa3ad5cba98ca81850ddb02d03`
+`ad087b75d9613830b712bd505423726ab6ac6065`
 
 This is the operational roadmap for the active trajectory. Durable product and
 architecture rules live in [canon](./canon.md); current implementation facts
 and temporary constraints live in [current canon](./current_canon.md).
 
-Validated 9G Reservation and capacity-period structural CRUD forms the baseline.
-Lot 9H local backup/restore is implemented and **IN REVIEW**; it does not advance
-the validated baseline until human validation.
-Lot 10 — Actuals & History is the current objective. Its next sub-lot is 10A;
-this framing pass does not plan or implement it in detail.
+Validated 9H complete planning backup and restore forms the baseline.
+Lot 10 — Actuals & History is the current objective. Its next sub-lot is 10A,
+which remains to plan and implement.
 
 ## Completed
 
@@ -31,7 +29,9 @@ this framing pass does not plan or implement it in detail.
 - 9D Priority drag/drop (DONE);
 - 9E Team structural CRUD (DONE);
 - 9F Project structural CRUD and Team membership (DONE);
-- 9G Reservation and capacity-period structural CRUD (DONE).
+- 9G Reservation and capacity-period structural CRUD (DONE);
+- 9H Complete planning backup and restore (DONE);
+- separate Projection date presentation pass (DONE).
 
 ## Current objective and ordered sub-lots
 
@@ -40,8 +40,8 @@ Lot 10 — Actuals & History (OPEN)
 10A → 10B → 10C → 10D → 10E
 ```
 
-Lots through 9G are validated. Lot 9H and the separate Projection date
-presentation pass remain IN REVIEW.
+Lots through 9H and the separate Projection date presentation pass are
+validated.
 
 ## 9C.1 — Planning UI cleanup
 
@@ -56,11 +56,11 @@ shared cursor date. Ctrl+ArrowLeft/Right moves that date outside editable
 fields and modals without planning recomputation. Every Timeline click moves
 only the Projection date; Project allocation and named Reservation segments
 retain business tooltips. Timeline selection and its summary have been removed.
-The separate in-review UI pass moves the Projection date display into a small
+The separate validated UI pass moves the Projection date display into a small
 band above the global year/month axis and repeats it above every Team lane.
 These bands and the other temporal surfaces share a pale blue background and
-the same click-to-date pipeline. This pass remains **IN REVIEW** pending audit
-and human visual validation, independently of the completed 9F lot and 9G.
+the same click-to-date pipeline. This pass is **DONE** following human
+validation.
 
 Portfolio Projects and Reservations use compact cards with independent inline
 editors, Apply/Cancel, and Team subcards. Several cards and Teams may remain
@@ -147,7 +147,7 @@ Deletion removes the Project and its priority entry while preserving unrelated
 drafts and projection controls. The 9E Team deletion UI guard now includes
 enabled Teams in an unapplied Create Project draft. The existing
 `update-project` membership path remains in use. The separate Projection date
-presentation pass remains IN REVIEW.
+presentation pass is DONE.
 
 Implementation checks: TypeScript typecheck, 472 automated tests across 70
 suites, and build passed. Edge browser checks at 1440 px and 390 px covered
@@ -185,21 +185,22 @@ horizontal overflow, and Team period Add/Cancel/empty-schedule Apply.
 
 No capacity-exception editor, recurrence, actuals/history,
 snapshots, or new analytics are included. The separate Projection date pass
-remains IN REVIEW on its own track.
+is DONE on its own track.
 
 ## 9H — Complete planning backup and restore
 
-**Status: IN REVIEW** — implemented at the current working tree, pending human
-validation. One versioned JSON document contains the full current
-`PlanningSessionState`. The same document is stored under one localStorage key;
-successful edits persist before the session commits. Planning Settings provides
+**Status: DONE** — validated implementation at
+`ad087b75d9613830b712bd505423726ab6ac6065`. One versioned JSON document
+contains the full current `PlanningSessionState`. The same document is stored
+under one localStorage key; successful edits persist before the session commits.
+Planning Settings provides
 Import and Export. Import validates the full state and projection before asking
 for confirmation, then replaces the key and reloads the page. Invalid startup
 data is preserved and reported while the demo loads in memory. Actuals/history
 are absent from the current schema because they are not implemented yet.
 
 Implementation checks: TypeScript typecheck, 498 automated tests across 76
-suites, and build passed. Browser interaction review remains pending.
+suites, and build passed. Human validation closed the lot.
 
 ## 10A — Actuals model & deterministic reconstruction
 
