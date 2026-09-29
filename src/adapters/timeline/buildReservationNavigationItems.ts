@@ -14,6 +14,7 @@ import {
 export interface ReservationNavigationItem {
   readonly id: ReservationId;
   readonly name: string;
+  readonly isActive: boolean;
 }
 
 /** Presentation order only; Portfolio.reservations remains untouched. */
@@ -46,5 +47,6 @@ export function buildReservationNavigationItems(
   return Object.freeze(ranked.map(({ reservation }) => Object.freeze({
     id: reservation.id,
     name: reservation.name,
+    isActive: reservation.isActive,
   })));
 }

@@ -33,6 +33,16 @@ Portfolio
 └── Reservations
 ```
 
+Each Project and Reservation has an `isActive` flag, active by default. It
+controls participation in the current forecast only. An inactive entity remains
+in the Portfolio with its identity, associations, exact quantities, and
+editable business data; future actuals or history may remain attached to it.
+Activation never deletes or reorders an entity and never relaxes Portfolio
+structural validation. `Portfolio.priorityOrder` remains the sole Project
+priority source, including inactive Projects. The planner skips inactive
+Projects in Team admission and inactive Reservations in reserved demand; active
+Reservation requests retain their existing non-clamped semantics.
+
 The engine answers this question:
 
 > Given known capacity, prioritized projects, remaining workload (RAF) by

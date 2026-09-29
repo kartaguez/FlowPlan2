@@ -98,6 +98,18 @@ export interface ReorderProjectCommand {
   readonly targetPosition: number;
 }
 
+export interface SetProjectActiveCommand {
+  readonly kind: "set-project-active";
+  readonly projectId: ProjectId;
+  readonly isActive: boolean;
+}
+
+export interface SetReservationActiveCommand {
+  readonly kind: "set-reservation-active";
+  readonly reservationId: ReservationId;
+  readonly isActive: boolean;
+}
+
 export interface UpdateTeamCapacityPeriod {
   readonly startDate: CivilDate;
   readonly endDate: CivilDate;
@@ -161,6 +173,8 @@ export type PlanningCommand =
   | CreateProjectCommand
   | RemoveProjectCommand
   | ReorderProjectCommand
+  | SetProjectActiveCommand
+  | SetReservationActiveCommand
   | CreateTeamCommand
   | RemoveTeamCommand
   | UpdateTeamNameCommand
@@ -223,6 +237,10 @@ function applyCommand(
       return removeProject(state, command);
     case "reorder-project":
       return reorderProject(state, command);
+    case "set-project-active":
+      return setProjectActive(state, command);
+    case "set-reservation-active":
+      return setReservationActive(state, command);
     case "create-team":
       return addTeam(state, command, teamIds);
     case "remove-team":
@@ -274,7 +292,8 @@ function updateReservation(
       ),
     ]);
   }
-  const updated = buildReservation(state, command, command.reservationId);
+  const updated = buildReservation(state, command, command.reservationId,
+    state.portfolio.reservations[reservationIndex]!.isActive);
   if (!updated.ok) return failure(updated.errors);
   const reservations = state.portfolio.reservations.map((reservation, index) =>
     index === reservationIndex ? updated.value : reservation,
@@ -286,6 +305,7 @@ function buildReservation(
   state: PlanningSessionState,
   command: CreateReservationCommand | UpdateReservationCommand,
   id: ReservationId,
+  isActive = true,
 ): ReturnType<typeof createReservation> {
   const errors: DomainError[] = [];
   const teamIds = new Set<TeamId>();
@@ -338,6 +358,7 @@ function buildReservation(
   );
   return createReservation({
     id,
+    isActive,
     name: command.name,
     startDate: command.startDate,
     endDate: command.endDate,
@@ -742,6 +763,7 @@ function updateProject(
 
   const updatedProject = createProject({
     id: project.id,
+    isActive: project.isActive,
     name,
     ...(command.programId === undefined ? {} : { programId: command.programId }),
     ...(command.priorityFamilyId === undefined ? {} : { priorityFamilyId: command.priorityFamilyId }),
@@ -804,6 +826,41 @@ function reorderProject(
   });
   if (!portfolio.ok) return failure(portfolio.errors);
   return Object.freeze({ ok: true, state: freezeState({ portfolio: portfolio.value, planning: state.planning }) });
+}
+
+function setProjectActive(
+  state: PlanningSessionState,
+  command: SetProjectActiveCommand,
+): PlanningCommandResult {
+  if (typeof command.isActive !== "boolean") return failure([applicationError(
+    "INVALID_PROJECT_ACTIVATION", "isActive", "Project activation must be a boolean.")]);
+  const project = state.portfolio.projects.find((item) => item.id === command.projectId);
+  if (!project) return failure([applicationError("UNKNOWN_PROJECT", "projectId",
+    `Project ${command.projectId} does not exist in the current portfolio.`)]);
+  if (project.isActive === command.isActive) return Object.freeze({ ok: true, state });
+  const updated = createProject({ ...project, isActive: command.isActive });
+  if (!updated.ok) return failure(updated.errors);
+  const portfolio = createPortfolio({ ...state.portfolio,
+    projects: state.portfolio.projects.map((item) => item.id === project.id ? updated.value : item),
+  });
+  if (!portfolio.ok) return failure(portfolio.errors);
+  return Object.freeze({ ok: true, state: freezeState({ portfolio: portfolio.value, planning: state.planning }) });
+}
+
+function setReservationActive(
+  state: PlanningSessionState,
+  command: SetReservationActiveCommand,
+): PlanningCommandResult {
+  if (typeof command.isActive !== "boolean") return failure([applicationError(
+    "INVALID_RESERVATION_ACTIVATION", "isActive", "Reservation activation must be a boolean.")]);
+  const reservation = state.portfolio.reservations.find((item) => item.id === command.reservationId);
+  if (!reservation) return failure([applicationError("UNKNOWN_RESERVATION", "reservationId",
+    `Reservation ${command.reservationId} does not exist in the current portfolio.`)]);
+  if (reservation.isActive === command.isActive) return Object.freeze({ ok: true, state });
+  const updated = createReservation({ ...reservation, isActive: command.isActive });
+  if (!updated.ok) return failure(updated.errors);
+  return replaceReservations(state, state.portfolio.reservations.map((item) =>
+    item.id === reservation.id ? updated.value : item));
 }
 
 function moveProjectPriority(

@@ -103,6 +103,7 @@ export function reservedCapacity(
 ): Capacity {
   let total = ZERO;
   for (const reservation of reservations) {
+    if (!reservation.isActive) continue;
     total = addRationals(
       total,
       rationalOf(requestedReservationCapacity(reservation, team, date, workingPattern)),

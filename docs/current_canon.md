@@ -46,6 +46,20 @@ the session publishes it. Planning Settings can export the complete business
 state to JSON or import a validated file after confirmation; a successful
 import reloads the page.
 
+Lot 9I Project and Reservation forecast activation is implemented and **IN
+REVIEW**. Both entity types default to active. Portfolio cards expose immediate
+Active/Inactive controls outside their Apply/Cancel drafts; ordinary Apply
+preserves the current activation state. Inactive Projects retain their global
+priority position but have no Team plan, allocations, markers, forecast
+diagnostics, or projected progress metrics. Inactive Reservations retain their
+configured request and 9G display order but contribute no forecast demand,
+timeline segment, or Team/global occupancy. `TEAM_OVER_RESERVED` remains a Team
+aggregate of all active Reservation requests. Independent drafts and UI context
+survive a successful toggle. New backups are strict V2 documents with explicit
+activation fields; V1 documents load with all Projects and Reservations active
+from the unchanged localStorage key. Human validation has not yet advanced the
+validated 9H baseline.
+
 Lot 9A is validated and **DONE**. Program and PriorityFamily (shown as
 PAS) are optional Project associations. Their catalogs are static in the demo
 session; the Project editor offers two optional selects, and each Portfolio

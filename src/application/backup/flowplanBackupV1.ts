@@ -52,7 +52,7 @@ function quantity<T extends DomainQuantity>(value: unknown, path: string, parse:
   return parsed;
 }
 
-export function encodeFlowplanBackupV1(state: PlanningSessionState, exportedAt: string = new Date().toISOString()): string {
+function encodeFlowplanBackupVersion(state: PlanningSessionState, version: 1 | 2, exportedAt: string): string {
   const data = {
     planning: {
       startDate: state.planning.startDate, endDate: state.planning.endDate,
@@ -72,6 +72,7 @@ export function encodeFlowplanBackupV1(state: PlanningSessionState, exportedAt: 
       })),
       projects: state.portfolio.projects.map((project) => ({
         id: project.id, name: project.name,
+        ...(version === 2 ? { isActive: project.isActive } : {}),
         ...(project.programId === undefined ? {} : { programId: project.programId }),
         ...(project.priorityFamilyId === undefined ? {} : { priorityFamilyId: project.priorityFamilyId }),
         ...(project.earliestStartDate === undefined ? {} : { earliestStartDate: project.earliestStartDate }),
@@ -87,21 +88,35 @@ export function encodeFlowplanBackupV1(state: PlanningSessionState, exportedAt: 
       priorityOrder: [...state.portfolio.priorityOrder],
       reservations: state.portfolio.reservations.map((r) => ({
         id: r.id, name: r.name, startDate: r.startDate, endDate: r.endDate,
+        ...(version === 2 ? { isActive: r.isActive } : {}),
         teamAllocations: r.teamAllocations.map((a) => ({ teamId: a.teamId, amount: a.amount.kind === "ratio"
           ? { kind: "ratio", ratio: serializeQuantity(a.amount.ratio) }
           : { kind: "fixed-daily", dailyCapacity: serializeQuantity(a.amount.dailyCapacity) } })),
       })),
     },
   };
-  return JSON.stringify({ format: "flowplan", version: 1, exportedAt, data }, null, 2);
+  return JSON.stringify({ format: "flowplan", version, exportedAt, data }, null, 2);
 }
 
-export function decodeFlowplanBackupV1(text: string): PlanningSessionState {
+export function encodeFlowplanBackupV1(state: PlanningSessionState, exportedAt: string = new Date().toISOString()): string {
+  return encodeFlowplanBackupVersion(state, 1, exportedAt);
+}
+
+export function encodeFlowplanBackupV2(state: PlanningSessionState, exportedAt: string = new Date().toISOString()): string {
+  return encodeFlowplanBackupVersion(state, 2, exportedAt);
+}
+
+function boolean(value: unknown, path: string): boolean {
+  if (typeof value !== "boolean") throw new InvalidFlowplanBackup(`${path} must be a boolean.`);
+  return value;
+}
+
+function decodeFlowplanBackupVersion(text: string, version: 1 | 2): PlanningSessionState {
   let parsed: unknown;
   try { parsed = JSON.parse(text); } catch { throw new InvalidFlowplanBackup("Invalid JSON."); }
   const envelope = object(parsed, "backup", ["format", "version", "exportedAt", "data"]);
   if (envelope.format !== "flowplan") throw new InvalidFlowplanBackup("Unknown format.");
-  if (envelope.version !== 1) throw new InvalidFlowplanBackup("Unsupported version.");
+  if (envelope.version !== version) throw new InvalidFlowplanBackup("Unsupported version.");
   const exportedAt = string(envelope.exportedAt, "exportedAt");
   if (Number.isNaN(Date.parse(exportedAt)) || new Date(exportedAt).toISOString() !== exportedAt) throw new InvalidFlowplanBackup("Invalid exportedAt.");
   const data = object(envelope.data, "data", ["planning", "portfolio"]);
@@ -137,7 +152,7 @@ export function decodeFlowplanBackupV1(text: string): PlanningSessionState {
     return valid(createPriorityFamily({ id: valid(createPriorityFamilyId(string(p.id, "priorityFamily.id"))), name: name(p.name, "priorityFamily.name") }));
   });
   const projects = array(source.projects, "projects").map((v) => {
-    const p = object(v, "project", ["id", "name", "requirements"], ["programId", "priorityFamilyId", "earliestStartDate", "objectiveEndDate", "mandatoryDeadline"]);
+    const p = object(v, "project", ["id", "name", "requirements", ...(version === 2 ? ["isActive"] : [])], ["programId", "priorityFamilyId", "earliestStartDate", "objectiveEndDate", "mandatoryDeadline"]);
     const requirements = array(p.requirements, "requirements").map((v) => {
       const r = object(v, "requirement", ["teamId", "remainingWorkload"], ["dailyCap"]);
       return valid(createProjectTeamRequirement({ teamId: valid(createTeamId(string(r.teamId, "requirement.teamId"))),
@@ -145,6 +160,7 @@ export function decodeFlowplanBackupV1(text: string): PlanningSessionState {
         ...(r.dailyCap === undefined ? {} : { dailyCap: quantity(r.dailyCap, "requirement.dailyCap", dailyCapFromSerialized) }) }));
     });
     return valid(createProject({ id: valid(createProjectId(string(p.id, "project.id"))), name: name(p.name, "project.name"), requirements,
+      isActive: version === 2 ? boolean(p.isActive, "project.isActive") : true,
       ...(p.programId === undefined ? {} : { programId: valid(createProgramId(string(p.programId, "project.programId"))) }),
       ...(p.priorityFamilyId === undefined ? {} : { priorityFamilyId: valid(createPriorityFamilyId(string(p.priorityFamilyId, "project.priorityFamilyId"))) }),
       ...(p.earliestStartDate === undefined ? {} : { earliestStartDate: date(p.earliestStartDate, "project.earliestStartDate") }),
@@ -152,7 +168,7 @@ export function decodeFlowplanBackupV1(text: string): PlanningSessionState {
       ...(p.mandatoryDeadline === undefined ? {} : { mandatoryDeadline: date(p.mandatoryDeadline, "project.mandatoryDeadline") }) }));
   });
   const reservations = array(source.reservations, "reservations").map((v) => {
-    const r = object(v, "reservation", ["id", "name", "startDate", "endDate", "teamAllocations"]);
+    const r = object(v, "reservation", ["id", "name", "startDate", "endDate", "teamAllocations", ...(version === 2 ? ["isActive"] : [])]);
     const teamAllocations = array(r.teamAllocations, "teamAllocations").map((v) => {
       const a = object(v, "allocation", ["teamId", "amount"]);
       const rawAmount = object(a.amount, "amount", ["kind"], ["ratio", "dailyCapacity"]);
@@ -167,9 +183,22 @@ export function decodeFlowplanBackupV1(text: string): PlanningSessionState {
       return valid(createReservationTeamAllocation({ teamId: valid(createTeamId(string(a.teamId, "allocation.teamId"))), amount }));
     });
     return valid(createReservation({ id: valid(createReservationId(string(r.id, "reservation.id"))), name: name(r.name, "reservation.name"),
+      isActive: version === 2 ? boolean(r.isActive, "reservation.isActive") : true,
       startDate: date(r.startDate, "reservation.startDate"), endDate: date(r.endDate, "reservation.endDate"), teamAllocations }));
   });
   const priorityOrder = array(source.priorityOrder, "priorityOrder").map((v) => valid(createProjectId(string(v, "priorityOrder.id"))));
   const portfolio = valid(createPortfolio({ teams, projects, programs, priorityFamilies, priorityOrder, reservations }));
   return Object.freeze({ portfolio, planning: Object.freeze({ startDate: horizon.start, endDate: horizon.end, workingPattern, maxParallelProjects }) });
+}
+
+export function decodeFlowplanBackupV1(text: string): PlanningSessionState {
+  return decodeFlowplanBackupVersion(text, 1);
+}
+
+export function decodeFlowplanBackup(text: string): PlanningSessionState {
+  let envelope: unknown;
+  try { envelope = JSON.parse(text); } catch { throw new InvalidFlowplanBackup("Invalid JSON."); }
+  const source = object(envelope, "backup", ["format", "version", "exportedAt", "data"]);
+  if (source.version !== 1 && source.version !== 2) throw new InvalidFlowplanBackup("Unsupported version.");
+  return decodeFlowplanBackupVersion(text, source.version);
 }

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { createPlanningSession } from "../../application/index.js";
-import { decodeFlowplanBackupV1 } from "../../application/backup/flowplanBackupV1.js";
+import { decodeFlowplanBackup } from "../../application/backup/flowplanBackupV1.js";
 import { createUnavailabilityRatio } from "../../domain/index.js";
 import { createDemoPlanningScenario } from "../demo/createDemoPlanningScenario.js";
 import { createPlanningProjectionDispatcher } from "./createPlanningProjectionDispatcher.js";
@@ -50,7 +50,8 @@ describe("planning persistence transaction", () => {
     const moved = dispatcher.dispatch({ kind: "reorder-project", projectId: state.portfolio.priorityOrder[1]!, targetPosition: 1 });
     assert.equal(moved.ok, true);
     assert.equal(writes, 1);
-    assert.deepEqual(decodeFlowplanBackupV1(document!).portfolio.priorityOrder, session.getState().portfolio.priorityOrder);
+    assert.equal(JSON.parse(document!).version, 2);
+    assert.deepEqual(decodeFlowplanBackup(document!).portfolio.priorityOrder, session.getState().portfolio.priorityOrder);
     assert.notStrictEqual(dispatcher.getProjection(), initialProjection);
   });
 
@@ -75,7 +76,7 @@ describe("planning persistence transaction", () => {
     fail = false;
     assert.equal(dispatcher.dispatch(command).ok, true);
     assert.equal(session.getState().portfolio.reservations.at(-1)!.id, "reservation-session-1");
-    assert.deepEqual(decodeFlowplanBackupV1(document).portfolio.reservations.map((r) => r.id),
+    assert.deepEqual(decodeFlowplanBackup(document).portfolio.reservations.map((r) => r.id),
       session.getState().portfolio.reservations.map((r) => r.id));
   });
 });

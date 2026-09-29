@@ -47,6 +47,7 @@ export interface CursorProgressMetrics {
 
 export interface CursorProjectMetrics extends CursorProgressMetrics {
   readonly projectId: ProjectId;
+  readonly isActive: boolean;
 }
 
 export interface CursorProgramMetrics extends CursorProgressMetrics {
@@ -135,6 +136,7 @@ export function calculateCursorMetrics(
     for (const projectPlan of plan.projectPlans) {
       const project = projectById.get(projectPlan.projectId);
       if (!project || projectPlan.teamId !== team.id ||
+          !project.isActive ||
           !project.requirements.some((requirement) => requirement.teamId === team.id) ||
           seenProjects.has(project.id)) {
         throw new TypeError(`Invalid Project/Team plan ${projectPlan.projectId}/${team.id}.`);
@@ -151,7 +153,7 @@ export function calculateCursorMetrics(
       }
     }
     for (const project of input.portfolio.projects) {
-      if (project.requirements.some((requirement) => requirement.teamId === team.id) &&
+      if (project.isActive && project.requirements.some((requirement) => requirement.teamId === team.id) &&
           !seenProjects.has(project.id)) {
         throw new TypeError(`Missing Project/Team plan ${project.id}/${team.id}.`);
       }
@@ -198,16 +200,17 @@ export function calculateCursorMetrics(
     const allocatedWorkload = allocatedByProject.get(project.id)!;
     return Object.freeze({
       projectId: project.id,
+      isActive: project.isActive,
       baselineRAF,
       allocatedWorkload,
-      progress: ratioOrOne(allocatedWorkload, baselineRAF),
+      progress: project.isActive ? ratioOrOne(allocatedWorkload, baselineRAF) : ZERO,
     });
   });
 
   const metricsByProject = new Map(projects.map((metrics) => [metrics.projectId, metrics]));
   const programs: CursorProgramMetrics[] = [];
   for (const program of input.portfolio.programs) {
-    const members = input.portfolio.projects.filter((project) => project.programId === program.id);
+    const members = input.portfolio.projects.filter((project) => project.isActive && project.programId === program.id);
     if (members.length === 0) continue;
     let baselineRAF = ZERO;
     let allocatedWorkload = ZERO;
@@ -227,7 +230,7 @@ export function calculateCursorMetrics(
   const priorityFamilies: CursorPriorityFamilyMetrics[] = [];
   for (const family of input.portfolio.priorityFamilies) {
     const members = input.portfolio.projects.filter(
-      (project) => project.priorityFamilyId === family.id,
+      (project) => project.isActive && project.priorityFamilyId === family.id,
     );
     if (members.length === 0) continue;
     let baselineRAF = ZERO;

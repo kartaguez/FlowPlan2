@@ -1,5 +1,5 @@
 import type { PlanningSessionState } from "../../application/index.js";
-import { decodeFlowplanBackupV1 } from "../../application/backup/flowplanBackupV1.js";
+import { decodeFlowplanBackup } from "../../application/backup/flowplanBackupV1.js";
 import type { PlanningBackupStore } from "../../infrastructure/backup/localPlanningBackup.js";
 
 export function loadPlanningBackup(
@@ -10,7 +10,7 @@ export function loadPlanningBackup(
   try {
     const document = store.read();
     if (document === null) return { state: fallback, invalid: false };
-    const state = decodeFlowplanBackupV1(document);
+    const state = decodeFlowplanBackup(document);
     preflight(state);
     return { state, invalid: false };
   } catch {
@@ -26,7 +26,7 @@ export function importPlanningBackup(input: {
   readonly reload: () => void;
 }): "imported" | "cancelled" | "failed" {
   try {
-    const state = decodeFlowplanBackupV1(input.document);
+    const state = decodeFlowplanBackup(input.document);
     input.preflight(state);
     if (!input.confirm()) return "cancelled";
     input.store.write(input.document);

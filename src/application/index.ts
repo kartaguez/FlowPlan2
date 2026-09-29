@@ -15,6 +15,8 @@ export {
   type CreateProjectCommand,
   type RemoveProjectCommand,
   type ReorderProjectCommand,
+  type SetProjectActiveCommand,
+  type SetReservationActiveCommand,
   type UpdateProjectTeamRequirement,
   type UpdateTeamCapacityPeriod,
   type UpdateTeamNameCommand,

@@ -44,7 +44,7 @@ class FakeElement {
     (target === this || this.children.some((child) => child.contains(target))); }
 }
 
-function fixture(withUnusedTeam = false) {
+function fixture(withUnusedTeam = false, rejectActivation = false) {
   const scenario = createDemoPlanningScenario();
   const session = createPlanningSession(scenario);
   if (withUnusedTeam) {
@@ -78,17 +78,20 @@ function fixture(withUnusedTeam = false) {
   const createEnabledTeams = new Set<TeamId>();
   const createReservationEnabledTeams = new Set<TeamId>();
   let shellInput: { onProjectSelect: (id: ProjectId) => void;
-    onReservationSelect: (id: ReservationId) => void; onTeamSettings: (id: TeamId) => void };
+    onReservationSelect: (id: ReservationId) => void; onTeamSettings: (id: TeamId) => void;
+    onProjectActiveChange: (id: ProjectId, isActive: boolean) => void;
+    onReservationActiveChange: (id: ReservationId, isActive: boolean) => void };
   const projectHandles = new Map<ProjectId, Parameters<typeof createProjectEditController>[0]>();
   const reservationHandles = new Map<ReservationId, Parameters<typeof createReservationEditController>[0]>();
   let latestProjectCards: ReturnType<typeof cards>["projectCards"];
   let latestReservationCards: ReturnType<typeof cards>["reservationCards"];
   const reservationNameFields = new Map<ReservationId, FakeElement>();
+  const activationErrors: string[] = [];
   const cards = () => {
     const projectCards = new Map(session.getState().portfolio.projects.map((project) => [project.id,
-      { button: document.createElement("button"), handle: document.createElement("button"), host: document.createElement("div"), item: document.createElement("li") }]));
+      { button: document.createElement("button"), handle: document.createElement("button"), activeButton: document.createElement("button"), host: document.createElement("div"), item: document.createElement("li") }]));
     const reservationCards = new Map(session.getState().portfolio.reservations.map((reservation) => [reservation.id,
-      { button: document.createElement("button"), host: document.createElement("div"), item: document.createElement("li") }]));
+      { button: document.createElement("button"), activeButton: document.createElement("button"), host: document.createElement("div"), item: document.createElement("li") }]));
     latestProjectCards = projectCards;
     latestReservationCards = reservationCards;
     return { projectCards, reservationCards };
@@ -144,21 +147,26 @@ function fixture(withUnusedTeam = false) {
     renderShellNavigation: (input: typeof shellInput) => {
       shellInput = input;
       return { teamMetricsContainers: new Map(), ...cards(), getActiveTab: () => "projects",
-        setCardState() {}, setReorderPreview() {}, showReorderError() {}, destroy() {} };
+        setCardState() {}, setReorderPreview() {}, showReorderError() {},
+        showActivationError(_kind: string, message: string) { activationErrors.push(message); }, destroy() {} };
     },
     renderCursorTeamMetrics: () => {}, createCursorProgressSurface: () => ({ render() {}, destroy() {} }),
   } as unknown as TimelineUiCoordinatorDependencies;
   const coordinator = createTimelineUiCoordinator({
     elements, initialProjection: dispatcher.getProjection(), initialDate: scenario.planning.startDate,
-    dispatch: dispatcher.dispatch,
+    dispatch: (command) => rejectActivation &&
+      (command.kind === "set-project-active" || command.kind === "set-reservation-active")
+      ? { ok: false as const, errors: [{ code: "COMMIT_FAILED", path: "planning", message: "Planning change could not be saved." }] }
+      : dispatcher.dispatch(command),
     getProjectEditViewModel: (id) => buildProjectEditViewModel(session.getState(), id),
-    getProjectNavigationItems: () => session.getState().portfolio.projects.map((project) => ({ id: project.id })),
+    getProjectNavigationItems: () => session.getState().portfolio.projects.map((project) => ({ id: project.id, isActive: project.isActive })),
     getPlanningSettingsViewModel: () => buildPlanningSettingsViewModel(session.getState()),
     getTeamEditViewModel: (id) => buildTeamEditViewModel(session.getState(), id),
     getReservationEditViewModel: (id) => buildReservationEditViewModel(session.getState(), id),
-    getReservationNavigationItems: () => session.getState().portfolio.reservations.map((item) => ({ id: item.id, name: item.name })),
+    getReservationNavigationItems: () => session.getState().portfolio.reservations.map((item) => ({ id: item.id, name: item.name, isActive: item.isActive })),
   }, dependencies);
   return { scenario, session, coordinator, projectHandles, reservationHandles,
+    activationErrors,
     createProject: (command: CreateProjectCommand) => projectCreateInput.onCreate(command),
     createReservation: (command: CreateReservationCommand) => reservationCreateInput.onCreate(command),
     deleteReservation: (id: ReservationId) => reservationHandles.get(id)!.onDelete!(id),
@@ -174,13 +182,103 @@ function fixture(withUnusedTeam = false) {
     handleFor: (id: ProjectId) => latestProjectCards.get(id)?.handle,
     buttonFor: (id: ProjectId) => latestProjectCards.get(id)?.button,
     reservationButtonFor: (id: ReservationId) => latestReservationCards.get(id)?.button,
+    projectActiveButtonFor: (id: ProjectId) => latestProjectCards.get(id)?.activeButton,
+    reservationActiveButtonFor: (id: ReservationId) => latestReservationCards.get(id)?.activeButton,
     reservationNameFor: (id: ReservationId) => reservationNameFields.get(id),
     openProject: (id: ProjectId) => shellInput.onProjectSelect(id),
     openReservation: (id: ReservationId) => shellInput.onReservationSelect(id),
+    setProjectActive: (id: ProjectId, isActive: boolean) => shellInput.onProjectActiveChange(id, isActive),
+    setReservationActive: (id: ReservationId, isActive: boolean) => shellInput.onReservationActiveChange(id, isActive),
     getRenderCount: () => renderCount };
 }
 
 describe("coordinator multi-draft rerender", () => {
+  it("preserves state, projection, drafts and focus on failed activation commands", () => {
+    const app = fixture(false, true);
+    const project = app.scenario.portfolio.projects[0]!;
+    const reservation = app.scenario.portfolio.reservations[0]!;
+    app.openProject(project.id);
+    app.openReservation(reservation.id);
+    const projectStore = app.projectHandles.get(project.id)!.draftStore!;
+    const reservationStore = app.reservationHandles.get(reservation.id)!.draftStore!;
+    projectStore.update(project.id, { ...projectStore.get(project.id)!.values, name: "Local project" });
+    reservationStore.update(reservation.id, { ...reservationStore.get(reservation.id)!.values, name: "Local reservation" });
+    const state = app.session.getState();
+    const projection = app.coordinator.getProjection();
+    const snapshot = app.coordinator.getUiSnapshot();
+    app.setProjectActive(project.id, false);
+    assert.equal(app.focused(), app.projectActiveButtonFor(project.id));
+    app.setReservationActive(reservation.id, false);
+    assert.equal(app.focused(), app.reservationActiveButtonFor(reservation.id));
+    assert.strictEqual(app.session.getState(), state);
+    assert.strictEqual(app.coordinator.getProjection(), projection);
+    assert.deepEqual(app.coordinator.getUiSnapshot(), snapshot);
+    assert.equal(app.getRenderCount(), 1);
+    assert.equal(projectStore.get(project.id)?.values.name, "Local project");
+    assert.equal(reservationStore.get(reservation.id)?.values.name, "Local reservation");
+    assert.equal(app.activationErrors.length, 2);
+    app.coordinator.destroy();
+  });
+
+  it("keeps independent drafts and activation outside Apply for both entity types", () => {
+    for (const finalActive of [false, true]) {
+      const app = fixture();
+      const [project, otherProject] = app.scenario.portfolio.projects;
+      const [reservation, otherReservation] = app.scenario.portfolio.reservations;
+      app.openProject(project!.id);
+      app.openProject(otherProject!.id);
+      app.openReservation(reservation!.id);
+      app.openReservation(otherReservation!.id);
+      const projectStore = app.projectHandles.get(project!.id)!.draftStore!;
+      const otherProjectStore = app.projectHandles.get(otherProject!.id)!.draftStore!;
+      const reservationStore = app.reservationHandles.get(reservation!.id)!.draftStore!;
+      const otherReservationStore = app.reservationHandles.get(otherReservation!.id)!.draftStore!;
+      projectStore.update(project!.id, { ...projectStore.get(project!.id)!.values, name: "Project draft" });
+      otherProjectStore.update(otherProject!.id, { ...otherProjectStore.get(otherProject!.id)!.values, name: "Other project draft" });
+      reservationStore.update(reservation!.id, { ...reservationStore.get(reservation!.id)!.values, name: "Reservation draft" });
+      otherReservationStore.update(otherReservation!.id, { ...otherReservationStore.get(otherReservation!.id)!.values, name: "Other reservation draft" });
+      const snapshot = app.coordinator.getUiSnapshot();
+      app.setProjectActive(project!.id, false);
+      app.setReservationActive(reservation!.id, false);
+      if (finalActive) {
+        app.setProjectActive(project!.id, true);
+        app.setReservationActive(reservation!.id, true);
+      }
+      assert.equal(app.session.getState().portfolio.projects[0]!.isActive, finalActive);
+      assert.equal(app.session.getState().portfolio.reservations[0]!.isActive, finalActive);
+      assert.equal(projectStore.get(project!.id)?.values.name, "Project draft");
+      assert.equal(reservationStore.get(reservation!.id)?.values.name, "Reservation draft");
+      assert.equal(otherProjectStore.get(otherProject!.id)?.values.name, "Other project draft");
+      assert.equal(otherReservationStore.get(otherReservation!.id)?.values.name, "Other reservation draft");
+      assert.deepEqual(app.coordinator.getUiSnapshot(), snapshot);
+      assert.equal(app.focused(), app.reservationActiveButtonFor(reservation!.id));
+      const projectApply: UpdateProjectCommand = { kind: "update-project", projectId: project!.id,
+        name: projectStore.get(project!.id)!.values.name,
+        ...(project!.programId === undefined ? {} : { programId: project!.programId }),
+        ...(project!.priorityFamilyId === undefined ? {} : { priorityFamilyId: project!.priorityFamilyId }),
+        ...(project!.objectiveEndDate === undefined ? {} : { objectiveEndDate: project!.objectiveEndDate }),
+        teamRequirements: project!.requirements.map((requirement) => ({ teamId: requirement.teamId,
+          remainingWorkload: requirement.remainingWorkload,
+          ...(requirement.dailyCap === undefined ? {} : { dailyCap: requirement.dailyCap }) })) };
+      assert.equal(app.projectHandles.get(project!.id)!.onApply(projectApply).ok, true);
+      const reservationApply = { kind: "update-reservation" as const, reservationId: reservation!.id,
+        name: reservationStore.get(reservation!.id)!.values.name,
+        startDate: reservation!.startDate, endDate: reservation!.endDate,
+        teamAllocations: reservation!.teamAllocations.map((allocation) => ({ teamId: allocation.teamId,
+          ...(allocation.amount.kind === "ratio"
+            ? { kind: "ratio" as const, ratio: allocation.amount.ratio }
+            : { kind: "fixed-daily" as const, dailyCapacity: allocation.amount.dailyCapacity }) })) };
+      assert.equal(app.reservationHandles.get(reservation!.id)!.onApply(reservationApply).ok, true);
+      assert.equal(app.session.getState().portfolio.projects[0]!.name, "Project draft");
+      assert.equal(app.session.getState().portfolio.projects[0]!.isActive, finalActive);
+      assert.equal(app.session.getState().portfolio.reservations[0]!.name, "Reservation draft");
+      assert.equal(app.session.getState().portfolio.reservations[0]!.isActive, finalActive);
+      assert.equal(otherProjectStore.get(otherProject!.id)?.values.name, "Other project draft");
+      assert.equal(otherReservationStore.get(otherReservation!.id)?.values.name, "Other reservation draft");
+      app.coordinator.destroy();
+    }
+  });
+
   it("creates and deletes a Reservation while retaining independent dirty drafts and focus", () => {
     const app = fixture();
     const project = app.scenario.portfolio.projects[0]!;

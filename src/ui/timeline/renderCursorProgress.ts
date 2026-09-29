@@ -46,6 +46,16 @@ export function createCursorProgressSurface(
       });
       cards.replaceChildren(...model[activeView].map((item) => {
         const card = document.createElement("article");
+        if (item.isActive === false) {
+          card.className = "cursor-progress-card cursor-progress-card--inactive";
+          card.dataset.itemId = item.id;
+          const title = document.createElement("h4");
+          title.textContent = item.name;
+          const status = document.createElement("p");
+          status.textContent = item.metadata;
+          card.append(title, status);
+          return card;
+        }
         const width = progressWidth(item.progress.numerator, item.progress.denominator);
         const status = item.progress.numerator >= item.progress.denominator
           ? "completed" : item.progress.numerator > 0n ? "in-progress" : "not-started";

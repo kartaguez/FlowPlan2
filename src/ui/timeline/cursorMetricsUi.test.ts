@@ -3,6 +3,8 @@ import { describe, it } from "node:test";
 import { calculateCursorMetrics } from "../../adapters/index.js";
 import { rationalFromInteger, rationalToCanonicalString } from "../../domain/index.js";
 import { createDemoPlanningScenario } from "../../main/demo/createDemoPlanningScenario.js";
+import { createPlanningSession } from "../../application/index.js";
+import { createPlanningProjectionDispatcher } from "../../main/planning/createPlanningProjectionDispatcher.js";
 import { buildPlanningSessionProjection } from "../../main/planning/buildPlanningSessionProjection.js";
 import { buildCursorMetricsViewModel } from "./buildCursorMetricsViewModel.js";
 import { formatCursorMd, formatCursorPercent } from "./formatCursorMetrics.js";
@@ -46,6 +48,33 @@ function run() {
 }
 
 describe("cursor metrics UI", () => {
+  it("keeps inactive Projects visible without forecast metrics and excludes them from Program/PAS", () => {
+    const session = createPlanningSession(createDemoPlanningScenario());
+    const dispatcher = createPlanningProjectionDispatcher({ session,
+      geometryViewport: { width: 1200, teamLaneHeight: 100, teamHeaderHeight: 152, timeAxisHeight: 56 } });
+    const phoenixProjects = session.getState().portfolio.projects.filter((project) =>
+      project.programId === session.getState().portfolio.programs[0]!.id);
+    for (const project of phoenixProjects) {
+      assert.equal(dispatcher.dispatch({ kind: "set-project-active", projectId: project.id, isActive: false }).ok, true);
+    }
+    const projection = dispatcher.getProjection();
+    const metrics = calculateCursorMetrics({ portfolio: projection.portfolio,
+      planningResult: projection.planningResult, horizon: projection.horizon,
+      selectedDate: projection.horizon.end });
+    const model = buildCursorMetricsViewModel(projection.portfolio, metrics, projection.viewModel);
+    assert.deepEqual(model.projects.map((item) => item.id), projection.portfolio.priorityOrder);
+    assert.equal(model.projects.filter((item) => item.isActive === false).length, phoenixProjects.length);
+    assert.equal(model.programs.some((item) => item.id === session.getState().portfolio.programs[0]!.id), false);
+    const container = new FakeDocument().createElement("div");
+    const surface = createCursorProgressSurface(container as unknown as HTMLElement, () => {});
+    surface.render(model, "projects");
+    const cards = container.childNodes[2]!.childNodes;
+    assert.equal(cards[0]!.className.includes("--inactive"), true);
+    assert.equal(cards[0]!.childNodes.length, 2);
+    assert.match(cards[0]!.childNodes[1]!.textContent ?? "", /Inactive/);
+    assert.equal(cards[0]!.childNodes.some((node) => node.attributes.get("role") === "progressbar"), false);
+  });
+
   it("formats exact Rational values with deterministic half-up rounding", () => {
     assert.equal(formatCursorMd({ numerator: 201n, denominator: 200n }), "1.01 MD");
     assert.equal(formatCursorMd({ numerator: -201n, denominator: 200n }), "-1.01 MD");

@@ -9,10 +9,12 @@ import { projectColorIndex } from "./projectVisualIdentity.js";
 export interface ReservationNavigationItem {
   readonly id: ReservationId;
   readonly name: string;
+  readonly isActive: boolean;
 }
 
 export interface ProjectNavigationItem {
   readonly id: ProjectId;
+  readonly isActive: boolean;
   readonly programName?: string;
   readonly priorityFamilyName?: string;
 }
@@ -22,12 +24,13 @@ export type PortfolioTab = "projects" | "reservations";
 export interface TimelineShellNavigation {
   readonly globalMetricsContainer: HTMLElement;
   readonly teamMetricsContainers: ReadonlyMap<TeamId, HTMLElement>;
-  readonly projectCards: ReadonlyMap<ProjectId, { button: HTMLButtonElement; handle: HTMLButtonElement; host: HTMLElement; item: HTMLElement }>;
-  readonly reservationCards: ReadonlyMap<ReservationId, { button: HTMLButtonElement; host: HTMLElement; item: HTMLElement }>;
+  readonly projectCards: ReadonlyMap<ProjectId, { button: HTMLButtonElement; handle: HTMLButtonElement; activeButton: HTMLButtonElement; host: HTMLElement; item: HTMLElement }>;
+  readonly reservationCards: ReadonlyMap<ReservationId, { button: HTMLButtonElement; activeButton: HTMLButtonElement; host: HTMLElement; item: HTMLElement }>;
   readonly getActiveTab: () => PortfolioTab;
   readonly setCardState: (kind: "project" | "reservation", id: ProjectId | ReservationId, expanded: boolean, dirty: boolean) => void;
   readonly setReorderPreview: (projectId?: ProjectId, targetPosition?: number) => void;
   readonly showReorderError: (message: string) => void;
+  readonly showActivationError: (kind: "project" | "reservation", message: string) => void;
   readonly destroy: () => void;
 }
 
@@ -48,6 +51,8 @@ export interface RenderTimelineShellNavigationInput {
   readonly onTeamSettings: (teamId: TeamId) => void;
   readonly onProjectSelect: (projectId: ProjectId) => void;
   readonly onReservationSelect: (reservationId: ReservationId) => void;
+  readonly onProjectActiveChange: (projectId: ProjectId, isActive: boolean) => void;
+  readonly onReservationActiveChange: (reservationId: ReservationId, isActive: boolean) => void;
   readonly onTabChange?: (tab: PortfolioTab) => void;
 }
 
@@ -117,7 +122,7 @@ export function renderTimelineShellNavigation(
   input.teamContainer.replaceChildren(axisSpacer, ...teamPanels);
 
   const projectMetadata = new Map(input.projectItems.map((item) => [item.id, item]));
-  const projectCards = new Map<ProjectId, { button: HTMLButtonElement; handle: HTMLButtonElement; host: HTMLElement; item: HTMLElement; badge: HTMLElement }>();
+  const projectCards = new Map<ProjectId, { button: HTMLButtonElement; handle: HTMLButtonElement; activeButton: HTMLButtonElement; host: HTMLElement; item: HTMLElement; badge: HTMLElement }>();
   const projectOrder = input.viewModel.projects.map((project) => project.id);
   const projectItems = input.viewModel.projects.map((project) => {
     const metadata = projectMetadata.get(project.id);
@@ -126,6 +131,7 @@ export function renderTimelineShellNavigation(
     const priorityFamilyName = metadata.priorityFamilyName ?? "—";
     const item = document.createElement("li");
     item.className = `project-sidebar-item project-sidebar-item--color-${projectColorIndex(project.id)}`;
+    item.classList.toggle("portfolio-card--inactive", !metadata.isActive);
     item.dataset.projectId = project.id;
     const button = document.createElement("button");
     button.type = "button";
@@ -150,6 +156,15 @@ export function renderTimelineShellNavigation(
     handle.setAttribute("aria-label", `Reorder ${project.label}, position ${project.priorityIndex + 1} of ${projectOrder.length}`);
     handle.setAttribute("aria-keyshortcuts", "ArrowUp ArrowDown Home End");
     handle.setAttribute("title", "Move with Up, Down, Home or End");
+    const activeButton = document.createElement("button");
+    activeButton.type = "button";
+    activeButton.className = "portfolio-active-button";
+    activeButton.textContent = metadata.isActive ? "Active" : "Inactive";
+    activeButton.setAttribute("aria-label", `${metadata.isActive ? "Deactivate" : "Activate"} Project ${project.label}`);
+    activeButton.setAttribute("aria-pressed", String(metadata.isActive));
+    const onActiveClick = () => input.onProjectActiveChange(project.id, !metadata.isActive);
+    activeButton.addEventListener("click", onActiveClick);
+    listeners.push({ button: activeButton, listener: onActiveClick });
     const grouping = document.createElement("span");
     grouping.className = "project-sidebar-grouping";
     grouping.textContent = `Program ${programName} · PaS ${priorityFamilyName}`;
@@ -160,9 +175,9 @@ export function renderTimelineShellNavigation(
     listeners.push({ button, listener });
     const header = document.createElement("div");
     header.className = "project-sidebar-header";
-    header.append(badge, button, handle);
+    header.append(badge, button, activeButton, handle);
     item.append(header, host);
-    projectCards.set(project.id, { button, handle, host, item, badge });
+    projectCards.set(project.id, { button, handle, activeButton, host, item, badge });
     return item;
   });
   input.projectContainer.replaceChildren(...projectItems);
@@ -171,11 +186,17 @@ export function renderTimelineShellNavigation(
   reorderError.setAttribute("role", "alert");
   reorderError.hidden = true;
   input.projectContainer.after?.(reorderError);
+  const projectActivationError = document.createElement("p");
+  projectActivationError.className = "application-error";
+  projectActivationError.setAttribute("role", "alert");
+  projectActivationError.hidden = true;
+  input.projectContainer.after?.(projectActivationError);
 
-  const reservationCards = new Map<ReservationId, { button: HTMLButtonElement; host: HTMLElement; item: HTMLElement }>();
+  const reservationCards = new Map<ReservationId, { button: HTMLButtonElement; activeButton: HTMLButtonElement; host: HTMLElement; item: HTMLElement }>();
   const reservationItems = input.reservations.map((reservation) => {
     const item = document.createElement("li");
     item.className = "project-sidebar-item reservation-sidebar-item";
+    item.classList.toggle("portfolio-card--inactive", !reservation.isActive);
     item.dataset.reservationId = reservation.id;
     const button = document.createElement("button");
     button.type = "button";
@@ -191,11 +212,28 @@ export function renderTimelineShellNavigation(
     const listener = () => input.onReservationSelect(reservation.id);
     button.addEventListener("click", listener);
     listeners.push({ button, listener });
-    item.append(button, host);
-    reservationCards.set(reservation.id, { button, host, item });
+    const activeButton = document.createElement("button");
+    activeButton.type = "button";
+    activeButton.className = "portfolio-active-button";
+    activeButton.textContent = reservation.isActive ? "Active" : "Inactive";
+    activeButton.setAttribute("aria-label", `${reservation.isActive ? "Deactivate" : "Activate"} Reservation ${reservation.name}`);
+    activeButton.setAttribute("aria-pressed", String(reservation.isActive));
+    const onActiveClick = () => input.onReservationActiveChange(reservation.id, !reservation.isActive);
+    activeButton.addEventListener("click", onActiveClick);
+    listeners.push({ button: activeButton, listener: onActiveClick });
+    const header = document.createElement("div");
+    header.className = "project-sidebar-header";
+    header.append(button, activeButton);
+    item.append(header, host);
+    reservationCards.set(reservation.id, { button, activeButton, host, item });
     return item;
   });
   input.reservationContainer.replaceChildren(...reservationItems);
+  const reservationActivationError = document.createElement("p");
+  reservationActivationError.className = "application-error";
+  reservationActivationError.setAttribute("role", "alert");
+  reservationActivationError.hidden = true;
+  input.reservationContainer.after?.(reservationActivationError);
   let activeTab: PortfolioTab = input.initialTab ?? "projects";
   const showTab = (next: PortfolioTab, notify = false): void => {
     if (notify && activeTab !== next) input.onTabChange?.(next);
@@ -264,8 +302,15 @@ export function renderTimelineShellNavigation(
     setCardState,
     setReorderPreview,
     showReorderError: (message: string) => { reorderError.textContent = message; reorderError.hidden = message === ""; },
+    showActivationError: (kind: "project" | "reservation", message: string) => {
+      const error = kind === "project" ? projectActivationError : reservationActivationError;
+      error.textContent = message;
+      error.hidden = message === "";
+    },
     destroy: () => {
       reorderError.remove?.();
+      projectActivationError.remove?.();
+      reservationActivationError.remove?.();
       for (const { button, listener } of listeners) {
         button.removeEventListener("click", listener);
       }

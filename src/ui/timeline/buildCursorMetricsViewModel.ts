@@ -21,6 +21,7 @@ export interface CursorProgressItemViewModel {
   readonly metadata: string;
   readonly estimatedEndDate?: CivilDate;
   readonly estimatedWithinHorizon: boolean;
+  readonly isActive?: boolean;
 }
 
 export interface CursorMetricsViewModel {
@@ -81,6 +82,12 @@ export function buildCursorMetricsViewModel(
       const end = projectedProjects.get(id);
       if (!end) throw new TypeError(`Missing projected Project ${id}.`);
       const priority = portfolio.priorityOrder.indexOf(id) + 1;
+      if (!project.isActive) return Object.freeze({
+        id, name: project.name, isActive: false,
+        progress: value.progress, allocatedWorkload: value.allocatedWorkload,
+        remainingWorkload: value.baselineRAF, baselineWorkload: value.baselineRAF,
+        metadata: `Priority ${priority} · Inactive`, estimatedWithinHorizon: false,
+      });
       return item(id, project.name, value,
         `Priority ${priority} · Program ${project.programId ? programs.get(project.programId) : "—"} · PAS ${project.priorityFamilyId ? families.get(project.priorityFamilyId) : "—"}`,
         { estimatedWithinHorizon: end.estimatedWithinHorizon ?? false,
@@ -89,13 +96,13 @@ export function buildCursorMetricsViewModel(
     programs: Object.freeze(portfolio.programs.flatMap((program) => {
       const value = programMetrics.get(program.id);
       if (!value) return [];
-      const members = portfolio.projects.filter((project) => project.programId === program.id);
+      const members = portfolio.projects.filter((project) => project.isActive && project.programId === program.id);
       return [item(program.id, program.name, value, `${members.length} projects`, groupEnd(members))];
     })),
     pas: Object.freeze(portfolio.priorityFamilies.flatMap((family) => {
       const value = pasMetrics.get(family.id);
       if (!value) return [];
-      const members = portfolio.projects.filter((project) => project.priorityFamilyId === family.id);
+      const members = portfolio.projects.filter((project) => project.isActive && project.priorityFamilyId === family.id);
       return [item(family.id, family.name, value, `${members.length} projects`, groupEnd(members))];
     })),
   });

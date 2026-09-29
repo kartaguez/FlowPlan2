@@ -83,6 +83,7 @@ describe("renderTimelineShellNavigation", () => {
     const selectedTeams: string[] = [];
     const selectedProjects: string[] = [];
     const selectedReservations: string[] = [];
+    const activationChanges: string[] = [];
     const reservationId = must(createReservationId("run"));
     const navigation = renderTimelineShellNavigation({
       teamContainer: teams as unknown as HTMLElement,
@@ -92,12 +93,12 @@ describe("renderTimelineShellNavigation", () => {
       reservationContainer: reservations as unknown as HTMLElement,
       projectTab: projectTab as unknown as HTMLButtonElement,
       reservationTab: reservationTab as unknown as HTMLButtonElement,
-      reservations: [{ id: reservationId, name: "Run" }],
+      reservations: [{ id: reservationId, name: "Run", isActive: false }],
       projectItems: [
-        { id: projectB, programName: "Phoenix", priorityFamilyName: "Strategic" },
-        { id: projectA, programName: "Phoenix" },
-        { id: projectC, priorityFamilyName: "Regulatory" },
-        { id: projectD },
+        { id: projectB, isActive: true, programName: "Phoenix", priorityFamilyName: "Strategic" },
+        { id: projectA, isActive: true, programName: "Phoenix" },
+        { id: projectC, isActive: true, priorityFamilyName: "Regulatory" },
+        { id: projectD, isActive: false },
       ],
       viewModel: {
         teams: [
@@ -124,6 +125,8 @@ describe("renderTimelineShellNavigation", () => {
       onTeamSettings: (teamId) => selectedTeams.push(teamId),
       onProjectSelect: (projectId) => selectedProjects.push(projectId),
       onReservationSelect: (id) => selectedReservations.push(id),
+      onProjectActiveChange: (id, isActive) => activationChanges.push(`project:${id}:${isActive}`),
+      onReservationActiveChange: (id, isActive) => activationChanges.push(`reservation:${id}:${isActive}`),
       onTabChange: (tab) => changedTabs.push(tab),
     });
     assert.equal(teams.childNodes.length, 3);
@@ -185,6 +188,13 @@ describe("renderTimelineShellNavigation", () => {
     );
     teams.childNodes[2]!.childNodes[0]!.childNodes[1]!.click();
     assert.equal(navigation.projectCards.get(projectB)?.handle.getAttribute("aria-label"), "Reorder Boreal, position 1 of 4");
+    assert.equal(projects.childNodes[3]!.classes.has("portfolio-card--inactive"), true);
+    assert.equal(reservations.childNodes[0]!.classes.has("portfolio-card--inactive"), true);
+    navigation.projectCards.get(projectD)!.activeButton.click();
+    navigation.reservationCards.get(reservationId)!.activeButton.click();
+    assert.deepEqual(activationChanges, [`project:${projectD}:true`, `reservation:${reservationId}:true`]);
+    assert.equal(navigation.projectCards.get(projectD)!.button.getAttribute("aria-expanded"), "false");
+    assert.equal(navigation.reservationCards.get(reservationId)!.button.getAttribute("aria-expanded"), "false");
     assert.equal(projects.childNodes[0]!.childNodes[0]!.childNodes[0]!.attributes.get("aria-hidden"), "true");
     navigation.projectCards.get(projectB)!.button.click();
     navigation.setCardState("project", projectB, true, false);
@@ -215,14 +225,14 @@ describe("renderTimelineShellNavigation", () => {
     assert.equal(projectCreateSection.hidden, false);
     assert.equal(projectTab.focused, true);
     reservationTab.click();
-    reservations.childNodes[0]!.childNodes[0]!.click();
+    reservations.childNodes[0]!.childNodes[0]!.childNodes[0]!.click();
     navigation.setCardState("reservation", reservationId, true, false);
-    reservations.childNodes[0]!.childNodes[0]!.focus();
-    assert.equal(reservations.childNodes[0]!.childNodes[0]!.attributes.get("aria-expanded"), "true");
-    assert.equal(reservations.childNodes[0]!.childNodes[0]!.focused, true);
+    reservations.childNodes[0]!.childNodes[0]!.childNodes[0]!.focus();
+    assert.equal(reservations.childNodes[0]!.childNodes[0]!.childNodes[0]!.attributes.get("aria-expanded"), "true");
+    assert.equal(reservations.childNodes[0]!.childNodes[0]!.childNodes[0]!.focused, true);
     assert.equal(reservations.childNodes[0]!.childNodes[1]!.childNodes.length, 0);
     navigation.setCardState("reservation", reservationId, false, false);
-    assert.equal(reservations.childNodes[0]!.childNodes[0]!.attributes.get("aria-expanded"), "false");
+    assert.equal(reservations.childNodes[0]!.childNodes[0]!.childNodes[0]!.attributes.get("aria-expanded"), "false");
     assert.equal(reservations.childNodes[0]!.childNodes[1]!.hidden, true);
     assert.deepEqual(selectedTeams, [beta]);
     assert.deepEqual(selectedProjects, [projectB]);

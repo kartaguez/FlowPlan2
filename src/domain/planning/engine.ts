@@ -86,7 +86,7 @@ function projectsForTeam(
     const requirement = project?.requirements.find(
       (candidate) => candidate.teamId === team.id,
     );
-    if (!project || !requirement) continue;
+    if (!project || !project.isActive || !requirement) continue;
 
     states.push({
       project,

@@ -2,7 +2,7 @@ import type { PlanningCommand, PlanningSession } from "../../application/index.j
 import type { TimelineGeometryViewport } from "../../adapters/index.js";
 import type { DomainError } from "../../domain/index.js";
 import type { PlanningBackupStore } from "../../infrastructure/backup/localPlanningBackup.js";
-import { encodeFlowplanBackupV1 } from "../../application/backup/flowplanBackupV1.js";
+import { encodeFlowplanBackupV2 } from "../../application/backup/flowplanBackupV1.js";
 import {
   buildPlanningSessionProjection,
   type BuildPlanningSessionProjectionInput,
@@ -46,7 +46,7 @@ export function createPlanningProjectionDispatcher(
       let candidateProjection: PlanningSessionProjection | undefined;
       const result = input.session.dispatch(command, (candidate) => {
         candidateProjection = buildProjection({ state: candidate, geometryViewport: input.geometryViewport });
-        input.backupStore?.write(encodeFlowplanBackupV1(candidate));
+        input.backupStore?.write(encodeFlowplanBackupV2(candidate));
       });
       if (!result.ok) return result;
       if (result.state === previousState) return Object.freeze({ ok: true, projection });

@@ -12,7 +12,7 @@ import type { DemoPlanningScenario } from "./demo/createDemoPlanningScenario.js"
 import { createPlanningProjectionDispatcher } from "./planning/createPlanningProjectionDispatcher.js";
 import { buildPlanningSessionProjection } from "./planning/buildPlanningSessionProjection.js";
 import { importPlanningBackup, loadPlanningBackup } from "./planning/planningBackupOperations.js";
-import { encodeFlowplanBackupV1 } from "../application/backup/flowplanBackupV1.js";
+import { encodeFlowplanBackupV2 } from "../application/backup/flowplanBackupV1.js";
 import type { PlanningBackupStore } from "../infrastructure/backup/localPlanningBackup.js";
 
 const DEMO_GEOMETRY_VIEWPORT: TimelineGeometryViewport = Object.freeze({
@@ -44,7 +44,7 @@ export function createPlanningDemoApplication(
     initialProjection: projectionDispatcher.getProjection(),
     initialDate: loaded.state.planning.startDate,
     invalidStartupBackup: loaded.invalid,
-    onExport: () => encodeFlowplanBackupV1(session.getState()),
+    onExport: () => encodeFlowplanBackupV2(session.getState()),
     ...(backupStore ? { onImport: (document: string) => importPlanningBackup({
       document, store: backupStore, preflight,
       confirm: () => elements.planningSettingsControls.container.ownerDocument.defaultView?.confirm(
@@ -61,6 +61,7 @@ export function createPlanningDemoApplication(
       const priorityFamilies = new Map(portfolio.priorityFamilies.map((family) => [family.id, family.name]));
       return Object.freeze(portfolio.projects.map((project) => Object.freeze({
         id: project.id,
+        isActive: project.isActive,
         ...(project.programId === undefined ? {} : { programName: programs.get(project.programId)! }),
         ...(project.priorityFamilyId === undefined ? {} : { priorityFamilyName: priorityFamilies.get(project.priorityFamilyId)! }),
       })));

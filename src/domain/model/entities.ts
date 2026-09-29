@@ -42,6 +42,7 @@ export interface PriorityFamily {
 export interface Project {
   readonly id: ProjectId;
   readonly name: string;
+  readonly isActive: boolean;
   readonly programId?: ProgramId;
   readonly priorityFamilyId?: PriorityFamilyId;
   readonly earliestStartDate?: CivilDate;
@@ -98,6 +99,7 @@ export function createProjectTeamRequirement(input: {
 export function createProject(input: {
   readonly id: ProjectId;
   readonly name: string;
+  readonly isActive?: boolean;
   readonly programId?: ProgramId;
   readonly priorityFamilyId?: PriorityFamilyId;
   readonly earliestStartDate?: CivilDate;
@@ -106,6 +108,9 @@ export function createProject(input: {
   readonly requirements: readonly ProjectTeamRequirement[];
 }): DomainResult<Project> {
   const errors: DomainError[] = [];
+  if (input.isActive !== undefined && typeof input.isActive !== "boolean") {
+    errors.push(error("INVALID_PROJECT_ACTIVATION", "isActive", "Project activation must be a boolean."));
+  }
   if (input.requirements.length === 0) {
     errors.push(
       error(
@@ -133,6 +138,7 @@ export function createProject(input: {
   return success(
     Object.freeze({
       ...input,
+      isActive: input.isActive ?? true,
       requirements: Object.freeze([...input.requirements]),
     }),
   );

@@ -1,4 +1,5 @@
 import type { TimelineGeometry, TimelineViewModel } from "../../adapters/index.js";
+import type { ReservationNavigationItem } from "../../adapters/index.js";
 import { calculateCursorMetrics } from "../../adapters/index.js";
 import type {
   PlanningCommand, PlanningSettingsViewModel, ProjectEditViewModel,
@@ -65,7 +66,7 @@ export interface CreateTimelineUiCoordinatorInput {
   readonly getPlanningSettingsViewModel: () => PlanningSettingsViewModel;
   readonly getTeamEditViewModel: (id: TeamId) => TeamEditViewModel | undefined;
   readonly getReservationEditViewModel: (id: ReservationId) => ReservationEditViewModel | undefined;
-  readonly getReservationNavigationItems: () => readonly Readonly<{ id: ReservationId; name: string }>[];
+  readonly getReservationNavigationItems: () => readonly ReservationNavigationItem[];
   readonly onImport?: (document: string) => "imported" | "cancelled" | "failed";
   readonly onExport?: () => string;
   readonly invalidStartupBackup?: boolean;
@@ -408,6 +409,32 @@ export function createTimelineUiCoordinator(
       },
       onProjectSelect: toggleProject,
       onReservationSelect: toggleReservation,
+      onProjectActiveChange: (projectId, isActive) => {
+        const previousProjection = projection;
+        const result = input.dispatch({ kind: "set-project-active", projectId, isActive });
+        if (!result.ok) {
+          shellNavigation.showActivationError("project", result.errors.map((error) => error.message).join(" "));
+          shellNavigation.projectCards.get(projectId)?.activeButton?.focus();
+          return;
+        }
+        if (result.projection === previousProjection) return;
+        rebaseDrafts();
+        renderProjection(result.projection);
+        shellNavigation.projectCards.get(projectId)?.activeButton?.focus();
+      },
+      onReservationActiveChange: (reservationId, isActive) => {
+        const previousProjection = projection;
+        const result = input.dispatch({ kind: "set-reservation-active", reservationId, isActive });
+        if (!result.ok) {
+          shellNavigation.showActivationError("reservation", result.errors.map((error) => error.message).join(" "));
+          shellNavigation.reservationCards.get(reservationId)?.activeButton?.focus();
+          return;
+        }
+        if (result.projection === previousProjection) return;
+        rebaseDrafts();
+        renderProjection(result.projection);
+        shellNavigation.reservationCards.get(reservationId)?.activeButton?.focus();
+      },
     });
     reorderController = dependencies.createProjectReorderController({
       list: input.elements.projectList,

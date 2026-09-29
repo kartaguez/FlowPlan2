@@ -14,6 +14,7 @@ export interface ReservationTeamAllocation {
 export interface Reservation {
   readonly id: ReservationId;
   readonly name: string;
+  readonly isActive: boolean;
   readonly startDate: CivilDate;
   readonly endDate: CivilDate;
   readonly teamAllocations: readonly ReservationTeamAllocation[];
@@ -29,11 +30,15 @@ export function createReservationTeamAllocation(input: {
 export function createReservation(input: {
   readonly id: ReservationId;
   readonly name: string;
+  readonly isActive?: boolean;
   readonly startDate: CivilDate;
   readonly endDate: CivilDate;
   readonly teamAllocations: readonly ReservationTeamAllocation[];
 }): DomainResult<Reservation> {
   const errors = [];
+  if (input.isActive !== undefined && typeof input.isActive !== "boolean") {
+    errors.push(error("INVALID_RESERVATION_ACTIVATION", "isActive", "Reservation activation must be a boolean."));
+  }
   const name = input.name.trim();
   if (name.length === 0) {
     errors.push(error("EMPTY_RESERVATION_NAME", "name", "Reservation name must not be empty."));
@@ -65,6 +70,7 @@ export function createReservation(input: {
     Object.freeze({
       id: input.id,
       name,
+      isActive: input.isActive ?? true,
       startDate: input.startDate,
       endDate: input.endDate,
       teamAllocations: Object.freeze(

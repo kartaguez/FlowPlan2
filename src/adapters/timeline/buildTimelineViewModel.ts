@@ -1,5 +1,7 @@
 import {
   requestedReservationCapacity,
+  reservedCapacity,
+  serializeQuantity,
   type PlanningHorizon,
   type PlanningResult,
   type Portfolio,
@@ -83,6 +85,7 @@ export function buildTimelineViewModel(
       diagnostic.projectId === undefined
         ? undefined
         : requireProject(projectsById, diagnostic.projectId);
+    if (project && !project.isActive) throw new TypeError(`Inactive Project ${project.id} has a planning diagnostic.`);
 
     return Object.freeze({
       code: diagnostic.code,
@@ -102,6 +105,7 @@ export function buildTimelineViewModel(
       end: input.horizon.end,
     }),
     projects: Object.freeze(orderedProjects.map((project) => {
+      if (!requireProject(projectsById, project.id).isActive) return project;
       const states = teams.flatMap((team) => team.projectStates.filter((state) => state.projectId === project.id));
       const estimatedWithinHorizon = states.every((state) => state.complete);
       const dates = states.flatMap((state) => state.projectedEndDate === undefined ? [] : [state.projectedEndDate]);
@@ -133,7 +137,7 @@ function buildTimelineTeam(
 ): TimelineTeam {
   const projectPlansById = indexProjectPlans(teamPlan, projectsById);
   const expectedProjectIds = priorityOrder.filter((projectId) =>
-    requireProject(projectsById, projectId).requirements.some(
+    requireProject(projectsById, projectId).isActive && requireProject(projectsById, projectId).requirements.some(
       (requirement) => requirement.teamId === team.id,
     ),
   );
@@ -148,14 +152,21 @@ function buildTimelineTeam(
     requireProjectPlan(projectPlansById, projectId, team.id),
   );
   const capacities = teamPlan.dayCapacities.map(
-    (day) =>
-      Object.freeze({
+    (day) => {
+      if (reservations.some((reservation) => !reservation.isActive)) {
+        const expected = reservedCapacity(team, day.date, reservations, workingPattern);
+        if (serializeQuantity(day.reservedCapacity) !== serializeQuantity(expected)) {
+          throw new TypeError(`Team ${team.id} has reserved capacity inconsistent with active Reservations on ${day.date}.`);
+        }
+      }
+      return Object.freeze({
         date: day.date,
         effectiveCapacity: day.effectiveCapacity,
         reservedCapacity: day.reservedCapacity,
         projectCapacity: day.projectCapacity,
         overReserved: day.overReserved,
-      }) satisfies TimelineCapacityDay,
+      }) satisfies TimelineCapacityDay;
+    },
   );
   const allocations = orderedPlans.flatMap((projectPlan) =>
     projectPlan.allocations.map(
@@ -193,7 +204,7 @@ function buildTimelineTeam(
     allocations: Object.freeze(allocations),
     projectStates: Object.freeze(projectStates),
     reservationContributions: Object.freeze(capacities.flatMap((day) =>
-      reservations.map((reservation) => Object.freeze({
+      reservations.filter((reservation) => reservation.isActive).map((reservation) => Object.freeze({
         reservationId: reservation.id,
         teamId: team.id,
         date: day.date,
