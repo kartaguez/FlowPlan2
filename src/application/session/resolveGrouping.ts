@@ -60,7 +60,7 @@ export function resolveGrouping(portfolio: Portfolio, edit: GroupingEdit, entity
     families.push(family);
   }
   if (edit.programId !== undefined && !program) throw new GroupingResolutionError("Selected Program no longer exists and has no known name.");
-  if (edit.priorityFamilyId !== undefined && !family) throw new GroupingResolutionError("Selected pas no longer exists and has no known name.");
+  if (edit.priorityFamilyId !== undefined && !family) throw new GroupingResolutionError("Selected Pas no longer exists and has no known name.");
   const ownColor = !program
     ? edit.color ?? (previous?.programId === undefined ? previous?.ownColor : undefined)
       ?? suggestColor(`${entityId}:own`, programs.map((p) => p.color)

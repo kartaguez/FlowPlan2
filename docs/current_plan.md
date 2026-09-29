@@ -8,7 +8,7 @@ architecture rules live in [canon](./canon.md); current implementation facts
 and temporary constraints live in [current canon](./current_canon.md).
 
 Validated 9I Project and Reservation forecast activation forms the baseline.
-The corrective lot on Program/pas, Reservation progress, colors, and V3 backup
+The corrective lot on Program/Pas, Reservation progress, colors, and V3 backup
 is IN REVIEW before Lot 10. Lot 10A has not started.
 
 ## Completed
@@ -38,7 +38,7 @@ is IN REVIEW before Lot 10. Lot 10A has not started.
 
 ```text
 Lot 9I — Project and Reservation forecast activation (DONE)
-Corrective lot — usage-driven Program/pas and colors (IN REVIEW)
+Corrective lot — usage-driven Program/Pas and colors (IN REVIEW)
 Lot 10 — Actuals & History (AFTER REVIEW)
 10A (NEXT — to plan) → 10B → 10C → 10D → 10E
 ```
@@ -46,14 +46,14 @@ Lot 10 — Actuals & History (AFTER REVIEW)
 Lots through 9I and the separate Projection date presentation pass are
 validated. No Lot 10 implementation has started.
 
-## Corrective lot — Program/pas, Reservation progress, colors, backup V3
+## Corrective lot — Program/Pas, Reservation progress, colors, backup V3
 
 **Status: IN REVIEW.** Project and Reservation cards manage optional Program
-and pas values, including normalized creation, case-insensitive reuse, and
+and Pas values, including normalized creation, case-insensitive reuse, and
 automatic removal after the last reference disappears. Inactive references
 retain catalog values, but inactive entities do not contribute to forecast
 progress. Reservation progress uses exact requested demand inside the inclusive
-planning horizon, with consumption stopping at the Projection date; Program/pas
+planning horizon, with consumption stopping at the Projection date; Program/Pas
 progress divides total consumed work by total charge across active Projects
 and Reservations. Project progress remains Project-only.
 
@@ -61,8 +61,17 @@ Each Program owns a freely editable color; ungrouped Projects and Reservations
 own their colors, with no hidden own color after joining a Program. Frises use
 the exact effective color, while main card backgrounds derive a light pastel.
 Independent drafts preview locally; Cancel is inert for shared state, and the
-last Apply that actually edits Color wins. Backup V3 persists associations and
-colors, reads V1/V2, and repairs the specified orphan/color cases at import.
+last Apply that actually edits Color wins. New Program color is suggested once
+on selecting New and remains stable while naming it; Program to None suggests
+a new own color, while None to None preserves the current color. The new-name
+inputs appear only with New. The engine batches full 0.5-unit fair-allocation
+rounds to avoid workload-sized iteration while preserving admission and exact
+allocations. Backup V3 persists associations and colors, reads V1/V2, and
+repairs the specified orphan/color cases at import.
+The outer engine pass advances one civil day per iteration through the finite
+horizon. Deadline lookahead scans a finite inclusive date range; admission
+scans a finite Project list. Fair sharing either exhausts whole rounds in one
+exact step, consumes a final partial allocation, or stops for that day.
 This lot does not begin 10A. Keep the validated baseline SHA unchanged until
 human review closes the lot.
 

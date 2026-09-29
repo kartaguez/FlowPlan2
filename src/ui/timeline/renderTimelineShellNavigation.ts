@@ -172,9 +172,9 @@ export function renderTimelineShellNavigation(
     listeners.push({ button: activeButton, listener: onActiveClick });
     const grouping = document.createElement("span");
     grouping.className = "project-sidebar-grouping";
-    grouping.textContent = `Program ${programName} · pas ${priorityFamilyName}`;
+    grouping.textContent = `Program ${programName} · Pas ${priorityFamilyName}`;
     button.append(title, grouping);
-    button.setAttribute("aria-label", `Toggle project ${project.label}, Program ${programName}, pas ${priorityFamilyName}`);
+    button.setAttribute("aria-label", `Toggle project ${project.label}, Program ${programName}, Pas ${priorityFamilyName}`);
     const listener = () => input.onProjectSelect(project.id);
     button.addEventListener("click", listener);
     listeners.push({ button, listener });
@@ -219,9 +219,9 @@ export function renderTimelineShellNavigation(
     title.textContent = reservation.name;
     const grouping = document.createElement("span");
     grouping.className = "project-sidebar-grouping";
-    grouping.textContent = `Program ${reservation.programName ?? "—"} · pas ${reservation.priorityFamilyName ?? "—"}`;
+    grouping.textContent = `Program ${reservation.programName ?? "—"} · Pas ${reservation.priorityFamilyName ?? "—"}`;
     button.append(title, grouping);
-    button.setAttribute("aria-label", `Edit reservation ${reservation.name}, Program ${reservation.programName ?? "—"}, pas ${reservation.priorityFamilyName ?? "—"}`);
+    button.setAttribute("aria-label", `Edit reservation ${reservation.name}, Program ${reservation.programName ?? "—"}, Pas ${reservation.priorityFamilyName ?? "—"}`);
     const listener = () => input.onReservationSelect(reservation.id);
     button.addEventListener("click", listener);
     listeners.push({ button, listener });

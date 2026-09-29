@@ -89,7 +89,7 @@ export function buildCursorMetricsViewModel(
         metadata: `Priority ${priority} · Inactive`, estimatedWithinHorizon: false,
       });
       return item(id, project.name, value,
-        `Priority ${priority} · Program ${project.programId ? programs.get(project.programId) : "—"} · pas ${project.priorityFamilyId ? families.get(project.priorityFamilyId) : "—"}`,
+        `Priority ${priority} · Program ${project.programId ? programs.get(project.programId) : "—"} · Pas ${project.priorityFamilyId ? families.get(project.priorityFamilyId) : "—"}`,
         { estimatedWithinHorizon: end.estimatedWithinHorizon ?? false,
           ...(end.estimatedEndDate ? { estimatedEndDate: end.estimatedEndDate } : {}) });
     })),

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { createDemoPlanningScenario } from "../../main/demo/createDemoPlanningScenario.js";
+import { effectiveColor } from "../../domain/index.js";
 import { decodeFlowplanBackup, encodeFlowplanBackupV2, encodeFlowplanBackupV3 } from "./flowplanBackupV1.js";
 
 describe("FlowPlan backup V3", () => {
@@ -34,5 +35,19 @@ describe("FlowPlan backup V3", () => {
     assert.match(state.portfolio.reservations[0]!.ownColor!, /^#[0-9A-F]{6}$/);
     source.data.portfolio.projects[0].programId = "missing";
     assert.throws(() => decodeFlowplanBackup(JSON.stringify(source)));
+  });
+
+  it("restores V3 Program members without residual own colors for either entity kind", () => {
+    const source = JSON.parse(encodeFlowplanBackupV3(createDemoPlanningScenario()));
+    const programId = source.data.portfolio.programs[0].id;
+    source.data.portfolio.programs[0].color = "#1A2B3C";
+    source.data.portfolio.projects[0].ownColor = "#AAAAAA";
+    source.data.portfolio.reservations[0].programId = programId;
+    source.data.portfolio.reservations[0].ownColor = "#BBBBBB";
+    const restored = decodeFlowplanBackup(JSON.stringify(source));
+    for (const item of [restored.portfolio.projects[0]!, restored.portfolio.reservations[0]!]) {
+      assert.equal(Object.hasOwn(item, "ownColor"), false);
+      assert.equal(effectiveColor(restored.portfolio, item), "#1A2B3C");
+    }
   });
 });

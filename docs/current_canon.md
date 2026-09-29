@@ -34,7 +34,7 @@ from the demo. The following capabilities are complete and active:
 - exact rational parsing and untouched exact-value preservation;
 - compact accessible settings icon buttons for Planning and Teams;
 - planning diagnostics, cumulative Team and global Capacity / Occupied /
-  Occupancy / Over-reservation metrics, and Project / Program / pas progress at
+  Occupancy / Over-reservation metrics, and Project / Program / Pas progress at
   the shared cursor date.
 
 The implementation follows the state, atomicity, engine, and projection
@@ -71,7 +71,7 @@ Reservations and makes catalogs usage-driven across both entity types. An
 inactive reference retains its catalog entry; only active members contribute
 to forecast progress. Cards offer None, an existing value, or a new normalized
 value directly, without separate catalog management. The UI calls
-PriorityFamily « pas »; the technical name remains. Associations still have no
+PriorityFamily « Pas »; the technical name remains. Associations still have no
 effect on planning priority or admission.
 
 The corrective lot is **IN REVIEW**. Programs own a color; an ungrouped
@@ -79,8 +79,11 @@ Project or Reservation owns its color; a Program member has no hidden own
 color. Cards preview their derived pastel locally until Apply, and frises use
 the exact effective color while keeping their Project/Reservation distinction.
 Only an Apply that actually edits Color can replace a Program color changed by
-another draft. New or departing members receive a stable, varied suggestion
-that remains freely editable. Reservation progress counts exact demand in the
+another draft. A new Program gets one suggested color at the transition to New;
+typing its name leaves the draft color stable. Program to None suggests a new
+own color, while None to None preserves the existing color. New name inputs
+appear only while New is selected. Suggested colors remain freely editable.
+Reservation progress counts exact demand in the
 inclusive planning horizon as its total charge, and demand through the
 Projection date in that same horizon as consumed work. Group progress divides
 sums of consumed work by sums of charges, without averaging percentages.
@@ -91,7 +94,7 @@ inclusive selected-date interval. The current-run RAF baseline comes from the
 same Portfolio used to plan; Portfolio and horizon references travel with the
 PlanningResult in the disposable session projection. Lot 9C is validated and
 **DONE**. It adds exact daily non-compensating over-reservation and its ratio,
-and renders cumulative Team metrics plus an exclusive Projects / Programs / pas
+and renders cumulative Team metrics plus an exclusive Projects / Programs / Pas
 progress view at the shared cursor date. Lot 9C.1 is validated and **DONE**.
 The subsequent FlowPlan visual adaptation and corrective pass are also
 validated and **DONE**. Lot 9D priority drag/drop is validated and **DONE**.
@@ -250,7 +253,7 @@ synchronization, import/export, and undo/redo are not specified here.
 ```text
 Planning
 ├── global Settings icon
-├── cumulative Projects / Programs / pas progress, titled with the Projection date
+├── cumulative Projects / Programs / Pas progress, titled with the Projection date
 ├── compact diagnostics counts → details modal
 ├── viewport controls
 ├── global Projection date band, then year/month rows with the shared marker
@@ -312,7 +315,7 @@ The editable session currently accepts:
 - `update-planning-settings`: replaces horizon, global working pattern, and
   global parallelism setting;
 - `update-project`: replaces editable fields and the final set of Team
-  requirements, including optional Program/pas associations, without changing
+  requirements, including optional Program/Pas associations, without changing
   Project priority;
 - `create-project`: creates one Project with explicitly supplied Team
   requirements and appends it to global priority;
@@ -350,10 +353,10 @@ These are current implementation facts, not durable product rules:
   preserved exactly by unrelated Project Apply;
 - Project priority is reordered through Portfolio Projects handles; card
   badges show derived positions;
-- Program/pas catalogs are derived from Project and Reservation references;
+- Program/Pas catalogs are derived from Project and Reservation references;
   they have no separate management or global rename UI;
 - the former daily Team summary is removed; cumulative metrics remain in Team
-  headers and the Projects / Programs / pas surface;
+  headers and the Projects / Programs / Pas surface;
 - Ctrl+ArrowLeft/Right moves the Projection date outside editable fields and
   modals without recomputing planning;
 - Reservation allocation rows may be enabled/disabled for existing Teams;

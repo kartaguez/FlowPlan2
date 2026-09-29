@@ -40,19 +40,21 @@ export function createGroupingControls(parent: HTMLElement, catalog: GroupingCat
     return select;
   };
   const program = makeSelect("Program", programs, initial.programId);
-  const family = makeSelect("pas", families, initial.priorityFamilyId);
+  const family = makeSelect("Pas", families, initial.priorityFamilyId);
   const nameInput = (label: string, value: string) => {
     const wrapper = document.createElement("label"); wrapper.textContent = label;
     const field = document.createElement("input"); field.type = "text"; field.value = value;
     wrapper.append(field); container.append(wrapper); return { wrapper, field };
   };
   const newProgram = nameInput("New Program", initial.programId === "__new__" ? initial.programName : "");
-  const newFamily = nameInput("New pas", initial.priorityFamilyId === "__new__" ? initial.priorityFamilyName : "");
+  const newFamily = nameInput("New Pas", initial.priorityFamilyId === "__new__" ? initial.priorityFamilyName : "");
   const colorWrapper = document.createElement("label"); colorWrapper.textContent = "Color";
   const color = document.createElement("input"); color.type = "color"; color.value = initial.color;
   colorWrapper.append(color); container.append(colorWrapper);
   parent.append(container);
   let colorChanged = initial.colorChanged;
+  let selectedProgramId = initial.programId;
+  let suggestedColor = initial.color.toUpperCase();
   const sync = () => {
     newProgram.wrapper.hidden = program.value !== "__new__";
     newFamily.wrapper.hidden = family.value !== "__new__";
@@ -70,26 +72,27 @@ export function createGroupingControls(parent: HTMLElement, catalog: GroupingCat
   });
   const notify = () => { sync(); onChange(); };
   program.addEventListener("change", () => {
-    colorChanged = false;
-    const selected = programs.find((item) => item.id === program.value);
-    color.value = selected?.color ?? suggestColor(`${entityId}:${program.value === "__new__" ? "program:" + newProgram.field.value : "leave"}`,
-      programs.map((item) => item.color).filter((value): value is string => !!value));
+    if (program.value !== selectedProgramId) {
+      colorChanged = false;
+      const selected = programs.find((item) => item.id === program.value);
+      if (selected?.color) suggestedColor = selected.color;
+      else if (program.value === "__new__") suggestedColor = suggestColor(`${entityId}:new-program`,
+        programs.map((item) => item.color).filter((value): value is string => !!value));
+      else if (selectedProgramId !== "") suggestedColor = suggestColor(`${entityId}:leave`,
+        programs.map((item) => item.color).filter((value): value is string => !!value));
+      color.value = suggestedColor;
+      selectedProgramId = program.value;
+    }
     notify();
   });
   newProgram.field.addEventListener("input", () => {
-    if (!colorChanged) color.value = suggestColor(`${entityId}:program:${newProgram.field.value}`,
-      programs.map((item) => item.color).filter((value): value is string => !!value));
     notify();
   });
   family.addEventListener("change", notify);
   newFamily.field.addEventListener("input", notify);
   color.addEventListener("input", () => {
     const selected = programs.find((item) => item.id === program.value);
-    const baseline = selected?.color ?? (program.value === "__new__"
-      ? suggestColor(`${entityId}:program:${newProgram.field.value}`,
-        programs.map((item) => item.color).filter((value): value is string => !!value))
-      : initial.programId === "" ? initial.color
-        : suggestColor(`${entityId}:leave`, programs.map((item) => item.color).filter((value): value is string => !!value)));
+    const baseline = selected?.color ?? suggestedColor;
     colorChanged = color.value.toUpperCase() !== baseline.toUpperCase();
     notify();
   });

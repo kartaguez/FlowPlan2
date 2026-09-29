@@ -62,7 +62,7 @@ export function parseReservationFields(
     errors.push(error("EMPTY_RESERVATION_NAME", "reservation.name", "Reservation name must not be empty."));
   }
   if (values.programId === "__new__" && !values.programName?.trim()) errors.push(error("EMPTY_PROGRAM_NAME", "reservation.programName", "Enter a Program name."));
-  if (values.priorityFamilyId === "__new__" && !values.priorityFamilyName?.trim()) errors.push(error("EMPTY_PAS_NAME", "reservation.priorityFamilyName", "Enter a pas name."));
+  if (values.priorityFamilyId === "__new__" && !values.priorityFamilyName?.trim()) errors.push(error("EMPTY_PAS_NAME", "reservation.priorityFamilyName", "Enter a Pas name."));
   const start = createCivilDate(values.startDate.trim(), "reservation.startDate");
   const end = createCivilDate(values.endDate.trim(), "reservation.endDate");
   if (!start.ok) errors.push(...start.errors);

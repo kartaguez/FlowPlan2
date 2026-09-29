@@ -306,6 +306,21 @@ describe("PlanningProjectionDispatcher", () => {
     );
   });
 
+  it("recomputes the complete projection when Apply makes an objective date mandatory", () => {
+    const initial = createDemoPlanningScenario();
+    const session = createPlanningSession(initial);
+    const dispatcher = createPlanningProjectionDispatcher({ session, geometryViewport });
+    const project = initial.portfolio.projects.find((item) => item.objectiveEndDate && !item.mandatoryDeadline)!;
+    const result = dispatcher.dispatch(commandFor(initial, project.id,
+      { mandatoryDeadline: project.objectiveEndDate! }));
+    assert.equal(result.ok, true);
+    if (!result.ok) return;
+    assert.equal(session.getState().portfolio.projects.find((item) => item.id === project.id)!.mandatoryDeadline,
+      project.objectiveEndDate);
+    assert.ok(result.projection.planningResult.teamPlans.length > 0);
+    assert.ok(result.projection.geometry.teams.length > 0);
+  });
+
   it("removes only the targeted team allocations when its RAF becomes zero", () => {
     const initial = createDemoPlanningScenario();
     const session = createPlanningSession(initial);

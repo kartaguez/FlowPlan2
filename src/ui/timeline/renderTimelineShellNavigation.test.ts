@@ -180,12 +180,14 @@ describe("renderTimelineShellNavigation", () => {
     assert.deepEqual(
       projects.childNodes.map((item) => item.childNodes[0]!.childNodes[1]!.childNodes[1]!.textContent),
       [
-        "Program Phoenix · pas Strategic",
-        "Program Phoenix · pas —",
-        "Program — · pas Regulatory",
-        "Program — · pas —",
+        "Program Phoenix · Pas Strategic",
+        "Program Phoenix · Pas —",
+        "Program — · Pas Regulatory",
+        "Program — · Pas —",
       ],
     );
+    assert.match(navigation.projectCards.get(projectB)!.button.getAttribute("aria-label")!, /Pas/);
+    assert.match(navigation.reservationCards.get(reservationId)!.button.getAttribute("aria-label")!, /Pas/);
     teams.childNodes[2]!.childNodes[0]!.childNodes[1]!.click();
     assert.equal(navigation.projectCards.get(projectB)?.handle.getAttribute("aria-label"), "Reorder Boreal, position 1 of 4");
     assert.equal(projects.childNodes[3]!.classes.has("portfolio-card--inactive"), true);

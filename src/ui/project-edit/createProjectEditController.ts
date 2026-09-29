@@ -136,7 +136,7 @@ export function createProjectEditController(
     syncMandatory();
     if (draft?.invalidReference) {
       const warning = document.createElement("p");
-      warning.textContent = "A referenced Team, Program or pas no longer exists. Apply is unavailable.";
+      warning.textContent = "A referenced Team, Program or Pas no longer exists. Apply is unavailable.";
       global.append(warning);
       input.controls.apply.disabled = true;
     }
@@ -270,7 +270,7 @@ export function createProjectEditController(
     if (model === undefined) return;
     notifyDraftChange();
     if (input.draftStore?.get(model.projectId)?.invalidReference) {
-      showErrors([{ code: "INVALID_DRAFT_REFERENCE", path: "project", message: "A referenced Team, Program or pas no longer exists." }]);
+      showErrors([{ code: "INVALID_DRAFT_REFERENCE", path: "project", message: "A referenced Team, Program or Pas no longer exists." }]);
       return;
     }
     const parsed = parseProjectEditCommand(formValues());

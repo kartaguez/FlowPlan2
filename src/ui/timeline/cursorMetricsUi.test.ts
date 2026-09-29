@@ -203,6 +203,7 @@ describe("cursor metrics UI", () => {
     assert.equal(controls.childNodes[1]!.attributes.get("aria-pressed"), "true");
     surface.render(model, "pas");
     assert.equal(cards.childNodes.length, model.pas.length);
+    assert.equal(controls.childNodes[2]!.textContent, "Pas");
     for (const view of ["projects", "programs", "pas"] as const) {
       surface.render(model, view);
       for (const card of cards.childNodes) {

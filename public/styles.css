@@ -689,6 +689,7 @@ h1 { margin-bottom: 0; font-size: 2rem; letter-spacing: -0.04em; }
 .portfolio-card--dirty > .project-sidebar-header > .project-sidebar-button,
 .portfolio-team-card.portfolio-card--dirty { border-color: var(--fp-progress); box-shadow: inset 3px 0 0 var(--fp-progress); }
 .timeline-project-grouping-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
+.timeline-project-grouping-fields > label[hidden] { display: none !important; }
 .portfolio-team-details { margin-top: 0.4rem; border-top: 1px solid var(--fp-border-soft); padding-top: 0.5rem; }
 .portfolio-team-details fieldset { width: 100%; margin: 0; }
 

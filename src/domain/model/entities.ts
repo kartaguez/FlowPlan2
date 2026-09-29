@@ -255,7 +255,7 @@ export function createPortfolio(input: {
       if (!reservation.ownColor || !createColor(reservation.ownColor).ok) errors.push(error("MISSING_RESERVATION_OWN_COLOR", `reservations[${reservationIndex}].ownColor`, "Reservation without Program needs a valid own color."));
     } else if (reservation.ownColor !== undefined) errors.push(error("PROGRAM_OWN_COLOR", `reservations[${reservationIndex}].ownColor`, "Reservation in Program cannot retain an own color."));
     if (reservation.programId !== undefined && !programIds.has(reservation.programId)) errors.push(error("UNKNOWN_RESERVATION_PROGRAM", `reservations[${reservationIndex}].programId`, "Unknown Program."));
-    if (reservation.priorityFamilyId !== undefined && !priorityFamilyIds.has(reservation.priorityFamilyId)) errors.push(error("UNKNOWN_RESERVATION_PRIORITY_FAMILY", `reservations[${reservationIndex}].priorityFamilyId`, "Unknown pas."));
+    if (reservation.priorityFamilyId !== undefined && !priorityFamilyIds.has(reservation.priorityFamilyId)) errors.push(error("UNKNOWN_RESERVATION_PRIORITY_FAMILY", `reservations[${reservationIndex}].priorityFamilyId`, "Unknown Pas."));
     const allocatedTeamIds = new Set<TeamId>();
     reservation.teamAllocations.forEach((allocation, allocationIndex) => {
       if (allocatedTeamIds.has(allocation.teamId)) {

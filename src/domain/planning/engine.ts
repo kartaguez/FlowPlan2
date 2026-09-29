@@ -160,6 +160,47 @@ function normalAllocationIncrement(
   return ZERO;
 }
 
+function fullQuantumRounds(available: Rational, quantum: Rational): bigint {
+  return (available.numerator * quantum.denominator) /
+    (available.denominator * quantum.numerator);
+}
+
+/** Apply whole fair-sharing rounds at once; one round gives every eligible Project 0.5. */
+function allocateCompleteRounds(
+  remainingCapacity: Rational,
+  admitted: readonly ProjectTeamState[],
+  dailyAllocations: Map<ProjectTeamState, Rational>,
+): Rational | undefined {
+  const eligible: ProjectTeamState[] = [];
+  let maximumRounds: bigint | undefined;
+  for (const state of admitted) {
+    const allocatedToday = dailyAllocations.get(state) ?? ZERO;
+    let absorbable = state.remaining;
+    if (state.requirement.dailyCap) {
+      absorbable = minRational(absorbable,
+        subtractRationals(rationalOf(state.requirement.dailyCap), allocatedToday));
+    }
+    if (compareRationals(absorbable, NORMAL_ALLOCATION_QUANTUM) < 0) {
+      // A final sub-quantum completion must keep its original position in the next pass.
+      if (!isZero(state.remaining) && compareRationals(state.remaining, absorbable) <= 0) return undefined;
+      continue;
+    }
+    eligible.push(state);
+    const rounds = fullQuantumRounds(absorbable, NORMAL_ALLOCATION_QUANTUM);
+    maximumRounds = maximumRounds === undefined || rounds < maximumRounds ? rounds : maximumRounds;
+  }
+  if (eligible.length === 0 || maximumRounds === undefined) return undefined;
+  const roundCapacity = multiplyRationals(NORMAL_ALLOCATION_QUANTUM,
+    rationalFromInteger(BigInt(eligible.length)));
+  const capacityRounds = fullQuantumRounds(remainingCapacity, roundCapacity);
+  const rounds = maximumRounds < capacityRounds ? maximumRounds : capacityRounds;
+  if (rounds === 0n) return undefined;
+  const perProject = multiplyRationals(NORMAL_ALLOCATION_QUANTUM, rationalFromInteger(rounds));
+  for (const state of eligible) addDailyAllocation(state, perProject, dailyAllocations);
+  return subtractRationals(remainingCapacity,
+    multiplyRationals(perProject, rationalFromInteger(BigInt(eligible.length))));
+}
+
 function allocateFairlyToAdmittedProjects(
   availableCapacity: Rational,
   admitted: readonly ProjectTeamState[],
@@ -170,6 +211,13 @@ function allocateFairlyToAdmittedProjects(
 
   do {
     allocationMade = false;
+
+    const afterCompleteRounds = allocateCompleteRounds(remainingCapacity, admitted, dailyAllocations);
+    if (afterCompleteRounds !== undefined) {
+      remainingCapacity = afterCompleteRounds;
+      allocationMade = true;
+      continue;
+    }
 
     for (const state of admitted) {
       if (isZero(remainingCapacity)) break;

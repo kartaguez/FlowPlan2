@@ -102,7 +102,7 @@ accumulate inclusive daily Team effective, requested reserved, and allocated
 capacities. Utilization is `(requested reserved + allocated) / effective`,
 undefined when effective is zero and otherwise unclamped. Project progress
 divides cumulative allocations across all Teams by the sum of its requirements'
-RAF at the start of that run. Program and PriorityFamily (shown as pas)
+RAF at the start of that run. Program and PriorityFamily (shown as Pas)
 progress divides the sum of active members' consumed work by the sum of their
 charges, across Projects and Reservations. For a Reservation, both quantities
 use exact requested demand only inside the inclusive planning horizon; the
@@ -215,7 +215,7 @@ Project
 ├── id
 ├── name
 ├── programId?                         (optional grouping)
-├── priorityFamilyId?                  (optional grouping; pas in UI)
+├── priorityFamilyId?                  (optional grouping; Pas in UI)
 ├── global priority                     (in Portfolio.priorityOrder)
 ├── earliestStartDate?
 ├── objectiveEndDate?
@@ -240,7 +240,7 @@ Project dates are global to the Project, not duplicated per Team:
 but an unrelated Project Apply must preserve any existing exact value.
 
 Program and PriorityFamily are independent Portfolio catalogs, displayed as
-Program and pas. Each Project and Reservation may reference at most one entry
+Program and Pas. Each Project and Reservation may reference at most one entry
 from each catalog, independently. A catalog entry exists exactly while at
 least one Project or Reservation references it, regardless of `isActive`.
 Names are trimmed, internal whitespace is collapsed, and equivalent names are
@@ -260,7 +260,10 @@ Timeline allocations and Reservation segments use the exact effective color.
 The main card background derives a light pastel from it without persisting a
 second color; internal sections keep their own styling. Draft previews remain
 local until Apply, and Cancel has no shared business effect. Among concurrent
-drafts, the latest Apply that actually edits Color wins.
+drafts, the latest Apply that actually edits Color wins. A new Program receives
+one suggested color when New is selected; editing its name leaves that color
+stable. Leaving a Program suggests a new own color, while staying on None
+preserves an existing own color.
 
 ## Global multi-Team Reservation
 

@@ -67,7 +67,7 @@ export function parseProjectFields(
   const programId = values.programId === "__new__" ? undefined : parseOptionalId(values.programId, createProgramId, "project.programId", errors);
   const priorityFamilyId = values.priorityFamilyId === "__new__" ? undefined : parseOptionalId(values.priorityFamilyId, createPriorityFamilyId, "project.priorityFamilyId", errors);
   if (values.programId === "__new__" && !values.programName?.trim()) errors.push(error("EMPTY_PROGRAM_NAME", "project.programName", "Enter a Program name."));
-  if (values.priorityFamilyId === "__new__" && !values.priorityFamilyName?.trim()) errors.push(error("EMPTY_PAS_NAME", "project.priorityFamilyName", "Enter a pas name."));
+  if (values.priorityFamilyId === "__new__" && !values.priorityFamilyName?.trim()) errors.push(error("EMPTY_PAS_NAME", "project.priorityFamilyName", "Enter a Pas name."));
   if (name.length === 0) {
     errors.push(
       error(
