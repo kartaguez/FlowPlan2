@@ -1,16 +1,19 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { encodeFlowplanBackupV1 } from "../../application/backup/flowplanBackupV1.js";
+import { createPlanningSession } from "../../application/index.js";
+import { decodeFlowplanBackup, encodeFlowplanBackupV1, encodeFlowplanBackupV2 } from "../../application/backup/flowplanBackupV1.js";
 import { createDemoPlanningScenario } from "../demo/createDemoPlanningScenario.js";
 import { importPlanningBackup, loadPlanningBackup } from "./planningBackupOperations.js";
 
 function memoryStore(initial: string | null = null) {
   let value = initial;
   let fail = false;
+  let writes = 0;
   return {
     read: () => value,
-    write: (document: string) => { if (fail) throw new Error("quota"); value = document; },
+    write: (document: string) => { if (fail) throw new Error("quota"); value = document; writes += 1; },
     value: () => value,
+    writes: () => writes,
     failWrites: () => { fail = true; },
   };
 }
@@ -43,26 +46,55 @@ describe("planning backup operations", () => {
     assert.equal(confirms, 0);
     assert.equal(reloads, 0);
     assert.equal(store.value(), "old");
+    assert.equal(store.writes(), 0);
     assert.equal(importPlanningBackup({ document: encodeFlowplanBackupV1(demo), store, preflight: () => {},
       confirm: () => false, reload: () => { reloads += 1; } }), "cancelled");
     assert.equal(store.value(), "old");
+    assert.equal(store.writes(), 0);
     store.failWrites();
     assert.equal(run(encodeFlowplanBackupV1(demo)), "failed");
     assert.equal(store.value(), "old");
+    assert.equal(store.writes(), 0);
     assert.equal(reloads, 0);
   });
 
-  it("replaces the whole document and reloads from the imported state", () => {
+  it("migrates a successful V1 import to V2 and reloads exactly once", () => {
     const demo = createDemoPlanningScenario();
     const document = encodeFlowplanBackupV1(demo);
     const store = memoryStore("old");
     let reloads = 0;
     assert.equal(importPlanningBackup({ document, store, preflight: () => {}, confirm: () => true,
       reload: () => { reloads += 1; } }), "imported");
-    assert.equal(store.value(), document);
+    assert.equal(store.writes(), 1);
     assert.equal(reloads, 1);
     const loaded = loadPlanningBackup(store, demo, () => {});
     assert.equal(loaded.invalid, false);
+    assert.equal(JSON.parse(store.value()!).version, 2);
+    assert.ok(loaded.state.portfolio.projects.every((project) => project.isActive));
+    assert.ok(loaded.state.portfolio.reservations.every((reservation) => reservation.isActive));
     assert.deepEqual(JSON.parse(encodeFlowplanBackupV1(loaded.state)).data, JSON.parse(document).data);
+  });
+
+  it("preserves inactive Projects and Reservations when importing V2", () => {
+    const session = createPlanningSession(createDemoPlanningScenario());
+    const initial = session.getState();
+    const projectId = initial.portfolio.projects[0]!.id;
+    const reservationId = initial.portfolio.reservations[0]!.id;
+    assert.equal(session.dispatch({ kind: "set-project-active", projectId, isActive: false }).ok, true);
+    assert.equal(session.dispatch({ kind: "set-reservation-active", reservationId, isActive: false }).ok, true);
+    const document = encodeFlowplanBackupV2(session.getState());
+    const store = memoryStore("old");
+    let reloads = 0;
+    assert.equal(importPlanningBackup({ document, store, preflight: () => {}, confirm: () => true,
+      reload: () => { reloads += 1; } }), "imported");
+    assert.equal(store.writes(), 1);
+    assert.equal(reloads, 1);
+    assert.equal(JSON.parse(store.value()!).version, 2);
+    const restored = decodeFlowplanBackup(store.value()!);
+    assert.deepEqual(restored.portfolio.projects.map((project) => project.isActive),
+      session.getState().portfolio.projects.map((project) => project.isActive));
+    assert.deepEqual(restored.portfolio.reservations.map((reservation) => reservation.isActive),
+      session.getState().portfolio.reservations.map((reservation) => reservation.isActive));
+    assert.deepEqual(JSON.parse(encodeFlowplanBackupV2(restored)).data, JSON.parse(document).data);
   });
 });
