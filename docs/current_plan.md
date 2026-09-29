@@ -8,9 +8,9 @@ architecture rules live in [canon](./canon.md); current implementation facts
 and temporary constraints live in [current canon](./current_canon.md).
 
 Validated 9I Project and Reservation forecast activation forms the baseline.
-The corrective lot on Program/Pas, Reservation progress, colors, and V3 backup
-is IN REVIEW before Lot 10. The temporal zoom interaction is also IN REVIEW.
-Lot 10A has not started.
+The temporal zoom interaction is validated separately. The corrective lot on
+Program/Pas, Reservation progress, colors, and V3 backup remains IN REVIEW
+before Lot 10. Lot 10A has not started.
 
 ## Completed
 
@@ -33,14 +33,15 @@ Lot 10A has not started.
 - 9G Reservation and capacity-period structural CRUD (DONE);
 - 9H Complete planning backup and restore (DONE);
 - 9I Project and Reservation forecast activation (DONE);
-- separate Projection date presentation pass (DONE).
+- separate Projection date presentation pass (DONE);
+- anchored temporal zoom and range drag (DONE).
 
 ## Current objective and ordered sub-lots
 
 ```text
 Lot 9I — Project and Reservation forecast activation (DONE)
 Corrective lot — usage-driven Program/Pas and colors (IN REVIEW)
-Corrective lot — anchored temporal zoom and range drag (IN REVIEW)
+Corrective lot — anchored temporal zoom and range drag (DONE)
 Lot 10 — Actuals & History (AFTER REVIEW)
 10A (NEXT — to plan) → 10B → 10C → 10D → 10E
 ```
@@ -50,15 +51,19 @@ validated. No Lot 10 implementation has started.
 
 ## Corrective lot — anchored temporal zoom and range drag
 
-**Status: IN REVIEW.** Zoom +/− anchors on the Projection date when visible,
-or on the nearest viewport edge when it is outside after pan, without changing
-that date. A confirmed click changes the Projection date. A horizontal drag of
-at least 4 CSS pixels previews an inclusive date range with both dates and
-zooms to it on release; ranges shorter than seven days expand within the
+**Status: DONE** — human validated implementation at
+`08e47fc41ae4ba23c0c6a4db1720e43dffa4802a`. Zoom +/− anchors on the
+Projection date when visible, or on the nearest viewport edge after pan,
+without changing that date. A confirmed click changes the Projection date.
+A horizontal drag of at least 4 CSS pixels previews an inclusive date range
+with both dates and zooms to it on release; ranges shorter than seven days expand within the
 horizon. Shift + drag remains pan. Tooltips resume after the range gesture;
 timeline surfaces suppress native text selection. Viewport state and clamps
 remain in the shared viewport controller and Geometry remains the only
 temporal coordinate system. This lot changes no planning or simulation rule.
+The global validated baseline SHA remains at 9I while the separate Program/Pas
+corrective lot is IN REVIEW; advancing it to this commit would also validate
+that still-open work.
 
 ## Corrective lot — Program/Pas, Reservation progress, colors, backup V3
 

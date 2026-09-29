@@ -12,6 +12,9 @@ active implementation and trajectory. The remaining work is in the
 `c77558c3e8b2912532afbb8113ac8183fe737c18` (validated lot 9I Project
 and Reservation forecast activation, with prior lots and the separate
 Projection date presentation pass also validated).
+The temporal zoom interaction is validated separately at
+`08e47fc41ae4ba23c0c6a4db1720e43dffa4802a`; the global baseline stays at
+9I while the Program/Pas corrective lot remains IN REVIEW.
 
 The active application implements a pure planning projection over an editable
 session, restored from a local backup when available and otherwise initialized
@@ -295,11 +298,12 @@ inclusive horizon-start-to-selected-date interval. Occupied is requested
 reservations plus allocations. The global cartouche sums exact Team quantities
 before calculating its ratios; over-reservation remains non-compensating.
 
-The temporal zoom interaction is IN REVIEW. Zoom +/− uses the Projection date
-as its visual anchor while it is in view, or the nearest visible edge after a
-pan places it out of view. The date itself does not change. A primary-pointer
-click moves that date only when confirmed on pointer release. Horizontal drag
-of at least 4 CSS pixels selects an inclusive date range, shows its two dates
+The temporal zoom interaction is validated and **DONE**. Zoom +/− uses the
+Projection date as its visual anchor while it is in view, or the nearest
+visible edge after a pan places it out of view. The date itself does not
+change. A primary-pointer click moves that date only when confirmed on pointer
+release. Horizontal drag of at least 4 CSS pixels selects an inclusive date
+range, shows its two dates
 and a translucent preview, and changes the shared viewport on release. A
 shorter range expands symmetrically to the seven-day minimum, then clamps to
 the horizon. Shift + drag remains pan. The range preview is transient UI
