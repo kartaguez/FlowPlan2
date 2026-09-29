@@ -116,6 +116,21 @@ describe("exact rational representation", () => {
     );
   });
 
+  it("keeps large signed rational operations canonical after factor cancellation", () => {
+    const left = must(createRational((1n << 1024n) + 1n, (1n << 512n) + 3n));
+    const right = must(createRational(-7n, (1n << 256n) + 5n));
+    assert.deepEqual(addRationals(left, right), must(createRational(
+      left.numerator * right.denominator + right.numerator * left.denominator,
+      left.denominator * right.denominator)));
+    assert.deepEqual(subtractRationals(left, right), must(createRational(
+      left.numerator * right.denominator - right.numerator * left.denominator,
+      left.denominator * right.denominator)));
+    assert.deepEqual(multiplyRationals(left, right), must(createRational(
+      left.numerator * right.numerator, left.denominator * right.denominator)));
+    assert.deepEqual(must(divideRationals(left, right)), must(createRational(
+      left.numerator * right.denominator, left.denominator * right.numerator)));
+  });
+
   it("compares, bounds, and classifies rational values", () => {
     const negative = decimal("-1");
     const zero = decimal("0");

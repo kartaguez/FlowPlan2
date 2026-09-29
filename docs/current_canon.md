@@ -88,6 +88,17 @@ inclusive planning horizon as its total charge, and demand through the
 Projection date in that same horizon as consumed work. Group progress divides
 sums of consumed work by sums of charges, without averaging percentages.
 
+The corrective Mandatory performance fix keeps exact allocations and the
+existing deadline semantics. The engine caches each Team's base Project
+capacity by civil date, skips future residual trajectory materialization when
+no later admitted mandatory Project can read it, and cancels rational factors
+before multiplying large numerators and denominators. The real V3 backup
+`FP2-DTO-2026.10.01.json`, with `12178 - SDD` changed to Mandatory at its
+2027-02-28 objective, produces the same exact planning-result digest as the
+pre-fix engine. It separates the finite-loop termination guarantee from
+practical cost: on this case the full projection fell from about 46 seconds
+to under 0.4 seconds in a local Node measurement.
+
 Lot 9B is validated and **DONE**. A pure adapter projects exact
 cumulative Team utilization and Project, Program, and PAS progress for an
 inclusive selected-date interval. The current-run RAF baseline comes from the

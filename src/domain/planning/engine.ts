@@ -247,14 +247,17 @@ function deadlineAccessibleCapacity(
   team: Team,
   portfolio: Portfolio,
   workingPattern: WorkingPattern,
+  baseCapacityByDate: Map<CivilDate, Rational>,
   residualByDate: Map<CivilDate, Rational>,
   dailyAllocations: ReadonlyMap<ProjectTeamState, Rational>,
 ): Rational {
   let residual = residualByDate.get(date);
   if (residual === undefined) {
-    residual = rationalOf(
-      projectCapacity(team, date, portfolio.reservations, workingPattern),
-    );
+    residual = baseCapacityByDate.get(date);
+    if (residual === undefined) {
+      residual = rationalOf(projectCapacity(team, date, portfolio.reservations, workingPattern));
+      baseCapacityByDate.set(date, residual);
+    }
     residualByDate.set(date, residual);
   }
 
@@ -328,6 +331,7 @@ function sumDeadlineAccessibility(
   team: Team,
   portfolio: Portfolio,
   workingPattern: WorkingPattern,
+  baseCapacityByDate: Map<CivilDate, Rational>,
   residualByDate: Map<CivilDate, Rational>,
   dailyAllocations: ReadonlyMap<ProjectTeamState, Rational>,
 ): Rational {
@@ -342,6 +346,7 @@ function sumDeadlineAccessibility(
         team,
         portfolio,
         workingPattern,
+        baseCapacityByDate,
         residualByDate,
         dailyAllocations,
       ),
@@ -356,6 +361,7 @@ function allocateDeadlineProjects(
   team: Team,
   portfolio: Portfolio,
   workingPattern: WorkingPattern,
+  baseCapacityByDate: Map<CivilDate, Rational>,
   admitted: readonly ProjectTeamState[],
   dailyAllocations: Map<ProjectTeamState, Rational>,
   diagnostics: PlanningDiagnostic[],
@@ -364,7 +370,7 @@ function allocateDeadlineProjects(
     [today, availableCapacity],
   ]);
 
-  for (const state of admitted) {
+  for (const [index, state] of admitted.entries()) {
     const deadline = state.project.mandatoryDeadline;
     if (!deadline) continue;
 
@@ -386,6 +392,7 @@ function allocateDeadlineProjects(
         team,
         portfolio,
         workingPattern,
+        baseCapacityByDate,
         residualByDate,
         dailyAllocations,
       );
@@ -414,6 +421,17 @@ function allocateDeadlineProjects(
           "remainingAccessibleCapacity",
         ),
       );
+      if (!admitted.slice(index + 1).some((later) => later.project.mandatoryDeadline)) {
+        // No later mandatory Project reads the future residual trajectory.
+        // Only today's allocation can affect this Team's committed plan.
+        const accessibleToday = deadlineAccessibleCapacity(state, today, today,
+          team, portfolio, workingPattern, baseCapacityByDate, residualByDate, dailyAllocations);
+        const increment = minRational(remainingBeforeAllocation,
+          multiplyRationals(accessibleToday, requiredRatio));
+        subtractDeadlineCapacity(today, increment, residualByDate);
+        addDailyAllocation(state, increment, dailyAllocations);
+        continue;
+      }
       let projectedRemaining = remainingBeforeAllocation;
 
       for (const date of datesToDeadline) {
@@ -424,6 +442,7 @@ function allocateDeadlineProjects(
           team,
           portfolio,
           workingPattern,
+          baseCapacityByDate,
           residualByDate,
           dailyAllocations,
         );
@@ -449,6 +468,7 @@ function allocateDeadlineProjects(
       team,
       portfolio,
       workingPattern,
+      baseCapacityByDate,
       residualByDate,
       dailyAllocations,
     );
@@ -529,6 +549,7 @@ function planTeam(
   const states = projectsForTeam(input.portfolio, team);
   const dayCapacities: TeamDayCapacity[] = [];
   const dayAdmissions: TeamDayAdmission[] = [];
+  const baseCapacityByDate = new Map<CivilDate, Rational>();
 
   for (const date of civilDatesInclusive(
     input.horizon.start,
@@ -547,6 +568,7 @@ function planTeam(
       input.portfolio.reservations,
       input.workingPattern,
     );
+    baseCapacityByDate.set(date, rationalOf(available));
     const overReserved = isOverReserved(
       team,
       date,
@@ -594,6 +616,7 @@ function planTeam(
       team,
       input.portfolio,
       input.workingPattern,
+      baseCapacityByDate,
       admitted,
       dailyAllocations,
       diagnostics,

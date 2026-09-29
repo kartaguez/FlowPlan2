@@ -105,24 +105,39 @@ export function parseSerializedRational(
 }
 
 export function addRationals(left: Rational, right: Rational): Rational {
-  return reduceRational(
-    left.numerator * right.denominator + right.numerator * left.denominator,
-    left.denominator * right.denominator,
-  );
+  return combineRationals(left, right, 1n);
 }
 
 export function subtractRationals(left: Rational, right: Rational): Rational {
-  return reduceRational(
-    left.numerator * right.denominator - right.numerator * left.denominator,
-    left.denominator * right.denominator,
-  );
+  return combineRationals(left, right, -1n);
 }
 
 export function multiplyRationals(left: Rational, right: Rational): Rational {
-  return reduceRational(
-    left.numerator * right.numerator,
-    left.denominator * right.denominator,
-  );
+  if (isZero(left) || isZero(right)) return rationalFromInteger(0n);
+  const leftCancellation = gcd(left.numerator, right.denominator);
+  const rightCancellation = gcd(right.numerator, left.denominator);
+  return Object.freeze({
+    numerator: (left.numerator / leftCancellation) * (right.numerator / rightCancellation),
+    denominator: (left.denominator / rightCancellation) * (right.denominator / leftCancellation),
+  });
+}
+
+// Operands created by this module are reduced; only shared denominator factors can remain.
+function combineRationals(left: Rational, right: Rational, sign: 1n | -1n): Rational {
+  if (isZero(right)) return left;
+  if (isZero(left)) return sign === 1n ? right : Object.freeze({
+    numerator: -right.numerator, denominator: right.denominator,
+  });
+  const sharedDenominator = gcd(left.denominator, right.denominator);
+  const leftDenominator = left.denominator / sharedDenominator;
+  const rightDenominator = right.denominator / sharedDenominator;
+  const numerator = left.numerator * rightDenominator + sign * right.numerator * leftDenominator;
+  if (numerator === 0n) return rationalFromInteger(0n);
+  const cancellation = gcd(numerator, sharedDenominator);
+  return Object.freeze({
+    numerator: numerator / cancellation,
+    denominator: leftDenominator * (right.denominator / cancellation),
+  });
 }
 
 export function divideRationals(
@@ -135,12 +150,17 @@ export function divideRationals(
       error("DIVISION_BY_ZERO", path, "Cannot divide a rational by zero."),
     ]);
   }
-  return success(
-    reduceRational(
-      dividend.numerator * divisor.denominator,
-      dividend.denominator * divisor.numerator,
-    ),
-  );
+  if (isZero(dividend)) return success(rationalFromInteger(0n));
+  const divisorNumerator = divisor.numerator < 0n ? -divisor.numerator : divisor.numerator;
+  const numeratorCancellation = gcd(dividend.numerator, divisorNumerator);
+  const denominatorCancellation = gcd(divisor.denominator, dividend.denominator);
+  const sign = divisor.numerator < 0n ? -1n : 1n;
+  return success(Object.freeze({
+    numerator: sign * (dividend.numerator / numeratorCancellation) *
+      (divisor.denominator / denominatorCancellation),
+    denominator: (dividend.denominator / denominatorCancellation) *
+      (divisorNumerator / numeratorCancellation),
+  }));
 }
 
 export function compareRationals(left: Rational, right: Rational): -1 | 0 | 1 {

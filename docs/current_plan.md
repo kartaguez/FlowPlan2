@@ -68,10 +68,15 @@ inputs appear only with New. The engine batches full 0.5-unit fair-allocation
 rounds to avoid workload-sized iteration while preserving admission and exact
 allocations. Backup V3 persists associations and colors, reads V1/V2, and
 repairs the specified orphan/color cases at import.
-The outer engine pass advances one civil day per iteration through the finite
-horizon. Deadline lookahead scans a finite inclusive date range; admission
-scans a finite Project list. Fair sharing either exhausts whole rounds in one
-exact step, consumes a final partial allocation, or stops for that day.
+Mathematical termination follows from a finite horizon and Project list,
+finite deadline lookaheads, and exact fair sharing that advances or stops.
+Practical complexity also matters. The real V3 backup
+`FP2-DTO-2026.10.01.json` exposed a 46-second full projection when
+`12178 - SDD` became Mandatory. Caching per-date base capacity, omitting
+unobserved future trajectories, and cancelling rational factors before
+large products reduced the same full projection to under 0.4 seconds locally.
+The exact planning-result digest matches the pre-fix engine and the fixture
+test guards both output and interaction-scale performance.
 This lot does not begin 10A. Keep the validated baseline SHA unchanged until
 human review closes the lot.
 

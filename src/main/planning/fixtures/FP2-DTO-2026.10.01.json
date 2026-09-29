@@ -1,0 +1,270 @@
+{
+  "format": "flowplan",
+  "version": 3,
+  "exportedAt": "2026-09-29T14:43:00.269Z",
+  "data": {
+    "planning": {
+      "startDate": "2026-10-01",
+      "endDate": "2027-06-30",
+      "workingWeekdays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "maxParallelProjects": 4
+    },
+    "portfolio": {
+      "teams": [
+        {
+          "id": "team-alpha",
+          "name": "CMS",
+          "capacitySchedule": {
+            "periods": [
+              {
+                "start": "2026-10-01",
+                "end": "2026-12-15",
+                "dailyCapacity": "7/1",
+                "unavailabilityRatio": "0/1"
+              },
+              {
+                "start": "2026-12-16",
+                "end": "2027-06-30",
+                "dailyCapacity": "6/1",
+                "unavailabilityRatio": "0/1"
+              }
+            ],
+            "exceptions": []
+          }
+        },
+        {
+          "id": "team-beta",
+          "name": "GROOT",
+          "capacitySchedule": {
+            "periods": [
+              {
+                "start": "2026-10-01",
+                "end": "2027-06-30",
+                "dailyCapacity": "7/1",
+                "unavailabilityRatio": "0/1"
+              }
+            ],
+            "exceptions": []
+          }
+        }
+      ],
+      "projects": [
+        {
+          "id": "project-session-1",
+          "name": "12178 - SDD",
+          "isActive": true,
+          "programId": "program-2",
+          "earliestStartDate": "2026-10-01",
+          "objectiveEndDate": "2027-02-28",
+          "requirements": [
+            {
+              "teamId": "team-alpha",
+              "remainingWorkload": "180/1"
+            }
+          ]
+        },
+        {
+          "id": "project-session-2",
+          "name": "05532 - AT statements",
+          "isActive": true,
+          "programId": "program-1",
+          "earliestStartDate": "2026-10-01",
+          "objectiveEndDate": "2026-12-31",
+          "requirements": [
+            {
+              "teamId": "team-alpha",
+              "remainingWorkload": "70/1"
+            }
+          ]
+        },
+        {
+          "id": "project-session-3",
+          "name": "12178 - SMxSGC - 3SKey transfer",
+          "isActive": true,
+          "programId": "program-2",
+          "earliestStartDate": "2026-10-01",
+          "objectiveEndDate": "2026-12-31",
+          "requirements": [
+            {
+              "teamId": "team-alpha",
+              "remainingWorkload": "90/1"
+            }
+          ]
+        },
+        {
+          "id": "project-session-4",
+          "name": "05678 - Atypical connection",
+          "isActive": true,
+          "ownColor": "#806FB6",
+          "earliestStartDate": "2026-10-01",
+          "objectiveEndDate": "2026-12-31",
+          "requirements": [
+            {
+              "teamId": "team-alpha",
+              "remainingWorkload": "50/1"
+            }
+          ]
+        },
+        {
+          "id": "project-session-5",
+          "name": "12179 - RT Intraday WE",
+          "isActive": true,
+          "ownColor": "#AF9444",
+          "earliestStartDate": "2026-10-01",
+          "requirements": [
+            {
+              "teamId": "team-alpha",
+              "remainingWorkload": "10/1"
+            }
+          ]
+        },
+        {
+          "id": "project-session-6",
+          "name": "Austin",
+          "isActive": true,
+          "ownColor": "#4C91AA",
+          "earliestStartDate": "2026-10-01",
+          "objectiveEndDate": "2026-12-31",
+          "mandatoryDeadline": "2026-12-31",
+          "requirements": [
+            {
+              "teamId": "team-alpha",
+              "remainingWorkload": "30/1"
+            }
+          ]
+        },
+        {
+          "id": "project-session-7",
+          "name": "05532 - GenPay VoP",
+          "isActive": true,
+          "programId": "program-1",
+          "earliestStartDate": "2027-01-01",
+          "objectiveEndDate": "2027-03-31",
+          "requirements": [
+            {
+              "teamId": "team-alpha",
+              "remainingWorkload": "30/1"
+            }
+          ]
+        },
+        {
+          "id": "project-session-8",
+          "name": "Korea - MVP1",
+          "isActive": true,
+          "ownColor": "#B76583",
+          "earliestStartDate": "2026-10-01",
+          "objectiveEndDate": "2027-02-28",
+          "requirements": [
+            {
+              "teamId": "team-alpha",
+              "remainingWorkload": "30/1"
+            }
+          ]
+        },
+        {
+          "id": "project-session-9",
+          "name": "SGM Docs - [Study] Reporting",
+          "isActive": true,
+          "ownColor": "#4B987D",
+          "earliestStartDate": "2027-01-01",
+          "requirements": [
+            {
+              "teamId": "team-alpha",
+              "remainingWorkload": "30/1"
+            }
+          ]
+        }
+      ],
+      "programs": [
+        {
+          "id": "program-1",
+          "name": "05532",
+          "color": "#F0D733"
+        },
+        {
+          "id": "program-2",
+          "name": "12178",
+          "color": "#C886F3"
+        }
+      ],
+      "priorityFamilies": [],
+      "priorityOrder": [
+        "project-session-2",
+        "project-session-3",
+        "project-session-6",
+        "project-session-1",
+        "project-session-8",
+        "project-session-4",
+        "project-session-5",
+        "project-session-7",
+        "project-session-9"
+      ],
+      "reservations": [
+        {
+          "id": "reservation-support",
+          "name": "Run",
+          "startDate": "2026-10-01",
+          "endDate": "2027-06-30",
+          "isActive": true,
+          "ownColor": "#B76583",
+          "teamAllocations": [
+            {
+              "teamId": "team-alpha",
+              "amount": {
+                "kind": "fixed-daily",
+                "dailyCapacity": "26/21"
+              }
+            },
+            {
+              "teamId": "team-beta",
+              "amount": {
+                "kind": "fixed-daily",
+                "dailyCapacity": "9/7"
+              }
+            }
+          ]
+        },
+        {
+          "id": "reservation-session-1",
+          "name": "Onboarding API4C",
+          "startDate": "2026-10-01",
+          "endDate": "2027-06-30",
+          "isActive": true,
+          "ownColor": "#4B987D",
+          "teamAllocations": [
+            {
+              "teamId": "team-alpha",
+              "amount": {
+                "kind": "fixed-daily",
+                "dailyCapacity": "10/21"
+              }
+            }
+          ]
+        },
+        {
+          "id": "reservation-session-2",
+          "name": "Mythos",
+          "startDate": "2026-10-01",
+          "endDate": "2027-06-30",
+          "isActive": true,
+          "ownColor": "#A9764D",
+          "teamAllocations": [
+            {
+              "teamId": "team-alpha",
+              "amount": {
+                "kind": "fixed-daily",
+                "dailyCapacity": "1/2"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
