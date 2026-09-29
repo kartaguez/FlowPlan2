@@ -20,6 +20,7 @@ import type {
 } from "../../adapters/index.js";
 import { projectColorIndex } from "./projectVisualIdentity.js";
 import { renderTimelineSvg } from "./renderTimelineSvg.js";
+import { renderTimelineRangeSelection } from "./renderTimelineRangeSelection.js";
 
 const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 
@@ -59,6 +60,26 @@ class FakeSvgElement {
 
   replaceChildren(...nodes: FakeSvgElement[]): void {
     this.childNodes = [...nodes];
+  }
+
+  querySelector(selector: string): FakeSvgElement | null {
+    const className = selector.slice(1);
+    return withClass(this, className)[0] ?? null;
+  }
+
+  querySelectorAll(selector: string): FakeSvgElement[] {
+    if (selector !== "[data-screen-space-typography='true']") return [];
+    const matches: FakeSvgElement[] = [];
+    const visit = (node: FakeSvgElement): void => {
+      if (node.getAttribute("data-screen-space-typography") === "true") matches.push(node);
+      for (const child of node.childNodes) visit(child);
+    };
+    visit(this);
+    return matches;
+  }
+
+  getBoundingClientRect(): DOMRect {
+    return { width: 300, height: 160 } as DOMRect;
   }
 }
 
@@ -271,6 +292,24 @@ function render(
 }
 
 describe("renderTimelineSvg", () => {
+  it("shows a normalized range and both dates only while selection is active", () => {
+    const svg = createSvg();
+    const geometry = makeGeometry();
+    renderTimelineSvg({ svg: svg as unknown as SVGSVGElement, geometry });
+    assert.equal(withClass(svg, "timeline-range-selection").length, 0);
+    renderTimelineRangeSelection({ svg: svg as unknown as SVGSVGElement, geometry,
+      viewport: { x: 0, width: 300 },
+      selection: { startDate: date("2025-01-03"), endDate: date("2025-01-01") } });
+    assert.equal(withClass(svg, "timeline-range-selection")[0]?.getAttribute("width"), "300");
+    const labels = withClass(svg, "timeline-range-selection-date");
+    assert.deepEqual(labels.map((label) => label.getAttribute("data-selection-date")),
+      ["2025-01-01", "2025-01-03"]);
+    assert.deepEqual(labels.map((label) => label.textContent), ["01/01/2025", "03/01/2025"]);
+    renderTimelineRangeSelection({ svg: svg as unknown as SVGSVGElement, geometry,
+      viewport: { x: 0, width: 300 }, selection: undefined });
+    assert.equal(withClass(svg, "timeline-range-selection").length, 0);
+    assert.equal(withClass(svg, "timeline-range-selection-date").length, 0);
+  });
   it("uses exact effective fills while keeping a distinct Reservation outline", async () => {
     const geometry = makeGeometry();
     const team = geometry.teams[0]!;

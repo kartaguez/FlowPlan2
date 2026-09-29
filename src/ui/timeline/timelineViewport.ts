@@ -1,4 +1,5 @@
-import { GEOMETRY_EPSILON } from "../../adapters/index.js";
+import { GEOMETRY_EPSILON, type TimelineGeometry } from "../../adapters/index.js";
+import type { CivilDate } from "../../domain/index.js";
 
 export interface TimelineViewportState {
   readonly x: number;
@@ -73,6 +74,34 @@ export function zoomTimelineViewport(
   return clampTimelineViewport({
     viewport: { x, width },
     geometryWidth: input.geometryWidth,
+    minWidth: input.minWidth,
+  });
+}
+
+export interface TimelineViewportFromDateRangeInput {
+  readonly geometry: TimelineGeometry;
+  readonly startDate: CivilDate;
+  readonly endDate: CivilDate;
+  readonly minWidth: number;
+}
+
+/** Converts an inclusive date range to one bounded window over the existing geometry. */
+export function timelineViewportFromDateRange(
+  input: TimelineViewportFromDateRangeInput,
+): TimelineViewportState {
+  const firstDate = input.startDate <= input.endDate ? input.startDate : input.endDate;
+  const lastDate = input.startDate <= input.endDate ? input.endDate : input.startDate;
+  const first = input.geometry.dates.find((day) => day.date === firstDate);
+  const last = input.geometry.dates.find((day) => day.date === lastDate);
+  if (first === undefined || last === undefined) {
+    throw new TypeError("Visible date range must be inside the timeline geometry.");
+  }
+  const startX = first.x;
+  const endX = last.x + last.width;
+  const width = Math.max(endX - startX, Math.min(input.minWidth, input.geometry.width));
+  return clampTimelineViewport({
+    viewport: { x: (startX + endX - width) / 2, width },
+    geometryWidth: input.geometry.width,
     minWidth: input.minWidth,
   });
 }

@@ -1,9 +1,11 @@
-import type { TimelineGeometry } from "../../adapters/index.js";
+import { buildTimelineCursorGeometry, type TimelineGeometry } from "../../adapters/index.js";
+import type { CivilDate } from "../../domain/index.js";
 import { applyTimelineViewport } from "./applyTimelineViewport.js";
 import {
   clampTimelineViewport,
   createFullTimelineViewport,
   panTimelineViewport,
+  timelineViewportFromDateRange,
   zoomTimelineViewport,
   type TimelineViewportState,
 } from "./timelineViewport.js";
@@ -19,6 +21,7 @@ export interface TimelineViewportControlElements {
 
 export interface TimelineViewportController {
   readonly getState: () => TimelineViewportState;
+  readonly setVisibleDateRange: (startDate: CivilDate, endDate: CivilDate) => void;
   readonly destroy: () => void;
 }
 
@@ -27,6 +30,7 @@ export interface CreateTimelineViewportControllerInput {
   readonly geometry: TimelineGeometry;
   readonly controls: TimelineViewportControlElements;
   readonly initialViewport?: TimelineViewportState;
+  readonly getProjectionDate: () => CivilDate;
   readonly onViewportChange?: () => void;
 }
 
@@ -54,7 +58,8 @@ export function createTimelineViewportController(
         });
   let activePan: ActivePan | undefined;
 
-  const render = (): void => {
+  const publish = (next: TimelineViewportState): void => {
+    viewport = clampTimelineViewport({ viewport: next, geometryWidth: input.geometry.width, minWidth });
     applyTimelineViewport({
       svg: input.svg,
       geometry: input.geometry,
@@ -62,22 +67,26 @@ export function createTimelineViewportController(
     });
     input.onViewportChange?.();
   };
+  const setVisibleDateRange = (startDate: CivilDate, endDate: CivilDate): void => {
+    publish(timelineViewportFromDateRange({ geometry: input.geometry, startDate, endDate, minWidth }));
+  };
   const zoom = (scale: number): void => {
-    const anchorX = viewport.x + viewport.width / 2;
-    viewport = zoomTimelineViewport({
+    const projectionX = buildTimelineCursorGeometry({
+      geometry: input.geometry, selectedDate: input.getProjectionDate(),
+    }).x;
+    const anchorX = Math.max(viewport.x, Math.min(projectionX, viewport.x + viewport.width));
+    publish(zoomTimelineViewport({
       viewport,
       geometryWidth: input.geometry.width,
       minWidth,
       anchorX,
       scale,
-    });
-    render();
+    }));
   };
   const onZoomIn = (): void => zoom(1 / ZOOM_FACTOR);
   const onZoomOut = (): void => zoom(ZOOM_FACTOR);
   const onReset = (): void => {
-    viewport = fullViewport;
-    render();
+    publish(fullViewport);
   };
   const onPointerDown = (event: PointerEvent): void => {
     if (!event.shiftKey) return;
@@ -100,12 +109,11 @@ export function createTimelineViewportController(
     const clientDelta = event.clientX - activePan.startClientX;
     const timelineDelta =
       (-clientDelta / bounds.width) * activePan.startViewport.width;
-    viewport = panTimelineViewport({
+    publish(panTimelineViewport({
       viewport: activePan.startViewport,
       geometryWidth: input.geometry.width,
       deltaX: timelineDelta,
-    });
-    render();
+    }));
   };
   const stopPan = (event: PointerEvent): void => {
     if (activePan?.pointerId !== event.pointerId) return;
@@ -120,10 +128,11 @@ export function createTimelineViewportController(
   input.svg.addEventListener("pointermove", onPointerMove);
   input.svg.addEventListener("pointerup", stopPan);
   input.svg.addEventListener("pointercancel", stopPan);
-  render();
+  publish(viewport);
 
   return Object.freeze({
     getState: () => viewport,
+    setVisibleDateRange,
     destroy: () => {
       input.controls.zoomIn.removeEventListener("click", onZoomIn);
       input.controls.zoomOut.removeEventListener("click", onZoomOut);

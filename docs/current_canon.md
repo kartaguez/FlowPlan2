@@ -295,6 +295,18 @@ inclusive horizon-start-to-selected-date interval. Occupied is requested
 reservations plus allocations. The global cartouche sums exact Team quantities
 before calculating its ratios; over-reservation remains non-compensating.
 
+The temporal zoom interaction is IN REVIEW. Zoom +/− uses the Projection date
+as its visual anchor while it is in view, or the nearest visible edge after a
+pan places it out of view. The date itself does not change. A primary-pointer
+click moves that date only when confirmed on pointer release. Horizontal drag
+of at least 4 CSS pixels selects an inclusive date range, shows its two dates
+and a translucent preview, and changes the shared viewport on release. A
+shorter range expands symmetrically to the seven-day minimum, then clamps to
+the horizon. Shift + drag remains pan. The range preview is transient UI
+state; Project and Reservation segments remain unselected, and their tooltips
+are hidden only while a range drag is active. Native text selection is
+disabled on timeline surfaces, not on editable controls.
+
 ## Current editing behavior
 
 Project and Reservation cards open independently from the Portfolio lists.
@@ -306,8 +318,8 @@ from the current session reference, including Team subcards. Collapsing a card
 or Team leaves its draft intact. Team Settings remains a separate modal opened
 only from its Settings button.
 
-Every Timeline click moves only the Projection date according to its temporal
-X coordinate. The Timeline has no selected entity or selection summary. The
+Every confirmed Timeline click moves only the Projection date according to its
+temporal X coordinate. The Timeline has no selected entity or selection summary. The
 reserved Timeline region remains one aggregate capacity surface subdivided
 visually into identifiable Reservation contributions. Only allocation and
 Reservation-segment hits show a business tooltip. The Project tooltip uses the

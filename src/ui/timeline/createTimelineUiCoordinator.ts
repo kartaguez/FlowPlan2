@@ -28,6 +28,7 @@ import { createTimelineInteractionController } from "./createTimelineInteraction
 import { createTimelineViewportController } from "./createTimelineViewportController.js";
 import { createPlanningDiagnosticsController } from "./createPlanningDiagnosticsController.js";
 import { renderTimelineSvg } from "./renderTimelineSvg.js";
+import { renderTimelineRangeSelection, type TimelineRangeSelection } from "./renderTimelineRangeSelection.js";
 import { renderTimelineShellNavigation, type PortfolioTab, type ProjectNavigationItem } from "./renderTimelineShellNavigation.js";
 import type { TimelineViewportState } from "./timelineViewport.js";
 import { buildCursorMetricsViewModel, type CursorMetricsViewModel, type CursorProgressView } from "./buildCursorMetricsViewModel.js";
@@ -122,6 +123,7 @@ export function createTimelineUiCoordinator(
   let viewportController: ReturnType<typeof createTimelineViewportController>;
   let cursorController: ReturnType<typeof createTimelineCursorController>;
   let interactionController: ReturnType<typeof createTimelineInteractionController>;
+  let rangeDragging = false;
   let shellNavigation: ReturnType<typeof renderTimelineShellNavigation>;
   let reorderController: ReturnType<typeof createProjectReorderController>;
   let teamEditingId: TeamId | undefined;
@@ -379,7 +381,8 @@ export function createTimelineUiCoordinator(
     for (const controller of reservationControllers.values()) controller.destroy();
     projectControllers.clear();
     reservationControllers.clear();
-    interactionController.destroy(); cursorController.destroy(); viewportController.destroy();
+    cursorController.destroy(); interactionController.destroy(); viewportController.destroy();
+    rangeDragging = false;
     shellNavigation.destroy();
     mounted = false;
   };
@@ -466,20 +469,30 @@ export function createTimelineUiCoordinator(
     });
     const selectedDate = projection.geometry.dates.some((day) => day.date === snapshot.selectedDate)
       ? snapshot.selectedDate : projection.viewModel.horizon.start;
+    rangeDragging = false;
     viewportController = dependencies.createViewportController({ svg: input.elements.svg,
       geometry: projection.geometry, controls: input.elements.viewportControls,
       initialViewport: snapshot.viewport,
+      getProjectionDate: () => cursorController.getState().selectedDate,
       onViewportChange: () => cursorController?.refresh?.() });
     const teamCollectionRow = input.elements.teamCreateButton?.parentElement;
     cursorController = dependencies.createCursorController({ svg: input.elements.svg,
       geometry: projection.geometry,
       ...(teamCollectionRow ? { teamCollectionRow } : {}),
       initialDate: selectedDate, getViewport: viewportController.getState,
-      isModalOpen, onSelectedDateChange: renderCursorMetrics });
+      isModalOpen, onSelectedDateChange: renderCursorMetrics,
+      onVisibleDateRange: (startDate, endDate) => viewportController.setVisibleDateRange(startDate, endDate),
+      onRangePreviewChange: (selection: TimelineRangeSelection | undefined) => {
+        rangeDragging = selection !== undefined;
+        renderTimelineRangeSelection({ svg: input.elements.svg, geometry: projection.geometry,
+          viewport: viewportController.getState(), selection });
+        interactionController?.refreshTooltip();
+      } });
     renderCursorMetrics(selectedDate);
     interactionController = dependencies.createInteractionController({
       svg: input.elements.svg, geometry: projection.geometry, viewModel: projection.viewModel,
       getViewport: viewportController.getState, tooltipContainer: input.elements.tooltip,
+      isRangeDragging: () => rangeDragging,
       getProjectProgress: (id) => cursorMetricsModel.projects.find((item) => item.id === id)?.progress,
     });
     for (const id of projectDrafts.ids()) {

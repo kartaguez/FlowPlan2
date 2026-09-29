@@ -4,6 +4,7 @@ import {
   GEOMETRY_EPSILON,
   type TimelineGeometry,
 } from "../../adapters/index.js";
+import type { CivilDate } from "../../domain/index.js";
 import { applyTimelineViewport } from "./applyTimelineViewport.js";
 import {
   clampTimelineViewport,
@@ -11,10 +12,19 @@ import {
   panTimelineViewport,
   timelinePointFromClientPoint,
   timelineXFromClientX,
+  timelineViewportFromDateRange,
   zoomTimelineViewport,
 } from "./timelineViewport.js";
 
 describe("TimelineViewport", () => {
+  it("shows a complete horizon when it contains fewer than seven days", () => {
+    const dates = ["2025-01-01", "2025-01-02", "2025-01-03"] as const;
+    const geometry = { width: 60, dates: dates.map((date, index) =>
+      ({ date: date as CivilDate, x: index * 20, width: 20 })) } as unknown as TimelineGeometry;
+    assert.deepEqual(timelineViewportFromDateRange({ geometry,
+      startDate: dates[1] as CivilDate, endDate: dates[1] as CivilDate, minWidth: 140 }),
+    { x: 0, width: 60 });
+  });
   it("creates an immutable full-horizon initial viewport", () => {
     const viewport = createFullTimelineViewport(2160);
 

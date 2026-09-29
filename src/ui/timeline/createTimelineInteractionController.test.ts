@@ -183,6 +183,8 @@ function fixture() {
     summary,
     keyboard,
     controller,
+    geometry,
+    viewModel,
     projectId,
     teamId,
     date,
@@ -190,6 +192,30 @@ function fixture() {
 }
 
 describe("createTimelineInteractionController", () => {
+  it("hides tooltips only during a range drag and restores the current hit", () => {
+    const input = fixture();
+    input.controller.destroy();
+    let dragging = false;
+    const controller = createTimelineInteractionController({
+      svg: input.svg as unknown as SVGSVGElement,
+      geometry: input.geometry, viewModel: input.viewModel,
+      getViewport: () => ({ x: 0, width: 300 }),
+      tooltipContainer: input.tooltip as unknown as HTMLElement,
+      isRangeDragging: () => dragging,
+    });
+    input.svg.dispatch("pointermove", pointer(1, 25, 130));
+    assert.equal(input.tooltip.hidden, false);
+    dragging = true;
+    controller.refreshTooltip();
+    assert.equal(input.tooltip.hidden, true);
+    input.svg.dispatch("pointermove", pointer(1, 25, 130));
+    assert.equal(input.tooltip.hidden, true);
+    dragging = false;
+    controller.refreshTooltip();
+    assert.equal(input.tooltip.hidden, false);
+    assert.equal(controller.getState().hovered?.kind, "allocation");
+    controller.destroy();
+  });
   it("refreshes a visible Project tooltip when exact cursor progress changes", () => {
     const input = fixture();
     input.controller.destroy();

@@ -422,7 +422,15 @@ h1 { margin-bottom: 0; font-size: 2rem; letter-spacing: -0.04em; }
 .timeline-svg {
   display: block;
   width: 100%;
+  -webkit-user-select: none;
+  user-select: none;
 }
+
+.team-collection-actions, .timeline-team-panels { -webkit-user-select: none; user-select: none; }
+.timeline-range-selection-layer { pointer-events: none; }
+.timeline-range-selection { fill: rgb(47 111 209 / 22%); stroke: var(--fp-projection); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.timeline-range-selection-date { fill: #174a9c; stroke: rgb(255 255 255 / 95%); stroke-width: 3px;
+  paint-order: stroke; font: 700 11px Inter, ui-sans-serif, system-ui, sans-serif; }
 
 .timeline-year-cell {
   fill: var(--fp-time-surface);

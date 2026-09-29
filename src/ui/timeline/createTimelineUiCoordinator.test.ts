@@ -4,6 +4,8 @@ import { createDemoPlanningScenario } from "../../main/demo/createDemoPlanningSc
 import { buildPlanningSessionProjection } from "../../main/planning/buildPlanningSessionProjection.js";
 import type { AppElements } from "../renderApp.js";
 import { createTimelineUiCoordinator, type TimelineUiCoordinatorDependencies } from "./createTimelineUiCoordinator.js";
+import type { CreateTimelineCursorControllerInput } from "./createTimelineCursorController.js";
+import type { CreateTimelineViewportControllerInput } from "./createTimelineViewportController.js";
 
 function fixture() {
   const scenario = createDemoPlanningScenario();
@@ -20,15 +22,20 @@ function fixture() {
     diagnosticsControls: { dialog: element },
   } as unknown as AppElements;
   let renderCount = 0;
+  let cursorOptions: CreateTimelineCursorControllerInput | undefined;
+  let viewportOptions: CreateTimelineViewportControllerInput | undefined;
+  const requestedRanges: string[] = [];
   const dependencies = {
     renderTimeline: () => { renderCount += 1; },
     createDiagnosticsController: () => ({ setDiagnostics() {}, destroy() {} }),
-    createViewportController: (input: { initialViewport?: { x: number; width: number } }) => ({
-      getState: () => input.initialViewport ?? { x: 0, width: 1000 }, destroy() {},
-    }),
-    createCursorController: (input: { initialDate: string }) => ({
+    createViewportController: (input: CreateTimelineViewportControllerInput) => { viewportOptions = input; return ({
+      getState: () => input.initialViewport ?? { x: 0, width: 1000 },
+      setVisibleDateRange: (start: string, end: string) => requestedRanges.push(`${start}/${end}`),
+      destroy() {},
+    }); },
+    createCursorController: (input: CreateTimelineCursorControllerInput) => { cursorOptions = input; return ({
       getState: () => ({ selectedDate: input.initialDate }), destroy() {},
-    }),
+    }); },
     createInteractionController: () => ({ getState: () => ({ hovered: undefined }), refreshTooltip() {}, destroy() {} }),
     createProjectEditController: () => ({ setProject() {}, getProjectId: () => undefined, destroy() {} }),
     createProjectReorderController: () => ({ destroy() {} }),
@@ -50,7 +57,9 @@ function fixture() {
     getReservationEditViewModel: () => undefined,
     getReservationNavigationItems: () => [],
   }, dependencies);
-  return { coordinator, projection, getRenderCount: () => renderCount };
+  return { coordinator, projection, getRenderCount: () => renderCount,
+    getCursorOptions: () => cursorOptions, getViewportOptions: () => viewportOptions,
+    requestedRanges };
 }
 
 describe("Timeline UI coordinator", () => {
@@ -62,6 +71,15 @@ describe("Timeline UI coordinator", () => {
     input.coordinator.renderProjection(input.projection);
     assert.equal(input.getRenderCount(), 2);
     assert.deepEqual(input.coordinator.getUiSnapshot(), before);
+    input.coordinator.destroy();
+  });
+
+  it("routes selected ranges to the sole viewport controller and exposes the current anchor date", () => {
+    const input = fixture();
+    const date = input.projection.geometry.dates;
+    assert.equal(input.getViewportOptions()?.getProjectionDate(), input.coordinator.getUiSnapshot().selectedDate);
+    input.getCursorOptions()?.onVisibleDateRange?.(date[2]!.date, date[8]!.date);
+    assert.deepEqual(input.requestedRanges, [`${date[2]!.date}/${date[8]!.date}`]);
     input.coordinator.destroy();
   });
 });

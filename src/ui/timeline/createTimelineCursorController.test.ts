@@ -238,8 +238,10 @@ describe("createTimelineCursorController", () => {
     );
   });
 
-  it("updates on pointerdown and pointermove only during an active drag", () => {
+  it("keeps the date fixed through a range drag and releases capture", () => {
     const input = fixture();
+    const ranges: string[] = [];
+    const previews: string[] = [];
     const controller = createTimelineCursorController({
       svg: input.svg as unknown as SVGSVGElement,
       geometry: input.geometry,
@@ -247,6 +249,8 @@ describe("createTimelineCursorController", () => {
       initialDate: input.viewModel.horizon.start,
       getViewport: () => ({ x: 0, width: 300 }),
       isModalOpen: () => false,
+      onVisibleDateRange: (start, end) => ranges.push(`${start}/${end}`),
+      onRangePreviewChange: (range) => previews.push(range ? `${range.startDate}/${range.endDate}` : "clear"),
     });
 
     input.svg.dispatch("pointermove", pointer(1, 250));
@@ -256,13 +260,107 @@ describe("createTimelineCursorController", () => {
     assert.equal(input.svg.hasPointerCapture(9), false);
     input.svg.dispatch("pointerdown", pointer(1, 250));
     assert.equal(input.svg.hasPointerCapture(1), true);
-    assert.equal(controller.getState().selectedDate, "2025-01-02");
+    assert.equal(controller.getState().selectedDate, "2025-01-01");
+    assert.deepEqual(previews, []);
     input.svg.dispatch("pointermove", pointer(1, 350));
-    assert.equal(controller.getState().selectedDate, "2025-01-03");
+    assert.equal(controller.getState().selectedDate, "2025-01-01");
+    assert.deepEqual(previews, ["2025-01-02/2025-01-03"]);
     input.svg.dispatch("pointerup", pointer(1, 350));
     assert.equal(input.svg.hasPointerCapture(1), false);
+    assert.deepEqual(ranges, ["2025-01-02/2025-01-03"]);
+    assert.equal(previews.at(-1), "clear");
     input.svg.dispatch("pointermove", pointer(1, 150));
-    assert.equal(controller.getState().selectedDate, "2025-01-03");
+    assert.equal(controller.getState().selectedDate, "2025-01-01");
+  });
+
+  it("treats no movement and movement below four pixels as clicks", () => {
+    const input = fixture();
+    const previews: string[] = [];
+    const ranges: string[] = [];
+    const controller = createTimelineCursorController({
+      svg: input.svg as unknown as SVGSVGElement, geometry: input.geometry,
+      initialDate: input.viewModel.horizon.start,
+      getViewport: () => ({ x: 0, width: 300 }), isModalOpen: () => false,
+      onRangePreviewChange: (range) => previews.push(range ? "preview" : "clear"),
+      onVisibleDateRange: (start, end) => ranges.push(`${start}/${end}`),
+    });
+    input.svg.dispatch("pointerdown", pointer(1, 250));
+    assert.equal(controller.getState().selectedDate, "2025-01-01");
+    input.svg.dispatch("pointerup", pointer(1, 250));
+    assert.equal(controller.getState().selectedDate, "2025-01-02");
+    input.svg.dispatch("pointerdown", pointer(2, 250));
+    input.svg.dispatch("pointermove", pointer(2, 253.9));
+    assert.deepEqual(previews, []);
+    input.svg.dispatch("pointerup", pointer(2, 253.9));
+    assert.deepEqual(ranges, []);
+    assert.equal(controller.getState().selectedDate, "2025-01-02");
+  });
+
+  it("commits reversed ranges after crossing four pixels, even if the pointer returns", () => {
+    const input = fixture();
+    const ranges: string[] = [];
+    const previews: string[] = [];
+    const controller = createTimelineCursorController({
+      svg: input.svg as unknown as SVGSVGElement, geometry: input.geometry,
+      initialDate: input.viewModel.horizon.start,
+      getViewport: () => ({ x: 0, width: 300 }), isModalOpen: () => false,
+      onVisibleDateRange: (start, end) => ranges.push(`${start}/${end}`),
+      onRangePreviewChange: (range) => previews.push(range ? `${range.startDate}/${range.endDate}` : "clear"),
+    });
+    input.svg.dispatch("pointerdown", pointer(3, 350));
+    input.svg.dispatch("pointermove", pointer(3, 346));
+    assert.deepEqual(previews, ["2025-01-03/2025-01-03"]);
+    input.svg.dispatch("pointermove", pointer(3, 50));
+    input.svg.dispatch("pointerup", pointer(3, 50));
+    assert.deepEqual(ranges, ["2025-01-01/2025-01-03"]);
+    assert.equal(controller.getState().selectedDate, "2025-01-01");
+    assert.equal(previews.at(-1), "clear");
+    assert.equal(input.svg.hasPointerCapture(3), false);
+  });
+
+  it("honors the active pointer and checks the threshold at pointerup", () => {
+    const input = fixture();
+    const ranges: string[] = [];
+    const controller = createTimelineCursorController({
+      svg: input.svg as unknown as SVGSVGElement, geometry: input.geometry,
+      initialDate: input.viewModel.horizon.start,
+      getViewport: () => ({ x: 0, width: 300 }), isModalOpen: () => false,
+      onVisibleDateRange: (start, end) => ranges.push(`${start}/${end}`),
+    });
+    input.svg.dispatch("pointerdown", pointer(1, 150));
+    input.svg.dispatch("pointerdown", pointer(2, 350));
+    input.svg.dispatch("pointermove", pointer(2, 350));
+    input.svg.dispatch("pointerup", pointer(2, 350));
+    assert.deepEqual(ranges, []);
+    assert.equal(input.svg.hasPointerCapture(1), true);
+    input.svg.dispatch("pointerup", pointer(1, 350));
+    assert.deepEqual(ranges, ["2025-01-01/2025-01-03"]);
+    assert.equal(controller.getState().selectedDate, "2025-01-01");
+  });
+
+  it("clamps a captured drag outside the SVG and clears on cancel and destroy", () => {
+    const input = fixture();
+    const previews: string[] = [];
+    const ranges: string[] = [];
+    const controller = createTimelineCursorController({
+      svg: input.svg as unknown as SVGSVGElement, geometry: input.geometry,
+      initialDate: input.viewModel.horizon.start,
+      getViewport: () => ({ x: 0, width: 300 }), isModalOpen: () => false,
+      onVisibleDateRange: (start, end) => ranges.push(`${start}/${end}`),
+      onRangePreviewChange: (range) => previews.push(range ? `${range.startDate}/${range.endDate}` : "clear"),
+    });
+    input.svg.dispatch("pointerdown", pointer(4, 150));
+    input.svg.dispatch("pointermove", pointer(4, 1000));
+    assert.equal(previews.at(-1), "2025-01-01/2025-01-03");
+    input.svg.dispatch("pointercancel", pointer(4, 1000));
+    assert.equal(previews.at(-1), "clear");
+    assert.equal(input.svg.hasPointerCapture(4), false);
+    assert.deepEqual(ranges, []);
+    input.svg.dispatch("pointerdown", pointer(5, 150));
+    input.svg.dispatch("pointermove", pointer(5, -100));
+    controller.destroy();
+    assert.equal(previews.at(-1), "clear");
+    assert.equal(input.svg.hasPointerCapture(5), false);
   });
 
   it("uses the same x-to-date conversion for axis rows, Team bands, and segments", () => {
@@ -286,9 +384,10 @@ describe("createTimelineCursorController", () => {
     assert.deepEqual(selected, ["2025-01-02", "2025-01-03"]);
     assert.equal(controller.getState().selectedDate, "2025-01-03");
     input.svg.dispatch("pointerdown", pointer(20, -100));
-    assert.equal(controller.getState().selectedDate, "2025-01-01");
     input.svg.dispatch("pointerup", pointer(20, -100));
+    assert.equal(controller.getState().selectedDate, "2025-01-01");
     input.svg.dispatch("pointerdown", pointer(21, 1000));
+    input.svg.dispatch("pointerup", pointer(21, 1000));
     assert.equal(controller.getState().selectedDate, "2025-01-03");
     controller.destroy();
   });
@@ -394,10 +493,14 @@ describe("createTimelineCursorController", () => {
     input.svg.dispatch("pointerdown", pointer(1, 150));
     assert.deepEqual(notified, []);
     input.svg.dispatch("pointermove", pointer(1, 250));
-    assert.deepEqual(notified, ["2025-01-02"]);
-    input.svg.dispatch("pointermove", pointer(1, 250));
+    assert.deepEqual(notified, []);
+    input.svg.dispatch("pointerup", pointer(1, 250));
+    assert.deepEqual(notified, []);
     input.cursorControl.dispatch("keydown", keyboard("ArrowLeft"));
-    assert.deepEqual(notified, ["2025-01-02", "2025-01-01"]);
+    assert.deepEqual(notified, []);
+    input.svg.dispatch("pointerdown", pointer(2, 250));
+    input.svg.dispatch("pointerup", pointer(2, 250));
+    assert.deepEqual(notified, ["2025-01-02"]);
   });
 
   it("maps client coordinates through the current rendered SVG bounds", () => {
@@ -433,6 +536,7 @@ describe("createTimelineCursorController", () => {
     });
 
     input.svg.dispatch("pointerdown", pointer(5, 100));
+    input.svg.dispatch("pointerup", pointer(5, 100));
 
     assert.equal(controller.getState().selectedDate, "2025-01-02");
   });
@@ -453,7 +557,7 @@ describe("createTimelineCursorController", () => {
     input.svg.dispatch("pointercancel", pointer(7, 250));
     assert.equal(input.svg.hasPointerCapture(7), false);
     input.svg.dispatch("pointermove", pointer(7, 350));
-    assert.equal(controller.getState().selectedDate, "2025-01-02");
+    assert.equal(controller.getState().selectedDate, "2025-01-01");
   });
 
   it("falls back safely when pointer capture APIs are unavailable", () => {

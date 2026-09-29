@@ -3,9 +3,14 @@ import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { describe, it } from "node:test";
 import type { TimelineGeometry } from "../../adapters/index.js";
+import { civilDatesInclusive, createCivilDate, type CivilDate, type DomainResult } from "../../domain/index.js";
 import { createTimelineViewportController } from "./createTimelineViewportController.js";
 
 type Listener = (event: unknown) => void;
+function must<T>(result: DomainResult<T>): T {
+  if (!result.ok) throw new Error(JSON.stringify(result.errors));
+  return result.value;
+}
 
 class FakeElement {
   readonly attributes = new Map<string, string>();
@@ -70,21 +75,27 @@ function fixture() {
   const zoomIn = new FakeElement();
   const zoomOut = new FakeElement();
   const reset = new FakeElement();
+  const dates = civilDatesInclusive(must(createCivilDate("2025-01-01")), must(createCivilDate("2025-02-19")));
   const geometry = {
     width: 1000,
     height: 200,
     dayWidth: 20,
-  } as TimelineGeometry;
+    dates: dates.map((date, index) => ({ date, x: index * 20, width: 20 })),
+  } as unknown as TimelineGeometry;
+  let projectionDate: CivilDate = dates[24]!;
   const controller = createTimelineViewportController({
     svg: svg as unknown as SVGSVGElement,
     geometry,
+    getProjectionDate: () => projectionDate,
     controls: {
       zoomIn: zoomIn as unknown as HTMLButtonElement,
       zoomOut: zoomOut as unknown as HTMLButtonElement,
       reset: reset as unknown as HTMLButtonElement,
     },
   });
-  return { svg, zoomIn, zoomOut, reset, geometry, controller };
+  return { svg, zoomIn, zoomOut, reset, geometry, dates, controller,
+    getProjectionDate: () => projectionDate,
+    setProjectionDate: (date: CivilDate) => { projectionDate = date; } };
 }
 
 describe("createTimelineViewportController", () => {
@@ -95,6 +106,7 @@ describe("createTimelineViewportController", () => {
     const controller = createTimelineViewportController({
       svg: input.svg as unknown as SVGSVGElement,
       geometry: input.geometry,
+      getProjectionDate: input.getProjectionDate,
       controls: { zoomIn: input.zoomIn as unknown as HTMLButtonElement,
         zoomOut: input.zoomOut as unknown as HTMLButtonElement,
         reset: input.reset as unknown as HTMLButtonElement },
@@ -125,6 +137,7 @@ describe("createTimelineViewportController", () => {
     const restored = createTimelineViewportController({
       svg: input.svg as unknown as SVGSVGElement,
       geometry: input.geometry,
+      getProjectionDate: input.getProjectionDate,
       controls: {
         zoomIn: input.zoomIn as unknown as HTMLButtonElement,
         zoomOut: input.zoomOut as unknown as HTMLButtonElement,
@@ -137,17 +150,59 @@ describe("createTimelineViewportController", () => {
     assert.equal(input.svg.getAttribute("viewBox"), "200 0 800 200");
   });
 
-  it("zooms in, zooms out, and resets around the viewport center", () => {
+  it("zooms in and out around the Projection date without changing it", () => {
     const input = fixture();
 
     input.zoomIn.dispatch("click");
-    assert.deepEqual(input.controller.getState(), { x: 100, width: 800 });
-    assert.equal(input.svg.getAttribute("viewBox"), "100 0 800 200");
+    assert.deepEqual(input.controller.getState(), { x: 98, width: 800 });
+    assert.equal(input.svg.getAttribute("viewBox"), "98 0 800 200");
     input.zoomOut.dispatch("click");
     assert.deepEqual(input.controller.getState(), { x: 0, width: 1000 });
+    assert.equal(input.getProjectionDate(), input.dates[24]);
     input.zoomIn.dispatch("click");
     input.reset.dispatch("click");
     assert.deepEqual(input.controller.getState(), { x: 0, width: 1000 });
+  });
+
+  it("preserves a non-centered visible Projection date through both zoom directions", () => {
+    const input = fixture();
+    input.setProjectionDate(input.dates[9]!);
+    input.controller.setVisibleDateRange(input.dates[5]!, input.dates[34]!);
+    const before = input.controller.getState();
+    const anchorX = 190;
+    const ratio = (anchorX - before.x) / before.width;
+    input.zoomIn.dispatch("click");
+    const zoomed = input.controller.getState();
+    assert.ok(Math.abs((anchorX - zoomed.x) / zoomed.width - ratio) < 1e-10);
+    input.zoomOut.dispatch("click");
+    const restored = input.controller.getState();
+    assert.ok(Math.abs((anchorX - restored.x) / restored.width - ratio) < 1e-10);
+    assert.equal(input.getProjectionDate(), input.dates[9]);
+  });
+
+  it("anchors at the nearest viewport edge when the Projection date is outside", () => {
+    const input = fixture();
+    input.setProjectionDate(input.dates[0]!);
+    input.controller.setVisibleDateRange(input.dates[20]!, input.dates[39]!);
+    assert.deepEqual(input.controller.getState(), { x: 400, width: 400 });
+    input.zoomIn.dispatch("click");
+    assert.deepEqual(input.controller.getState(), { x: 400, width: 320 });
+    input.setProjectionDate(input.dates[49]!);
+    input.zoomIn.dispatch("click");
+    assert.deepEqual(input.controller.getState(), { x: 464, width: 256 });
+    assert.equal(input.getProjectionDate(), input.dates[49]);
+  });
+
+  it("expands short inclusive ranges to seven days and clamps at horizon edges", () => {
+    const input = fixture();
+    input.controller.setVisibleDateRange(input.dates[10]!, input.dates[12]!);
+    assert.deepEqual(input.controller.getState(), { x: 160, width: 140 });
+    input.controller.setVisibleDateRange(input.dates[1]!, input.dates[0]!);
+    assert.deepEqual(input.controller.getState(), { x: 0, width: 140 });
+    input.controller.setVisibleDateRange(input.dates[49]!, input.dates[48]!);
+    assert.deepEqual(input.controller.getState(), { x: 860, width: 140 });
+    input.controller.setVisibleDateRange(input.dates[8]!, input.dates[16]!);
+    assert.deepEqual(input.controller.getState(), { x: 160, width: 180 });
   });
 
   it("stops zooming at seven visible days", () => {
@@ -158,7 +213,7 @@ describe("createTimelineViewportController", () => {
     }
 
     assert.equal(input.controller.getState().width, 140);
-    assert.ok(Math.abs(input.controller.getState().x - 430) < 1e-9);
+    assert.ok(Math.abs(input.controller.getState().x - 421.4) < 1e-9);
   });
 
   it("resets exactly after a long floating-point interaction sequence", () => {
@@ -184,7 +239,7 @@ describe("createTimelineViewportController", () => {
 
     input.svg.dispatch("pointerdown", pointer(1, 500, false));
     input.svg.dispatch("pointermove", pointer(1, 250, false));
-    assert.deepEqual(input.controller.getState(), { x: 100, width: 800 });
+    assert.deepEqual(input.controller.getState(), { x: 98, width: 800 });
     assert.equal(input.svg.hasPointerCapture(1), false);
 
     input.svg.dispatch("pointerdown", pointer(2, 500, true));
