@@ -1,16 +1,14 @@
 # FlowPlan2 current plan
 
 Current validated baseline:
-`c77558c3e8b2912532afbb8113ac8183fe737c18`
+`80c7e65ba45c7763a49973c389e5f4ae2e905ff9`
 
 This is the operational roadmap for the active trajectory. Durable product and
 architecture rules live in [canon](./canon.md); current implementation facts
 and temporary constraints live in [current canon](./current_canon.md).
 
-Validated 9I Project and Reservation forecast activation forms the baseline.
-The temporal zoom interaction is validated separately. The corrective lot on
-Program/Pas, Reservation progress, colors, and V3 backup remains IN REVIEW
-before Lot 10. Lot 10A has not started.
+The validated baseline includes the Program/Pas, Reservation progress, colors,
+V3 backup, and temporal zoom corrective lots. Lot 10A has not started.
 
 ## Completed
 
@@ -34,20 +32,21 @@ before Lot 10. Lot 10A has not started.
 - 9H Complete planning backup and restore (DONE);
 - 9I Project and Reservation forecast activation (DONE);
 - separate Projection date presentation pass (DONE);
-- anchored temporal zoom and range drag (DONE).
+- anchored temporal zoom and range drag (DONE);
+- usage-driven Program/Pas, Reservation progress, colors, and backup V3 (DONE).
 
 ## Current objective and ordered sub-lots
 
 ```text
 Lot 9I — Project and Reservation forecast activation (DONE)
-Corrective lot — usage-driven Program/Pas and colors (IN REVIEW)
+Corrective lot — usage-driven Program/Pas and colors (DONE)
 Corrective lot — anchored temporal zoom and range drag (DONE)
-Lot 10 — Actuals & History (AFTER REVIEW)
+Lot 10 — Actuals & History (NEXT)
 10A (NEXT — to plan) → 10B → 10C → 10D → 10E
 ```
 
-Lots through 9I and the separate Projection date presentation pass are
-validated. No Lot 10 implementation has started.
+Lots through 9I, the Projection date presentation pass, and both corrective
+lots are validated. No Lot 10 implementation has started.
 
 ## Corrective lot — anchored temporal zoom and range drag
 
@@ -61,14 +60,13 @@ horizon. Shift + drag remains pan. Tooltips resume after the range gesture;
 timeline surfaces suppress native text selection. Viewport state and clamps
 remain in the shared viewport controller and Geometry remains the only
 temporal coordinate system. This lot changes no planning or simulation rule.
-The global validated baseline SHA remains at 9I while the separate Program/Pas
-corrective lot is IN REVIEW; advancing it to this commit would also validate
-that still-open work.
 
 ## Corrective lot — Program/Pas, Reservation progress, colors, backup V3
 
-**Status: IN REVIEW.** Project and Reservation cards manage optional Program
-and Pas values, including normalized creation, case-insensitive reuse, and
+**Status: DONE** — human validated at
+`80c7e65ba45c7763a49973c389e5f4ae2e905ff9`. Project and Reservation
+cards manage optional Program and Pas values, including normalized creation,
+case-insensitive reuse, and
 automatic removal after the last reference disappears. Inactive references
 retain catalog values, but inactive entities do not contribute to forecast
 progress. Reservation progress uses exact requested demand inside the inclusive
@@ -96,8 +94,7 @@ unobserved future trajectories, and cancelling rational factors before
 large products reduced the same full projection to under 0.4 seconds locally.
 The exact planning-result digest matches the pre-fix engine and the fixture
 test guards both output and interaction-scale performance.
-This lot does not begin 10A. Keep the validated baseline SHA unchanged until
-human review closes the lot.
+This lot does not begin 10A.
 
 ## 9I — Activation of Projects and Reservations in the simulation
 

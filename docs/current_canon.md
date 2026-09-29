@@ -9,12 +9,8 @@ active implementation and trajectory. The remaining work is in the
 
 ## Validated implementation baseline
 
-`c77558c3e8b2912532afbb8113ac8183fe737c18` (validated lot 9I Project
-and Reservation forecast activation, with prior lots and the separate
-Projection date presentation pass also validated).
-The temporal zoom interaction is validated separately at
-`08e47fc41ae4ba23c0c6a4db1720e43dffa4802a`; the global baseline stays at
-9I while the Program/Pas corrective lot remains IN REVIEW.
+`80c7e65ba45c7763a49973c389e5f4ae2e905ff9` (validated through the
+Program/Pas and temporal zoom corrective lots, with prior lots also validated).
 
 The active application implements a pure planning projection over an editable
 session, restored from a local backup when available and otherwise initialized
@@ -69,7 +65,7 @@ aggregate of all active Reservation requests. Independent drafts and UI context
 survive a successful toggle. The existing localStorage key is unchanged.
 
 Lot 9A is validated and **DONE** as the original Program/PriorityFamily
-foundation. The current corrective lot extends both optional associations to
+foundation. The validated corrective lot extends both optional associations to
 Reservations and makes catalogs usage-driven across both entity types. An
 inactive reference retains its catalog entry; only active members contribute
 to forecast progress. Cards offer None, an existing value, or a new normalized
@@ -77,7 +73,7 @@ value directly, without separate catalog management. The UI calls
 PriorityFamily « Pas »; the technical name remains. Associations still have no
 effect on planning priority or admission.
 
-The corrective lot is **IN REVIEW**. Programs own a color; an ungrouped
+The corrective lot is validated and **DONE**. Programs own a color; an ungrouped
 Project or Reservation owns its color; a Program member has no hidden own
 color. Cards preview their derived pastel locally until Apply, and frises use
 the exact effective color while keeping their Project/Reservation distinction.
