@@ -8,8 +8,9 @@ import type {
 } from "../../application/index.js";
 import type {
   CivilDate, DomainError, PlanningHorizon, PlanningResult, Portfolio,
-  ProjectId, ReservationId, TeamId,
+  ProjectId, ReservationId, TeamId, WorkingPattern,
 } from "../../domain/index.js";
+import { effectiveColor } from "../../domain/index.js";
 import type { AppElements } from "../renderApp.js";
 import { createProjectEditController } from "../project-edit/createProjectEditController.js";
 import { createProjectCreateController } from "../project-edit/createProjectCreateController.js";
@@ -35,6 +36,7 @@ import { createCursorProgressSurface } from "./renderCursorProgress.js";
 
 export interface TimelineUiProjection {
   readonly portfolio: Portfolio;
+  readonly workingPattern?: WorkingPattern;
   readonly planningResult: PlanningResult;
   readonly horizon: PlanningHorizon;
   readonly viewModel: TimelineViewModel;
@@ -264,7 +266,8 @@ export function createTimelineUiCoordinator(
   const renderCursorMetrics = (date: CivilDate): void => {
     cursorMetricsModel = buildCursorMetricsViewModel(projection.portfolio,
       calculateCursorMetrics({ portfolio: projection.portfolio,
-        planningResult: projection.planningResult, horizon: projection.horizon, selectedDate: date }),
+        planningResult: projection.planningResult, horizon: projection.horizon, selectedDate: date,
+        ...(projection.workingPattern ? { workingPattern: projection.workingPattern } : {}) }),
       projection.viewModel);
     dependencies.renderCursorTeamMetrics(shellNavigation.teamMetricsContainers, cursorMetricsModel.teams);
     if (shellNavigation.globalMetricsContainer) {
@@ -384,12 +387,17 @@ export function createTimelineUiCoordinator(
     destroyControllers();
     projection = nextProjection;
     activeProgressView = snapshot.activeProgressView;
-    dependencies.renderTimeline({ svg: input.elements.svg, geometry: projection.geometry });
+    const colors = new Map<string, string>([
+      ...projection.portfolio.projects.map((project) => [project.id, effectiveColor(projection.portfolio, project)] as const),
+      ...projection.portfolio.reservations.map((reservation) => [reservation.id, effectiveColor(projection.portfolio, reservation)] as const),
+    ]);
+    dependencies.renderTimeline({ svg: input.elements.svg, geometry: projection.geometry, colors });
     diagnosticsController.setDiagnostics(projection.viewModel.diagnostics);
     planningSettingsController.setModel(input.getPlanningSettingsViewModel());
     projectCreateController?.setPortfolio(projection.portfolio);
     reservationCreateController?.setContext(projection.portfolio, projection.horizon);
     shellNavigation = dependencies.renderShellNavigation({
+      colors,
       teamContainer: input.elements.teamPanels,
       teamCreateButton: input.elements.teamCreateButton,
       projectContainer: input.elements.projectList,

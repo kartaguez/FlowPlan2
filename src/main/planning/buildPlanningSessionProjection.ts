@@ -9,11 +9,12 @@ import {
   recomputePlanning,
   type PlanningSessionState,
 } from "../../application/index.js";
-import type { PlanningHorizon, PlanningResult, Portfolio } from "../../domain/index.js";
+import type { PlanningHorizon, PlanningResult, Portfolio, WorkingPattern } from "../../domain/index.js";
 import { createPlanningHorizon } from "../../domain/index.js";
 
 export interface PlanningSessionProjection {
   readonly portfolio: Portfolio;
+  readonly workingPattern: WorkingPattern;
   readonly horizon: PlanningHorizon;
   readonly planningResult: PlanningResult;
   readonly viewModel: TimelineViewModel;
@@ -54,6 +55,7 @@ export function buildPlanningSessionProjection(
   });
   return Object.freeze({
     portfolio: planningInput.portfolio,
+    workingPattern: planningInput.workingPattern,
     horizon: planningInput.horizon,
     planningResult,
     viewModel,

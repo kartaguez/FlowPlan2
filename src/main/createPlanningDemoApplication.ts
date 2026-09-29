@@ -12,7 +12,7 @@ import type { DemoPlanningScenario } from "./demo/createDemoPlanningScenario.js"
 import { createPlanningProjectionDispatcher } from "./planning/createPlanningProjectionDispatcher.js";
 import { buildPlanningSessionProjection } from "./planning/buildPlanningSessionProjection.js";
 import { importPlanningBackup, loadPlanningBackup } from "./planning/planningBackupOperations.js";
-import { encodeFlowplanBackupV2 } from "../application/backup/flowplanBackupV1.js";
+import { encodeFlowplanBackupV3 } from "../application/backup/flowplanBackupV1.js";
 import type { PlanningBackupStore } from "../infrastructure/backup/localPlanningBackup.js";
 
 const DEMO_GEOMETRY_VIEWPORT: TimelineGeometryViewport = Object.freeze({
@@ -44,7 +44,7 @@ export function createPlanningDemoApplication(
     initialProjection: projectionDispatcher.getProjection(),
     initialDate: loaded.state.planning.startDate,
     invalidStartupBackup: loaded.invalid,
-    onExport: () => encodeFlowplanBackupV2(session.getState()),
+    onExport: () => encodeFlowplanBackupV3(session.getState()),
     ...(backupStore ? { onImport: (document: string) => importPlanningBackup({
       document, store: backupStore, preflight,
       confirm: () => elements.planningSettingsControls.container.ownerDocument.defaultView?.confirm(

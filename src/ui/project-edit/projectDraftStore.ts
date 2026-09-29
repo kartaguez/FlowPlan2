@@ -13,7 +13,11 @@ export interface ProjectTeamDraft {
 export interface ProjectDraftValues {
   readonly name: string;
   readonly programId: string;
+  readonly programName: string;
   readonly priorityFamilyId: string;
+  readonly priorityFamilyName: string;
+  readonly color: string;
+  readonly colorChanged: boolean;
   readonly earliestStartDate: string;
   readonly objectiveEndDate: string;
   readonly mandatory: boolean;
@@ -49,7 +53,11 @@ export function projectValuesFromModel(model: ProjectEditViewModel): ProjectDraf
   return {
     name: model.label,
     programId: model.programId ?? "",
+    programName: model.programs.find((program) => program.id === model.programId)?.name ?? "",
     priorityFamilyId: model.priorityFamilyId ?? "",
+    priorityFamilyName: model.priorityFamilies.find((family) => family.id === model.priorityFamilyId)?.name ?? "",
+    color: model.effectiveColor ?? "#4879B8",
+    colorChanged: false,
     earliestStartDate: model.earliestStartDate ?? "",
     objectiveEndDate: model.objectiveEndDate ?? "",
     mandatory: !divergent && model.objectiveEndDate !== undefined &&
@@ -72,6 +80,8 @@ const retainMissingTeam = (team: ProjectTeamDraft, reference?: ProjectTeamDraft)
   reference === undefined || team.enabled || teamDirty(team, reference);
 const globalDirty = (a: ProjectDraftValues, b: ProjectDraftValues): boolean =>
   a.name !== b.name || a.programId !== b.programId ||
+  a.programName !== b.programName || a.priorityFamilyName !== b.priorityFamilyName ||
+  a.color !== b.color ||
   a.priorityFamilyId !== b.priorityFamilyId ||
   a.earliestStartDate !== b.earliestStartDate || a.objectiveEndDate !== b.objectiveEndDate ||
   a.mandatory !== b.mandatory || a.resolution !== b.resolution;
@@ -122,7 +132,14 @@ export function createProjectDraftStore(): ProjectDraftStore {
         ...next,
         name: choose(old.values.name, old.reference.name, next.name),
         programId: choose(old.values.programId, old.reference.programId, next.programId),
+        programName: choose(old.values.programName, old.reference.programName, next.programName),
         priorityFamilyId: choose(old.values.priorityFamilyId, old.reference.priorityFamilyId, next.priorityFamilyId),
+        priorityFamilyName: choose(old.values.priorityFamilyName, old.reference.priorityFamilyName, next.priorityFamilyName),
+        color: old.values.colorChanged ? old.values.color
+          : old.values.programId !== old.reference.programId
+            ? model.programs.find((program) => program.id === old.values.programId)?.color ?? old.values.color
+            : next.color,
+        colorChanged: old.values.colorChanged,
         earliestStartDate: choose(old.values.earliestStartDate, old.reference.earliestStartDate, next.earliestStartDate),
         objectiveEndDate: choose(old.values.objectiveEndDate, old.reference.objectiveEndDate, next.objectiveEndDate),
         mandatory: choose(old.values.mandatory, old.reference.mandatory, next.mandatory),
@@ -133,8 +150,8 @@ export function createProjectDraftStore(): ProjectDraftStore {
       };
       const invalidReference = values.teams.some((team) => !nextTeamIds.has(team.teamId) &&
         retainMissingTeam(team, oldTeams.get(team.teamId))) ||
-        (values.programId !== "" && !model.programs.some((program) => program.id === values.programId)) ||
-        (values.priorityFamilyId !== "" && !model.priorityFamilies.some((family) => family.id === values.priorityFamilyId));
+        (values.programId !== "" && values.programId !== "__new__" && !model.programs.some((program) => program.id === values.programId) && !values.programName) ||
+        (values.priorityFamilyId !== "" && values.priorityFamilyId !== "__new__" && !model.priorityFamilies.some((family) => family.id === values.priorityFamilyId) && !values.priorityFamilyName);
       entries.set(id, { ...old, reference: next, values, model, invalidReference });
     },
     isDirty: (id) => {

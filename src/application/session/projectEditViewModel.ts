@@ -14,7 +14,8 @@ export interface ProjectEditViewModel {
   readonly label: string;
   readonly programId?: ProgramId;
   readonly priorityFamilyId?: PriorityFamilyId;
-  readonly programs: readonly Readonly<{ id: ProgramId; name: string }>[];
+  readonly effectiveColor?: string;
+  readonly programs: readonly Readonly<{ id: ProgramId; name: string; color?: string }>[];
   readonly priorityFamilies: readonly Readonly<{ id: PriorityFamilyId; name: string }>[];
   readonly earliestStartDate?: CivilDate;
   readonly objectiveEndDate?: CivilDate;
@@ -67,7 +68,8 @@ export function buildProjectEditViewModel(
     label: project.name,
     ...(project.programId === undefined ? {} : { programId: project.programId }),
     ...(project.priorityFamilyId === undefined ? {} : { priorityFamilyId: project.priorityFamilyId }),
-    programs: Object.freeze(state.portfolio.programs.map((program) => Object.freeze({ id: program.id, name: program.name }))),
+    effectiveColor: project.programId === undefined ? project.ownColor! : state.portfolio.programs.find((program) => program.id === project.programId)!.color,
+    programs: Object.freeze(state.portfolio.programs.map((program) => Object.freeze({ id: program.id, name: program.name, color: program.color }))),
     priorityFamilies: Object.freeze(state.portfolio.priorityFamilies.map((family) => Object.freeze({ id: family.id, name: family.name }))),
     ...(project.earliestStartDate === undefined
       ? {}

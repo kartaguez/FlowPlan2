@@ -12,6 +12,12 @@ export interface ReservationTeamDraft {
 
 export interface ReservationDraftValues {
   readonly name: string;
+  readonly programId: string;
+  readonly programName: string;
+  readonly priorityFamilyId: string;
+  readonly priorityFamilyName: string;
+  readonly color: string;
+  readonly colorChanged: boolean;
   readonly startDate: string;
   readonly endDate: string;
   readonly teams: readonly ReservationTeamDraft[];
@@ -42,6 +48,11 @@ export interface ReservationDraftStore {
 export function reservationValuesFromModel(model: ReservationEditViewModel): ReservationDraftValues {
   return {
     name: model.name, startDate: model.startDate, endDate: model.endDate,
+    programId: model.programId ?? "",
+    programName: model.programs?.find((program) => program.id === model.programId)?.name ?? "",
+    priorityFamilyId: model.priorityFamilyId ?? "",
+    priorityFamilyName: model.priorityFamilies?.find((family) => family.id === model.priorityFamilyId)?.name ?? "",
+    color: model.effectiveColor ?? "#4879B8", colorChanged: false,
     teams: model.teamAllocations.map((team) => ({
       teamId: team.teamId, enabled: team.enabled, kind: team.kind,
       value: team.value, ...(team.exact === undefined ? {} : { exact: team.exact }),
@@ -100,6 +111,15 @@ export function createReservationDraftStore(): ReservationDraftStore {
       });
       const values: ReservationDraftValues = {
         name: choose(old.values.name, old.reference.name, next.name),
+        programId: choose(old.values.programId, old.reference.programId, next.programId),
+        programName: choose(old.values.programName, old.reference.programName, next.programName),
+        priorityFamilyId: choose(old.values.priorityFamilyId, old.reference.priorityFamilyId, next.priorityFamilyId),
+        priorityFamilyName: choose(old.values.priorityFamilyName, old.reference.priorityFamilyName, next.priorityFamilyName),
+        color: old.values.colorChanged ? old.values.color
+          : old.values.programId !== old.reference.programId
+            ? model.programs?.find((program) => program.id === old.values.programId)?.color ?? old.values.color
+            : next.color,
+        colorChanged: old.values.colorChanged,
         startDate: choose(old.values.startDate, old.reference.startDate, next.startDate),
         endDate: choose(old.values.endDate, old.reference.endDate, next.endDate),
         teams: [...teams, ...old.values.teams.filter((team) =>
@@ -107,7 +127,9 @@ export function createReservationDraftStore(): ReservationDraftStore {
           retainMissingTeam(team, oldTeams.get(team.teamId)))],
       };
       const invalidReference = values.teams.some((team) => !nextTeamIds.has(team.teamId) &&
-        retainMissingTeam(team, oldTeams.get(team.teamId)));
+        retainMissingTeam(team, oldTeams.get(team.teamId))) ||
+        (values.programId !== "" && values.programId !== "__new__" && !model.programs?.some((program) => program.id === values.programId) && !values.programName) ||
+        (values.priorityFamilyId !== "" && values.priorityFamilyId !== "__new__" && !model.priorityFamilies?.some((family) => family.id === values.priorityFamilyId) && !values.priorityFamilyName);
       entries.set(id, { ...old, reference: next, values, model, invalidReference });
     },
     isDirty: (id) => {
@@ -115,6 +137,11 @@ export function createReservationDraftStore(): ReservationDraftStore {
       if (!entry) return false;
       const references = new Map(entry.reference.teams.map((team) => [team.teamId, team]));
       return entry.values.name !== entry.reference.name ||
+        entry.values.programId !== entry.reference.programId ||
+        entry.values.programName !== entry.reference.programName ||
+        entry.values.priorityFamilyId !== entry.reference.priorityFamilyId ||
+        entry.values.priorityFamilyName !== entry.reference.priorityFamilyName ||
+        entry.values.color !== entry.reference.color ||
         entry.values.startDate !== entry.reference.startDate ||
         entry.values.endDate !== entry.reference.endDate ||
         entry.values.teams.some((team) => {

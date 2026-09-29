@@ -180,10 +180,10 @@ describe("renderTimelineShellNavigation", () => {
     assert.deepEqual(
       projects.childNodes.map((item) => item.childNodes[0]!.childNodes[1]!.childNodes[1]!.textContent),
       [
-        "Program Phoenix · PaS Strategic",
-        "Program Phoenix · PaS —",
-        "Program — · PaS Regulatory",
-        "Program — · PaS —",
+        "Program Phoenix · pas Strategic",
+        "Program Phoenix · pas —",
+        "Program — · pas Regulatory",
+        "Program — · pas —",
       ],
     );
     teams.childNodes[2]!.childNodes[0]!.childNodes[1]!.click();

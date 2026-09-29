@@ -1,5 +1,7 @@
 import { compareCivilDates, type CivilDate } from "../model/date.js";
 import type { Capacity, ReservationId, ReservationRatio, TeamId } from "../model/scalars.js";
+import type { ProgramId, PriorityFamilyId } from "../model/scalars.js";
+import { createColor, suggestColor, type Color } from "../model/color.js";
 import { error, failure, success, type DomainResult } from "../model/result.js";
 
 export type ReservationAmount =
@@ -15,6 +17,9 @@ export interface Reservation {
   readonly id: ReservationId;
   readonly name: string;
   readonly isActive: boolean;
+  readonly programId?: ProgramId;
+  readonly priorityFamilyId?: PriorityFamilyId;
+  readonly ownColor?: Color;
   readonly startDate: CivilDate;
   readonly endDate: CivilDate;
   readonly teamAllocations: readonly ReservationTeamAllocation[];
@@ -31,6 +36,9 @@ export function createReservation(input: {
   readonly id: ReservationId;
   readonly name: string;
   readonly isActive?: boolean;
+  readonly programId?: ProgramId;
+  readonly priorityFamilyId?: PriorityFamilyId;
+  readonly ownColor?: Color;
   readonly startDate: CivilDate;
   readonly endDate: CivilDate;
   readonly teamAllocations: readonly ReservationTeamAllocation[];
@@ -66,8 +74,14 @@ export function createReservation(input: {
     teamIds.add(allocation.teamId);
   });
   if (errors.length > 0) return failure(errors);
+  if (input.programId !== undefined && input.ownColor !== undefined) return failure([error("PROGRAM_OWN_COLOR", "ownColor", "Reservation in Program cannot retain an own color.")]);
+  const ownColor = input.programId === undefined ? createColor(input.ownColor ?? suggestColor(input.id), "ownColor") : undefined;
+  if (ownColor && !ownColor.ok) return ownColor;
   return success(
     Object.freeze({
+      ...(input.programId === undefined ? {} : { programId: input.programId }),
+      ...(input.priorityFamilyId === undefined ? {} : { priorityFamilyId: input.priorityFamilyId }),
+      ...(ownColor?.ok ? { ownColor: ownColor.value } : {}),
       id: input.id,
       name,
       isActive: input.isActive ?? true,

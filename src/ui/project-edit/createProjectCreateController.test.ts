@@ -45,7 +45,7 @@ function fixture(teams = true, confirm = true) {
   controls.container.hidden = true;
   const initial = createDemoPlanningScenario().portfolio;
   const portfolio = teams ? initial : must(createPortfolio({ ...initial, teams: [], projects: [],
-    priorityOrder: [], reservations: [] }));
+    priorityOrder: [], reservations: [], programs: [], priorityFamilies: [] }));
   const commands: CreateProjectCommand[] = [];
   let closed = 0;
   const controller = createProjectCreateController({

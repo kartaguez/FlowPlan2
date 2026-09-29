@@ -79,7 +79,7 @@ describe("ReservationEditController", () => {
   });
   it("clears value when allocation mode changes instead of converting it", () => {
     const input = fixture(); input.controller.setReservation(model);
-    const select = descendants(input.controls.fields, "select")[0]!; const values = descendants(input.controls.fields, "input").filter((field) => field.type === "text");
+    const select = descendants(input.controls.fields, "select").find((item) => item.value === "ratio")!; const values = descendants(input.controls.fields, "input").filter((field) => field.type === "text");
     select.value = "fixed-daily"; select.dispatch("change"); assert.equal(values.at(-2)!.value, "");
   });
   it("shows a local error and does not dispatch reversed dates", () => {

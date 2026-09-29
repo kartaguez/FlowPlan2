@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { createProjectId, createTeamId, type DomainResult } from "../../domain/index.js";
+import { createProjectId, createProgramId, createTeamId, type DomainResult } from "../../domain/index.js";
 import type { ProjectEditViewModel } from "../../application/index.js";
 import { createProjectDraftStore } from "./projectDraftStore.js";
 
@@ -57,6 +57,21 @@ describe("ProjectDraftStore", () => {
     store.rebase(a, model(a));
     assert.equal(store.get(a)?.values.name, "Local");
     assert.equal(store.isDirty(a), true);
+  });
+  it("retains a local vanished Program choice and rebases an untouched shared color", () => {
+    const programId = must(createProgramId("program-a"));
+    const program = { id: programId, name: "Alpha", color: "#123456" };
+    const store = createProjectDraftStore();
+    const initial = store.initialize(a, { ...model(a), effectiveColor: "#123456", programs: [program] });
+    store.update(a, { ...initial.values, name: "Local", programId, programName: "Alpha" });
+    store.rebase(a, { ...model(a), effectiveColor: "#ABCDEF", programs: [{ ...program, color: "#ABCDEF" }] });
+    assert.equal(store.get(a)?.values.color, "#ABCDEF");
+    store.update(a, { ...store.get(a)!.values, programId, programName: "Alpha",
+      color: "#445566", colorChanged: true });
+    store.rebase(a, { ...model(a), effectiveColor: "#778899", programs: [] });
+    assert.equal(store.get(a)?.invalidReference, false);
+    assert.equal(store.get(a)?.values.programName, "Alpha");
+    assert.equal(store.get(a)?.values.color, "#445566");
   });
   it("blocks a structurally vanished active Team without dropping its local draft", () => {
     const store = createProjectDraftStore();

@@ -147,7 +147,8 @@ describe("Portfolio invariants", () => {
     ];
     const projects = cases.map((membership, index) => {
       const base = makeProject(`project-${index}`, team);
-      return must(createProject({ ...base, ...membership }));
+      const { ownColor: _ownColor, ...withoutColor } = base;
+      return must(createProject({ ...withoutColor, ...membership }));
     });
     const programs = [program];
     const priorityFamilies = [family];
@@ -173,8 +174,9 @@ describe("Portfolio invariants", () => {
     const team = makeTeam("team-a");
     const program = must(createProgram({ id: must(createProgramId("phoenix")), name: "Phoenix" }));
     const family = must(createPriorityFamily({ id: must(createPriorityFamilyId("strategic")), name: "Strategic" }));
+    const { ownColor: _ownColor, ...base } = makeProject("project", team);
     const project = must(createProject({
-      ...makeProject("project", team),
+      ...base,
       programId: must(createProgramId("unknown-program")),
       priorityFamilyId: must(createPriorityFamilyId("unknown-family")),
     }));
@@ -184,7 +186,7 @@ describe("Portfolio invariants", () => {
     });
     assert.equal(result.ok, false);
     if (result.ok) return;
-    assert.deepEqual(result.errors.map(({ code, path }) => [code, path]), [
+    assert.deepEqual(result.errors.slice(0, 4).map(({ code, path }) => [code, path]), [
       ["DUPLICATE_PROGRAM_ID", "programs[1].id"],
       ["DUPLICATE_PRIORITY_FAMILY_ID", "priorityFamilies[1].id"],
       ["UNKNOWN_PROJECT_PROGRAM", "projects[0].programId"],

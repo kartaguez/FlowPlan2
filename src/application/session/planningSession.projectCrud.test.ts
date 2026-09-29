@@ -84,9 +84,10 @@ describe("PlanningSession Project lifecycle", () => {
     const generator = createProjectIdGenerator(() => [occupied]);
     assert.equal(generator.next(), "project-session-2");
     const emptyPortfolio = must(createPortfolio({ ...initial.portfolio,
-      projects: [], priorityOrder: [] }));
+      projects: [], priorityOrder: [], programs: [], priorityFamilies: [] }));
     const session = createPlanningSession({ ...initial, portfolio: emptyPortfolio });
-    const result = session.dispatch(command());
+    const { programId: _programId, priorityFamilyId: _familyId, ...ungrouped } = command();
+    const result = session.dispatch(ungrouped);
     assert.equal(result.ok, true);
     if (!result.ok) return;
     assert.equal(result.state.portfolio.projects.length, 1);

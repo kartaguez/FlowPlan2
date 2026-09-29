@@ -270,11 +270,15 @@ describe("Phase 2A planning engine", () => {
     const program = must(createProgram({ id: must(createProgramId("phoenix")), name: "Phoenix" }));
     const family = must(createPriorityFamily({ id: must(createPriorityFamilyId("strategic")), name: "Strategic" }));
     const baseline = makeInput([team], [first, second], "2025-01-01", "2025-01-02");
+    const withMembership = (project: Project, associated: boolean) => {
+      const { ownColor: _ownColor, ...base } = project;
+      return must(createProject({ ...base, ...(associated ? { programId: program.id, priorityFamilyId: family.id } : { ownColor: project.ownColor! }) }));
+    };
     const portfolioWith = (associatedFirst: boolean) => must(createPortfolio({
       teams: [team],
       projects: [
-        must(createProject({ ...first, ...(associatedFirst ? { programId: program.id, priorityFamilyId: family.id } : {}) })),
-        must(createProject({ ...second, ...(!associatedFirst ? { programId: program.id, priorityFamilyId: family.id } : {}) })),
+        withMembership(first, associatedFirst),
+        withMembership(second, !associatedFirst),
       ],
       programs: [program], priorityFamilies: [family],
       priorityOrder: [first.id, second.id], reservations: [],

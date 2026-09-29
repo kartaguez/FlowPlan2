@@ -69,7 +69,7 @@ describe("planning backup operations", () => {
     assert.equal(reloads, 1);
     const loaded = loadPlanningBackup(store, demo, () => {});
     assert.equal(loaded.invalid, false);
-    assert.equal(JSON.parse(store.value()!).version, 2);
+    assert.equal(JSON.parse(store.value()!).version, 3);
     assert.ok(loaded.state.portfolio.projects.every((project) => project.isActive));
     assert.ok(loaded.state.portfolio.reservations.every((reservation) => reservation.isActive));
     assert.deepEqual(JSON.parse(encodeFlowplanBackupV1(loaded.state)).data, JSON.parse(document).data);
@@ -89,7 +89,7 @@ describe("planning backup operations", () => {
       reload: () => { reloads += 1; } }), "imported");
     assert.equal(store.writes(), 1);
     assert.equal(reloads, 1);
-    assert.equal(JSON.parse(store.value()!).version, 2);
+    assert.equal(JSON.parse(store.value()!).version, 3);
     const restored = decodeFlowplanBackup(store.value()!);
     assert.deepEqual(restored.portfolio.projects.map((project) => project.isActive),
       session.getState().portfolio.projects.map((project) => project.isActive));

@@ -234,8 +234,8 @@ describe("ProjectEditController", () => {
     assert.equal(field(input.fields, "project.priorityFamilyId").value, strategicId);
     const programOptions = field(input.fields, "project.programId").childNodes;
     const familyOptions = field(input.fields, "project.priorityFamilyId").childNodes;
-    assert.deepEqual(programOptions.map(({ value, textContent }) => [value, textContent]), [["", "None"], [phoenixId, "Phoenix"]]);
-    assert.deepEqual(familyOptions.map(({ value, textContent }) => [value, textContent]), [["", "None"], [strategicId, "Strategic"]]);
+    assert.deepEqual(programOptions.map(({ value, textContent }) => [value, textContent]), [["", "None"], [phoenixId, "Phoenix"], ["__new__", "New…"]]);
+    assert.deepEqual(familyOptions.map(({ value, textContent }) => [value, textContent]), [["", "None"], [strategicId, "Strategic"], ["__new__", "New…"]]);
     assert.equal(elements.some((element) => element.name === "project.priority"), false);
     assert.equal(field(input.fields, "project.earliestStartDate").value, "2025-01-02");
     assert.equal(

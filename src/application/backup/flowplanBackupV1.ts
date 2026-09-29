@@ -8,7 +8,7 @@ import {
   createTeam, createTeamCapacitySchedule, createTeamId, createWorkingPattern,
   dailyCapFromSerialized, remainingWorkloadFromSerialized,
   reservationRatioFromSerialized, serializeQuantity, unavailabilityRatioFromSerialized,
-  type DomainQuantity, type DomainResult,
+  type DomainQuantity, type DomainResult, createColor, suggestColor,
 } from "../../domain/index.js";
 
 export class InvalidFlowplanBackup extends Error {
@@ -52,7 +52,7 @@ function quantity<T extends DomainQuantity>(value: unknown, path: string, parse:
   return parsed;
 }
 
-function encodeFlowplanBackupVersion(state: PlanningSessionState, version: 1 | 2, exportedAt: string): string {
+function encodeFlowplanBackupVersion(state: PlanningSessionState, version: 1 | 2 | 3, exportedAt: string): string {
   const data = {
     planning: {
       startDate: state.planning.startDate, endDate: state.planning.endDate,
@@ -72,8 +72,9 @@ function encodeFlowplanBackupVersion(state: PlanningSessionState, version: 1 | 2
       })),
       projects: state.portfolio.projects.map((project) => ({
         id: project.id, name: project.name,
-        ...(version === 2 ? { isActive: project.isActive } : {}),
+        ...(version >= 2 ? { isActive: project.isActive } : {}),
         ...(project.programId === undefined ? {} : { programId: project.programId }),
+        ...(version === 3 && project.programId === undefined ? { ownColor: project.ownColor } : {}),
         ...(project.priorityFamilyId === undefined ? {} : { priorityFamilyId: project.priorityFamilyId }),
         ...(project.earliestStartDate === undefined ? {} : { earliestStartDate: project.earliestStartDate }),
         ...(project.objectiveEndDate === undefined ? {} : { objectiveEndDate: project.objectiveEndDate }),
@@ -83,12 +84,15 @@ function encodeFlowplanBackupVersion(state: PlanningSessionState, version: 1 | 2
           ...(r.dailyCap === undefined ? {} : { dailyCap: serializeQuantity(r.dailyCap) }),
         })),
       })),
-      programs: state.portfolio.programs.map((p) => ({ id: p.id, name: p.name })),
+      programs: state.portfolio.programs.map((p) => ({ id: p.id, name: p.name, ...(version === 3 ? { color: p.color } : {}) })),
       priorityFamilies: state.portfolio.priorityFamilies.map((p) => ({ id: p.id, name: p.name })),
       priorityOrder: [...state.portfolio.priorityOrder],
       reservations: state.portfolio.reservations.map((r) => ({
         id: r.id, name: r.name, startDate: r.startDate, endDate: r.endDate,
-        ...(version === 2 ? { isActive: r.isActive } : {}),
+        ...(version >= 2 ? { isActive: r.isActive } : {}),
+        ...(version === 3 && r.programId !== undefined ? { programId: r.programId } : {}),
+        ...(version === 3 && r.priorityFamilyId !== undefined ? { priorityFamilyId: r.priorityFamilyId } : {}),
+        ...(version === 3 && r.programId === undefined ? { ownColor: r.ownColor } : {}),
         teamAllocations: r.teamAllocations.map((a) => ({ teamId: a.teamId, amount: a.amount.kind === "ratio"
           ? { kind: "ratio", ratio: serializeQuantity(a.amount.ratio) }
           : { kind: "fixed-daily", dailyCapacity: serializeQuantity(a.amount.dailyCapacity) } })),
@@ -106,12 +110,21 @@ export function encodeFlowplanBackupV2(state: PlanningSessionState, exportedAt: 
   return encodeFlowplanBackupVersion(state, 2, exportedAt);
 }
 
+export function encodeFlowplanBackupV3(state: PlanningSessionState, exportedAt: string = new Date().toISOString()): string {
+  return encodeFlowplanBackupVersion(state, 3, exportedAt);
+}
+
+function repairedColor(value: unknown, key: string, used: readonly string[]): string {
+  if (typeof value === "string") { const result = createColor(value); if (result.ok) return result.value; }
+  return suggestColor(key, used);
+}
+
 function boolean(value: unknown, path: string): boolean {
   if (typeof value !== "boolean") throw new InvalidFlowplanBackup(`${path} must be a boolean.`);
   return value;
 }
 
-function decodeFlowplanBackupVersion(text: string, version: 1 | 2): PlanningSessionState {
+function decodeFlowplanBackupVersion(text: string, version: 1 | 2 | 3): PlanningSessionState {
   let parsed: unknown;
   try { parsed = JSON.parse(text); } catch { throw new InvalidFlowplanBackup("Invalid JSON."); }
   const envelope = object(parsed, "backup", ["format", "version", "exportedAt", "data"]);
@@ -143,16 +156,26 @@ function decodeFlowplanBackupVersion(text: string, version: 1 | 2): PlanningSess
     return valid(createTeam({ id: valid(createTeamId(string(t.id, "team.id"))), name: name(t.name, "team.name"),
       capacitySchedule: valid(createTeamCapacitySchedule({ periods, exceptions })) }));
   });
+  const programColors: string[] = [];
   const programs = array(source.programs, "programs").map((v) => {
-    const p = object(v, "program", ["id", "name"]);
-    return valid(createProgram({ id: valid(createProgramId(string(p.id, "program.id"))), name: name(p.name, "program.name") }));
+    const p = object(v, "program", ["id", "name"], version === 3 ? ["color"] : []);
+    const id = valid(createProgramId(string(p.id, "program.id")));
+    const color = repairedColor(p.color, id, programColors);
+    programColors.push(color);
+    return valid(createProgram({ id, name: name(p.name, "program.name"), color }));
   });
   const priorityFamilies = array(source.priorityFamilies, "priorityFamilies").map((v) => {
     const p = object(v, "priorityFamily", ["id", "name"]);
     return valid(createPriorityFamily({ id: valid(createPriorityFamilyId(string(p.id, "priorityFamily.id"))), name: name(p.name, "priorityFamily.name") }));
   });
+  const usedColors = [...programColors];
+  const repairOwnColor = (value: unknown, key: string): string => {
+    const color = repairedColor(value, key, usedColors);
+    usedColors.push(color);
+    return color;
+  };
   const projects = array(source.projects, "projects").map((v) => {
-    const p = object(v, "project", ["id", "name", "requirements", ...(version === 2 ? ["isActive"] : [])], ["programId", "priorityFamilyId", "earliestStartDate", "objectiveEndDate", "mandatoryDeadline"]);
+    const p = object(v, "project", ["id", "name", "requirements", ...(version >= 2 ? ["isActive"] : [])], ["programId", "priorityFamilyId", "earliestStartDate", "objectiveEndDate", "mandatoryDeadline", ...(version === 3 ? ["ownColor"] : [])]);
     const requirements = array(p.requirements, "requirements").map((v) => {
       const r = object(v, "requirement", ["teamId", "remainingWorkload"], ["dailyCap"]);
       return valid(createProjectTeamRequirement({ teamId: valid(createTeamId(string(r.teamId, "requirement.teamId"))),
@@ -160,15 +183,15 @@ function decodeFlowplanBackupVersion(text: string, version: 1 | 2): PlanningSess
         ...(r.dailyCap === undefined ? {} : { dailyCap: quantity(r.dailyCap, "requirement.dailyCap", dailyCapFromSerialized) }) }));
     });
     return valid(createProject({ id: valid(createProjectId(string(p.id, "project.id"))), name: name(p.name, "project.name"), requirements,
-      isActive: version === 2 ? boolean(p.isActive, "project.isActive") : true,
-      ...(p.programId === undefined ? {} : { programId: valid(createProgramId(string(p.programId, "project.programId"))) }),
+      isActive: version >= 2 ? boolean(p.isActive, "project.isActive") : true,
+      ...(p.programId === undefined ? { ownColor: repairOwnColor(p.ownColor, String(p.id)) } : { programId: valid(createProgramId(string(p.programId, "project.programId"))) }),
       ...(p.priorityFamilyId === undefined ? {} : { priorityFamilyId: valid(createPriorityFamilyId(string(p.priorityFamilyId, "project.priorityFamilyId"))) }),
       ...(p.earliestStartDate === undefined ? {} : { earliestStartDate: date(p.earliestStartDate, "project.earliestStartDate") }),
       ...(p.objectiveEndDate === undefined ? {} : { objectiveEndDate: date(p.objectiveEndDate, "project.objectiveEndDate") }),
       ...(p.mandatoryDeadline === undefined ? {} : { mandatoryDeadline: date(p.mandatoryDeadline, "project.mandatoryDeadline") }) }));
   });
   const reservations = array(source.reservations, "reservations").map((v) => {
-    const r = object(v, "reservation", ["id", "name", "startDate", "endDate", "teamAllocations", ...(version === 2 ? ["isActive"] : [])]);
+    const r = object(v, "reservation", ["id", "name", "startDate", "endDate", "teamAllocations", ...(version >= 2 ? ["isActive"] : [])], version === 3 ? ["programId", "priorityFamilyId", "ownColor"] : []);
     const teamAllocations = array(r.teamAllocations, "teamAllocations").map((v) => {
       const a = object(v, "allocation", ["teamId", "amount"]);
       const rawAmount = object(a.amount, "amount", ["kind"], ["ratio", "dailyCapacity"]);
@@ -183,11 +206,16 @@ function decodeFlowplanBackupVersion(text: string, version: 1 | 2): PlanningSess
       return valid(createReservationTeamAllocation({ teamId: valid(createTeamId(string(a.teamId, "allocation.teamId"))), amount }));
     });
     return valid(createReservation({ id: valid(createReservationId(string(r.id, "reservation.id"))), name: name(r.name, "reservation.name"),
-      isActive: version === 2 ? boolean(r.isActive, "reservation.isActive") : true,
+      isActive: version >= 2 ? boolean(r.isActive, "reservation.isActive") : true,
+      ...(r.programId === undefined ? { ownColor: repairOwnColor(r.ownColor, String(r.id)) } : { programId: valid(createProgramId(string(r.programId, "reservation.programId"))) }),
+      ...(r.priorityFamilyId === undefined ? {} : { priorityFamilyId: valid(createPriorityFamilyId(string(r.priorityFamilyId, "reservation.priorityFamilyId"))) }),
       startDate: date(r.startDate, "reservation.startDate"), endDate: date(r.endDate, "reservation.endDate"), teamAllocations }));
   });
   const priorityOrder = array(source.priorityOrder, "priorityOrder").map((v) => valid(createProjectId(string(v, "priorityOrder.id"))));
-  const portfolio = valid(createPortfolio({ teams, projects, programs, priorityFamilies, priorityOrder, reservations }));
+  const usedPrograms = new Set([...projects.map((p) => p.programId), ...reservations.map((r) => r.programId)]);
+  const usedFamilies = new Set([...projects.map((p) => p.priorityFamilyId), ...reservations.map((r) => r.priorityFamilyId)]);
+  const portfolio = valid(createPortfolio({ teams, projects, programs: programs.filter((p) => usedPrograms.has(p.id)),
+    priorityFamilies: priorityFamilies.filter((p) => usedFamilies.has(p.id)), priorityOrder, reservations }));
   return Object.freeze({ portfolio, planning: Object.freeze({ startDate: horizon.start, endDate: horizon.end, workingPattern, maxParallelProjects }) });
 }
 
@@ -199,6 +227,6 @@ export function decodeFlowplanBackup(text: string): PlanningSessionState {
   let envelope: unknown;
   try { envelope = JSON.parse(text); } catch { throw new InvalidFlowplanBackup("Invalid JSON."); }
   const source = object(envelope, "backup", ["format", "version", "exportedAt", "data"]);
-  if (source.version !== 1 && source.version !== 2) throw new InvalidFlowplanBackup("Unsupported version.");
+  if (source.version !== 1 && source.version !== 2 && source.version !== 3) throw new InvalidFlowplanBackup("Unsupported version.");
   return decodeFlowplanBackupVersion(text, source.version);
 }

@@ -3,13 +3,15 @@ import type {
   TimelineViewModel,
 } from "../../adapters/index.js";
 import type { ProjectId, ReservationId, TeamId } from "../../domain/index.js";
-import { createSettingsIconButton } from "../createSettingsIconButton.js";
 import { projectColorIndex } from "./projectVisualIdentity.js";
+import { createSettingsIconButton } from "../createSettingsIconButton.js";
 
 export interface ReservationNavigationItem {
   readonly id: ReservationId;
   readonly name: string;
   readonly isActive: boolean;
+  readonly programName?: string;
+  readonly priorityFamilyName?: string;
 }
 
 export interface ProjectNavigationItem {
@@ -35,6 +37,7 @@ export interface TimelineShellNavigation {
 }
 
 export interface RenderTimelineShellNavigationInput {
+  readonly colors?: ReadonlyMap<string, string>;
   readonly teamContainer: HTMLElement;
   readonly teamCreateButton: HTMLButtonElement;
   readonly projectContainer: HTMLElement;
@@ -130,7 +133,9 @@ export function renderTimelineShellNavigation(
     const programName = metadata.programName ?? "—";
     const priorityFamilyName = metadata.priorityFamilyName ?? "—";
     const item = document.createElement("li");
-    item.className = `project-sidebar-item project-sidebar-item--color-${projectColorIndex(project.id)}`;
+    item.className = input.colors ? "project-sidebar-item" : `project-sidebar-item project-sidebar-item--color-${projectColorIndex(project.id)}`;
+    const color = input.colors?.get(project.id);
+    if (color) item.setAttribute("style", `--project-accent: ${color}`);
     item.classList.toggle("portfolio-card--inactive", !metadata.isActive);
     item.dataset.projectId = project.id;
     const button = document.createElement("button");
@@ -167,9 +172,9 @@ export function renderTimelineShellNavigation(
     listeners.push({ button: activeButton, listener: onActiveClick });
     const grouping = document.createElement("span");
     grouping.className = "project-sidebar-grouping";
-    grouping.textContent = `Program ${programName} · PaS ${priorityFamilyName}`;
+    grouping.textContent = `Program ${programName} · pas ${priorityFamilyName}`;
     button.append(title, grouping);
-    button.setAttribute("aria-label", `Toggle project ${project.label}, Program ${programName}, PaS ${priorityFamilyName}`);
+    button.setAttribute("aria-label", `Toggle project ${project.label}, Program ${programName}, pas ${priorityFamilyName}`);
     const listener = () => input.onProjectSelect(project.id);
     button.addEventListener("click", listener);
     listeners.push({ button, listener });
@@ -196,6 +201,8 @@ export function renderTimelineShellNavigation(
   const reservationItems = input.reservations.map((reservation) => {
     const item = document.createElement("li");
     item.className = "project-sidebar-item reservation-sidebar-item";
+    const color = input.colors?.get(reservation.id);
+    if (color) item.setAttribute("style", `--project-accent: ${color}`);
     item.classList.toggle("portfolio-card--inactive", !reservation.isActive);
     item.dataset.reservationId = reservation.id;
     const button = document.createElement("button");
@@ -207,8 +214,14 @@ export function renderTimelineShellNavigation(
     host.id = `reservation-card-${reservation.id}`;
     host.hidden = true;
     button.setAttribute("aria-controls", host.id);
-    button.textContent = reservation.name;
-    button.setAttribute("aria-label", `Edit reservation ${reservation.name}`);
+    const title = document.createElement("span");
+    title.className = "project-sidebar-title";
+    title.textContent = reservation.name;
+    const grouping = document.createElement("span");
+    grouping.className = "project-sidebar-grouping";
+    grouping.textContent = `Program ${reservation.programName ?? "—"} · pas ${reservation.priorityFamilyName ?? "—"}`;
+    button.append(title, grouping);
+    button.setAttribute("aria-label", `Edit reservation ${reservation.name}, Program ${reservation.programName ?? "—"}, pas ${reservation.priorityFamilyName ?? "—"}`);
     const listener = () => input.onReservationSelect(reservation.id);
     button.addEventListener("click", listener);
     listeners.push({ button, listener });

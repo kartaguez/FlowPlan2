@@ -204,6 +204,10 @@ h1 { margin-bottom: 0; font-size: 2rem; letter-spacing: -0.04em; }
 }
 
 .project-sidebar-item { min-width: 0; border-radius: var(--fp-radius-card); box-shadow: var(--fp-shadow-card); }
+.project-sidebar-item > .portfolio-card-content,
+.project-sidebar-item > .project-sidebar-header > .project-sidebar-button {
+  background: color-mix(in srgb, var(--project-accent, #ffffff) 10%, white);
+}
 .project-sidebar-item:not(.portfolio-card--expanded) > .project-sidebar-header { border-left: 4px solid var(--project-accent, var(--fp-border)); border-radius: var(--fp-radius-card); }
 .project-sidebar-title { min-width: 0; overflow-wrap: anywhere; font-weight: 700; }
 .project-sidebar-button[aria-expanded="true"] { border-radius: var(--fp-radius-card) var(--fp-radius-card) 0 0; }
@@ -472,10 +476,8 @@ h1 { margin-bottom: 0; font-size: 2rem; letter-spacing: -0.04em; }
   stroke: #94a3b8;
 }
 
-.timeline-reservation-segment { fill: #9aaec4; }
-.timeline-reservation-segment:nth-child(even) { fill: #b0bed0; }
-.timeline-day--over-reserved .timeline-reservation-segment { fill: #c97a72; }
-.timeline-day--over-reserved .timeline-reservation-segment:nth-child(even) { fill: #d08c84; }
+.timeline-reservation-segment { fill: #9aaec4; stroke: #64748b; stroke-width: 0.7; stroke-dasharray: 2 1; }
+.timeline-day--over-reserved .timeline-reservation-segment { stroke: #9f3434; stroke-width: 1.5; }
 
 .timeline-project-region {
   fill: #e8eef5;
@@ -666,9 +668,16 @@ h1 { margin-bottom: 0; font-size: 2rem; letter-spacing: -0.04em; }
   background: transparent;
   padding: 0;
 }
+.timeline-project-edit.project-create-panel,
+.timeline-reservation-edit.project-create-panel {
+  background: color-mix(in srgb, var(--project-accent, #ffffff) 10%, white);
+  border: 1px solid var(--fp-border);
+  border-radius: var(--fp-radius-card);
+  padding: 0.65rem;
+}
 
 .portfolio-card-content[hidden], .portfolio-team-details[hidden] { display: none; }
-.portfolio-card-content { min-width: 0; border: 1px solid var(--fp-border); border-top: 0; border-radius: 0 0 var(--fp-radius-card) var(--fp-radius-card); background: var(--fp-surface); padding: 0.65rem; }
+.portfolio-card-content { min-width: 0; border: 1px solid var(--fp-border); border-top: 0; border-radius: 0 0 var(--fp-radius-card) var(--fp-radius-card); padding: 0.65rem; }
 .portfolio-team-card { min-width: 0; border: 1px solid var(--fp-border-soft); border-radius: var(--fp-radius-card); background: var(--fp-inset); padding: 0.5rem; }
 .portfolio-team-card + .portfolio-team-card { margin-top: 0.4rem; }
 .portfolio-team-card-header { display: flex; justify-content: space-between; align-items: center; gap: 0.4rem; }

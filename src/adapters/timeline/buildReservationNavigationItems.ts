@@ -15,6 +15,8 @@ export interface ReservationNavigationItem {
   readonly id: ReservationId;
   readonly name: string;
   readonly isActive: boolean;
+  readonly programName?: string;
+  readonly priorityFamilyName?: string;
 }
 
 /** Presentation order only; Portfolio.reservations remains untouched. */
@@ -48,5 +50,7 @@ export function buildReservationNavigationItems(
     id: reservation.id,
     name: reservation.name,
     isActive: reservation.isActive,
+    ...(reservation.programId === undefined ? {} : { programName: portfolio.programs.find((program) => program.id === reservation.programId)!.name }),
+    ...(reservation.priorityFamilyId === undefined ? {} : { priorityFamilyName: portfolio.priorityFamilies.find((family) => family.id === reservation.priorityFamilyId)!.name }),
   })));
 }

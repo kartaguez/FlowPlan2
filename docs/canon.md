@@ -100,11 +100,18 @@ Cursor metrics are a separate exact adapter projection over the current run's
 Portfolio, PlanningResult, horizon, and a presentation-selected date. They
 accumulate inclusive daily Team effective, requested reserved, and allocated
 capacities. Utilization is `(requested reserved + allocated) / effective`,
-undefined when effective is zero and otherwise unclamped. Project, Program,
-and PriorityFamily/PAS progress divides cumulative allocations across all
-Teams by the sum of their requirements' RAF at the start of that run. A zero
-baseline for a non-empty group means exact completion; an empty catalog group
-has no metric entry. Cursor changes do not recompute planning.
+undefined when effective is zero and otherwise unclamped. Project progress
+divides cumulative allocations across all Teams by the sum of its requirements'
+RAF at the start of that run. Program and PriorityFamily (shown as pas)
+progress divides the sum of active members' consumed work by the sum of their
+charges, across Projects and Reservations. For a Reservation, both quantities
+use exact requested demand only inside the inclusive planning horizon; the
+consumed quantity stops at the Projection date. This Reservation quantity
+calculation stays in the metrics adapter so future actuals can replace forecast
+consumption without changing the planning engine. A zero baseline for a
+non-empty projected group means exact completion. Inactive members retain
+their catalog references but do not contribute to forecast progress. Cursor
+changes do not recompute planning.
 For each Team, cumulative over-reservation on the same inclusive interval is
 `Σ max(0, Reserved(day) - Effective(day))`, summed day by day; unused capacity
 on another day never offsets an over-reserved day. Its ratio is cumulative
@@ -208,7 +215,7 @@ Project
 ├── id
 ├── name
 ├── programId?                         (optional grouping)
-├── priorityFamilyId?                  (optional grouping; PAS in UI)
+├── priorityFamilyId?                  (optional grouping; pas in UI)
 ├── global priority                     (in Portfolio.priorityOrder)
 ├── earliestStartDate?
 ├── objectiveEndDate?
@@ -232,14 +239,28 @@ Project dates are global to the Project, not duplicated per Team:
 `dailyCap` remains a domain and planner concept. It may be hidden from a UI,
 but an unrelated Project Apply must preserve any existing exact value.
 
-Program and PriorityFamily are independent Portfolio catalogs of immutable
-identities and names. Each Project may reference at most one entry from each
-catalog. Portfolio validation enforces unique catalog IDs and valid Project
-references. These dimensions support grouping and analysis only: they have no
-priority or planning semantics. `Portfolio.priorityOrder` remains the sole
-global Project priority. Application Project editing carries the associations;
-Portfolio UI resolves and displays their labels without passing them into
-planning decisions or timeline geometry.
+Program and PriorityFamily are independent Portfolio catalogs, displayed as
+Program and pas. Each Project and Reservation may reference at most one entry
+from each catalog, independently. A catalog entry exists exactly while at
+least one Project or Reservation references it, regardless of `isActive`.
+Names are trimmed, internal whitespace is collapsed, and equivalent names are
+deduplicated without regard to case while preserving the existing label.
+Application editing resolves and prunes catalog entries in the same atomic
+transition; Portfolio validation rejects unknown references, duplicate
+normalized names, and orphans. There is no separate catalog editor or global
+rename. These dimensions do not affect priority or planning admission;
+`Portfolio.priorityOrder` remains the sole global Project priority.
+
+Every Program has a mutable color represented as `#RRGGBB`. A Project or
+Reservation without a Program has `ownColor`; with a Program it has no
+`ownColor` and derives its effective color from that Program. Changing a
+Program color through any member's Apply changes all members together.
+Automatic colors seek variety but need not be unique; the picker is free.
+Timeline allocations and Reservation segments use the exact effective color.
+The main card background derives a light pastel from it without persisting a
+second color; internal sections keep their own styling. Draft previews remain
+local until Apply, and Cancel has no shared business effect. Among concurrent
+drafts, the latest Apply that actually edits Color wins.
 
 ## Global multi-Team Reservation
 

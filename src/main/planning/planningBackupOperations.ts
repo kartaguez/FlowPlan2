@@ -1,5 +1,5 @@
 import type { PlanningSessionState } from "../../application/index.js";
-import { decodeFlowplanBackup, encodeFlowplanBackupV2 } from "../../application/backup/flowplanBackupV1.js";
+import { decodeFlowplanBackup, encodeFlowplanBackupV3 } from "../../application/backup/flowplanBackupV1.js";
 import type { PlanningBackupStore } from "../../infrastructure/backup/localPlanningBackup.js";
 
 export function loadPlanningBackup(
@@ -29,7 +29,7 @@ export function importPlanningBackup(input: {
     const state = decodeFlowplanBackup(input.document);
     input.preflight(state);
     if (!input.confirm()) return "cancelled";
-    input.store.write(encodeFlowplanBackupV2(state));
+    input.store.write(encodeFlowplanBackupV3(state));
   } catch {
     return "failed";
   }

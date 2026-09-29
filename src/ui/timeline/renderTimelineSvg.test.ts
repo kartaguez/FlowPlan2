@@ -271,6 +271,24 @@ function render(
 }
 
 describe("renderTimelineSvg", () => {
+  it("uses exact effective fills while keeping a distinct Reservation outline", async () => {
+    const geometry = makeGeometry();
+    const team = geometry.teams[0]!;
+    const day = team.days[0]!;
+    const reservationId = must(createReservationId("reservation-run"));
+    const withSegments = { ...geometry, teams: [{ ...team, days: [{ ...day,
+      reservationSegments: [{ reservationId, teamId: team.teamId, date: day.date,
+        capacity: capacity("0.5"), ...day.capacityTube.reservedRegion }],
+    }, ...team.days.slice(1)] }, ...geometry.teams.slice(1)] };
+    const svg = createSvg();
+    renderTimelineSvg({ svg: svg as unknown as SVGSVGElement, geometry: withSegments,
+      colors: new Map([["project-1", "#123456"], [reservationId, "#ABCDEF"]]) });
+    assert.equal(withClass(svg, "timeline-project-allocation")[0]!.getAttribute("fill"), "#123456");
+    assert.equal(withClass(svg, "timeline-reservation-segment")[0]!.getAttribute("fill"), "#ABCDEF");
+    const css = await readFile(resolve("public/styles.css"), "utf8");
+    assert.match(css, /\.timeline-reservation-segment \{[^}]*stroke-dasharray:/);
+    assert.match(css, /\.project-sidebar-item > \.portfolio-card-content,[\s\S]*color-mix\(in srgb, var\(--project-accent/);
+  });
   it("renders named Reservation segments inside the aggregate region", () => {
     const geometry = makeGeometry();
     const team = geometry.teams[0]!;

@@ -106,9 +106,7 @@ describe("PlanningSession project editing", () => {
       const rejected = session.dispatch({ ...commandFor(before, atlas.id), ...membership });
       assert.equal(rejected.ok, false);
       if (!rejected.ok) {
-        assert.equal(rejected.errors[0]?.code, "programId" in membership
-          ? "UNKNOWN_PROJECT_PROGRAM"
-          : "UNKNOWN_PROJECT_PRIORITY_FAMILY");
+        assert.equal(rejected.errors[0]?.code, "INVALID_GROUPING");
       }
       assert.equal(session.getState(), before);
     }

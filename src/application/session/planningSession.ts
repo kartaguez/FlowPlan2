@@ -36,6 +36,7 @@ import {
 import { createTeamIdGenerator, type TeamIdGenerator } from "./teamIdGenerator.js";
 import { createProjectIdGenerator, type ProjectIdGenerator } from "./projectIdGenerator.js";
 import { createReservationIdGenerator, type ReservationIdGenerator } from "./reservationIdGenerator.js";
+import { GroupingResolutionError, pruneCatalogs, resolveGrouping, type GroupingEdit } from "./resolveGrouping.js";
 
 export interface PlanningSettings {
   readonly startDate: CivilDate;
@@ -63,7 +64,7 @@ export interface UpdateProjectTeamRequirement {
   readonly dailyCap?: DailyCap;
 }
 
-export interface UpdateProjectCommand {
+export interface UpdateProjectCommand extends GroupingEdit {
   readonly kind: "update-project";
   readonly projectId: ProjectId;
   readonly name: string;
@@ -75,7 +76,7 @@ export interface UpdateProjectCommand {
   readonly teamRequirements: readonly UpdateProjectTeamRequirement[];
 }
 
-export interface CreateProjectCommand {
+export interface CreateProjectCommand extends GroupingEdit {
   readonly kind: "create-project";
   readonly name: string;
   readonly programId?: ProgramId;
@@ -145,7 +146,7 @@ export type UpdateReservationTeamAllocation =
   | Readonly<{ teamId: TeamId; kind: "ratio"; ratio: ReservationRatio }>
   | Readonly<{ teamId: TeamId; kind: "fixed-daily"; dailyCapacity: Capacity }>;
 
-export interface UpdateReservationCommand {
+export interface UpdateReservationCommand extends GroupingEdit {
   readonly kind: "update-reservation";
   readonly reservationId: ReservationId;
   readonly name: string;
@@ -154,7 +155,7 @@ export interface UpdateReservationCommand {
   readonly teamAllocations: readonly UpdateReservationTeamAllocation[];
 }
 
-export interface CreateReservationCommand {
+export interface CreateReservationCommand extends GroupingEdit {
   readonly kind: "create-reservation";
   readonly name: string;
   readonly startDate: CivilDate;
@@ -199,10 +200,17 @@ export function createPlanningSession(
   const teamIds = createTeamIdGenerator(() => state.portfolio.teams.map((team) => team.id));
   const projectIds = createProjectIdGenerator(() => state.portfolio.projects.map((project) => project.id));
   const reservationIds = createReservationIdGenerator(() => state.portfolio.reservations.map((reservation) => reservation.id));
+  const historicalProgramIds = new Set(state.portfolio.programs.map((program) => program.id));
+  const historicalFamilyIds = new Set(state.portfolio.priorityFamilies.map((family) => family.id));
   return Object.freeze({
     getState: () => state,
     dispatch: (command: PlanningCommand, beforeCommit?: (candidate: PlanningSessionState) => void): PlanningCommandResult => {
-      const candidate = applyCommand(state, command, teamIds, projectIds, reservationIds);
+      let candidate: PlanningCommandResult;
+      try { candidate = applyCommand(state, command, teamIds, projectIds, reservationIds, historicalProgramIds, historicalFamilyIds); }
+      catch (cause) {
+        if (!(cause instanceof GroupingResolutionError)) throw cause;
+        return failure([applicationError("INVALID_GROUPING", "grouping", cause.message)]);
+      }
       if (!candidate.ok) return candidate;
       if (candidate.state === state) return Object.freeze({ ok: true, state });
       try {
@@ -214,6 +222,8 @@ export function createPlanningSession(
       if (command.kind === "create-project") projectIds.next();
       if (command.kind === "create-reservation") reservationIds.next();
       state = candidate.state;
+      for (const program of state.portfolio.programs) historicalProgramIds.add(program.id);
+      for (const family of state.portfolio.priorityFamilies) historicalFamilyIds.add(family.id);
       return Object.freeze({ ok: true, state });
     },
   });
@@ -225,14 +235,16 @@ function applyCommand(
   teamIds: TeamIdGenerator,
   projectIds: ProjectIdGenerator,
   reservationIds: ReservationIdGenerator,
+  historicalProgramIds: ReadonlySet<ProgramId>,
+  historicalFamilyIds: ReadonlySet<PriorityFamilyId>,
 ): PlanningCommandResult {
   switch (command.kind) {
     case "update-planning-settings":
       return updatePlanningSettings(state, command);
     case "update-project":
-      return updateProject(state, command);
+      return updateProject(state, command, historicalProgramIds, historicalFamilyIds);
     case "create-project":
-      return addProject(state, command, projectIds);
+      return addProject(state, command, projectIds, historicalProgramIds, historicalFamilyIds);
     case "remove-project":
       return removeProject(state, command);
     case "reorder-project":
@@ -250,9 +262,9 @@ function applyCommand(
     case "update-team-capacity-periods":
       return updateTeamCapacityPeriods(state, command);
     case "update-reservation":
-      return updateReservation(state, command);
+      return updateReservation(state, command, historicalProgramIds, historicalFamilyIds);
     case "create-reservation":
-      return addReservation(state, command, reservationIds);
+      return addReservation(state, command, reservationIds, historicalProgramIds, historicalFamilyIds);
     case "remove-reservation":
       return removeReservation(state, command);
   }
@@ -262,10 +274,13 @@ function addReservation(
   state: PlanningSessionState,
   command: CreateReservationCommand,
   ids: ReservationIdGenerator,
+  historicalProgramIds: ReadonlySet<ProgramId>,
+  historicalFamilyIds: ReadonlySet<PriorityFamilyId>,
 ): PlanningCommandResult {
-  const validated = buildReservation(state, command, ids.peek());
+  const grouping = resolveGrouping(state.portfolio, command, ids.peek(), undefined, historicalProgramIds, historicalFamilyIds);
+  const validated = buildReservation(state, command, ids.peek(), true, grouping);
   if (!validated.ok) return failure(validated.errors);
-  return replaceReservations(state, [...state.portfolio.reservations, validated.value]);
+  return replaceReservations(state, [...state.portfolio.reservations, validated.value], grouping);
 }
 
 function removeReservation(state: PlanningSessionState, command: RemoveReservationCommand): PlanningCommandResult {
@@ -279,6 +294,8 @@ function removeReservation(state: PlanningSessionState, command: RemoveReservati
 function updateReservation(
   state: PlanningSessionState,
   command: UpdateReservationCommand,
+  historicalProgramIds: ReadonlySet<ProgramId>,
+  historicalFamilyIds: ReadonlySet<PriorityFamilyId>,
 ): PlanningCommandResult {
   const reservationIndex = state.portfolio.reservations.findIndex(
     (reservation) => reservation.id === command.reservationId,
@@ -292,13 +309,15 @@ function updateReservation(
       ),
     ]);
   }
+  const previous = state.portfolio.reservations[reservationIndex]!;
+  const grouping = resolveGrouping(state.portfolio, command, command.reservationId, previous, historicalProgramIds, historicalFamilyIds);
   const updated = buildReservation(state, command, command.reservationId,
-    state.portfolio.reservations[reservationIndex]!.isActive);
+    previous.isActive, grouping);
   if (!updated.ok) return failure(updated.errors);
   const reservations = state.portfolio.reservations.map((reservation, index) =>
     index === reservationIndex ? updated.value : reservation,
   );
-  return replaceReservations(state, reservations);
+  return replaceReservations(state, reservations, grouping);
 }
 
 function buildReservation(
@@ -306,6 +325,7 @@ function buildReservation(
   command: CreateReservationCommand | UpdateReservationCommand,
   id: ReservationId,
   isActive = true,
+  grouping?: ReturnType<typeof resolveGrouping>,
 ): ReturnType<typeof createReservation> {
   const errors: DomainError[] = [];
   const teamIds = new Set<TeamId>();
@@ -359,6 +379,9 @@ function buildReservation(
   return createReservation({
     id,
     isActive,
+    ...(grouping?.programId === undefined ? {} : { programId: grouping.programId }),
+    ...(grouping?.priorityFamilyId === undefined ? {} : { priorityFamilyId: grouping.priorityFamilyId }),
+    ...(grouping?.ownColor === undefined ? {} : { ownColor: grouping.ownColor }),
     name: command.name,
     startDate: command.startDate,
     endDate: command.endDate,
@@ -366,12 +389,15 @@ function buildReservation(
   });
 }
 
-function replaceReservations(state: PlanningSessionState, reservations: readonly Reservation[]): PlanningCommandResult {
+function replaceReservations(state: PlanningSessionState, reservations: readonly Reservation[], grouping?: ReturnType<typeof resolveGrouping>): PlanningCommandResult {
+  const catalogs = pruneCatalogs({ projects: state.portfolio.projects, reservations,
+    programs: grouping?.programs ?? state.portfolio.programs,
+    priorityFamilies: grouping?.priorityFamilies ?? state.portfolio.priorityFamilies });
   const portfolio = createPortfolio({
     teams: state.portfolio.teams,
     projects: state.portfolio.projects,
-    programs: state.portfolio.programs,
-    priorityFamilies: state.portfolio.priorityFamilies,
+    programs: catalogs.programs,
+    priorityFamilies: catalogs.priorityFamilies,
     priorityOrder: state.portfolio.priorityOrder,
     reservations,
   });
@@ -612,6 +638,8 @@ function addProject(
   state: PlanningSessionState,
   command: CreateProjectCommand,
   projectIds: ProjectIdGenerator,
+  historicalProgramIds: ReadonlySet<ProgramId>,
+  historicalFamilyIds: ReadonlySet<PriorityFamilyId>,
 ): PlanningCommandResult {
   const name = command.name.trim();
   if (name.length === 0) {
@@ -626,10 +654,12 @@ function addProject(
     return result.value;
   });
   const id = projectIds.peek();
+  const grouping = resolveGrouping(state.portfolio, command, id, undefined, historicalProgramIds, historicalFamilyIds);
   const project = createProject({
     id, name,
-    ...(command.programId === undefined ? {} : { programId: command.programId }),
-    ...(command.priorityFamilyId === undefined ? {} : { priorityFamilyId: command.priorityFamilyId }),
+    ...(grouping.programId === undefined ? {} : { programId: grouping.programId }),
+    ...(grouping.priorityFamilyId === undefined ? {} : { priorityFamilyId: grouping.priorityFamilyId }),
+    ...(grouping.ownColor === undefined ? {} : { ownColor: grouping.ownColor }),
     ...(command.earliestStartDate === undefined ? {} : { earliestStartDate: command.earliestStartDate }),
     ...(command.objectiveEndDate === undefined ? {} : { objectiveEndDate: command.objectiveEndDate }),
     ...(command.mandatoryDeadline === undefined ? {} : { mandatoryDeadline: command.mandatoryDeadline }),
@@ -639,8 +669,8 @@ function addProject(
   const portfolio = createPortfolio({
     teams: state.portfolio.teams,
     projects: [...state.portfolio.projects, project.value],
-    programs: state.portfolio.programs,
-    priorityFamilies: state.portfolio.priorityFamilies,
+    programs: grouping.programs,
+    priorityFamilies: grouping.priorityFamilies,
     priorityOrder: [...state.portfolio.priorityOrder, id],
     reservations: state.portfolio.reservations,
   });
@@ -656,11 +686,14 @@ function removeProject(
     return failure([applicationError("UNKNOWN_PROJECT", "projectId",
       `Project ${command.projectId} does not exist in the current portfolio.`)]);
   }
+  const projects = state.portfolio.projects.filter((project) => project.id !== command.projectId);
+  const catalogs = pruneCatalogs({ projects, reservations: state.portfolio.reservations,
+    programs: state.portfolio.programs, priorityFamilies: state.portfolio.priorityFamilies });
   const portfolio = createPortfolio({
     teams: state.portfolio.teams,
-    projects: state.portfolio.projects.filter((project) => project.id !== command.projectId),
-    programs: state.portfolio.programs,
-    priorityFamilies: state.portfolio.priorityFamilies,
+    projects,
+    programs: catalogs.programs,
+    priorityFamilies: catalogs.priorityFamilies,
     priorityOrder: state.portfolio.priorityOrder.filter((id) => id !== command.projectId),
     reservations: state.portfolio.reservations,
   });
@@ -671,6 +704,8 @@ function removeProject(
 function updateProject(
   state: PlanningSessionState,
   command: UpdateProjectCommand,
+  historicalProgramIds: ReadonlySet<ProgramId>,
+  historicalFamilyIds: ReadonlySet<PriorityFamilyId>,
 ): PlanningCommandResult {
   const errors: DomainError[] = [];
   const name = command.name.trim();
@@ -698,6 +733,7 @@ function updateProject(
   if (errors.length > 0 || projectIndex < 0) return failure(errors);
 
   const project = state.portfolio.projects[projectIndex]!;
+  const grouping = resolveGrouping(state.portfolio, command, project.id, project, historicalProgramIds, historicalFamilyIds);
   const validTeamIds = new Set(state.portfolio.teams.map((team) => team.id));
   const currentRequirementsByTeam = new Map(
     project.requirements.map((requirement) => [requirement.teamId, requirement]),
@@ -765,8 +801,9 @@ function updateProject(
     id: project.id,
     isActive: project.isActive,
     name,
-    ...(command.programId === undefined ? {} : { programId: command.programId }),
-    ...(command.priorityFamilyId === undefined ? {} : { priorityFamilyId: command.priorityFamilyId }),
+    ...(grouping.programId === undefined ? {} : { programId: grouping.programId }),
+    ...(grouping.priorityFamilyId === undefined ? {} : { priorityFamilyId: grouping.priorityFamilyId }),
+    ...(grouping.ownColor === undefined ? {} : { ownColor: grouping.ownColor }),
     ...(command.earliestStartDate === undefined
       ? {}
       : { earliestStartDate: command.earliestStartDate }),
@@ -783,11 +820,13 @@ function updateProject(
   const projects = state.portfolio.projects.map((candidate, index) =>
     index === projectIndex ? updatedProject.value : candidate,
   );
+  const catalogs = pruneCatalogs({ projects, reservations: state.portfolio.reservations,
+    programs: grouping.programs, priorityFamilies: grouping.priorityFamilies });
   const portfolio = createPortfolio({
     teams: state.portfolio.teams,
     projects,
-    programs: state.portfolio.programs,
-    priorityFamilies: state.portfolio.priorityFamilies,
+    programs: catalogs.programs,
+    priorityFamilies: catalogs.priorityFamilies,
     priorityOrder: state.portfolio.priorityOrder,
     reservations: state.portfolio.reservations,
   });

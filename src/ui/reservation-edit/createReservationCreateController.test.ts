@@ -64,8 +64,9 @@ describe("Create Reservation form", () => {
     app.controller.open();
     const inputs = descendants(app.controls.fields).filter((item) => item.tagName === "input");
     assert.equal(inputs[0]!.value, "");
-    assert.equal(inputs[1]!.value, app.scenario.planning.startDate);
-    assert.equal(inputs[2]!.value, app.scenario.planning.endDate);
+    const dates = inputs.filter((item) => item.type === "date");
+    assert.equal(dates[0]!.value, app.scenario.planning.startDate);
+    assert.equal(dates[1]!.value, app.scenario.planning.endDate);
     assert.equal(app.document.activeElement, inputs[0]);
     app.controls.form.dispatch("submit", { preventDefault() {} });
     assert.equal(app.commands.length, 0);
@@ -86,10 +87,10 @@ describe("Create Reservation form", () => {
     const enabled = inputs.find((item) => item.type === "checkbox")!;
     enabled.checked = true; enabled.dispatch("change");
     assert.equal(app.controller.isTeamEnabled(teamId), true);
-    const value = inputs.find((item) => item.type === "text" && item !== inputs[0])!;
+    const value = descendants(app.controls.fields).find((item) => item.tagName === "label" && item.textContent?.includes("reservation value"))!.childNodes[0]!;
     value.value = "1/3";
     app.controls.form.dispatch("submit", { preventDefault() {} });
-    assert.equal(app.commands.length, 1);
+    assert.equal(app.commands.length, 1, app.controls.error.textContent ?? "");
     const allocation = app.commands[0]!.teamAllocations[0]!;
     assert.equal(allocation.kind, "ratio");
     if (allocation.kind === "ratio") assert.equal(serializeQuantity(allocation.ratio), "1/300");

@@ -2,6 +2,8 @@ import type { CreateReservationCommand } from "../../application/index.js";
 import type { CivilDate, DomainError, Portfolio, TeamId } from "../../domain/index.js";
 import type { ProjectCreateControls } from "../renderApp.js";
 import { createTeamSubcard } from "../portfolio/createTeamSubcard.js";
+import { createGroupingControls, type GroupingValues } from "../portfolio/createGroupingControls.js";
+import { suggestColor } from "../../domain/index.js";
 import { parseReservationFields, type ReservationTeamAllocationFormValues } from "./parseReservationEditCommand.js";
 
 interface TeamRow {
@@ -14,6 +16,7 @@ interface TeamRow {
 
 interface Snapshot {
   readonly name: string;
+  readonly grouping: GroupingValues;
   readonly startDate: string;
   readonly endDate: string;
   readonly teams: ReadonlyMap<TeamId, Readonly<{ enabled: boolean; kind: "ratio" | "fixed-daily";
@@ -36,6 +39,7 @@ export function createReservationCreateController(input: {
   let name: HTMLInputElement;
   let startDate: HTMLInputElement;
   let endDate: HTMLInputElement;
+  let groupingControls: ReturnType<typeof createGroupingControls>;
   let rows: readonly TeamRow[] = [];
   const field = (label: string, type: string): HTMLInputElement => {
     const wrapper = document.createElement("label");
@@ -47,7 +51,7 @@ export function createReservationCreateController(input: {
     return element;
   };
   const snapshot = (): Snapshot => ({
-    name: name.value, startDate: startDate.value, endDate: endDate.value,
+    name: name.value, startDate: startDate.value, endDate: endDate.value, grouping: groupingControls.read(),
     teams: new Map(rows.map((row) => [row.teamId, {
       enabled: row.enabled.checked, kind: row.kind.value as "ratio" | "fixed-daily",
       value: row.value.value, expanded: row.isExpanded(),
@@ -61,6 +65,13 @@ export function createReservationCreateController(input: {
   const render = (saved?: Snapshot): void => {
     controls.fields.replaceChildren();
     name = field("Reservation name", "text");
+    groupingControls = createGroupingControls(controls.fields, portfolio, saved?.grouping ?? {
+      programId: "", programName: "", priorityFamilyId: "", priorityFamilyName: "",
+      color: suggestColor("reservation:new", [...portfolio.programs.map((p) => p.color),
+        ...portfolio.projects.map((p) => p.ownColor).filter((color): color is string => !!color),
+        ...portfolio.reservations.map((r) => r.ownColor).filter((color): color is string => !!color)]), colorChanged: false,
+    }, "reservation:new", () => { controls.container.style?.setProperty("--project-accent", groupingControls.read().color); }, "reservation");
+    controls.container.style?.setProperty("--project-accent", groupingControls.read().color);
     startDate = field("Start date", "date");
     endDate = field("End date", "date");
     name.value = saved?.name ?? "";
@@ -106,7 +117,8 @@ export function createReservationCreateController(input: {
   };
   const isDirty = (): boolean => {
     const values = snapshot();
-    return values.name !== "" || values.startDate !== horizon.start ||
+    return values.name !== "" || values.grouping.programId !== "" || values.grouping.priorityFamilyId !== "" ||
+      values.grouping.colorChanged || values.startDate !== horizon.start ||
       values.endDate !== horizon.end || [...values.teams.values()].some((team) =>
         team.enabled || team.value !== "" || team.kind !== "ratio");
   };
@@ -128,7 +140,7 @@ export function createReservationCreateController(input: {
       teamId: row.teamId, enabled: row.enabled.checked,
       kind: row.kind.value as "ratio" | "fixed-daily", value: row.value.value, dirty: true,
     }));
-    const parsed = parseReservationFields({ name: name.value,
+    const parsed = parseReservationFields({ name: name.value, ...groupingControls.read(),
       startDate: startDate.value, endDate: endDate.value, teamAllocations: allocations });
     if (!parsed.ok) return showErrors(parsed.errors);
     const result = input.onCreate({ kind: "create-reservation", ...parsed.fields });

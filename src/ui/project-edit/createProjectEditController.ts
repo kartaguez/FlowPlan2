@@ -5,6 +5,7 @@ import type {
 import type { DomainError, ProjectId, TeamId } from "../../domain/index.js";
 import type { ProjectEditControls } from "../renderApp.js";
 import { createTeamSubcard } from "../portfolio/createTeamSubcard.js";
+import { createGroupingControls } from "../portfolio/createGroupingControls.js";
 import { projectValuesFromModel, type ProjectDraftStore, type ProjectDraftValues } from "./projectDraftStore.js";
 import {
   parseProjectEditCommand,
@@ -36,6 +37,7 @@ interface GlobalInputs {
   readonly name: HTMLInputElement;
   readonly program: HTMLSelectElement;
   readonly priorityFamily: HTMLSelectElement;
+  readonly grouping: ReturnType<typeof createGroupingControls>;
   readonly earliestStartDate: HTMLInputElement;
   readonly objectiveEndDate: HTMLInputElement;
   readonly mandatory: HTMLInputElement;
@@ -80,6 +82,7 @@ export function createProjectEditController(
     const activeModel = nextModel;
     const draft = nextModel === undefined ? undefined : input.draftStore?.initialize(nextModel.projectId, nextModel);
     const values = draft?.values ?? (nextModel === undefined ? undefined : projectValuesFromModel(nextModel));
+    if (values) (input.controls.container.closest?.(".project-sidebar-item") as HTMLElement | null)?.style?.setProperty("--project-accent", values.color);
     const enabled = activeModel !== undefined;
     input.controls.container.hidden = !enabled;
     input.controls.apply.disabled = !enabled;
@@ -98,23 +101,10 @@ export function createProjectEditController(
     const legend = document.createElement("legend");
     legend.textContent = "Project settings";
     const name = createLabeledInput(document, global, "Label", "text", "project.name");
-    const grouping = document.createElement("div");
-    grouping.className = "timeline-project-grouping-fields";
-    const program = createLabeledSelect(document, grouping, "Program", "project.programId", activeModel.programs);
-    const priorityFamily = createLabeledSelect(document, grouping, "PaS", "project.priorityFamilyId", activeModel.priorityFamilies);
-    if (values!.programId && !activeModel.programs.some((item) => item.id === values!.programId)) {
-      const missing = document.createElement("option");
-      missing.value = values!.programId;
-      missing.textContent = `Unavailable Program (${values!.programId})`;
-      program.append(missing);
-    }
-    if (values!.priorityFamilyId && !activeModel.priorityFamilies.some((item) => item.id === values!.priorityFamilyId)) {
-      const missing = document.createElement("option");
-      missing.value = values!.priorityFamilyId;
-      missing.textContent = `Unavailable PaS (${values!.priorityFamilyId})`;
-      priorityFamily.append(missing);
-    }
-    global.append(grouping);
+    const groupingControls = createGroupingControls(global, activeModel, values!, activeModel.projectId,
+      () => notifyDraftChange());
+    const program = groupingControls.program;
+    const priorityFamily = groupingControls.family;
     const earliestStartDate = createLabeledInput(
       document,
       global,
@@ -135,8 +125,6 @@ export function createProjectEditController(
     objectiveEndDate.addEventListener("input", () => { syncMandatory(); notifyDraftChange(); });
     global.prepend(legend);
     name.value = values!.name;
-    program.value = values!.programId;
-    priorityFamily.value = values!.priorityFamilyId;
     earliestStartDate.value = values!.earliestStartDate;
     objectiveEndDate.value = values!.objectiveEndDate;
     mandatory.checked = values!.mandatory;
@@ -148,7 +136,7 @@ export function createProjectEditController(
     syncMandatory();
     if (draft?.invalidReference) {
       const warning = document.createElement("p");
-      warning.textContent = "A referenced Team, Program or PaS no longer exists. Apply is unavailable.";
+      warning.textContent = "A referenced Team, Program or pas no longer exists. Apply is unavailable.";
       global.append(warning);
       input.controls.apply.disabled = true;
     }
@@ -176,6 +164,7 @@ export function createProjectEditController(
       name,
       program,
       priorityFamily,
+      grouping: groupingControls,
       earliestStartDate,
       objectiveEndDate,
       mandatory,
@@ -225,8 +214,7 @@ export function createProjectEditController(
   const readDraftValues = (): ProjectDraftValues => {
     if (!model || !globalInputs) throw new TypeError("Project edit form has no selected project.");
     const previous = input.draftStore?.get(model.projectId)?.values ?? projectValuesFromModel(model);
-    return { name: globalInputs.name.value, programId: globalInputs.program.value,
-      priorityFamilyId: globalInputs.priorityFamily.value,
+    return { name: globalInputs.name.value, ...globalInputs.grouping.read(),
       earliestStartDate: globalInputs.earliestStartDate.value,
       objectiveEndDate: globalInputs.objectiveEndDate.value, mandatory: globalInputs.mandatory.checked,
       resolution, teams: requirementInputs.map((row) => ({
@@ -239,7 +227,9 @@ export function createProjectEditController(
   };
   const notifyDraftChange = (): void => {
     if (!model || !globalInputs || !input.draftStore) return;
-    input.draftStore.update(model.projectId, readDraftValues());
+    const next = readDraftValues();
+    input.draftStore.update(model.projectId, next);
+    (input.controls.container.closest?.(".project-sidebar-item") as HTMLElement | null)?.style?.setProperty("--project-accent", next.color);
     for (const row of requirementInputs) row.card.classList?.toggle("portfolio-card--dirty",
       input.draftStore.isTeamDirty(model.projectId, row.teamId));
     input.onDraftChange?.();
@@ -252,8 +242,7 @@ export function createProjectEditController(
     return Object.freeze({
       projectId: model.projectId,
       name: globalInputs.name.value,
-      programId: globalInputs.program.value,
-      priorityFamilyId: globalInputs.priorityFamily.value,
+      ...globalInputs.grouping.read(),
       earliestStartDate: globalInputs.earliestStartDate.value,
       objectiveEndDate: globalInputs.objectiveEndDate.value,
       mandatory: globalInputs.mandatory.checked,
@@ -281,7 +270,7 @@ export function createProjectEditController(
     if (model === undefined) return;
     notifyDraftChange();
     if (input.draftStore?.get(model.projectId)?.invalidReference) {
-      showErrors([{ code: "INVALID_DRAFT_REFERENCE", path: "project", message: "A referenced Team, Program or PaS no longer exists." }]);
+      showErrors([{ code: "INVALID_DRAFT_REFERENCE", path: "project", message: "A referenced Team, Program or pas no longer exists." }]);
       return;
     }
     const parsed = parseProjectEditCommand(formValues());
@@ -364,33 +353,6 @@ export function createProjectEditController(
       input.controls.deleteConfirm?.removeEventListener("click", onDeleteConfirm);
     },
   });
-}
-
-function createLabeledSelect(
-  document: Document,
-  parent: HTMLElement,
-  text: string,
-  name: string,
-  options: readonly Readonly<{ id: string; name: string }>[],
-): HTMLSelectElement {
-  const label = document.createElement("label");
-  label.textContent = text;
-  const field = document.createElement("select");
-  field.name = name;
-  field.dataset.fieldPath = name;
-  const none = document.createElement("option");
-  none.value = "";
-  none.textContent = "None";
-  field.append(none);
-  for (const item of options) {
-    const option = document.createElement("option");
-    option.value = item.id;
-    option.textContent = item.name;
-    field.append(option);
-  }
-  label.append(field);
-  parent.append(label);
-  return field;
 }
 
 function createLabeledInput(

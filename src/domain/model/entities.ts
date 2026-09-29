@@ -1,6 +1,7 @@
 import type { TeamCapacitySchedule } from "../capacity/schedule.js";
 import type { Reservation } from "../capacity/reservation.js";
 import type { CivilDate } from "./date.js";
+import { catalogNameKey, createColor, normalizeCatalogName, suggestColor, type Color } from "./color.js";
 import type {
   DailyCap,
   ProjectId,
@@ -32,6 +33,7 @@ export interface ProjectTeamRequirement {
 export interface Program {
   readonly id: ProgramId;
   readonly name: string;
+  readonly color: Color;
 }
 
 export interface PriorityFamily {
@@ -44,6 +46,7 @@ export interface Project {
   readonly name: string;
   readonly isActive: boolean;
   readonly programId?: ProgramId;
+  readonly ownColor?: Color;
   readonly priorityFamilyId?: PriorityFamilyId;
   readonly earliestStartDate?: CivilDate;
   readonly objectiveEndDate?: CivilDate;
@@ -60,18 +63,32 @@ export interface Portfolio {
   readonly reservations: readonly Reservation[];
 }
 
+export function effectiveColor(portfolio: Portfolio, item: Project | Reservation): Color {
+  if (item.programId === undefined) return item.ownColor!;
+  const program = portfolio.programs.find((candidate) => candidate.id === item.programId);
+  if (!program) throw new TypeError(`Unknown Program ${item.programId}.`);
+  return program.color;
+}
+
 export function createProgram(input: {
   readonly id: ProgramId;
   readonly name: string;
+  readonly color?: Color;
 }): DomainResult<Program> {
-  return success(Object.freeze({ id: input.id, name: input.name }));
+  const name = normalizeCatalogName(input.name);
+  if (!name) return failure([error("EMPTY_PROGRAM_NAME", "name", "Program name must not be empty.")]);
+  const color = createColor(input.color ?? suggestColor(input.id));
+  if (!color.ok) return color;
+  return success(Object.freeze({ id: input.id, name, color: color.value }));
 }
 
 export function createPriorityFamily(input: {
   readonly id: PriorityFamilyId;
   readonly name: string;
 }): DomainResult<PriorityFamily> {
-  return success(Object.freeze({ id: input.id, name: input.name }));
+  const name = normalizeCatalogName(input.name);
+  if (!name) return failure([error("EMPTY_PRIORITY_FAMILY_NAME", "name", "Pas name must not be empty.")]);
+  return success(Object.freeze({ id: input.id, name }));
 }
 
 export function createTeam(input: {
@@ -101,6 +118,7 @@ export function createProject(input: {
   readonly name: string;
   readonly isActive?: boolean;
   readonly programId?: ProgramId;
+  readonly ownColor?: Color;
   readonly priorityFamilyId?: PriorityFamilyId;
   readonly earliestStartDate?: CivilDate;
   readonly objectiveEndDate?: CivilDate;
@@ -135,9 +153,17 @@ export function createProject(input: {
   });
   if (errors.length > 0) return failure(errors);
 
+  if (input.programId !== undefined && input.ownColor !== undefined) {
+    return failure([error("PROGRAM_OWN_COLOR", "ownColor", "A Project in a Program cannot have its own color.")]);
+  }
+  const ownColor = input.programId === undefined ? createColor(input.ownColor ?? suggestColor(input.id), "ownColor") : undefined;
+  if (ownColor && !ownColor.ok) return ownColor;
+  const { ownColor: _discardedOwnColor, ...withoutOwnColor } = input;
+
   return success(
     Object.freeze({
-      ...input,
+      ...withoutOwnColor,
+      ...(ownColor?.ok ? { ownColor: ownColor.value } : {}),
       isActive: input.isActive ?? true,
       requirements: Object.freeze([...input.requirements]),
     }),
@@ -195,6 +221,9 @@ export function createPortfolio(input: {
   );
 
   input.projects.forEach((project, projectIndex) => {
+    if (project.programId === undefined) {
+      if (!project.ownColor || !createColor(project.ownColor).ok) errors.push(error("MISSING_PROJECT_OWN_COLOR", `projects[${projectIndex}].ownColor`, "Project without Program needs a valid own color."));
+    } else if (project.ownColor !== undefined) errors.push(error("PROGRAM_OWN_COLOR", `projects[${projectIndex}].ownColor`, "Project in Program cannot retain an own color."));
     if (project.programId !== undefined && !programIds.has(project.programId)) {
       errors.push(error(
         "UNKNOWN_PROJECT_PROGRAM",
@@ -222,6 +251,11 @@ export function createPortfolio(input: {
     });
   });
   input.reservations.forEach((reservation, reservationIndex) => {
+    if (reservation.programId === undefined) {
+      if (!reservation.ownColor || !createColor(reservation.ownColor).ok) errors.push(error("MISSING_RESERVATION_OWN_COLOR", `reservations[${reservationIndex}].ownColor`, "Reservation without Program needs a valid own color."));
+    } else if (reservation.ownColor !== undefined) errors.push(error("PROGRAM_OWN_COLOR", `reservations[${reservationIndex}].ownColor`, "Reservation in Program cannot retain an own color."));
+    if (reservation.programId !== undefined && !programIds.has(reservation.programId)) errors.push(error("UNKNOWN_RESERVATION_PROGRAM", `reservations[${reservationIndex}].programId`, "Unknown Program."));
+    if (reservation.priorityFamilyId !== undefined && !priorityFamilyIds.has(reservation.priorityFamilyId)) errors.push(error("UNKNOWN_RESERVATION_PRIORITY_FAMILY", `reservations[${reservationIndex}].priorityFamilyId`, "Unknown pas."));
     const allocatedTeamIds = new Set<TeamId>();
     reservation.teamAllocations.forEach((allocation, allocationIndex) => {
       if (allocatedTeamIds.has(allocation.teamId)) {
@@ -244,6 +278,26 @@ export function createPortfolio(input: {
         );
       }
     });
+  });
+
+  const usedPrograms = new Set([...input.projects.map((p) => p.programId), ...input.reservations.map((r) => r.programId)]);
+  const usedFamilies = new Set([...input.projects.map((p) => p.priorityFamilyId), ...input.reservations.map((r) => r.priorityFamilyId)]);
+  const programNames = new Set<string>();
+  input.programs.forEach((program, index) => {
+    const key = catalogNameKey(program.name);
+    if (!key || programNames.has(key)) errors.push(error("DUPLICATE_OR_EMPTY_PROGRAM_NAME", `programs[${index}].name`, "Program names must be unique and nonempty."));
+    if (program.name !== normalizeCatalogName(program.name)) errors.push(error("UNNORMALIZED_PROGRAM_NAME", `programs[${index}].name`, "Program name must be normalized."));
+    programNames.add(key);
+    if (!createColor(program.color).ok) errors.push(error("INVALID_COLOR", `programs[${index}].color`, "Program needs a valid color."));
+    if (!usedPrograms.has(program.id)) errors.push(error("ORPHAN_PROGRAM", `programs[${index}]`, "Program must be used."));
+  });
+  const familyNames = new Set<string>();
+  input.priorityFamilies.forEach((family, index) => {
+    const key = catalogNameKey(family.name);
+    if (!key || familyNames.has(key)) errors.push(error("DUPLICATE_OR_EMPTY_PRIORITY_FAMILY_NAME", `priorityFamilies[${index}].name`, "Pas names must be unique and nonempty."));
+    if (family.name !== normalizeCatalogName(family.name)) errors.push(error("UNNORMALIZED_PRIORITY_FAMILY_NAME", `priorityFamilies[${index}].name`, "Pas name must be normalized."));
+    familyNames.add(key);
+    if (!usedFamilies.has(family.id)) errors.push(error("ORPHAN_PRIORITY_FAMILY", `priorityFamilies[${index}]`, "Pas must be used."));
   });
 
   const priorities = new Set<ProjectId>();

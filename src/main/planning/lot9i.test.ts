@@ -247,6 +247,6 @@ describe("9I forecast activation", () => {
       invalid.data.portfolio[collection][0].isActive = "false";
       assert.throws(() => decodeFlowplanBackup(JSON.stringify(invalid)));
     }
-    assert.throws(() => decodeFlowplanBackup(JSON.stringify({ ...JSON.parse(v2), version: 3 })));
+    assert.throws(() => decodeFlowplanBackup(JSON.stringify({ ...JSON.parse(v2), version: 4 })));
   });
 });

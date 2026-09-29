@@ -22,7 +22,11 @@ export interface ProjectEditFormValues {
   readonly projectId: ProjectId;
   readonly name: string;
   readonly programId: string;
+  readonly programName?: string;
   readonly priorityFamilyId: string;
+  readonly priorityFamilyName?: string;
+  readonly color?: string;
+  readonly colorChanged?: boolean;
   readonly earliestStartDate: string;
   readonly objectiveEndDate: string;
   readonly mandatory: boolean;
@@ -60,8 +64,10 @@ export function parseProjectFields(
 ): Readonly<{ ok: true; fields: ProjectFields }> | Readonly<{ ok: false; errors: readonly DomainError[] }> {
   const errors: DomainError[] = [];
   const name = values.name.trim();
-  const programId = parseOptionalId(values.programId, createProgramId, "project.programId", errors);
-  const priorityFamilyId = parseOptionalId(values.priorityFamilyId, createPriorityFamilyId, "project.priorityFamilyId", errors);
+  const programId = values.programId === "__new__" ? undefined : parseOptionalId(values.programId, createProgramId, "project.programId", errors);
+  const priorityFamilyId = values.priorityFamilyId === "__new__" ? undefined : parseOptionalId(values.priorityFamilyId, createPriorityFamilyId, "project.priorityFamilyId", errors);
+  if (values.programId === "__new__" && !values.programName?.trim()) errors.push(error("EMPTY_PROGRAM_NAME", "project.programName", "Enter a Program name."));
+  if (values.priorityFamilyId === "__new__" && !values.priorityFamilyName?.trim()) errors.push(error("EMPTY_PAS_NAME", "project.priorityFamilyName", "Enter a pas name."));
   if (name.length === 0) {
     errors.push(
       error(
@@ -105,6 +111,10 @@ export function parseProjectFields(
       name,
       ...(programId === undefined ? {} : { programId }),
       ...(priorityFamilyId === undefined ? {} : { priorityFamilyId }),
+      ...(values.programId && values.programName ? { programName: values.programName } : {}),
+      ...(values.priorityFamilyId && values.priorityFamilyName ? { priorityFamilyName: values.priorityFamilyName } : {}),
+      ...(values.color ? { color: values.color } : {}),
+      ...(values.colorChanged ? { colorChanged: true } : {}),
       ...(earliestStartDate === undefined ? {} : { earliestStartDate }),
       ...(objectiveEndDate === undefined ? {} : { objectiveEndDate }),
       ...(values.mandatory && objectiveEndDate !== undefined ? { mandatoryDeadline: objectiveEndDate } : {}),

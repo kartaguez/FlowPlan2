@@ -1,4 +1,5 @@
 export type { DomainError, DomainResult } from "./model/result.js";
+export { createColor, suggestColor, normalizeCatalogName, catalogNameKey, type Color } from "./model/color.js";
 export {
   addRationals,
   compareRationals,
@@ -59,6 +60,7 @@ export {
 export { createPlanningHorizon, type PlanningHorizon } from "./model/horizon.js";
 export {
   createPortfolio,
+  effectiveColor,
   createProject,
   createProgram,
   createPriorityFamily,

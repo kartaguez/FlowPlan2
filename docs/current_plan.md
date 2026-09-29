@@ -8,8 +8,8 @@ architecture rules live in [canon](./canon.md); current implementation facts
 and temporary constraints live in [current canon](./current_canon.md).
 
 Validated 9I Project and Reservation forecast activation forms the baseline.
-Lot 10 — Actuals & History is next; 10A is the next sub-lot to plan and has
-not started.
+The corrective lot on Program/pas, Reservation progress, colors, and V3 backup
+is IN REVIEW before Lot 10. Lot 10A has not started.
 
 ## Completed
 
@@ -38,12 +38,33 @@ not started.
 
 ```text
 Lot 9I — Project and Reservation forecast activation (DONE)
-Lot 10 — Actuals & History (NEXT)
+Corrective lot — usage-driven Program/pas and colors (IN REVIEW)
+Lot 10 — Actuals & History (AFTER REVIEW)
 10A (NEXT — to plan) → 10B → 10C → 10D → 10E
 ```
 
 Lots through 9I and the separate Projection date presentation pass are
 validated. No Lot 10 implementation has started.
+
+## Corrective lot — Program/pas, Reservation progress, colors, backup V3
+
+**Status: IN REVIEW.** Project and Reservation cards manage optional Program
+and pas values, including normalized creation, case-insensitive reuse, and
+automatic removal after the last reference disappears. Inactive references
+retain catalog values, but inactive entities do not contribute to forecast
+progress. Reservation progress uses exact requested demand inside the inclusive
+planning horizon, with consumption stopping at the Projection date; Program/pas
+progress divides total consumed work by total charge across active Projects
+and Reservations. Project progress remains Project-only.
+
+Each Program owns a freely editable color; ungrouped Projects and Reservations
+own their colors, with no hidden own color after joining a Program. Frises use
+the exact effective color, while main card backgrounds derive a light pastel.
+Independent drafts preview locally; Cancel is inert for shared state, and the
+last Apply that actually edits Color wins. Backup V3 persists associations and
+colors, reads V1/V2, and repairs the specified orphan/color cases at import.
+This lot does not begin 10A. Keep the validated baseline SHA unchanged until
+human review closes the lot.
 
 ## 9I — Activation of Projects and Reservations in the simulation
 
@@ -53,9 +74,9 @@ activation is immediate and independent of Apply/Cancel drafts. Ordinary edits
 preserve the current activation state. Inactive entities retain all Portfolio
 data but leave the forecast. Inactive Projects retain their exact position in
 `Portfolio.priorityOrder`; Project progress remains visibly Inactive without
-forecast metrics. Current backups are strict V2 documents with both activation
-flags. V1 remains readable and migrates both entity types as active; every
-successful import is persisted as V2. Typecheck, 511 automated tests across 77
+forecast metrics. At 9I closure, backups were strict V2 documents with both activation
+flags; the corrective lot now writes V3. V1 remains readable and migrates
+both entity types as active. Typecheck, 511 automated tests across 77
 suites, and build pass. A local Edge check at 1440 px and 390 px covered
 closed-card toggles, timeline and metric changes, draft Apply after toggle,
 reactivation, and narrow layout without horizontal document overflow.

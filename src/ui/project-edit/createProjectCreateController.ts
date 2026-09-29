@@ -2,6 +2,8 @@ import type { CreateProjectCommand } from "../../application/index.js";
 import type { DomainError, Portfolio, TeamId } from "../../domain/index.js";
 import type { ProjectCreateControls } from "../renderApp.js";
 import { createTeamSubcard } from "../portfolio/createTeamSubcard.js";
+import { createGroupingControls, type GroupingValues } from "../portfolio/createGroupingControls.js";
+import { suggestColor } from "../../domain/index.js";
 import { parseProjectFields } from "./parseProjectEditCommand.js";
 
 export interface ProjectCreateController {
@@ -17,6 +19,7 @@ interface FormSnapshot {
   readonly name: string;
   readonly programId: string;
   readonly priorityFamilyId: string;
+  readonly grouping: GroupingValues;
   readonly earliestStartDate: string;
   readonly objectiveEndDate: string;
   readonly mandatory: boolean;
@@ -37,6 +40,7 @@ export function createProjectCreateController(input: {
   let name: HTMLInputElement;
   let program: HTMLSelectElement;
   let priorityFamily: HTMLSelectElement;
+  let groupingControls: ReturnType<typeof createGroupingControls>;
   let earliestStartDate: HTMLInputElement;
   let objectiveEndDate: HTMLInputElement;
   let mandatory: HTMLInputElement;
@@ -53,28 +57,8 @@ export function createProjectCreateController(input: {
     parent.append(wrapper);
     return element;
   };
-  const select = (parent: HTMLElement, label: string, name: string,
-    items: readonly Readonly<{ id: string; name: string }>[]): HTMLSelectElement => {
-    const wrapper = document.createElement("label");
-    wrapper.textContent = label;
-    const element = document.createElement("select");
-    element.name = name;
-    const none = document.createElement("option");
-    none.value = "";
-    none.textContent = "None";
-    element.append(none);
-    for (const item of items) {
-      const option = document.createElement("option");
-      option.value = item.id;
-      option.textContent = item.name;
-      element.append(option);
-    }
-    wrapper.append(element);
-    parent.append(wrapper);
-    return element;
-  };
   const snapshot = (): FormSnapshot => ({
-    name: name.value, programId: program.value, priorityFamilyId: priorityFamily.value,
+    name: name.value, programId: program.value, priorityFamilyId: priorityFamily.value, grouping: groupingControls.read(),
     earliestStartDate: earliestStartDate.value, objectiveEndDate: objectiveEndDate.value,
     mandatory: mandatory.checked,
     teams: new Map(rows.map((row) => [row.teamId, {
@@ -97,8 +81,15 @@ export function createProjectCreateController(input: {
     name = field(global, "Label", "text", "project.name");
     const grouping = document.createElement("div");
     grouping.className = "timeline-project-grouping-fields";
-    program = select(grouping, "Program", "project.programId", portfolio.programs);
-    priorityFamily = select(grouping, "PaS", "project.priorityFamilyId", portfolio.priorityFamilies);
+    groupingControls = createGroupingControls(grouping, portfolio, saved?.grouping ?? {
+      programId: "", programName: "", priorityFamilyId: "", priorityFamilyName: "",
+      color: suggestColor("project:new", [...portfolio.programs.map((p) => p.color),
+        ...portfolio.projects.map((p) => p.ownColor).filter((color): color is string => !!color),
+        ...portfolio.reservations.map((r) => r.ownColor).filter((color): color is string => !!color)]), colorChanged: false,
+    }, "project:new", () => { controls.container.style?.setProperty("--project-accent", groupingControls.read().color); });
+    controls.container.style?.setProperty("--project-accent", groupingControls.read().color);
+    program = groupingControls.program;
+    priorityFamily = groupingControls.family;
     global.append(grouping);
     earliestStartDate = field(global, "Earliest start", "date", "project.earliestStartDate");
     objectiveEndDate = field(global, "Project objective end date", "date", "project.objectiveEndDate");
@@ -110,8 +101,6 @@ export function createProjectCreateController(input: {
     objectiveEndDate.addEventListener("input", syncMandatory);
     objectiveEndDate.addEventListener("change", syncMandatory);
     name.value = saved?.name ?? "";
-    program.value = saved?.programId ?? "";
-    priorityFamily.value = saved?.priorityFamilyId ?? "";
     earliestStartDate.value = saved?.earliestStartDate ?? "";
     objectiveEndDate.value = saved?.objectiveEndDate ?? "";
     mandatory.checked = saved?.mandatory ?? false;
@@ -142,6 +131,7 @@ export function createProjectCreateController(input: {
   const isDirty = (): boolean => {
     const values = snapshot();
     return values.name !== "" || values.programId !== "" || values.priorityFamilyId !== "" ||
+      values.grouping.colorChanged ||
       values.earliestStartDate !== "" || values.objectiveEndDate !== "" || values.mandatory ||
       [...values.teams.values()].some((team) => team.enabled || team.remainingWorkload !== "");
   };
@@ -162,7 +152,7 @@ export function createProjectCreateController(input: {
     event.preventDefault();
     if (portfolio.teams.length === 0) return;
     const parsed = parseProjectFields({
-      name: name.value, programId: program.value, priorityFamilyId: priorityFamily.value,
+      name: name.value, ...groupingControls.read(),
       earliestStartDate: earliestStartDate.value, objectiveEndDate: objectiveEndDate.value,
       mandatory: mandatory.checked,
       requirements: rows.map((row) => ({ teamId: row.teamId, enabled: row.enabled.checked,

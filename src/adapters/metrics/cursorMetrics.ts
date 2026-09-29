@@ -16,6 +16,10 @@ import {
   type PriorityFamilyId,
   type Rational,
   type TeamId,
+  type WorkingPattern,
+  requestedReservationCapacity,
+  civilDatesInclusive,
+  type ReservationId,
 } from "../../domain/index.js";
 
 export interface CalculateCursorMetricsInput {
@@ -23,6 +27,7 @@ export interface CalculateCursorMetricsInput {
   readonly planningResult: PlanningResult;
   readonly horizon: PlanningHorizon;
   readonly selectedDate: CivilDate;
+  readonly workingPattern?: WorkingPattern;
 }
 
 export interface CursorCapacityMetrics {
@@ -43,6 +48,39 @@ export interface CursorProgressMetrics {
   readonly baselineRAF: Rational;
   readonly allocatedWorkload: Rational;
   readonly progress: Rational;
+}
+
+export interface ReservationProgressQuantities {
+  readonly reservationId: ReservationId;
+  readonly totalCharge: Rational;
+  readonly consumedAtProjectionDate: Rational;
+}
+
+/** Forecast quantities can later be replaced by actual-consumption quantities. */
+export function calculateReservationProgressQuantities(input: CalculateCursorMetricsInput): readonly ReservationProgressQuantities[] {
+  if (!input.workingPattern) {
+    if (input.portfolio.reservations.some((reservation) => reservation.isActive &&
+      (reservation.programId !== undefined || reservation.priorityFamilyId !== undefined))) {
+      throw new TypeError("Working pattern is required for grouped Reservation progress.");
+    }
+    return [];
+  }
+  const teams = new Map(input.portfolio.teams.map((team) => [team.id, team]));
+  const dates = civilDatesInclusive(input.horizon.start, input.horizon.end);
+  return input.portfolio.reservations.filter((reservation) => reservation.isActive).map((reservation) => {
+    let totalCharge = ZERO;
+    let consumedAtProjectionDate = ZERO;
+    for (const allocation of reservation.teamAllocations) {
+      const team = teams.get(allocation.teamId);
+      if (!team) throw new TypeError(`Unknown Reservation Team ${allocation.teamId}.`);
+      for (const date of dates) {
+        const request = rationalOf(requestedReservationCapacity(reservation, team, date, input.workingPattern!));
+        totalCharge = addRationals(totalCharge, request);
+        if (compareCivilDates(date, input.selectedDate) <= 0) consumedAtProjectionDate = addRationals(consumedAtProjectionDate, request);
+      }
+    }
+    return Object.freeze({ reservationId: reservation.id, totalCharge, consumedAtProjectionDate });
+  });
 }
 
 export interface CursorProjectMetrics extends CursorProgressMetrics {
@@ -208,10 +246,10 @@ export function calculateCursorMetrics(
   });
 
   const metricsByProject = new Map(projects.map((metrics) => [metrics.projectId, metrics]));
+  const reservationMetrics = new Map(calculateReservationProgressQuantities(input).map((item) => [item.reservationId, item]));
   const programs: CursorProgramMetrics[] = [];
   for (const program of input.portfolio.programs) {
     const members = input.portfolio.projects.filter((project) => project.isActive && project.programId === program.id);
-    if (members.length === 0) continue;
     let baselineRAF = ZERO;
     let allocatedWorkload = ZERO;
     for (const project of members) {
@@ -219,6 +257,14 @@ export function calculateCursorMetrics(
       baselineRAF = addRationals(baselineRAF, metrics.baselineRAF);
       allocatedWorkload = addRationals(allocatedWorkload, metrics.allocatedWorkload);
     }
+    for (const reservation of input.portfolio.reservations) {
+      if (!reservation.isActive || reservation.programId !== program.id) continue;
+      const metrics = reservationMetrics.get(reservation.id);
+      if (!metrics) continue;
+      baselineRAF = addRationals(baselineRAF, metrics.totalCharge);
+      allocatedWorkload = addRationals(allocatedWorkload, metrics.consumedAtProjectionDate);
+    }
+    if (members.length === 0 && !input.portfolio.reservations.some((r) => r.isActive && r.programId === program.id)) continue;
     programs.push(Object.freeze({
       programId: program.id,
       baselineRAF,
@@ -232,7 +278,6 @@ export function calculateCursorMetrics(
     const members = input.portfolio.projects.filter(
       (project) => project.isActive && project.priorityFamilyId === family.id,
     );
-    if (members.length === 0) continue;
     let baselineRAF = ZERO;
     let allocatedWorkload = ZERO;
     for (const project of members) {
@@ -240,6 +285,14 @@ export function calculateCursorMetrics(
       baselineRAF = addRationals(baselineRAF, metrics.baselineRAF);
       allocatedWorkload = addRationals(allocatedWorkload, metrics.allocatedWorkload);
     }
+    for (const reservation of input.portfolio.reservations) {
+      if (!reservation.isActive || reservation.priorityFamilyId !== family.id) continue;
+      const metrics = reservationMetrics.get(reservation.id);
+      if (!metrics) continue;
+      baselineRAF = addRationals(baselineRAF, metrics.totalCharge);
+      allocatedWorkload = addRationals(allocatedWorkload, metrics.consumedAtProjectionDate);
+    }
+    if (members.length === 0 && !input.portfolio.reservations.some((r) => r.isActive && r.priorityFamilyId === family.id)) continue;
     priorityFamilies.push(Object.freeze({
       priorityFamilyId: family.id,
       baselineRAF,

@@ -16,6 +16,12 @@ import {
 export interface ReservationEditFormValues {
   readonly reservationId: ReservationId;
   readonly name: string;
+  readonly programId?: string;
+  readonly programName?: string;
+  readonly priorityFamilyId?: string;
+  readonly priorityFamilyName?: string;
+  readonly color?: string;
+  readonly colorChanged?: boolean;
   readonly startDate: string;
   readonly endDate: string;
   readonly teamAllocations: readonly ReservationTeamAllocationFormValues[];
@@ -55,6 +61,8 @@ export function parseReservationFields(
   if (name.length === 0) {
     errors.push(error("EMPTY_RESERVATION_NAME", "reservation.name", "Reservation name must not be empty."));
   }
+  if (values.programId === "__new__" && !values.programName?.trim()) errors.push(error("EMPTY_PROGRAM_NAME", "reservation.programName", "Enter a Program name."));
+  if (values.priorityFamilyId === "__new__" && !values.priorityFamilyName?.trim()) errors.push(error("EMPTY_PAS_NAME", "reservation.priorityFamilyName", "Enter a pas name."));
   const start = createCivilDate(values.startDate.trim(), "reservation.startDate");
   const end = createCivilDate(values.endDate.trim(), "reservation.endDate");
   if (!start.ok) errors.push(...start.errors);
@@ -78,6 +86,12 @@ export function parseReservationFields(
     ok: true,
     fields: Object.freeze({
       name,
+      ...(values.programId && values.programId !== "__new__" ? { programId: values.programId as import("../../domain/index.js").ProgramId } : {}),
+      ...(values.programId && values.programName ? { programName: values.programName } : {}),
+      ...(values.priorityFamilyId && values.priorityFamilyId !== "__new__" ? { priorityFamilyId: values.priorityFamilyId as import("../../domain/index.js").PriorityFamilyId } : {}),
+      ...(values.priorityFamilyId && values.priorityFamilyName ? { priorityFamilyName: values.priorityFamilyName } : {}),
+      ...(values.color ? { color: values.color } : {}),
+      ...(values.colorChanged ? { colorChanged: true } : {}),
       startDate: start.value,
       endDate: end.value,
       teamAllocations: Object.freeze(teamAllocations as UpdateReservationTeamAllocation[]),

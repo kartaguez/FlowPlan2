@@ -5,6 +5,7 @@ import type {
 import type { DomainError, ReservationId, TeamId } from "../../domain/index.js";
 import type { ReservationEditControls } from "../renderApp.js";
 import { createTeamSubcard } from "../portfolio/createTeamSubcard.js";
+import { createGroupingControls } from "../portfolio/createGroupingControls.js";
 import { reservationValuesFromModel, type ReservationDraftStore, type ReservationDraftValues } from "./reservationDraftStore.js";
 import {
   parseReservationEditCommand,
@@ -52,6 +53,7 @@ export function createReservationEditController(
   let nameInput: HTMLInputElement | undefined;
   let startInput: HTMLInputElement | undefined;
   let endInput: HTMLInputElement | undefined;
+  let groupingControls: ReturnType<typeof createGroupingControls> | undefined;
   let allocations: readonly RenderedAllocation[] = Object.freeze([]);
 
   const clearError = (): void => {
@@ -69,6 +71,7 @@ export function createReservationEditController(
     model = next;
     const draft = next === undefined ? undefined : input.draftStore?.initialize(next.reservationId, next);
     const values = draft?.values ?? (next === undefined ? undefined : reservationValuesFromModel(next));
+    if (values) (input.controls.container.closest?.(".project-sidebar-item") as HTMLElement | null)?.style?.setProperty("--project-accent", values.color);
     input.controls.container.hidden = next === undefined;
     input.controls.fields.replaceChildren();
     allocations = Object.freeze([]);
@@ -83,6 +86,8 @@ export function createReservationEditController(
     input.controls.status.textContent = "";
     const document = input.controls.fields.ownerDocument;
     nameInput = createInput(document, input.controls.fields, "Reservation name", "text", values!.name);
+    groupingControls = createGroupingControls(input.controls.fields, next, values!, next.reservationId,
+      () => notifyDraftChange(), "reservation");
     startInput = createInput(document, input.controls.fields, "Start date", "date", values!.startDate);
     endInput = createInput(document, input.controls.fields, "End date", "date", values!.endDate);
     const rendered: RenderedAllocation[] = [];
@@ -159,6 +164,7 @@ export function createReservationEditController(
     if (!model || !nameInput || !startInput || !endInput) throw new TypeError("Reservation form has no model.");
     const previous = input.draftStore?.get(model.reservationId)?.values ?? reservationValuesFromModel(model);
     return { name: nameInput.value, startDate: startInput.value, endDate: endInput.value,
+      ...(groupingControls?.read() ?? previous),
       teams: allocations.map((row) => ({ teamId: row.teamId, enabled: row.enabled.checked,
         kind: row.kind.value as "ratio" | "fixed-daily", value: row.value.value,
         ...(row.originalExact === undefined ? {} : { exact: row.originalExact }),
@@ -167,7 +173,9 @@ export function createReservationEditController(
   };
   const notifyDraftChange = (): void => {
     if (!model || !nameInput || !input.draftStore) return;
-    input.draftStore.update(model.reservationId, readDraftValues());
+    const next = readDraftValues();
+    input.draftStore.update(model.reservationId, next);
+    (input.controls.container.closest?.(".project-sidebar-item") as HTMLElement | null)?.style?.setProperty("--project-accent", next.color);
     for (const row of allocations) row.card.classList?.toggle("portfolio-card--dirty",
       input.draftStore.isTeamDirty(model.reservationId, row.teamId));
     input.onDraftChange?.();
@@ -196,6 +204,7 @@ export function createReservationEditController(
     const parsed = parseReservationEditCommand({
       reservationId: model.reservationId,
       name: nameInput.value,
+      ...(groupingControls?.read() ?? {}),
       startDate: startInput.value,
       endDate: endInput.value,
       teamAllocations: readAllocations(),

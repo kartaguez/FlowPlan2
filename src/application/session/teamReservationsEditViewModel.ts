@@ -2,6 +2,8 @@ import {
   serializeQuantity,
   type CivilDate,
   type ReservationId,
+  type ProgramId,
+  type PriorityFamilyId,
   type TeamId,
 } from "../../domain/index.js";
 import { formatPercentageForEditing, formatQuantityForEditing } from "./editableQuantity.js";
@@ -10,6 +12,11 @@ import type { PlanningSessionState } from "./planningSession.js";
 export interface ReservationEditViewModel {
   readonly reservationId: ReservationId;
   readonly name: string;
+  readonly programId?: ProgramId;
+  readonly priorityFamilyId?: PriorityFamilyId;
+  readonly effectiveColor?: string;
+  readonly programs?: readonly Readonly<{ id: ProgramId; name: string; color?: string }>[];
+  readonly priorityFamilies?: readonly Readonly<{ id: PriorityFamilyId; name: string }>[];
   readonly startDate: CivilDate;
   readonly endDate: CivilDate;
   readonly teamAllocations: readonly ReservationTeamAllocationEditViewModel[];
@@ -35,6 +42,11 @@ export function buildReservationEditViewModel(
   return Object.freeze({
     reservationId: reservation.id,
     name: reservation.name,
+    ...(reservation.programId === undefined ? {} : { programId: reservation.programId }),
+    ...(reservation.priorityFamilyId === undefined ? {} : { priorityFamilyId: reservation.priorityFamilyId }),
+    effectiveColor: reservation.programId === undefined ? reservation.ownColor! : state.portfolio.programs.find((program) => program.id === reservation.programId)!.color,
+    programs: Object.freeze(state.portfolio.programs.map((program) => Object.freeze({ id: program.id, name: program.name, color: program.color }))),
+    priorityFamilies: Object.freeze(state.portfolio.priorityFamilies.map((family) => Object.freeze({ id: family.id, name: family.name }))),
     startDate: reservation.startDate,
     endDate: reservation.endDate,
     teamAllocations: Object.freeze(

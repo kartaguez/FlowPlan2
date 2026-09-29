@@ -34,7 +34,7 @@ from the demo. The following capabilities are complete and active:
 - exact rational parsing and untouched exact-value preservation;
 - compact accessible settings icon buttons for Planning and Teams;
 - planning diagnostics, cumulative Team and global Capacity / Occupied /
-  Occupancy / Over-reservation metrics, and Project / Program / PAS progress at
+  Occupancy / Over-reservation metrics, and Project / Program / pas progress at
   the shared cursor date.
 
 The implementation follows the state, atomicity, engine, and projection
@@ -46,9 +46,12 @@ demo when the key is absent. A present but invalid document is reported and left
 untouched at startup. Accepted commands persist their candidate state before
 the session publishes it. Planning Settings can export the complete business
 state to JSON or import a validated file after confirmation; a successful
-import reloads the page. Current backups are strict V2 documents. V1 remains
-accepted in reading and migrates Projects and Reservations as active; every
-successful import is normalized and persisted as V2.
+import reloads the page. Current backups are V3 documents. V1 and V2 remain
+readable; V1 migrates Projects and Reservations as active. Import removes
+orphan catalog entries, repairs missing or invalid Program and own colors, and
+removes residual own colors from Program members before Domain validation.
+Other invalid business data is rejected. Every successful import is persisted
+as V3.
 
 Lot 9I Project and Reservation forecast activation is validated and **DONE** at
 `c77558c3e8b2912532afbb8113ac8183fe737c18`. Both entity types default
@@ -62,11 +65,25 @@ timeline segment, or Team/global occupancy. `TEAM_OVER_RESERVED` remains a Team
 aggregate of all active Reservation requests. Independent drafts and UI context
 survive a successful toggle. The existing localStorage key is unchanged.
 
-Lot 9A is validated and **DONE**. Program and PriorityFamily (shown as
-PAS) are optional Project associations. Their catalogs are static in the demo
-session; the Project editor offers two optional selects, and each Portfolio
-Project card shows `Program <name or —> · PaS <name or —>` beneath its title.
-The associations have no effect on the planning result.
+Lot 9A is validated and **DONE** as the original Program/PriorityFamily
+foundation. The current corrective lot extends both optional associations to
+Reservations and makes catalogs usage-driven across both entity types. An
+inactive reference retains its catalog entry; only active members contribute
+to forecast progress. Cards offer None, an existing value, or a new normalized
+value directly, without separate catalog management. The UI calls
+PriorityFamily « pas »; the technical name remains. Associations still have no
+effect on planning priority or admission.
+
+The corrective lot is **IN REVIEW**. Programs own a color; an ungrouped
+Project or Reservation owns its color; a Program member has no hidden own
+color. Cards preview their derived pastel locally until Apply, and frises use
+the exact effective color while keeping their Project/Reservation distinction.
+Only an Apply that actually edits Color can replace a Program color changed by
+another draft. New or departing members receive a stable, varied suggestion
+that remains freely editable. Reservation progress counts exact demand in the
+inclusive planning horizon as its total charge, and demand through the
+Projection date in that same horizon as consumed work. Group progress divides
+sums of consumed work by sums of charges, without averaging percentages.
 
 Lot 9B is validated and **DONE**. A pure adapter projects exact
 cumulative Team utilization and Project, Program, and PAS progress for an
@@ -74,7 +91,7 @@ inclusive selected-date interval. The current-run RAF baseline comes from the
 same Portfolio used to plan; Portfolio and horizon references travel with the
 PlanningResult in the disposable session projection. Lot 9C is validated and
 **DONE**. It adds exact daily non-compensating over-reservation and its ratio,
-and renders cumulative Team metrics plus an exclusive Projects / Programs / PAS
+and renders cumulative Team metrics plus an exclusive Projects / Programs / pas
 progress view at the shared cursor date. Lot 9C.1 is validated and **DONE**.
 The subsequent FlowPlan visual adaptation and corrective pass are also
 validated and **DONE**. Lot 9D priority drag/drop is validated and **DONE**.
@@ -233,7 +250,7 @@ synchronization, import/export, and undo/redo are not specified here.
 ```text
 Planning
 ├── global Settings icon
-├── cumulative Projects / Programs / PAS progress, titled with the Projection date
+├── cumulative Projects / Programs / pas progress, titled with the Projection date
 ├── compact diagnostics counts → details modal
 ├── viewport controls
 ├── global Projection date band, then year/month rows with the shared marker
@@ -295,7 +312,7 @@ The editable session currently accepts:
 - `update-planning-settings`: replaces horizon, global working pattern, and
   global parallelism setting;
 - `update-project`: replaces editable fields and the final set of Team
-  requirements, including optional Program/PAS associations, without changing
+  requirements, including optional Program/pas associations, without changing
   Project priority;
 - `create-project`: creates one Project with explicitly supplied Team
   requirements and appends it to global priority;
@@ -333,10 +350,10 @@ These are current implementation facts, not durable product rules:
   preserved exactly by unrelated Project Apply;
 - Project priority is reordered through Portfolio Projects handles; card
   badges show derived positions;
-- Program and PriorityFamily/PAS catalogs are static; they have no create,
-  delete, or rename UI;
+- Program/pas catalogs are derived from Project and Reservation references;
+  they have no separate management or global rename UI;
 - the former daily Team summary is removed; cumulative metrics remain in Team
-  headers and the Projects / Programs / PAS surface;
+  headers and the Projects / Programs / pas surface;
 - Ctrl+ArrowLeft/Right moves the Projection date outside editable fields and
   modals without recomputing planning;
 - Reservation allocation rows may be enabled/disabled for existing Teams;
@@ -345,7 +362,7 @@ These are current implementation facts, not durable product rules:
 
 ## Not part of the current implemented canon
 
-- Program / PriorityFamily (PAS) structural CRUD;
+- separate Program / PriorityFamily management screens or global rename;
 - undo/redo;
 - actuals records, resource actual consumption, and knowledge snapshots
   (the Lot 10 target above, not yet implemented).

@@ -28,7 +28,7 @@ export function createCursorProgressSurface(
   const buttons = views.map((view) => {
     const button = document.createElement("button");
     button.type = "button";
-    button.textContent = view === "pas" ? "PAS" : view === "projects" ? "Projects" : "Programs";
+    button.textContent = view === "pas" ? "Pas" : view === "projects" ? "Projects" : "Programs";
     button.addEventListener("click", () => onViewChange(view));
     controls.append(button);
     return button;

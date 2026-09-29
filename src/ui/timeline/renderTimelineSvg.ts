@@ -16,6 +16,7 @@ const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 export interface RenderTimelineSvgInput {
   readonly svg: SVGSVGElement;
   readonly geometry: TimelineGeometry;
+  readonly colors?: ReadonlyMap<string, string>;
 }
 
 export function renderTimelineSvg(input: RenderTimelineSvgInput): void {
@@ -34,7 +35,7 @@ export function renderTimelineSvg(input: RenderTimelineSvgInput): void {
   root.append(renderTimeAxis(document, input.geometry.timeAxis));
 
   for (const team of input.geometry.teams) {
-    root.append(renderTeam(document, team));
+    root.append(renderTeam(document, team, input.colors));
   }
   const cursorLayer = createSvgElement(document, "g");
   cursorLayer.setAttribute("class", "timeline-cursor-layer");
@@ -97,6 +98,7 @@ function renderTimeSegment(
 function renderTeam(
   document: Document,
   team: TimelineTeamGeometry,
+  colors?: ReadonlyMap<string, string>,
 ): SVGElement {
   const group = createSvgElement(document, "g");
   group.setAttribute("class", "timeline-team");
@@ -109,7 +111,7 @@ function renderTeam(
   const days = createSvgElement(document, "g");
   days.setAttribute("class", "timeline-days");
   for (const day of team.days) {
-    days.append(renderDay(document, day));
+    days.append(renderDay(document, day, colors));
   }
   const markers = createSvgElement(document, "g");
   markers.setAttribute("class", "timeline-project-markers");
@@ -150,7 +152,7 @@ function renderProjectMarker(
   return line;
 }
 
-function renderDay(document: Document, day: TimelineDayGeometry): SVGElement {
+function renderDay(document: Document, day: TimelineDayGeometry, colors?: ReadonlyMap<string, string>): SVGElement {
   const group = createSvgElement(document, "g");
   group.setAttribute(
     "class",
@@ -183,12 +185,14 @@ function renderDay(document: Document, day: TimelineDayGeometry): SVGElement {
     if (segment.height <= 0) continue;
     const rectangle = createRect(document, "timeline-reservation-segment", segment);
     rectangle.setAttribute("data-reservation-id", segment.reservationId);
+    const color = colors?.get(segment.reservationId);
+    if (color) { rectangle.setAttribute("fill", color); rectangle.setAttribute("style", `fill: ${color}`); }
     reservationSegments.append(rectangle);
   }
   const allocations = createSvgElement(document, "g");
   allocations.setAttribute("class", "timeline-allocations");
   for (const allocation of day.allocations) {
-    allocations.append(renderAllocation(document, allocation));
+    allocations.append(renderAllocation(document, allocation, colors));
   }
 
   group.append(cell, tube, reservedRegion, reservationSegments, projectRegion, allocations);
@@ -198,13 +202,17 @@ function renderDay(document: Document, day: TimelineDayGeometry): SVGElement {
 function renderAllocation(
   document: Document,
   allocation: TimelineAllocationGeometry,
+  colors?: ReadonlyMap<string, string>,
 ): SVGElement {
-  const colorIndex = projectColorIndex(allocation.projectId);
+  const colorIndex = colors ? undefined : projectColorIndex(allocation.projectId);
   const rectangle = createRect(
     document,
-    `timeline-project-allocation timeline-project-color-${colorIndex}`,
+    colorIndex === undefined ? "timeline-project-allocation" : `timeline-project-allocation timeline-project-color-${colorIndex}`,
     allocation,
   );
+  const color = colors?.get(allocation.projectId);
+  if (color) { rectangle.setAttribute("fill", color); rectangle.setAttribute("style", `fill: ${color}`); }
+  if (colorIndex !== undefined) rectangle.setAttribute("data-project-color-index", String(colorIndex));
   rectangle.setAttribute("data-project-id", allocation.projectId);
   rectangle.setAttribute("data-team-id", allocation.teamId);
   rectangle.setAttribute("data-date", allocation.date);
@@ -212,7 +220,6 @@ function renderAllocation(
     "data-priority-index",
     String(allocation.priorityIndex),
   );
-  rectangle.setAttribute("data-project-color-index", String(colorIndex));
   return rectangle;
 }
 

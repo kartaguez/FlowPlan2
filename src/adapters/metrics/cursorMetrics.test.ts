@@ -102,15 +102,11 @@ function fixture(): CalculateCursorMetricsInput {
   const y = team("Y");
   const grouped = must(createProgram({ id: must(createProgramId("grouped")), name: "Grouped" }));
   const zero = must(createProgram({ id: must(createProgramId("zero")), name: "Zero" }));
-  const empty = must(createProgram({ id: must(createProgramId("empty")), name: "Empty" }));
   const pas = must(createPriorityFamily({
     id: must(createPriorityFamilyId("pas")), name: "PAS",
   }));
   const zeroPas = must(createPriorityFamily({
     id: must(createPriorityFamilyId("zero-pas")), name: "Zero PAS",
-  }));
-  const emptyPas = must(createPriorityFamily({
-    id: must(createPriorityFamilyId("empty-pas")), name: "Empty PAS",
   }));
   const a = project("A", [{ team: x, raf: "10" }, { team: y, raf: "30" }], grouped.id, pas.id);
   const b = project("B", [{ team: x, raf: "2" }], grouped.id, pas.id);
@@ -118,8 +114,8 @@ function fixture(): CalculateCursorMetricsInput {
   const portfolio = must(createPortfolio({
     teams: [x, y],
     projects: [a, b, z],
-    programs: [grouped, zero, empty],
-    priorityFamilies: [pas, zeroPas, emptyPas],
+    programs: [grouped, zero],
+    priorityFamilies: [pas, zeroPas],
     priorityOrder: [a.id, b.id, z.id],
     reservations: [],
   }));
@@ -334,7 +330,7 @@ describe("calculateCursorMetrics", () => {
     const x = input.portfolio.teams[0]!;
     const sole = project("third", [{ team: x, raf: "3" }]);
     const portfolio = must(createPortfolio({
-      ...input.portfolio, projects: [sole], priorityOrder: [sole.id],
+      ...input.portfolio, projects: [sole], priorityOrder: [sole.id], programs: [], priorityFamilies: [],
     }));
     const planningResult: PlanningResult = {
       teamPlans: [

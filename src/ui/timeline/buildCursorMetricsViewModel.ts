@@ -89,7 +89,7 @@ export function buildCursorMetricsViewModel(
         metadata: `Priority ${priority} · Inactive`, estimatedWithinHorizon: false,
       });
       return item(id, project.name, value,
-        `Priority ${priority} · Program ${project.programId ? programs.get(project.programId) : "—"} · PAS ${project.priorityFamilyId ? families.get(project.priorityFamilyId) : "—"}`,
+        `Priority ${priority} · Program ${project.programId ? programs.get(project.programId) : "—"} · pas ${project.priorityFamilyId ? families.get(project.priorityFamilyId) : "—"}`,
         { estimatedWithinHorizon: end.estimatedWithinHorizon ?? false,
           ...(end.estimatedEndDate ? { estimatedEndDate: end.estimatedEndDate } : {}) });
     })),
@@ -97,13 +97,17 @@ export function buildCursorMetricsViewModel(
       const value = programMetrics.get(program.id);
       if (!value) return [];
       const members = portfolio.projects.filter((project) => project.isActive && project.programId === program.id);
-      return [item(program.id, program.name, value, `${members.length} projects`, groupEnd(members))];
+      const reservations = portfolio.reservations.filter((reservation) => reservation.isActive && reservation.programId === program.id);
+      return [item(program.id, program.name, value, `${members.length} projects · ${reservations.length} reservations`,
+        reservations.length ? { estimatedWithinHorizon: false } : groupEnd(members))];
     })),
     pas: Object.freeze(portfolio.priorityFamilies.flatMap((family) => {
       const value = pasMetrics.get(family.id);
       if (!value) return [];
       const members = portfolio.projects.filter((project) => project.isActive && project.priorityFamilyId === family.id);
-      return [item(family.id, family.name, value, `${members.length} projects`, groupEnd(members))];
+      const reservations = portfolio.reservations.filter((reservation) => reservation.isActive && reservation.priorityFamilyId === family.id);
+      return [item(family.id, family.name, value, `${members.length} projects · ${reservations.length} reservations`,
+        reservations.length ? { estimatedWithinHorizon: false } : groupEnd(members))];
     })),
   });
 }
