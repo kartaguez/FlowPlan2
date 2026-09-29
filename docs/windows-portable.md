@@ -1,9 +1,25 @@
-# FlowPlan2 portable for Windows
+# Exécutable portable Windows
 
-Run the **Windows portable executable** workflow manually in GitHub Actions and download its `FlowPlan2-windows-x64` artifact. Extract `FlowPlan2.exe` from the artifact and double-click it on a Windows x64 PC. Node.js does not need to be installed on that PC. A browser does need to be installed.
+## Créer `FlowPlan2.exe` sur le PC Windows de construction
 
-The executable opens `http://127.0.0.1:4175/` in the default browser. Keep its console window open while using FlowPlan2; close the window to stop the local server. If port 4175 is occupied, FlowPlan2 exits with an error. The executable only serves the web files embedded at build time and only listens on the local machine.
+1. Installez [Node.js 26 pour Windows x64](https://nodejs.org/en/download/archive/v26.8.1) sur ce PC. Node.js et npm servent uniquement à la construction.
+2. Téléchargez le dépôt avec `git clone https://github.com/kartaguez/FlowPlan2.git`, ou utilisez **Code → Download ZIP** sur GitHub puis décompressez le ZIP.
+3. Ouvrez PowerShell dans le dossier du dépôt (celui qui contient `package.json`) et lancez :
 
-Planning data remains in the browser's `localStorage` for that exact address and browser profile. Use the application's JSON export and import to transfer data to another browser or PC. This portable version does not read planning data from a file beside the executable.
+```powershell
+node --version
+npm.cmd ci
+npm.cmd run typecheck
+npm.cmd test
+npm.cmd run test:portable
+npm.cmd run build:sea
+npm.cmd run test:sea
+```
 
-To build locally, use Windows x64 with Node.js 26 and run `npm ci` followed by `npm run build:sea`. The result is `dist/FlowPlan2.exe`. Node.js is needed only on the build machine.
+`node --version` doit afficher `v26...`. `npm.cmd run build:sea` crée `dist\FlowPlan2.exe`. Le contrôle `test:sea` démarre l'exécutable sans navigateur, vérifie les fichiers intégrés et le refus d'une seconde instance, puis arrête le serveur. Il peut être omis si seul le build est souhaité.
+
+## Utiliser l'exécutable
+
+Copiez uniquement `dist\FlowPlan2.exe` sur le PC Windows x64 de destination et double-cliquez dessus. Aucun Node.js ni autre fichier du dépôt n'est nécessaire sur ce PC ; un navigateur doit toutefois être installé. L'exécutable ouvre `http://127.0.0.1:4175/` dans le navigateur par défaut. Gardez la console ouverte pendant l'utilisation et fermez-la pour arrêter FlowPlan2.
+
+Si le port 4175 est occupé, l'exécutable affiche une erreur et s'arrête. Les données restent dans le `localStorage` du navigateur pour cette adresse et ce profil. Utilisez l'export et l'import JSON de l'application pour les transférer vers un autre navigateur ou un autre PC.

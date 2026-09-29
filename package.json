@@ -12,7 +12,8 @@
     "build:sea": "node scripts/build-sea.mjs",
     "typecheck": "tsc -p tsconfig.app.json --noEmit",
     "test": "node scripts/test.mjs",
-    "test:portable": "node --test scripts/portable-server.test.cjs"
+    "test:portable": "node --test scripts/portable-server.test.cjs",
+    "test:sea": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/smoke-sea.ps1"
   },
   "devDependencies": {
     "@types/node": "26.6.2",
