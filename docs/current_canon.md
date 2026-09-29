@@ -9,9 +9,9 @@ active implementation and trajectory. The remaining work is in the
 
 ## Validated implementation baseline
 
-`ad087b75d9613830b712bd505423726ab6ac6065` (validated lot 9H complete
-planning backup and restore, with the separate Projection date presentation
-pass also validated).
+`c77558c3e8b2912532afbb8113ac8183fe737c18` (validated lot 9I Project
+and Reservation forecast activation, with prior lots and the separate
+Projection date presentation pass also validated).
 
 The active application implements a pure planning projection over an editable
 session, restored from a local backup when available and otherwise initialized
@@ -26,6 +26,8 @@ from the demo. The following capabilities are complete and active:
   Team requirements; Project priority is reordered from Portfolio Projects;
 - global multi-Team Reservations with ratio and fixed-daily modes, created,
   edited, and deleted in inline Portfolio cards;
+- immediate Project and Reservation activation controls; inactive entities
+  remain in the Portfolio and do not participate in the forecast;
 - Projects / Reservations tabs in the Portfolio sidebar;
 - shared viewport, zoom, pan, selected date, cursor, semantic hit testing,
   and hover;
@@ -44,21 +46,21 @@ demo when the key is absent. A present but invalid document is reported and left
 untouched at startup. Accepted commands persist their candidate state before
 the session publishes it. Planning Settings can export the complete business
 state to JSON or import a validated file after confirmation; a successful
-import reloads the page.
+import reloads the page. Current backups are strict V2 documents. V1 remains
+accepted in reading and migrates Projects and Reservations as active; every
+successful import is normalized and persisted as V2.
 
-Lot 9I Project and Reservation forecast activation is implemented and **IN
-REVIEW**. Both entity types default to active. Portfolio cards expose immediate
-Active/Inactive controls outside their Apply/Cancel drafts; ordinary Apply
-preserves the current activation state. Inactive Projects retain their global
-priority position but have no Team plan, allocations, markers, forecast
+Lot 9I Project and Reservation forecast activation is validated and **DONE** at
+`c77558c3e8b2912532afbb8113ac8183fe737c18`. Both entity types default
+to active. Portfolio cards expose immediate Active/Inactive controls outside
+their Apply/Cancel drafts; ordinary Apply preserves the current activation
+state. Inactive Projects retain their global priority position exactly in
+`Portfolio.priorityOrder` but have no Team plan, allocations, markers, forecast
 diagnostics, or projected progress metrics. Inactive Reservations retain their
 configured request and 9G display order but contribute no forecast demand,
 timeline segment, or Team/global occupancy. `TEAM_OVER_RESERVED` remains a Team
 aggregate of all active Reservation requests. Independent drafts and UI context
-survive a successful toggle. New backups are strict V2 documents with explicit
-activation fields; V1 documents load with all Projects and Reservations active
-from the unchanged localStorage key. Human validation has not yet advanced the
-validated 9H baseline.
+survive a successful toggle. The existing localStorage key is unchanged.
 
 Lot 9A is validated and **DONE**. Program and PriorityFamily (shown as
 PAS) are optional Project associations. Their catalogs are static in the demo
@@ -128,10 +130,11 @@ initial period. There is no manual period reorder or Domain period ID.
 
 ## Current objective — Lot 10: Actuals & History
 
-Lot 10 is the active product and architecture target; none of 10A–10E is
-implemented yet. The current run still starts from the RAF stored on each
-Project/Team requirement and produces a disposable projection. The in-memory
-session has no actuals records, historical progression, or snapshots.
+Lot 10 is the next product and architecture target; 10A is the next sub-lot to
+plan, and none of 10A–10E is implemented yet. The current run still starts
+from the RAF stored on each Project/Team requirement and produces a disposable
+projection. The in-memory session has no actuals records, historical
+progression, or snapshots.
 
 ### Business knowledge and dates
 

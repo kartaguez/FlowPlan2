@@ -1,15 +1,15 @@
 # FlowPlan2 current plan
 
 Current validated baseline:
-`ad087b75d9613830b712bd505423726ab6ac6065`
+`c77558c3e8b2912532afbb8113ac8183fe737c18`
 
 This is the operational roadmap for the active trajectory. Durable product and
 architecture rules live in [canon](./canon.md); current implementation facts
 and temporary constraints live in [current canon](./current_canon.md).
 
-Validated 9H complete planning backup and restore forms the baseline.
-Lot 9I — Project and Reservation forecast activation is implemented and IN
-REVIEW. Lot 10 — Actuals & History remains next; 10A has not started.
+Validated 9I Project and Reservation forecast activation forms the baseline.
+Lot 10 — Actuals & History is next; 10A is the next sub-lot to plan and has
+not started.
 
 ## Completed
 
@@ -31,32 +31,36 @@ REVIEW. Lot 10 — Actuals & History remains next; 10A has not started.
 - 9F Project structural CRUD and Team membership (DONE);
 - 9G Reservation and capacity-period structural CRUD (DONE);
 - 9H Complete planning backup and restore (DONE);
+- 9I Project and Reservation forecast activation (DONE);
 - separate Projection date presentation pass (DONE).
 
 ## Current objective and ordered sub-lots
 
 ```text
-Lot 9I — Project and Reservation forecast activation (IN REVIEW)
-Lot 10 — Actuals & History (OPEN)
-10A → 10B → 10C → 10D → 10E
+Lot 9I — Project and Reservation forecast activation (DONE)
+Lot 10 — Actuals & History (NEXT)
+10A (NEXT — to plan) → 10B → 10C → 10D → 10E
 ```
 
-Lots through 9H and the separate Projection date presentation pass are
-validated.
+Lots through 9I and the separate Projection date presentation pass are
+validated. No Lot 10 implementation has started.
 
 ## 9I — Activation of Projects and Reservations in the simulation
 
-**Status: IN REVIEW** — implemented after the validated 9H baseline, pending
-human audit. Project and Reservation activation is immediate and independent of
-Apply/Cancel drafts. Inactive entities retain all Portfolio data and order but
-leave the forecast; Project progress remains visibly Inactive without forecast
-metrics. V2 backups persist both flags and V1 imports default both to active.
-Typecheck, 510 automated tests across 77 suites, and build pass. A local Edge
-check at 1440 px and 390 px covered closed-card toggles, timeline and metric
-changes, draft Apply after toggle, reactivation, and narrow layout without
-horizontal document overflow.
-The validated baseline SHA above and all completed lot statuses remain
-unchanged until human validation. Lot 10 has not started.
+**Status: DONE** — human validated implementation at
+`c77558c3e8b2912532afbb8113ac8183fe737c18`. Project and Reservation
+activation is immediate and independent of Apply/Cancel drafts. Ordinary edits
+preserve the current activation state. Inactive entities retain all Portfolio
+data but leave the forecast. Inactive Projects retain their exact position in
+`Portfolio.priorityOrder`; Project progress remains visibly Inactive without
+forecast metrics. Current backups are strict V2 documents with both activation
+flags. V1 remains readable and migrates both entity types as active; every
+successful import is persisted as V2. Typecheck, 511 automated tests across 77
+suites, and build pass. A local Edge check at 1440 px and 390 px covered
+closed-card toggles, timeline and metric changes, draft Apply after toggle,
+reactivation, and narrow layout without horizontal document overflow.
+
+Lot 10 has not started.
 
 ## 9C.1 — Planning UI cleanup
 
