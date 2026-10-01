@@ -46,11 +46,11 @@ Lot 9I — Project and Reservation forecast activation (DONE)
 Corrective lot — usage-driven Program/Pas and colors (DONE)
 Corrective lot — anchored temporal zoom and range drag (DONE)
 Lot 10 — Actuals & History (OPEN)
-10A (DONE) → 10B (DONE) → 10C (DONE) → 10D → 10E
+10A (DONE) → 10B (DONE) → 10C (DONE) → 10C.1 (PLANNED) → 10D → 10E
 ```
 
 Lots through 9I, the Projection date presentation pass, both corrective lots,
-10A, 10B, and 10C are validated. 10D is the next open lot; 10E remains open.
+10A, 10B, and 10C are validated. 10C.1 is the next open lot; 10D and 10E remain open.
 
 ## Corrective lot — anchored temporal zoom and range drag
 
@@ -334,12 +334,16 @@ manually. Implementation and final dirty correction were audited at
 `9dc857594db335864f740e6295b74716ce6917de` and
 `18f1c20ac6343dc95654dc32bffc7032f9d5be52`.
 
+## 10C.1 — Object-scoped Actuals knowledge snapshots
+
+**Status: PLANNED, NOT IMPLEMENTED.** [10C.1 implementation and migration plan](./steps/ACTUALS/lot10c1_plan.md). This intermediate lot replaces the 10A–10C cumulative-record model with immutable, whole-Project or whole-Reservation snapshots of current Actuals/RAF knowledge. It adds one shared exact Actuals partition per object, explicit rectification/extension/erosion and atomic Team membership transitions. It also plans a lossless, cautious V4 migration and stable snapshot/period source identity. The present code and current canon still describe the delivered 10C model; 10C.1 awaits plan audit and implementation authorization.
+
 ## 10D — Knowledge snapshots
 
-Capture immutable knowledge of FlowPlan2 at a snapshot date independent of
-each object's `actualsThroughDate`. One snapshot may contain Projects and
-Reservations whose actuals are known through different dates. The snapshot
-contract and persistence mechanism remain open.
+Reassess cross-object and Forecast knowledge needed for whole-planning historical
+replay after 10C.1. Object-scoped Actuals/RAF snapshots alone do not freeze
+Team capacity, working pattern, Forecast configuration, or all objects at one
+instant. This lot remains open and distinct from 10C.1.
 
 ## 10E — Historical reconstruction & drift comparison
 
