@@ -38,16 +38,28 @@ must survive entity reconstruction and V4 migration without behavioral change.
    start dates. Existing entities omit `actuals` until their first record.
 2. Extend `createProject` and `createReservation` to deep-copy/freeze and
    validate supplied chronologies: start present iff records are nonempty,
-   first date at/after start, subsequent dates strictly increasing, unique
-   Team IDs per record, exact non-negative quantities, and per-Team cumuls
-   nondecreasing against the last earlier entry containing that Team. Permit
-   empty Team entries for a Reservation record. Keep existing activation,
+   first date equal to or after start, subsequent dates strictly increasing,
+   unique Team IDs per record, exact non-negative quantities, and per-Team
+   cumuls nondecreasing against the last earlier entry containing that Team.
+   Permit empty Team entries for a Reservation record. Keep existing activation,
    grouping, color, date, and forecast validations. `createPortfolio` checks
    that every historical Team ID still exists; it does **not** require an old
-   record's Teams to match current requirements or allocations. For each
-   currently required Project Team with a past entry, validate exact RAF
-   equality to its latest recorded RAF. New requirements without a past entry
-   keep their editable RAF.
+   record's Teams to match current requirements or allocations. Add a minimal
+   Domain contract on each current Project requirement recording its RAF
+   provenance, for example `rafAuthority: "latest-actuals" |
+   "current-configuration"`. A requirement introduced without prior Actuals
+   or reintroduced after removal has `current-configuration`; a Project
+   Actuals append changes every recorded requirement to `latest-actuals`.
+   Domain membership transitions must maintain this provenance; ordinary
+   non-membership updates must preserve it. Validate exact equality to the
+   latest recorded RAF only for `latest-actuals`, and require that such an
+   entry exists. `current-configuration` permits a freely specified RAF even
+   if the Team appears in older records. A stateless
+   `createProject`/`createPortfolio` receiving only final requirements and the
+   journal cannot distinguish
+   continuous membership from reintroduction; it validates the supplied
+   provenance but must not claim to infer it. Treat the provenance as current
+   business configuration, not as a reconstructed daily observation.
 3. Add Domain append operations for the two entity types. The first append
    requires an explicit `actualsFromDate`; later appends reject a new or
    changed start. Each append takes a complete record for the entity's
@@ -55,21 +67,31 @@ must survive entity reconstruction and V4 migration without behavioral change.
    `isActive` forecast flag, compares its Team IDs to requirements or
    allocations at that moment, finds each Team's latest historical cumulative
    (or zero), rejects a decrease, and returns a new validated entity. A
-   Project append also updates corresponding requirements' RAF. A Team that
-   disappeared and reappeared uses its last historical cumulative value, but
-   its delta belongs solely to the newest object period. A zero-Team
-   Reservation may append an empty record and advance its object date.
+   Project append also updates corresponding requirements' RAF and sets their
+   provenance to `latest-actuals`. A Team that disappeared and reappeared uses
+   its last historical cumulative value, but its delta belongs solely to the
+   newest object period. A zero-Team Reservation may append an empty record
+   and advance its object date.
 4. Add `append-project-actuals` and `append-reservation-actuals` typed session
    commands. Application resolves the target and current Portfolio Teams;
    Domain enforces the timeline and quantities. Commands atomically replace
    the target and run Portfolio validation. Update/create/activation/grouping
-   commands must preserve existing chronologies. Ordinary `update-project`
-   rejects a direct change to RAF for any Team with a historical entry,
-   including one removed and later reintroduced; its reintroduced requirement
-   must initially carry the last recorded RAF. Ordinary Reservation editing
-   changes only forecast fields. Block Project/Reservation deletion with
-   records and Team deletion when referenced by any record, with explicit
-   error codes and no state change. Inactive status grants no exception.
+   commands must preserve existing chronologies. The Domain Project membership
+   transition compares the previous and candidate Team sets: continuing
+   requirements keep their RAF provenance, removed requirements disappear,
+   and newly added requirements receive `current-configuration` with the
+   caller's RAF, even when their Team has historical Actuals. Derive this
+   marker from the prior state and membership change; do not accept a caller's
+   attempt to change it on a continuing requirement. `update-project`
+   rejects a direct RAF change only for continuing `latest-actuals`
+   requirements; it allows an explicit RAF on reintroduction and edits to
+   `current-configuration` requirements until their next Actuals append.
+   Perform this comparison at the Domain/Application transition with both
+   previous and candidate state, not inside a stateless factory. Ordinary
+   Reservation editing changes only forecast fields. Block Project/Reservation
+   deletion with records and Team deletion when referenced by any record, with
+   explicit error codes and no state change. Inactive status grants no
+   exception.
 
 ## Reconstruction and persistence
 
@@ -90,15 +112,19 @@ must survive entity reconstruction and V4 migration without behavioral change.
 6. Evolve the strict backup codec to V4 under the existing `flowplan` format
    and localStorage key. Encode optional chronologies on Projects and
    Reservations, using canonical rational strings and ISO CivilDates. Decode
-   V4 strictly through Domain factories and Portfolio validation. Decode
-   V1–V3 as entities without Actuals; successful import writes V4. Switch
-   automatic saves, import normalization, and export to V4. Do not silently
-   drop Actuals if a legacy V1/V2/V3 encoder is called on a state containing
+   V4 strictly through Domain factories and Portfolio validation, including
+   required RAF provenance for every current Project requirement. The V4
+   document stores this provenance so a restore can enforce the same rule; it
+   cannot recover a past membership break from final requirements and the
+   journal alone. Decode V1–V3 as entities without Actuals and initialize
+   their requirements with `current-configuration`; successful import writes
+   V4. Switch automatic saves, import normalization, and export to V4. Do not
+   silently drop Actuals if a legacy V1/V2/V3 encoder is called on a state containing
    records: reject that use explicitly. Preserve `isActive`, Program/Pas
    associations, colors, and existing import repair behavior. A failed V4
-   decode, projection, or
-   store write leaves the session unchanged and follows the existing failure
-   path. No knowledge snapshots or historical capacity versions are added.
+   decode, projection, or store write leaves the session unchanged and follows
+   the existing failure path. No knowledge snapshots or historical capacity
+   versions are added.
 7. Keep the existing projection dispatcher path for both append commands.
    Project append rebuilds forecast from the updated RAF. Reservation append
    also rebuilds once because the current dispatcher rebuilds every changed
@@ -115,32 +141,55 @@ then V4 codec and transaction wiring; finally documentation. Keep every
 intermediate change compatible with record-free demo and V1–V3 backups.
 
 - **Domain records:** first `[from, through]` and later `(previous, through]`
-  intervals; immutable start and records; date equality/reversal rejected;
-  exact non-negative and nondecreasing cumuls; RAF retained; object dates
-  independent; duplicate/unknown Teams; empty Reservation Team set; no
+  intervals; first through may equal `actualsFromDate` (one day), while a
+  first through before it is rejected; subsequent through dates must be
+  strictly increasing (equality and reversal rejected); immutable start and
+  records; exact non-negative and nondecreasing cumuls; RAF retained; object
+  dates independent; duplicate/unknown Teams; empty Reservation Team set; no
   retroactive membership validation; inactive entity records retained.
 - **Membership:** first Team's previous cumul is zero; newly added Team uses
   current object interval; removed Team's old record persists; reintroduced
   Team resumes last known cumul but distributes only over the current object
-  interval. Verify Project and Reservation cases and preserved record values
-  after ordinary edits, activation toggles, grouping/color edits, and Team
-  capacity changes.
-- **Distribution:** positive constant/variable weights, zero-weight days,
-  capacity exception on weekend and outside a period, zero-capacity fallback
-  over normal days, all-calendar fallback over a weekend-only interval,
-  schedule gaps, sub-capacity and over-capacity deltas, rational fractions,
-  successive intervals, exact `sum == delta`, independent overlapping
-  Project/Reservation sources with no clamp, and dates at period boundaries.
+  interval. For a Project, test that a continuously present requirement keeps
+  the RAF of its latest Actuals entry and rejects an ordinary RAF edit; after
+  removal and reintroduction its user-supplied RAF is accepted even if it
+  differs from the historical RAF, while `previousConsumed` still comes from
+  the last historical cumul. Confirm that its RAF stays configurable until a
+  new Actuals entry makes that entry authoritative; test V4 restore preserves
+  this distinction. Reject a continuing requirement whose caller changes its
+  provenance, and reject `latest-actuals` when no such entry exists. Verify
+  Project and Reservation cases and preserved record
+  values after ordinary edits, activation toggles, grouping/color edits, and
+  Team capacity changes.
+- **Distribution:** positive constant/variable weights, zero-weight days;
+  non-working day with a positive exception receives a positive level-1
+  weight; non-working day with an explicit zero exception is eligible in
+  level 2 when all weights are zero; working day in a capacity-schedule gap
+  without exception is eligible in level 2, and with a positive exception
+  receives level-1 weight; non-working day outside every capacity period
+  with an explicit zero exception is eligible in level 2. Also test
+  zero-capacity fallback over normal days, all-calendar fallback over a
+  weekend-only interval, sub-capacity and over-capacity deltas, rational
+  fractions, successive intervals, exact `sum == delta`, independent
+  overlapping Project/Reservation sources with no clamp, and dates at period
+  boundaries.
 - **Session/lifecycle:** Project append synchronizes RAF and produces one
-  current forecast projection; direct RAF edits after an entry fail; absent
-  and returning Teams follow the stated RAF rule; Reservation append does not
-  change forecast demand; all three protected deletions fail without state,
-  projection, or backup writes; record-free deletions still work. Failed
-  append and failed persistence never publish a candidate state.
-- **Backup:** V4 round-trip preserves complete journals and exact quantities;
-  V1–V3 migrate with empty histories; invalid chronology, malformed fields,
-  non-canonical quantities and unknown historical Teams are rejected; import,
-  export, startup recovery and transactional write failure remain correct;
+  current forecast projection; direct RAF edits on continuously present
+  Actuals-governed requirements fail; absent and returning Teams follow the
+  stated RAF provenance rule; Reservation append does not change forecast
+  demand; all three protected deletions fail without state, projection, or
+  backup writes; record-free deletions still work. Failed append and failed
+  persistence never publish a candidate state. Test the
+  complete candidate state → projection → persistence → publication boundary:
+  after a business-valid Project append, injected reconstruction/projection
+  or backup-write failure leaves the published journal, RAF, Portfolio/session
+  state, projection, and persisted V4 document unchanged. Run the equivalent
+  failure cases for Reservation append, with no RAF change.
+- **Backup:** V4 round-trip preserves complete journals, exact quantities, and
+  current Project RAF provenance; V1–V3 migrate with empty histories; invalid
+  chronology, malformed fields, non-canonical quantities and unknown
+  historical Teams are rejected; import, export, startup recovery and
+  transactional write failure remain correct;
   V4 keeps activation/grouping/color data and the current localStorage key.
   Run `npm run typecheck`, `npm test`, and `npm run build` at implementation
   review. Check the git diff for no 10B–10E changes.

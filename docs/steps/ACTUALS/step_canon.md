@@ -25,8 +25,9 @@ record. These existing meanings must stay intact during 10A.
   object's first record fixes one immutable `actualsFromDate`. Its first period
   is `[actualsFromDate, firstActualsThroughDate]`; later periods are
   `(previousActualsThroughDate, currentActualsThroughDate]`. The first end date
-  cannot precede the start; subsequent end dates are strictly increasing.
-  Planning horizon, Project `earliestStartDate`, and Reservation `startDate`
+  may equal the start (a one-day interval) but cannot precede it; subsequent
+  end dates are strictly increasing. Planning horizon, Project
+  `earliestStartDate`, and Reservation `startDate`
   never supply an implicit Actuals start date.
 - A Project record contains its date and, per Team, cumulative consumed work
   and the RAF estimated at that date. A Reservation record contains its date
@@ -40,20 +41,36 @@ record. These existing meanings must stay intact during 10A.
   Team was absent from intervening records. A Team added for the first time
   likewise has previous consumed zero and uses that current object period.
 - A record retains its own Team IDs when current requirements or allocations
-  change. Append validation uses the active membership *at append time*.
-  Existing records are never compared retroactively with current membership.
+  change. Append validation uses the currently configured Team membership
+  *at append time*. Existing records are never compared retroactively with
+  current membership.
   Historical Team identities must remain resolvable in the Portfolio while
   their owning object exists.
 - Actuals exist regardless of `isActive`. Turning forecast participation off
   does not remove records or exempt them from validation. Reservation Actuals
   do not alter ratio or fixed-daily forecast demand. Fixed-daily remains a
   daily request, not RAF or a total workload.
-- For an active Project requirement whose Team has any earlier Actuals entry,
-  the requirement's current RAF equals the RAF in that Team's latest entry.
-  Appending a Project record updates journal and current RAF atomically.
-  Ordinary Project editing cannot change that RAF. A Team with no Actuals
-  entry uses its requirement RAF until its first record. The 10C suggestion
+- A Project requirement that has remained present since its Team's latest
+  Actuals entry takes its current RAF from that entry. Ordinary Project editing
+  cannot change that RAF. Removing the requirement breaks this RAF authority:
+  if the Team is later reintroduced, its new requirement takes the RAF
+  explicitly supplied for the new configuration, even when older records name
+  the Team. That RAF remains editable until the Team's next Actuals append.
+  The older records remain immutable, and the last historical
+  `cumulativeConsumed` still supplies `previousConsumed` for the next delta;
+  that cumulative continuity does not impose historical RAF on the new
+  configuration. A Team with no earlier entry likewise uses its configured
+  requirement RAF until its first record. Each Project append atomically
+  updates the journal and current RAF, making the new entry authoritative
+  while the requirement remains present. The 10C suggestion
   `max(0, previousRemaining - consumedDelta)` is not a 10A Domain rule.
+- The final Project requirements plus Actuals journal cannot reveal whether a
+  current requirement was removed and later reintroduced. The Domain must
+  therefore retain current requirement RAF provenance across transitions and
+  V4 persistence: whether its RAF is governed by its latest Actuals entry or
+  by the current configuration. A stateless Portfolio factory can validate
+  equality to the latest recorded RAF only for an explicitly Actuals-governed
+  requirement; it cannot infer continuity from historical Team presence.
 - Until deletion history has a separate lifecycle, a Project or Reservation
   with records cannot be deleted, and a Team named in any record cannot be
   deleted. Objects without such history keep current deletion semantics.
@@ -75,8 +92,8 @@ of three distributions:
    `delta × effectiveCapacity(day) / sumPositiveEffectiveCapacity`.
 2. If every capacity weight is zero, divide the delta equally among normally
    eligible dates: global working weekdays or dates carrying an explicit Team
-   capacity exception. A working day in a schedule gap is eligible with zero
-   weight. Other dates receive zero.
+   capacity exception, including an exception of zero. A working day in a
+   schedule gap is eligible with zero weight. Other dates receive zero.
 3. If there is no normally eligible date, divide the delta equally among **all
    civil dates** of the nonempty period, including weekends. Declared work is
    never refused because the calendar or capacity is zero.
@@ -101,6 +118,13 @@ session transaction and projection rebuild; it does not change forecast
 semantics. 10A passes no Actuals occupation to `PlanningInput` and adds no
 Actuals diagnostics, cursor metrics, timeline display, Update actuals UI,
 snapshots, historical navigation, or drift comparison. Those remain 10B–10E.
+
+Both append commands follow candidate state → projection → persistence →
+publication. A Project append publishes its journal, resulting RAF, Portfolio/
+session state, reconstructed projection, and V4 backup as one atomic result.
+If reconstruction, projection, or backup writing fails after Domain validation,
+neither the candidate journal nor RAF becomes visible in the published session.
+A Reservation append has the same atomic boundary, without changing RAF.
 
 The durable `docs/canon.md` RAF-only diagram is an incomplete description of
 the later 10B projection input, but its separation of historical state from
