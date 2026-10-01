@@ -102,7 +102,7 @@ describe("timeline interaction details", () => {
         sourceLabel: "Older label", teamId, date, capacity: must(createCapacity("10")) },
       clientX: 20, clientY: 30 });
     assert.equal(container.textContent,
-      "Actual — Project\nProject Atlas\nTeam: Team Alpha\nDate: 2025-01-15\nConsumed: 10 MD");
+      "Actual — Project\nProject Atlas\nTeam: Team Alpha\nDate: 2025-01-15\nReconstructed daily consumption: 10 MD");
     assert.equal(container.hidden, false);
     assert.equal(container.style.left, "32px");
     assert.doesNotMatch(container.textContent ?? "", /RAF|Progress|Snapshot|Through/);
@@ -111,7 +111,7 @@ describe("timeline interaction details", () => {
         sourceLabel: "Older Run", teamId, date, capacity: must(createCapacity("2.5")) },
       clientX: 20, clientY: 30 });
     assert.equal(container.textContent,
-      "Actual — Reservation\nRun\nTeam: Team Alpha\nDate: 2025-01-15\nConsumed: 2.5 MD");
+      "Actual — Reservation\nRun\nTeam: Team Alpha\nDate: 2025-01-15\nReconstructed daily consumption: 2.5 MD");
   });
   it("renders an exact allocation tooltip near the pointer", () => {
     const input = fixture();

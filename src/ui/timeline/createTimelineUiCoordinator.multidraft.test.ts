@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   buildPlanningSettingsViewModel, buildProjectEditViewModel, buildReservationEditViewModel,
+  buildProjectActualsViewModel, buildReservationActualsViewModel,
   buildTeamEditViewModel, createPlanningSession, type CreateProjectCommand, type CreateReservationCommand, type UpdateProjectCommand,
 } from "../../application/index.js";
 import type { createTeamEditController } from "../team-edit/createTeamEditController.js";
@@ -26,25 +27,31 @@ class FakeDocument {
 class FakeElement {
   hidden = false;
   textContent = "";
-  id = "";
+  value = "";
   type = "";
+  id = "";
   disabled = false;
   className = "";
   readonly style = {};
   readonly attributes = new Map<string, string>();
   readonly children: FakeElement[] = [];
+  readonly listeners = new Map<string, Set<(event: { preventDefault?: () => void }) => void>>();
   readonly classList = { toggle: (_name: string, _force?: boolean) => {} };
   constructor(readonly ownerDocument: FakeDocument, readonly tagName: string) {}
   append(...children: FakeElement[]): void { this.children.push(...children); }
-  addEventListener(): void {}
-  removeEventListener(): void {}
+  replaceChildren(...children: FakeElement[]): void { this.children.splice(0, this.children.length, ...children); }
+  addEventListener(type: string, listener: (event: { preventDefault?: () => void }) => void): void {
+    const set = this.listeners.get(type) ?? new Set(); set.add(listener); this.listeners.set(type, set);
+  }
+  removeEventListener(type: string, listener: (event: { preventDefault?: () => void }) => void): void { this.listeners.get(type)?.delete(listener); }
+  emit(type: string): void { for (const listener of this.listeners.get(type) ?? []) listener({ preventDefault() {} }); }
   setAttribute(name: string, value: string): void { this.attributes.set(name, value); }
   focus(): void { this.ownerDocument.activeElement = this; }
   contains(target: FakeElement | undefined): boolean { return !!target &&
     (target === this || this.children.some((child) => child.contains(target))); }
 }
 
-function fixture(withUnusedTeam = false, rejectActivation = false) {
+function fixture(withUnusedTeam = false, rejectActivation = false, withActuals = false) {
   const scenario = createDemoPlanningScenario();
   const session = createPlanningSession(scenario);
   if (withUnusedTeam) {
@@ -159,6 +166,8 @@ function fixture(withUnusedTeam = false, rejectActivation = false) {
       ? { ok: false as const, errors: [{ code: "COMMIT_FAILED", path: "planning", message: "Planning change could not be saved." }] }
       : dispatcher.dispatch(command),
     getProjectEditViewModel: (id) => buildProjectEditViewModel(session.getState(), id),
+    ...(withActuals ? { getProjectActualsViewModel: (id: ProjectId) => buildProjectActualsViewModel(session.getState(), id),
+      getReservationActualsViewModel: (id: ReservationId) => buildReservationActualsViewModel(session.getState(), id) } : {}),
     getProjectNavigationItems: () => session.getState().portfolio.projects.map((project) => ({ id: project.id, isActive: project.isActive })),
     getPlanningSettingsViewModel: () => buildPlanningSettingsViewModel(session.getState()),
     getTeamEditViewModel: (id) => buildTeamEditViewModel(session.getState(), id),
@@ -166,6 +175,8 @@ function fixture(withUnusedTeam = false, rejectActivation = false) {
     getReservationNavigationItems: () => session.getState().portfolio.reservations.map((item) => ({ id: item.id, name: item.name, isActive: item.isActive })),
   }, dependencies);
   return { scenario, session, coordinator, projectHandles, reservationHandles,
+    projectCardHost: (id: ProjectId) => latestProjectCards.get(id)?.host,
+    reservationCardHost: (id: ReservationId) => latestReservationCards.get(id)?.host,
     activationErrors,
     createProject: (command: CreateProjectCommand) => projectCreateInput.onCreate(command),
     createReservation: (command: CreateReservationCommand) => reservationCreateInput.onCreate(command),
@@ -193,6 +204,39 @@ function fixture(withUnusedTeam = false, rejectActivation = false) {
 }
 
 describe("coordinator multi-draft rerender", () => {
+  it("keeps independent Actuals and Forecast drafts across a Project Actuals Apply", () => {
+    const app = fixture(false, false, true);
+    const project = app.scenario.portfolio.projects[0]!;
+    const reservation = app.scenario.portfolio.reservations[0]!;
+    const otherProject = app.scenario.portfolio.projects[1]!;
+    const all = (root: FakeElement): FakeElement[] => [root, ...root.children.flatMap(all)];
+    app.openProject(project.id);
+    app.openProject(otherProject.id);
+    app.openReservation(reservation.id);
+    const otherForecast = app.projectHandles.get(otherProject.id)!.draftStore!;
+    otherForecast.update(otherProject.id, { ...otherForecast.get(otherProject.id)!.values, name: "Other local" });
+    const reservationForecast = app.reservationHandles.get(reservation.id)!.draftStore!;
+    reservationForecast.update(reservation.id, { ...reservationForecast.get(reservation.id)!.values, name: "Reservation local" });
+    const reservationHost = app.reservationCardHost(reservation.id)!;
+    all(reservationHost).find((item) => item.textContent === "New Actuals photo")!.emit("click");
+    assert.equal(all(reservationHost).find((item) => item.className === "card-actuals-form")?.hidden, false);
+    const projectHost = app.projectCardHost(project.id)!;
+    all(projectHost).find((item) => item.textContent === "New Actuals photo")!.emit("click");
+    for (const dateField of all(projectHost).filter((item) => item.tagName === "input" && item.type === "date")) {
+      dateField.value = "2025-01-04";
+      dateField.emit("input");
+    }
+    const before = app.getRenderCount();
+    assert.equal(app.session.getState().portfolio.projects[0]?.actuals, undefined);
+    const actualsForm = all(projectHost).find((item) => item.className === "card-actuals-form")!;
+    actualsForm.emit("submit");
+    assert.equal(app.session.getState().portfolio.projects[0]?.actuals?.records.length, 1);
+    assert.equal(app.getRenderCount(), before + 1);
+    assert.equal(otherForecast.get(otherProject.id)?.values.name, "Other local");
+    assert.equal(reservationForecast.get(reservation.id)?.values.name, "Reservation local");
+    assert.equal(all(app.reservationCardHost(reservation.id)!).find((item) => item.className === "card-actuals-form")?.hidden, false);
+    app.coordinator.destroy();
+  });
   it("preserves state, projection, drafts and focus on failed activation commands", () => {
     const app = fixture(false, true);
     const project = app.scenario.portfolio.projects[0]!;

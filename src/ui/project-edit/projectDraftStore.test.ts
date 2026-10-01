@@ -15,6 +15,21 @@ const model = (projectId: typeof a, name = "A", raf = "20", exact = "20/1"): Pro
 });
 
 describe("ProjectDraftStore", () => {
+  it("adopts the exact committed RAF after Actuals and flags an incompatible local RAF", () => {
+    const store = createProjectDraftStore();
+    const current = store.initialize(a, model(a, "A", "0.333", "1/3"));
+    store.rebase(a, { ...model(a, "A", "0.667", "2/3"), requirements: [
+      { ...model(a, "A", "0.667", "2/3").requirements[0]!, rafAuthority: "latest-actuals" }] });
+    assert.equal(store.get(a)?.values.teams[0]?.remainingWorkload, "2/3");
+    assert.equal(store.get(a)?.invalidRafTeamIds?.length, 0);
+    store.cancel(a);
+    const local = store.initialize(a, model(a, "A", "0.333", "1/3"));
+    store.update(a, { ...local.values, teams: [{ ...current.values.teams[0]!, remainingWorkload: "5" }] });
+    store.rebase(a, { ...model(a, "A", "0.667", "2/3"), requirements: [
+      { ...model(a, "A", "0.667", "2/3").requirements[0]!, rafAuthority: "latest-actuals" }] });
+    assert.equal(store.get(a)?.values.teams[0]?.remainingWorkload, "5");
+    assert.deepEqual(store.get(a)?.invalidRafTeamIds, [teamId]);
+  });
   it("computes reversible global and Team dirty independently", () => {
     const store = createProjectDraftStore();
     const initial = store.initialize(a, model(a));

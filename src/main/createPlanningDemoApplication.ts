@@ -1,6 +1,8 @@
 import { buildReservationNavigationItems, type TimelineGeometryViewport } from "../adapters/index.js";
 import {
   buildProjectEditViewModel,
+  buildProjectActualsViewModel,
+  buildReservationActualsViewModel,
   buildPlanningSettingsViewModel,
   buildTeamEditViewModel,
   buildReservationEditViewModel,
@@ -55,6 +57,8 @@ export function createPlanningDemoApplication(
     dispatch: projectionDispatcher.dispatch,
     getProjectEditViewModel: (projectId) =>
       buildProjectEditViewModel(session.getState(), projectId),
+    getProjectActualsViewModel: (projectId) => buildProjectActualsViewModel(session.getState(), projectId),
+    getReservationActualsViewModel: (reservationId) => buildReservationActualsViewModel(session.getState(), reservationId),
     getProjectNavigationItems: () => {
       const { portfolio } = session.getState();
       const programs = new Map(portfolio.programs.map((program) => [program.id, program.name]));

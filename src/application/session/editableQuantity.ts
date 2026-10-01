@@ -6,6 +6,7 @@ import {
   rationalFromInteger,
   rationalToCanonicalString,
   type Capacity,
+  type ConsumedWorkload,
   type DailyCap,
   type RemainingWorkload,
   type ReservationRatio,
@@ -14,6 +15,7 @@ import {
 
 type EditableQuantity =
   | Capacity
+  | ConsumedWorkload
   | DailyCap
   | RemainingWorkload
   | ReservationRatio

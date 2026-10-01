@@ -45,11 +45,11 @@ Lot 9I — Project and Reservation forecast activation (DONE)
 Corrective lot — usage-driven Program/Pas and colors (DONE)
 Corrective lot — anchored temporal zoom and range drag (DONE)
 Lot 10 — Actuals & History (OPEN)
-10A (DONE) → 10B (DONE) → 10C → 10D → 10E
+10A (DONE) → 10B (DONE) → 10C (IN REVIEW) → 10D → 10E
 ```
 
 Lots through 9I, the Projection date presentation pass, both corrective lots,
-10A, and 10B are validated. 10C is the next open sub-lot.
+10A and 10B are validated. 10C is implemented and IN REVIEW; 10D and 10E remain open.
 
 ## Corrective lot — anchored temporal zoom and range drag
 
@@ -318,11 +318,15 @@ Project/Program/Pas progress remains forecast-only.
 
 ## 10C — Actuals workflows & UI
 
-Provide Project and Reservation Update actuals workflows: a new per-object
-actuals date and per-Team cumulative consumed values. For Projects, propose
-`max(0, previousRemaining - consumedDelta)` as the new RAF while allowing user
-correction. Apply each update atomically and integrate actuals and diagnostics
-into timelines and metrics. Detailed interaction design remains open.
+**Status: IN REVIEW.** [10C plan and implemented contract](./steps/ACTUALS/lot10c_plan.md).
+Project and Reservation cards now expose immutable, exact Actuals history and
+independent New Actuals forms. A photo uses the currently committed Team
+membership, first-only `actualsFromDate`, editable through date, exact cumulative
+consumption, and Project RAF. The exact RAF suggestion is editable. A conflicting
+local Forecast membership or Project RAF draft blocks Actuals Apply; successful
+edits rebase other drafts by TeamId. Apply uses the existing append commands,
+projection and V4 transaction. The existing 10B timeline, diagnostics and metrics
+show the committed result. Rendered desktop/narrow visual review remains pending.
 
 ## 10D — Knowledge snapshots
 
@@ -337,7 +341,7 @@ Reconstruct knowledge at different snapshot dates and compare changes in
 consumed work, RAF, projection, estimated dates, capacity/overload, and other
 relevant results. The comparison UI and drift visualization remain open.
 
-The [current canon](./current_canon.md) records the validated 10B facts.
+The [current canon](./current_canon.md) records validated 10B facts and the 10C implementation under review.
 
 ## Cross-cutting non-goals for Phase 9
 

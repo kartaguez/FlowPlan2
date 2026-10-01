@@ -183,7 +183,16 @@ export function createProjectEditController(
           "text",
           `requirements.${requirement.teamId}.remainingWorkload`,
         );
-        remainingWorkload.value = saved?.remainingWorkload ?? requirement.remainingWorkload;
+        remainingWorkload.value = requirement.rafAuthority === "latest-actuals" &&
+          !draft?.invalidRafTeamIds?.includes(requirement.teamId)
+          ? requirement.remainingWorkloadExact : saved?.remainingWorkload ?? requirement.remainingWorkload;
+        if (requirement.rafAuthority === "latest-actuals") {
+          remainingWorkload.readOnly = true;
+          remainingWorkload.setAttribute("aria-readonly", "true");
+          const authority = document.createElement("p");
+          authority.textContent = "RAF set by latest Actuals. Add a new Actuals photo to change it.";
+          fieldset.append(authority);
+        }
         const subcard = createTeamSubcard(input.controls.fields, "Project", requirement.teamId,
           requirement.teamLabel, saved?.enabled ?? requirement.enabled, fieldset,
           saved?.expanded ?? false, notifyDraftChange);
@@ -195,7 +204,8 @@ export function createProjectEditController(
           remainingWorkload,
           isExpanded: subcard.isExpanded,
           card: subcard.card,
-          originalDisplay: draft?.reference.teams.find((team) => team.teamId === requirement.teamId)?.remainingWorkload ?? requirement.remainingWorkload,
+          originalDisplay: requirement.rafAuthority === "latest-actuals" ? requirement.remainingWorkloadExact :
+            draft?.reference.teams.find((team) => team.teamId === requirement.teamId)?.remainingWorkload ?? requirement.remainingWorkload,
           remainingWorkloadExact: draft?.reference.teams.find((team) => team.teamId === requirement.teamId)?.remainingWorkloadExact
             ?? requirement.remainingWorkloadExact,
           ...(requirement.dailyCapExact === undefined
@@ -208,6 +218,11 @@ export function createProjectEditController(
     if (draft?.errors.length) {
       input.errorContainer.textContent = draft.errors.join(" ");
       input.errorContainer.hidden = false;
+    }
+    if (draft?.invalidRafTeamIds?.length) {
+      input.errorContainer.textContent = "A locally edited RAF is now governed by latest Actuals. Cancel this Forecast edit before applying.";
+      input.errorContainer.hidden = false;
+      input.controls.apply.disabled = true;
     }
   };
 
@@ -271,6 +286,10 @@ export function createProjectEditController(
     notifyDraftChange();
     if (input.draftStore?.get(model.projectId)?.invalidReference) {
       showErrors([{ code: "INVALID_DRAFT_REFERENCE", path: "project", message: "A referenced Team, Program or Pas no longer exists." }]);
+      return;
+    }
+    if (input.draftStore?.get(model.projectId)?.invalidRafTeamIds?.length) {
+      showErrors([{ code: "ACTUALS_RAF_IMMUTABLE", path: "requirements", message: "A locally edited RAF is now governed by latest Actuals." }]);
       return;
     }
     const parsed = parseProjectEditCommand(formValues());

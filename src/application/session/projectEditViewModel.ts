@@ -29,6 +29,7 @@ export interface ProjectRequirementEditViewModel {
   readonly enabled: boolean;
   readonly remainingWorkload: string;
   readonly remainingWorkloadExact: string;
+  readonly rafAuthority?: "current-configuration" | "latest-actuals";
   readonly dailyCapExact?: string;
 }
 
@@ -58,6 +59,7 @@ export function buildProjectEditViewModel(
         enabled: true,
         remainingWorkload: formatQuantityForEditing(requirement.remainingWorkload),
         remainingWorkloadExact: serializeQuantity(requirement.remainingWorkload),
+        rafAuthority: requirement.rafAuthority ?? "current-configuration",
         ...(requirement.dailyCap === undefined
           ? {}
           : { dailyCapExact: serializeQuantity(requirement.dailyCap) }),

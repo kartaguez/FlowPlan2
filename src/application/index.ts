@@ -36,6 +36,13 @@ export {
   type ProjectRequirementEditViewModel,
 } from "./session/projectEditViewModel.js";
 export {
+  buildProjectActualsViewModel,
+  buildReservationActualsViewModel,
+  type ActualsViewModel,
+  type ActualsTeamViewModel,
+  type ActualsRecordViewModel,
+} from "./session/actualsViewModel.js";
+export {
   buildTeamEditViewModel,
   type TeamCapacityPeriodEditViewModel,
   type TeamEditViewModel,

@@ -210,7 +210,7 @@ describe("createTimelineInteractionController", () => {
     input.svg.dispatch("pointermove", pointer(1, 25, 90));
     assert.equal(controller.getState().hovered?.kind, "actual");
     assert.equal(input.tooltip.hidden, false);
-    assert.match(input.tooltip.textContent ?? "", /Project Atlas[\s\S]*Consumed: 10 MD/);
+    assert.match(input.tooltip.textContent ?? "", /Project Atlas[\s\S]*Reconstructed daily consumption: 10 MD/);
     input.svg.dispatch("pointerup", pointer(1, 25, 90));
     assert.equal(controller.getState().hovered?.kind, "actual");
     assert.equal(input.svg.listeners.has("pointerup"), false);

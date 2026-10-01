@@ -163,7 +163,7 @@ initial period. There is no manual period reorder or Domain period ID.
 ## Current objective — Lot 10: Actuals & History
 
 Lot 10 is the active product and architecture trajectory. 10A is validated
-and **DONE**; 10B is **DONE**; 10C–10E remain open. The forecast still starts from the
+and **DONE**; 10B is **DONE**; 10C is **IN REVIEW**; 10D–10E remain open. The forecast still starts from the
 RAF stored on each Project/Team requirement. The session now holds immutable
 Project and Reservation Actuals chronologies and reconstructs daily Actuals
 separately from the forecast, then projects calculated occupation into planning. It has no knowledge snapshots.
@@ -274,9 +274,25 @@ and forecast Reservation demand. Actuals affect capacity and occupied metrics
 without being counted again against RAF. The 10B implementation is validated;
 the baseline above includes its source-aware timeline rendering correction.
 
-Open decisions include snapshot contract and storage, 10C UI, historical
+Open decisions include snapshot contract and storage, historical
 comparison UX, and drift visualization. Undo/redo and synchronization remain
 outside 10A.
+
+### 10C implementation under review
+
+The current Project and Reservation cards expose read-only, chronologically
+ordered Actuals records with exact cumulative quantities and Project RAF.
+Separate New Actuals forms append complete photos from committed current Team
+membership; only the first photo supplies `actualsFromDate`. Project RAF is an
+exact, editable suggestion, never a Domain equation. A `latest-actuals` RAF is
+read-only in the ordinary Forecast editor, where its exact value is preserved
+through unrelated Apply. Independent Forecast and Actuals drafts survive card
+rerenders; local Team membership or current-configuration RAF changes block
+Actuals Apply until Forecast changes are applied or cancelled. Actuals Apply
+uses the established append command and candidate projection/V4 transaction.
+The 10B timeline and cursor projections remain the only source of daily
+occupation, overload diagnostics and metrics. Rendered desktop/narrow visual
+review is still pending; 10C is not DONE.
 
 ## Current UI structure
 

@@ -69,7 +69,7 @@ function tooltipLines(
     return [`Actual — ${hit.sourceKind === "project" ? "Project" : "Reservation"}`,
       label ?? hit.sourceLabel ?? (hit.sourceKind === "project" ? "Project" : "Reservation"),
       `Team: ${team.label}`, `Date: ${hit.date}`,
-      `Consumed: ${formatCursorMd(rationalOf(hit.capacity))}`];
+      `Reconstructed daily consumption: ${formatCursorMd(rationalOf(hit.capacity))}`];
   }
   if (hit.kind === "reservation") {
     const reservation = lookup.reservationsById.get(hit.reservationId);

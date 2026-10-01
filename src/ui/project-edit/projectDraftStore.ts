@@ -32,6 +32,7 @@ export interface ProjectDraft {
   readonly expanded: boolean;
   readonly errors: readonly string[];
   readonly invalidReference: boolean;
+  readonly invalidRafTeamIds?: readonly TeamId[];
 }
 
 export interface ProjectDraftStore {
@@ -65,7 +66,7 @@ export function projectValuesFromModel(model: ProjectEditViewModel): ProjectDraf
     resolution: divergent ? "unresolved" : "remove",
     teams: model.requirements.map((team) => ({
       teamId: team.teamId, enabled: team.enabled,
-      remainingWorkload: team.remainingWorkload,
+      remainingWorkload: team.rafAuthority === "latest-actuals" ? team.remainingWorkloadExact : team.remainingWorkload,
       remainingWorkloadExact: team.remainingWorkloadExact,
       ...(team.dailyCapExact === undefined ? {} : { dailyCapExact: team.dailyCapExact }),
       expanded: false,
@@ -101,7 +102,7 @@ export function createProjectDraftStore(): ProjectDraftStore {
       if (existing) return existing;
       const reference = projectValuesFromModel(model);
       const entry = { reference, values: reference, model, expanded: false,
-        errors: [] as readonly string[], invalidReference: false };
+        errors: [] as readonly string[], invalidReference: false, invalidRafTeamIds: [] as readonly TeamId[] };
       entries.set(id, entry);
       return entry;
     },
@@ -152,7 +153,14 @@ export function createProjectDraftStore(): ProjectDraftStore {
         retainMissingTeam(team, oldTeams.get(team.teamId))) ||
         (values.programId !== "" && values.programId !== "__new__" && !model.programs.some((program) => program.id === values.programId) && !values.programName) ||
         (values.priorityFamilyId !== "" && values.priorityFamilyId !== "__new__" && !model.priorityFamilies.some((family) => family.id === values.priorityFamilyId) && !values.priorityFamilyName);
-      entries.set(id, { ...old, reference: next, values, model, invalidReference });
+      const invalidRafTeamIds = values.teams.filter((team) => {
+        const prior = oldTeams.get(team.teamId);
+        const current = model.requirements.find((requirement) => requirement.teamId === team.teamId);
+        return prior !== undefined && current?.rafAuthority === "latest-actuals" &&
+          team.remainingWorkload !== prior.remainingWorkload &&
+          team.remainingWorkload !== next.teams.find((item) => item.teamId === team.teamId)?.remainingWorkload;
+      }).map((team) => team.teamId);
+      entries.set(id, { ...old, reference: next, values, model, invalidReference, invalidRafTeamIds });
     },
     isDirty: (id) => {
       const entry = entries.get(id);
