@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createCivilDate, createConsumedWorkload, consumedWorkloadFromSerialized, createPortfolio, createProject, serializeQuantity, snapshotId,
+import { createCivilDate, createConsumedWorkload, consumedWorkloadFromSerialized, createPortfolio, createProject, createReservation, serializeQuantity, snapshotId,
   type DomainResult } from "../../domain/index.js";
 import { createDemoPlanningScenario } from "../../main/demo/createDemoPlanningScenario.js";
 import { decodeFlowplanBackup, encodeFlowplanBackupV1, encodeFlowplanBackupV2, encodeFlowplanBackupV3,
@@ -136,6 +136,49 @@ test("V5 refuses future Actuals, dangling historical Teams and forged version ga
   mutated((backup) => { backup.data.portfolio.projects[0].snapshots[0].retiredZeroTeams = ["removed-team"]; });
   mutated((backup) => { backup.data.portfolio.projects[0].snapshots[0].version = 2;
     backup.data.portfolio.projects[0].snapshots[0].snapshotId = `project:${old.id}:v2`; });
+});
+
+test("V5 refuses a future knowledgeDate itself for Project and Reservation snapshots", () => {
+  const state = createDemoPlanningScenario();
+  const project = state.portfolio.projects[0]!;
+  const reservation = state.portfolio.reservations[0]!;
+  const through = d("2025-01-05");
+  const projectWithSnapshot = valid(createProject({ ...project, snapshots: [{
+    snapshotId: snapshotId("project", project.id, 1), version: 1, knowledgeDate: d("2025-01-06"),
+    participation: project.requirements.map((row) => row.teamId), retiredZeroTeams: [],
+    raf: project.requirements.map((row) => ({ teamId: row.teamId, amount: row.remainingWorkload })),
+    coverage: { actualsFrom: through, actualsThrough: through, periods: [{
+      periodId: "project-period", from: through, through,
+      consumed: project.requirements.map((row) => ({ teamId: row.teamId, amount: c("0") })),
+    }] },
+  }] }));
+  const reservationWithSnapshot = valid(createReservation({ ...reservation, snapshots: [{
+    snapshotId: snapshotId("reservation", reservation.id, 1), version: 1, knowledgeDate: d("2025-01-06"),
+    participation: reservation.teamAllocations.map((row) => row.teamId), retiredZeroTeams: [],
+    coverage: { actualsFrom: through, actualsThrough: through, periods: [{
+      periodId: "reservation-period", from: through, through,
+      consumed: reservation.teamAllocations.map((row) => ({ teamId: row.teamId, amount: c("0") })),
+    }] },
+  }] }));
+  const portfolio = valid(createPortfolio({ ...state.portfolio,
+    projects: state.portfolio.projects.map((row) => row.id === project.id ? projectWithSnapshot : row),
+    reservations: state.portfolio.reservations.map((row) => row.id === reservation.id ? reservationWithSnapshot : row),
+  }));
+  const document = JSON.parse(encodeFlowplanBackupV5({ ...state, portfolio }, "2025-01-06T00:00:00.000Z"));
+  assert.doesNotThrow(() => decodeFlowplanBackup(JSON.stringify(document)));
+  for (const kind of ["Project", "Reservation"] as const) {
+    const forged = structuredClone(document);
+    const target = kind === "Project" ? forged.data.portfolio.projects[0] : forged.data.portfolio.reservations[0];
+    target.snapshots.push({ ...structuredClone(target.snapshots[0]),
+      snapshotId: `${kind.toLowerCase()}:${target.id}:v2`, version: 2 });
+    assert.doesNotThrow(() => decodeFlowplanBackup(JSON.stringify(forged)));
+    target.snapshots[0].knowledgeDate = "2099-01-01";
+    target.snapshots[1].knowledgeDate = "2099-01-02";
+    assert.ok(target.snapshots[0].coverage.actualsThrough <= target.snapshots[0].knowledgeDate);
+    assert.ok(target.snapshots[1].coverage.actualsThrough <= target.snapshots[1].knowledgeDate);
+    assert.throws(() => decodeFlowplanBackup(JSON.stringify(forged)), /snapshots\[0\]\.knowledgeDate/,
+      `${kind} historical knowledgeDate must not exceed exportedAt`);
+  }
 });
 
 test("retained V4 evidence alone protects Project and Team identities", () => {

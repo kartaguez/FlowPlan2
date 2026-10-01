@@ -38,6 +38,8 @@ source kind, object, snapshot, period, Team and date. The planning engine
 receives daily occupation and current RAF, never the history itself.
 
 V5 backups round-trip snapshots, legacy V4 evidence and migration status.
+At V5 import, every snapshot knowledge date must be no later than the UTC
+civil date of the backup's canonical `exportedAt` timestamp.
 V1–V3 migrate without snapshots. V4 cumulative records are imported losslessly
 as read-only `legacyV4Actuals`. Before explicit reconciliation, the legacy
 adapter alone supplies the object's simulated Actuals. Reconciliation creates

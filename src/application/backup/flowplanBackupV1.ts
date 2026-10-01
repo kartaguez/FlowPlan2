@@ -2,6 +2,7 @@ import type { PlanningSessionState } from "../session/planningSession.js";
 import {
   capacityFromSerialized, createCapacityException, createCapacityPeriod,
   createCivilDate, createMaxParallelProjects, createPlanningHorizon,
+  compareCivilDates,
   createPortfolio, createPriorityFamily, createPriorityFamilyId, createProgram,
   createProgramId, createProject, createProjectId, createProjectTeamRequirement,
   createReservation, createReservationId, createReservationTeamAllocation,
@@ -13,6 +14,7 @@ import {
   type ProjectActualsChronology, type ReservationActualsChronology,
   type ProjectActualsSnapshot, type ReservationActualsSnapshot,
   type TeamId,
+  type CivilDate,
 } from "../../domain/index.js";
 
 export class InvalidFlowplanBackup extends Error {
@@ -76,7 +78,7 @@ function decodeActuals(value: unknown, project: boolean): ProjectActualsChronolo
   return { actualsFromDate, records } as ProjectActualsChronology | ReservationActualsChronology;
 }
 
-function decodeSnapshot(value: unknown, project: boolean, path: string): ProjectActualsSnapshot | ReservationActualsSnapshot {
+function decodeSnapshot(value: unknown, project: boolean, path: string, exportedOn: CivilDate): ProjectActualsSnapshot | ReservationActualsSnapshot {
   const source = object(value, path, ["snapshotId", "version", "knowledgeDate", "participation", "retiredZeroTeams", ...(project ? ["raf"] : [])], ["coverage"]);
   const participation = array(source.participation, `${path}.participation`).map((item, index) =>
     valid(createTeamId(string(item, `${path}.participation[${index}]`))));
@@ -99,8 +101,12 @@ function decodeSnapshot(value: unknown, project: boolean, path: string): Project
           }) };
       }) };
   })();
+  const knowledgeDate = date(source.knowledgeDate, `${path}.knowledgeDate`);
+  if (compareCivilDates(knowledgeDate, exportedOn) > 0) {
+    throw new InvalidFlowplanBackup(`${path}.knowledgeDate cannot exceed exportedAt date.`);
+  }
   const base = { snapshotId: string(source.snapshotId, `${path}.snapshotId`),
-    version: integer(source.version, `${path}.version`), knowledgeDate: date(source.knowledgeDate, `${path}.knowledgeDate`),
+    version: integer(source.version, `${path}.version`), knowledgeDate,
     participation, retiredZeroTeams, ...(coverage === undefined ? {} : { coverage }) };
   if (!project) return base;
   return { ...base, raf: array(source.raf, `${path}.raf`).map((entry, index) => {
@@ -276,6 +282,7 @@ function decodeFlowplanBackupVersion(text: string, version: 1 | 2 | 3 | 4 | 5): 
   if (envelope.version !== version) throw new InvalidFlowplanBackup("Unsupported version.");
   const exportedAt = string(envelope.exportedAt, "exportedAt");
   if (Number.isNaN(Date.parse(exportedAt)) || new Date(exportedAt).toISOString() !== exportedAt) throw new InvalidFlowplanBackup("Invalid exportedAt.");
+  const exportedOn = version === 5 ? date(exportedAt.slice(0, 10), "exportedAt") : undefined;
   const data = object(envelope.data, "data", ["planning", "portfolio"]);
   const planning = object(data.planning, "planning", ["startDate", "endDate", "workingWeekdays", "maxParallelProjects"]);
   const horizon = valid(createPlanningHorizon({ start: date(planning.startDate, "planning.startDate"), end: date(planning.endDate, "planning.endDate") }));
@@ -332,7 +339,7 @@ function decodeFlowplanBackupVersion(text: string, version: 1 | 2 | 3 | 4 | 5): 
     const actuals = version === 4 && p.actuals !== undefined ? decodeActuals(p.actuals, true) : undefined;
     const legacy = version === 5 && p.legacyV4Actuals !== undefined ? decodeProjectLegacy(p.legacyV4Actuals) : undefined;
     const snapshots = version === 5 && p.snapshots !== undefined ? array(p.snapshots, "project.snapshots").map((item, index) =>
-      decodeSnapshot(item, true, `project.snapshots[${index}]`) as ProjectActualsSnapshot) : undefined;
+      decodeSnapshot(item, true, `project.snapshots[${index}]`, exportedOn!) as ProjectActualsSnapshot) : undefined;
     if (version === 5) {
       const expected = snapshots?.length ? legacy ? "reconciled" : "native" : legacy ? "legacy-pending" : "none";
       if (p.migrationStatus !== expected || (snapshots && snapshots.length === 0)) throw new InvalidFlowplanBackup("Invalid Project migration status.");
@@ -369,7 +376,7 @@ function decodeFlowplanBackupVersion(text: string, version: 1 | 2 | 3 | 4 | 5): 
     const actuals = version === 4 && r.actuals !== undefined ? decodeActuals(r.actuals, false) : undefined;
     const legacy = version === 5 && r.legacyV4Actuals !== undefined ? decodeActuals(r.legacyV4Actuals, false) : undefined;
     const snapshots = version === 5 && r.snapshots !== undefined ? array(r.snapshots, "reservation.snapshots").map((item, index) =>
-      decodeSnapshot(item, false, `reservation.snapshots[${index}]`) as ReservationActualsSnapshot) : undefined;
+      decodeSnapshot(item, false, `reservation.snapshots[${index}]`, exportedOn!) as ReservationActualsSnapshot) : undefined;
     if (version === 5) {
       const expected = snapshots?.length ? legacy ? "reconciled" : "native" : legacy ? "legacy-pending" : "none";
       if (r.migrationStatus !== expected || (snapshots && snapshots.length === 0)) throw new InvalidFlowplanBackup("Invalid Reservation migration status.");
