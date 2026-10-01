@@ -94,6 +94,7 @@ function fixture(withUnusedTeam = false, rejectActivation = false, withActuals =
   let latestReservationCards: ReturnType<typeof cards>["reservationCards"];
   const reservationNameFields = new Map<ReservationId, FakeElement>();
   const activationErrors: string[] = [];
+  const cardStates = new Map<string, { expanded: boolean; dirty: boolean }>();
   const cards = () => {
     const projectCards = new Map(session.getState().portfolio.projects.map((project) => [project.id,
       { button: document.createElement("button"), handle: document.createElement("button"), activeButton: document.createElement("button"), host: document.createElement("div"), item: document.createElement("li") }]));
@@ -154,7 +155,9 @@ function fixture(withUnusedTeam = false, rejectActivation = false, withActuals =
     renderShellNavigation: (input: typeof shellInput) => {
       shellInput = input;
       return { teamMetricsContainers: new Map(), ...cards(), getActiveTab: () => "projects",
-        setCardState() {}, setReorderPreview() {}, showReorderError() {},
+        setCardState(kind: string, id: string, expanded: boolean, dirty: boolean) {
+          cardStates.set(`${kind}:${id}`, { expanded, dirty });
+        }, setReorderPreview() {}, showReorderError() {},
         showActivationError(_kind: string, message: string) { activationErrors.push(message); }, destroy() {} };
     },
     renderCursorTeamMetrics: () => {}, createCursorProgressSurface: () => ({ render() {}, destroy() {} }),
@@ -175,6 +178,7 @@ function fixture(withUnusedTeam = false, rejectActivation = false, withActuals =
     getReservationNavigationItems: () => session.getState().portfolio.reservations.map((item) => ({ id: item.id, name: item.name, isActive: item.isActive })),
   }, dependencies);
   return { scenario, session, coordinator, projectHandles, reservationHandles,
+    cardStateFor: (kind: "project" | "reservation", id: ProjectId | ReservationId) => cardStates.get(`${kind}:${id}`),
     projectCardHost: (id: ProjectId) => latestProjectCards.get(id)?.host,
     reservationCardHost: (id: ReservationId) => latestReservationCards.get(id)?.host,
     activationErrors,
@@ -204,6 +208,43 @@ function fixture(withUnusedTeam = false, rejectActivation = false, withActuals =
 }
 
 describe("coordinator multi-draft rerender", () => {
+  it("keeps Project and Reservation cards pristine on Actuals open/collapse and resets on Cancel", () => {
+    const all = (root: FakeElement): FakeElement[] => [root, ...root.children.flatMap(all)];
+    for (const kind of ["project", "reservation"] as const) {
+      const app = fixture(false, false, true);
+      const id = kind === "project" ? app.scenario.portfolio.projects[0]!.id :
+        app.scenario.portfolio.reservations[0]!.id;
+      const open = () => kind === "project" ? app.openProject(id as ProjectId) : app.openReservation(id as ReservationId);
+      const host = () => kind === "project" ? app.projectCardHost(id as ProjectId)! :
+        app.reservationCardHost(id as ReservationId)!;
+      open();
+      all(host()).find((item) => item.textContent === "New Actuals photo")!.emit("click");
+      assert.equal(app.cardStateFor(kind, id)?.dirty, false);
+      open();
+      assert.equal(app.cardStateFor(kind, id)?.expanded, false);
+      assert.equal(app.cardStateFor(kind, id)?.dirty, false);
+      open();
+      assert.equal(app.cardStateFor(kind, id)?.expanded, true);
+      assert.equal(app.cardStateFor(kind, id)?.dirty, false);
+      const dates = all(host()).filter((item) => item.tagName === "input" && item.type === "date");
+      dates[1]!.value = "2025-01-05";
+      dates[1]!.emit("input");
+      assert.equal(app.cardStateFor(kind, id)?.dirty, true);
+      all(host()).find((item) => item.textContent === "Cancel Actuals")!.emit("click");
+      assert.equal(app.cardStateFor(kind, id)?.dirty, false);
+      all(host()).find((item) => item.textContent === "New Actuals photo")!.emit("click");
+      for (const dateField of all(host()).filter((item) => item.tagName === "input" && item.type === "date")) {
+        dateField.value = "2025-01-04";
+        dateField.emit("input");
+      }
+      all(host()).find((item) => item.className === "card-actuals-form")!.emit("submit");
+      assert.equal(app.cardStateFor(kind, id)?.dirty, false);
+      const saved = kind === "project" ? app.session.getState().portfolio.projects[0]?.actuals :
+        app.session.getState().portfolio.reservations[0]?.actuals;
+      assert.equal(saved?.records.length, 1);
+      app.coordinator.destroy();
+    }
+  });
   it("keeps independent Actuals and Forecast drafts across a Project Actuals Apply", () => {
     const app = fixture(false, false, true);
     const project = app.scenario.portfolio.projects[0]!;
@@ -213,28 +254,43 @@ describe("coordinator multi-draft rerender", () => {
     app.openProject(project.id);
     app.openProject(otherProject.id);
     app.openReservation(reservation.id);
+    assert.equal(app.cardStateFor("project", project.id)?.dirty, false);
+    assert.equal(app.cardStateFor("reservation", reservation.id)?.dirty, false);
     const otherForecast = app.projectHandles.get(otherProject.id)!.draftStore!;
     otherForecast.update(otherProject.id, { ...otherForecast.get(otherProject.id)!.values, name: "Other local" });
     const reservationForecast = app.reservationHandles.get(reservation.id)!.draftStore!;
-    reservationForecast.update(reservation.id, { ...reservationForecast.get(reservation.id)!.values, name: "Reservation local" });
     const reservationHost = app.reservationCardHost(reservation.id)!;
     all(reservationHost).find((item) => item.textContent === "New Actuals photo")!.emit("click");
     assert.equal(all(reservationHost).find((item) => item.className === "card-actuals-form")?.hidden, false);
+    assert.equal(app.cardStateFor("reservation", reservation.id)?.dirty, false);
+    const reservationThrough = all(reservationHost).find((item) => item.tagName === "input" && item.type === "date")!;
+    reservationThrough.value = "2025-01-05";
+    reservationThrough.emit("input");
+    assert.equal(app.cardStateFor("reservation", reservation.id)?.dirty, true);
+    reservationForecast.update(reservation.id, { ...reservationForecast.get(reservation.id)!.values, name: "Reservation local" });
     const projectHost = app.projectCardHost(project.id)!;
     all(projectHost).find((item) => item.textContent === "New Actuals photo")!.emit("click");
+    assert.equal(app.cardStateFor("project", project.id)?.dirty, false);
     for (const dateField of all(projectHost).filter((item) => item.tagName === "input" && item.type === "date")) {
       dateField.value = "2025-01-04";
       dateField.emit("input");
     }
+    assert.equal(app.cardStateFor("project", project.id)?.dirty, true);
     const before = app.getRenderCount();
     assert.equal(app.session.getState().portfolio.projects[0]?.actuals, undefined);
     const actualsForm = all(projectHost).find((item) => item.className === "card-actuals-form")!;
     actualsForm.emit("submit");
     assert.equal(app.session.getState().portfolio.projects[0]?.actuals?.records.length, 1);
     assert.equal(app.getRenderCount(), before + 1);
+    assert.equal(app.cardStateFor("project", project.id)?.dirty, false);
+    assert.equal(app.cardStateFor("reservation", reservation.id)?.dirty, true);
     assert.equal(otherForecast.get(otherProject.id)?.values.name, "Other local");
     assert.equal(reservationForecast.get(reservation.id)?.values.name, "Reservation local");
     assert.equal(all(app.reservationCardHost(reservation.id)!).find((item) => item.className === "card-actuals-form")?.hidden, false);
+    app.openReservation(reservation.id);
+    assert.equal(app.cardStateFor("reservation", reservation.id)?.dirty, true);
+    app.openReservation(reservation.id);
+    assert.equal(app.cardStateFor("reservation", reservation.id)?.dirty, true);
     app.coordinator.destroy();
   });
   it("preserves state, projection, drafts and focus on failed activation commands", () => {

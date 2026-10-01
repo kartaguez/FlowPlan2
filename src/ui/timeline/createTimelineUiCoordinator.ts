@@ -295,11 +295,11 @@ export function createTimelineUiCoordinator(
     if (kind === "project") {
       const draft = projectDrafts.get(id as ProjectId);
       shellNavigation.setCardState("project", id, draft?.expanded ?? false,
-        projectDrafts.isDirty(id as ProjectId) || projectActualsDrafts.get(id)?.open === true);
+        projectDrafts.isDirty(id as ProjectId) || projectActualsDrafts.isDirty(id));
     } else {
       const draft = reservationDrafts.get(id as ReservationId);
       shellNavigation.setCardState("reservation", id, draft?.expanded ?? false,
-        reservationDrafts.isDirty(id as ReservationId) || reservationActualsDrafts.get(id)?.open === true);
+        reservationDrafts.isDirty(id as ReservationId) || reservationActualsDrafts.isDirty(id));
     }
   };
   const actualsConflict = (kind: "project" | "reservation", id: ProjectId | ReservationId): string | undefined => {
