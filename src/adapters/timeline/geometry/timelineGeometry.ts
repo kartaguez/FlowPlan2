@@ -111,6 +111,8 @@ export interface TimelineActualSegmentGeometry extends TimelineRectGeometry {
   readonly sourceKind: "project" | "reservation";
   readonly sourceId?: ProjectId | ReservationId;
   readonly sourceLabel?: string;
+  readonly snapshotId?: string;
+  readonly periodId?: string;
   readonly teamId: TeamId;
   readonly date: CivilDate;
   readonly capacity: Capacity;

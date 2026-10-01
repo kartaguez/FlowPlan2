@@ -1,5 +1,6 @@
 import { compareCivilDates, type CivilDate } from "../model/date.js";
 import { createReservationActualsChronology, type ReservationActualsChronology } from "../actuals/records.js";
+import { createSnapshotHistory, type ReservationActualsSnapshot } from "../actuals/snapshots.js";
 import type { Capacity, ReservationId, ReservationRatio, TeamId } from "../model/scalars.js";
 import type { ProgramId, PriorityFamilyId } from "../model/scalars.js";
 import { createColor, suggestColor, type Color } from "../model/color.js";
@@ -25,6 +26,8 @@ export interface Reservation {
   readonly endDate: CivilDate;
   readonly teamAllocations: readonly ReservationTeamAllocation[];
   readonly actuals?: ReservationActualsChronology;
+  readonly legacyV4Actuals?: ReservationActualsChronology;
+  readonly snapshots?: readonly ReservationActualsSnapshot[];
 }
 
 export function createReservationTeamAllocation(input: {
@@ -45,6 +48,8 @@ export function createReservation(input: {
   readonly endDate: CivilDate;
   readonly teamAllocations: readonly ReservationTeamAllocation[];
   readonly actuals?: ReservationActualsChronology;
+  readonly legacyV4Actuals?: ReservationActualsChronology;
+  readonly snapshots?: readonly ReservationActualsSnapshot[];
 }): DomainResult<Reservation> {
   const errors = [];
   if (input.isActive !== undefined && typeof input.isActive !== "boolean") {
@@ -78,6 +83,10 @@ export function createReservation(input: {
   });
   const actuals = input.actuals === undefined ? undefined : createReservationActualsChronology(input.actuals);
   if (actuals && !actuals.ok) errors.push(...actuals.errors);
+  const legacy = input.legacyV4Actuals === undefined ? undefined : createReservationActualsChronology(input.legacyV4Actuals);
+  if (legacy && !legacy.ok) errors.push(...legacy.errors);
+  const snapshots = input.snapshots === undefined ? undefined : createSnapshotHistory(input.snapshots, input.id, "reservation");
+  if (snapshots && !snapshots.ok) errors.push(...snapshots.errors);
   if (errors.length > 0) return failure(errors);
   if (input.programId !== undefined && input.ownColor !== undefined) return failure([error("PROGRAM_OWN_COLOR", "ownColor", "Reservation in Program cannot retain an own color.")]);
   const ownColor = input.programId === undefined ? createColor(input.ownColor ?? suggestColor(input.id), "ownColor") : undefined;
@@ -98,6 +107,8 @@ export function createReservation(input: {
         ),
       ),
       ...(actuals?.ok ? { actuals: actuals.value } : {}),
+      ...(legacy?.ok ? { legacyV4Actuals: legacy.value } : {}),
+      ...(snapshots?.ok ? { snapshots: snapshots.value } : {}),
     }),
   );
 }

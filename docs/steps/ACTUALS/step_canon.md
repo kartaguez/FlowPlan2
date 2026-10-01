@@ -3,6 +3,10 @@
 Status: **DONE**. This step defines the validated 10A scope. The
 implementation plan is [step_plan](./step_plan.md).
 
+This is a historical 10A contract. The current Actuals contract is the
+[10C.1 snapshot canon](./lot10c1_canon.md); V4 cumulative records remain
+read-only migration evidence and are no longer appendable business state.
+
 ## Repository baseline and boundary
 
 Inspected on `main` at `1551407b7f8b94f0eac628da158e77bec23de4bf`, with a clean

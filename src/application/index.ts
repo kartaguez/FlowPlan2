@@ -26,8 +26,8 @@ export {
   type UpdateReservationCommand,
   type CreateReservationCommand,
   type RemoveReservationCommand,
-  type AppendProjectActualsCommand,
-  type AppendReservationActualsCommand,
+  type ReplaceProjectActualsCommand,
+  type ReplaceReservationActualsCommand,
   type UpdateReservationTeamAllocation,
 } from "./session/planningSession.js";
 export {
@@ -35,13 +35,8 @@ export {
   type ProjectEditViewModel,
   type ProjectRequirementEditViewModel,
 } from "./session/projectEditViewModel.js";
-export {
-  buildProjectActualsViewModel,
-  buildReservationActualsViewModel,
-  type ActualsViewModel,
-  type ActualsTeamViewModel,
-  type ActualsRecordViewModel,
-} from "./session/actualsViewModel.js";
+export { buildProjectSnapshotActualsViewModel, buildReservationSnapshotActualsViewModel,
+  type SnapshotActualsViewModel, type SnapshotActualsTeamModel } from "./session/snapshotActualsViewModel.js";
 export {
   buildTeamEditViewModel,
   type TeamCapacityPeriodEditViewModel,

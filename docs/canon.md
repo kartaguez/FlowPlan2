@@ -49,17 +49,21 @@ The engine answers this question:
 > remaining workload (RAF) by Team, capacity reservations, Project dates, and a parallelism limit, how
 > should Team usage be projected day by day?
 
-## Historical records stay upstream of planning
+## Actuals knowledge stays upstream of planning
 
 ```text
-Actuals records → deterministic reconstruction → daily Project/Reservation occupation
+current object snapshot or pending V4 legacy → deterministic reconstruction → daily Project/Reservation occupation
 current RAF + daily occupation + forecast inputs → Planning Engine
 ```
 
-Records remain upstream. The engine receives only exact, non-negative calculated
-daily occupation by Team/date; an absent row means zero. It never owns records,
-historical cutoffs, chronology, reconstruction weights, or snapshots. Current
-RAF remains Project forecast workload and is never reduced again by the engine.
+Snapshot histories and retained legacy records remain upstream. Each object
+has exactly one active Actuals source: its current V5 snapshot, or pending V4
+legacy before reconciliation. The engine receives only exact, non-negative
+calculated daily occupation by Team/date; an absent row means zero. It never
+owns records, partitions, reconstruction weights, or snapshots. A Project's
+current snapshot RAF is mirrored into its forecast requirements and is never
+reduced again by the engine. V5 preserves immutable history; V4 records remain
+read-only migration evidence after explicit reconciliation.
 
 ## Layered architecture
 

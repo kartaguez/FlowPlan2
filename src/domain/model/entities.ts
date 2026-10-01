@@ -1,6 +1,7 @@
 import type { TeamCapacitySchedule } from "../capacity/schedule.js";
 import type { Reservation } from "../capacity/reservation.js";
 import { createProjectActualsChronology, type ProjectActualsChronology } from "../actuals/records.js";
+import { createSnapshotHistory, type ProjectActualsSnapshot } from "../actuals/snapshots.js";
 import type { CivilDate } from "./date.js";
 import { compareRationals } from "./rational.js";
 import { rationalOf } from "./scalars.js";
@@ -57,6 +58,9 @@ export interface Project {
   readonly mandatoryDeadline?: CivilDate;
   readonly requirements: readonly ProjectTeamRequirement[];
   readonly actuals?: ProjectActualsChronology;
+  readonly legacyV4Actuals?: ProjectActualsChronology;
+  readonly legacyV4RafAuthority?: readonly Readonly<{ teamId: TeamId; authority: "latest-actuals" | "current-configuration" }>[];
+  readonly snapshots?: readonly ProjectActualsSnapshot[];
 }
 
 export interface Portfolio {
@@ -134,6 +138,9 @@ export function createProject(input: {
   readonly mandatoryDeadline?: CivilDate;
   readonly requirements: readonly ProjectTeamRequirement[];
   readonly actuals?: ProjectActualsChronology;
+  readonly legacyV4Actuals?: ProjectActualsChronology;
+  readonly legacyV4RafAuthority?: readonly Readonly<{ teamId: TeamId; authority: "latest-actuals" | "current-configuration" }>[];
+  readonly snapshots?: readonly ProjectActualsSnapshot[];
 }): DomainResult<Project> {
   const errors: DomainError[] = [];
   if (input.isActive !== undefined && typeof input.isActive !== "boolean") {
@@ -163,12 +170,16 @@ export function createProject(input: {
     if (requirement.rafAuthority !== undefined && requirement.rafAuthority !== "latest-actuals" && requirement.rafAuthority !== "current-configuration") {
       errors.push(error("INVALID_RAF_AUTHORITY", `requirements[${index}].rafAuthority`, "Unknown RAF authority."));
     }
-    if (input.actuals && requirement.rafAuthority === undefined) {
+    if (input.actuals && !input.snapshots?.length && requirement.rafAuthority === undefined) {
       errors.push(error("MISSING_RAF_AUTHORITY", `requirements[${index}].rafAuthority`, "Requirements with Actuals need explicit RAF authority."));
     }
   });
   const actuals = input.actuals === undefined ? undefined : createProjectActualsChronology(input.actuals);
   if (actuals && !actuals.ok) errors.push(...actuals.errors);
+  const legacy = input.legacyV4Actuals === undefined ? undefined : createProjectActualsChronology(input.legacyV4Actuals);
+  if (legacy && !legacy.ok) errors.push(...legacy.errors);
+  const snapshots = input.snapshots === undefined ? undefined : createSnapshotHistory(input.snapshots, input.id, "project");
+  if (snapshots && !snapshots.ok) errors.push(...snapshots.errors);
   if (errors.length > 0) return failure(errors);
 
   if (input.programId !== undefined && input.ownColor !== undefined) {
@@ -176,7 +187,8 @@ export function createProject(input: {
   }
   const ownColor = input.programId === undefined ? createColor(input.ownColor ?? suggestColor(input.id), "ownColor") : undefined;
   if (ownColor && !ownColor.ok) return ownColor;
-  const { ownColor: _discardedOwnColor, actuals: _unvalidatedActuals, ...withoutOwnColor } = input;
+  const { ownColor: _discardedOwnColor, actuals: _unvalidatedActuals,
+    legacyV4Actuals: _unvalidatedLegacy, snapshots: _unvalidatedSnapshots, ...withoutOwnColor } = input;
 
   return success(
     Object.freeze({
@@ -185,6 +197,8 @@ export function createProject(input: {
       isActive: input.isActive ?? true,
       requirements: Object.freeze(input.requirements.map((requirement) => Object.freeze({ ...requirement }))),
       ...(actuals?.ok ? { actuals: actuals.value } : {}),
+      ...(legacy?.ok ? { legacyV4Actuals: legacy.value } : {}),
+      ...(snapshots?.ok ? { snapshots: snapshots.value } : {}),
     }),
   );
 }
@@ -258,7 +272,7 @@ export function createPortfolio(input: {
       ));
     }
     project.requirements.forEach((requirement, requirementIndex) => {
-      if (project.actuals && requirement.rafAuthority === undefined) {
+      if (project.actuals && !project.snapshots?.length && requirement.rafAuthority === undefined) {
         errors.push(error("MISSING_RAF_AUTHORITY", `projects[${projectIndex}].requirements[${requirementIndex}].rafAuthority`, "Requirements with Actuals need explicit RAF authority."));
       }
       if (!teamIds.has(requirement.teamId)) {
@@ -270,7 +284,13 @@ export function createPortfolio(input: {
           ),
         );
       }
-      if (requirement.rafAuthority === "latest-actuals") {
+      if (project.snapshots?.length) {
+        const current = project.snapshots.at(-1)!;
+        const snapshotRaf = current.raf.find((row) => row.teamId === requirement.teamId);
+        if (!snapshotRaf || compareRationals(rationalOf(snapshotRaf.amount), rationalOf(requirement.remainingWorkload)) !== 0) {
+          errors.push(error("ACTUALS_RAF_MISMATCH", `projects[${projectIndex}].requirements[${requirementIndex}].remainingWorkload`, "Current RAF must match the current Project snapshot."));
+        }
+      } else if (requirement.rafAuthority === "latest-actuals") {
         // A later object record without this Team proves a membership break.
         // A remove/reintroduce cycle between records still requires persisted provenance.
         const latest = project.actuals?.records.at(-1)?.teams.find((entry) => entry.teamId === requirement.teamId);
@@ -279,14 +299,54 @@ export function createPortfolio(input: {
         }
       }
     });
-    project.actuals?.records.forEach((record, recordIndex) => record.teams.forEach((entry, entryIndex) => {
+    (project.legacyV4Actuals ?? project.actuals)?.records.forEach((record, recordIndex) => record.teams.forEach((entry, entryIndex) => {
       if (!teamIds.has(entry.teamId)) errors.push(error("UNKNOWN_HISTORICAL_TEAM", `projects[${projectIndex}].actuals.records[${recordIndex}].teams[${entryIndex}].teamId`, "Historical Team must remain in the Portfolio."));
     }));
+    project.legacyV4RafAuthority?.forEach((row, rowIndex) => {
+      if (!teamIds.has(row.teamId)) errors.push(error("UNKNOWN_HISTORICAL_TEAM",
+        `projects[${projectIndex}].legacyV4RafAuthority[${rowIndex}].teamId`, "Legacy RAF authority Team must remain in the Portfolio."));
+    });
+    project.snapshots?.forEach((snapshot, snapshotIndex) => {
+      const currentIds = project.requirements.map((requirement) => requirement.teamId);
+      if (snapshotIndex === project.snapshots!.length - 1 &&
+          (snapshot.participation.length !== currentIds.length || snapshot.participation.some((id, index) => id !== currentIds[index]))) {
+        errors.push(error("SNAPSHOT_MEMBERSHIP_MISMATCH", `projects[${projectIndex}].snapshots[${snapshotIndex}].participation`, "Current snapshot must match current requirements in Portfolio order."));
+      }
+      [...snapshot.participation, ...snapshot.retiredZeroTeams].forEach((id) => {
+        if (!teamIds.has(id)) errors.push(error("UNKNOWN_HISTORICAL_TEAM", `projects[${projectIndex}].snapshots[${snapshotIndex}]`, "Historical Team must remain in Portfolio."));
+      });
+    });
+    if (project.snapshots?.length && project.legacyV4Actuals) {
+      const current = project.snapshots.at(-1)!;
+      const represented = new Set([...current.participation, ...current.retiredZeroTeams]);
+      project.legacyV4Actuals.records.forEach((record, recordIndex) => record.teams.forEach((entry) => {
+        if (!represented.has(entry.teamId)) errors.push(error("LEGACY_TEAM_NOT_RECONCILED",
+          `projects[${projectIndex}].legacyV4Actuals.records[${recordIndex}]`, "Legacy Team needs current participation or an explicit retired zero marker."));
+      }));
+    }
   });
   input.reservations.forEach((reservation, reservationIndex) => {
-    reservation.actuals?.records.forEach((record, recordIndex) => record.teams.forEach((entry, entryIndex) => {
+    (reservation.legacyV4Actuals ?? reservation.actuals)?.records.forEach((record, recordIndex) => record.teams.forEach((entry, entryIndex) => {
       if (!teamIds.has(entry.teamId)) errors.push(error("UNKNOWN_HISTORICAL_TEAM", `reservations[${reservationIndex}].actuals.records[${recordIndex}].teams[${entryIndex}].teamId`, "Historical Team must remain in the Portfolio."));
     }));
+    reservation.snapshots?.forEach((snapshot, snapshotIndex) => {
+      const currentIds = reservation.teamAllocations.map((allocation) => allocation.teamId);
+      if (snapshotIndex === reservation.snapshots!.length - 1 &&
+          (snapshot.participation.length !== currentIds.length || snapshot.participation.some((id, index) => id !== currentIds[index]))) {
+        errors.push(error("SNAPSHOT_MEMBERSHIP_MISMATCH", `reservations[${reservationIndex}].snapshots[${snapshotIndex}].participation`, "Current snapshot must match current allocations in Portfolio order."));
+      }
+      [...snapshot.participation, ...snapshot.retiredZeroTeams].forEach((id) => {
+        if (!teamIds.has(id)) errors.push(error("UNKNOWN_HISTORICAL_TEAM", `reservations[${reservationIndex}].snapshots[${snapshotIndex}]`, "Historical Team must remain in Portfolio."));
+      });
+    });
+    if (reservation.snapshots?.length && reservation.legacyV4Actuals) {
+      const current = reservation.snapshots.at(-1)!;
+      const represented = new Set([...current.participation, ...current.retiredZeroTeams]);
+      reservation.legacyV4Actuals.records.forEach((record, recordIndex) => record.teams.forEach((entry) => {
+        if (!represented.has(entry.teamId)) errors.push(error("LEGACY_TEAM_NOT_RECONCILED",
+          `reservations[${reservationIndex}].legacyV4Actuals.records[${recordIndex}]`, "Legacy Team needs current participation or an explicit retired zero marker."));
+      }));
+    }
     if (reservation.programId === undefined) {
       if (!reservation.ownColor || !createColor(reservation.ownColor).ok) errors.push(error("MISSING_RESERVATION_OWN_COLOR", `reservations[${reservationIndex}].ownColor`, "Reservation without Program needs a valid own color."));
     } else if (reservation.ownColor !== undefined) errors.push(error("PROGRAM_OWN_COLOR", `reservations[${reservationIndex}].ownColor`, "Reservation in Program cannot retain an own color."));

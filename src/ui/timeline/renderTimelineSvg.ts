@@ -207,6 +207,8 @@ function renderDay(document: Document, day: TimelineDayGeometry, colors?: Readon
     const rectangle = createRect(document, `timeline-actual-segment timeline-actual-segment--${segment.sourceKind}`, segment);
     rectangle.setAttribute("data-source-kind", segment.sourceKind);
     if (segment.sourceId) rectangle.setAttribute("data-source-id", segment.sourceId);
+    if (segment.snapshotId) rectangle.setAttribute("data-snapshot-id", segment.snapshotId);
+    if (segment.periodId) rectangle.setAttribute("data-period-id", segment.periodId);
     const color = segment.sourceId === undefined ? undefined : colors?.get(segment.sourceId);
     if (color) { rectangle.setAttribute("fill", color); rectangle.setAttribute("style", `fill: ${color}`); }
     actuals.append(rectangle);

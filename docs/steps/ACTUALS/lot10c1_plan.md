@@ -1,6 +1,6 @@
 # Lot 10C.1 — object-scoped Actuals knowledge snapshots: implementation plan
 
-Status: **PLANNED, NOT IMPLEMENTED**. This document specifies the migration after validated 10C and before 10D/10E. The 10A–10C documents remain records of what was delivered, not the target contract. Inspected `main` at `3d481c0404e153961e75a46ac5845930401f3f7d`, clean working tree, with `origin/main` tracking that commit. No business code or tests are changed by this planning pass.
+Status: **IN REVIEW**. This document specified the migration after validated 10C and before 10D/10E; the implementation now awaits user audit. The 10A–10C documents remain records of what was delivered, not the current contract. The original planning pass inspected `main` at `3d481c0404e153961e75a46ac5845930401f3f7d` with a clean working tree. The implementation continued from `1848c95d97195370ea2b946d1358f698567d6fe4` and preserved its in-progress working tree.
 
 ## Current code and the required change
 
@@ -50,3 +50,26 @@ Domain tests cover partition exact cover/contiguity/no overlap, negatives, the t
 ## Boundary with 10D/10E
 
 10C.1 versions **object-scoped Actuals/RAF knowledge only**. 10D must be re-scoped around any additional cross-object or Forecast knowledge required for historical whole-planning replay; a 10C.1 object snapshot alone does not freeze Team capacity schedules, working pattern, Forecast parameters or other objects at the same instant. 10E drift comparison must state which inputs are historical and which are current. Neither concern justifies writing a general Portfolio versioning system in 10C.1. No blocking functional question is identified for this plan; the V4 reconciliation gate is an intentional migration safety rule.
+
+## Implementation review record
+
+The delivered candidate replaces cumulative Actuals business writes with
+whole-object Project and Reservation commands. Typed V4 append commands and
+the old append service are removed; a stale runtime V4 append request is
+rejected as read-only. V5 is the live transactional backup/export format.
+The V4 payload remains lossless through pending migration and reconciliation,
+with one active simulation source per object. The current editor and timeline
+carry stable snapshot/period identity. The
+[10C.1 snapshot canon](./lot10c1_canon.md) describes the current contract.
+
+The automated matrix includes V1–V5 import preflight, strict V5 round-trip,
+forged gap/future/dangling identity rejection, legacy preservation and source
+exclusivity, candidate/projection/write rollback, Project and Reservation
+membership/RAF operations, partition edits and stale/rebased UI drafts.
+Final local validation: typecheck and build pass; the complete suite passes
+605/605 tests, and the focused migration/rollback/UI run passes 52/52 tests.
+Desktop and 390 px WebKit captures reviewed the open Actuals editor. A row
+confirmed that the narrow matrix remains inside the card and scrolls
+horizontally; a visible sideways-scroll cue was added. Keyboard focus,
+Apply/Cancel, remount and read-only history are covered by controller and
+coordinator tests. The lot remains **IN REVIEW** for the user's commit audit.

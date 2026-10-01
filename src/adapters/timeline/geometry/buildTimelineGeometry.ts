@@ -294,6 +294,8 @@ function buildActualSegments(
       if (!value.ok) throw new TypeError("Actual contribution is negative.");
       const height = capacityToHeight(value.value, scale);
       result.push(Object.freeze({ sourceKind: kind, sourceId: item.sourceId, sourceLabel: item.sourceLabel,
+        ...(item.snapshotId === undefined ? {} : { snapshotId: item.snapshotId }),
+        ...(item.periodId === undefined ? {} : { periodId: item.periodId }),
         teamId, date, capacity: value.value, x, y, width, height }));
       y += height;
     }

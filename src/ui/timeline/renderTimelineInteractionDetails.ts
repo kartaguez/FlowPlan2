@@ -69,6 +69,8 @@ function tooltipLines(
     return [`Actual — ${hit.sourceKind === "project" ? "Project" : "Reservation"}`,
       label ?? hit.sourceLabel ?? (hit.sourceKind === "project" ? "Project" : "Reservation"),
       `Team: ${team.label}`, `Date: ${hit.date}`,
+      ...(hit.snapshotId === undefined ? [] : [`Snapshot: ${hit.snapshotId}`]),
+      ...(hit.periodId === undefined ? [] : [`Period: ${hit.periodId}`]),
       `Reconstructed daily consumption: ${formatCursorMd(rationalOf(hit.capacity))}`];
   }
   if (hit.kind === "reservation") {

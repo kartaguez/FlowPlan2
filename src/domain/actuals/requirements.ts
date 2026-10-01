@@ -16,7 +16,7 @@ export function transitionProjectRequirements(
     if (candidate.rafAuthority !== undefined && candidate.rafAuthority !== authority) {
       errors.push(error("RAF_AUTHORITY_CHANGE", `requirements[${index}].rafAuthority`, "RAF authority follows membership transitions and cannot be set by an edit."));
     }
-    if (current?.rafAuthority === "latest-actuals" &&
+    if ((previous.snapshots?.length || current?.rafAuthority === "latest-actuals") && current &&
       compareRationals(rationalOf(current.remainingWorkload), rationalOf(candidate.remainingWorkload)) !== 0) {
       errors.push(error("ACTUALS_RAF_IMMUTABLE", `requirements[${index}].remainingWorkload`, "RAF governed by latest Actuals cannot be edited directly."));
     }

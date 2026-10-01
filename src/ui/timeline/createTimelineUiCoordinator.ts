@@ -3,7 +3,7 @@ import type { ReservationNavigationItem } from "../../adapters/index.js";
 import { calculateCursorMetrics } from "../../adapters/index.js";
 import type {
   PlanningCommand, PlanningSettingsViewModel, ProjectEditViewModel,
-  ActualsViewModel,
+  SnapshotActualsViewModel,
   CreateProjectCommand, CreateReservationCommand, CreateTeamCommand, ReorderProjectCommand, ReservationEditViewModel, TeamEditViewModel, UpdateProjectCommand,
   UpdateReservationCommand, UpdateTeamCapacityPeriodsCommand, UpdateTeamNameCommand,
 } from "../../application/index.js";
@@ -20,8 +20,8 @@ import { createReservationEditController } from "../reservation-edit/createReser
 import { createReservationCreateController } from "../reservation-edit/createReservationCreateController.js";
 import { createReservationDraftStore } from "../reservation-edit/reservationDraftStore.js";
 import { createProjectCardControls, createReservationCardControls } from "../portfolio/createPortfolioEditControls.js";
-import { createActualsDraftStore } from "../actuals/actualsDraftStore.js";
-import { createActualsCardController } from "../actuals/createActualsCardController.js";
+import { createSnapshotActualsDraftStore } from "../actuals/snapshotActualsDraftStore.js";
+import { createSnapshotActualsCardController } from "../actuals/createSnapshotActualsCardController.js";
 import { actualsForecastConflict } from "../actuals/actualsForecastConflict.js";
 import { createProjectReorderController } from "../portfolio/createProjectReorderController.js";
 import { createTeamEditController } from "../team-edit/createTeamEditController.js";
@@ -69,8 +69,8 @@ export interface CreateTimelineUiCoordinatorInput {
   readonly initialDate: CivilDate;
   readonly dispatch: (command: PlanningCommand) => TimelineProjectionCommandResult;
   readonly getProjectEditViewModel: (id: ProjectId) => ProjectEditViewModel | undefined;
-  readonly getProjectActualsViewModel?: (id: ProjectId) => ActualsViewModel | undefined;
-  readonly getReservationActualsViewModel?: (id: ReservationId) => ActualsViewModel | undefined;
+  readonly getProjectSnapshotActualsViewModel?: (id: ProjectId) => SnapshotActualsViewModel | undefined;
+  readonly getReservationSnapshotActualsViewModel?: (id: ReservationId) => SnapshotActualsViewModel | undefined;
   readonly getProjectNavigationItems: () => readonly ProjectNavigationItem[];
   readonly getPlanningSettingsViewModel: () => PlanningSettingsViewModel;
   readonly getTeamEditViewModel: (id: TeamId) => TeamEditViewModel | undefined;
@@ -123,8 +123,8 @@ export function createTimelineUiCoordinator(
 ): TimelineUiCoordinator {
   const projectDrafts = createProjectDraftStore();
   const reservationDrafts = createReservationDraftStore();
-  const projectActualsDrafts = createActualsDraftStore();
-  const reservationActualsDrafts = createActualsDraftStore();
+  const projectSnapshotDrafts = createSnapshotActualsDraftStore();
+  const reservationSnapshotDrafts = createSnapshotActualsDraftStore();
   let projectCreateController: ReturnType<typeof createProjectCreateController> | undefined;
   let reservationCreateController: ReturnType<typeof createReservationCreateController> | undefined;
   let projection = input.initialProjection;
@@ -140,8 +140,8 @@ export function createTimelineUiCoordinator(
   let cursorMetricsModel: CursorMetricsViewModel;
   const projectControllers = new Map<ProjectId, ReturnType<typeof createProjectEditController>>();
   const reservationControllers = new Map<ReservationId, ReturnType<typeof createReservationEditController>>();
-  const projectActualsControllers = new Map<ProjectId, ReturnType<typeof createActualsCardController>>();
-  const reservationActualsControllers = new Map<ReservationId, ReturnType<typeof createActualsCardController>>();
+  const projectActualsControllers = new Map<ProjectId, ReturnType<typeof createSnapshotActualsCardController>>();
+  const reservationActualsControllers = new Map<ReservationId, ReturnType<typeof createSnapshotActualsCardController>>();
   const progressSurface = dependencies.createCursorProgressSurface(input.elements.cursorProgress, (view) => {
     if (view === activeProgressView) return;
     activeProgressView = view;
@@ -169,15 +169,15 @@ export function createTimelineUiCoordinator(
     onDelete: (teamId) => {
       const projects = projectDrafts.ids().filter((id) => projectDrafts.isTeamDirty(id, teamId));
       const reservations = reservationDrafts.ids().filter((id) => reservationDrafts.isTeamDirty(id, teamId));
-      const actuals = [...projectActualsDrafts.ids(), ...reservationActualsDrafts.ids()].filter((id) =>
-        (projectActualsDrafts.get(id) ?? reservationActualsDrafts.get(id))?.open &&
-        (projectActualsDrafts.get(id) ?? reservationActualsDrafts.get(id))?.teams.some((team) => team.teamId === teamId));
-      if (projects.length > 0 || reservations.length > 0 || actuals.length > 0 || projectCreateController?.isTeamEnabled(teamId) ||
+      const snapshotActuals = [...projectSnapshotDrafts.ids(), ...reservationSnapshotDrafts.ids()].filter((id) =>
+        (projectSnapshotDrafts.get(id) ?? reservationSnapshotDrafts.get(id))?.open &&
+        (projectSnapshotDrafts.get(id) ?? reservationSnapshotDrafts.get(id))?.teams.some((team) => team.teamId === teamId));
+      if (projects.length > 0 || reservations.length > 0 || snapshotActuals.length > 0 || projectCreateController?.isTeamEnabled(teamId) ||
         reservationCreateController?.isTeamEnabled(teamId)) {
         const names = [
           ...projects.map((id) => `Project ${projectDrafts.get(id)?.model.label ?? id}`),
           ...reservations.map((id) => `Reservation ${reservationDrafts.get(id)?.model.name ?? id}`),
-          ...actuals.map((id) => `Actuals ${id}`),
+          ...snapshotActuals.map((id) => `Actuals ${id}`),
           ...(projectCreateController?.isTeamEnabled(teamId) ? ["Create Project"] : []),
           ...(reservationCreateController?.isTeamEnabled(teamId) ? ["Create Reservation"] : []),
         ];
@@ -295,11 +295,11 @@ export function createTimelineUiCoordinator(
     if (kind === "project") {
       const draft = projectDrafts.get(id as ProjectId);
       shellNavigation.setCardState("project", id, draft?.expanded ?? false,
-        projectDrafts.isDirty(id as ProjectId) || projectActualsDrafts.isDirty(id));
+        projectDrafts.isDirty(id as ProjectId) || projectSnapshotDrafts.isDirty(id));
     } else {
       const draft = reservationDrafts.get(id as ReservationId);
       shellNavigation.setCardState("reservation", id, draft?.expanded ?? false,
-        reservationDrafts.isDirty(id as ReservationId) || reservationActualsDrafts.isDirty(id));
+        reservationDrafts.isDirty(id as ReservationId) || reservationSnapshotDrafts.isDirty(id));
     }
   };
   const actualsConflict = (kind: "project" | "reservation", id: ProjectId | ReservationId): string | undefined => {
@@ -307,27 +307,26 @@ export function createTimelineUiCoordinator(
     return actualsForecastConflict(draft);
   };
   const ensureActualsController = (kind: "project" | "reservation", id: ProjectId | ReservationId, host: HTMLElement): void => {
-    const model = kind === "project" ? input.getProjectActualsViewModel?.(id as ProjectId) :
-      input.getReservationActualsViewModel?.(id as ReservationId);
-    if (!model) return;
-    const store = kind === "project" ? projectActualsDrafts : reservationActualsDrafts;
-    const controller = createActualsCardController({ host, model, store,
-      proposedDate: currentSnapshot().selectedDate,
-      onDraftChange: () => syncCard(kind, id),
-      conflict: () => actualsConflict(kind, id),
-      onApply: (command) => {
-        const result = input.dispatch(command);
-        if (!result.ok) return result;
-        store.cancel(String(id));
-        rebaseDrafts();
-        renderProjection(result.projection);
-        if (kind === "project") shellNavigation.projectCards.get(id as ProjectId)?.button.focus();
-        else shellNavigation.reservationCards.get(id as ReservationId)?.button.focus();
-        return { ok: true as const };
-      },
-    });
-    if (kind === "project") projectActualsControllers.set(id as ProjectId, controller);
-    else reservationActualsControllers.set(id as ReservationId, controller);
+    const snapshotModel = kind === "project" ? input.getProjectSnapshotActualsViewModel?.(id as ProjectId) :
+      input.getReservationSnapshotActualsViewModel?.(id as ReservationId);
+    if (snapshotModel) {
+      const store = kind === "project" ? projectSnapshotDrafts : reservationSnapshotDrafts;
+      const controller = createSnapshotActualsCardController({ host, model: snapshotModel, store,
+        onDraftChange: () => syncCard(kind, id), conflict: () => actualsConflict(kind, id),
+        onApply: (command) => {
+          const result = input.dispatch(command);
+          if (!result.ok) return result;
+          store.cancel(String(id));
+          rebaseDrafts(); renderProjection(result.projection);
+          if (kind === "project") shellNavigation.projectCards.get(id as ProjectId)?.button.focus();
+          else shellNavigation.reservationCards.get(id as ReservationId)?.button.focus();
+          return { ok: true as const };
+        },
+      });
+      if (kind === "project") projectActualsControllers.set(id as ProjectId, controller);
+      else reservationActualsControllers.set(id as ReservationId, controller);
+      return;
+    }
   };
   const ensureProjectController = (id: ProjectId): void => {
     if (projectControllers.has(id)) return;
@@ -348,7 +347,7 @@ export function createTimelineUiCoordinator(
         const result = input.dispatch({ kind: "remove-project", projectId });
         if (!result.ok) return result;
         projectDrafts.cancel(projectId);
-        projectActualsDrafts.cancel(String(projectId));
+        projectSnapshotDrafts.cancel(String(projectId));
         rebaseDrafts();
         renderProjection(result.projection);
         if (focusId) shellNavigation.projectCards.get(focusId)?.button.focus();
@@ -381,7 +380,7 @@ export function createTimelineUiCoordinator(
         const result = input.dispatch({ kind: "remove-reservation", reservationId });
         if (!result.ok) return result;
         reservationDrafts.cancel(reservationId);
-        reservationActualsDrafts.cancel(String(reservationId));
+        reservationSnapshotDrafts.cancel(String(reservationId));
         rebaseDrafts();
         renderProjection(result.projection);
         if (focusId) shellNavigation.reservationCards.get(focusId)?.button.focus();
@@ -571,13 +570,13 @@ export function createTimelineUiCoordinator(
       const model = input.getReservationEditViewModel(id);
       if (model) reservationDrafts.rebase(id, model);
     }
-    for (const id of projectActualsDrafts.ids()) {
-      const model = input.getProjectActualsViewModel?.(id as ProjectId);
-      if (model) projectActualsDrafts.rebase(model);
+    for (const id of projectSnapshotDrafts.ids()) {
+      const model = input.getProjectSnapshotActualsViewModel?.(id as ProjectId);
+      if (model) projectSnapshotDrafts.rebase(model);
     }
-    for (const id of reservationActualsDrafts.ids()) {
-      const model = input.getReservationActualsViewModel?.(id as ReservationId);
-      if (model) reservationActualsDrafts.rebase(model);
+    for (const id of reservationSnapshotDrafts.ids()) {
+      const model = input.getReservationSnapshotActualsViewModel?.(id as ReservationId);
+      if (model) reservationSnapshotDrafts.rebase(model);
     }
   };
   const renderProjection = (nextProjection: TimelineUiProjection): void => {

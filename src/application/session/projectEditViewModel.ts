@@ -59,7 +59,7 @@ export function buildProjectEditViewModel(
         enabled: true,
         remainingWorkload: formatQuantityForEditing(requirement.remainingWorkload),
         remainingWorkloadExact: serializeQuantity(requirement.remainingWorkload),
-        rafAuthority: requirement.rafAuthority ?? "current-configuration",
+        rafAuthority: project.snapshots?.length ? "latest-actuals" : requirement.rafAuthority ?? "current-configuration",
         ...(requirement.dailyCap === undefined
           ? {}
           : { dailyCapExact: serializeQuantity(requirement.dailyCap) }),

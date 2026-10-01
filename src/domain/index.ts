@@ -114,7 +114,10 @@ export {
   type ProjectActualsRecord, type ReservationActualsRecord,
   type ProjectActualsTeamEntry, type ReservationActualsTeamEntry,
 } from "./actuals/records.js";
-export { appendProjectActuals, appendReservationActuals } from "./actuals/append.js";
+export { createProjectActualsSnapshot, createReservationActualsSnapshot, createSnapshotHistory, snapshotId,
+  type ProjectActualsSnapshot, type ReservationActualsSnapshot, type ActualsCoverage, type ActualsPeriod } from "./actuals/snapshots.js";
+export { replaceProjectSnapshot, replaceReservationSnapshot, type SnapshotEvidence, type SnapshotReplacement,
+  type SnapshotEditIntent } from "./actuals/transition.js";
 export { transitionProjectRequirements } from "./actuals/requirements.js";
 export { reconstructActuals, actualOccupationFromReconstruction, type ActualsDailyContribution, type ActualsTeamDayTotal, type ActualsReconstruction } from "./actuals/reconstruction.js";
 export type {

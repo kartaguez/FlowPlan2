@@ -25,9 +25,9 @@ from the demo. The following capabilities are complete and active:
   Team requirements; Project priority is reordered from Portfolio Projects;
 - global multi-Team Reservations with ratio and fixed-daily modes, created,
   edited, and deleted in inline Portfolio cards;
-- immutable Project and Reservation Actuals chronologies, exact daily
-  reconstruction, Actuals-aware planning projection, and transactional V4 persistence;
-- Project and Reservation Actuals entry and read-only history in Portfolio cards;
+- immutable Project and Reservation Actuals snapshot histories, exact daily
+  reconstruction, Actuals-aware planning projection, and transactional V5 persistence;
+- whole-object Actuals partition/RAF editing and read-only V4/snapshot history in Portfolio cards;
 - immediate Project and Reservation activation controls; inactive entities
   remain in the Portfolio and do not participate in the forecast;
 - Projects / Reservations tabs in the Portfolio sidebar;
@@ -48,12 +48,12 @@ demo when the key is absent. A present but invalid document is reported and left
 untouched at startup. Accepted commands persist their candidate state before
 the session publishes it. Planning Settings can export the complete business
 state to JSON or import a validated file after confirmation; a successful
-import reloads the page. Current backups are V4 documents. V1–V3 remain
+import reloads the page. Current backups are V5 documents. V1–V4 remain
 readable; V1 migrates Projects and Reservations as active. Import removes
 orphan catalog entries, repairs missing or invalid Program and own colors, and
 removes residual own colors from Program members before Domain validation.
 Other invalid business data is rejected. Every successful import is persisted
-as V4.
+as V5. V4 Actuals records are retained losslessly for explicit reconciliation.
 
 Lot 9I Project and Reservation forecast activation is validated and **DONE** at
 `c77558c3e8b2912532afbb8113ac8183fe737c18`. Both entity types default
@@ -163,138 +163,79 @@ initial period. There is no manual period reorder or Domain period ID.
 
 ## Current objective — Lot 10: Actuals & History
 
-Lot 10 is the active product and architecture trajectory. 10A is validated
-and **DONE**; 10B and 10C are **DONE**; 10D–10E remain open. The forecast still starts from the
-RAF stored on each Project/Team requirement. The session now holds immutable
-Project and Reservation Actuals chronologies and reconstructs daily Actuals
-separately from the forecast, then projects calculated occupation into planning. It has no knowledge snapshots.
+10A, 10B and 10C are validated **DONE** lots. 10C.1 is implemented and **IN
+REVIEW** pending user audit. 10D and 10E remain open. The current business
+contract is the [10C.1 snapshot canon](./steps/ACTUALS/lot10c1_canon.md);
+the 10A–10C documents describe their historical releases.
 
-### Business knowledge and dates
+### Current object knowledge
 
-When it has records, each Project and Reservation has its own latest
-`actualsThroughDate`: its consumption is known through that date. These dates
-may differ between objects; there is no required global consumption cutoff. A
-later knowledge snapshot has its own date, distinct from every object's
-`actualsThroughDate`, and may contain
-objects with different actuals dates.
+Each Project and Reservation can own consecutive immutable whole-object
+Actuals snapshots with a stable ID, version and application-clock knowledge
+date. A snapshot lists current Team participants and a separate set of
+retired zero Teams. Its optional Actuals coverage is a common inclusive range
+partitioned into contiguous periods, each with exact nonnegative consumed
+values for every participating Team. Project snapshots additionally contain
+exact RAF for every current Team, mirrored into its forecast requirement. A
+snapshot without coverage can still carry Project RAF. Absent knowledge is
+distinct from explicitly zero values. The end of coverage cannot exceed the
+snapshot knowledge date, but Actuals may lie outside Forecast and planning
+bounds.
 
-Successive Actuals updates preserve immutable business records. A Project
-record carries its actuals date and, for each Team, cumulative consumed work
-and remaining workload (RAF) known at that date. A Reservation record carries
-its own Actuals date and cumulative consumed work per Team. The first record
-requires an explicit `actualsFromDate`; its interval is inclusive on both
-ends and may be one day. Later through dates strictly increase and their
-intervals exclude the previous through date. A Project's new RAF is a new business
-estimate, not a value derivable forever from its initial RAF. For consecutive
-Project records, `consumedDelta = newCumulativeConsumed -
-previousCumulativeConsumed`; the prior cumulative value comes from the latest
-earlier entry for that Team, even across absent records. A requirement kept
-continuously since its latest Actuals entry takes RAF from that entry. After
-removal and reintroduction, its explicitly supplied RAF is free until the
-next Actuals entry; V4 stores this RAF authority so a restored session can
-enforce the same rule. The 10C workflow proposes
-`max(0, previousRemaining - consumedDelta)` but lets the user correct it.
+The full-object transaction can add, replace, split, merge, extend or erode
+coverage, edit RAF alone, or change Team membership. Changed nonzero cells
+need explicit values; an all-zero prior zone can propagate zero through a
+repartition. A changed Actuals end date requires explicit validation of all
+current Project RAF. Removing a Team requires zero current consumed values
+and confirms current RAF zero; historical snapshots retain prior values.
+Reintroduction requires explicit current values and RAF. An effective Apply
+increments the object's version. No-op, invalid, stale and failed projection
+or persistence actions publish nothing.
 
-Reservation actual consumption is separate from Reservation forecast demand.
-The latter remains a ratio of effective daily capacity or an exact fixed-daily
-request over applicable dates. Fixed-daily is neither RAF nor a total workload
-to spread across the interval. Actual/forecast and Project/Reservation are
-independent axes.
+### Legacy V4 and V5 persistence
 
-### Reconstructed daily occupation and forecast
+V5 is the live backup and export format. V1–V3 import without Actuals
+snapshots. Imported V4 cumulative records remain lossless, read-only
+`legacyV4Actuals` migration evidence. Until an object is explicitly
+reconciled, only the legacy adapter reconstructs its Actuals. Reconciliation
+requires a complete validated current partition and Project RAF, then creates
+its first V5 snapshot at the application clock date. Afterward only its
+current V5 snapshot reconstructs simulated Actuals; the V4 payload remains
+exportable but never combines with it. V4 append commands are disabled.
+Historical object and Team identities remain protected while referenced.
 
-Users declare cumulative consumption at dated records, not observed daily
-values. For each Team delta, FlowPlan2 reconstructs a
-deterministic daily distribution. This distribution is a computed projection,
-not a historical claim or a persisted user observation. Effective Team
-capacity weights eligible days. When the period's positive effective capacity
-sum is nonzero, each day's share is `consumedDelta ×
-effectiveCapacity(day) / totalEffectiveCapacity(period)`; zero-capacity days
-normally receive zero. If every effective capacity weight is zero, the delta
-is divided equally across global working weekdays and explicit Team capacity
-exception dates, including zero exceptions. If there are none, it is divided
-equally across all civil dates of the period. Capacity is a weight, never a
-ceiling on Actuals. Multiple
-Project and Reservation actuals can overlap and exceed capacity. The precise
-eligibility and first-record boundary rules are implemented in 10A.
+### Daily reconstruction, planning and UI
 
-Project and Reservation Actuals appends use the session's candidate state →
-projection → V4 persistence → publication transaction. A failed reconstruction,
-projection, or backup write leaves the published journal, RAF, session, and
-projection unchanged. Project appends update current RAF; Reservation appends
-leave forecast demand unchanged. Historical Team IDs remain resolvable, and
-objects or Teams with protected Actuals history cannot be deleted in 10A.
+Each current snapshot period's exact amount is distributed across its own
+civil dates using effective Team capacity weights. If all weights are zero,
+working weekdays and capacity-exception dates share the amount equally; if
+none exist, all civil dates share it. The sum is exact. This daily occupation
+is a calculated projection, never a claim of daily observation. Capacity is a
+weight, not a ceiling. Project and Reservation Actuals may overlap and exceed
+capacity. Source kind, object, snapshot, period, Team and day flow to timeline
+hit testing and tooltips. Metrics and overload diagnostics use only the active
+source mode for each object and the current projected run.
 
-For each Team/day, actual Project occupation and actual Reservation occupation
-are preserved in full. Forecast Reservation demand retains its current
-non-clamped semantics, including over-reservation. Forecast Project allocation
-alone is bounded by remaining capacity. The implemented order is Project
-actual, Reservation actual, Reservation forecast, then Project forecast, and
-`capacityForProjectForecast = max(0, effectiveCapacity - actualLoad -
-forecastReservationLoad)`. The shared Domain daily snapshot also computes
-`actualOverCapacity = max(0, actualLoad - effectiveCapacity)` and
-`reservationOverCapacity = max(0, actualLoad + forecastReservationLoad - effectiveCapacity) - actualOverCapacity`.
-Their sum is total daily overload. `TEAM_ACTUALS_OVER_CAPACITY` and
-`TEAM_OVER_RESERVED` report the two respective positive causes and can coexist.
+The planning engine receives current RAF and exact daily occupation, not
+snapshot histories. Actual Project and Reservation occupation is applied
+before Reservation forecast and Project forecast. `isActive` affects only
+forecast participation. Project, Program and Pas progress stays forecast
+based, so Actuals occupation is not subtracted from RAF a second time.
 
-### Architecture and historical knowledge
+Project and Reservation cards show the current Team × period matrix, Team
+participation, current Project RAF or Reservation allocation, and read-only
+snapshot and V4 history. Drafts remain local until Apply; Cancel clears only
+the Actuals draft. The card submits one atomic whole-object command. Disjoint
+field edits can rebase on a newer snapshot; concurrent partition changes and
+conflicting fields become stale. A local Forecast membership or RAF draft must
+be sequenced and rebased before a dependent Actuals Apply. The matrix scrolls
+horizontally in narrow cards while labels and action controls retain keyboard
+focus styling.
 
-The implemented 10B boundary is:
-
-```text
-immutable Actuals Records
-→ deterministic reconstruction
-→ calculated daily actual occupation
-→ Planning Engine
-→ forecast and disposable presentation projections
-```
-
-Actuals records, their knowledge dates, snapshots, historical version
-selection, and drift comparison stay upstream of the Planning Engine. `PlanningInput.actualOccupation` contains only exact, non-negative Project and
-Reservation amounts by Team/date; missing rows mean zero. The engine uses a
-lazy shared daily snapshot for ordinary allocation and deadline lookahead,
-including dates beyond the materialized horizon. `TeamDayCapacity` preserves
-both Actual amounts and overload causes. Timeline carries source-aware Actuals
-segments separately from named Reservation forecast and Project forecast;
-Actual and forecast representations of the same Project or Reservation share
-the same effective visual color, while the Actual rendering treatment keeps
-historical occupation visually distinct from forecast occupation.
-cursor metrics aggregate daily overload without compensation across dates or
-Teams. The Project requirement's `remainingWorkload` initializes the engine's
-per-Team RAF. An Actuals entry updates it only for currently required Teams;
-historical entries remain immutable and do not become forecast allocations.
-
-Knowledge snapshots in 10D preserve immutable views of what FlowPlan2 knew
-at a snapshot date; they are distinct from per-object actuals records. In 10E,
-historical reconstruction and drift comparison may compare consumed work,
-RAF, projections, estimated dates, and capacity/overload using the knowledge
-available at different snapshot dates.
-
-Project, Program, and Pas progress remains forecast-derived from current RAF
-and forecast Reservation demand. Actuals affect capacity and occupied metrics
-without being counted again against RAF. The 10B implementation is validated;
-the baseline above includes its source-aware timeline rendering correction.
-
-Open decisions include snapshot contract and storage, historical
-comparison UX, and drift visualization. Undo/redo and synchronization remain
-outside 10A.
-
-### 10C Actuals workflows and UI
-
-The current Project and Reservation cards expose read-only, chronologically
-ordered Actuals records with exact cumulative quantities and Project RAF.
-Separate New Actuals forms append complete photos from committed current Team
-membership; only the first photo supplies `actualsFromDate`. Project RAF is an
-exact, editable suggestion, never a Domain equation. A `latest-actuals` RAF is
-read-only in the ordinary Forecast editor, where its exact value is preserved
-through unrelated Apply. Independent Forecast and Actuals drafts survive card
-rerenders; local Team membership or current-configuration RAF changes block
-Actuals Apply until Forecast changes are applied or cancelled. Actuals dirty
-means values differ from the proposed input baseline or a rebase left a Team
-unresolved; opening or collapsing the form alone is pristine. Cancel resets
-only that draft. Actuals Apply uses the established append command and candidate
-projection/V4 transaction. The 10B timeline and cursor projections remain the
-only source of daily occupation, overload diagnostics and metrics.
+10D must capture additional cross-object, Forecast and capacity knowledge
+required for whole-planning historical replay. 10E drift comparisons must
+identify which inputs are historical and which remain current. An object
+snapshot alone does not freeze unrelated planning inputs.
 
 ## Current UI structure
 
@@ -428,7 +369,7 @@ These are current implementation facts, not durable product rules:
 
 - separate Program / PriorityFamily management screens or global rename;
 - undo/redo;
-- knowledge snapshots and historical comparison (deferred to 10D–10E).
+- whole-planning knowledge replay and historical drift comparison (deferred to 10D–10E).
 
 These omissions are ordered as future work in the
 [current plan](./current_plan.md); they must not be inferred from visual

@@ -11,9 +11,9 @@ import {
   createTeam,
   createTeamCapacitySchedule,
   createWorkingPattern,
-  appendProjectActuals,
-  appendReservationActuals,
   transitionProjectRequirements,
+  replaceProjectSnapshot,
+  replaceReservationSnapshot,
   serializeQuantity,
   reservationRatioFromSerialized,
   unavailabilityRatioFromSerialized,
@@ -35,9 +35,11 @@ import {
   type UnavailabilityRatio,
   type WorkingPattern,
   type MaxParallelProjects,
-  type ProjectActualsRecord,
-  type ReservationActualsRecord,
   type ReservationActualsChronology,
+  type ProjectActualsSnapshot,
+  type ReservationActualsSnapshot,
+  type SnapshotEvidence,
+  type SnapshotEditIntent,
 } from "../../domain/index.js";
 import { createTeamIdGenerator, type TeamIdGenerator } from "./teamIdGenerator.js";
 import { createProjectIdGenerator, type ProjectIdGenerator } from "./projectIdGenerator.js";
@@ -174,18 +176,25 @@ export interface RemoveReservationCommand {
   readonly reservationId: ReservationId;
 }
 
-export interface AppendProjectActualsCommand {
-  readonly kind: "append-project-actuals";
+export interface ReplaceProjectActualsCommand {
+  readonly kind: "replace-project-actuals";
   readonly projectId: ProjectId;
-  readonly actualsFromDate?: CivilDate;
-  readonly record: ProjectActualsRecord;
+  readonly baseVersion: number;
+  readonly current: Omit<ProjectActualsSnapshot, "snapshotId" | "version" | "knowledgeDate">;
+  readonly evidence: SnapshotEvidence;
+  readonly intent: SnapshotEditIntent;
+  /** Complete Forecast participation, in Portfolio Team order. RAF comes from current. */
+  readonly teamRequirements: readonly Readonly<{ teamId: TeamId; dailyCap?: DailyCap }>[];
 }
 
-export interface AppendReservationActualsCommand {
-  readonly kind: "append-reservation-actuals";
+export interface ReplaceReservationActualsCommand {
+  readonly kind: "replace-reservation-actuals";
   readonly reservationId: ReservationId;
-  readonly actualsFromDate?: CivilDate;
-  readonly record: ReservationActualsRecord;
+  readonly baseVersion: number;
+  readonly current: Omit<ReservationActualsSnapshot, "snapshotId" | "version" | "knowledgeDate">;
+  readonly evidence: SnapshotEvidence;
+  readonly intent: SnapshotEditIntent;
+  readonly teamAllocations: readonly UpdateReservationTeamAllocation[];
 }
 
 export type PlanningCommand =
@@ -203,8 +212,8 @@ export type PlanningCommand =
   | UpdateReservationCommand
   | CreateReservationCommand
   | RemoveReservationCommand
-  | AppendProjectActualsCommand
-  | AppendReservationActualsCommand;
+  | ReplaceProjectActualsCommand
+  | ReplaceReservationActualsCommand;
 
 export type PlanningCommandResult =
   | Readonly<{ ok: true; state: PlanningSessionState }>
@@ -217,6 +226,7 @@ export interface PlanningSession {
 
 export function createPlanningSession(
   initialState: PlanningSessionState,
+  clock?: Readonly<{ today: () => CivilDate }>,
 ): PlanningSession {
   let state = freezeState(initialState);
   const teamIds = createTeamIdGenerator(() => state.portfolio.teams.map((team) => team.id));
@@ -228,7 +238,7 @@ export function createPlanningSession(
     getState: () => state,
     dispatch: (command: PlanningCommand, beforeCommit?: (candidate: PlanningSessionState) => void): PlanningCommandResult => {
       let candidate: PlanningCommandResult;
-      try { candidate = applyCommand(state, command, teamIds, projectIds, reservationIds, historicalProgramIds, historicalFamilyIds); }
+      try { candidate = applyCommand(state, command, teamIds, projectIds, reservationIds, historicalProgramIds, historicalFamilyIds, clock); }
       catch (cause) {
         if (!(cause instanceof GroupingResolutionError)) throw cause;
         return failure([applicationError("INVALID_GROUPING", "grouping", cause.message)]);
@@ -259,7 +269,12 @@ function applyCommand(
   reservationIds: ReservationIdGenerator,
   historicalProgramIds: ReadonlySet<ProgramId>,
   historicalFamilyIds: ReadonlySet<PriorityFamilyId>,
+  clock?: Readonly<{ today: () => CivilDate }>,
 ): PlanningCommandResult {
+  if ((command as { kind: string }).kind === "append-project-actuals" ||
+      (command as { kind: string }).kind === "append-reservation-actuals") {
+    return failure([applicationError("LEGACY_ACTUALS_READ_ONLY", "actuals", "V4 Actuals records are read-only; reconcile into a V5 snapshot.")]);
+  }
   switch (command.kind) {
     case "update-planning-settings":
       return updatePlanningSettings(state, command);
@@ -289,31 +304,86 @@ function applyCommand(
       return addReservation(state, command, reservationIds, historicalProgramIds, historicalFamilyIds);
     case "remove-reservation":
       return removeReservation(state, command);
-    case "append-project-actuals":
-      return appendProjectRecord(state, command);
-    case "append-reservation-actuals":
-      return appendReservationRecord(state, command);
+    case "replace-project-actuals":
+      return replaceProjectActuals(state, command, clock);
+    case "replace-reservation-actuals":
+      return replaceReservationActuals(state, command, clock);
   }
 }
 
-function appendProjectRecord(state: PlanningSessionState, command: AppendProjectActualsCommand): PlanningCommandResult {
-  const index = state.portfolio.projects.findIndex((project) => project.id === command.projectId);
-  if (index < 0) return failure([applicationError("UNKNOWN_PROJECT", "projectId", "Project does not exist.")]);
-  const appended = appendProjectActuals(state.portfolio.projects[index]!, command.record, command.actualsFromDate);
-  if (!appended.ok) return failure(appended.errors);
+function replaceProjectActuals(
+  state: PlanningSessionState, command: ReplaceProjectActualsCommand,
+  clock?: Readonly<{ today: () => CivilDate }>,
+): PlanningCommandResult {
+  if (!clock) return failure([applicationError("MISSING_APPLICATION_CLOCK", "actuals", "Actuals knowledge needs an application clock.")]);
+  const project = state.portfolio.projects.find((item) => item.id === command.projectId);
+  if (!project) return failure([applicationError("UNKNOWN_PROJECT", "projectId", "Project does not exist.")]);
+  const expected = state.portfolio.teams.map((team) => team.id).filter((id) => command.teamRequirements.some((row) => row.teamId === id));
+  if (command.teamRequirements.length !== expected.length ||
+      command.teamRequirements.some((row, index) => row.teamId !== expected[index]) ||
+      command.current.participation.length !== expected.length ||
+      command.current.participation.some((id, index) => id !== expected[index])) {
+    return failure([applicationError("ACTUALS_MEMBERSHIP_MISMATCH", "participation", "Snapshot and Forecast Teams must match Portfolio order.")]);
+  }
+  const priorHistory = project.snapshots ?? [];
+  const history = replaceProjectSnapshot(project.id, priorHistory, {
+    baseVersion: command.baseVersion, knowledgeDate: clock.today(), current: command.current, evidence: command.evidence,
+    intent: command.intent,
+  });
+  if (!history.ok) return failure(history.errors);
+  if (history.value === priorHistory) return Object.freeze({ ok: true, state });
+  const raf = new Map(command.current.raf.map((row) => [row.teamId, row.amount]));
+  const requirementResults = command.teamRequirements.map((row) => createProjectTeamRequirement({
+    teamId: row.teamId, remainingWorkload: raf.get(row.teamId)!,
+    ...(row.dailyCap === undefined ? {} : { dailyCap: row.dailyCap }),
+  }));
+  const requirementErrors = requirementResults.flatMap((result) => result.ok ? [] : result.errors);
+  if (requirementErrors.length) return failure(requirementErrors);
+  const updated = createProject({ ...project,
+    requirements: requirementResults.map((result) => {
+      if (!result.ok) throw new TypeError("Validated requirement failed.");
+      return result.value;
+    }), snapshots: history.value });
+  if (!updated.ok) return failure(updated.errors);
   const portfolio = createPortfolio({ ...state.portfolio,
-    projects: state.portfolio.projects.map((project, position) => position === index ? appended.value : project) });
+    projects: state.portfolio.projects.map((item) => item.id === project.id ? updated.value : item) });
   if (!portfolio.ok) return failure(portfolio.errors);
   return Object.freeze({ ok: true, state: freezeState({ portfolio: portfolio.value, planning: state.planning }) });
 }
 
-function appendReservationRecord(state: PlanningSessionState, command: AppendReservationActualsCommand): PlanningCommandResult {
-  const index = state.portfolio.reservations.findIndex((reservation) => reservation.id === command.reservationId);
-  if (index < 0) return failure([applicationError("UNKNOWN_RESERVATION", "reservationId", "Reservation does not exist.")]);
-  const appended = appendReservationActuals(state.portfolio.reservations[index]!, command.record, command.actualsFromDate);
-  if (!appended.ok) return failure(appended.errors);
-  return replaceReservations(state, state.portfolio.reservations.map((reservation, position) =>
-    position === index ? appended.value : reservation));
+function replaceReservationActuals(
+  state: PlanningSessionState, command: ReplaceReservationActualsCommand,
+  clock?: Readonly<{ today: () => CivilDate }>,
+): PlanningCommandResult {
+  if (!clock) return failure([applicationError("MISSING_APPLICATION_CLOCK", "actuals", "Actuals knowledge needs an application clock.")]);
+  const reservation = state.portfolio.reservations.find((item) => item.id === command.reservationId);
+  if (!reservation) return failure([applicationError("UNKNOWN_RESERVATION", "reservationId", "Reservation does not exist.")]);
+  const expected = state.portfolio.teams.map((team) => team.id).filter((id) => command.teamAllocations.some((row) => row.teamId === id));
+  if (command.teamAllocations.length !== expected.length ||
+      command.teamAllocations.some((row, index) => row.teamId !== expected[index]) ||
+      command.current.participation.length !== expected.length ||
+      command.current.participation.some((id, index) => id !== expected[index])) {
+    return failure([applicationError("ACTUALS_MEMBERSHIP_MISMATCH", "participation", "Snapshot and Forecast Teams must match Portfolio order.")]);
+  }
+  const priorHistory = reservation.snapshots ?? [];
+  const history = replaceReservationSnapshot(reservation.id, priorHistory, {
+    baseVersion: command.baseVersion, knowledgeDate: clock.today(), current: command.current, evidence: command.evidence,
+    intent: command.intent,
+  });
+  if (!history.ok) return failure(history.errors);
+  if (history.value === priorHistory) return Object.freeze({ ok: true, state });
+  const allocations = command.teamAllocations.map((row) => createReservationTeamAllocation({
+    teamId: row.teamId, amount: row.kind === "ratio"
+      ? { kind: "ratio", ratio: row.ratio } : { kind: "fixed-daily", dailyCapacity: row.dailyCapacity },
+  }));
+  const allocationErrors = allocations.flatMap((result) => result.ok ? [] : result.errors);
+  if (allocationErrors.length) return failure(allocationErrors);
+  const updated = createReservation({ ...reservation, teamAllocations: allocations.map((result) => {
+    if (!result.ok) throw new TypeError("Validated allocation failed.");
+    return result.value;
+  }), snapshots: history.value });
+  if (!updated.ok) return failure(updated.errors);
+  return replaceReservations(state, state.portfolio.reservations.map((item) => item.id === reservation.id ? updated.value : item));
 }
 
 function addReservation(
@@ -335,7 +405,7 @@ function removeReservation(state: PlanningSessionState, command: RemoveReservati
     return failure([applicationError("UNKNOWN_RESERVATION", "reservationId",
       `Reservation ${command.reservationId} does not exist in the current portfolio.`)]);
   }
-  if (existing.actuals) return failure([applicationError("RESERVATION_HAS_ACTUALS", "reservationId", "Reservation with Actuals cannot be deleted.")]);
+  if (existing.actuals || existing.legacyV4Actuals || existing.snapshots?.length) return failure([applicationError("RESERVATION_HAS_ACTUALS", "reservationId", "Reservation with Actuals cannot be deleted.")]);
   return replaceReservations(state, state.portfolio.reservations.filter((reservation) => reservation.id !== command.reservationId));
 }
 
@@ -360,7 +430,7 @@ function updateReservation(
   const previous = state.portfolio.reservations[reservationIndex]!;
   const grouping = resolveGrouping(state.portfolio, command, command.reservationId, previous, historicalProgramIds, historicalFamilyIds);
   const updated = buildReservation(state, command, command.reservationId,
-    previous.isActive, grouping, previous.actuals);
+    previous.isActive, grouping, previous.actuals, previous.snapshots, previous.legacyV4Actuals);
   if (!updated.ok) return failure(updated.errors);
   const reservations = state.portfolio.reservations.map((reservation, index) =>
     index === reservationIndex ? updated.value : reservation,
@@ -375,6 +445,8 @@ function buildReservation(
   isActive = true,
   grouping?: ReturnType<typeof resolveGrouping>,
   actuals?: ReservationActualsChronology,
+  snapshots?: Reservation["snapshots"],
+  legacyV4Actuals?: Reservation["legacyV4Actuals"],
 ): ReturnType<typeof createReservation> {
   const errors: DomainError[] = [];
   const teamIds = new Set<TeamId>();
@@ -436,6 +508,8 @@ function buildReservation(
     endDate: command.endDate,
     teamAllocations: validated,
     ...(actuals === undefined ? {} : { actuals }),
+    ...(snapshots === undefined ? {} : { snapshots }),
+    ...(legacyV4Actuals === undefined ? {} : { legacyV4Actuals }),
   });
 }
 
@@ -579,8 +653,11 @@ function removeTeam(
   }
   const errors: DomainError[] = [];
   state.portfolio.projects.forEach((project, projectIndex) => {
-    if (project.actuals?.records.some((record) => record.teams.some((entry) => entry.teamId === command.teamId))) {
+    if ((project.legacyV4Actuals ?? project.actuals)?.records.some((record) => record.teams.some((entry) => entry.teamId === command.teamId))) {
       errors.push(applicationError("TEAM_REFERENCED_BY_PROJECT_ACTUALS", `projects[${projectIndex}].actuals`, `Team ${command.teamId} is in Project Actuals.`));
+    }
+    if (project.snapshots?.some((snapshot) => snapshot.participation.includes(command.teamId) || snapshot.retiredZeroTeams.includes(command.teamId))) {
+      errors.push(applicationError("TEAM_REFERENCED_BY_PROJECT_ACTUALS", `projects[${projectIndex}].snapshots`, `Team ${command.teamId} is in Project snapshot history.`));
     }
     project.requirements.forEach((requirement, requirementIndex) => {
       if (requirement.teamId === command.teamId) errors.push(applicationError(
@@ -591,8 +668,11 @@ function removeTeam(
     });
   });
   state.portfolio.reservations.forEach((reservation, reservationIndex) => {
-    if (reservation.actuals?.records.some((record) => record.teams.some((entry) => entry.teamId === command.teamId))) {
+    if ((reservation.legacyV4Actuals ?? reservation.actuals)?.records.some((record) => record.teams.some((entry) => entry.teamId === command.teamId))) {
       errors.push(applicationError("TEAM_REFERENCED_BY_RESERVATION_ACTUALS", `reservations[${reservationIndex}].actuals`, `Team ${command.teamId} is in Reservation Actuals.`));
+    }
+    if (reservation.snapshots?.some((snapshot) => snapshot.participation.includes(command.teamId) || snapshot.retiredZeroTeams.includes(command.teamId))) {
+      errors.push(applicationError("TEAM_REFERENCED_BY_RESERVATION_ACTUALS", `reservations[${reservationIndex}].snapshots`, `Team ${command.teamId} is in Reservation snapshot history.`));
     }
     reservation.teamAllocations.forEach((allocation, allocationIndex) => {
       if (allocation.teamId === command.teamId) errors.push(applicationError(
@@ -743,7 +823,7 @@ function removeProject(
     return failure([applicationError("UNKNOWN_PROJECT", "projectId",
       `Project ${command.projectId} does not exist in the current portfolio.`)]);
   }
-  if (existing.actuals) return failure([applicationError("PROJECT_HAS_ACTUALS", "projectId", "Project with Actuals cannot be deleted.")]);
+  if (existing.actuals || existing.legacyV4Actuals || existing.snapshots?.length) return failure([applicationError("PROJECT_HAS_ACTUALS", "projectId", "Project with Actuals cannot be deleted.")]);
   const projects = state.portfolio.projects.filter((project) => project.id !== command.projectId);
   const catalogs = pruneCatalogs({ projects, reservations: state.portfolio.reservations,
     programs: state.portfolio.programs, priorityFamilies: state.portfolio.priorityFamilies });
@@ -875,6 +955,9 @@ function updateProject(
       : { mandatoryDeadline: command.mandatoryDeadline }),
     requirements: transitioned.value,
     ...(project.actuals === undefined ? {} : { actuals: project.actuals }),
+    ...(project.legacyV4Actuals === undefined ? {} : { legacyV4Actuals: project.legacyV4Actuals }),
+    ...(project.legacyV4RafAuthority === undefined ? {} : { legacyV4RafAuthority: project.legacyV4RafAuthority }),
+    ...(project.snapshots === undefined ? {} : { snapshots: project.snapshots }),
   });
   if (!updatedProject.ok) return failure(updatedProject.errors);
 

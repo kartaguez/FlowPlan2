@@ -6,11 +6,16 @@ import { addRationals, compareRationals, divideRationals, multiplyRationals, rat
 import { capacityFromRational, consumedWorkloadFromRational, rationalOf, type ConsumedWorkload, type ProjectId, type ReservationId, type TeamId } from "../model/scalars.js";
 import type { ActualOccupationDay } from "../planning/contracts.js";
 import type { ReservationActualsTeamEntry } from "./records.js";
+import type { ActualsSnapshotBase } from "./snapshots.js";
 
 export type ActualsDailyContribution = Readonly<{
   sourceKind: "project" | "reservation";
   sourceId: ProjectId | ReservationId;
-  recordIndex: number;
+  /** Present only for retained V4 evidence. */
+  recordIndex?: number;
+  /** Stable provenance of a V5 current source. */
+  snapshotId?: string;
+  periodId?: string;
   teamId: TeamId;
   date: CivilDate;
   amount: ConsumedWorkload;
@@ -104,8 +109,33 @@ export function reconstructActuals(portfolio: Portfolio, pattern: WorkingPattern
       previousThrough = record.actualsThroughDate;
     });
   };
-  portfolio.projects.forEach((project) => process("project", project.id, project.actuals));
-  portfolio.reservations.forEach((reservation) => process("reservation", reservation.id, reservation.actuals));
+  const processSnapshot = (kind: "project" | "reservation", id: ProjectId | ReservationId,
+    snapshots: readonly ActualsSnapshotBase[] | undefined) => {
+    const current = snapshots?.at(-1);
+    if (!current?.coverage) return;
+    for (const period of current.coverage.periods) {
+      const dates = civilDatesInclusive(period.from, period.through);
+      for (const row of period.consumed) {
+        const team = teamById.get(row.teamId);
+        if (!team) throw new TypeError(`Missing historical Team ${row.teamId}.`);
+        const exact = rationalOf(row.amount);
+        const amounts = distribute(team, dates, exact, pattern);
+        if (compareRationals(amounts.reduce(addRationals, ZERO), exact) !== 0) {
+          throw new TypeError("Actuals distribution lost a rational amount.");
+        }
+        dates.forEach((date, index) => contributions.push(Object.freeze({
+          sourceKind: kind, sourceId: id, snapshotId: current.snapshotId, periodId: period.periodId,
+          teamId: row.teamId, date, amount: quantity(amounts[index]!),
+        })));
+      }
+    }
+  };
+  portfolio.projects.forEach((project) => project.snapshots?.length
+    ? processSnapshot("project", project.id, project.snapshots)
+    : process("project", project.id, project.legacyV4Actuals ?? project.actuals));
+  portfolio.reservations.forEach((reservation) => reservation.snapshots?.length
+    ? processSnapshot("reservation", reservation.id, reservation.snapshots)
+    : process("reservation", reservation.id, reservation.legacyV4Actuals ?? reservation.actuals));
   const totals = new Map<string, { teamId: TeamId; date: CivilDate; amount: Rational }>();
   contributions.forEach((contribution) => {
     const key = `${contribution.teamId}\u0000${contribution.date}`;

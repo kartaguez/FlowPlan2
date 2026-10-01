@@ -46,11 +46,11 @@ Lot 9I — Project and Reservation forecast activation (DONE)
 Corrective lot — usage-driven Program/Pas and colors (DONE)
 Corrective lot — anchored temporal zoom and range drag (DONE)
 Lot 10 — Actuals & History (OPEN)
-10A (DONE) → 10B (DONE) → 10C (DONE) → 10C.1 (PLANNED) → 10D → 10E
+10A (DONE) → 10B (DONE) → 10C (DONE) → 10C.1 (IN REVIEW) → 10D → 10E
 ```
 
 Lots through 9I, the Projection date presentation pass, both corrective lots,
-10A, 10B, and 10C are validated. 10C.1 is the next open lot; 10D and 10E remain open.
+10A, 10B, and 10C are validated. 10C.1 is implemented and awaits audit; 10D and 10E remain open.
 
 ## Corrective lot — anchored temporal zoom and range drag
 
@@ -336,7 +336,7 @@ manually. Implementation and final dirty correction were audited at
 
 ## 10C.1 — Object-scoped Actuals knowledge snapshots
 
-**Status: PLANNED, NOT IMPLEMENTED.** [10C.1 implementation and migration plan](./steps/ACTUALS/lot10c1_plan.md). This intermediate lot replaces the 10A–10C cumulative-record model with immutable, whole-Project or whole-Reservation snapshots of current Actuals/RAF knowledge. It adds one shared exact Actuals partition per object, explicit rectification/extension/erosion and atomic Team membership transitions. It also plans a lossless, cautious V4 migration and stable snapshot/period source identity. The present code and current canon still describe the delivered 10C model; 10C.1 awaits plan audit and implementation authorization.
+**Status: IN REVIEW.** [10C.1 implementation and migration plan](./steps/ACTUALS/lot10c1_plan.md). The current model uses immutable, whole-Project or whole-Reservation snapshots of Actuals knowledge. Each object has one current exact partition, and a Project snapshot includes current Team RAF. Replacement, extension, erosion and membership actions commit one object candidate through projection and V5 persistence. V4 cumulative records remain lossless, read-only migration evidence. Before explicit reconciliation they alone supply that object's simulated Actuals; afterward only its current V5 snapshot does. The editor shows the Team × period matrix, current RAF, and read-only history. Stable snapshot and period IDs reach timeline hit testing and tooltips. Audit of this delivered lot is pending.
 
 ## 10D — Knowledge snapshots
 
@@ -349,9 +349,11 @@ instant. This lot remains open and distinct from 10C.1.
 
 Reconstruct knowledge at different snapshot dates and compare changes in
 consumed work, RAF, projection, estimated dates, capacity/overload, and other
-relevant results. The comparison UI and drift visualization remain open.
+relevant results. Each comparison must identify which inputs are historical
+and which still come from current configuration. The comparison UI and drift
+visualization remain open.
 
-The [current canon](./current_canon.md) records validated 10B and 10C facts.
+The [current canon](./current_canon.md) records the implemented 10C.1 contract pending audit.
 
 ## Cross-cutting non-goals for Phase 9
 

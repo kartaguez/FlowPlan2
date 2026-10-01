@@ -11,6 +11,8 @@ import {
   reservationRatioFromSerialized, serializeQuantity, unavailabilityRatioFromSerialized,
   type DomainQuantity, type DomainResult, createColor, suggestColor,
   type ProjectActualsChronology, type ReservationActualsChronology,
+  type ProjectActualsSnapshot, type ReservationActualsSnapshot,
+  type TeamId,
 } from "../../domain/index.js";
 
 export class InvalidFlowplanBackup extends Error {
@@ -74,7 +76,91 @@ function decodeActuals(value: unknown, project: boolean): ProjectActualsChronolo
   return { actualsFromDate, records } as ProjectActualsChronology | ReservationActualsChronology;
 }
 
-function encodeFlowplanBackupVersion(state: PlanningSessionState, version: 1 | 2 | 3 | 4, exportedAt: string): string {
+function decodeSnapshot(value: unknown, project: boolean, path: string): ProjectActualsSnapshot | ReservationActualsSnapshot {
+  const source = object(value, path, ["snapshotId", "version", "knowledgeDate", "participation", "retiredZeroTeams", ...(project ? ["raf"] : [])], ["coverage"]);
+  const participation = array(source.participation, `${path}.participation`).map((item, index) =>
+    valid(createTeamId(string(item, `${path}.participation[${index}]`))));
+  const retiredZeroTeams = array(source.retiredZeroTeams, `${path}.retiredZeroTeams`).map((item, index) =>
+    valid(createTeamId(string(item, `${path}.retiredZeroTeams[${index}]`))));
+  const coverage = source.coverage === undefined ? undefined : (() => {
+    const item = object(source.coverage, `${path}.coverage`, ["actualsFrom", "actualsThrough", "periods"]);
+    return { actualsFrom: date(item.actualsFrom, `${path}.coverage.actualsFrom`),
+      actualsThrough: date(item.actualsThrough, `${path}.coverage.actualsThrough`),
+      periods: array(item.periods, `${path}.coverage.periods`).map((period, periodIndex) => {
+        const periodPath = `${path}.coverage.periods[${periodIndex}]`;
+        const row = object(period, periodPath, ["periodId", "from", "through", "consumed"]);
+        return { periodId: string(row.periodId, `${periodPath}.periodId`),
+          from: date(row.from, `${periodPath}.from`), through: date(row.through, `${periodPath}.through`),
+          consumed: array(row.consumed, `${periodPath}.consumed`).map((entry, entryIndex) => {
+            const entryPath = `${periodPath}.consumed[${entryIndex}]`;
+            const data = object(entry, entryPath, ["teamId", "amount"]);
+            return { teamId: valid(createTeamId(string(data.teamId, `${entryPath}.teamId`))),
+              amount: quantity(data.amount, `${entryPath}.amount`, consumedWorkloadFromSerialized) };
+          }) };
+      }) };
+  })();
+  const base = { snapshotId: string(source.snapshotId, `${path}.snapshotId`),
+    version: integer(source.version, `${path}.version`), knowledgeDate: date(source.knowledgeDate, `${path}.knowledgeDate`),
+    participation, retiredZeroTeams, ...(coverage === undefined ? {} : { coverage }) };
+  if (!project) return base;
+  return { ...base, raf: array(source.raf, `${path}.raf`).map((entry, index) => {
+    const entryPath = `${path}.raf[${index}]`;
+    const data = object(entry, entryPath, ["teamId", "amount"]);
+    return { teamId: valid(createTeamId(string(data.teamId, `${entryPath}.teamId`))),
+      amount: quantity(data.amount, `${entryPath}.amount`, remainingWorkloadFromSerialized) };
+  }) };
+}
+
+function decodeProjectLegacy(value: unknown): Readonly<{ actuals: ProjectActualsChronology;
+  authority: readonly Readonly<{ teamId: TeamId;
+    authority: "latest-actuals" | "current-configuration" }>[] }> {
+  const source = object(value, "legacyV4Actuals", ["actualsFromDate", "records", "rafAuthorityByTeam"]);
+  const actuals = decodeActuals({ actualsFromDate: source.actualsFromDate, records: source.records }, true);
+  const authority = array(source.rafAuthorityByTeam, "legacyV4Actuals.rafAuthorityByTeam").map((item, index) => {
+    const path = `legacyV4Actuals.rafAuthorityByTeam[${index}]`;
+    const row = object(item, path, ["teamId", "authority"]);
+    const value = string(row.authority, `${path}.authority`);
+    if (value !== "latest-actuals" && value !== "current-configuration") throw new InvalidFlowplanBackup(`${path}.authority is invalid.`);
+    return { teamId: valid(createTeamId(string(row.teamId, `${path}.teamId`))),
+      authority: value as "latest-actuals" | "current-configuration" };
+  });
+  if (new Set(authority.map((row) => row.teamId)).size !== authority.length) throw new InvalidFlowplanBackup("Duplicate legacy RAF authority Team.");
+  return { actuals, authority };
+}
+
+function encodeSnapshot(snapshot: ProjectActualsSnapshot | ReservationActualsSnapshot) {
+  return { snapshotId: snapshot.snapshotId, version: snapshot.version, knowledgeDate: snapshot.knowledgeDate,
+    participation: [...snapshot.participation], retiredZeroTeams: [...snapshot.retiredZeroTeams],
+    ...(snapshot.coverage === undefined ? {} : { coverage: {
+      actualsFrom: snapshot.coverage.actualsFrom, actualsThrough: snapshot.coverage.actualsThrough,
+      periods: snapshot.coverage.periods.map((period) => ({ periodId: period.periodId, from: period.from, through: period.through,
+        consumed: period.consumed.map((row) => ({ teamId: row.teamId, amount: serializeQuantity(row.amount) })) })),
+    } }),
+    ...("raf" in snapshot ? { raf: snapshot.raf.map((row) => ({ teamId: row.teamId, amount: serializeQuantity(row.amount) })) } : {}),
+  };
+}
+
+function encodeProjectLegacy(actuals: ProjectActualsChronology, authority: readonly Readonly<{ teamId: string; authority: string }>[]) {
+  return { actualsFromDate: actuals.actualsFromDate,
+    records: actuals.records.map((record) => ({ actualsThroughDate: record.actualsThroughDate,
+      teams: record.teams.map((entry) => ({ teamId: entry.teamId,
+        cumulativeConsumed: serializeQuantity(entry.cumulativeConsumed), remainingWorkload: serializeQuantity(entry.remainingWorkload) })) })),
+    rafAuthorityByTeam: authority.map((entry) => ({ teamId: entry.teamId, authority: entry.authority })),
+  };
+}
+
+function encodeReservationLegacy(actuals: ReservationActualsChronology) {
+  return { actualsFromDate: actuals.actualsFromDate,
+    records: actuals.records.map((record) => ({ actualsThroughDate: record.actualsThroughDate,
+      teams: record.teams.map((entry) => ({ teamId: entry.teamId,
+        cumulativeConsumed: serializeQuantity(entry.cumulativeConsumed) })) })),
+  };
+}
+
+function encodeFlowplanBackupVersion(state: PlanningSessionState, version: 1 | 2 | 3 | 4 | 5, exportedAt: string): string {
+  if (version < 5 && (state.portfolio.projects.some((p) => p.snapshots?.length) || state.portfolio.reservations.some((r) => r.snapshots?.length))) {
+    throw new InvalidFlowplanBackup("V1–V4 backups cannot encode knowledge snapshots.");
+  }
   if (version < 4 && (state.portfolio.projects.some((p) => p.actuals) || state.portfolio.reservations.some((r) => r.actuals))) {
     throw new InvalidFlowplanBackup("Legacy backup cannot encode Actuals.");
   }
@@ -110,6 +196,14 @@ function encodeFlowplanBackupVersion(state: PlanningSessionState, version: 1 | 2
             teams: record.teams.map((entry) => ({ teamId: entry.teamId,
               cumulativeConsumed: serializeQuantity(entry.cumulativeConsumed), remainingWorkload: serializeQuantity(entry.remainingWorkload) })) })),
         } } : {}),
+        ...(version === 5 ? {
+          migrationStatus: project.snapshots?.length ? project.legacyV4Actuals || project.actuals ? "reconciled" : "native"
+            : project.legacyV4Actuals || project.actuals ? "legacy-pending" : "none",
+          ...(project.legacyV4Actuals || project.actuals ? { legacyV4Actuals: encodeProjectLegacy(
+            (project.legacyV4Actuals ?? project.actuals)!, project.legacyV4RafAuthority ??
+              project.requirements.map((row) => ({ teamId: row.teamId, authority: row.rafAuthority ?? "current-configuration" }))) } : {}),
+          ...(project.snapshots?.length ? { snapshots: project.snapshots.map(encodeSnapshot) } : {}),
+        } : {}),
         requirements: project.requirements.map((r) => ({
           teamId: r.teamId, remainingWorkload: serializeQuantity(r.remainingWorkload),
           ...(r.dailyCap === undefined ? {} : { dailyCap: serializeQuantity(r.dailyCap) }),
@@ -131,6 +225,12 @@ function encodeFlowplanBackupVersion(state: PlanningSessionState, version: 1 | 2
             teams: record.teams.map((entry) => ({ teamId: entry.teamId,
               cumulativeConsumed: serializeQuantity(entry.cumulativeConsumed) })) })),
         } } : {}),
+        ...(version === 5 ? {
+          migrationStatus: r.snapshots?.length ? r.legacyV4Actuals || r.actuals ? "reconciled" : "native"
+            : r.legacyV4Actuals || r.actuals ? "legacy-pending" : "none",
+          ...(r.legacyV4Actuals || r.actuals ? { legacyV4Actuals: encodeReservationLegacy((r.legacyV4Actuals ?? r.actuals)!) } : {}),
+          ...(r.snapshots?.length ? { snapshots: r.snapshots.map(encodeSnapshot) } : {}),
+        } : {}),
         teamAllocations: r.teamAllocations.map((a) => ({ teamId: a.teamId, amount: a.amount.kind === "ratio"
           ? { kind: "ratio", ratio: serializeQuantity(a.amount.ratio) }
           : { kind: "fixed-daily", dailyCapacity: serializeQuantity(a.amount.dailyCapacity) } })),
@@ -154,6 +254,9 @@ export function encodeFlowplanBackupV3(state: PlanningSessionState, exportedAt: 
 export function encodeFlowplanBackupV4(state: PlanningSessionState, exportedAt: string = new Date().toISOString()): string {
   return encodeFlowplanBackupVersion(state, 4, exportedAt);
 }
+export function encodeFlowplanBackupV5(state: PlanningSessionState, exportedAt: string = new Date().toISOString()): string {
+  return encodeFlowplanBackupVersion(state, 5, exportedAt);
+}
 
 function repairedColor(value: unknown, key: string, used: readonly string[]): string {
   if (typeof value === "string") { const result = createColor(value); if (result.ok) return result.value; }
@@ -165,7 +268,7 @@ function boolean(value: unknown, path: string): boolean {
   return value;
 }
 
-function decodeFlowplanBackupVersion(text: string, version: 1 | 2 | 3 | 4): PlanningSessionState {
+function decodeFlowplanBackupVersion(text: string, version: 1 | 2 | 3 | 4 | 5): PlanningSessionState {
   let parsed: unknown;
   try { parsed = JSON.parse(text); } catch { throw new InvalidFlowplanBackup("Invalid JSON."); }
   const envelope = object(parsed, "backup", ["format", "version", "exportedAt", "data"]);
@@ -216,7 +319,7 @@ function decodeFlowplanBackupVersion(text: string, version: 1 | 2 | 3 | 4): Plan
     return color;
   };
   const projects = array(source.projects, "projects").map((v) => {
-    const p = object(v, "project", ["id", "name", "requirements", ...(version >= 2 ? ["isActive"] : [])], ["programId", "priorityFamilyId", "earliestStartDate", "objectiveEndDate", "mandatoryDeadline", ...(version >= 3 ? ["ownColor"] : []), ...(version === 4 ? ["actuals"] : [])]);
+    const p = object(v, "project", ["id", "name", "requirements", ...(version >= 2 ? ["isActive"] : []), ...(version === 5 ? ["migrationStatus"] : [])], ["programId", "priorityFamilyId", "earliestStartDate", "objectiveEndDate", "mandatoryDeadline", ...(version >= 3 ? ["ownColor"] : []), ...(version === 4 ? ["actuals"] : []), ...(version === 5 ? ["legacyV4Actuals", "snapshots"] : [])]);
     const requirements = array(p.requirements, "requirements").map((v) => {
       const r = object(v, "requirement", ["teamId", "remainingWorkload", ...(version === 4 ? ["rafAuthority"] : [])], ["dailyCap"]);
       const rafAuthority = version === 4 ? string(r.rafAuthority, "requirement.rafAuthority") : undefined;
@@ -227,8 +330,20 @@ function decodeFlowplanBackupVersion(text: string, version: 1 | 2 | 3 | 4): Plan
         rafAuthority: rafAuthority ?? "current-configuration" }));
     });
     const actuals = version === 4 && p.actuals !== undefined ? decodeActuals(p.actuals, true) : undefined;
-    return valid(createProject({ id: valid(createProjectId(string(p.id, "project.id"))), name: name(p.name, "project.name"), requirements,
-      ...(actuals === undefined ? {} : { actuals }),
+    const legacy = version === 5 && p.legacyV4Actuals !== undefined ? decodeProjectLegacy(p.legacyV4Actuals) : undefined;
+    const snapshots = version === 5 && p.snapshots !== undefined ? array(p.snapshots, "project.snapshots").map((item, index) =>
+      decodeSnapshot(item, true, `project.snapshots[${index}]`) as ProjectActualsSnapshot) : undefined;
+    if (version === 5) {
+      const expected = snapshots?.length ? legacy ? "reconciled" : "native" : legacy ? "legacy-pending" : "none";
+      if (p.migrationStatus !== expected || (snapshots && snapshots.length === 0)) throw new InvalidFlowplanBackup("Invalid Project migration status.");
+    }
+    const resolvedRequirements = version === 5 && legacy && !snapshots?.length ? requirements.map((row) => ({ ...row,
+      rafAuthority: legacy.authority.find((item) => item.teamId === row.teamId)?.authority ?? "current-configuration" as const })) : requirements;
+    return valid(createProject({ id: valid(createProjectId(string(p.id, "project.id"))), name: name(p.name, "project.name"), requirements: resolvedRequirements,
+      ...(actuals === undefined ? {} : { actuals, legacyV4Actuals: actuals,
+        legacyV4RafAuthority: requirements.map((row) => ({ teamId: row.teamId, authority: row.rafAuthority ?? "current-configuration" })) }),
+      ...(legacy === undefined ? {} : { actuals: legacy.actuals, legacyV4Actuals: legacy.actuals, legacyV4RafAuthority: legacy.authority }),
+      ...(snapshots === undefined ? {} : { snapshots }),
       isActive: version >= 2 ? boolean(p.isActive, "project.isActive") : true,
       ...(p.programId === undefined ? { ownColor: repairOwnColor(p.ownColor, String(p.id)) } : { programId: valid(createProgramId(string(p.programId, "project.programId"))) }),
       ...(p.priorityFamilyId === undefined ? {} : { priorityFamilyId: valid(createPriorityFamilyId(string(p.priorityFamilyId, "project.priorityFamilyId"))) }),
@@ -237,7 +352,7 @@ function decodeFlowplanBackupVersion(text: string, version: 1 | 2 | 3 | 4): Plan
       ...(p.mandatoryDeadline === undefined ? {} : { mandatoryDeadline: date(p.mandatoryDeadline, "project.mandatoryDeadline") }) }));
   });
   const reservations = array(source.reservations, "reservations").map((v) => {
-    const r = object(v, "reservation", ["id", "name", "startDate", "endDate", "teamAllocations", ...(version >= 2 ? ["isActive"] : [])], version >= 3 ? ["programId", "priorityFamilyId", "ownColor", ...(version === 4 ? ["actuals"] : [])] : []);
+    const r = object(v, "reservation", ["id", "name", "startDate", "endDate", "teamAllocations", ...(version >= 2 ? ["isActive"] : []), ...(version === 5 ? ["migrationStatus"] : [])], version >= 3 ? ["programId", "priorityFamilyId", "ownColor", ...(version === 4 ? ["actuals"] : []), ...(version === 5 ? ["legacyV4Actuals", "snapshots"] : [])] : []);
     const teamAllocations = array(r.teamAllocations, "teamAllocations").map((v) => {
       const a = object(v, "allocation", ["teamId", "amount"]);
       const rawAmount = object(a.amount, "amount", ["kind"], ["ratio", "dailyCapacity"]);
@@ -252,8 +367,17 @@ function decodeFlowplanBackupVersion(text: string, version: 1 | 2 | 3 | 4): Plan
       return valid(createReservationTeamAllocation({ teamId: valid(createTeamId(string(a.teamId, "allocation.teamId"))), amount }));
     });
     const actuals = version === 4 && r.actuals !== undefined ? decodeActuals(r.actuals, false) : undefined;
+    const legacy = version === 5 && r.legacyV4Actuals !== undefined ? decodeActuals(r.legacyV4Actuals, false) : undefined;
+    const snapshots = version === 5 && r.snapshots !== undefined ? array(r.snapshots, "reservation.snapshots").map((item, index) =>
+      decodeSnapshot(item, false, `reservation.snapshots[${index}]`) as ReservationActualsSnapshot) : undefined;
+    if (version === 5) {
+      const expected = snapshots?.length ? legacy ? "reconciled" : "native" : legacy ? "legacy-pending" : "none";
+      if (r.migrationStatus !== expected || (snapshots && snapshots.length === 0)) throw new InvalidFlowplanBackup("Invalid Reservation migration status.");
+    }
     return valid(createReservation({ id: valid(createReservationId(string(r.id, "reservation.id"))), name: name(r.name, "reservation.name"),
-      ...(actuals === undefined ? {} : { actuals }),
+      ...(actuals === undefined ? {} : { actuals, legacyV4Actuals: actuals }),
+      ...(legacy === undefined ? {} : { actuals: legacy, legacyV4Actuals: legacy }),
+      ...(snapshots === undefined ? {} : { snapshots }),
       isActive: version >= 2 ? boolean(r.isActive, "reservation.isActive") : true,
       ...(r.programId === undefined ? { ownColor: repairOwnColor(r.ownColor, String(r.id)) } : { programId: valid(createProgramId(string(r.programId, "reservation.programId"))) }),
       ...(r.priorityFamilyId === undefined ? {} : { priorityFamilyId: valid(createPriorityFamilyId(string(r.priorityFamilyId, "reservation.priorityFamilyId"))) }),
@@ -275,6 +399,6 @@ export function decodeFlowplanBackup(text: string): PlanningSessionState {
   let envelope: unknown;
   try { envelope = JSON.parse(text); } catch { throw new InvalidFlowplanBackup("Invalid JSON."); }
   const source = object(envelope, "backup", ["format", "version", "exportedAt", "data"]);
-  if (source.version !== 1 && source.version !== 2 && source.version !== 3 && source.version !== 4) throw new InvalidFlowplanBackup("Unsupported version.");
+  if (source.version !== 1 && source.version !== 2 && source.version !== 3 && source.version !== 4 && source.version !== 5) throw new InvalidFlowplanBackup("Unsupported version.");
   return decodeFlowplanBackupVersion(text, source.version);
 }

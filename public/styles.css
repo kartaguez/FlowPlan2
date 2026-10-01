@@ -695,12 +695,21 @@ h1 { margin-bottom: 0; font-size: 2rem; letter-spacing: -0.04em; }
 .card-actuals-history ul { padding-left: 1rem; }
 .card-actuals-form { display: grid; gap: 0.6rem; margin-top: 0.6rem; }
 .card-actuals-form[hidden], .card-actuals > button[hidden] { display: none; }
-.card-actuals-form > div { display: grid; gap: 0.55rem; }
+.card-actuals-form > div { display: grid; min-width: 0; gap: 0.55rem; }
 .card-actuals-form label { display: grid; min-width: 0; gap: 0.2rem; font-size: 0.72rem; }
+.card-actuals-form .card-actuals-check { display: flex; align-items: center; gap: 0.45rem; }
+.card-actuals-form .card-actuals-check input { flex: none; min-height: 1rem; }
 .card-actuals-form fieldset { min-width: 0; margin: 0; border: 1px solid var(--fp-border-soft); border-radius: var(--fp-radius-card); }
 .card-actuals-form input, .card-actuals button { min-width: 0; max-width: 100%; min-height: 2.25rem; padding: 0.3rem 0.45rem; border: 1px solid var(--fp-border); border-radius: var(--fp-radius-sm); background: white; color: inherit; font: inherit; }
 .card-actuals-form button[type="submit"] { background: var(--fp-action); color: white; }
 .card-actuals :focus-visible { outline: 3px solid var(--fp-selection); outline-offset: 2px; }
+.card-actuals-matrix-scroll { width: 100%; min-width: 0; max-width: 100%; overflow-x: auto; }
+.card-actuals-matrix-scroll table { width: max-content; min-width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+.card-actuals-matrix-scroll th, .card-actuals-matrix-scroll td { padding: 0.3rem; border-bottom: 1px solid var(--fp-border-soft); text-align: left; vertical-align: top; }
+.card-actuals-matrix-scroll th { white-space: nowrap; }
+.card-actuals-matrix-scroll input { width: 9rem; }
+.card-actuals-matrix-scroll td button + button { margin-left: 0.25rem; }
+.card-actuals-matrix-hint { margin: 0; font-size: 0.72rem; color: var(--fp-muted); }
 .portfolio-card-content { min-width: 0; border: 1px solid var(--fp-border); border-top: 0; border-radius: 0 0 var(--fp-radius-card) var(--fp-radius-card); padding: 0.65rem; }
 .portfolio-team-card { min-width: 0; border: 1px solid var(--fp-border-soft); border-radius: var(--fp-radius-card); background: var(--fp-inset); padding: 0.5rem; }
 .portfolio-team-card + .portfolio-team-card { margin-top: 0.4rem; }
