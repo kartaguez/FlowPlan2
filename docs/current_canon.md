@@ -9,8 +9,8 @@ active implementation and trajectory. The remaining work is in the
 
 ## Validated implementation baseline
 
-`be6c2adb922b4d86a4fdbc750ff9b1321add2c34` (validated through Lot 10B,
-including the prior corrective lots).
+`18f1c20ac6343dc95654dc32bffc7032f9d5be52` (validated through Lot 10C,
+including its final Actuals dirty correction).
 
 The active application implements a pure planning projection over an editable
 session, restored from a local backup when available and otherwise initialized
@@ -27,6 +27,7 @@ from the demo. The following capabilities are complete and active:
   edited, and deleted in inline Portfolio cards;
 - immutable Project and Reservation Actuals chronologies, exact daily
   reconstruction, Actuals-aware planning projection, and transactional V4 persistence;
+- Project and Reservation Actuals entry and read-only history in Portfolio cards;
 - immediate Project and Reservation activation controls; inactive entities
   remain in the Portfolio and do not participate in the forecast;
 - Projects / Reservations tabs in the Portfolio sidebar;
@@ -163,7 +164,7 @@ initial period. There is no manual period reorder or Domain period ID.
 ## Current objective — Lot 10: Actuals & History
 
 Lot 10 is the active product and architecture trajectory. 10A is validated
-and **DONE**; 10B is **DONE**; 10C is **IN REVIEW**; 10D–10E remain open. The forecast still starts from the
+and **DONE**; 10B and 10C are **DONE**; 10D–10E remain open. The forecast still starts from the
 RAF stored on each Project/Team requirement. The session now holds immutable
 Project and Reservation Actuals chronologies and reconstructs daily Actuals
 separately from the forecast, then projects calculated occupation into planning. It has no knowledge snapshots.
@@ -191,7 +192,7 @@ earlier entry for that Team, even across absent records. A requirement kept
 continuously since its latest Actuals entry takes RAF from that entry. After
 removal and reintroduction, its explicitly supplied RAF is free until the
 next Actuals entry; V4 stores this RAF authority so a restored session can
-enforce the same rule. The later workflow proposes
+enforce the same rule. The 10C workflow proposes
 `max(0, previousRemaining - consumedDelta)` but lets the user correct it.
 
 Reservation actual consumption is separate from Reservation forecast demand.
@@ -278,7 +279,7 @@ Open decisions include snapshot contract and storage, historical
 comparison UX, and drift visualization. Undo/redo and synchronization remain
 outside 10A.
 
-### 10C implementation under review
+### 10C Actuals workflows and UI
 
 The current Project and Reservation cards expose read-only, chronologically
 ordered Actuals records with exact cumulative quantities and Project RAF.
@@ -288,11 +289,12 @@ exact, editable suggestion, never a Domain equation. A `latest-actuals` RAF is
 read-only in the ordinary Forecast editor, where its exact value is preserved
 through unrelated Apply. Independent Forecast and Actuals drafts survive card
 rerenders; local Team membership or current-configuration RAF changes block
-Actuals Apply until Forecast changes are applied or cancelled. Actuals Apply
-uses the established append command and candidate projection/V4 transaction.
-The 10B timeline and cursor projections remain the only source of daily
-occupation, overload diagnostics and metrics. Rendered desktop/narrow visual
-review is still pending; 10C is not DONE.
+Actuals Apply until Forecast changes are applied or cancelled. Actuals dirty
+means values differ from the proposed input baseline or a rebase left a Team
+unresolved; opening or collapsing the form alone is pristine. Cancel resets
+only that draft. Actuals Apply uses the established append command and candidate
+projection/V4 transaction. The 10B timeline and cursor projections remain the
+only source of daily occupation, overload diagnostics and metrics.
 
 ## Current UI structure
 
@@ -426,7 +428,7 @@ These are current implementation facts, not durable product rules:
 
 - separate Program / PriorityFamily management screens or global rename;
 - undo/redo;
-- Actuals entry workflows/UI and knowledge snapshots (deferred to 10C–10E).
+- knowledge snapshots and historical comparison (deferred to 10D–10E).
 
 These omissions are ordered as future work in the
 [current plan](./current_plan.md); they must not be inferred from visual

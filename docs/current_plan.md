@@ -1,15 +1,15 @@
 # FlowPlan2 current plan
 
 Current validated baseline:
-`be6c2adb922b4d86a4fdbc750ff9b1321add2c34`
+`18f1c20ac6343dc95654dc32bffc7032f9d5be52`
 
 This is the operational roadmap for the active trajectory. Durable product and
 architecture rules live in [canon](./canon.md); current implementation facts
 and temporary constraints live in [current canon](./current_canon.md).
 
 The validated baseline includes the Program/Pas, Reservation progress, colors,
-temporal zoom corrective lots, Lot 10A Actuals with V4 backup, and Lot 10B
-Actuals-aware planning projection.
+temporal zoom corrective lots, Lot 10A Actuals with V4 backup, Lot 10B
+Actuals-aware planning projection, and Lot 10C Actuals workflows and UI.
 
 ## Completed
 
@@ -37,6 +37,7 @@ Actuals-aware planning projection.
 - usage-driven Program/Pas, Reservation progress, colors, and backup V3 (DONE).
 - 10A Actuals model, reconstruction, and backup V4 (DONE).
 - 10B Actuals-aware planning projection (DONE).
+- 10C Actuals workflows and UI (DONE).
 
 ## Current objective and ordered sub-lots
 
@@ -45,11 +46,11 @@ Lot 9I — Project and Reservation forecast activation (DONE)
 Corrective lot — usage-driven Program/Pas and colors (DONE)
 Corrective lot — anchored temporal zoom and range drag (DONE)
 Lot 10 — Actuals & History (OPEN)
-10A (DONE) → 10B (DONE) → 10C (IN REVIEW) → 10D → 10E
+10A (DONE) → 10B (DONE) → 10C (DONE) → 10D → 10E
 ```
 
 Lots through 9I, the Projection date presentation pass, both corrective lots,
-10A and 10B are validated. 10C is implemented and IN REVIEW; 10D and 10E remain open.
+10A, 10B, and 10C are validated. 10D is the next open lot; 10E remains open.
 
 ## Corrective lot — anchored temporal zoom and range drag
 
@@ -318,7 +319,7 @@ Project/Program/Pas progress remains forecast-only.
 
 ## 10C — Actuals workflows & UI
 
-**Status: IN REVIEW.** [10C plan and implemented contract](./steps/ACTUALS/lot10c_plan.md).
+**Status: DONE.** [10C plan and validated contract](./steps/ACTUALS/lot10c_plan.md).
 Project and Reservation cards now expose immutable, exact Actuals history and
 independent New Actuals forms. A photo uses the currently committed Team
 membership, first-only `actualsFromDate`, editable through date, exact cumulative
@@ -326,7 +327,12 @@ consumption, and Project RAF. The exact RAF suggestion is editable. A conflictin
 local Forecast membership or Project RAF draft blocks Actuals Apply; successful
 edits rebase other drafts by TeamId. Apply uses the existing append commands,
 projection and V4 transaction. The existing 10B timeline, diagnostics and metrics
-show the committed result. Rendered desktop/narrow visual review remains pending.
+show the committed result. Actuals dirty reflects edits against the proposed
+input baseline, never merely opening the form. Final validation: typecheck and
+build OK, 596/596 tests passing, and desktop/narrow visual reviews validated
+manually. Implementation and final dirty correction were audited at
+`9dc857594db335864f740e6295b74716ce6917de` and
+`18f1c20ac6343dc95654dc32bffc7032f9d5be52`.
 
 ## 10D — Knowledge snapshots
 
@@ -341,7 +347,7 @@ Reconstruct knowledge at different snapshot dates and compare changes in
 consumed work, RAF, projection, estimated dates, capacity/overload, and other
 relevant results. The comparison UI and drift visualization remain open.
 
-The [current canon](./current_canon.md) records validated 10B facts and the 10C implementation under review.
+The [current canon](./current_canon.md) records validated 10B and 10C facts.
 
 ## Cross-cutting non-goals for Phase 9
 
