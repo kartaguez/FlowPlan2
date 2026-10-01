@@ -8,6 +8,7 @@ import {
   createProjectId,
   createReservationId,
   createTeamId,
+  effectiveColor,
   type CivilDate,
   type DomainResult,
   type TeamId,
@@ -21,6 +22,7 @@ import type {
 import { projectColorIndex } from "./projectVisualIdentity.js";
 import { renderTimelineSvg } from "./renderTimelineSvg.js";
 import { renderTimelineRangeSelection } from "./renderTimelineRangeSelection.js";
+import { createDemoPlanningScenario } from "../../main/demo/createDemoPlanningScenario.js";
 
 const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 
@@ -346,7 +348,7 @@ describe("renderTimelineSvg", () => {
     assert.equal(segments[0]!.getAttribute("data-reservation-id"), reservationId);
     assert.equal(segments[0]!.getAttribute("height"), String(day.capacityTube.reservedRegion.height));
   });
-  it("renders Project and Reservation Actual segments with exact source tooltips", () => {
+  it("renders source-aware Actual segments without a separate native tooltip", () => {
     const geometry = makeGeometry();
     const team = geometry.teams[0]!;
     const day = team.days[0]!;
@@ -364,10 +366,45 @@ describe("renderTimelineSvg", () => {
     renderTimelineSvg({ svg: svg as unknown as SVGSVGElement, geometry: withActuals });
     const segments = withClass(svg, "timeline-actual-segment");
     assert.deepEqual(segments.map((item) => item.getAttribute("data-source-kind")), ["project", "reservation"]);
-    assert.deepEqual(segments.map((item) => item.childNodes[0]?.textContent),
-      ["Project Actual Former Project: 3/1", "Reservation Actual Former Reservation: 2/1"]);
+    assert.ok(segments.every((item) => item.childNodes.length === 0));
+    assert.deepEqual(segments.map((item) => item.getAttribute("data-source-id")), [projectId, reservationId]);
     assert.equal(withClass(svg, "timeline-day--actual-overload").length, 1);
     assert.equal(withClass(svg, "timeline-capacity-reference").length, geometry.teams.reduce((sum, item) => sum + item.days.length, 0));
+  });
+  it("uses the effective Project, Program and Reservation colors for Actual and forecast", async () => {
+    const portfolio = createDemoPlanningScenario().portfolio;
+    const inherited = portfolio.projects.find((item) => item.programId !== undefined)!;
+    const own = portfolio.projects.find((item) => item.programId === undefined)!;
+    const reservation = portfolio.reservations[0]!;
+    assert.equal(effectiveColor(portfolio, inherited), portfolio.programs.find((item) => item.id === inherited.programId)!.color);
+    assert.equal(effectiveColor(portfolio, own), own.ownColor);
+    assert.equal(effectiveColor(portfolio, reservation), reservation.ownColor);
+    const colors = new Map<string, string>([...portfolio.projects, ...portfolio.reservations]
+      .map((item) => [item.id, effectiveColor(portfolio, item)]));
+    const geometry = makeGeometry();
+    const team = geometry.teams[0]!;
+    const day = team.days[0]!;
+    const source = (sourceKind: "project" | "reservation", sourceId: typeof inherited.id | typeof reservation.id, index: number) =>
+      ({ sourceKind, sourceId, teamId: team.teamId, date: day.date,
+        capacity: capacity("1"), ...rect(day.x, day.y + index * 10, day.width, 10) });
+    const withActuals = { ...geometry, teams: [{ ...team, days: [{ ...day,
+      actualSegments: [source("project", inherited.id, 0), source("project", own.id, 1),
+        source("reservation", reservation.id, 2)],
+      allocations: [{ ...allocation(1, team.teamId, day.date, 0,
+        rect(day.x, day.y + 40, day.width, 10)), projectId: inherited.id }],
+      reservationSegments: [{ reservationId: reservation.id, teamId: team.teamId, date: day.date,
+        capacity: capacity("1"), ...rect(day.x, day.y + 30, day.width, 10) }],
+    }, ...team.days.slice(1)] }, ...geometry.teams.slice(1)] };
+    const svg = createSvg();
+    renderTimelineSvg({ svg: svg as unknown as SVGSVGElement, geometry: withActuals, colors });
+    const actuals = withClass(svg, "timeline-actual-segment");
+    assert.deepEqual(actuals.map((item) => item.getAttribute("fill")),
+      [colors.get(inherited.id), colors.get(own.id), colors.get(reservation.id)]);
+    assert.equal(actuals[0]!.getAttribute("fill"), withClass(svg, "timeline-project-allocation")[0]!.getAttribute("fill"));
+    assert.equal(actuals[2]!.getAttribute("fill"), withClass(svg, "timeline-reservation-segment")[0]!.getAttribute("fill"));
+    const css = await readFile(resolve("public/styles.css"), "utf8");
+    assert.match(css, /\.timeline-actual-segment \{[^}]*opacity: 0\.62/);
+    assert.doesNotMatch(css, /\.timeline-project-allocation \{[^}]*opacity:/);
   });
   it("clears existing SVG children before rebuilding", () => {
     const svg = createSvg();

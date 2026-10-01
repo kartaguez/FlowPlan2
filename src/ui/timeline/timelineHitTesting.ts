@@ -2,6 +2,7 @@ import {
   GEOMETRY_EPSILON,
   snapToGeometryBoundary,
   type TimelineAllocationGeometry,
+  type TimelineActualSegmentGeometry,
   type TimelineGeometry,
   type TimelineProjectMarkerGeometry,
   type TimelineProjectMarkerKind,
@@ -9,6 +10,7 @@ import {
 } from "../../adapters/index.js";
 import type {
   CivilDate,
+  Capacity,
   ProjectId,
   ReservationId,
   TeamId,
@@ -41,10 +43,21 @@ export interface TimelineReservationHit {
   readonly date: CivilDate;
 }
 
+export interface TimelineActualHit {
+  readonly kind: "actual";
+  readonly sourceKind: "project" | "reservation";
+  readonly sourceId?: ProjectId | ReservationId;
+  readonly sourceLabel?: string;
+  readonly teamId: TeamId;
+  readonly date: CivilDate;
+  readonly capacity: Capacity;
+}
+
 export type TimelineHit =
   | TimelineAllocationHit
   | TimelineProjectMarkerHit
   | TimelineReservationHit
+  | TimelineActualHit
   | TimelineTeamHit;
 
 export interface HitTestTimelineGeometryInput {
@@ -102,6 +115,16 @@ export function hitTestTimelineGeometry(
   }
 
   for (let dayIndex = team.days.length - 1; dayIndex >= 0; dayIndex -= 1) {
+    const segments = team.days[dayIndex]!.actualSegments ?? [];
+    for (let index = segments.length - 1; index >= 0; index -= 1) {
+      const segment = segments[index]!;
+      if (segment.height > 0 && containsPointHalfOpen(segment, x, y)) {
+        return freezeActualHit(segment);
+      }
+    }
+  }
+
+  for (let dayIndex = team.days.length - 1; dayIndex >= 0; dayIndex -= 1) {
     const segments = team.days[dayIndex]!.reservationSegments ?? [];
     for (let index = segments.length - 1; index >= 0; index -= 1) {
       const segment = segments[index]!;
@@ -113,6 +136,13 @@ export function hitTestTimelineGeometry(
   }
 
   return Object.freeze({ kind: "team", teamId: team.teamId });
+}
+
+function freezeActualHit(segment: TimelineActualSegmentGeometry): TimelineActualHit {
+  return Object.freeze({ kind: "actual", sourceKind: segment.sourceKind,
+    ...(segment.sourceId === undefined ? {} : { sourceId: segment.sourceId }),
+    ...(segment.sourceLabel === undefined ? {} : { sourceLabel: segment.sourceLabel }),
+    teamId: segment.teamId, date: segment.date, capacity: segment.capacity });
 }
 
 function containsPointHalfOpen(

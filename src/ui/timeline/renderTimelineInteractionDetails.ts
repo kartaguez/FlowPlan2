@@ -57,11 +57,20 @@ export function renderTimelineTooltip(
 
 function tooltipLines(
   lookup: TimelineInteractionLookup,
-  hit: Extract<TimelineHit, { kind: "allocation" | "reservation" }>,
+  hit: Extract<TimelineHit, { kind: "allocation" | "reservation" | "actual" }>,
   getProjectProgress?: (projectId: ProjectId) => Rational | undefined,
 ): readonly string[] {
   const team = lookup.teamsById.get(hit.teamId);
   if (team === undefined) throw new TypeError(`Unknown timeline team ${hit.teamId}.`);
+  if (hit.kind === "actual") {
+    const label = hit.sourceKind === "project"
+      ? hit.sourceId === undefined ? undefined : lookup.projectsById.get(hit.sourceId as ProjectId)?.label
+      : hit.sourceId === undefined ? undefined : lookup.reservationsById.get(hit.sourceId as ReservationId)?.label;
+    return [`Actual — ${hit.sourceKind === "project" ? "Project" : "Reservation"}`,
+      label ?? hit.sourceLabel ?? (hit.sourceKind === "project" ? "Project" : "Reservation"),
+      `Team: ${team.label}`, `Date: ${hit.date}`,
+      `Consumed: ${formatCursorMd(rationalOf(hit.capacity))}`];
+  }
   if (hit.kind === "reservation") {
     const reservation = lookup.reservationsById.get(hit.reservationId);
     const allocation = reservation?.teamAllocations.find((item) => item.teamId === hit.teamId);

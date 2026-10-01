@@ -207,9 +207,8 @@ function renderDay(document: Document, day: TimelineDayGeometry, colors?: Readon
     const rectangle = createRect(document, `timeline-actual-segment timeline-actual-segment--${segment.sourceKind}`, segment);
     rectangle.setAttribute("data-source-kind", segment.sourceKind);
     if (segment.sourceId) rectangle.setAttribute("data-source-id", segment.sourceId);
-    const title = createSvgElement(document, "title");
-    title.textContent = `${segment.sourceKind === "project" ? "Project" : "Reservation"} Actual ${segment.sourceLabel ?? segment.sourceId ?? ""}: ${serializeQuantity(segment.capacity)}`;
-    rectangle.append(title);
+    const color = segment.sourceId === undefined ? undefined : colors?.get(segment.sourceId);
+    if (color) { rectangle.setAttribute("fill", color); rectangle.setAttribute("style", `fill: ${color}`); }
     actuals.append(rectangle);
   }
   const capacityReference = createSvgElement(document, "line");
@@ -270,7 +269,7 @@ function setRectGeometry(
 
 function createSvgElement(
   document: Document,
-  name: "g" | "line" | "rect" | "text" | "title",
+  name: "g" | "line" | "rect" | "text",
 ): SVGElement {
   return document.createElementNS(SVG_NAMESPACE, name);
 }

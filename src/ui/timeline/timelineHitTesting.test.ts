@@ -101,6 +101,33 @@ function geometry(): TimelineGeometry {
 }
 
 describe("hitTestTimelineGeometry", () => {
+  it("keeps distinct Actual sources and exact amounts on the same Team and day", () => {
+    const base = geometry();
+    const team = base.teams[0]!;
+    const day = team.days[0]!;
+    const firstAmount = must(createCapacity("10"));
+    const secondAmount = must(createCapacity("2.5"));
+    const reservationAmount = must(createCapacity("1"));
+    const withActuals = { ...base, teams: [{ ...team, days: [{ ...day,
+      actualSegments: [
+        { sourceKind: "project" as const, sourceId: firstProjectId, sourceLabel: "First",
+          teamId, date: firstDate, capacity: firstAmount, x: 0, y: 56, width: 300, height: 10 },
+        { sourceKind: "project" as const, sourceId: secondProjectId, sourceLabel: "Second",
+          teamId, date: firstDate, capacity: secondAmount, x: 0, y: 66, width: 300, height: 10 },
+        { sourceKind: "reservation" as const, sourceId: reservationId, sourceLabel: "Run",
+          teamId, date: firstDate, capacity: reservationAmount, x: 0, y: 86, width: 300, height: 10 },
+      ],
+    }, ...team.days.slice(1)] }] } as TimelineGeometry;
+    const hit = (y: number) => hitTestTimelineGeometry({ geometry: withActuals, x: 50, y,
+      markerHitTolerance: 4 });
+    assert.deepEqual(hit(60), { kind: "actual", sourceKind: "project", sourceId: firstProjectId,
+      sourceLabel: "First", teamId, date: firstDate, capacity: firstAmount });
+    assert.deepEqual(hit(70), { kind: "actual", sourceKind: "project", sourceId: secondProjectId,
+      sourceLabel: "Second", teamId, date: firstDate, capacity: secondAmount });
+    assert.deepEqual(hit(90), { kind: "actual", sourceKind: "reservation", sourceId: reservationId,
+      sourceLabel: "Run", teamId, date: firstDate, capacity: reservationAmount });
+    assert.equal(hit(80)?.kind, "reservation");
+  });
   it("hits an identifiable Reservation segment without replacing Team hits", () => {
     assert.deepEqual(hitTestTimelineGeometry({ geometry: geometry(), x: 50, y: 70,
       markerHitTolerance: 4 }), { kind: "reservation", reservationId, teamId, date: firstDate });

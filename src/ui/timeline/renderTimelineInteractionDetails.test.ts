@@ -91,6 +91,28 @@ function fixture(): {
 }
 
 describe("timeline interaction details", () => {
+  it("shows source-aware daily Project and Reservation Actuals through the normal tooltip", () => {
+    const input = fixture();
+    const viewModel = { ...input.viewModel, reservations: [{ id: reservationId, label: "Run",
+      startDate: date, endDate: date, teamAllocations: [] }] } as TimelineViewModel;
+    const container = new FakeDocument().createElement("div");
+    const lookup = createTimelineInteractionLookup(viewModel);
+    renderTimelineTooltip({ container: container as unknown as HTMLElement, lookup,
+      hit: { kind: "actual", sourceKind: "project", sourceId: projectId,
+        sourceLabel: "Older label", teamId, date, capacity: must(createCapacity("10")) },
+      clientX: 20, clientY: 30 });
+    assert.equal(container.textContent,
+      "Actual — Project\nProject Atlas\nTeam: Team Alpha\nDate: 2025-01-15\nConsumed: 10 MD");
+    assert.equal(container.hidden, false);
+    assert.equal(container.style.left, "32px");
+    assert.doesNotMatch(container.textContent ?? "", /RAF|Progress|Snapshot|Through/);
+    renderTimelineTooltip({ container: container as unknown as HTMLElement, lookup,
+      hit: { kind: "actual", sourceKind: "reservation", sourceId: reservationId,
+        sourceLabel: "Older Run", teamId, date, capacity: must(createCapacity("2.5")) },
+      clientX: 20, clientY: 30 });
+    assert.equal(container.textContent,
+      "Actual — Reservation\nRun\nTeam: Team Alpha\nDate: 2025-01-15\nConsumed: 2.5 MD");
+  });
   it("renders an exact allocation tooltip near the pointer", () => {
     const input = fixture();
     const container = new FakeDocument().createElement("div");

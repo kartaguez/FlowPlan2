@@ -15,6 +15,7 @@ export {
 } from "./timeline/buildTimelineViewModel.js";
 export type {
   TimelineAllocationGeometry,
+  TimelineActualSegmentGeometry,
   TimelineCapacityTubeGeometry,
   TimelineDayGeometry,
   TimelineDateGeometry,

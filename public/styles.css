@@ -486,8 +486,7 @@ h1 { margin-bottom: 0; font-size: 2rem; letter-spacing: -0.04em; }
 
 .timeline-reservation-segment { fill: #9aaec4; stroke: #64748b; stroke-width: 0.7; stroke-dasharray: 2 1; }
 .timeline-day--over-reserved .timeline-reservation-segment { stroke: #9f3434; stroke-width: 1.5; }
-.timeline-actual-segment--project { fill: #54759a; stroke: #314e70; stroke-width: 0.7; }
-.timeline-actual-segment--reservation { fill: #8773a8; stroke: #5c477e; stroke-width: 0.7; }
+.timeline-actual-segment { fill: #94a3b8; opacity: 0.62; stroke: #26364d; stroke-width: 1; }
 .timeline-day--actual-overload .timeline-actual-segment { stroke: #a64040; stroke-width: 1.5; }
 .timeline-capacity-reference { stroke: #273449; stroke-width: 1.5; pointer-events: none; }
 

@@ -3,7 +3,9 @@ import { describe, it } from "node:test";
 import {
   addDays,
   createCapacity,
+  createConsumedWorkload,
   createCivilDate,
+  createProjectId,
   createReservationId,
   createTeamId,
   serializeQuantity,
@@ -64,6 +66,36 @@ const day = (
 ): DaySpec => ({ effective, reserved, project, overReserved });
 
 describe("TimelineGeometry capacity tubes", () => {
+  it("keeps overloaded source-aware Actuals fully visible with exact daily amounts", () => {
+    const model = makeViewModel([[day("7", "0", "0")]]);
+    const team = model.teams[0]!;
+    const current = team.capacities[0]!;
+    const projectId = must(createProjectId("program-project"));
+    const reservationId = must(createReservationId("historical-run"));
+    const viewModel = { ...model, teams: [{ ...team,
+      capacities: [{ ...current, projectActualCapacity: capacity("10"),
+        reservationActualCapacity: capacity("1"), actualOverCapacity: capacity("4") }],
+      actualsContributions: [
+        { sourceKind: "project" as const, sourceId: projectId, sourceLabel: "Project",
+          recordIndex: 0, teamId: team.id, date: current.date,
+          amount: must(createConsumedWorkload("10")) },
+        { sourceKind: "reservation" as const, sourceId: reservationId, sourceLabel: "Run",
+          recordIndex: 0, teamId: team.id, date: current.date,
+          amount: must(createConsumedWorkload("1")) },
+      ],
+    }] };
+    const geometry = buildTimelineGeometry({ viewModel,
+      viewport: { width: 100, teamLaneHeight: 110, timeAxisHeight: 40 } });
+    const projected = geometry.teams[0]!.days[0]!;
+    assert.deepEqual(projected.actualSegments?.map((item) => [item.sourceId,
+      serializeQuantity(item.capacity)]), [[projectId, "10/1"], [reservationId, "1/1"]]);
+    assert.equal(projected.actualSegments![0]!.height, 100);
+    assert.equal(projected.actualSegments![1]!.height, 10);
+    assert.equal(projected.actualSegments![0]!.y, geometry.teams[0]!.y);
+    assert.equal(projected.actualSegments![1]!.y + projected.actualSegments![1]!.height,
+      geometry.teams[0]!.y + geometry.teams[0]!.height);
+    assert.equal(serializeQuantity(projected.actualOverCapacity), "4/1");
+  });
   it("renders aggregate Actuals at zero capacity when source contributions are unavailable", () => {
     const model = makeViewModel([[day("0", "0", "0")]]);
     const team = model.teams[0]!;

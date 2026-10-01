@@ -255,6 +255,9 @@ lazy shared daily snapshot for ordinary allocation and deadline lookahead,
 including dates beyond the materialized horizon. `TeamDayCapacity` preserves
 both Actual amounts and overload causes. Timeline carries source-aware Actuals
 segments separately from named Reservation forecast and Project forecast;
+Actual and forecast representations of the same Project or Reservation share
+the same effective visual color, while the Actual rendering treatment keeps
+historical occupation visually distinct from forecast occupation.
 cursor metrics aggregate daily overload without compensation across dates or
 Teams. The Project requirement's `remainingWorkload` initializes the engine's
 per-Team RAF. An Actuals entry updates it only for currently required Teams;

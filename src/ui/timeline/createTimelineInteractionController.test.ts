@@ -192,6 +192,30 @@ function fixture() {
 }
 
 describe("createTimelineInteractionController", () => {
+  it("opens an Actual tooltip on hover without adding click selection", () => {
+    const input = fixture();
+    input.controller.destroy();
+    const team = input.geometry.teams[0]!;
+    const day = team.days[0]!;
+    const geometry = { ...input.geometry, teams: [{ ...team, markers: [], days: [{ ...day,
+      actualSegments: [{ sourceKind: "project" as const, sourceId: input.projectId,
+        teamId: input.teamId, date: input.date, capacity: must(createCapacity("10")),
+        x: 0, y: 75, width: 100, height: 30 }],
+    }] }] } as TimelineGeometry;
+    const controller = createTimelineInteractionController({
+      svg: input.svg as unknown as SVGSVGElement, geometry, viewModel: input.viewModel,
+      getViewport: () => ({ x: 0, width: 300 }),
+      tooltipContainer: input.tooltip as unknown as HTMLElement,
+    });
+    input.svg.dispatch("pointermove", pointer(1, 25, 90));
+    assert.equal(controller.getState().hovered?.kind, "actual");
+    assert.equal(input.tooltip.hidden, false);
+    assert.match(input.tooltip.textContent ?? "", /Project Atlas[\s\S]*Consumed: 10 MD/);
+    input.svg.dispatch("pointerup", pointer(1, 25, 90));
+    assert.equal(controller.getState().hovered?.kind, "actual");
+    assert.equal(input.svg.listeners.has("pointerup"), false);
+    controller.destroy();
+  });
   it("hides tooltips only during a range drag and restores the current hit", () => {
     const input = fixture();
     input.controller.destroy();
