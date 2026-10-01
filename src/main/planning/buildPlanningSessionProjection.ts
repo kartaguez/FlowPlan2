@@ -9,14 +9,15 @@ import {
   recomputePlanning,
   type PlanningSessionState,
 } from "../../application/index.js";
-import type { PlanningHorizon, PlanningResult, Portfolio, WorkingPattern } from "../../domain/index.js";
-import { createPlanningHorizon } from "../../domain/index.js";
+import type { PlanningHorizon, PlanningResult, Portfolio, WorkingPattern, ActualsReconstruction } from "../../domain/index.js";
+import { createPlanningHorizon, reconstructActuals } from "../../domain/index.js";
 
 export interface PlanningSessionProjection {
   readonly portfolio: Portfolio;
   readonly workingPattern: WorkingPattern;
   readonly horizon: PlanningHorizon;
   readonly planningResult: PlanningResult;
+  readonly actualsReconstruction: ActualsReconstruction;
   readonly viewModel: TimelineViewModel;
   readonly geometry: TimelineGeometry;
 }
@@ -43,6 +44,7 @@ export function buildPlanningSessionProjection(
     maxParallelProjects: input.state.planning.maxParallelProjects,
   });
   const { planningResult } = recomputePlanning(planningInput);
+  const actualsReconstruction = reconstructActuals(input.state.portfolio, input.state.planning.workingPattern);
   const viewModel = buildTimelineViewModel({
     portfolio: input.state.portfolio,
     horizon: horizonResult.value,
@@ -58,6 +60,7 @@ export function buildPlanningSessionProjection(
     workingPattern: planningInput.workingPattern,
     horizon: planningInput.horizon,
     planningResult,
+    actualsReconstruction,
     viewModel,
     geometry,
   });

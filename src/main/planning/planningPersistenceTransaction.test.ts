@@ -50,7 +50,7 @@ describe("planning persistence transaction", () => {
     const moved = dispatcher.dispatch({ kind: "reorder-project", projectId: state.portfolio.priorityOrder[1]!, targetPosition: 1 });
     assert.equal(moved.ok, true);
     assert.equal(writes, 1);
-    assert.equal(JSON.parse(document!).version, 3);
+    assert.equal(JSON.parse(document!).version, 4);
     assert.deepEqual(decodeFlowplanBackup(document!).portfolio.priorityOrder, session.getState().portfolio.priorityOrder);
     assert.notStrictEqual(dispatcher.getProjection(), initialProjection);
   });

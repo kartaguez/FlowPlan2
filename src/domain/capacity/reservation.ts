@@ -1,4 +1,5 @@
 import { compareCivilDates, type CivilDate } from "../model/date.js";
+import { createReservationActualsChronology, type ReservationActualsChronology } from "../actuals/records.js";
 import type { Capacity, ReservationId, ReservationRatio, TeamId } from "../model/scalars.js";
 import type { ProgramId, PriorityFamilyId } from "../model/scalars.js";
 import { createColor, suggestColor, type Color } from "../model/color.js";
@@ -23,6 +24,7 @@ export interface Reservation {
   readonly startDate: CivilDate;
   readonly endDate: CivilDate;
   readonly teamAllocations: readonly ReservationTeamAllocation[];
+  readonly actuals?: ReservationActualsChronology;
 }
 
 export function createReservationTeamAllocation(input: {
@@ -42,6 +44,7 @@ export function createReservation(input: {
   readonly startDate: CivilDate;
   readonly endDate: CivilDate;
   readonly teamAllocations: readonly ReservationTeamAllocation[];
+  readonly actuals?: ReservationActualsChronology;
 }): DomainResult<Reservation> {
   const errors = [];
   if (input.isActive !== undefined && typeof input.isActive !== "boolean") {
@@ -73,6 +76,8 @@ export function createReservation(input: {
     }
     teamIds.add(allocation.teamId);
   });
+  const actuals = input.actuals === undefined ? undefined : createReservationActualsChronology(input.actuals);
+  if (actuals && !actuals.ok) errors.push(...actuals.errors);
   if (errors.length > 0) return failure(errors);
   if (input.programId !== undefined && input.ownColor !== undefined) return failure([error("PROGRAM_OWN_COLOR", "ownColor", "Reservation in Program cannot retain an own color.")]);
   const ownColor = input.programId === undefined ? createColor(input.ownColor ?? suggestColor(input.id), "ownColor") : undefined;
@@ -92,6 +97,7 @@ export function createReservation(input: {
           Object.freeze({ teamId: allocation.teamId, amount: Object.freeze({ ...allocation.amount }) }),
         ),
       ),
+      ...(actuals?.ok ? { actuals: actuals.value } : {}),
     }),
   );
 }

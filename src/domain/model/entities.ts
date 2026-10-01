@@ -1,6 +1,9 @@
 import type { TeamCapacitySchedule } from "../capacity/schedule.js";
 import type { Reservation } from "../capacity/reservation.js";
+import { createProjectActualsChronology, type ProjectActualsChronology } from "../actuals/records.js";
 import type { CivilDate } from "./date.js";
+import { compareRationals } from "./rational.js";
+import { rationalOf } from "./scalars.js";
 import { catalogNameKey, createColor, normalizeCatalogName, suggestColor, type Color } from "./color.js";
 import type {
   DailyCap,
@@ -28,6 +31,7 @@ export interface ProjectTeamRequirement {
   readonly teamId: TeamId;
   readonly remainingWorkload: RemainingWorkload;
   readonly dailyCap?: DailyCap;
+  readonly rafAuthority?: "latest-actuals" | "current-configuration";
 }
 
 export interface Program {
@@ -52,6 +56,7 @@ export interface Project {
   readonly objectiveEndDate?: CivilDate;
   readonly mandatoryDeadline?: CivilDate;
   readonly requirements: readonly ProjectTeamRequirement[];
+  readonly actuals?: ProjectActualsChronology;
 }
 
 export interface Portfolio {
@@ -109,7 +114,11 @@ export function createProjectTeamRequirement(input: {
   readonly teamId: TeamId;
   readonly remainingWorkload: RemainingWorkload;
   readonly dailyCap?: DailyCap;
+  readonly rafAuthority?: "latest-actuals" | "current-configuration";
 }): DomainResult<ProjectTeamRequirement> {
+  if (input.rafAuthority !== undefined && input.rafAuthority !== "latest-actuals" && input.rafAuthority !== "current-configuration") {
+    return failure([error("INVALID_RAF_AUTHORITY", "rafAuthority", "Unknown RAF authority.")]);
+  }
   return success(Object.freeze({ ...input }));
 }
 
@@ -124,6 +133,7 @@ export function createProject(input: {
   readonly objectiveEndDate?: CivilDate;
   readonly mandatoryDeadline?: CivilDate;
   readonly requirements: readonly ProjectTeamRequirement[];
+  readonly actuals?: ProjectActualsChronology;
 }): DomainResult<Project> {
   const errors: DomainError[] = [];
   if (input.isActive !== undefined && typeof input.isActive !== "boolean") {
@@ -150,7 +160,15 @@ export function createProject(input: {
       );
     }
     teamIds.add(requirement.teamId);
+    if (requirement.rafAuthority !== undefined && requirement.rafAuthority !== "latest-actuals" && requirement.rafAuthority !== "current-configuration") {
+      errors.push(error("INVALID_RAF_AUTHORITY", `requirements[${index}].rafAuthority`, "Unknown RAF authority."));
+    }
+    if (input.actuals && requirement.rafAuthority === undefined) {
+      errors.push(error("MISSING_RAF_AUTHORITY", `requirements[${index}].rafAuthority`, "Requirements with Actuals need explicit RAF authority."));
+    }
   });
+  const actuals = input.actuals === undefined ? undefined : createProjectActualsChronology(input.actuals);
+  if (actuals && !actuals.ok) errors.push(...actuals.errors);
   if (errors.length > 0) return failure(errors);
 
   if (input.programId !== undefined && input.ownColor !== undefined) {
@@ -158,14 +176,15 @@ export function createProject(input: {
   }
   const ownColor = input.programId === undefined ? createColor(input.ownColor ?? suggestColor(input.id), "ownColor") : undefined;
   if (ownColor && !ownColor.ok) return ownColor;
-  const { ownColor: _discardedOwnColor, ...withoutOwnColor } = input;
+  const { ownColor: _discardedOwnColor, actuals: _unvalidatedActuals, ...withoutOwnColor } = input;
 
   return success(
     Object.freeze({
       ...withoutOwnColor,
       ...(ownColor?.ok ? { ownColor: ownColor.value } : {}),
       isActive: input.isActive ?? true,
-      requirements: Object.freeze([...input.requirements]),
+      requirements: Object.freeze(input.requirements.map((requirement) => Object.freeze({ ...requirement }))),
+      ...(actuals?.ok ? { actuals: actuals.value } : {}),
     }),
   );
 }
@@ -239,6 +258,9 @@ export function createPortfolio(input: {
       ));
     }
     project.requirements.forEach((requirement, requirementIndex) => {
+      if (project.actuals && requirement.rafAuthority === undefined) {
+        errors.push(error("MISSING_RAF_AUTHORITY", `projects[${projectIndex}].requirements[${requirementIndex}].rafAuthority`, "Requirements with Actuals need explicit RAF authority."));
+      }
       if (!teamIds.has(requirement.teamId)) {
         errors.push(
           error(
@@ -248,9 +270,23 @@ export function createPortfolio(input: {
           ),
         );
       }
+      if (requirement.rafAuthority === "latest-actuals") {
+        // A later object record without this Team proves a membership break.
+        // A remove/reintroduce cycle between records still requires persisted provenance.
+        const latest = project.actuals?.records.at(-1)?.teams.find((entry) => entry.teamId === requirement.teamId);
+        if (!latest || compareRationals(rationalOf(latest.remainingWorkload), rationalOf(requirement.remainingWorkload)) !== 0) {
+          errors.push(error("ACTUALS_RAF_MISMATCH", `projects[${projectIndex}].requirements[${requirementIndex}].remainingWorkload`, "Current RAF must match its latest authoritative Actuals entry."));
+        }
+      }
     });
+    project.actuals?.records.forEach((record, recordIndex) => record.teams.forEach((entry, entryIndex) => {
+      if (!teamIds.has(entry.teamId)) errors.push(error("UNKNOWN_HISTORICAL_TEAM", `projects[${projectIndex}].actuals.records[${recordIndex}].teams[${entryIndex}].teamId`, "Historical Team must remain in the Portfolio."));
+    }));
   });
   input.reservations.forEach((reservation, reservationIndex) => {
+    reservation.actuals?.records.forEach((record, recordIndex) => record.teams.forEach((entry, entryIndex) => {
+      if (!teamIds.has(entry.teamId)) errors.push(error("UNKNOWN_HISTORICAL_TEAM", `reservations[${reservationIndex}].actuals.records[${recordIndex}].teams[${entryIndex}].teamId`, "Historical Team must remain in the Portfolio."));
+    }));
     if (reservation.programId === undefined) {
       if (!reservation.ownColor || !createColor(reservation.ownColor).ok) errors.push(error("MISSING_RESERVATION_OWN_COLOR", `reservations[${reservationIndex}].ownColor`, "Reservation without Program needs a valid own color."));
     } else if (reservation.ownColor !== undefined) errors.push(error("PROGRAM_OWN_COLOR", `reservations[${reservationIndex}].ownColor`, "Reservation in Program cannot retain an own color."));

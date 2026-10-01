@@ -7,8 +7,10 @@ import {
   createReservation, createReservationId, createReservationTeamAllocation,
   createTeam, createTeamCapacitySchedule, createTeamId, createWorkingPattern,
   dailyCapFromSerialized, remainingWorkloadFromSerialized,
+  consumedWorkloadFromSerialized,
   reservationRatioFromSerialized, serializeQuantity, unavailabilityRatioFromSerialized,
   type DomainQuantity, type DomainResult, createColor, suggestColor,
+  type ProjectActualsChronology, type ReservationActualsChronology,
 } from "../../domain/index.js";
 
 export class InvalidFlowplanBackup extends Error {
@@ -52,7 +54,30 @@ function quantity<T extends DomainQuantity>(value: unknown, path: string, parse:
   return parsed;
 }
 
-function encodeFlowplanBackupVersion(state: PlanningSessionState, version: 1 | 2 | 3, exportedAt: string): string {
+function decodeActuals(value: unknown, project: true): ProjectActualsChronology;
+function decodeActuals(value: unknown, project: false): ReservationActualsChronology;
+function decodeActuals(value: unknown, project: boolean): ProjectActualsChronology | ReservationActualsChronology {
+  const chronology = object(value, "actuals", ["actualsFromDate", "records"]);
+  const actualsFromDate = date(chronology.actualsFromDate, "actuals.actualsFromDate");
+  const records = array(chronology.records, "actuals.records").map((item, index) => {
+    const record = object(item, `actuals.records[${index}]`, ["actualsThroughDate", "teams"]);
+    const actualsThroughDate = date(record.actualsThroughDate, `actuals.records[${index}].actualsThroughDate`);
+    const teams = array(record.teams, `actuals.records[${index}].teams`).map((item, teamIndex) => {
+      const path = `actuals.records[${index}].teams[${teamIndex}]`;
+      const entry = object(item, path, ["teamId", "cumulativeConsumed", ...(project ? ["remainingWorkload"] : [])]);
+      return { teamId: valid(createTeamId(string(entry.teamId, `${path}.teamId`))),
+        cumulativeConsumed: quantity(entry.cumulativeConsumed, `${path}.cumulativeConsumed`, consumedWorkloadFromSerialized),
+        ...(project ? { remainingWorkload: quantity(entry.remainingWorkload, `${path}.remainingWorkload`, remainingWorkloadFromSerialized) } : {}) };
+    });
+    return { actualsThroughDate, teams };
+  });
+  return { actualsFromDate, records } as ProjectActualsChronology | ReservationActualsChronology;
+}
+
+function encodeFlowplanBackupVersion(state: PlanningSessionState, version: 1 | 2 | 3 | 4, exportedAt: string): string {
+  if (version < 4 && (state.portfolio.projects.some((p) => p.actuals) || state.portfolio.reservations.some((r) => r.actuals))) {
+    throw new InvalidFlowplanBackup("Legacy backup cannot encode Actuals.");
+  }
   const data = {
     planning: {
       startDate: state.planning.startDate, endDate: state.planning.endDate,
@@ -74,25 +99,38 @@ function encodeFlowplanBackupVersion(state: PlanningSessionState, version: 1 | 2
         id: project.id, name: project.name,
         ...(version >= 2 ? { isActive: project.isActive } : {}),
         ...(project.programId === undefined ? {} : { programId: project.programId }),
-        ...(version === 3 && project.programId === undefined ? { ownColor: project.ownColor } : {}),
+        ...(version >= 3 && project.programId === undefined ? { ownColor: project.ownColor } : {}),
         ...(project.priorityFamilyId === undefined ? {} : { priorityFamilyId: project.priorityFamilyId }),
         ...(project.earliestStartDate === undefined ? {} : { earliestStartDate: project.earliestStartDate }),
         ...(project.objectiveEndDate === undefined ? {} : { objectiveEndDate: project.objectiveEndDate }),
         ...(project.mandatoryDeadline === undefined ? {} : { mandatoryDeadline: project.mandatoryDeadline }),
+        ...(version === 4 && project.actuals ? { actuals: {
+          actualsFromDate: project.actuals.actualsFromDate,
+          records: project.actuals.records.map((record) => ({ actualsThroughDate: record.actualsThroughDate,
+            teams: record.teams.map((entry) => ({ teamId: entry.teamId,
+              cumulativeConsumed: serializeQuantity(entry.cumulativeConsumed), remainingWorkload: serializeQuantity(entry.remainingWorkload) })) })),
+        } } : {}),
         requirements: project.requirements.map((r) => ({
           teamId: r.teamId, remainingWorkload: serializeQuantity(r.remainingWorkload),
           ...(r.dailyCap === undefined ? {} : { dailyCap: serializeQuantity(r.dailyCap) }),
+          ...(version === 4 ? { rafAuthority: r.rafAuthority ?? "current-configuration" } : {}),
         })),
       })),
-      programs: state.portfolio.programs.map((p) => ({ id: p.id, name: p.name, ...(version === 3 ? { color: p.color } : {}) })),
+      programs: state.portfolio.programs.map((p) => ({ id: p.id, name: p.name, ...(version >= 3 ? { color: p.color } : {}) })),
       priorityFamilies: state.portfolio.priorityFamilies.map((p) => ({ id: p.id, name: p.name })),
       priorityOrder: [...state.portfolio.priorityOrder],
       reservations: state.portfolio.reservations.map((r) => ({
         id: r.id, name: r.name, startDate: r.startDate, endDate: r.endDate,
         ...(version >= 2 ? { isActive: r.isActive } : {}),
-        ...(version === 3 && r.programId !== undefined ? { programId: r.programId } : {}),
-        ...(version === 3 && r.priorityFamilyId !== undefined ? { priorityFamilyId: r.priorityFamilyId } : {}),
-        ...(version === 3 && r.programId === undefined ? { ownColor: r.ownColor } : {}),
+        ...(version >= 3 && r.programId !== undefined ? { programId: r.programId } : {}),
+        ...(version >= 3 && r.priorityFamilyId !== undefined ? { priorityFamilyId: r.priorityFamilyId } : {}),
+        ...(version >= 3 && r.programId === undefined ? { ownColor: r.ownColor } : {}),
+        ...(version === 4 && r.actuals ? { actuals: {
+          actualsFromDate: r.actuals.actualsFromDate,
+          records: r.actuals.records.map((record) => ({ actualsThroughDate: record.actualsThroughDate,
+            teams: record.teams.map((entry) => ({ teamId: entry.teamId,
+              cumulativeConsumed: serializeQuantity(entry.cumulativeConsumed) })) })),
+        } } : {}),
         teamAllocations: r.teamAllocations.map((a) => ({ teamId: a.teamId, amount: a.amount.kind === "ratio"
           ? { kind: "ratio", ratio: serializeQuantity(a.amount.ratio) }
           : { kind: "fixed-daily", dailyCapacity: serializeQuantity(a.amount.dailyCapacity) } })),
@@ -113,6 +151,9 @@ export function encodeFlowplanBackupV2(state: PlanningSessionState, exportedAt: 
 export function encodeFlowplanBackupV3(state: PlanningSessionState, exportedAt: string = new Date().toISOString()): string {
   return encodeFlowplanBackupVersion(state, 3, exportedAt);
 }
+export function encodeFlowplanBackupV4(state: PlanningSessionState, exportedAt: string = new Date().toISOString()): string {
+  return encodeFlowplanBackupVersion(state, 4, exportedAt);
+}
 
 function repairedColor(value: unknown, key: string, used: readonly string[]): string {
   if (typeof value === "string") { const result = createColor(value); if (result.ok) return result.value; }
@@ -124,7 +165,7 @@ function boolean(value: unknown, path: string): boolean {
   return value;
 }
 
-function decodeFlowplanBackupVersion(text: string, version: 1 | 2 | 3): PlanningSessionState {
+function decodeFlowplanBackupVersion(text: string, version: 1 | 2 | 3 | 4): PlanningSessionState {
   let parsed: unknown;
   try { parsed = JSON.parse(text); } catch { throw new InvalidFlowplanBackup("Invalid JSON."); }
   const envelope = object(parsed, "backup", ["format", "version", "exportedAt", "data"]);
@@ -158,7 +199,7 @@ function decodeFlowplanBackupVersion(text: string, version: 1 | 2 | 3): Planning
   });
   const programColors: string[] = [];
   const programs = array(source.programs, "programs").map((v) => {
-    const p = object(v, "program", ["id", "name"], version === 3 ? ["color"] : []);
+    const p = object(v, "program", ["id", "name"], version >= 3 ? ["color"] : []);
     const id = valid(createProgramId(string(p.id, "program.id")));
     const color = repairedColor(p.color, id, programColors);
     programColors.push(color);
@@ -175,14 +216,19 @@ function decodeFlowplanBackupVersion(text: string, version: 1 | 2 | 3): Planning
     return color;
   };
   const projects = array(source.projects, "projects").map((v) => {
-    const p = object(v, "project", ["id", "name", "requirements", ...(version >= 2 ? ["isActive"] : [])], ["programId", "priorityFamilyId", "earliestStartDate", "objectiveEndDate", "mandatoryDeadline", ...(version === 3 ? ["ownColor"] : [])]);
+    const p = object(v, "project", ["id", "name", "requirements", ...(version >= 2 ? ["isActive"] : [])], ["programId", "priorityFamilyId", "earliestStartDate", "objectiveEndDate", "mandatoryDeadline", ...(version >= 3 ? ["ownColor"] : []), ...(version === 4 ? ["actuals"] : [])]);
     const requirements = array(p.requirements, "requirements").map((v) => {
-      const r = object(v, "requirement", ["teamId", "remainingWorkload"], ["dailyCap"]);
+      const r = object(v, "requirement", ["teamId", "remainingWorkload", ...(version === 4 ? ["rafAuthority"] : [])], ["dailyCap"]);
+      const rafAuthority = version === 4 ? string(r.rafAuthority, "requirement.rafAuthority") : undefined;
+      if (rafAuthority !== undefined && rafAuthority !== "latest-actuals" && rafAuthority !== "current-configuration") throw new InvalidFlowplanBackup("Invalid RAF authority.");
       return valid(createProjectTeamRequirement({ teamId: valid(createTeamId(string(r.teamId, "requirement.teamId"))),
         remainingWorkload: quantity(r.remainingWorkload, "requirement.remainingWorkload", remainingWorkloadFromSerialized),
-        ...(r.dailyCap === undefined ? {} : { dailyCap: quantity(r.dailyCap, "requirement.dailyCap", dailyCapFromSerialized) }) }));
+        ...(r.dailyCap === undefined ? {} : { dailyCap: quantity(r.dailyCap, "requirement.dailyCap", dailyCapFromSerialized) }),
+        rafAuthority: rafAuthority ?? "current-configuration" }));
     });
+    const actuals = version === 4 && p.actuals !== undefined ? decodeActuals(p.actuals, true) : undefined;
     return valid(createProject({ id: valid(createProjectId(string(p.id, "project.id"))), name: name(p.name, "project.name"), requirements,
+      ...(actuals === undefined ? {} : { actuals }),
       isActive: version >= 2 ? boolean(p.isActive, "project.isActive") : true,
       ...(p.programId === undefined ? { ownColor: repairOwnColor(p.ownColor, String(p.id)) } : { programId: valid(createProgramId(string(p.programId, "project.programId"))) }),
       ...(p.priorityFamilyId === undefined ? {} : { priorityFamilyId: valid(createPriorityFamilyId(string(p.priorityFamilyId, "project.priorityFamilyId"))) }),
@@ -191,7 +237,7 @@ function decodeFlowplanBackupVersion(text: string, version: 1 | 2 | 3): Planning
       ...(p.mandatoryDeadline === undefined ? {} : { mandatoryDeadline: date(p.mandatoryDeadline, "project.mandatoryDeadline") }) }));
   });
   const reservations = array(source.reservations, "reservations").map((v) => {
-    const r = object(v, "reservation", ["id", "name", "startDate", "endDate", "teamAllocations", ...(version >= 2 ? ["isActive"] : [])], version === 3 ? ["programId", "priorityFamilyId", "ownColor"] : []);
+    const r = object(v, "reservation", ["id", "name", "startDate", "endDate", "teamAllocations", ...(version >= 2 ? ["isActive"] : [])], version >= 3 ? ["programId", "priorityFamilyId", "ownColor", ...(version === 4 ? ["actuals"] : [])] : []);
     const teamAllocations = array(r.teamAllocations, "teamAllocations").map((v) => {
       const a = object(v, "allocation", ["teamId", "amount"]);
       const rawAmount = object(a.amount, "amount", ["kind"], ["ratio", "dailyCapacity"]);
@@ -205,7 +251,9 @@ function decodeFlowplanBackupVersion(text: string, version: 1 | 2 | 3): Planning
       } else throw new InvalidFlowplanBackup("Unknown reservation amount kind.");
       return valid(createReservationTeamAllocation({ teamId: valid(createTeamId(string(a.teamId, "allocation.teamId"))), amount }));
     });
+    const actuals = version === 4 && r.actuals !== undefined ? decodeActuals(r.actuals, false) : undefined;
     return valid(createReservation({ id: valid(createReservationId(string(r.id, "reservation.id"))), name: name(r.name, "reservation.name"),
+      ...(actuals === undefined ? {} : { actuals }),
       isActive: version >= 2 ? boolean(r.isActive, "reservation.isActive") : true,
       ...(r.programId === undefined ? { ownColor: repairOwnColor(r.ownColor, String(r.id)) } : { programId: valid(createProgramId(string(r.programId, "reservation.programId"))) }),
       ...(r.priorityFamilyId === undefined ? {} : { priorityFamilyId: valid(createPriorityFamilyId(string(r.priorityFamilyId, "reservation.priorityFamilyId"))) }),
@@ -227,6 +275,6 @@ export function decodeFlowplanBackup(text: string): PlanningSessionState {
   let envelope: unknown;
   try { envelope = JSON.parse(text); } catch { throw new InvalidFlowplanBackup("Invalid JSON."); }
   const source = object(envelope, "backup", ["format", "version", "exportedAt", "data"]);
-  if (source.version !== 1 && source.version !== 2 && source.version !== 3) throw new InvalidFlowplanBackup("Unsupported version.");
+  if (source.version !== 1 && source.version !== 2 && source.version !== 3 && source.version !== 4) throw new InvalidFlowplanBackup("Unsupported version.");
   return decodeFlowplanBackupVersion(text, source.version);
 }

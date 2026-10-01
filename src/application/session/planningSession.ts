@@ -11,6 +11,9 @@ import {
   createTeam,
   createTeamCapacitySchedule,
   createWorkingPattern,
+  appendProjectActuals,
+  appendReservationActuals,
+  transitionProjectRequirements,
   serializeQuantity,
   reservationRatioFromSerialized,
   unavailabilityRatioFromSerialized,
@@ -32,6 +35,9 @@ import {
   type UnavailabilityRatio,
   type WorkingPattern,
   type MaxParallelProjects,
+  type ProjectActualsRecord,
+  type ReservationActualsRecord,
+  type ReservationActualsChronology,
 } from "../../domain/index.js";
 import { createTeamIdGenerator, type TeamIdGenerator } from "./teamIdGenerator.js";
 import { createProjectIdGenerator, type ProjectIdGenerator } from "./projectIdGenerator.js";
@@ -168,6 +174,20 @@ export interface RemoveReservationCommand {
   readonly reservationId: ReservationId;
 }
 
+export interface AppendProjectActualsCommand {
+  readonly kind: "append-project-actuals";
+  readonly projectId: ProjectId;
+  readonly actualsFromDate?: CivilDate;
+  readonly record: ProjectActualsRecord;
+}
+
+export interface AppendReservationActualsCommand {
+  readonly kind: "append-reservation-actuals";
+  readonly reservationId: ReservationId;
+  readonly actualsFromDate?: CivilDate;
+  readonly record: ReservationActualsRecord;
+}
+
 export type PlanningCommand =
   | UpdatePlanningSettingsCommand
   | UpdateProjectCommand
@@ -182,7 +202,9 @@ export type PlanningCommand =
   | UpdateTeamCapacityPeriodsCommand
   | UpdateReservationCommand
   | CreateReservationCommand
-  | RemoveReservationCommand;
+  | RemoveReservationCommand
+  | AppendProjectActualsCommand
+  | AppendReservationActualsCommand;
 
 export type PlanningCommandResult =
   | Readonly<{ ok: true; state: PlanningSessionState }>
@@ -267,7 +289,31 @@ function applyCommand(
       return addReservation(state, command, reservationIds, historicalProgramIds, historicalFamilyIds);
     case "remove-reservation":
       return removeReservation(state, command);
+    case "append-project-actuals":
+      return appendProjectRecord(state, command);
+    case "append-reservation-actuals":
+      return appendReservationRecord(state, command);
   }
+}
+
+function appendProjectRecord(state: PlanningSessionState, command: AppendProjectActualsCommand): PlanningCommandResult {
+  const index = state.portfolio.projects.findIndex((project) => project.id === command.projectId);
+  if (index < 0) return failure([applicationError("UNKNOWN_PROJECT", "projectId", "Project does not exist.")]);
+  const appended = appendProjectActuals(state.portfolio.projects[index]!, command.record, command.actualsFromDate);
+  if (!appended.ok) return failure(appended.errors);
+  const portfolio = createPortfolio({ ...state.portfolio,
+    projects: state.portfolio.projects.map((project, position) => position === index ? appended.value : project) });
+  if (!portfolio.ok) return failure(portfolio.errors);
+  return Object.freeze({ ok: true, state: freezeState({ portfolio: portfolio.value, planning: state.planning }) });
+}
+
+function appendReservationRecord(state: PlanningSessionState, command: AppendReservationActualsCommand): PlanningCommandResult {
+  const index = state.portfolio.reservations.findIndex((reservation) => reservation.id === command.reservationId);
+  if (index < 0) return failure([applicationError("UNKNOWN_RESERVATION", "reservationId", "Reservation does not exist.")]);
+  const appended = appendReservationActuals(state.portfolio.reservations[index]!, command.record, command.actualsFromDate);
+  if (!appended.ok) return failure(appended.errors);
+  return replaceReservations(state, state.portfolio.reservations.map((reservation, position) =>
+    position === index ? appended.value : reservation));
 }
 
 function addReservation(
@@ -284,10 +330,12 @@ function addReservation(
 }
 
 function removeReservation(state: PlanningSessionState, command: RemoveReservationCommand): PlanningCommandResult {
-  if (!state.portfolio.reservations.some((reservation) => reservation.id === command.reservationId)) {
+  const existing = state.portfolio.reservations.find((reservation) => reservation.id === command.reservationId);
+  if (!existing) {
     return failure([applicationError("UNKNOWN_RESERVATION", "reservationId",
       `Reservation ${command.reservationId} does not exist in the current portfolio.`)]);
   }
+  if (existing.actuals) return failure([applicationError("RESERVATION_HAS_ACTUALS", "reservationId", "Reservation with Actuals cannot be deleted.")]);
   return replaceReservations(state, state.portfolio.reservations.filter((reservation) => reservation.id !== command.reservationId));
 }
 
@@ -312,7 +360,7 @@ function updateReservation(
   const previous = state.portfolio.reservations[reservationIndex]!;
   const grouping = resolveGrouping(state.portfolio, command, command.reservationId, previous, historicalProgramIds, historicalFamilyIds);
   const updated = buildReservation(state, command, command.reservationId,
-    previous.isActive, grouping);
+    previous.isActive, grouping, previous.actuals);
   if (!updated.ok) return failure(updated.errors);
   const reservations = state.portfolio.reservations.map((reservation, index) =>
     index === reservationIndex ? updated.value : reservation,
@@ -326,6 +374,7 @@ function buildReservation(
   id: ReservationId,
   isActive = true,
   grouping?: ReturnType<typeof resolveGrouping>,
+  actuals?: ReservationActualsChronology,
 ): ReturnType<typeof createReservation> {
   const errors: DomainError[] = [];
   const teamIds = new Set<TeamId>();
@@ -386,6 +435,7 @@ function buildReservation(
     startDate: command.startDate,
     endDate: command.endDate,
     teamAllocations: validated,
+    ...(actuals === undefined ? {} : { actuals }),
   });
 }
 
@@ -529,6 +579,9 @@ function removeTeam(
   }
   const errors: DomainError[] = [];
   state.portfolio.projects.forEach((project, projectIndex) => {
+    if (project.actuals?.records.some((record) => record.teams.some((entry) => entry.teamId === command.teamId))) {
+      errors.push(applicationError("TEAM_REFERENCED_BY_PROJECT_ACTUALS", `projects[${projectIndex}].actuals`, `Team ${command.teamId} is in Project Actuals.`));
+    }
     project.requirements.forEach((requirement, requirementIndex) => {
       if (requirement.teamId === command.teamId) errors.push(applicationError(
         "TEAM_REFERENCED_BY_PROJECT",
@@ -538,6 +591,9 @@ function removeTeam(
     });
   });
   state.portfolio.reservations.forEach((reservation, reservationIndex) => {
+    if (reservation.actuals?.records.some((record) => record.teams.some((entry) => entry.teamId === command.teamId))) {
+      errors.push(applicationError("TEAM_REFERENCED_BY_RESERVATION_ACTUALS", `reservations[${reservationIndex}].actuals`, `Team ${command.teamId} is in Reservation Actuals.`));
+    }
     reservation.teamAllocations.forEach((allocation, allocationIndex) => {
       if (allocation.teamId === command.teamId) errors.push(applicationError(
         "TEAM_REFERENCED_BY_RESERVATION",
@@ -682,10 +738,12 @@ function removeProject(
   state: PlanningSessionState,
   command: RemoveProjectCommand,
 ): PlanningCommandResult {
-  if (!state.portfolio.projects.some((project) => project.id === command.projectId)) {
+  const existing = state.portfolio.projects.find((project) => project.id === command.projectId);
+  if (!existing) {
     return failure([applicationError("UNKNOWN_PROJECT", "projectId",
       `Project ${command.projectId} does not exist in the current portfolio.`)]);
   }
+  if (existing.actuals) return failure([applicationError("PROJECT_HAS_ACTUALS", "projectId", "Project with Actuals cannot be deleted.")]);
   const projects = state.portfolio.projects.filter((project) => project.id !== command.projectId);
   const catalogs = pruneCatalogs({ projects, reservations: state.portfolio.reservations,
     programs: state.portfolio.programs, priorityFamilies: state.portfolio.priorityFamilies });
@@ -796,6 +854,8 @@ function updateProject(
     }
     return result.value;
   });
+  const transitioned = transitionProjectRequirements(project, requirements);
+  if (!transitioned.ok) return failure(transitioned.errors);
 
   const updatedProject = createProject({
     id: project.id,
@@ -813,7 +873,8 @@ function updateProject(
     ...(command.mandatoryDeadline === undefined
       ? {}
       : { mandatoryDeadline: command.mandatoryDeadline }),
-    requirements,
+    requirements: transitioned.value,
+    ...(project.actuals === undefined ? {} : { actuals: project.actuals }),
   });
   if (!updatedProject.ok) return failure(updatedProject.errors);
 

@@ -8,7 +8,8 @@ architecture rules live in [canon](./canon.md); current implementation facts
 and temporary constraints live in [current canon](./current_canon.md).
 
 The validated baseline includes the Program/Pas, Reservation progress, colors,
-V3 backup, and temporal zoom corrective lots. Lot 10A has not started.
+V3 backup, and temporal zoom corrective lots. Lot 10A is implemented and
+awaits human review; the validated baseline above remains unchanged.
 
 ## Completed
 
@@ -41,12 +42,12 @@ V3 backup, and temporal zoom corrective lots. Lot 10A has not started.
 Lot 9I — Project and Reservation forecast activation (DONE)
 Corrective lot — usage-driven Program/Pas and colors (DONE)
 Corrective lot — anchored temporal zoom and range drag (DONE)
-Lot 10 — Actuals & History (NEXT)
-10A (NEXT — to plan) → 10B → 10C → 10D → 10E
+Lot 10 — Actuals & History (OPEN)
+10A (IN REVIEW) → 10B → 10C → 10D → 10E
 ```
 
 Lots through 9I, the Projection date presentation pass, and both corrective
-lots are validated. No Lot 10 implementation has started.
+lots are validated. Lot 10A is implemented and pending human validation.
 
 ## Corrective lot — anchored temporal zoom and range drag
 
@@ -111,7 +112,7 @@ suites, and build pass. A local Edge check at 1440 px and 390 px covered
 closed-card toggles, timeline and metric changes, draft Apply after toggle,
 reactivation, and narrow layout without horizontal document overflow.
 
-Lot 10 has not started.
+At 9I closure, Lot 10 had not started.
 
 ## 9C.1 — Planning UI cleanup
 
@@ -274,28 +275,26 @@ suites, and build passed. Human validation closed the lot.
 
 ## 10A — Actuals model & deterministic reconstruction
 
-**Status: NEXT — to plan, then implement; not started.**
+**Status: IN REVIEW — implementation complete, awaiting human validation.**
 
-Establish immutable dated Actuals Records as business knowledge for each
-Project and Reservation, independently of any global actuals cutoff. Project
-records retain per-Team cumulative consumed work and the RAF estimate known at
-the same date; Reservation records retain per-Team cumulative consumed work.
-Define Domain validation and successive-record invariants, including dates,
-Team association, cumulative deltas, and the initial record boundary after
-inspecting current entity lifecycles. Preserve the existing Project
-requirement RAF and Reservation ratio/fixed-daily forecast semantics.
+Project and Reservation now own distinct immutable Actuals chronologies with
+explicit first start dates and exact per-Team cumulative consumption. Project
+records also carry RAF. Append validation uses current membership, while old
+records retain historical Team IDs and cumuls. A removed and reintroduced
+Project requirement receives a freely configured RAF; persisted RAF provenance
+distinguishes that case from continuous membership. Protected histories prevent
+deletion of their owners and referenced Teams.
 
-Reconstruct exact daily actual occupation deterministically from aggregated
-deltas between records. Effective Team capacity weights eligible days but
-never limits the declared consumption. Cover zero-capacity periods with a
-deterministic fallback, overlapping actual loads, consumption beyond capacity,
-and successive periods with meaningful Domain tests. Reconstruction must
-remain a derived projection, not persisted observed daily consumption. 10A
-does not introduce historical knowledge snapshots, historical version
-selection, or a Planning Engine integration contract; those follow in 10B–10E.
-The next PLAN pass should decide the exact record types, eligible interval and
-first-record rules, validation, and ownership within the existing Domain and
-Application boundaries before coding.
+Domain reconstruction distributes each delta exactly over its object interval
+using effective capacity, normal-day/exception fallback, then all-date
+fallback. Daily contributions and Team/day sums are disposable projections,
+never persisted observations or ceilings on Actuals. V4 backup stores business
+chronologies and RAF provenance, while V1–V3 remain readable. Append commands
+use candidate state → projection → persistence → publication. Forecast
+Reservations, metrics, and `PlanningInput` remain on their existing 10A
+boundary; 10B will integrate calculated daily occupation into planning.
+Current capacity schedules and working pattern can reshape reconstructed
+historical days; knowledge versioning remains deferred to 10D/10E.
 
 ## 10B — Actuals-aware planning projection
 

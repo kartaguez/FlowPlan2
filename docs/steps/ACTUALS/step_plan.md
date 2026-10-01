@@ -1,8 +1,7 @@
 # Lot 10A — implementation plan
 
-Status: **PLAN for human review; implementation not started**. Read the
-[step canon](./step_canon.md) first. Lot 10 stays OPEN; completion of an
-implementation pass would mark 10A IN REVIEW until human audit.
+Status: **IN REVIEW**. Read the [step canon](./step_canon.md) first. Lot 10
+stays OPEN until later sub-lots and human validation are complete.
 
 ## Current architecture and changed assumptions
 
@@ -196,9 +195,9 @@ intermediate change compatible with record-free demo and V1–V3 backups.
 
 ## Documentation and deferred work
 
-During implementation, update `docs/current_canon.md` with delivered 10A
-behavior, backup V4, and the capacity-version limitation. Update
-`docs/current_plan.md` to **10A IN REVIEW**, not DONE, while Lot 10 stays OPEN.
+The implementation updates `docs/current_canon.md` with delivered 10A
+behavior, backup V4, and the capacity-version limitation, and marks
+`docs/current_plan.md` **10A IN REVIEW** while Lot 10 stays OPEN.
 `docs/arch/ARCHITECTURE.md` remains an index. Change `docs/canon.md` only if
 the implemented Domain invariants warrant a durable update; retain its rule
 that history stays upstream of Planning. 10B will revisit its RAF-only diagram
@@ -208,5 +207,5 @@ Deferred: actual-aware planning capacity, overload diagnostics, Actuals
 timeline/metrics, 10C UI and RAF suggestion, knowledge snapshots, historical
 navigation, drift comparison, and persistence of reconstructed daily values.
 
-This plan pass changes documentation only. No production or test code is
-modified, and no 10A implementation is started.
+The implementation adds Domain records, reconstruction, session commands,
+V4 persistence, and targeted tests. Human review remains pending.

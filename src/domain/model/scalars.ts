@@ -20,6 +20,7 @@ export type PriorityFamilyId = Brand<string, "PriorityFamilyId">;
 
 declare const capacityBrand: unique symbol;
 declare const remainingWorkloadBrand: unique symbol;
+declare const consumedWorkloadBrand: unique symbol;
 declare const dailyCapBrand: unique symbol;
 declare const capacityRatioBrand: unique symbol;
 declare const reservationRatioBrand: unique symbol;
@@ -30,6 +31,9 @@ export interface Capacity {
 }
 export interface RemainingWorkload {
   readonly [remainingWorkloadBrand]: true;
+}
+export interface ConsumedWorkload {
+  readonly [consumedWorkloadBrand]: true;
 }
 export interface DailyCap {
   readonly [dailyCapBrand]: true;
@@ -47,6 +51,7 @@ export interface UnavailabilityRatio {
 export type DomainQuantity =
   | Capacity
   | RemainingWorkload
+  | ConsumedWorkload
   | DailyCap
   | CapacityRatio
   | ReservationRatio
@@ -114,6 +119,14 @@ export function remainingWorkloadFromRational(
     "NEGATIVE_REMAINING_WORKLOAD",
     "Remaining workload",
   );
+}
+
+export function consumedWorkloadFromRational(value: Rational, path = "cumulativeConsumed"): DomainResult<ConsumedWorkload> {
+  return createNonNegativeFromRational(value, path, "NEGATIVE_CONSUMED_WORKLOAD", "Consumed workload");
+}
+
+export function createConsumedWorkload(value: string, path = "cumulativeConsumed"): DomainResult<ConsumedWorkload> {
+  return createNonNegative(value, path, "NEGATIVE_CONSUMED_WORKLOAD", "Consumed workload");
 }
 
 function createId<T extends TeamId | ProjectId | ReservationId | ProgramId | PriorityFamilyId>(
@@ -298,6 +311,10 @@ export function remainingWorkloadFromSerialized(
     isNonNegative,
     "Remaining workload must be non-negative.",
   );
+}
+
+export function consumedWorkloadFromSerialized(value: string, path = "cumulativeConsumed"): DomainResult<ConsumedWorkload> {
+  return quantityFromSerialized(value, path, isNonNegative, "Consumed workload must be non-negative.");
 }
 
 export function dailyCapFromSerialized(

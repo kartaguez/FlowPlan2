@@ -1,7 +1,7 @@
 # Lot 10A — Actuals model & deterministic reconstruction: step canon
 
-Status: **PLAN for review**. This step defines the 10A target; no 10A behavior
-is implemented yet. The implementation plan is [step_plan](./step_plan.md).
+Status: **IN REVIEW**. This step defines the implemented 10A scope awaiting
+human validation. The implementation plan is [step_plan](./step_plan.md).
 
 ## Repository baseline and boundary
 
@@ -9,13 +9,13 @@ Inspected on `main` at `1551407b7f8b94f0eac628da158e77bec23de4bf`, with a clean
 working tree and local `origin/main` at the same SHA. The validated product
 baseline declared by `docs/current_plan.md` is
 `80c7e65ba45c7763a49973c389e5f4ae2e905ff9`. Lots through 9I, the
-grouping/color and temporal zoom corrections are DONE; Lot 10A has not started.
+grouping/color and temporal zoom corrections were DONE before 10A started.
 
-The current Domain has `ProjectTeamRequirement.remainingWorkload` as the RAF
+The pre-10A Domain had `ProjectTeamRequirement.remainingWorkload` as the RAF
 read by the forecast engine. Reservations have `ratio` or `fixed-daily`
 forecast allocations. Both entity types now have an `isActive` flag that only
-controls forecast participation. The session has transactional local backup,
-import, and export in strict V3 format. Project/Reservation progress labeled
+controls forecast participation. The pre-10A session had transactional local
+backup, import, and export in strict V3 format. Project/Reservation progress labeled
 "consumed" in the current metrics is forecast-derived; it is not an Actuals
 record. These existing meanings must stay intact during 10A.
 
