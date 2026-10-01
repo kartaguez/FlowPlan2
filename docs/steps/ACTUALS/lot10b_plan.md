@@ -1,6 +1,6 @@
 # Lot 10B — Actuals-aware planning projection plan
 
-Status: **IN REVIEW**. This is the audited 10B plan and acceptance contract. The implementation is awaiting human validation; the validated 10A [step canon](./step_canon.md) and [implementation plan](./step_plan.md) remain intact.
+Status: **DONE**. Human validated at `be6c2adb922b4d86a4fdbc750ff9b1321add2c34`. This is the audited 10B plan and acceptance contract. The validated 10A [step canon](./step_canon.md) and [implementation plan](./step_plan.md) remain intact.
 
 ## Inspected repository and present contracts
 

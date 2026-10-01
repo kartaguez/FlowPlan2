@@ -1,14 +1,15 @@
 # FlowPlan2 current plan
 
 Current validated baseline:
-`ec431e527ce7fe6dacd20c5d7aa052845d80b480`
+`be6c2adb922b4d86a4fdbc750ff9b1321add2c34`
 
 This is the operational roadmap for the active trajectory. Durable product and
 architecture rules live in [canon](./canon.md); current implementation facts
 and temporary constraints live in [current canon](./current_canon.md).
 
 The validated baseline includes the Program/Pas, Reservation progress, colors,
-temporal zoom corrective lots, and Lot 10A Actuals with V4 backup.
+temporal zoom corrective lots, Lot 10A Actuals with V4 backup, and Lot 10B
+Actuals-aware planning projection.
 
 ## Completed
 
@@ -35,6 +36,7 @@ temporal zoom corrective lots, and Lot 10A Actuals with V4 backup.
 - anchored temporal zoom and range drag (DONE);
 - usage-driven Program/Pas, Reservation progress, colors, and backup V3 (DONE).
 - 10A Actuals model, reconstruction, and backup V4 (DONE).
+- 10B Actuals-aware planning projection (DONE).
 
 ## Current objective and ordered sub-lots
 
@@ -43,11 +45,11 @@ Lot 9I — Project and Reservation forecast activation (DONE)
 Corrective lot — usage-driven Program/Pas and colors (DONE)
 Corrective lot — anchored temporal zoom and range drag (DONE)
 Lot 10 — Actuals & History (OPEN)
-10A (DONE) → 10B (IN REVIEW) → 10C → 10D → 10E
+10A (DONE) → 10B (DONE) → 10C → 10D → 10E
 ```
 
 Lots through 9I, the Projection date presentation pass, both corrective lots,
-and 10A are validated. 10B is implemented and IN REVIEW; the validated baseline remains the 10A commit above until human validation.
+10A, and 10B are validated. 10C is the next open sub-lot.
 
 ## Corrective lot — anchored temporal zoom and range drag
 
@@ -299,8 +301,10 @@ historical days; knowledge versioning remains deferred to 10D/10E.
 
 ## 10B — Actuals-aware planning projection
 
-**Status: IN REVIEW.** The inspected implementation contracts, capacity-source
-factorization, diagnostics, projections, and acceptance tests are in the
+**Status: DONE.** Human validated at
+`be6c2adb922b4d86a4fdbc750ff9b1321add2c34`. The inspected implementation
+contracts, capacity-source factorization, diagnostics, projections, and
+acceptance tests are in the
 [10B plan](./steps/ACTUALS/lot10b_plan.md). The 10A step documents remain the
 separate validated record of that sub-lot.
 
@@ -333,8 +337,7 @@ Reconstruct knowledge at different snapshot dates and compare changes in
 consumed work, RAF, projection, estimated dates, capacity/overload, and other
 relevant results. The comparison UI and drift visualization remain open.
 
-The [current canon](./current_canon.md) records the implemented 10B facts. The
-validated baseline remains unchanged during review.
+The [current canon](./current_canon.md) records the validated 10B facts.
 
 ## Cross-cutting non-goals for Phase 9
 

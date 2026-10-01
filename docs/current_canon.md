@@ -9,7 +9,7 @@ active implementation and trajectory. The remaining work is in the
 
 ## Validated implementation baseline
 
-`ec431e527ce7fe6dacd20c5d7aa052845d80b480` (validated through Lot 10A,
+`be6c2adb922b4d86a4fdbc750ff9b1321add2c34` (validated through Lot 10B,
 including the prior corrective lots).
 
 The active application implements a pure planning projection over an editable
@@ -163,7 +163,7 @@ initial period. There is no manual period reorder or Domain period ID.
 ## Current objective — Lot 10: Actuals & History
 
 Lot 10 is the active product and architecture trajectory. 10A is validated
-and **DONE**; 10B is **IN REVIEW**; 10C–10E remain open. The forecast still starts from the
+and **DONE**; 10B is **DONE**; 10C–10E remain open. The forecast still starts from the
 RAF stored on each Project/Team requirement. The session now holds immutable
 Project and Reservation Actuals chronologies and reconstructs daily Actuals
 separately from the forecast, then projects calculated occupation into planning. It has no knowledge snapshots.
@@ -271,8 +271,8 @@ available at different snapshot dates.
 
 Project, Program, and Pas progress remains forecast-derived from current RAF
 and forecast Reservation demand. Actuals affect capacity and occupied metrics
-without being counted again against RAF. The 10B implementation awaits human
-audit; the validated baseline above remains 10A.
+without being counted again against RAF. The 10B implementation is validated;
+the baseline above includes its source-aware timeline rendering correction.
 
 Open decisions include snapshot contract and storage, 10C UI, historical
 comparison UX, and drift visualization. Undo/redo and synchronization remain
