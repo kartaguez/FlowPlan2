@@ -1,15 +1,14 @@
 # FlowPlan2 current plan
 
 Current validated baseline:
-`80c7e65ba45c7763a49973c389e5f4ae2e905ff9`
+`ec431e527ce7fe6dacd20c5d7aa052845d80b480`
 
 This is the operational roadmap for the active trajectory. Durable product and
 architecture rules live in [canon](./canon.md); current implementation facts
 and temporary constraints live in [current canon](./current_canon.md).
 
 The validated baseline includes the Program/Pas, Reservation progress, colors,
-V3 backup, and temporal zoom corrective lots. Lot 10A is implemented and
-awaits human review; the validated baseline above remains unchanged.
+temporal zoom corrective lots, and Lot 10A Actuals with V4 backup.
 
 ## Completed
 
@@ -35,6 +34,7 @@ awaits human review; the validated baseline above remains unchanged.
 - separate Projection date presentation pass (DONE);
 - anchored temporal zoom and range drag (DONE);
 - usage-driven Program/Pas, Reservation progress, colors, and backup V3 (DONE).
+- 10A Actuals model, reconstruction, and backup V4 (DONE).
 
 ## Current objective and ordered sub-lots
 
@@ -43,11 +43,11 @@ Lot 9I — Project and Reservation forecast activation (DONE)
 Corrective lot — usage-driven Program/Pas and colors (DONE)
 Corrective lot — anchored temporal zoom and range drag (DONE)
 Lot 10 — Actuals & History (OPEN)
-10A (IN REVIEW) → 10B → 10C → 10D → 10E
+10A (DONE) → 10B (NEXT) → 10C → 10D → 10E
 ```
 
-Lots through 9I, the Projection date presentation pass, and both corrective
-lots are validated. Lot 10A is implemented and pending human validation.
+Lots through 9I, the Projection date presentation pass, both corrective lots,
+and 10A are validated. 10B is the next sub-lot.
 
 ## Corrective lot — anchored temporal zoom and range drag
 
@@ -95,7 +95,7 @@ unobserved future trajectories, and cancelling rational factors before
 large products reduced the same full projection to under 0.4 seconds locally.
 The exact planning-result digest matches the pre-fix engine and the fixture
 test guards both output and interaction-scale performance.
-This lot does not begin 10A.
+This corrective lot did not begin 10A.
 
 ## 9I — Activation of Projects and Reservations in the simulation
 
@@ -106,7 +106,7 @@ preserve the current activation state. Inactive entities retain all Portfolio
 data but leave the forecast. Inactive Projects retain their exact position in
 `Portfolio.priorityOrder`; Project progress remains visibly Inactive without
 forecast metrics. At 9I closure, backups were strict V2 documents with both activation
-flags; the corrective lot now writes V3. V1 remains readable and migrates
+flags; at its closure the corrective lot wrote V3. V1 remained readable and migrated
 both entity types as active. Typecheck, 511 automated tests across 77
 suites, and build pass. A local Edge check at 1440 px and 390 px covered
 closed-card toggles, timeline and metric changes, draft Apply after toggle,
@@ -268,14 +268,15 @@ Planning Settings provides
 Import and Export. Import validates the full state and projection before asking
 for confirmation, then replaces the key and reloads the page. Invalid startup
 data is preserved and reported while the demo loads in memory. Actuals/history
-are absent from the current schema because they are not implemented yet.
+were absent from the V2 schema at 9H closure.
 
 Implementation checks: TypeScript typecheck, 498 automated tests across 76
 suites, and build passed. Human validation closed the lot.
 
 ## 10A — Actuals model & deterministic reconstruction
 
-**Status: IN REVIEW — implementation complete, awaiting human validation.**
+**Status: DONE** — human validated implementation at
+`ec431e527ce7fe6dacd20c5d7aa052845d80b480`.
 
 Project and Reservation now own distinct immutable Actuals chronologies with
 explicit first start dates and exact per-Team cumulative consumption. Project

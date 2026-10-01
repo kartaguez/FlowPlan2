@@ -1,14 +1,15 @@
 # Lot 10A — Actuals model & deterministic reconstruction: step canon
 
-Status: **IN REVIEW**. This step defines the implemented 10A scope awaiting
-human validation. The implementation plan is [step_plan](./step_plan.md).
+Status: **DONE**. This step defines the validated 10A scope. The
+implementation plan is [step_plan](./step_plan.md).
 
 ## Repository baseline and boundary
 
 Inspected on `main` at `1551407b7f8b94f0eac628da158e77bec23de4bf`, with a clean
 working tree and local `origin/main` at the same SHA. The validated product
-baseline declared by `docs/current_plan.md` is
-`80c7e65ba45c7763a49973c389e5f4ae2e905ff9`. Lots through 9I, the
+baseline at planning time was `80c7e65ba45c7763a49973c389e5f4ae2e905ff9`.
+The validated 10A implementation is
+`ec431e527ce7fe6dacd20c5d7aa052845d80b480`. Lots through 9I, the
 grouping/color and temporal zoom corrections were DONE before 10A started.
 
 The pre-10A Domain had `ProjectTeamRequirement.remainingWorkload` as the RAF

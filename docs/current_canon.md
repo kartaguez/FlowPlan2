@@ -9,8 +9,8 @@ active implementation and trajectory. The remaining work is in the
 
 ## Validated implementation baseline
 
-`80c7e65ba45c7763a49973c389e5f4ae2e905ff9` (validated through the
-Program/Pas and temporal zoom corrective lots, with prior lots also validated).
+`ec431e527ce7fe6dacd20c5d7aa052845d80b480` (validated through Lot 10A,
+including the prior corrective lots).
 
 The active application implements a pure planning projection over an editable
 session, restored from a local backup when available and otherwise initialized
@@ -25,6 +25,8 @@ from the demo. The following capabilities are complete and active:
   Team requirements; Project priority is reordered from Portfolio Projects;
 - global multi-Team Reservations with ratio and fixed-daily modes, created,
   edited, and deleted in inline Portfolio cards;
+- immutable Project and Reservation Actuals chronologies, exact daily
+  reconstruction, and transactional V4 persistence;
 - immediate Project and Reservation activation controls; inactive entities
   remain in the Portfolio and do not participate in the forecast;
 - Projects / Reservations tabs in the Portfolio sidebar;
@@ -160,8 +162,8 @@ initial period. There is no manual period reorder or Domain period ID.
 
 ## Current objective — Lot 10: Actuals & History
 
-Lot 10 is the active product and architecture trajectory. 10A is implemented
-and **IN REVIEW**; 10B–10E remain open. The forecast still starts from the
+Lot 10 is the active product and architecture trajectory. 10A is validated
+and **DONE**; 10B–10E remain open. The forecast still starts from the
 RAF stored on each Project/Team requirement. The session now holds immutable
 Project and Reservation Actuals chronologies and reconstructs daily Actuals
 separately from the forecast. It has no knowledge snapshots.
@@ -171,8 +173,8 @@ separately from the forecast. It has no knowledge snapshots.
 When it has records, each Project and Reservation has its own latest
 `actualsThroughDate`: its consumption is known through that date. These dates
 may differ between objects; there is no required global consumption cutoff. A
-later knowledge snapshot has
-its own date, distinct from every object's `actualsThroughDate`, and may contain
+later knowledge snapshot has its own date, distinct from every object's
+`actualsThroughDate`, and may contain
 objects with different actuals dates.
 
 Successive Actuals updates preserve immutable business records. A Project
@@ -406,8 +408,8 @@ These are current implementation facts, not durable product rules:
 
 - separate Program / PriorityFamily management screens or global rename;
 - undo/redo;
-- actuals records, resource actual consumption, and knowledge snapshots
-  (the Lot 10 target above, not yet implemented).
+- Actuals workflows/UI, actual-aware planning capacity and diagnostics, and
+  knowledge snapshots (deferred to 10B–10E).
 
 These omissions are ordered as future work in the
 [current plan](./current_plan.md); they must not be inferred from visual

@@ -1,7 +1,7 @@
 # Lot 10A — implementation plan
 
-Status: **IN REVIEW**. Read the [step canon](./step_canon.md) first. Lot 10
-stays OPEN until later sub-lots and human validation are complete.
+Status: **DONE**. Read the [step canon](./step_canon.md) first. Lot 10 stays
+OPEN while 10B–10E remain.
 
 ## Current architecture and changed assumptions
 
@@ -13,8 +13,8 @@ defines Project, Team, requirements and Portfolio validation;
 and quantities. `src/application/session/planningSession.ts` owns atomic
 commands. `src/main/planning/createPlanningProjectionDispatcher.ts` builds a
 candidate projection and writes its backup before committing session state.
-`src/application/backup/flowplanBackupV1.ts` currently encodes V3 and strictly
-decodes V1–V3. Import, export and startup use that codec. The engine still
+`src/application/backup/flowplanBackupV1.ts` then encoded V3 and strictly
+decoded V1–V3. Import, export and startup used that codec. The engine still
 reads current Project RAF and active forecast Reservations; 10A does not change
 its input or capacity contracts.
 
@@ -190,14 +190,14 @@ intermediate change compatible with record-free demo and V1–V3 backups.
   historical Teams are rejected; import, export, startup recovery and
   transactional write failure remain correct;
   V4 keeps activation/grouping/color data and the current localStorage key.
-  Run `npm run typecheck`, `npm test`, and `npm run build` at implementation
-  review. Check the git diff for no 10B–10E changes.
+  Implementation review ran `npm run typecheck`, `npm test`, and
+  `npm run build`, and checked the git diff for no 10B–10E changes.
 
 ## Documentation and deferred work
 
-The implementation updates `docs/current_canon.md` with delivered 10A
-behavior, backup V4, and the capacity-version limitation, and marks
-`docs/current_plan.md` **10A IN REVIEW** while Lot 10 stays OPEN.
+The implementation updated `docs/current_canon.md` with delivered 10A
+behavior, backup V4, and the capacity-version limitation. Human validation
+has closed 10A as DONE in `docs/current_plan.md`; Lot 10 remains OPEN.
 `docs/arch/ARCHITECTURE.md` remains an index. Change `docs/canon.md` only if
 the implemented Domain invariants warrant a durable update; retain its rule
 that history stays upstream of Planning. 10B will revisit its RAF-only diagram
@@ -207,5 +207,5 @@ Deferred: actual-aware planning capacity, overload diagnostics, Actuals
 timeline/metrics, 10C UI and RAF suggestion, knowledge snapshots, historical
 navigation, drift comparison, and persistence of reconstructed daily values.
 
-The implementation adds Domain records, reconstruction, session commands,
-V4 persistence, and targeted tests. Human review remains pending.
+The validated implementation adds Domain records, reconstruction, session
+commands, V4 persistence, and targeted tests.
