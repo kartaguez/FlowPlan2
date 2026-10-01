@@ -3,7 +3,8 @@ import { isWorkingDay, type WorkingPattern } from "../capacity/schedule.js";
 import { civilDatesInclusive, type CivilDate } from "../model/date.js";
 import type { Portfolio } from "../model/entities.js";
 import { addRationals, compareRationals, divideRationals, multiplyRationals, rationalFromInteger, subtractRationals, type Rational } from "../model/rational.js";
-import { consumedWorkloadFromRational, rationalOf, type ConsumedWorkload, type ProjectId, type ReservationId, type TeamId } from "../model/scalars.js";
+import { capacityFromRational, consumedWorkloadFromRational, rationalOf, type ConsumedWorkload, type ProjectId, type ReservationId, type TeamId } from "../model/scalars.js";
+import type { ActualOccupationDay } from "../planning/contracts.js";
 import type { ReservationActualsTeamEntry } from "./records.js";
 
 export type ActualsDailyContribution = Readonly<{
@@ -18,6 +19,34 @@ export type ActualsTeamDayTotal = Readonly<{ teamId: TeamId; date: CivilDate; am
 export interface ActualsReconstruction {
   readonly contributions: readonly ActualsDailyContribution[];
   readonly teamDayTotals: readonly ActualsTeamDayTotal[];
+}
+
+/** Discards chronology and identity at the Planning Engine boundary. */
+export function actualOccupationFromReconstruction(reconstruction: ActualsReconstruction): readonly ActualOccupationDay[] {
+  const byKey = new Map<string, { teamId: TeamId; date: CivilDate; project: Rational; reservation: Rational }>();
+  for (const item of reconstruction.contributions) {
+    const key = `${item.teamId}\u0000${item.date}`;
+    const row = byKey.get(key) ?? { teamId: item.teamId, date: item.date, project: ZERO, reservation: ZERO };
+    const amount = rationalOf(item.amount);
+    byKey.set(key, item.sourceKind === "project"
+      ? { ...row, project: addRationals(row.project, amount) }
+      : { ...row, reservation: addRationals(row.reservation, amount) });
+  }
+  const totals = new Map(reconstruction.teamDayTotals.map((row) => [`${row.teamId}\u0000${row.date}`, rationalOf(row.amount)]));
+  if (byKey.size !== totals.size) throw new TypeError("Actuals totals do not match contributions.");
+  const capacity = (value: Rational) => {
+    const result = capacityFromRational(value);
+    if (!result.ok) throw new TypeError("Actual occupation cannot be negative.");
+    return result.value;
+  };
+  return Object.freeze([...byKey].flatMap(([key, row]) => {
+    if (compareRationals(addRationals(row.project, row.reservation), totals.get(key) ?? ZERO) !== 0 || !totals.has(key)) {
+      throw new TypeError("Actuals totals do not match contributions.");
+    }
+    if (compareRationals(addRationals(row.project, row.reservation), ZERO) === 0) return [];
+    return [Object.freeze({ teamId: row.teamId, date: row.date,
+      projectActual: capacity(row.project), reservationActual: capacity(row.reservation) })];
+  }));
 }
 const ZERO = rationalFromInteger(0n);
 

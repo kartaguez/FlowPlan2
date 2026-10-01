@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   createCapacity,
+  capacityFromSerialized,
   createCapacityPeriod,
   createCivilDate,
   createDailyCap,
@@ -20,6 +21,7 @@ import {
   createRemainingWorkload,
   createReservationId,
   createReservationRatio,
+  reservationRatioFromSerialized,
   createTeam,
   createTeamCapacitySchedule,
   createTeamId,
@@ -181,6 +183,7 @@ function makeInput(
     maxParallelProjects: must(
       createMaxParallelProjects(testParallelByTeamId.get(teams[0]!.id) ?? 3),
     ),
+    actualOccupation: [],
   };
 }
 
@@ -2064,5 +2067,111 @@ describe("Planning Engine V1 canonical scenarios", () => {
       findProjectPlan(findTeamPlan(missedResult, team), lower).deadlineStatus,
       "FEASIBLE",
     );
+  });
+
+  it("10B partitions exact Actuals and marginal Reservation overload in all four audited cases", () => {
+    const team = makeTeam("actuals-team", "10");
+    for (const [actual, reserved, expectedActual, expectedReservation, expectedTotal] of [
+      ["15", "0", "5/1", "0/1", "5/1"],
+      ["8", "5", "0/1", "3/1", "3/1"],
+      ["12", "3", "2/1", "3/1", "5/1"],
+      ["4", "5", "0/1", "0/1", "0/1"],
+      ["10", "0", "0/1", "0/1", "0/1"],
+    ] as const) {
+      const reservation = must(createReservation({
+        id: must(createReservationId(`reservation-${actual}-${reserved}`)),
+        name: "Forecast Reservation", startDate: date("2025-01-01"), endDate: date("2025-01-01"),
+        teamAllocations: [must(createReservationTeamAllocation({ teamId: team.id,
+          amount: { kind: "fixed-daily", dailyCapacity: must(createCapacity(reserved)) } }))],
+      }));
+      const input = makeInput([team], [], "2025-01-01", "2025-01-01", [reservation]);
+      const result = planPortfolio({ ...input, actualOccupation: [Object.freeze({
+        teamId: team.id, date: date("2025-01-01"), projectActual: must(createCapacity(actual)),
+        reservationActual: must(createCapacity("0")),
+      })] });
+      const day = result.teamPlans[0]!.dayCapacities[0]!;
+      assert.equal(serializeQuantity(day.actualOverCapacity!), expectedActual);
+      assert.equal(serializeQuantity(day.reservationOverCapacity!), expectedReservation);
+      assert.equal(serializeQuantity(day.projectCapacity), actual === "4" ? "1/1" : "0/1");
+      const actualOver = rationalOf(day.actualOverCapacity!);
+      const reservationOver = rationalOf(day.reservationOverCapacity!);
+      assert.equal(`${addRationals(actualOver, reservationOver).numerator}/1`, expectedTotal);
+      assert.deepEqual(result.diagnostics.map((item) => item.code), [
+        ...(expectedActual === "0/1" ? [] : ["TEAM_ACTUALS_OVER_CAPACITY"]),
+        ...(expectedReservation === "0/1" ? [] : ["TEAM_OVER_RESERVED"]),
+      ]);
+    }
+  });
+
+  it("10B keeps thirds exact across Project Actual, Reservation Actual and ratio forecast", () => {
+    const team = makeTeam("thirds-actual-team", "1");
+    const forecast = must(createReservation({
+      id: must(createReservationId("thirds-forecast")), name: "Thirds forecast",
+      startDate: date("2025-01-01"), endDate: date("2025-01-01"),
+      teamAllocations: [must(createReservationTeamAllocation({ teamId: team.id,
+        amount: { kind: "ratio", ratio: must(reservationRatioFromSerialized("2/3")) } }))],
+    }));
+    const input = makeInput([team], [], "2025-01-01", "2025-01-01", [forecast]);
+    const result = planPortfolio({ ...input, actualOccupation: [{ teamId: team.id,
+      date: date("2025-01-01"), projectActual: must(capacityFromSerialized("1/3")),
+      reservationActual: must(capacityFromSerialized("1/3")) }] });
+    const day = result.teamPlans[0]!.dayCapacities[0]!;
+    assert.equal(serializeQuantity(day.projectActualCapacity), "1/3");
+    assert.equal(serializeQuantity(day.reservationActualCapacity), "1/3");
+    assert.equal(serializeQuantity(day.reservedCapacity), "2/3");
+    assert.equal(serializeQuantity(day.projectCapacity), "0/1");
+    assert.equal(serializeQuantity(day.actualOverCapacity), "0/1");
+    assert.equal(serializeQuantity(day.reservationOverCapacity), "1/3");
+    assert.deepEqual(result.diagnostics.map((item) => item.code), ["TEAM_OVER_RESERVED"]);
+  });
+
+  it("10B keeps zero-capacity Actuals and fixed-daily forecast without clamping either", () => {
+    const team = makeTeam("zero-actual-team", "0");
+    const forecast = must(createReservation({
+      id: must(createReservationId("zero-fixed-forecast")), name: "Fixed",
+      startDate: date("2025-01-01"), endDate: date("2025-01-01"),
+      teamAllocations: [must(createReservationTeamAllocation({ teamId: team.id,
+        amount: { kind: "fixed-daily", dailyCapacity: must(createCapacity("1")) } }))],
+    }));
+    const input = makeInput([team], [], "2025-01-01", "2025-01-01", [forecast]);
+    const result = planPortfolio({ ...input, actualOccupation: [{ teamId: team.id,
+      date: date("2025-01-01"), projectActual: must(createCapacity("1")),
+      reservationActual: must(createCapacity("1")) }] });
+    const day = result.teamPlans[0]!.dayCapacities[0]!;
+    assert.equal(serializeQuantity(day.effectiveCapacity), "0/1");
+    assert.equal(serializeQuantity(day.reservedCapacity), "1/1");
+    assert.equal(serializeQuantity(day.actualOverCapacity), "2/1");
+    assert.equal(serializeQuantity(day.reservationOverCapacity), "1/1");
+    assert.deepEqual(result.diagnostics.map((item) => item.code),
+      ["TEAM_ACTUALS_OVER_CAPACITY", "TEAM_OVER_RESERVED"]);
+  });
+
+  it("10B uses current RAF once and validates unique known occupation rows", () => {
+    const team = makeTeam("raf-actual-team", "10");
+    const project = makeProject("raf-actual-project", [{ team, workload: "1" }]);
+    const input = makeInput([team], [project], "2025-01-01", "2025-01-01");
+    const row = Object.freeze({ teamId: team.id, date: date("2025-01-01"),
+      projectActual: must(createCapacity("5")), reservationActual: must(createCapacity("0")) });
+    const result = planPortfolio({ ...input, actualOccupation: [row] });
+    assert.equal(serializeQuantity(result.teamPlans[0]!.dayCapacities[0]!.projectCapacity), "5/1");
+    assert.equal(serializeQuantity(findProjectPlan(findTeamPlan(result, team), project).plannedWorkload), "1/1");
+    assert.throws(() => planPortfolio({ ...input, actualOccupation: [row, row] }), /Invalid actual occupation/);
+    assert.throws(() => planPortfolio({ ...input, actualOccupation: [{ ...row,
+      teamId: must(createTeamId("unknown-team")) }] }), /Invalid actual occupation/);
+  });
+
+  it("10B deadline lookahead sees Actual occupation beyond the materialized horizon", () => {
+    const team = makeTeam("deadline-actual-team", "1");
+    const project = makeProject("deadline-actual-project", [{ team, workload: "2" }],
+      { mandatoryDeadline: "2025-01-02" });
+    const input = makeInput([team], [project], "2025-01-01", "2025-01-01");
+    const baseline = planPortfolio(input);
+    assert.equal(findProjectPlan(findTeamPlan(baseline, team), project).deadlineStatus, "FEASIBLE");
+    const changed = planPortfolio({ ...input, actualOccupation: [{ teamId: team.id,
+      date: date("2025-01-02"), projectActual: must(createCapacity("1")),
+      reservationActual: must(createCapacity("0")) }] });
+    assert.equal(changed.teamPlans[0]!.dayCapacities.length, 1);
+    assert.equal(findProjectPlan(findTeamPlan(changed, team), project).deadlineStatus, "UNFEASIBLE");
+    assert.ok(changed.diagnostics.some((item) => item.code === "DEADLINE_UNFEASIBLE"));
   });
 });

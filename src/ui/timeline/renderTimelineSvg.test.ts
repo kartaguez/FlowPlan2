@@ -129,6 +129,8 @@ function makeDay(
     reservedCapacity: capacity("0.5"),
     projectCapacity: capacity("1.5"),
     overReserved,
+    projectActualCapacity: capacity("0"), reservationActualCapacity: capacity("0"),
+    actualOverCapacity: capacity("0"), reservationOverCapacity: capacity("0"),
     capacityTube: {
       x: cell.x + 2,
       y: cell.y + 2,
@@ -343,6 +345,29 @@ describe("renderTimelineSvg", () => {
     assert.equal(segments.length, 1);
     assert.equal(segments[0]!.getAttribute("data-reservation-id"), reservationId);
     assert.equal(segments[0]!.getAttribute("height"), String(day.capacityTube.reservedRegion.height));
+  });
+  it("renders Project and Reservation Actual segments with exact source tooltips", () => {
+    const geometry = makeGeometry();
+    const team = geometry.teams[0]!;
+    const day = team.days[0]!;
+    const projectId = must(createProjectId("historical-project"));
+    const reservationId = must(createReservationId("historical-reservation"));
+    const actualSegments = [
+      { sourceKind: "project" as const, sourceId: projectId, sourceLabel: "Former Project",
+        teamId: team.teamId, date: day.date, capacity: capacity("3"), ...rect(day.x, day.y, day.width, 30) },
+      { sourceKind: "reservation" as const, sourceId: reservationId, sourceLabel: "Former Reservation",
+        teamId: team.teamId, date: day.date, capacity: capacity("2"), ...rect(day.x, day.y + 30, day.width, 20) },
+    ];
+    const withActuals = { ...geometry, teams: [{ ...team,
+      days: [{ ...day, actualSegments, actualOverCapacity: capacity("3") }, ...team.days.slice(1)] }, ...geometry.teams.slice(1)] };
+    const svg = createSvg();
+    renderTimelineSvg({ svg: svg as unknown as SVGSVGElement, geometry: withActuals });
+    const segments = withClass(svg, "timeline-actual-segment");
+    assert.deepEqual(segments.map((item) => item.getAttribute("data-source-kind")), ["project", "reservation"]);
+    assert.deepEqual(segments.map((item) => item.childNodes[0]?.textContent),
+      ["Project Actual Former Project: 3/1", "Reservation Actual Former Reservation: 2/1"]);
+    assert.equal(withClass(svg, "timeline-day--actual-overload").length, 1);
+    assert.equal(withClass(svg, "timeline-capacity-reference").length, geometry.teams.reduce((sum, item) => sum + item.days.length, 0));
   });
   it("clears existing SVG children before rebuilding", () => {
     const svg = createSvg();

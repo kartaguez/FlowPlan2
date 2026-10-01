@@ -13,7 +13,8 @@ export function diagnosticPresentationGroup(
 const DIAGNOSTIC_MESSAGES: Readonly<
   Record<TimelineDiagnostic["code"], string>
 > = Object.freeze({
-  TEAM_OVER_RESERVED: "Team capacity is over-reserved.",
+  TEAM_OVER_RESERVED: "Forecast Reservation adds capacity overload.",
+  TEAM_ACTUALS_OVER_CAPACITY: "Actual occupation exceeds Team capacity.",
   PROJECT_REMAINS_UNPLANNED_AT_HORIZON:
     "Project still has unplanned workload at the end of the horizon.",
   DEADLINE_UNFEASIBLE: "Mandatory deadline is currently unfeasible.",

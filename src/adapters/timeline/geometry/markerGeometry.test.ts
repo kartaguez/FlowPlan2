@@ -58,6 +58,8 @@ function makeViewModel(): TimelineViewModel {
       reservedCapacity: capacity("0"),
       projectCapacity: capacity("2"),
       overReserved: false,
+      projectActualCapacity: capacity("0"), reservationActualCapacity: capacity("0"),
+      actualOverCapacity: capacity("0"), reservationOverCapacity: capacity("0"),
     })),
   });
 

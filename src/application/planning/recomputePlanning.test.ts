@@ -118,6 +118,7 @@ function makeRequest(
       createWorkingPattern({ workingWeekdays: [1, 2, 3, 4, 5, 6, 7] }),
     ),
     maxParallelProjects: must(createMaxParallelProjects(2)),
+    actualOccupation: [],
   };
 }
 

@@ -127,7 +127,7 @@ describe("renderPlanningDiagnostics", () => {
         (message) => message.textContent,
       ),
       [
-        "Team Gamma — Team capacity is over-reserved. — 2025-02-10",
+      "Team Gamma — Forecast Reservation adds capacity overload. — 2025-02-10",
         "Project Cobalt — Project still has unplanned workload at the end of the horizon.",
         "Project Cobalt / Team Gamma — Mandatory deadline is currently unfeasible.",
         "Project Cobalt — Mandatory deadline has been missed. — 2025-03-15",

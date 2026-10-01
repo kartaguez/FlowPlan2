@@ -49,6 +49,8 @@ function makeViewModel(teamDays: readonly (readonly DaySpec[])[]): TimelineViewM
         reservedCapacity: capacity(day.reserved),
         projectCapacity: capacity(day.project),
         overReserved: day.overReserved ?? false,
+        projectActualCapacity: capacity("0"), reservationActualCapacity: capacity("0"),
+        actualOverCapacity: capacity("0"), reservationOverCapacity: capacity("0"),
       })),
     })),
   };
@@ -62,6 +64,20 @@ const day = (
 ): DaySpec => ({ effective, reserved, project, overReserved });
 
 describe("TimelineGeometry capacity tubes", () => {
+  it("renders aggregate Actuals at zero capacity when source contributions are unavailable", () => {
+    const model = makeViewModel([[day("0", "0", "0")]]);
+    const team = model.teams[0]!;
+    const current = team.capacities[0]!;
+    const viewModel = { ...model, teams: [{ ...team, capacities: [{ ...current,
+      projectActualCapacity: capacity("2"), reservationActualCapacity: capacity("1"),
+      actualOverCapacity: capacity("3") }] }] };
+    const geometry = buildTimelineGeometry({ viewModel,
+      viewport: { width: 100, teamLaneHeight: 90, timeAxisHeight: 40 } });
+    const projected = geometry.teams[0]!.days[0]!;
+    assert.deepEqual(projected.actualSegments?.map((item) => item.sourceKind), ["project", "reservation"]);
+    assert.equal(projected.actualSegments!.reduce((sum, item) => sum + item.height, 0), 90);
+    assert.equal(projected.capacityTube.height, 0);
+  });
   it("subdivides only the visible reserved region for named over-reservations", () => {
     const viewModel = makeViewModel([[day("1", "3", "0", true)]]);
     const team = viewModel.teams[0]!;
@@ -162,7 +178,7 @@ describe("TimelineGeometry capacity tubes", () => {
     assert.equal(serializeQuantity(source.projectCapacity), "3/2");
   });
 
-  it("clips over-reservation visually while retaining its exact business value", () => {
+  it("renders the full over-reservation above the capacity reference", () => {
     const viewModel = makeViewModel([[day("3", "4.2", "0", true)]]);
     const source = viewModel.teams[0]!.capacities[0]!;
     const projected = buildTimelineGeometry({
@@ -170,7 +186,7 @@ describe("TimelineGeometry capacity tubes", () => {
       viewport: { width: 100, teamLaneHeight: 90, timeAxisHeight: 40 },
     }).teams[0]!.days[0]!;
 
-    assert.equal(projected.capacityTube.height, 90);
+    assert.ok(projected.capacityTube.height < 90);
     assert.equal(projected.capacityTube.reservedRegion.height, 90);
     assert.equal(projected.capacityTube.projectRegion.height, 0);
     assert.equal(projected.overReserved, true);

@@ -2,6 +2,11 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   createCapacity,
+  capacityFromRational,
+  maxRational,
+  subtractRationals,
+  rationalOf,
+  rationalFromInteger,
   createCivilDate,
   createPlanningHorizon,
   createPortfolio,
@@ -70,14 +75,46 @@ function project(
 }
 
 function day(on: CivilDate, effective: string, reserved: string) {
+  const excess = maxRational(rationalFromInteger(0n),
+    subtractRationals(rationalOf(capacity(reserved)), rationalOf(capacity(effective))));
   return {
     date: on,
     effectiveCapacity: capacity(effective),
     reservedCapacity: capacity(reserved),
     projectCapacity: capacity("0"),
     overReserved: false,
+    projectActualCapacity: capacity("0"), reservationActualCapacity: capacity("0"),
+    actualOverCapacity: capacity("0"), reservationOverCapacity: must(capacityFromRational(excess)),
   };
 }
+
+describe("10B cursor capacity components", () => {
+  it("sums the two daily overload causes before global aggregation", () => {
+    const input = fixture();
+    const x = input.portfolio.teams[0]!;
+    const result = calculateCursorMetrics({ ...input, selectedDate: first,
+      planningResult: { ...input.planningResult,
+        teamPlans: input.planningResult.teamPlans.map((plan) => plan.teamId !== x.id ? plan : {
+          ...plan,
+          dayCapacities: [{ ...day(first, "10", "3"), projectActualCapacity: capacity("12"),
+            actualOverCapacity: capacity("2"), reservationOverCapacity: capacity("3"),
+            projectCapacity: capacity("0"), overReserved: true }, day(second, "10", "0")],
+          projectPlans: plan.projectPlans.map((projectPlan) => ({ ...projectPlan, allocations: [] })),
+        }),
+      },
+    });
+    const team = result.teams.find((item) => item.teamId === x.id)!;
+    assert.equal(exact(team.projectActualCapacity), "12/1");
+    assert.equal(exact(team.reservationActualCapacity), "0/1");
+    assert.equal(exact(team.requestedReservedCapacity), "3/1");
+    assert.equal(exact(team.occupiedCapacity), "15/1");
+    assert.equal(exact(team.actualOverCapacity), "2/1");
+    assert.equal(exact(team.reservationOverCapacity), "3/1");
+    assert.equal(exact(team.totalOverCapacity), "5/1");
+    assert.equal(exact(result.global.totalOverCapacity), "5/1");
+    assert.equal(exact(result.global.effectiveCapacity), "22/1");
+  });
+});
 
 function projectPlan(
   item: Project,

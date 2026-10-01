@@ -10,6 +10,7 @@ import type {
   TimelineYearGeometry,
 } from "../../adapters/index.js";
 import { projectColorIndex } from "./projectVisualIdentity.js";
+import { serializeQuantity } from "../../domain/index.js";
 
 const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 
@@ -157,14 +158,15 @@ function renderProjectMarker(
 
 function renderDay(document: Document, day: TimelineDayGeometry, colors?: ReadonlyMap<string, string>): SVGElement {
   const group = createSvgElement(document, "g");
+  const actualOverloaded = serializeQuantity(day.actualOverCapacity) !== "0/1";
   group.setAttribute(
     "class",
-    day.overReserved
-      ? "timeline-day timeline-day--over-reserved"
-      : "timeline-day",
+    ["timeline-day", ...(day.overReserved ? ["timeline-day--over-reserved"] : []),
+      ...(actualOverloaded ? ["timeline-day--actual-overload"] : [])].join(" "),
   );
   group.setAttribute("data-date", day.date);
   group.setAttribute("data-over-reserved", String(day.overReserved));
+  group.setAttribute("data-actual-overload", String(actualOverloaded));
 
   const cell = createRect(document, "timeline-day-cell", day);
   const tube = createRect(
@@ -198,7 +200,26 @@ function renderDay(document: Document, day: TimelineDayGeometry, colors?: Readon
     allocations.append(renderAllocation(document, allocation, colors));
   }
 
-  group.append(cell, tube, reservedRegion, reservationSegments, projectRegion, allocations);
+  const actuals = createSvgElement(document, "g");
+  actuals.setAttribute("class", "timeline-actual-segments");
+  for (const segment of day.actualSegments ?? []) {
+    if (segment.height <= 0) continue;
+    const rectangle = createRect(document, `timeline-actual-segment timeline-actual-segment--${segment.sourceKind}`, segment);
+    rectangle.setAttribute("data-source-kind", segment.sourceKind);
+    if (segment.sourceId) rectangle.setAttribute("data-source-id", segment.sourceId);
+    const title = createSvgElement(document, "title");
+    title.textContent = `${segment.sourceKind === "project" ? "Project" : "Reservation"} Actual ${segment.sourceLabel ?? segment.sourceId ?? ""}: ${serializeQuantity(segment.capacity)}`;
+    rectangle.append(title);
+    actuals.append(rectangle);
+  }
+  const capacityReference = createSvgElement(document, "line");
+  capacityReference.setAttribute("class", "timeline-capacity-reference");
+  capacityReference.setAttribute("x1", String(day.x));
+  capacityReference.setAttribute("x2", String(day.x + day.width));
+  capacityReference.setAttribute("y1", String(day.capacityTube.y));
+  capacityReference.setAttribute("y2", String(day.capacityTube.y));
+
+  group.append(cell, tube, reservedRegion, reservationSegments, projectRegion, actuals, allocations, capacityReference);
   return group;
 }
 
@@ -249,7 +270,7 @@ function setRectGeometry(
 
 function createSvgElement(
   document: Document,
-  name: "g" | "line" | "rect" | "text",
+  name: "g" | "line" | "rect" | "text" | "title",
 ): SVGElement {
   return document.createElementNS(SVG_NAMESPACE, name);
 }

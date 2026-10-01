@@ -64,7 +64,7 @@ function run(example: Case) {
   const result = recomputePlanning({ portfolio,
     horizon: must(createPlanningHorizon({ start: date("2025-01-01"), end })),
     workingPattern: must(createWorkingPattern({ workingWeekdays: [1, 2, 3, 4, 5, 6, 7] })),
-    maxParallelProjects: must(createMaxParallelProjects(example.maxParallel ?? 2)) }).planningResult;
+    maxParallelProjects: must(createMaxParallelProjects(example.maxParallel ?? 2)), actualOccupation: [] }).planningResult;
   assert.equal(result.teamPlans[0]!.dayCapacities.length, example.end === "2025-01-01" ? 1 : 3);
   assert.equal(result.teamPlans[0]!.projectPlans.length, projects.length);
   if (example.diagnostic) assert.ok(result.diagnostics.some((item) => item.code === example.diagnostic), example.name);

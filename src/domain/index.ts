@@ -23,6 +23,7 @@ export {
 } from "./model/date.js";
 export {
   capacityFromSerialized,
+  capacityFromRational,
   consumedWorkloadFromSerialized,
   consumedWorkloadFromRational,
   capacityRatioFromSerialized,
@@ -104,6 +105,7 @@ export {
   projectCapacity,
   reservedCapacity,
   requestedReservationCapacity,
+  dailyCapacitySnapshot,
 } from "./capacity/calculations.js";
 export { planPortfolio } from "./planning/engine.js";
 export {
@@ -114,9 +116,10 @@ export {
 } from "./actuals/records.js";
 export { appendProjectActuals, appendReservationActuals } from "./actuals/append.js";
 export { transitionProjectRequirements } from "./actuals/requirements.js";
-export { reconstructActuals, type ActualsDailyContribution, type ActualsTeamDayTotal, type ActualsReconstruction } from "./actuals/reconstruction.js";
+export { reconstructActuals, actualOccupationFromReconstruction, type ActualsDailyContribution, type ActualsTeamDayTotal, type ActualsReconstruction } from "./actuals/reconstruction.js";
 export type {
   PlanningInput,
+  ActualOccupationDay,
   PlanningResult,
   DeadlineStatus,
   PlanningDiagnostic,

@@ -2,6 +2,10 @@ import {
   civilDatesInclusive,
   createCapacity,
   serializeQuantity,
+  addRationals,
+  capacityFromRational,
+  rationalOf,
+  rationalFromInteger,
   type Capacity,
   type CivilDate,
   type ProjectId,
@@ -132,6 +136,12 @@ export function buildTimelineGeometry(
       teamIndex *
         (teamHeaderHeight + teamProjectionBandHeight + input.viewport.teamLaneHeight);
     const laneBottom = y + input.viewport.teamLaneHeight;
+    const actualsByDate = new Map<CivilDate, NonNullable<TimelineTeam["actualsContributions"]>[number][]>();
+    for (const contribution of team.actualsContributions ?? []) {
+      const entries = actualsByDate.get(contribution.date) ?? [];
+      entries.push(contribution);
+      actualsByDate.set(contribution.date, entries);
+    }
     const allocationsByDate = indexAllocationsByDate(
       team,
       expectedDates,
@@ -161,17 +171,12 @@ export function buildTimelineGeometry(
         capacity.projectCapacity,
         pixelsPerCapacityUnit,
       );
-      const visibleReservedCapacity =
-        compareCapacities(
-          capacity.reservedCapacity,
-          capacity.effectiveCapacity,
-        ) <= 0
-          ? capacity.reservedCapacity
-          : capacity.effectiveCapacity;
       const reservedHeight = capacityToHeight(
-        visibleReservedCapacity,
+        capacity.reservedCapacity,
         pixelsPerCapacityUnit,
       );
+      const projectActualHeight = capacityToHeight(capacity.projectActualCapacity, pixelsPerCapacityUnit);
+      const reservationActualHeight = capacityToHeight(capacity.reservationActualCapacity, pixelsPerCapacityUnit);
       const tubeY = laneBottom - effectiveHeight;
       const projectRegion = freezeRect({
         x: dateToX(capacity.date, input.viewModel.horizon, dayWidth),
@@ -181,7 +186,7 @@ export function buildTimelineGeometry(
       });
       const reservedRegion = freezeRect({
         x: projectRegion.x,
-        y: tubeY,
+        y: laneBottom - projectHeight - reservedHeight,
         width: dayWidth,
         height: reservedHeight,
       });
@@ -203,6 +208,10 @@ export function buildTimelineGeometry(
         reservedCapacity: capacity.reservedCapacity,
         projectCapacity: capacity.projectCapacity,
         overReserved: capacity.overReserved,
+        projectActualCapacity: capacity.projectActualCapacity,
+        reservationActualCapacity: capacity.reservationActualCapacity,
+        actualOverCapacity: capacity.actualOverCapacity,
+        reservationOverCapacity: capacity.reservationOverCapacity,
         capacityTube: Object.freeze({
           x: projectRegion.x,
           y: tubeY,
@@ -217,6 +226,9 @@ export function buildTimelineGeometry(
           capacity.date,
           reservedRegion,
         ),
+        actualSegments: buildActualSegments(team.id, actualsByDate.get(capacity.date) ?? [], capacity.date, projectRegion.x, dayWidth,
+          reservedRegion.y, projectActualHeight, reservationActualHeight, capacity.projectActualCapacity,
+          capacity.reservationActualCapacity, pixelsPerCapacityUnit),
       }) satisfies TimelineDayGeometry;
     });
 
@@ -252,6 +264,41 @@ export function buildTimelineGeometry(
     pixelsPerCapacityUnit,
     teams: Object.freeze(teams),
   });
+}
+
+function buildActualSegments(
+  teamId: TimelineTeam["id"], entriesForDate: NonNullable<TimelineTeam["actualsContributions"]>,
+  date: CivilDate, x: number, width: number,
+  reservationTop: number, projectHeight: number, reservationHeight: number,
+  projectActual: Capacity, reservationActual: Capacity,
+  scale: number,
+): readonly import("./timelineGeometry.js").TimelineActualSegmentGeometry[] {
+  const result: import("./timelineGeometry.js").TimelineActualSegmentGeometry[] = [];
+  let y = reservationTop - reservationHeight - projectHeight;
+  for (const kind of ["project", "reservation"] as const) {
+    const entries = entriesForDate.filter((item) => item.sourceKind === kind);
+    const expected = kind === "project" ? projectActual : reservationActual;
+    if (entries.length === 0) {
+      const height = capacityToHeight(expected, scale);
+      if (height > 0) result.push(Object.freeze({ sourceKind: kind, teamId, date,
+        capacity: expected, x, y, width, height }));
+      y += height;
+      continue;
+    }
+    const total = entries.reduce((sum, item) => addRationals(sum, rationalOf(item.amount)), rationalFromInteger(0n));
+    if (`${total.numerator}/${total.denominator}` !== serializeQuantity(expected)) {
+      throw new TypeError(`Timeline ${kind} Actual contributions do not match daily occupation on ${date}.`);
+    }
+    for (const item of entries) {
+      const value = capacityFromRational(rationalOf(item.amount));
+      if (!value.ok) throw new TypeError("Actual contribution is negative.");
+      const height = capacityToHeight(value.value, scale);
+      result.push(Object.freeze({ sourceKind: kind, sourceId: item.sourceId, sourceLabel: item.sourceLabel,
+        teamId, date, capacity: value.value, x, y, width, height }));
+      y += height;
+    }
+  }
+  return Object.freeze(result);
 }
 
 function buildReservationSegments(
@@ -526,12 +573,17 @@ function findMaxEffectiveCapacity(viewModel: TimelineViewModel): Capacity {
   let maximum: Capacity | undefined;
   for (const team of viewModel.teams) {
     for (const day of team.capacities) {
+      const occupied = capacityFromRational(addRationals(
+        addRationals(rationalOf(day.projectActualCapacity), rationalOf(day.reservationActualCapacity)),
+        rationalOf(day.reservedCapacity)));
+      if (!occupied.ok) throw new TypeError("Timeline occupation is negative.");
       if (
         maximum === undefined ||
         compareCapacities(day.effectiveCapacity, maximum) > 0
       ) {
         maximum = day.effectiveCapacity;
       }
+      if (compareCapacities(occupied.value, maximum) > 0) maximum = occupied.value;
     }
   }
 

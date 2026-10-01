@@ -1,9 +1,4 @@
-import {
-  effectiveCapacity,
-  isOverReserved,
-  projectCapacity,
-  reservedCapacity,
-} from "../capacity/calculations.js";
+import { dailyCapacitySnapshot } from "../capacity/calculations.js";
 import {
   civilDatesInclusive,
   compareCivilDates,
@@ -28,7 +23,6 @@ import {
   type Rational,
 } from "../model/rational.js";
 import type { DomainResult } from "../model/result.js";
-import type { WorkingPattern } from "../capacity/schedule.js";
 import {
   capacityFromRational,
   rationalOf,
@@ -244,20 +238,13 @@ function deadlineAccessibleCapacity(
   state: ProjectTeamState,
   date: CivilDate,
   today: CivilDate,
-  team: Team,
-  portfolio: Portfolio,
-  workingPattern: WorkingPattern,
-  baseCapacityByDate: Map<CivilDate, Rational>,
+  baseCapacityForDate: (date: CivilDate) => Rational,
   residualByDate: Map<CivilDate, Rational>,
   dailyAllocations: ReadonlyMap<ProjectTeamState, Rational>,
 ): Rational {
   let residual = residualByDate.get(date);
   if (residual === undefined) {
-    residual = baseCapacityByDate.get(date);
-    if (residual === undefined) {
-      residual = rationalOf(projectCapacity(team, date, portfolio.reservations, workingPattern));
-      baseCapacityByDate.set(date, residual);
-    }
+    residual = baseCapacityForDate(date);
     residualByDate.set(date, residual);
   }
 
@@ -328,10 +315,7 @@ function sumDeadlineAccessibility(
   state: ProjectTeamState,
   dates: readonly CivilDate[],
   today: CivilDate,
-  team: Team,
-  portfolio: Portfolio,
-  workingPattern: WorkingPattern,
-  baseCapacityByDate: Map<CivilDate, Rational>,
+  baseCapacityForDate: (date: CivilDate) => Rational,
   residualByDate: Map<CivilDate, Rational>,
   dailyAllocations: ReadonlyMap<ProjectTeamState, Rational>,
 ): Rational {
@@ -343,10 +327,7 @@ function sumDeadlineAccessibility(
         state,
         date,
         today,
-        team,
-        portfolio,
-        workingPattern,
-        baseCapacityByDate,
+        baseCapacityForDate,
         residualByDate,
         dailyAllocations,
       ),
@@ -359,9 +340,7 @@ function allocateDeadlineProjects(
   today: CivilDate,
   availableCapacity: Rational,
   team: Team,
-  portfolio: Portfolio,
-  workingPattern: WorkingPattern,
-  baseCapacityByDate: Map<CivilDate, Rational>,
+  baseCapacityForDate: (date: CivilDate) => Rational,
   admitted: readonly ProjectTeamState[],
   dailyAllocations: Map<ProjectTeamState, Rational>,
   diagnostics: PlanningDiagnostic[],
@@ -389,10 +368,7 @@ function allocateDeadlineProjects(
         state,
         datesToDeadline,
         today,
-        team,
-        portfolio,
-        workingPattern,
-        baseCapacityByDate,
+        baseCapacityForDate,
         residualByDate,
         dailyAllocations,
       );
@@ -425,7 +401,7 @@ function allocateDeadlineProjects(
         // No later mandatory Project reads the future residual trajectory.
         // Only today's allocation can affect this Team's committed plan.
         const accessibleToday = deadlineAccessibleCapacity(state, today, today,
-          team, portfolio, workingPattern, baseCapacityByDate, residualByDate, dailyAllocations);
+          baseCapacityForDate, residualByDate, dailyAllocations);
         const increment = minRational(remainingBeforeAllocation,
           multiplyRationals(accessibleToday, requiredRatio));
         subtractDeadlineCapacity(today, increment, residualByDate);
@@ -439,10 +415,7 @@ function allocateDeadlineProjects(
           state,
           date,
           today,
-          team,
-          portfolio,
-          workingPattern,
-          baseCapacityByDate,
+          baseCapacityForDate,
           residualByDate,
           dailyAllocations,
         );
@@ -465,10 +438,7 @@ function allocateDeadlineProjects(
       state,
       today,
       today,
-      team,
-      portfolio,
-      workingPattern,
-      baseCapacityByDate,
+      baseCapacityForDate,
       residualByDate,
       dailyAllocations,
     );
@@ -549,49 +519,34 @@ function planTeam(
   const states = projectsForTeam(input.portfolio, team);
   const dayCapacities: TeamDayCapacity[] = [];
   const dayAdmissions: TeamDayAdmission[] = [];
-  const baseCapacityByDate = new Map<CivilDate, Rational>();
+  const occupation = new Map<CivilDate, NonNullable<PlanningInput["actualOccupation"]>[number]>();
+  for (const row of input.actualOccupation ?? []) if (row.teamId === team.id) occupation.set(row.date, row);
+  const snapshots = new Map<CivilDate, ReturnType<typeof dailyCapacitySnapshot>>();
+  const snapshotForDate = (date: CivilDate) => {
+    let snapshot = snapshots.get(date);
+    if (!snapshot) {
+      const actual = occupation.get(date);
+      snapshot = dailyCapacitySnapshot(team, date, input.portfolio.reservations,
+        input.workingPattern, actual?.projectActual, actual?.reservationActual);
+      snapshots.set(date, snapshot);
+    }
+    return snapshot;
+  };
+  const baseCapacityForDate = (date: CivilDate) => rationalOf(snapshotForDate(date).projectCapacity);
 
   for (const date of civilDatesInclusive(
     input.horizon.start,
     input.horizon.end,
   )) {
-    const effective = effectiveCapacity(team, date, input.workingPattern);
-    const reserved = reservedCapacity(
-      team,
-      date,
-      input.portfolio.reservations,
-      input.workingPattern,
-    );
-    const available = projectCapacity(
-      team,
-      date,
-      input.portfolio.reservations,
-      input.workingPattern,
-    );
-    baseCapacityByDate.set(date, rationalOf(available));
-    const overReserved = isOverReserved(
-      team,
-      date,
-      input.portfolio.reservations,
-      input.workingPattern,
-    );
-    dayCapacities.push(
-      Object.freeze({
-        date,
-        effectiveCapacity: effective,
-        reservedCapacity: reserved,
-        projectCapacity: available,
-        overReserved,
-      }),
-    );
+    const snapshot = snapshotForDate(date);
+    const available = snapshot.projectCapacity;
+    const overReserved = compareRationals(rationalOf(snapshot.reservationOverCapacity), ZERO) > 0;
+    dayCapacities.push(Object.freeze({ date, ...snapshot, overReserved }));
+    if (compareRationals(rationalOf(snapshot.actualOverCapacity), ZERO) > 0) {
+      diagnostics.push(Object.freeze({ code: "TEAM_ACTUALS_OVER_CAPACITY", teamId: team.id, date }));
+    }
     if (overReserved) {
-      diagnostics.push(
-        Object.freeze({
-          code: "TEAM_OVER_RESERVED",
-          teamId: team.id,
-          date,
-        }),
-      );
+      diagnostics.push(Object.freeze({ code: "TEAM_OVER_RESERVED", teamId: team.id, date }));
     }
     updateMissedDeadlineStatuses(date, team, states, diagnostics);
 
@@ -614,9 +569,7 @@ function planTeam(
       date,
       rationalOf(available),
       team,
-      input.portfolio,
-      input.workingPattern,
-      baseCapacityByDate,
+      baseCapacityForDate,
       admitted,
       dailyAllocations,
       diagnostics,
@@ -657,6 +610,17 @@ function planTeam(
  */
 export function planPortfolio(input: PlanningInput): PlanningResult {
   const diagnostics: PlanningDiagnostic[] = [];
+  const teamIds = new Set(input.portfolio.teams.map((team) => team.id));
+  const occupationKeys = new Set<string>();
+  for (const row of input.actualOccupation ?? []) {
+    const key = `${row.teamId}\u0000${row.date}`;
+    if (!teamIds.has(row.teamId) || occupationKeys.has(key) ||
+      compareRationals(rationalOf(row.projectActual), ZERO) < 0 ||
+      compareRationals(rationalOf(row.reservationActual), ZERO) < 0) {
+      throw new TypeError("Invalid actual occupation Team/date row.");
+    }
+    occupationKeys.add(key);
+  }
   return Object.freeze({
     teamPlans: Object.freeze(
       input.portfolio.teams.map((team) =>

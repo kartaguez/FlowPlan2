@@ -3,10 +3,8 @@ import {
   compareCivilDates,
   divideRationals,
   isZero,
-  maxRational,
   rationalFromInteger,
   rationalOf,
-  subtractRationals,
   type CivilDate,
   type PlanningHorizon,
   type PlanningResult,
@@ -33,6 +31,11 @@ export interface CalculateCursorMetricsInput {
 export interface CursorCapacityMetrics {
   readonly effectiveCapacity: Rational;
   readonly requestedReservedCapacity: Rational;
+  readonly projectActualCapacity: Rational;
+  readonly reservationActualCapacity: Rational;
+  readonly actualOverCapacity: Rational;
+  readonly reservationOverCapacity: Rational;
+  readonly totalOverCapacity: Rational;
   readonly allocatedCapacity: Rational;
   readonly occupiedCapacity: Rational;
   readonly utilization: Rational | undefined;
@@ -150,6 +153,9 @@ export function calculateCursorMetrics(
     let requestedReservedCapacity = ZERO;
     let allocatedCapacity = ZERO;
     let overReservedCapacity = ZERO;
+    let projectActualCapacity = ZERO;
+    let reservationActualCapacity = ZERO;
+    let actualOverCapacity = ZERO;
 
     for (const day of plan.dayCapacities) {
       if (!inSelectedInterval(day.date, input)) continue;
@@ -158,16 +164,10 @@ export function calculateCursorMetrics(
         requestedReservedCapacity,
         rationalOf(day.reservedCapacity),
       );
-      overReservedCapacity = addRationals(
-        overReservedCapacity,
-        maxRational(
-          ZERO,
-          subtractRationals(
-            rationalOf(day.reservedCapacity),
-            rationalOf(day.effectiveCapacity),
-          ),
-        ),
-      );
+      projectActualCapacity = addRationals(projectActualCapacity, rationalOf(day.projectActualCapacity));
+      reservationActualCapacity = addRationals(reservationActualCapacity, rationalOf(day.reservationActualCapacity));
+      actualOverCapacity = addRationals(actualOverCapacity, rationalOf(day.actualOverCapacity));
+      overReservedCapacity = addRationals(overReservedCapacity, rationalOf(day.reservationOverCapacity));
     }
 
     const seenProjects = new Set<ProjectId>();
@@ -197,7 +197,8 @@ export function calculateCursorMetrics(
       }
     }
 
-    const occupiedCapacity = addRationals(requestedReservedCapacity, allocatedCapacity);
+    const occupiedCapacity = addRationals(addRationals(projectActualCapacity, reservationActualCapacity),
+      addRationals(requestedReservedCapacity, allocatedCapacity));
     const utilization = isZero(effectiveCapacity)
       ? undefined
       : ratioOrOne(occupiedCapacity, effectiveCapacity);
@@ -205,6 +206,11 @@ export function calculateCursorMetrics(
       teamId: team.id,
       effectiveCapacity,
       requestedReservedCapacity,
+      projectActualCapacity,
+      reservationActualCapacity,
+      actualOverCapacity,
+      reservationOverCapacity: overReservedCapacity,
+      totalOverCapacity: addRationals(actualOverCapacity, overReservedCapacity),
       allocatedCapacity,
       occupiedCapacity,
       utilization,
@@ -218,11 +224,20 @@ export function calculateCursorMetrics(
   const globalCapacity = teams.reduce((sum, team) => addRationals(sum, team.effectiveCapacity), ZERO);
   const globalReserved = teams.reduce((sum, team) => addRationals(sum, team.requestedReservedCapacity), ZERO);
   const globalAllocated = teams.reduce((sum, team) => addRationals(sum, team.allocatedCapacity), ZERO);
-  const globalOccupied = addRationals(globalReserved, globalAllocated);
+  const globalProjectActual = teams.reduce((sum, team) => addRationals(sum, team.projectActualCapacity), ZERO);
+  const globalReservationActual = teams.reduce((sum, team) => addRationals(sum, team.reservationActualCapacity), ZERO);
+  const globalActualOver = teams.reduce((sum, team) => addRationals(sum, team.actualOverCapacity), ZERO);
+  const globalOccupied = addRationals(addRationals(globalProjectActual, globalReservationActual),
+    addRationals(globalReserved, globalAllocated));
   const globalOverReserved = teams.reduce((sum, team) => addRationals(sum, team.overReservedCapacity), ZERO);
   const global: CursorCapacityMetrics = Object.freeze({
     effectiveCapacity: globalCapacity,
     requestedReservedCapacity: globalReserved,
+    projectActualCapacity: globalProjectActual,
+    reservationActualCapacity: globalReservationActual,
+    actualOverCapacity: globalActualOver,
+    reservationOverCapacity: globalOverReserved,
+    totalOverCapacity: addRationals(globalActualOver, globalOverReserved),
     allocatedCapacity: globalAllocated,
     occupiedCapacity: globalOccupied,
     utilization: isZero(globalCapacity) ? undefined : ratioOrOne(globalOccupied, globalCapacity),

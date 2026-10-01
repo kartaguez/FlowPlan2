@@ -70,6 +70,7 @@ export function requestedReservationCapacity(
   team: Team,
   date: CivilDate,
   workingPattern: WorkingPattern,
+  effectiveForDate?: Capacity,
 ): Capacity {
   const allocation = reservationAllocationForTeam(reservation, team.id);
   if (
@@ -83,7 +84,7 @@ export function requestedReservationCapacity(
     return unwrapProvenQuantity(
       capacityFromRational(
         multiplyRationals(
-          rationalOf(effectiveCapacity(team, date, workingPattern)),
+          rationalOf(effectiveForDate ?? effectiveCapacity(team, date, workingPattern)),
           rationalOf(allocation.amount.ratio),
         ),
       ),
@@ -100,16 +101,45 @@ export function reservedCapacity(
   date: CivilDate,
   reservations: readonly Reservation[],
   workingPattern: WorkingPattern,
+  effectiveForDate?: Capacity,
 ): Capacity {
   let total = ZERO;
   for (const reservation of reservations) {
     if (!reservation.isActive) continue;
     total = addRationals(
       total,
-      rationalOf(requestedReservationCapacity(reservation, team, date, workingPattern)),
+      rationalOf(requestedReservationCapacity(reservation, team, date, workingPattern, effectiveForDate)),
     );
   }
   return unwrapProvenQuantity(capacityFromRational(total));
+}
+
+/** The single exact daily capacity snapshot used by planning and lookahead. */
+export function dailyCapacitySnapshot(
+  team: Team,
+  date: CivilDate,
+  reservations: readonly Reservation[],
+  workingPattern: WorkingPattern,
+  projectActual: Capacity = ZERO_CAPACITY,
+  reservationActual: Capacity = ZERO_CAPACITY,
+) {
+  const effective = effectiveCapacity(team, date, workingPattern);
+  const reserved = reservedCapacity(team, date, reservations, workingPattern, effective);
+  const actual = addRationals(rationalOf(projectActual), rationalOf(reservationActual));
+  const total = addRationals(actual, rationalOf(reserved));
+  const available = maxRational(ZERO, subtractRationals(rationalOf(effective), total));
+  const actualOver = maxRational(ZERO, subtractRationals(actual, rationalOf(effective)));
+  const totalOver = maxRational(ZERO, subtractRationals(total, rationalOf(effective)));
+  const reservationOver = subtractRationals(totalOver, actualOver);
+  return Object.freeze({
+    effectiveCapacity: effective,
+    projectActualCapacity: projectActual,
+    reservationActualCapacity: reservationActual,
+    reservedCapacity: reserved,
+    projectCapacity: unwrapProvenQuantity(capacityFromRational(available)),
+    actualOverCapacity: unwrapProvenQuantity(capacityFromRational(actualOver)),
+    reservationOverCapacity: unwrapProvenQuantity(capacityFromRational(reservationOver)),
+  });
 }
 
 /** Reserved capacity is subtracted exactly, then the result is bounded at zero. */
@@ -119,14 +149,7 @@ export function projectCapacity(
   reservations: readonly Reservation[],
   workingPattern: WorkingPattern,
 ): Capacity {
-  const available = subtractRationals(
-    rationalOf(effectiveCapacity(team, date, workingPattern)),
-    rationalOf(reservedCapacity(team, date, reservations, workingPattern)),
-  );
-  // The maximum with zero is non-negative by construction.
-  return unwrapProvenQuantity(
-    capacityFromRational(maxRational(ZERO, available)),
-  );
+  return dailyCapacitySnapshot(team, date, reservations, workingPattern).projectCapacity;
 }
 
 export function isOverReserved(
@@ -135,10 +158,5 @@ export function isOverReserved(
   reservations: readonly Reservation[],
   workingPattern: WorkingPattern,
 ): boolean {
-  return (
-    compareRationals(
-      rationalOf(reservedCapacity(team, date, reservations, workingPattern)),
-      rationalOf(effectiveCapacity(team, date, workingPattern)),
-    ) > 0
-  );
+  return compareRationals(rationalOf(dailyCapacitySnapshot(team, date, reservations, workingPattern).reservationOverCapacity), ZERO) > 0;
 }

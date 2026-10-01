@@ -97,9 +97,23 @@ export interface TimelineDayGeometry {
   readonly reservedCapacity: Capacity;
   readonly projectCapacity: Capacity;
   readonly overReserved: boolean;
+  readonly projectActualCapacity: Capacity;
+  readonly reservationActualCapacity: Capacity;
+  readonly actualOverCapacity: Capacity;
+  readonly reservationOverCapacity: Capacity;
   readonly capacityTube: TimelineCapacityTubeGeometry;
   readonly allocations: readonly TimelineAllocationGeometry[];
   readonly reservationSegments?: readonly TimelineReservationSegmentGeometry[];
+  readonly actualSegments?: readonly TimelineActualSegmentGeometry[];
+}
+
+export interface TimelineActualSegmentGeometry extends TimelineRectGeometry {
+  readonly sourceKind: "project" | "reservation";
+  readonly sourceId?: ProjectId | ReservationId;
+  readonly sourceLabel?: string;
+  readonly teamId: TeamId;
+  readonly date: CivilDate;
+  readonly capacity: Capacity;
 }
 
 export interface TimelineReservationSegmentGeometry extends TimelineRectGeometry {

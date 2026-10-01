@@ -43,11 +43,11 @@ Lot 9I — Project and Reservation forecast activation (DONE)
 Corrective lot — usage-driven Program/Pas and colors (DONE)
 Corrective lot — anchored temporal zoom and range drag (DONE)
 Lot 10 — Actuals & History (OPEN)
-10A (DONE) → 10B (PLAN) → 10C → 10D → 10E
+10A (DONE) → 10B (IN REVIEW) → 10C → 10D → 10E
 ```
 
 Lots through 9I, the Projection date presentation pass, both corrective lots,
-and 10A are validated. 10B is in PLAN; its implementation has not started.
+and 10A are validated. 10B is implemented and IN REVIEW; the validated baseline remains the 10A commit above until human validation.
 
 ## Corrective lot — anchored temporal zoom and range drag
 
@@ -293,24 +293,24 @@ never persisted observations or ceilings on Actuals. V4 backup stores business
 chronologies and RAF provenance, while V1–V3 remain readable. Append commands
 use candidate state → projection → persistence → publication. Forecast
 Reservations, metrics, and `PlanningInput` remain on their existing 10A
-boundary; 10B will integrate calculated daily occupation into planning.
+boundary; 10B now integrates calculated daily occupation into planning.
 Current capacity schedules and working pattern can reshape reconstructed
 historical days; knowledge versioning remains deferred to 10D/10E.
 
 ## 10B — Actuals-aware planning projection
 
-**Status: PLAN.** The inspected implementation contracts, capacity-source
+**Status: IN REVIEW.** The inspected implementation contracts, capacity-source
 factorization, diagnostics, projections, and acceptance tests are in the
 [10B plan](./steps/ACTUALS/lot10b_plan.md). The 10A step documents remain the
 separate validated record of that sub-lot.
 
-Feed calculated daily actual occupation into planning without passing raw
-history. Preserve all Project and Reservation actuals even above effective
-capacity, retain non-clamped forecast Reservation demand, and limit Project
-forecast to remaining capacity. Extend the relevant planning, diagnostics,
-timeline, and cursor-metric projections; distinguish actual overload from
-forecast Reservation overload. Review deadline capacity lookahead as well as
-daily allocation. Exact contract shapes and diagnostic names are 10B decisions.
+Calculated daily Project and Reservation occupation now enters planning without
+raw records. The engine uses a shared daily capacity snapshot for allocation
+and lazy deadline lookahead. `TEAM_ACTUALS_OVER_CAPACITY` reports Actuals excess;
+`TEAM_OVER_RESERVED` reports marginal Reservation forecast excess. Timeline
+shows four distinct load categories without capacity clipping, and cursor
+metrics expose their exact cumulative amounts and both overload causes.
+Project/Program/Pas progress remains forecast-only.
 
 ## 10C — Actuals workflows & UI
 
@@ -333,18 +333,12 @@ Reconstruct knowledge at different snapshot dates and compare changes in
 consumed work, RAF, projection, estimated dates, capacity/overload, and other
 relevant results. The comparison UI and drift visualization remain open.
 
-The [current canon](./current_canon.md) gives the Lot 10 business and
-architecture target. The durable [canon](./canon.md) still has an RAF-only
-Actuals → Engine diagram: preserve its rule that history stays upstream, then
-refine that diagram when 10B adds calculated daily actual occupation to the
-projection input. The current `PlanningInput`, capacity/day diagnostics,
-timeline adapter, cursor metrics, and application recomputation describe the
-forecast-only baseline. They are likely 10B touchpoints, not contracts fixed
-by this framing pass.
+The [current canon](./current_canon.md) records the implemented 10B facts. The
+validated baseline remains unchanged during review.
 
 ## Cross-cutting non-goals for Phase 9
 
-- No actual consumption or historical replay inside Planning Engine V1.
+- No raw Actuals records or historical replay inside Planning Engine V1.
 - No second priority source for Program or PAS.
 - No independent Team horizons, cursors, viewports, or time axes.
 - No floating-point business quantities.

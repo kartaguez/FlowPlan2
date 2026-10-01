@@ -16,6 +16,15 @@ export interface PlanningInput {
   readonly workingPattern: WorkingPattern;
   /** Shared value, enforced independently inside every team plan. */
   readonly maxParallelProjects: MaxParallelProjects;
+  /** Calculated daily occupation only; no historical records enter the engine. */
+  readonly actualOccupation: readonly ActualOccupationDay[];
+}
+
+export interface ActualOccupationDay {
+  readonly teamId: TeamId;
+  readonly date: CivilDate;
+  readonly projectActual: Capacity;
+  readonly reservationActual: Capacity;
 }
 
 export interface TeamDayCapacity {
@@ -24,6 +33,10 @@ export interface TeamDayCapacity {
   readonly reservedCapacity: Capacity;
   readonly projectCapacity: Capacity;
   readonly overReserved: boolean;
+  readonly projectActualCapacity: Capacity;
+  readonly reservationActualCapacity: Capacity;
+  readonly actualOverCapacity: Capacity;
+  readonly reservationOverCapacity: Capacity;
 }
 
 export interface TeamDayAdmission {
@@ -68,6 +81,7 @@ export interface TeamPlanningResult {
 
 export type PlanningDiagnosticCode =
   | "TEAM_OVER_RESERVED"
+  | "TEAM_ACTUALS_OVER_CAPACITY"
   | "PROJECT_REMAINS_UNPLANNED_AT_HORIZON"
   | "DEADLINE_UNFEASIBLE"
   | "DEADLINE_MISSED";

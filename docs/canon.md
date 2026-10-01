@@ -45,24 +45,21 @@ Reservation requests retain their existing non-clamped semantics.
 
 The engine answers this question:
 
-> Given known capacity, prioritized projects, remaining workload (RAF) by
-> Team, capacity reservations, Project dates, and a parallelism limit, how
+> Given known capacity, calculated daily Actual occupation, prioritized projects,
+> remaining workload (RAF) by Team, capacity reservations, Project dates, and a parallelism limit, how
 > should Team usage be projected day by day?
 
-## Projection is separate from actuals
+## Historical records stay upstream of planning
 
 ```text
-Actuals / History
-        ↓
-Current RAF
-        ↓
-Planning Engine
+Actuals records → deterministic reconstruction → daily Project/Reservation occupation
+current RAF + daily occupation + forecast inputs → Planning Engine
 ```
 
-The current product trajectory stabilizes pure projection. Actual consumption
-and history will later produce revised current RAF and planning snapshots.
-They must remain upstream and must not contaminate the projection engine with
-consumption events, historical cutoffs, or snapshot state.
+Records remain upstream. The engine receives only exact, non-negative calculated
+daily occupation by Team/date; an absent row means zero. It never owns records,
+historical cutoffs, chronology, reconstruction weights, or snapshots. Current
+RAF remains Project forecast workload and is never reduced again by the engine.
 
 ## Layered architecture
 
@@ -98,8 +95,9 @@ sources of truth and are never mutated as application state.
 
 Cursor metrics are a separate exact adapter projection over the current run's
 Portfolio, PlanningResult, horizon, and a presentation-selected date. They
-accumulate inclusive daily Team effective, requested reserved, and allocated
-capacities. Utilization is `(requested reserved + allocated) / effective`,
+accumulate inclusive daily Team effective, Project Actual, Reservation Actual,
+forecast Reservation demand, and Project forecast allocation capacities.
+Utilization is `(Project Actual + Reservation Actual + forecast Reservation + Project forecast) / effective`,
 undefined when effective is zero and otherwise unclamped. Project progress
 divides cumulative allocations across all Teams by the sum of its requirements'
 RAF at the start of that run. Program and PriorityFamily (shown as Pas)
@@ -312,16 +310,24 @@ For all applicable Reservations:
 totalRequestedReservedCapacity
 = sum(applicable reservation requests)
 
+actualLoad = projectActual + reservationActual
 projectCapacity
-= max(0, effectiveCapacity - totalRequestedReservedCapacity)
+= max(0, effectiveCapacity - actualLoad - totalRequestedReservedCapacity)
+
+actualOverCapacity = max(0, actualLoad - effectiveCapacity)
+reservationOverCapacity
+= max(0, actualLoad + totalRequestedReservedCapacity - effectiveCapacity)
+  - actualOverCapacity
+totalOverCapacity = actualOverCapacity + reservationOverCapacity
 ```
 
-The requested reserved quantity is never clamped. Only project capacity is
-floored at zero. Over-reservation is:
+Actuals and requested Reservation forecast are never clamped. Only Project
+forecast capacity is floored at zero. Reservation overload is marginal after
+Actuals and does not recount Actuals overload:
 
 ```text
 TEAM_OVER_RESERVED
-iff requestedReservedCapacity > effectiveCapacity
+iff reservationOverCapacity > 0
 ```
 
 It is not defined as `sum(ratios) > 1`; fixed-daily and mixed requests count.
@@ -333,7 +339,8 @@ Each Team is simulated independently for each day of the Planning horizon:
 ```text
 CAPACITY
 effective capacity
-→ reservation demand
+→ Project Actual + Reservation Actual
+→ Reservation forecast demand
 → project capacity
 
 ADMISSION
@@ -394,8 +401,8 @@ Planning horizon or trigger planning.
 
 The current canonical business diagnostic codes are:
 
-- `TEAM_OVER_RESERVED`: requested reserved capacity exceeds effective Team
-  capacity for a date;
+- `TEAM_ACTUALS_OVER_CAPACITY`: Actual occupation exceeds effective Team capacity;
+- `TEAM_OVER_RESERVED`: forecast Reservation adds marginal overload after Actuals;
 - `PROJECT_REMAINS_UNPLANNED_AT_HORIZON`: RAF remains after the last horizon
   day;
 - `DEADLINE_UNFEASIBLE`: an admitted deadline Project is found structurally

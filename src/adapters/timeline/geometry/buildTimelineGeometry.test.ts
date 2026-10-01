@@ -53,6 +53,8 @@ function makeViewModel(
           reservedCapacity: capacity("0"),
           projectCapacity: capacity(options.dailyCapacity ?? "1.5"),
           overReserved: options.overReserved ?? false,
+          projectActualCapacity: capacity("0"), reservationActualCapacity: capacity("0"),
+          actualOverCapacity: capacity("0"), reservationOverCapacity: capacity("0"),
         })),
       };
     }),

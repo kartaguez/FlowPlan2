@@ -1,6 +1,8 @@
 import {
   requestedReservationCapacity,
-  reservedCapacity,
+  addRationals,
+  rationalFromInteger,
+  rationalOf,
   serializeQuantity,
   type PlanningHorizon,
   type PlanningResult,
@@ -13,6 +15,7 @@ import {
   type TeamPlanningResult,
   type WorkingPattern,
   type Reservation,
+  type ActualsDailyContribution,
 } from "../../domain/index.js";
 import type {
   TimelineAllocation,
@@ -29,6 +32,7 @@ export interface BuildTimelineViewModelInput {
   readonly horizon: PlanningHorizon;
   readonly planningResult: PlanningResult;
   readonly workingPattern: WorkingPattern;
+  readonly actualsContributions?: readonly ActualsDailyContribution[];
 }
 
 export function buildTimelineViewModel(
@@ -74,6 +78,7 @@ export function buildTimelineViewModel(
       projectsById,
       input.portfolio.reservations,
       input.workingPattern,
+      input.actualsContributions,
     ),
   );
   const diagnostics = input.planningResult.diagnostics.map((diagnostic) => {
@@ -134,6 +139,7 @@ function buildTimelineTeam(
   projectsById: ReadonlyMap<ProjectId, Project>,
   reservations: readonly Reservation[],
   workingPattern: WorkingPattern,
+  actualsContributions?: readonly ActualsDailyContribution[],
 ): TimelineTeam {
   const projectPlansById = indexProjectPlans(teamPlan, projectsById);
   const expectedProjectIds = priorityOrder.filter((projectId) =>
@@ -153,21 +159,31 @@ function buildTimelineTeam(
   );
   const capacities = teamPlan.dayCapacities.map(
     (day) => {
-      if (reservations.some((reservation) => !reservation.isActive)) {
-        const expected = reservedCapacity(team, day.date, reservations, workingPattern);
-        if (serializeQuantity(day.reservedCapacity) !== serializeQuantity(expected)) {
-          throw new TypeError(`Team ${team.id} has reserved capacity inconsistent with active Reservations on ${day.date}.`);
-        }
-      }
       return Object.freeze({
         date: day.date,
         effectiveCapacity: day.effectiveCapacity,
         reservedCapacity: day.reservedCapacity,
         projectCapacity: day.projectCapacity,
         overReserved: day.overReserved,
+        projectActualCapacity: day.projectActualCapacity,
+        reservationActualCapacity: day.reservationActualCapacity,
+        actualOverCapacity: day.actualOverCapacity,
+        reservationOverCapacity: day.reservationOverCapacity,
       }) satisfies TimelineCapacityDay;
     },
   );
+  const reservationContributions = Object.freeze(capacities.flatMap((day) => {
+    const named = reservations.filter((reservation) => reservation.isActive).map((reservation) => Object.freeze({
+      reservationId: reservation.id, teamId: team.id, date: day.date,
+      capacity: requestedReservationCapacity(reservation, team, day.date, workingPattern),
+    }));
+    const total = named.reduce((sum, item) => addRationals(sum, rationalOf(item.capacity)), rationalFromInteger(0n));
+    if ((named.length > 0 || reservations.some((reservation) => !reservation.isActive)) &&
+      serializeQuantity(day.reservedCapacity) !== `${total.numerator}/${total.denominator}`) {
+      throw new TypeError(`Team ${team.id} has reserved capacity inconsistent with active Reservations on ${day.date}.`);
+    }
+    return named;
+  }));
   const allocations = orderedPlans.flatMap((projectPlan) =>
     projectPlan.allocations.map(
       (allocation) =>
@@ -203,14 +219,13 @@ function buildTimelineTeam(
     capacities: Object.freeze(capacities),
     allocations: Object.freeze(allocations),
     projectStates: Object.freeze(projectStates),
-    reservationContributions: Object.freeze(capacities.flatMap((day) =>
-      reservations.filter((reservation) => reservation.isActive).map((reservation) => Object.freeze({
-        reservationId: reservation.id,
-        teamId: team.id,
-        date: day.date,
-        capacity: requestedReservationCapacity(reservation, team, day.date, workingPattern),
-      })),
-    )),
+    actualsContributions: Object.freeze((actualsContributions ?? []).filter((item) =>
+      item.teamId === team.id && item.date >= teamPlan.dayCapacities[0]!.date &&
+      item.date <= teamPlan.dayCapacities[teamPlan.dayCapacities.length - 1]!.date)
+      .map((item) => Object.freeze({ ...item, sourceLabel: item.sourceKind === "project"
+        ? projectsById.get(item.sourceId as ProjectId)?.name ?? String(item.sourceId)
+        : reservations.find((reservation) => reservation.id === item.sourceId)?.name ?? String(item.sourceId) }))),
+    reservationContributions,
   });
 }
 

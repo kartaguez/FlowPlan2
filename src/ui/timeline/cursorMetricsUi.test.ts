@@ -161,9 +161,9 @@ describe("cursor metrics UI", () => {
     renderCursorTeamMetrics(teamContainers, model.teams);
     for (const container of teamContainers.values()) {
       const children = (container as unknown as FakeElement).childNodes;
-      assert.equal(children.length, 4);
+      assert.equal(children.length, 11);
       assert.deepEqual(children.map((cell) => cell.childNodes[0]!.textContent),
-        ["Capacity", "Occupied", "Occupancy", "Over-reservation"]);
+        ["Capacity", "Project Actual", "Reservation Actual", "Reservation forecast", "Project forecast", "Occupied", "Occupancy", "Actual overload", "Reservation forecast overload", "Total overload", "Over-reservation"]);
     }
     renderCursorTeamMetrics(teamContainers, [{
       ...model.teams[0]!,
@@ -171,12 +171,12 @@ describe("cursor metrics UI", () => {
       overReservationRatio: undefined,
     }]);
     const firstTeam = (teamContainers.get(model.teams[0]!.teamId)! as unknown as FakeElement).childNodes;
-    assert.equal(firstTeam[2]!.childNodes[1]!.textContent, "150%");
-    assert.equal(firstTeam[3]!.childNodes[1]!.textContent, "N/A");
+    assert.equal(firstTeam[6]!.childNodes[1]!.textContent, "150%");
+    assert.equal(firstTeam[10]!.childNodes[1]!.textContent, "N/A");
     const global = document.createElement("div");
     renderCursorCapacityMetrics(global as unknown as HTMLElement, model.global);
     assert.deepEqual(global.childNodes.map((cell) => cell.childNodes[0]!.textContent),
-      ["Capacity", "Occupied", "Occupancy", "Over-reservation"]);
+      ["Capacity", "Project Actual", "Reservation Actual", "Reservation forecast", "Project forecast", "Occupied", "Occupancy", "Actual overload", "Reservation forecast overload", "Total overload", "Over-reservation"]);
     assert.equal(global.childNodes[0]!.childNodes[1]!.textContent, formatCursorMd(model.global.effectiveCapacity));
     const root = document.createElement("section");
     let selected: string | undefined;

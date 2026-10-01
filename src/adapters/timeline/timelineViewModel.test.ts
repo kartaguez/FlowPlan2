@@ -57,6 +57,8 @@ function makeTimelineViewModel(): TimelineViewModel {
             reservedCapacity: capacity("0.5"),
             projectCapacity: capacity("1.5"),
             overReserved: false,
+            projectActualCapacity: capacity("0"), reservationActualCapacity: capacity("0"),
+            actualOverCapacity: capacity("0"), reservationOverCapacity: capacity("0"),
           },
         ],
         allocations: [
@@ -88,6 +90,8 @@ function makeTimelineViewModel(): TimelineViewModel {
             reservedCapacity: capacity("0"),
             projectCapacity: capacity("1"),
             overReserved: false,
+            projectActualCapacity: capacity("0"), reservationActualCapacity: capacity("0"),
+            actualOverCapacity: capacity("0"), reservationOverCapacity: capacity("0"),
           },
         ],
         allocations: [

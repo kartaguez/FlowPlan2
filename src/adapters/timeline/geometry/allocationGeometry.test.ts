@@ -82,6 +82,8 @@ function makeScenario(input: ScenarioInput): TimelineViewModel {
         reservedCapacity: capacity(day.reserved ?? "0"),
         projectCapacity: capacity(day.project ?? day.effective),
         overReserved: day.overReserved ?? false,
+        projectActualCapacity: capacity("0"), reservationActualCapacity: capacity("0"),
+        actualOverCapacity: capacity("0"), reservationOverCapacity: capacity("0"),
       })),
       allocations: (input.allocations ?? [])
         .filter((allocation) => allocation.teamIndex === teamIndex)

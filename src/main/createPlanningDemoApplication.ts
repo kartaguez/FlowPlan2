@@ -18,11 +18,11 @@ import type { PlanningBackupStore } from "../infrastructure/backup/localPlanning
 const DEMO_GEOMETRY_VIEWPORT: TimelineGeometryViewport = Object.freeze({
   width: 2160,
   teamLaneHeight: 100,
-  teamHeaderHeight: 112,
+  teamHeaderHeight: 152,
   teamProjectionBandHeight: 22,
   timeAxisHeight: 76,
   timeAxisLabelHeight: 20,
-  globalMetricsHeight: 100,
+  globalMetricsHeight: 132,
   teamCollectionActionsHeight: 42,
 });
 

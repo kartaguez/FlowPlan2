@@ -18,8 +18,15 @@ export function renderCursorCapacityMetrics(container: HTMLElement, metrics: Cur
   const document = container.ownerDocument;
   const values: readonly (readonly [string, string])[] = [
     ["Capacity", formatCursorMd(metrics.effectiveCapacity)],
+    ["Project Actual", formatCursorMd(metrics.projectActualCapacity)],
+    ["Reservation Actual", formatCursorMd(metrics.reservationActualCapacity)],
+    ["Reservation forecast", formatCursorMd(metrics.requestedReservedCapacity)],
+    ["Project forecast", formatCursorMd(metrics.allocatedCapacity)],
     ["Occupied", formatCursorMd(metrics.occupiedCapacity)],
     ["Occupancy", formatCursorPercent(metrics.utilization)],
+    ["Actual overload", formatCursorMd(metrics.actualOverCapacity)],
+    ["Reservation forecast overload", formatCursorMd(metrics.reservationOverCapacity)],
+    ["Total overload", formatCursorMd(metrics.totalOverCapacity)],
     ["Over-reservation", formatCursorPercent(metrics.overReservationRatio)],
   ];
   container.replaceChildren(...values.map(([label, value]) => {

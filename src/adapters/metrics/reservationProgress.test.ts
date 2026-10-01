@@ -64,7 +64,9 @@ it("weights a grouped Reservation with its Project and leaves Project progress u
     priorityOrder: [projectId] }));
   const planningResult = { teamPlans: [{ teamId,
     dayCapacities: [{ date: day, effectiveCapacity: must(domain.createCapacity("2")),
-      reservedCapacity: must(domain.createCapacity("1")), projectCapacity: must(domain.createCapacity("1")), overReserved: false }],
+      reservedCapacity: must(domain.createCapacity("1")), projectCapacity: must(domain.createCapacity("1")), overReserved: false,
+      projectActualCapacity: must(domain.createCapacity("0")), reservationActualCapacity: must(domain.createCapacity("0")),
+      actualOverCapacity: must(domain.createCapacity("0")), reservationOverCapacity: must(domain.createCapacity("0")) }],
     dayAdmissions: [], projectPlans: [{ projectId, teamId,
       allocations: [{ date: day, workload: must(domain.createCapacity("1")) }],
       plannedWorkload: must(domain.createCapacity("1")),

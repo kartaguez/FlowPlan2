@@ -11,6 +11,8 @@ import {
   createUnavailabilityRatio,
   createWorkingPattern,
   effectiveCapacity as calculateEffectiveCapacity,
+  dailyCapacitySnapshot,
+  serializeQuantity,
   quantityToDecimalString,
   type DomainResult,
 } from "../index.js";
@@ -90,6 +92,23 @@ describe("team capacity schedule", () => {
     assert.equal(rendered(effectiveCapacity(team, date("2025-02-01"))), "1");
     assert.equal(rendered(effectiveCapacity(team, date("2025-01-06"))), "0");
     assert.equal(rendered(effectiveCapacity(team, date("2025-01-06"))), "0");
+  });
+
+  it("keeps Actual occupation on normal, exception, non-working and schedule-gap dates", () => {
+    const team = makeTeam();
+    const actual = capacity("2");
+    for (const [day, effective, overload] of [
+      ["2025-01-07", "16/5", "0/1"],
+      ["2025-01-06", "0/1", "2/1"],
+      ["2025-01-11", "0/1", "2/1"],
+      ["2025-01-13", "0/1", "2/1"],
+    ] as const) {
+      const snapshot = dailyCapacitySnapshot(team, date(day), [], workingPattern, actual);
+      assert.equal(serializeQuantity(snapshot.effectiveCapacity), effective);
+      assert.equal(serializeQuantity(snapshot.projectActualCapacity), "2/1");
+      assert.equal(serializeQuantity(snapshot.actualOverCapacity), overload);
+      assert.equal(serializeQuantity(snapshot.reservationOverCapacity), "0/1");
+    }
   });
 
   it("applies exact period unavailability without changing exceptions", () => {

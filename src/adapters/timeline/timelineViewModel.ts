@@ -8,6 +8,7 @@ import type {
   ReservationAmount,
   RemainingWorkload,
   TeamId,
+  ActualsDailyContribution,
 } from "../../domain/index.js";
 
 export interface TimelineViewModel {
@@ -57,6 +58,7 @@ export interface TimelineTeam {
   readonly allocations: readonly TimelineAllocation[];
   readonly projectStates: readonly TimelineProjectTeamState[];
   readonly reservationContributions?: readonly TimelineReservationContribution[];
+  readonly actualsContributions?: readonly (ActualsDailyContribution & Readonly<{ sourceLabel: string }>)[];
 }
 
 export interface TimelineCapacityDay {
@@ -65,6 +67,10 @@ export interface TimelineCapacityDay {
   readonly reservedCapacity: Capacity;
   readonly projectCapacity: Capacity;
   readonly overReserved: boolean;
+  readonly projectActualCapacity: Capacity;
+  readonly reservationActualCapacity: Capacity;
+  readonly actualOverCapacity: Capacity;
+  readonly reservationOverCapacity: Capacity;
 }
 
 export interface TimelineAllocation {

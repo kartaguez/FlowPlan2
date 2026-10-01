@@ -26,7 +26,7 @@ from the demo. The following capabilities are complete and active:
 - global multi-Team Reservations with ratio and fixed-daily modes, created,
   edited, and deleted in inline Portfolio cards;
 - immutable Project and Reservation Actuals chronologies, exact daily
-  reconstruction, and transactional V4 persistence;
+  reconstruction, Actuals-aware planning projection, and transactional V4 persistence;
 - immediate Project and Reservation activation controls; inactive entities
   remain in the Portfolio and do not participate in the forecast;
 - Projects / Reservations tabs in the Portfolio sidebar;
@@ -34,8 +34,8 @@ from the demo. The following capabilities are complete and active:
   and hover;
 - exact rational parsing and untouched exact-value preservation;
 - compact accessible settings icon buttons for Planning and Teams;
-- planning diagnostics, cumulative Team and global Capacity / Occupied /
-  Occupancy / Over-reservation metrics, and Project / Program / Pas progress at
+- planning diagnostics, cumulative Team and global exact Actual/forecast load,
+  occupancy and both overload causes, and Project / Program / Pas progress at
   the shared cursor date.
 
 The implementation follows the state, atomicity, engine, and projection
@@ -163,10 +163,10 @@ initial period. There is no manual period reorder or Domain period ID.
 ## Current objective — Lot 10: Actuals & History
 
 Lot 10 is the active product and architecture trajectory. 10A is validated
-and **DONE**; 10B–10E remain open. The forecast still starts from the
+and **DONE**; 10B is **IN REVIEW**; 10C–10E remain open. The forecast still starts from the
 RAF stored on each Project/Team requirement. The session now holds immutable
 Project and Reservation Actuals chronologies and reconstructs daily Actuals
-separately from the forecast. It has no knowledge snapshots.
+separately from the forecast, then projects calculated occupation into planning. It has no knowledge snapshots.
 
 ### Business knowledge and dates
 
@@ -227,16 +227,18 @@ objects or Teams with protected Actuals history cannot be deleted in 10A.
 For each Team/day, actual Project occupation and actual Reservation occupation
 are preserved in full. Forecast Reservation demand retains its current
 non-clamped semantics, including over-reservation. Forecast Project allocation
-alone is bounded by remaining capacity. Conceptually, the order is Project
+alone is bounded by remaining capacity. The implemented order is Project
 actual, Reservation actual, Reservation forecast, then Project forecast, and
 `capacityForProjectForecast = max(0, effectiveCapacity - actualLoad -
-forecastReservationLoad)`. This expresses the target business behavior, not a
-premature engine API. Actual overload and forecast Reservation overload need
-distinct diagnostics; a combined overload flag would lose their causes.
+forecastReservationLoad)`. The shared Domain daily snapshot also computes
+`actualOverCapacity = max(0, actualLoad - effectiveCapacity)` and
+`reservationOverCapacity = max(0, actualLoad + forecastReservationLoad - effectiveCapacity) - actualOverCapacity`.
+Their sum is total daily overload. `TEAM_ACTUALS_OVER_CAPACITY` and
+`TEAM_OVER_RESERVED` report the two respective positive causes and can coexist.
 
 ### Architecture and historical knowledge
 
-The intended boundary is:
+The implemented 10B boundary is:
 
 ```text
 immutable Actuals Records
@@ -247,13 +249,14 @@ immutable Actuals Records
 ```
 
 Actuals records, their knowledge dates, snapshots, historical version
-selection, and drift comparison stay upstream of the Planning Engine. The
-engine will need calculated daily occupation to determine Project forecast
-capacity, including in deadline feasibility calculations; it must not become
-the owner of historical records or replay. The current `PlanningInput`,
-`TeamDayCapacity`, diagnostics, timeline adapter, cursor metrics, and session
-recomputation contain forecast-only contracts and will need deliberate review
-in 10B. The Project requirement's `remainingWorkload` initializes the engine's
+selection, and drift comparison stay upstream of the Planning Engine. `PlanningInput.actualOccupation` contains only exact, non-negative Project and
+Reservation amounts by Team/date; missing rows mean zero. The engine uses a
+lazy shared daily snapshot for ordinary allocation and deadline lookahead,
+including dates beyond the materialized horizon. `TeamDayCapacity` preserves
+both Actual amounts and overload causes. Timeline carries source-aware Actuals
+segments separately from named Reservation forecast and Project forecast;
+cursor metrics aggregate daily overload without compensation across dates or
+Teams. The Project requirement's `remainingWorkload` initializes the engine's
 per-Team RAF. An Actuals entry updates it only for currently required Teams;
 historical entries remain immutable and do not become forecast allocations.
 
@@ -263,14 +266,10 @@ historical reconstruction and drift comparison may compare consumed work,
 RAF, projections, estimated dates, and capacity/overload using the knowledge
 available at different snapshot dates.
 
-The durable [canon](./canon.md) currently says actuals/history feed only a
-revised RAF into the engine. Its enduring prohibition on historical state in
-the engine stands; its RAF-only diagram and wording require refinement when
-10B introduces calculated daily actual occupation as a projection input.
-The current formulas for `projectCapacity`, `TEAM_OVER_RESERVED`, and occupied
-cursor metrics describe the implemented forecast-only system and cannot be
-read as complete Lot 10 formulas. 10A does not pass daily Actuals occupation
-to `PlanningInput`; that integration belongs to 10B.
+Project, Program, and Pas progress remains forecast-derived from current RAF
+and forecast Reservation demand. Actuals affect capacity and occupied metrics
+without being counted again against RAF. The 10B implementation awaits human
+audit; the validated baseline above remains 10A.
 
 Open decisions include snapshot contract and storage, 10C UI, historical
 comparison UX, and drift visualization. Undo/redo and synchronization remain
@@ -408,8 +407,7 @@ These are current implementation facts, not durable product rules:
 
 - separate Program / PriorityFamily management screens or global rename;
 - undo/redo;
-- Actuals workflows/UI, actual-aware planning capacity and diagnostics, and
-  knowledge snapshots (deferred to 10B–10E).
+- Actuals entry workflows/UI and knowledge snapshots (deferred to 10C–10E).
 
 These omissions are ordered as future work in the
 [current plan](./current_plan.md); they must not be inferred from visual
