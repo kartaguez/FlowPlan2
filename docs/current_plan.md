@@ -43,11 +43,11 @@ Lot 9I — Project and Reservation forecast activation (DONE)
 Corrective lot — usage-driven Program/Pas and colors (DONE)
 Corrective lot — anchored temporal zoom and range drag (DONE)
 Lot 10 — Actuals & History (OPEN)
-10A (DONE) → 10B (NEXT) → 10C → 10D → 10E
+10A (DONE) → 10B (PLAN) → 10C → 10D → 10E
 ```
 
 Lots through 9I, the Projection date presentation pass, both corrective lots,
-and 10A are validated. 10B is the next sub-lot.
+and 10A are validated. 10B is in PLAN; its implementation has not started.
 
 ## Corrective lot — anchored temporal zoom and range drag
 
@@ -298,6 +298,11 @@ Current capacity schedules and working pattern can reshape reconstructed
 historical days; knowledge versioning remains deferred to 10D/10E.
 
 ## 10B — Actuals-aware planning projection
+
+**Status: PLAN.** The inspected implementation contracts, capacity-source
+factorization, diagnostics, projections, and acceptance tests are in the
+[10B plan](./steps/ACTUALS/lot10b_plan.md). The 10A step documents remain the
+separate validated record of that sub-lot.
 
 Feed calculated daily actual occupation into planning without passing raw
 history. Preserve all Project and Reservation actuals even above effective
