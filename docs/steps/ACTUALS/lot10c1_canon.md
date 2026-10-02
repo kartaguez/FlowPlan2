@@ -1,6 +1,8 @@
 # Lot 10C.1 — Actuals knowledge snapshot canon
 
-Status: **IN REVIEW**. This describes the implemented contract awaiting audit.
+Status: **DONE**. This describes the audited implementation at
+`76a07ce2d6b4f4ada76c845c24cd2029a460f95e` and the V5 import correction
+at `17094b03cbf4c34c8424d6fa1847e0ceebd55410`.
 The [implementation plan](./lot10c1_plan.md) records acceptance details.
 
 Each Project or Reservation owns a versioned, immutable history of complete

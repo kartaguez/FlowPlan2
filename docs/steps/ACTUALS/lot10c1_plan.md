@@ -1,6 +1,6 @@
 # Lot 10C.1 — object-scoped Actuals knowledge snapshots: implementation plan
 
-Status: **IN REVIEW**. This document specified the migration after validated 10C and before 10D/10E; the implementation now awaits user audit. The 10A–10C documents remain records of what was delivered, not the current contract. The original planning pass inspected `main` at `3d481c0404e153961e75a46ac5845930401f3f7d` with a clean working tree. The implementation continued from `1848c95d97195370ea2b946d1358f698567d6fe4` and preserved its in-progress working tree.
+Status: **DONE** after user audit. This document specified the migration after validated 10C and before 10D/10E. The 10A–10C documents remain records of what was delivered, not the current contract. The original planning pass inspected `main` at `3d481c0404e153961e75a46ac5845930401f3f7d` with a clean working tree. The implementation continued from `1848c95d97195370ea2b946d1358f698567d6fe4` and preserved its in-progress working tree. The audited implementation is at `76a07ce2d6b4f4ada76c845c24cd2029a460f95e`; the V5 import knowledge-date correction is at `17094b03cbf4c34c8424d6fa1847e0ceebd55410`.
 
 ## Current code and the required change
 
@@ -66,10 +66,11 @@ The automated matrix includes V1–V5 import preflight, strict V5 round-trip,
 forged gap/future/dangling identity rejection, legacy preservation and source
 exclusivity, candidate/projection/write rollback, Project and Reservation
 membership/RAF operations, partition edits and stale/rebased UI drafts.
-Final local validation: typecheck and build pass; the complete suite passes
-605/605 tests, and the focused migration/rollback/UI run passes 52/52 tests.
+Final local validation: typecheck and build pass; after the audit correction,
+the complete suite passes 606/606 tests. The focused migration/rollback/UI
+run passed 52/52 tests, and the post-correction V5/migration run passed 19/19.
 Desktop and 390 px WebKit captures reviewed the open Actuals editor. A row
 confirmed that the narrow matrix remains inside the card and scrolls
 horizontally; a visible sideways-scroll cue was added. Keyboard focus,
 Apply/Cancel, remount and read-only history are covered by controller and
-coordinator tests. The lot remains **IN REVIEW** for the user's commit audit.
+coordinator tests. The user's audit is complete; the lot is **DONE**.

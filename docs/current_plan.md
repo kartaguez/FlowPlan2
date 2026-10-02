@@ -1,7 +1,7 @@
 # FlowPlan2 current plan
 
 Current validated baseline:
-`18f1c20ac6343dc95654dc32bffc7032f9d5be52`
+`17094b03cbf4c34c8424d6fa1847e0ceebd55410`
 
 This is the operational roadmap for the active trajectory. Durable product and
 architecture rules live in [canon](./canon.md); current implementation facts
@@ -9,7 +9,8 @@ and temporary constraints live in [current canon](./current_canon.md).
 
 The validated baseline includes the Program/Pas, Reservation progress, colors,
 temporal zoom corrective lots, Lot 10A Actuals with V4 backup, Lot 10B
-Actuals-aware planning projection, and Lot 10C Actuals workflows and UI.
+Actuals-aware planning projection, Lot 10C Actuals workflows and UI, and
+Lot 10C.1 object-scoped knowledge snapshots with V5 persistence.
 
 ## Completed
 
@@ -38,6 +39,7 @@ Actuals-aware planning projection, and Lot 10C Actuals workflows and UI.
 - 10A Actuals model, reconstruction, and backup V4 (DONE).
 - 10B Actuals-aware planning projection (DONE).
 - 10C Actuals workflows and UI (DONE).
+- 10C.1 Actuals knowledge snapshots and V5 migration (DONE).
 
 ## Current objective and ordered sub-lots
 
@@ -46,11 +48,11 @@ Lot 9I — Project and Reservation forecast activation (DONE)
 Corrective lot — usage-driven Program/Pas and colors (DONE)
 Corrective lot — anchored temporal zoom and range drag (DONE)
 Lot 10 — Actuals & History (OPEN)
-10A (DONE) → 10B (DONE) → 10C (DONE) → 10C.1 (IN REVIEW) → 10D → 10E
+10A (DONE) → 10B (DONE) → 10C (DONE) → 10C.1 (DONE) → 10D → 10E
 ```
 
 Lots through 9I, the Projection date presentation pass, both corrective lots,
-10A, 10B, and 10C are validated. 10C.1 is implemented and awaits audit; 10D and 10E remain open.
+10A through 10C.1 are validated. 10D is the next open lot; 10E remains open.
 
 ## Corrective lot — anchored temporal zoom and range drag
 
@@ -320,7 +322,7 @@ Project/Program/Pas progress remains forecast-only.
 ## 10C — Actuals workflows & UI
 
 **Status: DONE.** [10C plan and validated contract](./steps/ACTUALS/lot10c_plan.md).
-Project and Reservation cards now expose immutable, exact Actuals history and
+At 10C completion, Project and Reservation cards exposed immutable, exact Actuals history and
 independent New Actuals forms. A photo uses the currently committed Team
 membership, first-only `actualsFromDate`, editable through date, exact cumulative
 consumption, and Project RAF. The exact RAF suggestion is editable. A conflicting
@@ -336,7 +338,7 @@ manually. Implementation and final dirty correction were audited at
 
 ## 10C.1 — Object-scoped Actuals knowledge snapshots
 
-**Status: IN REVIEW.** [10C.1 implementation and migration plan](./steps/ACTUALS/lot10c1_plan.md). The current model uses immutable, whole-Project or whole-Reservation snapshots of Actuals knowledge. Each object has one current exact partition, and a Project snapshot includes current Team RAF. Replacement, extension, erosion and membership actions commit one object candidate through projection and V5 persistence. V4 cumulative records remain lossless, read-only migration evidence. Before explicit reconciliation they alone supply that object's simulated Actuals; afterward only its current V5 snapshot does. The editor shows the Team × period matrix, current RAF, and read-only history. Stable snapshot and period IDs reach timeline hit testing and tooltips. Audit of this delivered lot is pending.
+**Status: DONE.** [10C.1 implementation and migration plan](./steps/ACTUALS/lot10c1_plan.md). The validated model uses immutable, whole-Project or whole-Reservation snapshots of Actuals knowledge. Each object has one current exact partition, and a Project snapshot includes current Team RAF. Replacement, extension, erosion and membership actions commit one object candidate through projection and V5 persistence. V4 cumulative records remain lossless, read-only migration evidence. Before explicit reconciliation they alone supply that object's simulated Actuals; afterward only its current V5 snapshot does. The editor shows the Team × period matrix, current RAF, and read-only history. Stable snapshot and period IDs reach timeline hit testing and tooltips. The implementation at `76a07ce2d6b4f4ada76c845c24cd2029a460f95e` and the audited V5 future-knowledge-date correction at `17094b03cbf4c34c8424d6fa1847e0ceebd55410` are validated.
 
 ## 10D — Knowledge snapshots
 
@@ -353,7 +355,7 @@ relevant results. Each comparison must identify which inputs are historical
 and which still come from current configuration. The comparison UI and drift
 visualization remain open.
 
-The [current canon](./current_canon.md) records the implemented 10C.1 contract pending audit.
+The [current canon](./current_canon.md) records the validated 10C.1 contract.
 
 ## Cross-cutting non-goals for Phase 9
 

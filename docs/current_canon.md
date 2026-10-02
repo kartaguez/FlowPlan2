@@ -9,8 +9,8 @@ active implementation and trajectory. The remaining work is in the
 
 ## Validated implementation baseline
 
-`18f1c20ac6343dc95654dc32bffc7032f9d5be52` (validated through Lot 10C,
-including its final Actuals dirty correction).
+`17094b03cbf4c34c8424d6fa1847e0ceebd55410` (validated through Lot
+10C.1, including the V5 import knowledge-date correction).
 
 The active application implements a pure planning projection over an editable
 session, restored from a local backup when available and otherwise initialized
@@ -163,9 +163,9 @@ initial period. There is no manual period reorder or Domain period ID.
 
 ## Current objective — Lot 10: Actuals & History
 
-10A, 10B and 10C are validated **DONE** lots. 10C.1 is implemented and **IN
-REVIEW** pending user audit. 10D and 10E remain open. The current business
-contract is the [10C.1 snapshot canon](./steps/ACTUALS/lot10c1_canon.md);
+10A, 10B, 10C and 10C.1 are validated **DONE** lots. 10D is next; 10E remains
+open. The current business contract is the
+[10C.1 snapshot canon](./steps/ACTUALS/lot10c1_canon.md);
 the 10A–10C documents describe their historical releases.
 
 ### Current object knowledge
@@ -203,6 +203,9 @@ its first V5 snapshot at the application clock date. Afterward only its
 current V5 snapshot reconstructs simulated Actuals; the V4 payload remains
 exportable but never combines with it. V4 append commands are disabled.
 Historical object and Team identities remain protected while referenced.
+V5 import rejects any snapshot whose knowledge date is later than the UTC
+civil date of the backup's canonical `exportedAt`, across both object types
+and the full history.
 
 ### Daily reconstruction, planning and UI
 
