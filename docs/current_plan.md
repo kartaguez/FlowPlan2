@@ -41,7 +41,7 @@ Lot 10C.1 object-scoped knowledge snapshots with V5 persistence.
 - 10C Actuals workflows and UI (DONE).
 - 10C.1 Actuals knowledge snapshots and V5 migration (DONE).
 
-Next: 10C.2 Actuals / RAF workflow UX (OPEN / PLAN), before 10D.
+Current: 10C.2 Actuals / RAF workflow UX (IN REVIEW), before 10D.
 
 ## Current objective and ordered sub-lots
 
@@ -50,11 +50,11 @@ Lot 9I — Project and Reservation forecast activation (DONE)
 Corrective lot — usage-driven Program/Pas and colors (DONE)
 Corrective lot — anchored temporal zoom and range drag (DONE)
 Lot 10 — Actuals & History (OPEN)
-10A (DONE) → 10B (DONE) → 10C (DONE) → 10C.1 (DONE) → 10C.2 (OPEN) → 10D → 10E
+10A (DONE) → 10B (DONE) → 10C (DONE) → 10C.1 (DONE) → 10C.2 (IN REVIEW) → 10D → 10E
 ```
 
 Lots through 9I, the Projection date presentation pass, both corrective lots,
-10A through 10C.1 are validated. 10C.2 is the next open lot; 10D and 10E remain open.
+10A through 10C.1 are validated. 10C.2 awaits audit of its implementation commit; 10D and 10E remain open.
 
 ## Corrective lot — anchored temporal zoom and range drag
 
@@ -344,7 +344,7 @@ manually. Implementation and final dirty correction were audited at
 
 ## 10C.2 — Actuals / RAF workflow UX
 
-**Status: OPEN / PLAN.** [10C.2 corrective plan](./steps/ACTUALS/lot10c2_plan.md). Replace the mixed current editor with a Project card summary and direct RAF draft/Apply, plus a guided Actuals modal for coverage, partitions and consumed values. Project confirms RAF in a third step; Reservation uses two steps without RAF. Reuse the 10C.1 snapshot transition, evidence, stale/no-op and atomic V5 transaction. Forecast remains the Team membership interface; any dependent membership/Actuals change must form one coherent candidate. The plan resolves RAF draft handoff, Cancel and concurrency, partition boundary/evidence behavior, keyboard and narrow layouts, and the future test matrix. No implementation is authorized in this plan pass; 10D follows validation of 10C.2.
+**Status: IN REVIEW.** [10C.2 plan and implementation record](./steps/ACTUALS/lot10c2_plan.md). The Project card now shows an exact Actuals summary with a quick RAF draft, Apply/Revert and an explicitly confirmed first RAF. Reservation has a summary without RAF. A single Actuals draft store owns the Project three-step or Reservation two-step modal, with contiguous zone selection, period operations, per-cell evidence and explicit stale review. Forecast remains the Team membership editor; dependent membership changes enter one atomic Actuals handoff, while autonomous Forecast changes retain the normal path. The implementation reuses the 10C.1 Domain, whole-object session command, projection and V5 transaction. Desktop and 390 px browser review and automated gates are recorded in the lot document. 10D follows only after audit and validation of 10C.2.
 
 ## 10D — Knowledge snapshots
 

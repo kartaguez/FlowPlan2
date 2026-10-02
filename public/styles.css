@@ -710,6 +710,21 @@ h1 { margin-bottom: 0; font-size: 2rem; letter-spacing: -0.04em; }
 .card-actuals-matrix-scroll input { width: 9rem; }
 .card-actuals-matrix-scroll td button + button { margin-left: 0.25rem; }
 .card-actuals-matrix-hint { margin: 0; font-size: 0.72rem; color: var(--fp-muted); }
+.card-actuals-actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.6rem 0; }
+.card-actuals-modal[hidden] { display: none; }
+.card-actuals-modal { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; padding: 1rem; background: rgb(20 28 40 / 68%); }
+.card-actuals-modal .card-actuals-form { width: min(52rem, 100%); max-width: 100%; max-height: calc(100dvh - 2rem); overflow: auto; padding: 1rem; border-radius: var(--fp-radius-card); background: white; box-shadow: 0 1rem 3rem rgb(0 0 0 / 25%); }
+.card-actuals-modal h2 { margin: 0; font-size: 1.1rem; }
+.card-actuals-modal button { min-width: 0; min-height: 2.25rem; padding: 0.35rem 0.55rem; border: 1px solid var(--fp-border); border-radius: var(--fp-radius-sm); background: white; color: inherit; font: inherit; cursor: pointer; }
+.card-actuals-modal :focus-visible { outline: 3px solid var(--fp-selection); outline-offset: 2px; }
+.card-actuals-modal .card-actuals-form > button[hidden] { display: none; }
+.card-actuals-frieze { display: flex; min-width: 0; max-width: 100%; gap: 0.35rem; overflow-x: auto; padding: 0.4rem 0; }
+.card-actuals-frieze button { flex: none; white-space: nowrap; }
+.card-actuals-frieze button[aria-pressed="true"] { border-color: var(--fp-action); background: var(--fp-selection); }
+@media (max-width: 420px) {
+  .card-actuals-modal { padding: 0.35rem; }
+  .card-actuals-modal .card-actuals-form { max-height: calc(100dvh - 0.7rem); padding: 0.6rem; }
+}
 .portfolio-card-content { min-width: 0; border: 1px solid var(--fp-border); border-top: 0; border-radius: 0 0 var(--fp-radius-card) var(--fp-radius-card); padding: 0.65rem; }
 .portfolio-team-card { min-width: 0; border: 1px solid var(--fp-border-soft); border-radius: var(--fp-radius-card); background: var(--fp-inset); padding: 0.5rem; }
 .portfolio-team-card + .portfolio-team-card { margin-top: 0.4rem; }

@@ -18,7 +18,6 @@ export function parseSnapshotActualsCommand(model: SnapshotActualsViewModel, dra
       draft.baseSnapshotId !== model.snapshots.at(-1)?.snapshotId) {
     errors.push(error("baseVersion", "Actuals draft is stale; review the current snapshot."));
   }
-  if (!draft.confirmed) errors.push(error("confirmation", "Confirm the complete current knowledge before Apply."));
   const enabled = draft.teams.filter((row) => row.enabled);
   const participation = enabled.map((row) => row.teamId);
   const old = model.snapshots.at(-1);
@@ -80,8 +79,12 @@ export function parseSnapshotActualsCommand(model: SnapshotActualsViewModel, dra
       old.coverage?.periods.every((period, index) => period.periodId === coverage?.periods[index]?.periodId) !== false) {
     intent = { kind: "raf-only" };
   } else {
-    const from = old.coverage?.actualsFrom ?? coverage?.actualsFrom;
-    const through = coverage?.actualsThrough ?? old.coverage?.actualsThrough;
+    const unchangedIds = new Set((old.coverage?.periods ?? []).filter((prior) =>
+      coverage?.periods.some((next) => next.periodId === prior.periodId)).map((period) => period.periodId));
+    const touched = [...(old.coverage?.periods ?? []), ...(coverage?.periods ?? [])]
+      .filter((period) => !unchangedIds.has(period.periodId));
+    const from = touched.map((period) => period.from).sort()[0] ?? old.coverage?.actualsFrom ?? coverage?.actualsFrom;
+    const through = touched.map((period) => period.through).sort().at(-1) ?? coverage?.actualsThrough ?? old.coverage?.actualsThrough;
     if (!from || !through) return { ok: false, errors: [...errors, error("coverage", "A replacement needs an edited zone.")] };
     intent = { kind: "replace", editedZone: { from, through } };
   }
@@ -90,21 +93,31 @@ export function parseSnapshotActualsCommand(model: SnapshotActualsViewModel, dra
       const exact = parseExactQuantityInput(row.raf);
       const amount = exact === undefined ? undefined : remainingWorkloadFromSerialized(exact);
       if (!amount?.ok) errors.push(error(`raf.${row.teamId}`, "Enter an exact nonnegative RAF."));
+      const previous = old && "raf" in old ? old.raf.find((item) => item.teamId === row.teamId) : undefined;
+      if (amount?.ok && (!previous || old?.coverage?.actualsThrough !== coverage?.actualsThrough ||
+          serializeQuantity(previous.amount) !== exact) && !row.rafConfirmed) {
+        errors.push(error(`raf.${row.teamId}`, "Confirm this RAF explicitly before Apply."));
+      }
       return amount?.ok ? { teamId: row.teamId, amount: amount.value } : undefined;
     }).filter((item): item is NonNullable<typeof item> => item !== undefined);
     if (errors.length) return { ok: false, errors };
     return { ok: true, command: { kind: "replace-project-actuals", projectId: model.id as ReplaceProjectActualsCommand["projectId"],
-      baseVersion: draft.baseVersion, teamRequirements: enabled.map((row) => {
+      baseVersion: draft.baseVersion, teamRequirements: draft.handoff?.kind === "update-project" ?
+        draft.handoff.teamRequirements : enabled.map((row) => {
         const source = model.teams.find((team) => team.teamId === row.teamId)!;
         return { teamId: row.teamId, ...(source.dailyCap === undefined ? {} : { dailyCap: source.dailyCap }) };
       }),
       current: { participation, retiredZeroTeams, raf, ...(coverage === undefined ? {} : { coverage }) },
       intent,
-      evidence: { consumedCells: periods.flatMap((period) => period.consumed.map((row) => ({ periodId: period.periodId, teamId: row.teamId }))),
-        rafTeams: participation, retiredTeams: removed },
+      evidence: { consumedCells: periods.flatMap((period, index) => period.consumed.filter((row) => {
+        const provenance = draft.periods[index]?.values.find((cell) => cell.teamId === row.teamId)?.provenance;
+        return provenance === "user-entered" || provenance === "user-confirmed";
+      }).map((row) => ({ periodId: period.periodId, teamId: row.teamId }))),
+        rafTeams: enabled.filter((row) => row.rafConfirmed).map((row) => row.teamId),
+        retiredTeams: draft.retirementConfirmed ? removed : [] },
     } };
   }
-  const allocations = enabled.map((row) => {
+  const allocations = draft.handoff?.kind === "update-reservation" ? draft.handoff.teamAllocations : enabled.map((row) => {
     const exact = parseExactQuantityInput(row.allocationValue);
     const result = exact === undefined ? undefined : row.allocationKind === "ratio"
       ? reservationRatioFromSerialized(exact) : capacityFromSerialized(exact);
@@ -120,7 +133,10 @@ export function parseSnapshotActualsCommand(model: SnapshotActualsViewModel, dra
     baseVersion: draft.baseVersion, teamAllocations: allocations,
     intent,
     current: { participation, retiredZeroTeams, ...(coverage === undefined ? {} : { coverage }) },
-    evidence: { consumedCells: periods.flatMap((period) => period.consumed.map((row) => ({ periodId: period.periodId, teamId: row.teamId }))),
-      retiredTeams: removed },
+    evidence: { consumedCells: periods.flatMap((period, index) => period.consumed.filter((row) => {
+      const provenance = draft.periods[index]?.values.find((cell) => cell.teamId === row.teamId)?.provenance;
+      return provenance === "user-entered" || provenance === "user-confirmed";
+    }).map((row) => ({ periodId: period.periodId, teamId: row.teamId }))),
+      retiredTeams: draft.retirementConfirmed ? removed : [] },
   } };
 }

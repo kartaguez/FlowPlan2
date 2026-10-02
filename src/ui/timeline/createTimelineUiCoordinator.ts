@@ -7,11 +7,12 @@ import type {
   CreateProjectCommand, CreateReservationCommand, CreateTeamCommand, ReorderProjectCommand, ReservationEditViewModel, TeamEditViewModel, UpdateProjectCommand,
   UpdateReservationCommand, UpdateTeamCapacityPeriodsCommand, UpdateTeamNameCommand,
 } from "../../application/index.js";
+import { parseExactQuantityInput } from "../../application/index.js";
 import type {
   CivilDate, DomainError, PlanningHorizon, PlanningResult, Portfolio,
   ProjectId, ReservationId, TeamId, WorkingPattern,
 } from "../../domain/index.js";
-import { effectiveColor } from "../../domain/index.js";
+import { effectiveColor, serializeQuantity } from "../../domain/index.js";
 import type { AppElements } from "../renderApp.js";
 import { createProjectEditController } from "../project-edit/createProjectEditController.js";
 import { createProjectCreateController } from "../project-edit/createProjectCreateController.js";
@@ -153,7 +154,9 @@ export function createTimelineUiCoordinator(
     input.elements.teamEditControls.container,
     input.elements.teamCreateControls?.container,
     input.elements.diagnosticsControls.dialog,
-  ].some((container) => container !== undefined && !container.hidden);
+  ].some((container) => container !== undefined && !container.hidden) ||
+    [...(input.elements.planningSettingsControls.container.ownerDocument.querySelectorAll?.<HTMLElement>(".card-actuals-modal") ?? [])]
+      .some((container) => !container.hidden);
   const confirmDiscard = (message: string): boolean =>
     input.elements.teamEditControls.container.ownerDocument?.defaultView?.confirm(message) ?? false;
   const diagnosticsController = dependencies.createDiagnosticsController({
@@ -303,6 +306,8 @@ export function createTimelineUiCoordinator(
     }
   };
   const actualsConflict = (kind: "project" | "reservation", id: ProjectId | ReservationId): string | undefined => {
+    const snapshot = kind === "project" ? projectSnapshotDrafts.get(id)?.modal : reservationSnapshotDrafts.get(id)?.modal;
+    if (snapshot?.handoff) return undefined;
     const draft = kind === "project" ? projectDrafts.get(id as ProjectId) : reservationDrafts.get(id as ReservationId);
     return actualsForecastConflict(draft);
   };
@@ -314,12 +319,22 @@ export function createTimelineUiCoordinator(
       const controller = createSnapshotActualsCardController({ host, model: snapshotModel, store,
         onDraftChange: () => syncCard(kind, id), conflict: () => actualsConflict(kind, id),
         onApply: (command) => {
+          const handoff = store.get(String(id))?.modal?.handoff;
           const result = input.dispatch(command);
           if (!result.ok) return result;
+          if (handoff?.kind === "update-project") projectDrafts.cancel(handoff.projectId);
+          if (handoff?.kind === "update-reservation") reservationDrafts.cancel(handoff.reservationId);
           store.cancel(String(id));
           rebaseDrafts(); renderProjection(result.projection);
-          if (kind === "project") shellNavigation.projectCards.get(id as ProjectId)?.button.focus();
-          else shellNavigation.reservationCards.get(id as ReservationId)?.button.focus();
+          if (kind === "project") {
+            const card = shellNavigation.projectCards.get(id as ProjectId);
+            card?.host.querySelector?.<HTMLButtonElement>(".card-actuals > button")?.focus();
+            if (card?.host.ownerDocument.activeElement !== card?.host.querySelector?.(".card-actuals > button")) card?.button.focus();
+          } else {
+            const card = shellNavigation.reservationCards.get(id as ReservationId);
+            card?.host.querySelector?.<HTMLButtonElement>(".card-actuals > button")?.focus();
+            if (card?.host.ownerDocument.activeElement !== card?.host.querySelector?.(".card-actuals > button")) card?.button.focus();
+          }
           return { ok: true as const };
         },
       });
@@ -584,6 +599,46 @@ export function createTimelineUiCoordinator(
     mountProjection(nextProjection, snapshot);
   };
   const applyProjectUpdate = (command: UpdateProjectCommand) => {
+    const actualsModel = input.getProjectSnapshotActualsViewModel?.(command.projectId);
+    const target = command.teamRequirements.map((row) => row.teamId);
+    const current = actualsModel?.teams.filter((row) => row.participating).map((row) => row.teamId) ?? [];
+    if (actualsModel && (actualsModel.snapshots.length || actualsModel.legacyV4Actuals) &&
+      (target.length !== current.length || target.some((id, index) => id !== current[index]))) {
+      const forecast = projectDrafts.get(command.projectId);
+      if (forecast) {
+        const { teams: _localTeams, ...localFields } = forecast.values;
+        const { teams: _referenceTeams, ...referenceFields } = forecast.reference;
+        void _localTeams; void _referenceTeams;
+        if (JSON.stringify(localFields) !== JSON.stringify(referenceFields)) return { ok: false as const,
+          errors: [{ code: "ACTUALS_HANDOFF_FORECAST_FIELDS", path: "forecast",
+            message: "Apply or revert other Forecast field changes before continuing with Actuals." }] };
+      }
+      const snapshot = projectSnapshotDrafts.initialize(actualsModel);
+      const removed = snapshot.teams.filter((row) => row.enabled && !target.includes(row.teamId));
+      const dirtyRemoved = removed.some((row) => {
+        const before = actualsModel.snapshots.at(-1);
+        const raf = before && "raf" in before ? before.raf.find((item) => item.teamId === row.teamId) : undefined;
+        return raf && parseExactQuantityInput(row.raf) !== serializeQuantity(raf.amount);
+      });
+      if (dirtyRemoved) return { ok: false as const,
+        errors: [{ code: "ACTUALS_HANDOFF_RAF_CONFLICT", path: "raf",
+          message: "A Team being removed has a card RAF draft. Revert or resolve it before continuing." }] };
+      const oldRaf = actualsModel.snapshots.at(-1);
+      if (oldRaf && "raf" in oldRaf && command.teamRequirements.some((requirement) => {
+        const prior = oldRaf.raf.find((row) => row.teamId === requirement.teamId);
+        const quick = snapshot.teams.find((row) => row.teamId === requirement.teamId);
+        if (!prior || !quick) return false;
+        const before = serializeQuantity(prior.amount);
+        const card = parseExactQuantityInput(quick.raf);
+        const forecastRaf = serializeQuantity(requirement.remainingWorkload);
+        return card !== before && forecastRaf !== before && card !== forecastRaf;
+      })) return { ok: false as const,
+        errors: [{ code: "ACTUALS_HANDOFF_RAF_CONFLICT", path: "raf",
+          message: "Forecast and the card changed the same RAF differently. Resolve the conflict before continuing." }] };
+      projectActualsControllers.get(command.projectId)?.openHandoff(command);
+      return { ok: false as const, errors: [{ code: "ACTUALS_HANDOFF", path: "actuals",
+        message: "Complete the Actuals dialog to apply this Team change together with its knowledge." }] };
+    }
     const result = input.dispatch(command);
     if (!result.ok) return result;
     projectDrafts.cancel(command.projectId);
@@ -598,6 +653,25 @@ export function createTimelineUiCoordinator(
     return { ok: true as const };
   };
   const applyReservationUpdate = (command: UpdateReservationCommand) => {
+    const actualsModel = input.getReservationSnapshotActualsViewModel?.(command.reservationId);
+    const target = command.teamAllocations.map((row) => row.teamId);
+    const current = actualsModel?.teams.filter((row) => row.participating).map((row) => row.teamId) ?? [];
+    if (actualsModel && (actualsModel.snapshots.length || actualsModel.legacyV4Actuals) &&
+      (target.length !== current.length || target.some((id, index) => id !== current[index]))) {
+      const forecast = reservationDrafts.get(command.reservationId);
+      if (forecast) {
+        const { teams: _localTeams, ...localFields } = forecast.values;
+        const { teams: _referenceTeams, ...referenceFields } = forecast.reference;
+        void _localTeams; void _referenceTeams;
+        if (JSON.stringify(localFields) !== JSON.stringify(referenceFields)) return { ok: false as const,
+          errors: [{ code: "ACTUALS_HANDOFF_FORECAST_FIELDS", path: "forecast",
+            message: "Apply or revert other Forecast field changes before continuing with Actuals." }] };
+      }
+      reservationSnapshotDrafts.initialize(actualsModel);
+      reservationActualsControllers.get(command.reservationId)?.openHandoff(command);
+      return { ok: false as const, errors: [{ code: "ACTUALS_HANDOFF", path: "actuals",
+        message: "Complete the Actuals dialog to apply this Team change together with its knowledge." }] };
+    }
     const result = input.dispatch(command);
     if (!result.ok) return result;
     reservationDrafts.cancel(command.reservationId);

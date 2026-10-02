@@ -163,8 +163,8 @@ initial period. There is no manual period reorder or Domain period ID.
 
 ## Current objective — Lot 10: Actuals & History
 
-10A, 10B, 10C and 10C.1 are validated **DONE** lots. 10D is next; 10E remains
-open. The current business contract is the
+10A, 10B, 10C and 10C.1 are validated **DONE** lots. 10C.2 is **IN REVIEW**;
+10D has not started and 10E remains open. The current business contract is the
 [10C.1 snapshot canon](./steps/ACTUALS/lot10c1_canon.md);
 the 10A–10C documents describe their historical releases.
 

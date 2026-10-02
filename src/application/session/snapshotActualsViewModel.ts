@@ -1,5 +1,5 @@
 import type { ProjectActualsChronology, ReservationActualsChronology, ProjectActualsSnapshot,
-  ReservationActualsSnapshot, DailyCap, ReservationRatio, Capacity, TeamId, ProjectId, ReservationId } from "../../domain/index.js";
+  ReservationActualsSnapshot, DailyCap, RemainingWorkload, ReservationRatio, Capacity, TeamId, ProjectId, ReservationId } from "../../domain/index.js";
 import type { PlanningSessionState } from "./planningSession.js";
 
 export interface SnapshotActualsTeamModel {
@@ -7,6 +7,7 @@ export interface SnapshotActualsTeamModel {
   readonly label: string;
   readonly participating: boolean;
   readonly dailyCap?: DailyCap;
+  readonly forecastRaf?: RemainingWorkload;
   readonly reservationAmount?: Readonly<{ kind: "ratio"; ratio: ReservationRatio }> |
     Readonly<{ kind: "fixed-daily"; dailyCapacity: Capacity }>;
 }
@@ -27,6 +28,7 @@ export function buildProjectSnapshotActualsViewModel(state: PlanningSessionState
     ...(project.legacyV4Actuals ?? project.actuals ? { legacyV4Actuals: (project.legacyV4Actuals ?? project.actuals)! } : {}),
     teams: Object.freeze(state.portfolio.teams.map((team) => Object.freeze({ teamId: team.id, label: team.name,
       participating: requirements.has(team.id),
+      ...(requirements.get(team.id) === undefined ? {} : { forecastRaf: requirements.get(team.id)!.remainingWorkload }),
       ...(requirements.get(team.id)?.dailyCap === undefined ? {} : { dailyCap: requirements.get(team.id)!.dailyCap! }),
     }))),
   });

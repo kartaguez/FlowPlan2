@@ -4,6 +4,7 @@ import { buildProjectSnapshotActualsViewModel, createPlanningSession } from "../
 import { createCivilDate, createConsumedWorkload, createProject, createPortfolio, type DomainResult } from "../../domain/index.js";
 import { createDemoPlanningScenario } from "../../main/demo/createDemoPlanningScenario.js";
 import { createSnapshotActualsDraftStore } from "./snapshotActualsDraftStore.js";
+import { parseSnapshotActualsCommand } from "./parseSnapshotActualsCommand.js";
 import { createSnapshotActualsCardController } from "./createSnapshotActualsCardController.js";
 
 type Listener = (event: { preventDefault?: () => void }) => void;
@@ -16,7 +17,7 @@ class FakeElement {
   readonly children: FakeElement[] = [];
   readonly listeners = new Map<string, Set<Listener>>();
   readonly attributes = new Map<string, string>();
-  className = ""; textContent = ""; hidden = false; value = ""; type = ""; checked = false;
+  className = ""; textContent = ""; hidden = false; value = ""; type = ""; checked = false; disabled = false;
   constructor(readonly ownerDocument: FakeDocument, readonly tag: string) {}
   append(...items: FakeElement[]): void { this.children.push(...items); }
   replaceChildren(...items: FakeElement[]): void { this.children.splice(0, this.children.length, ...items); }
@@ -62,12 +63,60 @@ test("current editor shows legacy and snapshot histories read-only, then applies
   form.emit("submit");
   assert.equal(applies, 0);
   const draft = store.get(project.id)!;
-  store.update(project.id, { ...draft, confirmed: true,
-    teams: draft.teams.map((row) => row.enabled ? { ...row, raf: "1" } : row) });
+  store.update(project.id, { ...draft, modal: { ...draft.modal!, step: 3,
+    teams: draft.modal!.teams.map((row) => row.enabled ? { ...row, raf: "1", rafConfirmed: true } : row) } });
   form.emit("submit");
   assert.equal(applies, 1);
   assert.equal(session.getState().portfolio.projects[0]?.snapshots?.length, 1);
   all(host).find((node) => node.textContent === "Cancel Actuals")!.emit("click");
-  assert.equal(store.get(project.id)?.open, false);
+  assert.equal(store.get(project.id)?.modal, undefined);
+  controller.destroy();
+});
+
+test("Cancel restores an invalid card RAF exactly and the draft survives remount", () => {
+  const session = createPlanningSession(createDemoPlanningScenario(), { today: () => d("2025-01-06") });
+  const id = session.getState().portfolio.projects[0]!.id;
+  const model = buildProjectSnapshotActualsViewModel(session.getState(), id)!;
+  const store = createSnapshotActualsDraftStore();
+  const document = new FakeDocument();
+  const create = (host: FakeElement) => createSnapshotActualsCardController({ host: host as unknown as HTMLElement,
+    model, store, onDraftChange() {}, conflict: () => undefined, onApply: (command) => session.dispatch(command) });
+  const host = document.createElement("div");
+  const first = create(host);
+  const teamId = model.teams.find((team) => team.participating)!.teamId;
+  const raf = all(host).find((node) => node.attributes.get("data-raf-team") === teamId)!;
+  raf.value = "not a number"; raf.emit("input");
+  assert.equal(store.get(id)!.teams.find((row) => row.teamId === teamId)?.raf, "not a number");
+  all(host).find((node) => node.textContent === "Update actuals")!.emit("click");
+  assert.equal(store.get(id)!.modal?.teams.find((row) => row.teamId === teamId)?.raf, "not a number");
+  all(host).find((node) => node.textContent === "Cancel Actuals")!.emit("click");
+  assert.equal(store.get(id)!.modal, undefined);
+  assert.equal(store.get(id)!.teams.find((row) => row.teamId === teamId)?.raf, "not a number");
+  first.destroy();
+  const remounted = document.createElement("div");
+  const second = create(remounted);
+  assert.equal(all(remounted).find((node) => node.attributes.get("data-raf-team") === teamId)?.value, "not a number");
+  second.destroy();
+});
+
+test("a differently written exact RAF stays a quick no-op", () => {
+  const session = createPlanningSession(createDemoPlanningScenario(), { today: () => d("2025-01-06") });
+  const id = session.getState().portfolio.projects[0]!.id;
+  const initialModel = buildProjectSnapshotActualsViewModel(session.getState(), id)!;
+  const base = createSnapshotActualsDraftStore().initialize(initialModel);
+  const initial = parseSnapshotActualsCommand(initialModel, { ...base,
+    teams: base.teams.map((row) => row.enabled ? { ...row, raf: "1", rafConfirmed: true } : row) });
+  assert.equal(initial.ok, true);
+  if (initial.ok) assert.equal(session.dispatch(initial.command).ok, true);
+  const model = buildProjectSnapshotActualsViewModel(session.getState(), id)!;
+  const store = createSnapshotActualsDraftStore();
+  const host = new FakeDocument().createElement("div");
+  const controller = createSnapshotActualsCardController({ host: host as unknown as HTMLElement, model, store,
+    onDraftChange() {}, conflict: () => undefined, onApply: (command) => session.dispatch(command) });
+  const teamId = model.teams.find((team) => team.participating)!.teamId;
+  const field = all(host).find((node) => node.attributes.get("data-raf-team") === teamId)!;
+  field.value = "2/2"; field.emit("input");
+  assert.equal(store.isDirty(id), false);
+  assert.equal(all(host).find((node) => node.textContent === "Apply RAF")!.disabled, true);
   controller.destroy();
 });

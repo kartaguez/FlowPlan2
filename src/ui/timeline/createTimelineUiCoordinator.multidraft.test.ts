@@ -3,7 +3,8 @@ import { describe, it } from "node:test";
 import {
   buildPlanningSettingsViewModel, buildProjectEditViewModel, buildReservationEditViewModel,
   buildProjectSnapshotActualsViewModel, buildReservationSnapshotActualsViewModel,
-  buildTeamEditViewModel, createPlanningSession, type CreateProjectCommand, type CreateReservationCommand, type UpdateProjectCommand,
+  buildTeamEditViewModel, createPlanningSession, type CreateProjectCommand, type CreateReservationCommand,
+  type UpdateProjectCommand, type UpdateReservationCommand,
 } from "../../application/index.js";
 import type { createTeamEditController } from "../team-edit/createTeamEditController.js";
 import { createDemoPlanningScenario } from "../../main/demo/createDemoPlanningScenario.js";
@@ -15,8 +16,10 @@ import type { createProjectReorderController } from "../portfolio/createProjectR
 import type { createReservationEditController } from "../reservation-edit/createReservationEditController.js";
 import type { createReservationCreateController } from "../reservation-edit/createReservationCreateController.js";
 import { createTimelineUiCoordinator, type TimelineUiCoordinatorDependencies } from "./createTimelineUiCoordinator.js";
+import { createSnapshotActualsDraftStore } from "../actuals/snapshotActualsDraftStore.js";
+import { parseSnapshotActualsCommand } from "../actuals/parseSnapshotActualsCommand.js";
 import { capacityFromSerialized, createCivilDate, reservationRatioFromSerialized, unavailabilityRatioFromSerialized,
-  type DomainResult, type ProjectId, type ReservationId, type TeamId } from "../../domain/index.js";
+  remainingWorkloadFromSerialized, type DomainResult, type ProjectId, type ReservationId, type TeamId } from "../../domain/index.js";
 
 function must<T>(result: DomainResult<T>): T { if (!result.ok) throw new Error(JSON.stringify(result.errors)); return result.value; }
 
@@ -53,7 +56,7 @@ class FakeElement {
     (target === this || this.children.some((child) => child.contains(target))); }
 }
 
-function fixture(withUnusedTeam = false, rejectActivation = false, withActuals = false) {
+function fixture(withUnusedTeam = false, rejectActivation = false, withActuals = false, initialSnapshot = false) {
   const scenario = createDemoPlanningScenario();
   const session = createPlanningSession(scenario, { today: () => must(createCivilDate("2025-01-06")) });
   if (withUnusedTeam) {
@@ -63,6 +66,25 @@ function fixture(withUnusedTeam = false, rejectActivation = false, withActuals =
       unavailability: must(unavailabilityRatioFromSerialized("0/1")),
     }] });
     if (!created.ok) throw new Error(JSON.stringify(created.errors));
+  }
+  if (initialSnapshot) {
+    const id = session.getState().portfolio.projects[0]!.id;
+    const model = buildProjectSnapshotActualsViewModel(session.getState(), id)!;
+    const base = createSnapshotActualsDraftStore().initialize(model);
+    const parsed = parseSnapshotActualsCommand(model, { ...base,
+      teams: base.teams.map((row) => row.enabled ? { ...row, raf: "1", rafConfirmed: true } : row),
+      periods: [{ from: "2025-01-04", through: "2025-01-04", values: base.teams.filter((row) => row.enabled)
+        .map((row) => ({ teamId: row.teamId, text: "0", provenance: "user-entered" as const })) }] });
+    assert.equal(parsed.ok, true);
+    if (parsed.ok) assert.equal(session.dispatch(parsed.command).ok, true);
+    const reservationId = session.getState().portfolio.reservations[0]!.id;
+    const reservationModel = buildReservationSnapshotActualsViewModel(session.getState(), reservationId)!;
+    const reservationBase = createSnapshotActualsDraftStore().initialize(reservationModel);
+    const reservationParsed = parseSnapshotActualsCommand(reservationModel, { ...reservationBase,
+      periods: [{ from: "2025-01-04", through: "2025-01-04", values: reservationBase.teams.filter((row) => row.enabled)
+        .map((row) => ({ teamId: row.teamId, text: "0", provenance: "user-entered" as const })) }] });
+    assert.equal(reservationParsed.ok, true);
+    if (reservationParsed.ok) assert.equal(session.dispatch(reservationParsed.command).ok, true);
   }
   const dispatcher = createPlanningProjectionDispatcher({ session,
     geometryViewport: { width: 1000, teamLaneHeight: 100, teamHeaderHeight: 112, timeAxisHeight: 56 } });
@@ -220,20 +242,16 @@ describe("coordinator multi-draft rerender", () => {
   const setField = (host: FakeElement, text: string, value: string): void => {
     const field = labelInput(host, text); field.value = value; field.emit("input");
   };
-  const confirm = (host: FakeElement): void => {
-    const field = labelInput(host, "I confirm every current period value and Project RAF shown above");
-    field.checked = true; field.emit("change");
-  };
   const prepareOneDay = (host: FakeElement, kind: "project" | "reservation", teamIds: readonly TeamId[]): void => {
-    all(host).find((item) => item.textContent === "Append period")!.emit("click");
+    all(host).find((item) => item.textContent === "Next")!.emit("click");
     setField(host, "From", "2025-01-04"); setField(host, "Through", "2025-01-04");
     for (const id of teamIds) setField(host, `${id} consumed`, "0");
-    if (kind === "project") for (const id of teamIds) {
-      const label = all(host).find((item) => item.tagName === "label" && item.textContent.includes("current RAF") &&
-        item.textContent.includes(String(id).includes("alpha") ? "Alpha" : "Beta"));
-      assert.ok(label); label.children[0]!.value = "1"; label.children[0]!.emit("input");
+    if (kind === "project") {
+      all(host).find((item) => item.textContent === "Next")!.emit("click");
+      for (const label of all(host).filter((item) => item.tagName === "label" && item.textContent.includes(" RAF (exact)"))) {
+        label.children[0]!.value = "1"; label.children[0]!.emit("input");
+      }
     }
-    confirm(host);
   };
   it("keeps Project and Reservation cards pristine on Actuals open/collapse and resets on Cancel", () => {
     for (const kind of ["project", "reservation"] as const) {
@@ -244,7 +262,7 @@ describe("coordinator multi-draft rerender", () => {
       const host = () => kind === "project" ? app.projectCardHost(id as ProjectId)! :
         app.reservationCardHost(id as ReservationId)!;
       open();
-      all(host()).find((item) => item.textContent === "Record Actuals knowledge")!.emit("click");
+      all(host()).find((item) => item.textContent === "Update actuals")!.emit("click");
       assert.equal(app.cardStateFor(kind, id)?.dirty, false);
       open();
       assert.equal(app.cardStateFor(kind, id)?.expanded, false);
@@ -252,11 +270,11 @@ describe("coordinator multi-draft rerender", () => {
       open();
       assert.equal(app.cardStateFor(kind, id)?.expanded, true);
       assert.equal(app.cardStateFor(kind, id)?.dirty, false);
-      all(host()).find((item) => item.textContent === "Append period")!.emit("click");
+      all(host()).find((item) => item.textContent === "Next")!.emit("click");
       assert.equal(app.cardStateFor(kind, id)?.dirty, true);
       all(host()).find((item) => item.textContent === "Cancel Actuals")!.emit("click");
       assert.equal(app.cardStateFor(kind, id)?.dirty, false);
-      all(host()).find((item) => item.textContent === "Record Actuals knowledge")!.emit("click");
+      all(host()).find((item) => item.textContent === "Update actuals")!.emit("click");
       const teams = kind === "project" ? app.scenario.portfolio.projects[0]!.requirements.map((row) => row.teamId)
         : app.scenario.portfolio.reservations[0]!.teamAllocations.map((row) => row.teamId);
       prepareOneDay(host(), kind, teams);
@@ -282,14 +300,14 @@ describe("coordinator multi-draft rerender", () => {
     otherForecast.update(otherProject.id, { ...otherForecast.get(otherProject.id)!.values, name: "Other local" });
     const reservationForecast = app.reservationHandles.get(reservation.id)!.draftStore!;
     const reservationHost = app.reservationCardHost(reservation.id)!;
-    all(reservationHost).find((item) => item.textContent === "Record Actuals knowledge")!.emit("click");
-    assert.equal(all(reservationHost).find((item) => item.className.includes("card-actuals-form"))?.hidden, false);
+    all(reservationHost).find((item) => item.textContent === "Update actuals")!.emit("click");
+    assert.equal(all(reservationHost).find((item) => item.className.includes("card-actuals-modal"))?.hidden, false);
     assert.equal(app.cardStateFor("reservation", reservation.id)?.dirty, false);
-    all(reservationHost).find((item) => item.textContent === "Append period")!.emit("click");
+    all(reservationHost).find((item) => item.textContent === "Next")!.emit("click");
     assert.equal(app.cardStateFor("reservation", reservation.id)?.dirty, true);
     reservationForecast.update(reservation.id, { ...reservationForecast.get(reservation.id)!.values, name: "Reservation local" });
     const projectHost = app.projectCardHost(project.id)!;
-    all(projectHost).find((item) => item.textContent === "Record Actuals knowledge")!.emit("click");
+    all(projectHost).find((item) => item.textContent === "Update actuals")!.emit("click");
     assert.equal(app.cardStateFor("project", project.id)?.dirty, false);
     prepareOneDay(projectHost, "project", project.requirements.map((row) => row.teamId));
     assert.equal(app.cardStateFor("project", project.id)?.dirty, true);
@@ -303,11 +321,134 @@ describe("coordinator multi-draft rerender", () => {
     assert.equal(app.cardStateFor("reservation", reservation.id)?.dirty, true);
     assert.equal(otherForecast.get(otherProject.id)?.values.name, "Other local");
     assert.equal(reservationForecast.get(reservation.id)?.values.name, "Reservation local");
-    assert.equal(all(app.reservationCardHost(reservation.id)!).find((item) => item.className.includes("card-actuals-form"))?.hidden, false);
+    assert.equal(all(app.reservationCardHost(reservation.id)!).find((item) => item.className.includes("card-actuals-modal"))?.hidden, false);
     app.openReservation(reservation.id);
     assert.equal(app.cardStateFor("reservation", reservation.id)?.dirty, true);
     app.openReservation(reservation.id);
     assert.equal(app.cardStateFor("reservation", reservation.id)?.dirty, true);
+    app.coordinator.destroy();
+  });
+  it("hands a Project membership addition to one Actuals transaction and preserves Forecast on Cancel", () => {
+    const app = fixture(true, false, true, true);
+    const id = app.session.getState().portfolio.projects[0]!.id;
+    const newTeam = app.unusedTeamId!;
+    app.openProject(id);
+    const forecast = app.projectHandles.get(id)!.draftStore!;
+    const before = forecast.get(id)!;
+    forecast.update(id, { ...before.values, teams: before.values.teams.map((row) =>
+      row.teamId === newTeam ? { ...row, enabled: true } : row) });
+    const project = app.session.getState().portfolio.projects[0]!;
+    const command: UpdateProjectCommand = { kind: "update-project", projectId: id, name: project.name,
+      teamRequirements: [...project.requirements.map((row) => ({ teamId: row.teamId,
+        remainingWorkload: row.remainingWorkload, ...(row.dailyCap ? { dailyCap: row.dailyCap } : {}) })),
+      { teamId: newTeam, remainingWorkload: must(remainingWorkloadFromSerialized("1/1")) }] };
+    const first = app.projectHandles.get(id)!.onApply(command);
+    assert.equal(first.ok, false);
+    if (!first.ok) assert.ok(first.errors.some((item) => item.code === "ACTUALS_HANDOFF"));
+    assert.equal(app.session.getState().portfolio.projects[0]!.snapshots!.length, 1);
+    assert.equal(forecast.isDirty(id), true);
+    let host = app.projectCardHost(id)!;
+    assert.equal(all(host).find((item) => item.className === "card-actuals-modal")?.hidden, false);
+    all(host).find((item) => item.textContent === "Cancel Actuals")!.emit("click");
+    assert.equal(forecast.isDirty(id), true);
+    assert.equal(app.session.getState().portfolio.projects[0]!.snapshots!.length, 1);
+    assert.equal(app.projectHandles.get(id)!.onApply(command).ok, false);
+    host = app.projectCardHost(id)!;
+    all(host).find((item) => item.textContent === "Next")!.emit("click");
+    all(host).find((item) => item.textContent === "Next")!.emit("click");
+    all(host).find((item) => item.className.includes("card-actuals-form"))!.emit("submit");
+    assert.equal(app.session.getState().portfolio.projects[0]!.snapshots!.length, 1);
+    assert.equal(forecast.isDirty(id), true);
+    all(host).find((item) => item.textContent === "Back")!.emit("click");
+    setField(host, `${newTeam} consumed`, "0");
+    all(host).find((item) => item.textContent === "Next")!.emit("click");
+    const teamLabel = app.session.getState().portfolio.teams.find((team) => team.id === newTeam)!.name;
+    const confirmation = labelInput(host, "Confirm " + teamLabel + " RAF (required)");
+    confirmation.checked = true; confirmation.emit("change");
+    const form = all(host).find((item) => item.className.includes("card-actuals-form"))!;
+    form.emit("submit");
+    assert.equal(app.session.getState().portfolio.projects[0]!.snapshots!.length, 2);
+    assert.ok(app.session.getState().portfolio.projects[0]!.requirements.some((row) => row.teamId === newTeam));
+    assert.equal(forecast.isDirty(id), false);
+    app.coordinator.destroy();
+  });
+  it("hands a Reservation membership addition to the two-step Actuals dialog", () => {
+    const app = fixture(true, false, true, true);
+    const reservation = app.session.getState().portfolio.reservations[0]!;
+    const id = reservation.id;
+    const newTeam = app.unusedTeamId!;
+    app.openReservation(id);
+    const forecast = app.reservationHandles.get(id)!.draftStore!;
+    const before = forecast.get(id)!;
+    forecast.update(id, { ...before.values, teams: before.values.teams.map((row) =>
+      row.teamId === newTeam ? { ...row, enabled: true } : row) });
+    const command: UpdateReservationCommand = { kind: "update-reservation", reservationId: id,
+      name: reservation.name, startDate: reservation.startDate, endDate: reservation.endDate,
+      teamAllocations: [...reservation.teamAllocations.map((row) => ({ teamId: row.teamId, ...row.amount })),
+        { teamId: newTeam, kind: "ratio" as const, ratio: must(reservationRatioFromSerialized("1/2")) }] };
+    const result = app.reservationHandles.get(id)!.onApply(command);
+    assert.equal(result.ok, false);
+    if (!result.ok) assert.ok(result.errors.some((item) => item.code === "ACTUALS_HANDOFF"));
+    assert.equal(app.session.getState().portfolio.reservations[0]!.snapshots!.length, 1);
+    const host = app.reservationCardHost(id)!;
+    all(host).find((item) => item.textContent === "Next")!.emit("click");
+    setField(host, `${newTeam} consumed`, "0");
+    assert.equal(all(host).some((item) => item.textContent.includes(" RAF (exact)")), false);
+    all(host).find((item) => item.className.includes("card-actuals-form"))!.emit("submit");
+    assert.equal(app.session.getState().portfolio.reservations[0]!.snapshots!.length, 2);
+    assert.ok(app.session.getState().portfolio.reservations[0]!.teamAllocations.some((row) => row.teamId === newTeam));
+    assert.equal(forecast.isDirty(id), false);
+    app.coordinator.destroy();
+  });
+  it("applies autonomous Forecast membership without creating an Actuals snapshot", () => {
+    const app = fixture(true, false, true);
+    const project = app.session.getState().portfolio.projects[0]!;
+    const newTeam = app.unusedTeamId!;
+    app.openProject(project.id);
+    const command: UpdateProjectCommand = { kind: "update-project", projectId: project.id, name: project.name,
+      teamRequirements: [...project.requirements.map((row) => ({ teamId: row.teamId,
+        remainingWorkload: row.remainingWorkload, ...(row.dailyCap ? { dailyCap: row.dailyCap } : {}) })),
+      { teamId: newTeam, remainingWorkload: must(remainingWorkloadFromSerialized("1/1")) }] };
+    assert.equal(app.projectHandles.get(project.id)!.onApply(command).ok, true);
+    assert.equal(app.session.getState().portfolio.projects[0]!.snapshots, undefined);
+    assert.ok(app.session.getState().portfolio.projects[0]!.requirements.some((row) => row.teamId === newTeam));
+    app.coordinator.destroy();
+  });
+  it("blocks a handoff while unrelated Forecast fields are dirty", () => {
+    const app = fixture(true, false, true, true);
+    const project = app.session.getState().portfolio.projects[0]!;
+    const newTeam = app.unusedTeamId!;
+    app.openProject(project.id);
+    const forecast = app.projectHandles.get(project.id)!.draftStore!;
+    const original = forecast.get(project.id)!;
+    forecast.update(project.id, { ...original.values, name: "Uncommitted name",
+      teams: original.values.teams.map((row) => row.teamId === newTeam ? { ...row, enabled: true } : row) });
+    const command: UpdateProjectCommand = { kind: "update-project", projectId: project.id, name: "Uncommitted name",
+      teamRequirements: [...project.requirements.map((row) => ({ teamId: row.teamId,
+        remainingWorkload: row.remainingWorkload })),
+      { teamId: newTeam, remainingWorkload: must(remainingWorkloadFromSerialized("1/1")) }] };
+    const result = app.projectHandles.get(project.id)!.onApply(command);
+    assert.equal(result.ok, false);
+    if (!result.ok) assert.ok(result.errors.some((item) => item.code === "ACTUALS_HANDOFF_FORECAST_FIELDS"));
+    assert.equal(app.session.getState().portfolio.projects[0]!.snapshots!.length, 1);
+    assert.equal(forecast.get(project.id)?.values.name, "Uncommitted name");
+    app.coordinator.destroy();
+  });
+  it("refuses to drop a card RAF draft when Forecast removes its Team", () => {
+    const app = fixture(false, false, true, true);
+    const project = app.session.getState().portfolio.projects[0]!;
+    app.openProject(project.id);
+    const host = app.projectCardHost(project.id)!;
+    const removed = project.requirements[0]!.teamId;
+    const field = all(host).find((item) => item.attributes.get("data-raf-team") === removed)!;
+    field.value = "2"; field.emit("input");
+    const command: UpdateProjectCommand = { kind: "update-project", projectId: project.id, name: project.name,
+      teamRequirements: project.requirements.slice(1).map((row) => ({ teamId: row.teamId,
+        remainingWorkload: row.remainingWorkload })) };
+    const result = app.projectHandles.get(project.id)!.onApply(command);
+    assert.equal(result.ok, false);
+    if (!result.ok) assert.ok(result.errors.some((item) => item.code === "ACTUALS_HANDOFF_RAF_CONFLICT"));
+    assert.equal(app.session.getState().portfolio.projects[0]!.snapshots!.length, 1);
     app.coordinator.destroy();
   });
   it("preserves state, projection, drafts and focus on failed activation commands", () => {
