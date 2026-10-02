@@ -41,6 +41,8 @@ Lot 10C.1 object-scoped knowledge snapshots with V5 persistence.
 - 10C Actuals workflows and UI (DONE).
 - 10C.1 Actuals knowledge snapshots and V5 migration (DONE).
 
+Next: 10C.2 Actuals / RAF workflow UX (OPEN / PLAN), before 10D.
+
 ## Current objective and ordered sub-lots
 
 ```text
@@ -48,11 +50,11 @@ Lot 9I — Project and Reservation forecast activation (DONE)
 Corrective lot — usage-driven Program/Pas and colors (DONE)
 Corrective lot — anchored temporal zoom and range drag (DONE)
 Lot 10 — Actuals & History (OPEN)
-10A (DONE) → 10B (DONE) → 10C (DONE) → 10C.1 (DONE) → 10D → 10E
+10A (DONE) → 10B (DONE) → 10C (DONE) → 10C.1 (DONE) → 10C.2 (OPEN) → 10D → 10E
 ```
 
 Lots through 9I, the Projection date presentation pass, both corrective lots,
-10A through 10C.1 are validated. 10D is the next open lot; 10E remains open.
+10A through 10C.1 are validated. 10C.2 is the next open lot; 10D and 10E remain open.
 
 ## Corrective lot — anchored temporal zoom and range drag
 
@@ -339,6 +341,10 @@ manually. Implementation and final dirty correction were audited at
 ## 10C.1 — Object-scoped Actuals knowledge snapshots
 
 **Status: DONE.** [10C.1 implementation and migration plan](./steps/ACTUALS/lot10c1_plan.md). The validated model uses immutable, whole-Project or whole-Reservation snapshots of Actuals knowledge. Each object has one current exact partition, and a Project snapshot includes current Team RAF. Replacement, extension, erosion and membership actions commit one object candidate through projection and V5 persistence. V4 cumulative records remain lossless, read-only migration evidence. Before explicit reconciliation they alone supply that object's simulated Actuals; afterward only its current V5 snapshot does. The editor shows the Team × period matrix, current RAF, and read-only history. Stable snapshot and period IDs reach timeline hit testing and tooltips. The implementation at `76a07ce2d6b4f4ada76c845c24cd2029a460f95e` and the audited V5 future-knowledge-date correction at `17094b03cbf4c34c8424d6fa1847e0ceebd55410` are validated.
+
+## 10C.2 — Actuals / RAF workflow UX
+
+**Status: OPEN / PLAN.** [10C.2 corrective plan](./steps/ACTUALS/lot10c2_plan.md). Replace the mixed current editor with a Project card summary and direct RAF draft/Apply, plus a guided Actuals modal for coverage, partitions and consumed values. Project confirms RAF in a third step; Reservation uses two steps without RAF. Reuse the 10C.1 snapshot transition, evidence, stale/no-op and atomic V5 transaction. Forecast remains the Team membership interface; any dependent membership/Actuals change must form one coherent candidate. The plan resolves RAF draft handoff, Cancel and concurrency, partition boundary/evidence behavior, keyboard and narrow layouts, and the future test matrix. No implementation is authorized in this plan pass; 10D follows validation of 10C.2.
 
 ## 10D — Knowledge snapshots
 
