@@ -12,6 +12,7 @@ import {
   createTeamId,
   serializeQuantity,
   type DomainResult,
+  type TeamId,
 } from "../../domain/index.js";
 import type { ProjectEditControls } from "../renderApp.js";
 import { createProjectEditController } from "./createProjectEditController.js";
@@ -120,7 +121,11 @@ function model(label = "Project Atlas"): ProjectEditViewModel {
 }
 
 function fixture(onApply: (command: UpdateProjectCommand) => { ok: true } | { ok: false; errors: readonly { code: string; path: string; message: string }[] } = () => ({ ok: true }),
-  options?: { draftStore?: boolean; confirmDiscard?: boolean; onDelete?: (id: typeof projectId) =>
+  options?: { draftStore?: boolean; confirmDiscard?: boolean;
+    getActualsRaf?: (teamId: TeamId) => string | undefined;
+    onActualsRafInput?: (teamId: TeamId, value: string) => void;
+    onCancel?: () => void;
+    onDelete?: (id: typeof projectId) =>
     { ok: true } | { ok: false; errors: readonly { code: string; path: string; message: string }[] } }) {
   const document = new FakeDocument();
   const form = document.createElement("form");
@@ -151,6 +156,9 @@ function fixture(onApply: (command: UpdateProjectCommand) => { ok: true } | { ok
     onApply,
     ...(draftStore ? { draftStore } : {}),
     ...(options?.onDelete ? { onDelete: options.onDelete } : {}),
+    ...(options?.getActualsRaf ? { getActualsRaf: options.getActualsRaf } : {}),
+    ...(options?.onActualsRafInput ? { onActualsRafInput: options.onActualsRafInput } : {}),
+    ...(options?.onCancel ? { onCancel: options.onCancel } : {}),
     confirmDiscard: () => options?.confirmDiscard ?? true,
   });
   return { container, form, fields, apply, cancel, status, error, controller,
@@ -181,6 +189,32 @@ describe("ProjectEditController", () => {
     assert.equal(exact.readOnly, true);
     assert.equal(editable.readOnly, undefined);
     assert.equal(input.draftStore?.isDirty(projectId), false);
+  });
+  it("edits latest-Actuals RAF in the Project card while keeping Forecast command unchanged", () => {
+    let actualsRaf = "1/3";
+    let applied: UpdateProjectCommand | undefined;
+    const input = fixture((command) => { applied = command; return { ok: true }; }, {
+      draftStore: true,
+      getActualsRaf: () => actualsRaf,
+      onActualsRafInput: (_teamId, value) => { actualsRaf = value; },
+      onCancel: () => { actualsRaf = "1/3"; },
+    });
+    const governed = { ...model(), requirements: [
+      { ...model().requirements[0]!, remainingWorkload: "0.333", remainingWorkloadExact: "1/3", rafAuthority: "latest-actuals" as const },
+      { ...model().requirements[1]!, rafAuthority: "current-configuration" as const },
+    ] };
+    input.controller.setProject(governed);
+    const raf = field(input.fields, `requirements.${alphaId}.remainingWorkload`) as FakeElement & { readOnly?: boolean };
+    assert.equal(raf.readOnly, undefined);
+    raf.value = "7/3"; raf.dispatch("input"); input.form.dispatch("input");
+    assert.equal(actualsRaf, "7/3");
+    assert.equal(input.draftStore?.isDirty(projectId), false);
+    input.form.dispatch("submit", { preventDefault() {} });
+    assert.ok(applied);
+    assert.equal(serializeQuantity(applied.teamRequirements[0]!.remainingWorkload), "1/3");
+    input.cancel.dispatch("click");
+    assert.equal(actualsRaf, "1/3");
+    assert.equal(field(input.fields, `requirements.${alphaId}.remainingWorkload`).value, "1/3");
   });
   it("uses Team deletion's dirty-discard and inline confirmation pattern", () => {
     let deleted = 0;

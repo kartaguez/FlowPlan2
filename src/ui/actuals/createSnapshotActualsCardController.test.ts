@@ -176,7 +176,7 @@ test("first Actuals opens at periods, date typing waits for a complete change, s
   controller.destroy();
 });
 
-test("period editor locks unchanged rows and external boundaries for prepend, append and central selections", () => {
+test("one-click contiguous selection renders only chosen rows with fixed external boundaries", () => {
   const session = createPlanningSession(createDemoPlanningScenario(), { today: () => d("2025-01-06") });
   const id = session.getState().portfolio.projects[0]!.id;
   const initialModel = buildProjectSnapshotActualsViewModel(session.getState(), id)!;
@@ -190,7 +190,7 @@ test("period editor locks unchanged rows and external boundaries for prepend, ap
   if (!parsed.ok) return;
   assert.equal(session.dispatch(parsed.command).ok, true);
   const model = buildProjectSnapshotActualsViewModel(session.getState(), id)!;
-  const check = (selection: "before" | "after" | "single" | "multi" | "touch") => {
+  const check = (selection: "before" | "after" | "single" | "multi") => {
     const host = new FakeDocument().createElement("div");
     const store = createSnapshotActualsDraftStore();
     const controller = createSnapshotActualsCardController({ host: host as unknown as HTMLElement, model, store,
@@ -198,41 +198,56 @@ test("period editor locks unchanged rows and external boundaries for prepend, ap
     all(host).find((node) => node.textContent === "Update actuals")!.emit("click");
     const tiles = () => all(host).filter((node) => node.className === "card-actuals-frieze-tile");
     assert.equal(all(host).some((node) => node.textContent === "Select through here"), false);
+    assert.equal(all(host).some((node) => node.textContent === "Extend selection"), false);
     if (selection === "before") tiles()[0]!.emit("click");
     if (selection === "after") tiles()[4]!.emit("click");
-    if (selection === "single" || selection === "multi" || selection === "touch") {
+    if (selection === "single" || selection === "multi") {
       tiles()[2]!.emit("click");
-      if (selection === "multi") tiles()[3]!.emit("click", { shiftKey: true });
-      if (selection === "touch") {
-        all(host).find((node) => node.textContent === "Extend selection")!.emit("click");
-        tiles()[3]!.emit("click");
-      }
+      if (selection === "multi") tiles()[3]!.emit("click");
     }
     assert.deepEqual(store.get(id)?.modal?.selection, selection === "before" || selection === "after" ? selection :
       selection === "single" ? { from: 1, through: 1 } : { from: 1, through: 2 });
+    assert.equal(tiles().filter((node) => node.attributes.get("aria-selected") === "true").length,
+      selection === "multi" ? 2 : 1);
     all(host).find((node) => node.textContent === "Next")!.emit("click");
     const matrix = all(host).find((node) => node.attributes.get("aria-label") === "Actuals Team by period matrix")!;
     const table = matrix.children[0]!;
     const rows = table.children.filter((node) => node.tag === "tr").slice(1);
     const date = (row: number, field: number) => rows[row]!.children[field]!.children[0]!.children[0]!;
     const consumed = (row: number) => rows[row]!.children[2]!.children[0]!.children[0]!;
+    assert.equal(rows.length, selection === "multi" ? 2 : 1);
     if (selection === "before") {
       assert.equal(date(0, 0).disabled, false); assert.equal(date(0, 1).disabled, true);
-      assert.equal(consumed(0).disabled, false); assert.equal(consumed(1).disabled, true);
+      assert.equal(consumed(0).disabled, false);
     } else if (selection === "after") {
-      assert.equal(date(3, 0).disabled, true); assert.equal(date(3, 1).disabled, false);
-      assert.equal(consumed(3).disabled, false); assert.equal(consumed(2).disabled, true);
+      assert.equal(date(0, 0).disabled, true); assert.equal(date(0, 1).disabled, false);
+      assert.equal(consumed(0).disabled, false);
     } else {
-      assert.equal(date(1, 0).disabled, true);
-      assert.equal(date(selection === "single" ? 1 : 2, 1).disabled, true);
-      assert.equal(consumed(0).disabled, true);
-      assert.equal(consumed(1).disabled, false);
-      assert.equal(consumed(2).disabled, selection === "single");
-      if (selection !== "single") assert.equal(date(1, 1).disabled, false);
+      assert.equal(date(0, 0).disabled, true);
+      assert.equal(date(selection === "single" ? 0 : 1, 1).disabled, true);
+      assert.equal(consumed(0).disabled, false);
+      if (selection === "multi") { assert.equal(consumed(1).disabled, false); assert.equal(date(0, 1).disabled, false); }
+    }
+    const merges = rows.map((row) => all(row).find((node) => node.textContent === "Merge with next")!);
+    assert.equal(merges.filter((node) => !node.hidden).length, selection === "multi" ? 1 : 0);
+    if (selection === "before" || selection === "after") {
+      const changing = date(0, selection === "before" ? 0 : 1);
+      changing.value = selection === "before" ? "2024-12-29" : "2025-01-06";
+      changing.emit("blur");
+      all(host).find((node) => node.textContent === "Split at date")!.emit("click");
+      const splitDate = all(host).find((node) => node.attributes.get("aria-label")?.startsWith("Split "))!;
+      splitDate.value = selection === "before" ? "2024-12-30" : "2025-01-05";
+      all(host).find((node) => node.textContent === "Confirm split")!.emit("click");
+      const splitRows = all(host).find((node) => node.attributes.get("aria-label") === "Actuals Team by period matrix")!
+        .children[0]!.children.filter((node) => node.tag === "tr").slice(1);
+      assert.equal(splitRows.length, 2);
+      const splitDateField = (row: number, column: number) => splitRows[row]!.children[column]!.children[0]!.children[0]!;
+      assert.equal(splitDateField(selection === "before" ? 1 : 0, selection === "before" ? 1 : 0).disabled, true);
+      assert.equal(all(splitRows[0]!).find((node) => node.textContent === "Merge with next")?.hidden, false);
     }
     controller.destroy();
   };
-  for (const selection of ["before", "after", "single", "multi", "touch"] as const) check(selection);
+  for (const selection of ["before", "after", "single", "multi"] as const) check(selection);
 });
 
 test("card RAF Apply uses raf-only after a snapshot and keeps the draft after failure", () => {

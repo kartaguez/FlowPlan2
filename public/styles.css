@@ -718,9 +718,9 @@ h1 { margin-bottom: 0; font-size: 2rem; letter-spacing: -0.04em; }
 .card-actuals-modal button { min-width: 0; min-height: 2.25rem; padding: 0.35rem 0.55rem; border: 1px solid var(--fp-border); border-radius: var(--fp-radius-sm); background: white; color: inherit; font: inherit; cursor: pointer; }
 .card-actuals-modal :focus-visible { outline: 3px solid var(--fp-selection); outline-offset: 2px; }
 .card-actuals-modal .card-actuals-form > button[hidden] { display: none; }
-.card-actuals-frieze { display: flex; min-width: 0; max-width: 100%; gap: 0.35rem; overflow-x: auto; padding: 0.4rem 0; }
+.card-actuals-frieze { display: flex; flex-wrap: wrap; min-width: 0; max-width: 100%; gap: 0.35rem; padding: 0.4rem 0; }
 .card-actuals-frieze button { flex: none; white-space: nowrap; }
-.card-actuals-frieze button[aria-pressed="true"] { border-color: var(--fp-action); background: var(--fp-selection); }
+.card-actuals-frieze button[aria-selected="true"] { border-color: var(--fp-action); background: var(--fp-action); color: white; }
 @media (max-width: 420px) {
   .card-actuals-modal { padding: 0.35rem; }
   .card-actuals-modal .card-actuals-form { max-height: calc(100dvh - 0.7rem); padding: 0.6rem; }

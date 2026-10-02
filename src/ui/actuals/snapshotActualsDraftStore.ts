@@ -37,7 +37,6 @@ export interface SnapshotActualsDraft {
     confirmed: boolean;
     retirementConfirmed: boolean;
     anchor: number;
-    extendSelection?: boolean;
     prepared?: boolean;
     handoff?: UpdateProjectCommand | UpdateReservationCommand;
   }>;

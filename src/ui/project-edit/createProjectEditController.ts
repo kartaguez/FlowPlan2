@@ -18,6 +18,7 @@ export type ProjectEditApplyResult =
 
 export interface ProjectEditController {
   readonly setProject: (project: ProjectEditViewModel | undefined) => void;
+  readonly setActualsRaf?: (teamId: TeamId, value: string) => void;
   readonly getProjectId: () => ProjectId | undefined;
   readonly destroy: () => void;
 }
@@ -31,6 +32,8 @@ export interface CreateProjectEditControllerInput {
   readonly onCancel?: () => void;
   readonly draftStore?: ProjectDraftStore;
   readonly onDraftChange?: () => void;
+  readonly getActualsRaf?: (teamId: TeamId) => string | undefined;
+  readonly onActualsRafInput?: (teamId: TeamId, value: string) => void;
 }
 
 interface GlobalInputs {
@@ -51,6 +54,7 @@ interface RequirementInputs {
   readonly card: HTMLElement;
   readonly originalDisplay: string;
   readonly remainingWorkloadExact: string;
+  readonly actualsControlled: boolean;
   readonly dailyCapExact?: string;
 }
 
@@ -183,14 +187,21 @@ export function createProjectEditController(
           "text",
           `requirements.${requirement.teamId}.remainingWorkload`,
         );
-        remainingWorkload.value = requirement.rafAuthority === "latest-actuals" &&
-          !draft?.invalidRafTeamIds?.includes(requirement.teamId)
-          ? requirement.remainingWorkloadExact : saved?.remainingWorkload ?? requirement.remainingWorkload;
+        const actualsControlled = requirement.rafAuthority === "latest-actuals" &&
+          input.getActualsRaf !== undefined && input.onActualsRafInput !== undefined;
+        remainingWorkload.value = actualsControlled ? input.getActualsRaf!(requirement.teamId) ?? requirement.remainingWorkloadExact :
+          requirement.rafAuthority === "latest-actuals" && !draft?.invalidRafTeamIds?.includes(requirement.teamId)
+            ? requirement.remainingWorkloadExact : saved?.remainingWorkload ?? requirement.remainingWorkload;
         if (requirement.rafAuthority === "latest-actuals") {
-          remainingWorkload.readOnly = true;
-          remainingWorkload.setAttribute("aria-readonly", "true");
+          if (actualsControlled) remainingWorkload.addEventListener("input", () =>
+            input.onActualsRafInput?.(requirement.teamId, remainingWorkload.value));
+          else {
+            remainingWorkload.readOnly = true;
+            remainingWorkload.setAttribute("aria-readonly", "true");
+          }
           const authority = document.createElement("p");
-          authority.textContent = "RAF set by latest Actuals. Add a new Actuals photo to change it.";
+          authority.textContent = actualsControlled ? "RAF from current Actuals. Apply this Project card to record a new RAF." :
+            "RAF set by latest Actuals. Add a new Actuals photo to change it.";
           fieldset.append(authority);
         }
         const subcard = createTeamSubcard(input.controls.fields, "Project", requirement.teamId,
@@ -202,6 +213,7 @@ export function createProjectEditController(
           teamId: requirement.teamId,
           enabled: subcard.enabled,
           remainingWorkload,
+          actualsControlled,
           isExpanded: subcard.isExpanded,
           card: subcard.card,
           originalDisplay: requirement.rafAuthority === "latest-actuals" ? requirement.remainingWorkloadExact :
@@ -234,7 +246,7 @@ export function createProjectEditController(
       objectiveEndDate: globalInputs.objectiveEndDate.value, mandatory: globalInputs.mandatory.checked,
       resolution, teams: requirementInputs.map((row) => ({
         teamId: row.teamId, enabled: row.enabled.checked,
-        remainingWorkload: row.remainingWorkload.value,
+        remainingWorkload: row.actualsControlled ? previous.teams.find((team) => team.teamId === row.teamId)?.remainingWorkload ?? row.originalDisplay : row.remainingWorkload.value,
         remainingWorkloadExact: row.remainingWorkloadExact,
         ...(row.dailyCapExact === undefined ? {} : { dailyCapExact: row.dailyCapExact }),
         expanded: row.isExpanded(),
@@ -267,9 +279,9 @@ export function createProjectEditController(
           Object.freeze({
             teamId: requirement.teamId,
             enabled: requirement.enabled.checked,
-            remainingWorkload: requirement.remainingWorkload.value,
+            remainingWorkload: requirement.actualsControlled ? requirement.originalDisplay : requirement.remainingWorkload.value,
             remainingWorkloadExact: requirement.remainingWorkloadExact,
-            remainingWorkloadDirty:
+            remainingWorkloadDirty: !requirement.actualsControlled &&
               requirement.remainingWorkload.value !== requirement.originalDisplay,
             ...(requirement.dailyCapExact === undefined
               ? {}
@@ -311,10 +323,10 @@ export function createProjectEditController(
       input.draftStore.initialize(model.projectId, model);
       input.draftStore.setExpanded(model.projectId, expanded);
     }
+    input.onCancel?.();
     hydrate(model);
     clearError();
     input.onDraftChange?.();
-    input.onCancel?.();
   };
   const onDeleteClick = (): void => {
     if (!model) return;
@@ -361,6 +373,10 @@ export function createProjectEditController(
 
   return Object.freeze({
     setProject,
+    setActualsRaf: (teamId: TeamId, value: string) => {
+      const field = requirementInputs.find((row) => row.teamId === teamId && row.actualsControlled)?.remainingWorkload;
+      if (field && field !== field.ownerDocument.activeElement) field.value = value;
+    },
     getProjectId: () => model?.projectId,
     destroy: () => {
       input.controls.form.removeEventListener("submit", onSubmit);

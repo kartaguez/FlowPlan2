@@ -318,6 +318,7 @@ export function createTimelineUiCoordinator(
       const store = kind === "project" ? projectSnapshotDrafts : reservationSnapshotDrafts;
       const controller = createSnapshotActualsCardController({ host, model: snapshotModel, store,
         onDraftChange: () => syncCard(kind, id), conflict: () => actualsConflict(kind, id),
+        onCardRafChange: (teamId, value) => projectControllers.get(id as ProjectId)?.setActualsRaf?.(teamId, value),
         onApply: (command) => {
           const handoff = store.get(String(id))?.modal?.handoff;
           const result = input.dispatch(command);
@@ -354,6 +355,11 @@ export function createTimelineUiCoordinator(
     const controller = dependencies.createProjectEditController({
       controls, errorContainer: error, draftStore: projectDrafts,
       onDraftChange: () => syncCard("project", id),
+      getActualsRaf: (teamId) => {
+        const snapshotModel = input.getProjectSnapshotActualsViewModel?.(id);
+        return snapshotModel ? projectSnapshotDrafts.initialize(snapshotModel).teams.find((row) => row.teamId === teamId)?.raf : undefined;
+      },
+      onActualsRafInput: (teamId, value) => projectActualsControllers.get(id)?.setCardRaf(teamId, value),
       onApply: (command: UpdateProjectCommand) => applyProjectUpdate(command),
       onDelete: (projectId) => {
         const order = projection.viewModel.projects.map((project) => project.id);
