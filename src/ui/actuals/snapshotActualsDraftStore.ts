@@ -37,6 +37,7 @@ export interface SnapshotActualsDraft {
     confirmed: boolean;
     retirementConfirmed: boolean;
     anchor: number;
+    extendSelection?: boolean;
     prepared?: boolean;
     handoff?: UpdateProjectCommand | UpdateReservationCommand;
   }>;
@@ -96,8 +97,14 @@ export function createSnapshotActualsDraftStore(): SnapshotActualsDraftStore {
     update: (id: string, draft: SnapshotActualsDraft) => { entries.set(id, draft); },
     isDirty: (id: string) => {
       const draft = entries.get(id);
-      return draft !== undefined && (values(draft) !== draft.baseline ||
-        draft.modal !== undefined && values(draft.modal) !== values(draft));
+      if (!draft) return false;
+      const modal = draft.modal;
+      const untouchedInitial = modal?.selection === "initial" && modal.periods.length === 1 &&
+        modal.periods[0]?.from === "" && modal.periods[0]?.through === "" &&
+        modal.periods[0]?.values.every((cell) => cell.text === "") &&
+        values({ periods: draft.periods, teams: modal.teams }) === values(draft);
+      return values(draft) !== draft.baseline ||
+        modal !== undefined && !untouchedInitial && values(modal) !== values(draft);
     },
     rebase: (model: SnapshotActualsViewModel) => {
       const old = entries.get(model.id);

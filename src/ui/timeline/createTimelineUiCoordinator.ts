@@ -370,7 +370,7 @@ export function createTimelineUiCoordinator(
         return { ok: true as const };
       },
       confirmDiscard,
-      onCancel: () => { syncCard("project", id); card.button.focus(); },
+      onCancel: () => { projectActualsControllers.get(id)?.cancelCardRaf(); syncCard("project", id); card.button.focus(); },
     });
     controller.setProject(model);
     projectControllers.set(id, controller);
@@ -600,10 +600,13 @@ export function createTimelineUiCoordinator(
   };
   const applyProjectUpdate = (command: UpdateProjectCommand) => {
     const actualsModel = input.getProjectSnapshotActualsViewModel?.(command.projectId);
+    const actualsDraft = projectSnapshotDrafts.get(String(command.projectId));
+    const cardRafDirty = actualsDraft !== undefined && projectSnapshotDrafts.isDirty(String(command.projectId));
     const target = command.teamRequirements.map((row) => row.teamId);
     const current = actualsModel?.teams.filter((row) => row.participating).map((row) => row.teamId) ?? [];
-    if (actualsModel && (actualsModel.snapshots.length || actualsModel.legacyV4Actuals) &&
-      (target.length !== current.length || target.some((id, index) => id !== current[index]))) {
+    const membershipChanged = target.length !== current.length || target.some((id, index) => id !== current[index]);
+    if (actualsModel && (actualsModel.snapshots.length || actualsModel.legacyV4Actuals || cardRafDirty) &&
+      membershipChanged) {
       const forecast = projectDrafts.get(command.projectId);
       if (forecast) {
         const { teams: _localTeams, ...localFields } = forecast.values;
@@ -638,6 +641,13 @@ export function createTimelineUiCoordinator(
       projectActualsControllers.get(command.projectId)?.openHandoff(command);
       return { ok: false as const, errors: [{ code: "ACTUALS_HANDOFF", path: "actuals",
         message: "Complete the Actuals dialog to apply this Team change together with its knowledge." }] };
+    }
+    if (cardRafDirty) {
+      if (projectDrafts.isDirty(command.projectId)) return { ok: false as const,
+        errors: [{ code: "ACTUALS_FORECAST_SEPARATION", path: "raf",
+          message: "Apply or Cancel the other Project edits before applying RAF; these changes need separate transactions." }] };
+      return projectActualsControllers.get(command.projectId)?.applyCardRaf() ?? { ok: false as const,
+        errors: [{ code: "ACTUALS_CARD_UNAVAILABLE", path: "raf", message: "Actuals card is unavailable." }] };
     }
     const result = input.dispatch(command);
     if (!result.ok) return result;

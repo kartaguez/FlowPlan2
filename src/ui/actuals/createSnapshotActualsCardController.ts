@@ -19,6 +19,8 @@ export interface SnapshotActualsCardControllerInput {
 export function createSnapshotActualsCardController(input: SnapshotActualsCardControllerInput): {
   destroy(): void;
   openHandoff(command: UpdateProjectCommand | UpdateReservationCommand): void;
+  applyCardRaf(): { readonly ok: true } | { readonly ok: false; readonly errors: readonly DomainError[] };
+  cancelCardRaf(): void;
 } {
   const document = input.host.ownerDocument;
   const model = input.model;
@@ -78,11 +80,8 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
     summaryTable.append(tr);
   }
   summary.append(summaryTable); section.append(summary);
-  const quickActions = document.createElement("div"); quickActions.className = "card-actuals-actions";
-  const applyRaf = document.createElement("button"); applyRaf.type = "button"; applyRaf.textContent = current ? "Apply RAF" : "Record initial RAF";
-  const revertRaf = document.createElement("button"); revertRaf.type = "button"; revertRaf.textContent = "Revert RAF";
   const quickError = document.createElement("p"); quickError.className = "application-error"; quickError.setAttribute("role", "alert");
-  if (model.kind === "project") { quickActions.append(applyRaf, revertRaf); section.append(quickActions, quickError); }
+  if (model.kind === "project") section.append(quickError);
   const historyPanels: HTMLElement[] = [];
   if (model.legacyV4Actuals) {
     const legacy = document.createElement("details");
@@ -151,7 +150,6 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
   const renderQuick = (): void => {
     if (model.kind !== "project") return;
     const draft = input.store.get(model.id)!;
-    let changed = false;
     let valid = true;
     for (const { field, teamId } of quickFields) {
       const row = draft.teams.find((item) => item.teamId === teamId)!;
@@ -159,35 +157,30 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
       field.disabled = draft.modal !== undefined;
       const exact = parseExactQuantityInput(row.raf);
       if (exact === undefined || exact.startsWith("-")) valid = false;
-      const committed = current && "raf" in current ? current.raf.find((item) => item.teamId === row.teamId) : undefined;
-      if (exact !== undefined && (committed === undefined || exact !== serializeQuantity(committed.amount))) changed = true;
     }
-    applyRaf.disabled = !valid || !changed || draft.modal !== undefined || draft.stale;
-    revertRaf.disabled = draft.modal !== undefined || !draft.stale && !draft.teams.some((row) => row.enabled && row.raf !==
-      (current && "raf" in current ? serializeQuantity(current.raf.find((item) => item.teamId === row.teamId)!.amount) :
-        model.teams.find((team) => team.teamId === row.teamId)?.forecastRaf ?
-          serializeQuantity(model.teams.find((team) => team.teamId === row.teamId)!.forecastRaf!) : ""));
-    quickError.textContent = draft.stale ? "The Actuals snapshot changed. Review the open dialog or Revert RAF to use current values." :
+    quickError.textContent = draft.stale ? "The Actuals snapshot changed. Cancel the card or review current knowledge." :
       !valid ? "Enter an exact nonnegative RAF for each participating Team." : draft.errors.join(" ");
     quickError.hidden = valid && !draft.stale && !draft.errors.length;
   };
-  applyRaf.addEventListener("click", () => {
-    if (!current) { onOpen(); setModal((old) => ({ ...old, step: 3 })); return; }
+  const applyCardRaf = (): { readonly ok: true } | { readonly ok: false; readonly errors: readonly DomainError[] } => {
     const draft = input.store.get(model.id)!;
+    if (draft.stale || draft.modal) return { ok: false, errors: [{ code: "ACTUALS_STALE_DRAFT", path: "raf",
+      message: "Review the open Actuals dialog or Cancel the card before Apply." }] };
     const parsed = parseSnapshotActualsCommand(model, { ...draft,
       teams: draft.teams.map((row) => ({ ...row, rafConfirmed: row.enabled &&
         (!current || (parseExactQuantityInput(row.raf) !== serializeQuantity((current as Extract<NonNullable<typeof current>, { raf: unknown }>).raf.find((item) => item.teamId === row.teamId)!.amount))) })) });
     if (!parsed.ok) { quickError.textContent = parsed.errors.map((item) => item.message).join(" "); quickError.hidden = false;
-      input.store.update(model.id, { ...draft, errors: [quickError.textContent] }); return; }
+      input.store.update(model.id, { ...draft, errors: [quickError.textContent] }); return parsed; }
     const result = input.onApply(parsed.command);
     if (!result.ok) { quickError.textContent = result.errors.map((item) => item.message).join(" "); quickError.hidden = false;
       input.store.update(model.id, { ...draft, errors: [quickError.textContent] }); }
-  });
-  revertRaf.addEventListener("click", () => {
+    return result;
+  };
+  const cancelCardRaf = (): void => {
     input.store.cancel(model.id);
     input.store.initialize(model);
     input.onDraftChange(); renderQuick();
-  });
+  };
 
   const update = (change: (draft: NonNullable<ReturnType<typeof input.store.get>>) => NonNullable<ReturnType<typeof input.store.get>>,
     rerender = false): void => {
@@ -224,7 +217,7 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
     type = "text"): HTMLInputElement => {
     const label = document.createElement("label"); label.textContent = labelText;
     const field = document.createElement("input"); field.type = type; field.value = value;
-    field.addEventListener("input", () => onInput(field.value));
+    field.addEventListener(type === "date" ? "blur" : "input", () => onInput(field.value));
     label.append(field); parent.append(label); return field;
   };
   const check = (parent: HTMLElement, labelText: string, checked: boolean, onChange: (value: boolean) => void): HTMLInputElement => {
@@ -261,7 +254,8 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
     const branch = base.modal;
     const draft = branch ? { ...base, ...branch } : base;
     modal.hidden = !branch; toggle.hidden = Boolean(branch);
-    back.hidden = !branch || branch.step === 1;
+    const firstStep = current?.coverage ? 1 : 2;
+    back.hidden = !branch || branch.step === firstStep;
     review.hidden = !branch || !draft.stale;
     next.hidden = !branch || branch.step === (model.kind === "project" ? 3 : 2);
     apply.hidden = !branch || branch.step !== (model.kind === "project" ? 3 : 2);
@@ -270,31 +264,39 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
     error.textContent = draft.errors.join(" "); error.hidden = draft.errors.length === 0;
     if (!branch) return;
     const step = document.createElement("p");
-    step.textContent = "Step " + branch.step + " of " + (model.kind === "project" ? "3" : "2");
+    step.textContent = "Step " + (branch.step - firstStep + 1) + " of " +
+      (model.kind === "project" ? 4 - firstStep : 3 - firstStep);
     fields.append(step);
     if (branch.step === 1) {
       const hint = document.createElement("p");
-      hint.textContent = "Choose a contiguous period range. Shift click or Shift plus arrow keys extends the selection.";
+      hint.textContent = "Choose a contiguous period range. Shift click or Shift plus arrow keys extends the selection. On touch, select a period then use Extend selection and tap an endpoint.";
       fields.append(hint);
       const timeline = document.createElement("div"); timeline.className = "card-actuals-frieze";
-      const tiles = draft.periods.length ? ["before", ...draft.periods.map((_, index) => String(index)), "after"] : ["initial"];
+      timeline.setAttribute("role", "listbox"); timeline.setAttribute("aria-multiselectable", "true");
+      timeline.setAttribute("aria-label", "Contiguous Actuals period selection");
+      const tiles = ["before", ...draft.periods.map((_, index) => String(index)), "after"];
+      const extendMode = document.createElement("button"); extendMode.type = "button";
+      extendMode.textContent = branch.extendSelection ? "Extend selection: on" : "Extend selection";
+      extendMode.setAttribute("aria-pressed", String(Boolean(branch.extendSelection)));
+      extendMode.addEventListener("click", () => setModal((old) => ({ ...old, extendSelection: !old.extendSelection })));
+      fields.append(extendMode);
       const choose = (index: number, extend: boolean) => {
-        if (!draft.periods.length) setModal((old) => ({ ...old, selection: "initial" }));
-        else if (index === -1) setModal((old) => ({ ...old, selection: "before" }));
-        else if (index === draft.periods.length) setModal((old) => ({ ...old, selection: "after" }));
+        if (index === -1) setModal((old) => ({ ...old, selection: "before", extendSelection: false }));
+        else if (index === draft.periods.length) setModal((old) => ({ ...old, selection: "after", extendSelection: false }));
         else setModal((old) => ({ ...old, anchor: extend ? old.anchor : index,
-          selection: { from: Math.min(extend ? old.anchor : index, index), through: Math.max(extend ? old.anchor : index, index) } }));
+          selection: { from: Math.min(extend ? old.anchor : index, index), through: Math.max(extend ? old.anchor : index, index) },
+          extendSelection: false }));
         fields.querySelectorAll?.<HTMLButtonElement>(".card-actuals-frieze-tile")[index + 1]?.focus();
       };
       tiles.forEach((tile, position) => {
         const index = position - 1;
         const button = document.createElement("button"); button.type = "button";
         button.className = "card-actuals-frieze-tile";
-        button.textContent = tile === "initial" ? "Create first Actuals period" :
-          tile === "before" ? "+ before" : tile === "after" ? "+ after" :
+        button.setAttribute("role", "option");
+        button.textContent = tile === "before" ? "+ before" : tile === "after" ? "+ after" :
           draft.periods[index]!.from + " → " + draft.periods[index]!.through;
-        button.setAttribute("aria-pressed", String(typeof branch.selection === "object" && index >= branch.selection.from && index <= branch.selection.through || branch.selection === tile));
-        button.addEventListener("click", (event) => choose(index, event.shiftKey));
+        button.setAttribute("aria-selected", String(typeof branch.selection === "object" && index >= branch.selection.from && index <= branch.selection.through || branch.selection === tile));
+        button.addEventListener("click", (event) => choose(index, event.shiftKey || Boolean(branch.extendSelection)));
         button.addEventListener("keydown", (event) => {
           if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
             event.preventDefault();
@@ -304,13 +306,6 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
           }
         });
         timeline.append(button);
-        if (index >= 0 && index < draft.periods.length) {
-          const extend = document.createElement("button"); extend.type = "button";
-          extend.textContent = "Select through here";
-          extend.setAttribute("aria-label", "Extend selection through " + draft.periods[index]!.through);
-          extend.addEventListener("click", () => choose(index, true));
-          timeline.append(extend);
-        }
       });
       fields.append(timeline);
       const selected = document.createElement("p"); selected.setAttribute("aria-live", "polite");
@@ -370,56 +365,53 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
     table.append(header);
     draft.periods.forEach((period, index) => {
       const tr = document.createElement("tr");
-      const editable = typeof branch.selection !== "object" ||
-        index >= branch.selection.from && index <= branch.selection.through;
+      const editable = branch.selection === "initial" ||
+        branch.selection === "before" && index === 0 ||
+        branch.selection === "after" && index === draft.periods.length - 1 ||
+        typeof branch.selection === "object" && index >= branch.selection.from && index <= branch.selection.through;
+      const fixedBoundary = (field: "from" | "through") =>
+        branch.selection === "before" && index === 0 && field === "through" ||
+        branch.selection === "after" && index === draft.periods.length - 1 && field === "from" ||
+        typeof branch.selection === "object" && (index === branch.selection.from && field === "from" ||
+          index === branch.selection.through && field === "through");
       const dateCell = (label: string, value: string, field: "from" | "through") => {
         const cell = document.createElement("td");
-        const control = textInput(cell, label, value, (text) => update((old) => {
-          const changed = [...old.periods];
-          const currentPeriod = changed[index]!;
-          if (text === currentPeriod[field]) return old;
-          const date = createCivilDate(text);
-          if (date.ok && index === 0 && field === "from" && currentPeriod.from === current?.coverage?.actualsFrom &&
-            date.value < currentPeriod.from) {
-            const original = createCivilDate(currentPeriod.from);
-            if (!original.ok) return old;
-            const through = addDays(original.value, -1);
-            return through.ok ? { ...old, periods: [{ ...blankPeriod(), from: date.value, through: through.value }, ...old.periods] } : old;
-          }
-          if (date.ok && index === changed.length - 1 && field === "through" &&
-            currentPeriod.through === current?.coverage?.actualsThrough && date.value > currentPeriod.through) {
-            const original = createCivilDate(currentPeriod.through);
-            if (!original.ok) return old;
-            const from = addDays(original.value, 1);
-            return from.ok ? { ...old, periods: [...old.periods, { ...blankPeriod(), from: from.value, through: date.value }] } : old;
-          }
-          const neighborIndex = field === "from" ? index - 1 : index + 1;
-          const neighbor = changed[neighborIndex];
-          if (date.ok && (field === "from" && currentPeriod.through && date.value > currentPeriod.through ||
-            field === "through" && currentPeriod.from && date.value < currentPeriod.from)) {
-            return { ...old, errors: ["A period cannot end before it starts. Use Merge or Remove for that change."] };
-          }
-          if (date.ok && neighbor && (!editable || typeof branch.selection === "object" &&
-            (neighborIndex < branch.selection.from || neighborIndex > branch.selection.through))) {
-            return { ...old, errors: ["Select the adjacent period before moving this boundary."] };
-          }
-          if (date.ok && neighbor) {
-            const shifted = addDays(date.value, field === "from" ? -1 : 1);
-            if (shifted.ok && (field === "from" && shifted.value < neighbor.from ||
-              field === "through" && shifted.value > neighbor.through)) {
-              return { ...old, errors: ["This boundary would remove the adjacent period. Use Merge or Remove."] };
+        const control = textInput(cell, label, value, (text) => {
+          if (!createCivilDate(text).ok) return;
+          update((old) => {
+            const changed = [...old.periods];
+            const currentPeriod = changed[index]!;
+            if (text === currentPeriod[field]) return old;
+            const date = createCivilDate(text);
+            if (!date.ok) return old;
+            const neighborIndex = field === "from" ? index - 1 : index + 1;
+            const neighbor = changed[neighborIndex];
+            if ((field === "from" && currentPeriod.through && date.value > currentPeriod.through) ||
+                (field === "through" && currentPeriod.from && date.value < currentPeriod.from)) {
+              return { ...old, errors: ["A period cannot end before it starts. Use Merge or Remove for that change."] };
             }
-            if (shifted.ok) changed[neighborIndex] = { ...neighbor,
-              [field === "from" ? "through" : "from"]: shifted.value,
-              values: neighbor.values.map((row) => ({ ...row,
+            if (neighbor && (!editable || typeof branch.selection === "object" &&
+                (neighborIndex < branch.selection.from || neighborIndex > branch.selection.through))) {
+              return { ...old, errors: ["Select the adjacent period before moving this boundary."] };
+            }
+            if (neighbor) {
+              const shifted = addDays(date.value, field === "from" ? -1 : 1);
+              if (shifted.ok && (field === "from" && shifted.value < neighbor.from ||
+                  field === "through" && shifted.value > neighbor.through)) {
+                return { ...old, errors: ["This boundary would remove the adjacent period. Use Merge or Remove."] };
+              }
+              if (shifted.ok) changed[neighborIndex] = { ...neighbor,
+                [field === "from" ? "through" : "from"]: shifted.value,
+                values: neighbor.values.map((row) => ({ ...row,
+                  provenance: row.provenance === "domain-zero-propagated" ? row.provenance : "needs-confirmation" as const })) };
+            }
+            changed[index] = { ...currentPeriod, [field]: text,
+              values: currentPeriod.values.map((row) => ({ ...row,
                 provenance: row.provenance === "domain-zero-propagated" ? row.provenance : "needs-confirmation" as const })) };
-          }
-          changed[index] = { ...currentPeriod, [field]: text,
-            values: currentPeriod.values.map((row) => ({ ...row,
-              provenance: row.provenance === "domain-zero-propagated" ? row.provenance : "needs-confirmation" as const })) };
-          return { ...old, periods: changed, errors: [], confirmed: false };
-        }, true), "date");
-        control.disabled = !editable;
+            return { ...old, periods: changed, errors: [], confirmed: false };
+          }, true);
+        }, "date");
+        control.disabled = !editable || fixedBoundary(field);
         tr.append(cell);
       };
       dateCell("From", period.from, "from"); dateCell("Through", period.through, "through");
@@ -438,11 +430,15 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
         tr.append(cell);
       }
       const actions = document.createElement("td");
-      const splitDate = document.createElement("input"); splitDate.type = "date";
-      splitDate.setAttribute("aria-label", "Split " + period.from + " to " + period.through + " at date");
       const split = document.createElement("button"); split.type = "button"; split.textContent = "Split at date";
       split.disabled = !editable;
-      split.addEventListener("click", () => {
+      const splitDate = document.createElement("input"); splitDate.type = "date"; splitDate.hidden = true;
+      splitDate.setAttribute("aria-label", "Split " + period.from + " to " + period.through + " at date");
+      const confirmSplit = document.createElement("button"); confirmSplit.type = "button"; confirmSplit.textContent = "Confirm split"; confirmSplit.hidden = true;
+      const cancelSplit = document.createElement("button"); cancelSplit.type = "button"; cancelSplit.textContent = "Cancel split"; cancelSplit.hidden = true;
+      split.addEventListener("click", () => { splitDate.hidden = false; confirmSplit.hidden = false; cancelSplit.hidden = false; splitDate.focus(); });
+      cancelSplit.addEventListener("click", () => { splitDate.hidden = true; confirmSplit.hidden = true; cancelSplit.hidden = true; split.focus(); });
+      confirmSplit.addEventListener("click", () => {
         const date = createCivilDate(splitDate.value);
         if (!date.ok || date.value <= period.from || date.value > period.through) {
           error.textContent = "Choose a split date inside this period, after its start."; error.hidden = false; return;
@@ -481,10 +477,11 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
           { from: first.from, through: second.through, values }, ...old.periods.slice(index + 2)] };
       }, true));
       const remove = document.createElement("button"); remove.type = "button"; remove.textContent = "Remove period";
-      remove.disabled = !editable || index !== 0 && index !== draft.periods.length - 1;
+      remove.disabled = !editable || index !== 0 && index !== draft.periods.length - 1 ||
+        typeof branch.selection === "object";
       remove.addEventListener("click", () => update((old) => ({ ...old,
         periods: old.periods.filter((_, i) => i !== index), confirmed: false }), true));
-      actions.append(splitDate, split, merge, remove); tr.append(actions); table.append(tr);
+      actions.append(split, splitDate, confirmSplit, cancelSplit, merge, remove); tr.append(actions); table.append(tr);
     });
     const tableScroll = document.createElement("div");
     tableScroll.className = "card-actuals-matrix-scroll";
@@ -515,9 +512,11 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
     });
     const periods = old.periods.map((period) => ({ ...period, values: teams.filter((row) => row.enabled).map((row) =>
       period.values.find((cell) => cell.teamId === row.teamId) ?? { teamId: row.teamId, text: "", provenance: "needs-confirmation" as const }) }));
-    input.store.update(model.id, { ...old, modal: { step: 1,
+    const firstPeriod = periods.length ? periods : [blankPeriod()];
+    input.store.update(model.id, { ...old, modal: { step: periods.length ? 1 : 2,
       selection: periods.length ? { from: 0, through: periods.length - 1 } : "initial",
-      periods, teams, confirmed: false, retirementConfirmed: false, anchor: 0,
+      periods: firstPeriod, teams, confirmed: false, retirementConfirmed: false, anchor: 0,
+      prepared: !periods.length,
       ...(handoff ? { handoff } : {}) } });
     input.onDraftChange(); render();
     fields.querySelector?.("button")?.focus();
@@ -529,7 +528,7 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
     input.store.update(model.id, rest);
     render(); input.onDraftChange(); toggle.focus();
   };
-  back.addEventListener("click", () => setModal((old) => ({ ...old, step: Math.max(1, old.step - 1) as 1 | 2 | 3 })));
+  back.addEventListener("click", () => setModal((old) => ({ ...old, step: Math.max(current?.coverage ? 1 : 2, old.step - 1) as 1 | 2 | 3 })));
   review.addEventListener("click", () => {
     if (!input.store.review(model.id)) {
       error.textContent = "The partition, membership or same RAF changed concurrently. Cancel and start from the current snapshot.";
@@ -595,7 +594,7 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
   if (input.store.get(model.id)?.modal) {
     document.defaultView?.queueMicrotask(() => fields.querySelector?.<HTMLElement>("button, input")?.focus());
   }
-  return { openHandoff: (command) => onOpen(command),
+  return { openHandoff: (command) => onOpen(command), applyCardRaf, cancelCardRaf,
     destroy: () => { toggle.removeEventListener("click", onOpenClick); cancel.removeEventListener("click", onCancel); form.removeEventListener("submit", onSubmit);
       modal.removeEventListener("keydown", onKeyDown); document.removeEventListener?.("focusin", onFocusIn);
       modal.remove?.(); } };

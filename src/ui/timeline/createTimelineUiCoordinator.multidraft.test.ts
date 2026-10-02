@@ -19,7 +19,7 @@ import { createTimelineUiCoordinator, type TimelineUiCoordinatorDependencies } f
 import { createSnapshotActualsDraftStore } from "../actuals/snapshotActualsDraftStore.js";
 import { parseSnapshotActualsCommand } from "../actuals/parseSnapshotActualsCommand.js";
 import { capacityFromSerialized, createCivilDate, reservationRatioFromSerialized, unavailabilityRatioFromSerialized,
-  remainingWorkloadFromSerialized, type DomainResult, type ProjectId, type ReservationId, type TeamId } from "../../domain/index.js";
+  remainingWorkloadFromSerialized, serializeQuantity, type DomainResult, type ProjectId, type ReservationId, type TeamId } from "../../domain/index.js";
 
 function must<T>(result: DomainResult<T>): T { if (!result.ok) throw new Error(JSON.stringify(result.errors)); return result.value; }
 
@@ -243,8 +243,8 @@ describe("coordinator multi-draft rerender", () => {
     const field = labelInput(host, text); field.value = value; field.emit("input");
   };
   const prepareOneDay = (host: FakeElement, kind: "project" | "reservation", teamIds: readonly TeamId[]): void => {
-    all(host).find((item) => item.textContent === "Next")!.emit("click");
-    setField(host, "From", "2025-01-04"); setField(host, "Through", "2025-01-04");
+    labelInput(host, "From").value = "2025-01-04"; labelInput(host, "From").emit("blur");
+    labelInput(host, "Through").value = "2025-01-04"; labelInput(host, "Through").emit("blur");
     for (const id of teamIds) setField(host, `${id} consumed`, "0");
     if (kind === "project") {
       all(host).find((item) => item.textContent === "Next")!.emit("click");
@@ -270,7 +270,8 @@ describe("coordinator multi-draft rerender", () => {
       open();
       assert.equal(app.cardStateFor(kind, id)?.expanded, true);
       assert.equal(app.cardStateFor(kind, id)?.dirty, false);
-      all(host()).find((item) => item.textContent === "Next")!.emit("click");
+      setField(host(), `${(kind === "project" ? app.scenario.portfolio.projects[0]!.requirements :
+        app.scenario.portfolio.reservations[0]!.teamAllocations)[0]!.teamId} consumed`, "0");
       assert.equal(app.cardStateFor(kind, id)?.dirty, true);
       all(host()).find((item) => item.textContent === "Cancel Actuals")!.emit("click");
       assert.equal(app.cardStateFor(kind, id)?.dirty, false);
@@ -303,7 +304,7 @@ describe("coordinator multi-draft rerender", () => {
     all(reservationHost).find((item) => item.textContent === "Update actuals")!.emit("click");
     assert.equal(all(reservationHost).find((item) => item.className.includes("card-actuals-modal"))?.hidden, false);
     assert.equal(app.cardStateFor("reservation", reservation.id)?.dirty, false);
-    all(reservationHost).find((item) => item.textContent === "Next")!.emit("click");
+    setField(reservationHost, `${reservation.teamAllocations[0]!.teamId} consumed`, "0");
     assert.equal(app.cardStateFor("reservation", reservation.id)?.dirty, true);
     reservationForecast.update(reservation.id, { ...reservationForecast.get(reservation.id)!.values, name: "Reservation local" });
     const projectHost = app.projectCardHost(project.id)!;
@@ -333,6 +334,9 @@ describe("coordinator multi-draft rerender", () => {
     const id = app.session.getState().portfolio.projects[0]!.id;
     const newTeam = app.unusedTeamId!;
     app.openProject(id);
+    const quick = all(app.projectCardHost(id)!).find((item) => item.attributes.get("data-raf-team") ===
+      app.session.getState().portfolio.projects[0]!.requirements[0]!.teamId)!;
+    quick.value = "2"; quick.emit("input");
     const forecast = app.projectHandles.get(id)!.draftStore!;
     const before = forecast.get(id)!;
     forecast.update(id, { ...before.values, teams: before.values.teams.map((row) =>
@@ -365,10 +369,16 @@ describe("coordinator multi-draft rerender", () => {
     const teamLabel = app.session.getState().portfolio.teams.find((team) => team.id === newTeam)!.name;
     const confirmation = labelInput(host, "Confirm " + teamLabel + " RAF (required)");
     confirmation.checked = true; confirmation.emit("change");
+    const existingLabel = app.session.getState().portfolio.teams.find((team) =>
+      team.id === project.requirements[0]!.teamId)!.name;
+    const existingConfirmation = labelInput(host, "Confirm " + existingLabel + " RAF (required)");
+    existingConfirmation.checked = true; existingConfirmation.emit("change");
     const form = all(host).find((item) => item.className.includes("card-actuals-form"))!;
     form.emit("submit");
     assert.equal(app.session.getState().portfolio.projects[0]!.snapshots!.length, 2);
     assert.ok(app.session.getState().portfolio.projects[0]!.requirements.some((row) => row.teamId === newTeam));
+    assert.equal(serializeQuantity(app.session.getState().portfolio.projects[0]!.snapshots!.at(-1)!.raf.find((row) =>
+      row.teamId === project.requirements[0]!.teamId)!.amount), "2/1");
     assert.equal(forecast.isDirty(id), false);
     app.coordinator.destroy();
   });
@@ -449,6 +459,48 @@ describe("coordinator multi-draft rerender", () => {
     assert.equal(result.ok, false);
     if (!result.ok) assert.ok(result.errors.some((item) => item.code === "ACTUALS_HANDOFF_RAF_CONFLICT"));
     assert.equal(app.session.getState().portfolio.projects[0]!.snapshots!.length, 1);
+    app.coordinator.destroy();
+  });
+  it("routes the global Project Apply through raf-only and global Cancel restores card RAF", () => {
+    const app = fixture(false, false, true, true);
+    const project = app.session.getState().portfolio.projects[0]!;
+    app.openProject(project.id);
+    const host = app.projectCardHost(project.id)!;
+    const field = all(host).find((item) => item.attributes.has("data-raf-team"))!;
+    const published = field.value;
+    field.value = "7/3"; field.emit("input");
+    assert.equal(app.cardStateFor("project", project.id)?.dirty, true);
+    app.projectHandles.get(project.id)!.onCancel?.();
+    assert.equal(field.value, published);
+    assert.equal(app.cardStateFor("project", project.id)?.dirty, false);
+    field.value = "7/3"; field.emit("input");
+    const command: UpdateProjectCommand = { kind: "update-project", projectId: project.id, name: project.name,
+      teamRequirements: project.requirements.map((row) => ({ teamId: row.teamId,
+        remainingWorkload: row.remainingWorkload, ...(row.dailyCap ? { dailyCap: row.dailyCap } : {}) })) };
+    assert.equal(app.projectHandles.get(project.id)!.onApply(command).ok, true);
+    assert.equal(app.session.getState().portfolio.projects[0]!.snapshots?.length, 2);
+    assert.equal(app.session.getState().portfolio.projects[0]!.snapshots?.at(-1)?.coverage?.actualsThrough,
+      project.snapshots?.at(-1)?.coverage?.actualsThrough);
+    app.coordinator.destroy();
+  });
+  it("keeps RAF and unrelated Forecast drafts when global Apply cannot publish them atomically", () => {
+    const app = fixture(false, false, true, true);
+    const project = app.session.getState().portfolio.projects[0]!;
+    app.openProject(project.id);
+    const host = app.projectCardHost(project.id)!;
+    const field = all(host).find((item) => item.attributes.has("data-raf-team"))!;
+    field.value = "7/3"; field.emit("input");
+    const forecast = app.projectHandles.get(project.id)!.draftStore!;
+    forecast.update(project.id, { ...forecast.get(project.id)!.values, name: "Local name" });
+    const command: UpdateProjectCommand = { kind: "update-project", projectId: project.id, name: "Local name",
+      teamRequirements: project.requirements.map((row) => ({ teamId: row.teamId,
+        remainingWorkload: row.remainingWorkload, ...(row.dailyCap ? { dailyCap: row.dailyCap } : {}) })) };
+    const result = app.projectHandles.get(project.id)!.onApply(command);
+    assert.equal(result.ok, false);
+    if (!result.ok) assert.ok(result.errors.some((item) => item.code === "ACTUALS_FORECAST_SEPARATION"));
+    assert.equal(app.session.getState().portfolio.projects[0]!.snapshots?.length, 1);
+    assert.equal(forecast.get(project.id)?.values.name, "Local name");
+    assert.equal(field.value, "7/3");
     app.coordinator.destroy();
   });
   it("preserves state, projection, drafts and focus on failed activation commands", () => {

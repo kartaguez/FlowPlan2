@@ -7,7 +7,7 @@ import { createSnapshotActualsDraftStore } from "./snapshotActualsDraftStore.js"
 import { parseSnapshotActualsCommand } from "./parseSnapshotActualsCommand.js";
 import { createSnapshotActualsCardController } from "./createSnapshotActualsCardController.js";
 
-type Listener = (event: { preventDefault?: () => void }) => void;
+type Listener = (event: { preventDefault?: () => void; shiftKey?: boolean; key?: string }) => void;
 class FakeDocument {
   activeElement: FakeElement | undefined;
   createElement(tag: string): FakeElement { return new FakeElement(this, tag); }
@@ -26,7 +26,9 @@ class FakeElement {
     const set = this.listeners.get(type) ?? new Set<Listener>(); set.add(listener); this.listeners.set(type, set);
   }
   removeEventListener(type: string, listener: Listener): void { this.listeners.get(type)?.delete(listener); }
-  emit(type: string): void { for (const listener of this.listeners.get(type) ?? []) listener({ preventDefault() {} }); }
+  emit(type: string, options: { shiftKey?: boolean; key?: string } = {}): void {
+    for (const listener of this.listeners.get(type) ?? []) listener({ preventDefault() {}, ...options });
+  }
   focus(): void { this.ownerDocument.activeElement = this; }
 }
 const all = (root: FakeElement): FakeElement[] => [root, ...root.children.flatMap(all)];
@@ -64,6 +66,8 @@ test("current editor shows legacy and snapshot histories read-only, then applies
   assert.equal(applies, 0);
   const draft = store.get(project.id)!;
   store.update(project.id, { ...draft, modal: { ...draft.modal!, step: 3,
+    periods: [{ from: "2025-01-01", through: "2025-01-01", values: project.requirements.map((row) => ({
+      teamId: row.teamId, text: "1", provenance: "user-entered" as const })) }],
     teams: draft.modal!.teams.map((row) => row.enabled ? { ...row, raf: "1", rafConfirmed: true } : row) } });
   form.emit("submit");
   assert.equal(applies, 1);
@@ -117,6 +121,149 @@ test("a differently written exact RAF stays a quick no-op", () => {
   const field = all(host).find((node) => node.attributes.get("data-raf-team") === teamId)!;
   field.value = "2/2"; field.emit("input");
   assert.equal(store.isDirty(id), false);
-  assert.equal(all(host).find((node) => node.textContent === "Apply RAF")!.disabled, true);
+  assert.equal(all(host).some((node) => /^(Apply RAF|Revert RAF|Record initial RAF)$/.test(node.textContent)), false);
+  controller.destroy();
+});
+
+test("card RAF is dirty until global Cancel, and global Apply creates an initial snapshot", () => {
+  const session = createPlanningSession(createDemoPlanningScenario(), { today: () => d("2025-01-06") });
+  const id = session.getState().portfolio.projects[0]!.id;
+  const model = buildProjectSnapshotActualsViewModel(session.getState(), id)!;
+  const store = createSnapshotActualsDraftStore();
+  const host = new FakeDocument().createElement("div");
+  let intent = "";
+  const controller = createSnapshotActualsCardController({ host: host as unknown as HTMLElement, model, store,
+    onDraftChange() {}, conflict: () => undefined, onApply(command) {
+      intent = command.intent.kind;
+      return session.dispatch(command);
+    } });
+  const field = all(host).find((node) => node.attributes.has("data-raf-team"))!;
+  field.value = "7/3"; field.emit("input");
+  assert.equal(store.isDirty(id), true);
+  assert.equal(session.getState().portfolio.projects[0]?.snapshots, undefined);
+  controller.cancelCardRaf();
+  assert.equal(store.isDirty(id), false);
+  field.value = "7/3"; field.emit("input");
+  assert.equal(controller.applyCardRaf().ok, true);
+  assert.equal(intent, "initial");
+  assert.equal(session.getState().portfolio.projects[0]?.snapshots?.length, 1);
+  controller.destroy();
+});
+
+test("first Actuals opens at periods, date typing waits for a complete change, split date starts hidden", () => {
+  const session = createPlanningSession(createDemoPlanningScenario(), { today: () => d("2025-01-06") });
+  const id = session.getState().portfolio.projects[0]!.id;
+  const model = buildProjectSnapshotActualsViewModel(session.getState(), id)!;
+  const store = createSnapshotActualsDraftStore();
+  const host = new FakeDocument().createElement("div");
+  const controller = createSnapshotActualsCardController({ host: host as unknown as HTMLElement, model, store,
+    onDraftChange() {}, conflict: () => undefined, onApply: (command) => session.dispatch(command) });
+  all(host).find((node) => node.textContent === "Update actuals")!.emit("click");
+  assert.equal(store.get(id)?.modal?.step, 2);
+  assert.equal(all(host).some((node) => node.textContent === "Create first Actuals period"), false);
+  const from = all(host).find((node) => node.tag === "label" && node.textContent === "From")!.children[0]!;
+  const original = store.get(id)!.modal!.periods;
+  from.value = "0002-01-04"; from.emit("input"); from.emit("change");
+  assert.equal(store.get(id)!.modal!.periods, original);
+  assert.equal(all(host).find((node) => node.tag === "label" && node.textContent === "From")!.children[0], from);
+  from.value = "2025-01-0"; from.emit("blur");
+  assert.equal(store.get(id)!.modal!.periods, original);
+  from.value = "2025-01-04"; from.emit("blur");
+  assert.equal(store.get(id)!.modal!.periods[0]?.from, "2025-01-04");
+  assert.equal(all(host).find((node) => node.attributes.get("aria-label")?.startsWith("Split "))?.hidden, true);
+  all(host).find((node) => node.textContent === "Split at date")!.emit("click");
+  assert.equal(all(host).find((node) => node.attributes.get("aria-label")?.startsWith("Split "))?.hidden, false);
+  controller.destroy();
+});
+
+test("period editor locks unchanged rows and external boundaries for prepend, append and central selections", () => {
+  const session = createPlanningSession(createDemoPlanningScenario(), { today: () => d("2025-01-06") });
+  const id = session.getState().portfolio.projects[0]!.id;
+  const initialModel = buildProjectSnapshotActualsViewModel(session.getState(), id)!;
+  const initial = createSnapshotActualsDraftStore().initialize(initialModel);
+  const parsed = parseSnapshotActualsCommand(initialModel, { ...initial,
+    periods: ["2025-01-01", "2025-01-02", "2025-01-03"].map((date) => ({ from: date, through: date,
+      values: initial.teams.filter((team) => team.enabled).map((team) => ({ teamId: team.teamId, text: "0",
+        provenance: "user-entered" as const })) })),
+    teams: initial.teams.map((team) => team.enabled ? { ...team, raf: "1", rafConfirmed: true } : team) });
+  assert.equal(parsed.ok, true);
+  if (!parsed.ok) return;
+  assert.equal(session.dispatch(parsed.command).ok, true);
+  const model = buildProjectSnapshotActualsViewModel(session.getState(), id)!;
+  const check = (selection: "before" | "after" | "single" | "multi" | "touch") => {
+    const host = new FakeDocument().createElement("div");
+    const store = createSnapshotActualsDraftStore();
+    const controller = createSnapshotActualsCardController({ host: host as unknown as HTMLElement, model, store,
+      onDraftChange() {}, conflict: () => undefined, onApply: (command) => session.dispatch(command) });
+    all(host).find((node) => node.textContent === "Update actuals")!.emit("click");
+    const tiles = () => all(host).filter((node) => node.className === "card-actuals-frieze-tile");
+    assert.equal(all(host).some((node) => node.textContent === "Select through here"), false);
+    if (selection === "before") tiles()[0]!.emit("click");
+    if (selection === "after") tiles()[4]!.emit("click");
+    if (selection === "single" || selection === "multi" || selection === "touch") {
+      tiles()[2]!.emit("click");
+      if (selection === "multi") tiles()[3]!.emit("click", { shiftKey: true });
+      if (selection === "touch") {
+        all(host).find((node) => node.textContent === "Extend selection")!.emit("click");
+        tiles()[3]!.emit("click");
+      }
+    }
+    assert.deepEqual(store.get(id)?.modal?.selection, selection === "before" || selection === "after" ? selection :
+      selection === "single" ? { from: 1, through: 1 } : { from: 1, through: 2 });
+    all(host).find((node) => node.textContent === "Next")!.emit("click");
+    const matrix = all(host).find((node) => node.attributes.get("aria-label") === "Actuals Team by period matrix")!;
+    const table = matrix.children[0]!;
+    const rows = table.children.filter((node) => node.tag === "tr").slice(1);
+    const date = (row: number, field: number) => rows[row]!.children[field]!.children[0]!.children[0]!;
+    const consumed = (row: number) => rows[row]!.children[2]!.children[0]!.children[0]!;
+    if (selection === "before") {
+      assert.equal(date(0, 0).disabled, false); assert.equal(date(0, 1).disabled, true);
+      assert.equal(consumed(0).disabled, false); assert.equal(consumed(1).disabled, true);
+    } else if (selection === "after") {
+      assert.equal(date(3, 0).disabled, true); assert.equal(date(3, 1).disabled, false);
+      assert.equal(consumed(3).disabled, false); assert.equal(consumed(2).disabled, true);
+    } else {
+      assert.equal(date(1, 0).disabled, true);
+      assert.equal(date(selection === "single" ? 1 : 2, 1).disabled, true);
+      assert.equal(consumed(0).disabled, true);
+      assert.equal(consumed(1).disabled, false);
+      assert.equal(consumed(2).disabled, selection === "single");
+      if (selection !== "single") assert.equal(date(1, 1).disabled, false);
+    }
+    controller.destroy();
+  };
+  for (const selection of ["before", "after", "single", "multi", "touch"] as const) check(selection);
+});
+
+test("card RAF Apply uses raf-only after a snapshot and keeps the draft after failure", () => {
+  const session = createPlanningSession(createDemoPlanningScenario(), { today: () => d("2025-01-06") });
+  const id = session.getState().portfolio.projects[0]!.id;
+  const firstModel = buildProjectSnapshotActualsViewModel(session.getState(), id)!;
+  const first = createSnapshotActualsDraftStore().initialize(firstModel);
+  const initial = parseSnapshotActualsCommand(firstModel, { ...first,
+    teams: first.teams.map((row) => row.enabled ? { ...row, raf: "1", rafConfirmed: true } : row) });
+  assert.equal(initial.ok, true);
+  if (!initial.ok) return;
+  assert.equal(session.dispatch(initial.command).ok, true);
+  const model = buildProjectSnapshotActualsViewModel(session.getState(), id)!;
+  const store = createSnapshotActualsDraftStore();
+  const host = new FakeDocument().createElement("div");
+  let reject = true;
+  let intent = "";
+  const controller = createSnapshotActualsCardController({ host: host as unknown as HTMLElement, model, store,
+    onDraftChange() {}, conflict: () => undefined, onApply(command) {
+      intent = command.intent.kind;
+      return reject ? { ok: false, errors: [{ code: "TEST_FAILURE", path: "raf", message: "Retry" }] }
+        : session.dispatch(command);
+    } });
+  const field = all(host).find((node) => node.attributes.has("data-raf-team"))!;
+  field.value = "7/3"; field.emit("input");
+  assert.equal(controller.applyCardRaf().ok, false);
+  assert.equal(intent, "raf-only");
+  assert.equal(store.get(id)?.teams.some((row) => row.raf === "7/3"), true);
+  assert.equal(session.getState().portfolio.projects[0]!.snapshots?.length, 1);
+  reject = false;
+  assert.equal(controller.applyCardRaf().ok, true);
+  assert.equal(session.getState().portfolio.projects[0]!.snapshots?.length, 2);
   controller.destroy();
 });
