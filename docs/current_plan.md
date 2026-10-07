@@ -43,7 +43,7 @@ Lot 10C.1 object-scoped knowledge snapshots with V5 persistence.
 
 Current implementation review: 10C.2 Actuals / RAF workflow UX (IN REVIEW).
 Next step in planning: **11A — Portfolio Snapshots & Forecast History Capture
-(PLANNING)**, [dedicated implementation plan](./steps/PORTFOLIO_SNAPSHOTS/lot11a_plan.md).
+(READY FOR IMPLEMENTATION — plan only)**, [dedicated implementation plan](./steps/PORTFOLIO_SNAPSHOTS/lot11a_plan.md).
 This documentation pass neither implements 11A nor validates 10C.2.
 
 ## Current objective and ordered sub-lots
@@ -54,15 +54,17 @@ Corrective lot — usage-driven Program/Pas and colors (DONE)
 Corrective lot — anchored temporal zoom and range drag (DONE)
 Lot 10 — Actuals & History (OPEN)
 10A (DONE) → 10B (DONE) → 10C (DONE) → 10C.1 (DONE) → 10C.2 (IN REVIEW)
-Next planning trajectory: 11A (PLANNING, capture/persistence) → 11B (future, drift visualization)
-10D / 10E: open legacy scope to reconcile with 11A / 11B, not completed
+Next planning trajectory: 11A (READY plan, capture/persistence; code gated by 10C.2) → 11B (future, drift visualization)
+10D: superseded by 11A (not DONE)
+10E: largely superseded by 11B; advanced replay/navigation/comparison deferred
 ```
 
 Lots through 9I, the Projection date presentation pass, both corrective lots,
 10A through 10C.1 are validated. 10C.2 awaits audit of its implementation commit.
 11A is the next step in planning; implementation remains dependent on 10C.2
-validation and the decisions recorded in its plan. 10D and 10E remain open
-pending reconciliation of their residual scope with 11A and 11B.
+audit and closure. Its plan has no open business decision. 10D is superseded
+by 11A without residual capture scope; 10E is largely superseded by 11B, with
+advanced replay/navigation/comparison deferred, not implemented.
 
 ## Corrective lot — anchored temporal zoom and range drag
 
@@ -310,7 +312,8 @@ use candidate state → projection → persistence → publication. Forecast
 Reservations, metrics, and `PlanningInput` remain on their existing 10A
 boundary; 10B now integrates calculated daily occupation into planning.
 Current capacity schedules and working pattern can reshape reconstructed
-historical days; knowledge versioning remains deferred to 10D/10E.
+historical days; whole-Portfolio knowledge capture is planned in 11A and drift
+visualization in 11B, with advanced historical replay/navigation deferred.
 
 ## 10B — Actuals-aware planning projection
 
@@ -356,40 +359,59 @@ manually. Implementation and final dirty correction were audited at
 
 ## 10D — Knowledge snapshots
 
-Legacy scope, pending reconciliation with 11A; not the next implementation lot.
+**10D — superseded by 11A.** No concrete residual capture capability remains.
 
-Reassess cross-object and Forecast knowledge needed for whole-planning historical
-replay after 10C.1. Object-scoped Actuals/RAF snapshots alone do not freeze
-Team capacity, working pattern, Forecast configuration, or all objects at one
-instant. This lot remains open and distinct from 10C.1.
+The historical 10D need was to freeze cross-object/Forecast knowledge that
+10C.1 object snapshots do not cover: Team capacity, working pattern, Forecast
+configuration and all objects at one instant. 11A complete historical inputs
+cover that need, with minimal exact Project forecast metrics. This is a scope
+replacement, not a DONE claim. Executable replay belongs to the residual 10E
+concern rather than a separate 10D capture lot.
 
 ## 10E — Historical reconstruction & drift comparison
 
-Legacy scope, pending reconciliation with 11B and any later replay work.
-
-Reconstruct knowledge at different snapshot dates and compare changes in
-consumed work, RAF, projection, estimated dates, capacity/overload, and other
-relevant results. Each comparison must identify which inputs are historical
-and which still come from current configuration. The comparison UI and drift
-visualization remain open.
+**10E — largely superseded by 11B.** Project drift visualization/comparison
+moves to 11B. Potential residual scope: full historical-state replay, full
+historical navigation and advanced comparison/reconstruction beyond promised
+Project drift (including daily capacity/overload and other detailed results).
+These capabilities require later explicit planning and are not implemented or
+promised by 11A/11B. Comparisons must distinguish historical inputs/results
+from any new replay or current configuration.
 
 The [current canon](./current_canon.md) records the validated 10C.1 contract.
 
 ## 11A — Portfolio Snapshots & Forecast History Capture
 
-**Status: PLANNING.** Next step in planning; see the
+**Status: READY FOR IMPLEMENTATION — plan only.** See the
 [11A implementation plan](./steps/PORTFOLIO_SNAPSHOTS/lot11a_plan.md), based on
-inspection of clean `main` at `843cb966b9cda0b13d1695f73aa005847e8fbb8a`.
+inspection of clean `main` at `843cb966b9cda0b13d1695f73aa005847e8fbb8a`, revised
+from plan commit `2d5695848035462bf6e4fc70754ec4d3bc6d5c94`.
 No implementation is included in this documentation pass.
 
 Capture explicit, immutable, deletable whole-Portfolio snapshots with complete
-historical inputs, stable references to object Actuals snapshots, and the
-exact published historical forecast. The plan reuses the planning input codec,
-proposes strict V6 persistence/export/import, defines global dirty guards and
-atomic Save/Delete, and includes a complete test matrix. Estimated-start
-semantics, pending V4 capture and same-millisecond timestamp policy require
-explicit decisions before their implementation. 10C.2 remains IN REVIEW;
-the validated baseline is unchanged.
+historical inputs and exact minimal Project forecast: Actuals, RAF, EAC,
+priorityPosition, estimated start/end dates and absence reasons, engine/forecast
+versions. No complete PlanningResult or daily result duplication. Start is the
+first positive canonical Actuals contribution or positive Forecast allocation
+(minimum of both); end uses the shared canonical Timeline rule. snapshotId is
+the identity; equal createdAt timestamps and system-clock rollback are allowed.
+V6 is self-contained, readers V1–V5 migrate to an empty Portfolio Snapshot list,
+and older encoders reject downgrade. Global dirty checks and atomic Save/Delete
+remain required.
+
+V5 sources use canonical snapshot references. Inspection demonstrates that a
+universal pure lossless V4 → V5 conversion is impossible under current rules
+(future coverage, historical positive Teams outside current membership, explicit
+cell/RAF confirmations). The plan therefore retains frozen legacy evidence only
+as a justified pending-migration exception, with no fabricated V5 ID, no
+reconciliation or mutation of the current object at Save, and no conversion to
+none. Details and fixtures are normative in the dedicated plan.
+
+No business decision remains open in the 11A plan. **Implementation must not
+start until 10C.2 has been audited and closed.** 11A depends on its final Actuals
+snapshot model, RAF sources, dirty stores, Apply/Cancel and UI mechanisms.
+10C.2 remains IN REVIEW; this pass does not audit or validate it, and the
+validated baseline is unchanged.
 
 ## 11B — Forecast drift visualization
 
