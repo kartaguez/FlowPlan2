@@ -1,6 +1,6 @@
 # Lot 11A.2 — Historical daily load profiles
 
-Status: **IN REVIEW**. **11B = PLANNED / NOT STARTED**.
+Status: **DONE**. **11B = PLANNED / NOT STARTED**.
 
 Baseline: branch `codex/lot11a-portfolio-snapshots`, initial HEAD
 `a494be8f876729c3c2b72cd4c006541a46933984`, clean and synchronized with origin
@@ -39,6 +39,8 @@ schemas/fields, dates/ranges, canonical nonnegative quantities, coverage/horizon
 inactive Forecast, Actuals sum, Forecast ≤ RAF, EAC = Actuals + RAF and first
 positive activity/last positive Forecast when an end is defined. Save additionally
 requires Forecast = RAF when the active Project's Team plans are all complete.
+Every active Project has at least one such plan in a valid published run,
+including when none of its requirements can allocate (proof below).
 Inactive, partial and unallocated RAF is never manufactured into daily load.
 Import validates structure and historical references, never reruns a historical
 engine or redistributes Actuals to authenticate daily shapes. Errors identify
@@ -106,9 +108,59 @@ Injected quota failure preserved both state identity and prior document.
 These volumes must not be assumed to fit browser quota. The product retains
 explicit failure and complete export, without purge or hidden snapshot limits.
 
-## Remaining gate
+## Final edge-case verification and closure
 
-Implementation → tests/build → ChatGPT audit → corrections/revalidation →
-human validation → **DONE** → only then 11B. This implementation is **IN REVIEW**,
-not DONE. No History mode/view/renderer/tooltip/geometry/toggle or Timeline
-refactoring has begun. 11A.1 merge/archive work remains deferred.
+2026-10-08: final verification explicitly authorized by the user, including
+DONE closure if no issue remained. Initial HEAD was
+`c295db34937dca2dbe86f403319dc8880563d94c` on the expected branch,
+clean and synchronized with origin after `git fetch origin` (0/0).
+Final validated code/test baseline: `06e7fbb94d71fe73a35e244d4cee6626b65777c2`.
+The following documentation-only closure commit records DONE; its SHA is
+available in the branch history and final delivery. 11B remains
+**PLANNED / NOT STARTED**, with no implementation authorized in this mission.
+
+An active Project with positive RAF and zero `ProjectTeamPlanningResult` entries
+is **impossible in a valid published run**. The proof uses the concrete contracts:
+
+- `createProject` (`src/domain/model/entities.ts`) rejects empty requirements
+  with `EMPTY_PROJECT_REQUIREMENTS`, and duplicate Team requirements.
+- `createPortfolio` in the same file requires every requirement Team to exist
+  (`UNKNOWN_REQUIREMENT_TEAM`) and every Project to occur exactly once in
+  `priorityOrder` (`MISSING_PRIORITY_PROJECT` / duplicate/unknown guards).
+- `projectsForTeam` (`src/domain/planning/engine.ts`) visits that full priority
+  order for every Portfolio Team and creates one state for each active Project
+  requirement. There is no capacity, admission, RAF or date filter at this step.
+- `planTeam` maps **all** these states to `projectResult`, without filtering
+  unadmitted/unallocated states. `planPortfolio` publishes every Portfolio Team.
+  `buildPlanningSessionProjection` publishes this result directly; Timeline
+  adapters do not replace or filter the published planning result.
+- `projectResult.complete` is exactly `isZero(state.remaining)`. A positive RAF
+  requirement that never allocates therefore has a present **incomplete** plan,
+  empty allocations and its full remaining unplanned workload. A zero RAF
+  requirement has a present complete plan, potentially without allocations.
+
+Thus a Project without any Team is invalid, while no possible allocation is a
+valid condition producing incomplete plans rather than absent plans. For an
+active Project, plan count equals requirement count. Inactive Projects can have
+zero plans, but the `project.isActive` guard excludes them. An artificially
+truncated result or a hand-built state bypassing Domain factories is not a
+legitimate published run. `Array.every([])` is true, but this empty branch cannot
+occur for an active Project here. The production condition remains unchanged;
+adding an empty-list escape would weaken a guard without fixing any valid Save.
+
+Nine regression tests were added to `dailyProfiles.test.ts`: three invalid
+inputs (no Team, unknown Team, missing priority); five valid unallocated cases
+(empty capacity schedule, zero daily cap, start beyond horizon, weekend-only
+horizon, admission blocked by priority); and a mixed complete/incomplete
+multi-Team Project. Valid blocked cases assert one plan per requirement,
+positive RAF preserved, zero Forecast, `incomplete-within-horizon`, successful
+transactional Save and V7 round trip, and no recomputation. The mixed case keeps
+partial Forecast below RAF. Existing complete/zero-RAF/inactive tests and the
+rejection of a purported complete run whose Forecast differs from RAF remain.
+
+Final gates: `npm run typecheck`, `npm test` (**755/755 tests, 89 suites**, no
+skipped/cancelled/todo), `npm run build`, and `git diff --check` pass.
+No other issue remains in the examined scope. No production code, V7 format,
+daily-profile contract, Actuals/Forecast calculation, engine, Timeline or History
+implementation changed. **11A.2 DONE; 11B PLANNED / NOT STARTED.**
+11A.1 merge/archive work remains deferred.

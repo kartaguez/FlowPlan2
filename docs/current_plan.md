@@ -1,7 +1,8 @@
 # FlowPlan2 current plan
 
 Current validated baseline:
-`f477dd6e1a31f3be7be949dad9fea4cae9667770` (11A validated by the user)
+`06e7fbb94d71fe73a35e244d4cee6626b65777c2` (11A.2 final verified code/test baseline;
+documentation closure follows on the same branch)
 
 This is the operational roadmap for the active trajectory. Durable product and
 architecture rules live in [canon](./canon.md); current implementation facts
@@ -12,7 +13,8 @@ temporal zoom corrective lots, Lot 10A Actuals with V4 backup, Lot 10B
 Actuals-aware planning projection, Lot 10C Actuals workflows and UI, and
 Lot 10C.1 object-scoped knowledge snapshots with V5 persistence and
 Lot 10C.2 Actuals/RAF workflow corrections, and Lot 11A Portfolio Snapshots
-with immutable historical inputs, exact Project metrics and V6 persistence.
+with immutable historical inputs, exact Project metrics and V6 persistence,
+plus Lot 11A.2 exact daily profiles and V7 persistence.
 
 ## Completed
 
@@ -44,32 +46,28 @@ with immutable historical inputs, exact Project metrics and V6 persistence.
 - 10C.1 Actuals knowledge snapshots and V5 migration (DONE).
 - 10C.2 Actuals / RAF workflow UX (DONE).
 - 11A Portfolio Snapshots & Forecast History Capture (DONE).
+- 11A.2 Historical daily load profiles (DONE).
 
 Current trajectory: **11A.2 — Historical daily load profiles**, then
 **11B — Project History view**. See the
 [detailed implementation plan](./steps/HISTORY/lot11a2_11b_plan.md).
-This is a documentation-only preparation; neither lot is implemented.
+11A.2 is implemented, verified and closed. 11B remains PLANNED / NOT STARTED.
 
 ## Current objective and ordered sub-lots
 
 ```text
 10A (DONE) → 10B (DONE) → 10C (DONE) → 10C.1 (DONE) → 10C.2 (DONE)
-11A (DONE) → 11A.2 (PLANNED) → 11B (PLANNED)
+11A (DONE) → 11A.2 (DONE) → 11B (PLANNED / NOT STARTED)
 11A.1: DEFERRED / not adopted as product work; no dependency for 11B
 10D: superseded by 11A (not DONE)
 10E: largely superseded by 11B; advanced replay/navigation/comparison deferred
 ```
 
-Inspected branch: `codex/lot11a-portfolio-snapshots`; starting HEAD
-`a51f08626c65c698037e919d44577ad39a5beafb`, clean working tree.
-The implementation `f477dd6e1a31f3be7be949dad9fea4cae9667770` and both 11A plan
-commits `2d5695848035462bf6e4fc70754ec4d3bc6d5c94` and
-`da79f2c243bcba487f68c8ee441fe6efe1e65514` are ancestors of this HEAD.
-The prior 10C.2 baseline was `843cb966b9cda0b13d1695f73aa005847e8fbb8a`.
-The user-provided positive audit recorded by the 11A.1 plan and this mission
-establishes 11A closure. Older IN REVIEW wording in implementation canons is
-a historical review record, not a missing-code baseline. Those canons remain
-untouched in this planning pass; the operative statuses are recorded here.
+Final verification branch: `codex/lot11a-portfolio-snapshots`; starting HEAD
+`c295db34937dca2dbe86f403319dc8880563d94c`, clean and synchronized with origin
+after fetch. The 11A.2 canon records the invariants, nine additional regression
+tests and final validation. This mission authorizes 11A.2 closure only; no 11B
+implementation was performed.
 
 ## Corrective lot — anchored temporal zoom and range drag
 
@@ -422,8 +420,7 @@ trajectory. A future adoption requires separate scope/plan review.
 
 ## 11A.2 — Historical daily load profiles in Portfolio Snapshots
 
-**Status: IN REVIEW — implementation and automated gates complete; audit and
-human validation pending.**
+**Status: DONE — final verification and closure authorized by the user.**
 See [11A.2 canon and verification](./steps/HISTORY/lot11a2_canon.md) and
 [11A.2 / 11B plan](./steps/HISTORY/lot11a2_11b_plan.md).
 Freeze exact Project-level daily Actuals and Forecast from the already-published
@@ -431,10 +428,12 @@ run at explicit Save, aggregated across Teams. Persist sparse positive daily
 rows, exact rational strings and coverage semantics in forecast schema 2 under
 V7; V6/schema 1 captures remain unchanged and explicitly lack a daily profile.
 No engine/reconstruction during Save or future historical display, no full
-PlanningResult and no artificial V4 reconciliation. Implement and validate
-Domain/capture/persistence/tests/docs, then tests, build, audit, any corrections,
-human validation and **DONE** closure before starting 11B. Parallel 11B
-implementation cannot bypass an unstable 11A.2 contract.
+PlanningResult and no artificial V4 reconciliation.
+Domain/capture/persistence/tests/docs are complete. Final examination proves an
+active Project cannot have zero published Team plans; no production correction
+is necessary. Nine additional tests cover invalid inputs and unallocated/mixed
+plans. Typecheck, 755/755 tests (89 suites), build and diff checks pass.
+11A.2 is **DONE**. No 11B implementation is part of this mission.
 
 ## 11B — Project History view
 

@@ -1,11 +1,18 @@
 # 11A.2 — Historical daily load profiles / 11B — Project History view
 
-Statut courant : **11A.2 IN REVIEW — 11B PLANNED / NOT STARTED**.
+Statut courant : **11A.2 DONE — 11B PLANNED / NOT STARTED**.
 Le plan initial a été durci le 2026-10-08, puis la mission explicite a autorisé
 uniquement l’implémentation 11A.2. Voir le
 [canon et les résultats 11A.2](./lot11a2_canon.md). Les constats ci-dessous
 restent la trace du plan à sa baseline ; ils ne constituent pas une autorisation
-de commencer 11B avant la clôture humaine de 11A.2.
+de commencer 11B. La vérification finale et la clôture DONE ont été explicitement
+autorisées par l’utilisateur : cas vide impossible dans un run publié valide,
+aucune correction de production, neuf tests supplémentaires et 755/755 tests
+passants (89 suites), typecheck/build/diff checks OK. Baseline de départ :
+`c295db34937dca2dbe86f403319dc8880563d94c` ; baseline finale code/tests :
+`06e7fbb94d71fe73a35e244d4cee6626b65777c2`, suivie du commit documentaire de
+clôture sur la même branche. Le canon lié détaille la preuve. 11B reste
+**PLANNED / NOT STARTED** et n’a pas été implémenté pendant cette mission.
 
 ## 1. Baseline réelle et périmètre
 
@@ -33,7 +40,7 @@ anciens comptes rendus 10C.2/11A ne remplacent pas cette baseline : la roadmap
 et le plan 11A.1 attestent déjà la fermeture 10C.2 et l'audit positif utilisateur
 11A au commit f477dd6 ; le cadrage présent confirme 11A validé.
 
-Statuts opérationnels retenus : **11A DONE**, **11A.1 DEFERRED / not adopted
+Statuts retenus lors de l’étude initiale (historiques) : **11A DONE**, **11A.1 DEFERRED / not adopted
 as product work**, **11A.2 PLANNED**, **11B PLANNED**. Le plan 11A.1 reste une
 trace d'étude, sans dépendance de lancement pour ces lots et sans merge de
 backups à implémenter. 10D reste superseded by 11A, pas DONE ; 10E largely
@@ -162,7 +169,13 @@ Conservation : `Σ actualsWorkload = actuals`, `Σ forecastWorkload <= RAF`,
 `EAC = actuals + RAF`. La somme visible Actuals+Forecast n'est pas toujours EAC :
 RAF hors allocation (inactive/incomplete/no-allocation) est une quantité
 non représentée dans le profil, toujours disponible au tooltip. Un projet
-complètement planifié a `Σ Forecast = RAF` ; contrôler cette égalité au Save
+complètement planifié a `Σ Forecast = RAF` ; les contrats Project/Portfolio
+imposent au moins un requirement, des Teams existantes et un ordre de priorité
+exhaustif. Le moteur publie un plan pour chaque requirement actif même sans
+allocation : un requirement avec RAF positif non alloué a un plan présent et
+incomplet. Un ensemble
+vide de plans est donc impossible pour un Project actif dans un run valide.
+Contrôler cette égalité au Save
 contre les états du run, sans stocker ces états. Ne jamais déduire RAF des jours.
 
 ### Validation sans réinterprétation historique

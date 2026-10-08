@@ -9,10 +9,10 @@ active implementation and trajectory. The remaining work is in the
 
 ## Validated implementation baseline
 
-`843cb966b9cda0b13d1695f73aa005847e8fbb8a` (10C.2 code inspected by the
-validated 11A plan; 10C.2 closed by the user for this implementation pass).
-The prior 10C.1 baseline remains recorded at
-`17094b03cbf4c34c8424d6fa1847e0ceebd55410`. 11A is not human-validated yet.
+`06e7fbb94d71fe73a35e244d4cee6626b65777c2` (11A.2 final code/test baseline, verified on
+2026-10-08 from `c295db34937dca2dbe86f403319dc8880563d94c`; documentation
+closure follows on the same branch). 11A and 11A.2 are **DONE**.
+11B remains **PLANNED / NOT STARTED**.
 
 The active application implements a pure planning projection over an editable
 session, restored from a local backup when available and otherwise initialized
@@ -271,7 +271,7 @@ snapshot references them; removing history does no implicit Actuals collection.
 
 ## Historical daily load profiles — Lot 11A.2
 
-Status: **IN REVIEW**. [Contract and verification](./steps/HISTORY/lot11a2_canon.md).
+Status: **DONE**. [Contract and verification](./steps/HISTORY/lot11a2_canon.md).
 New Saves use forecast schema 2 with an obligatory Project `dailyProfile`:
 `actualsRange` (nullable source knowledge coverage), `forecastRange` (complete
 planning horizon), and sorted unique `days` with canonical exact rational
@@ -282,7 +282,11 @@ legacy schema 1 without a profile and schema 2 with an empty list.
 Actuals come from the published reconstruction contributions, Forecast from
 published Project allocations, aggregated across all Teams without clipping
 Actuals to the horizon. Exact conservation, source ranges, activity dates and
-deep immutability are validated. Save verifies fully allocated run equality;
+deep immutability are validated. Every active Project has at least one Team
+requirement, all referenced Teams exist, and the priority order covers every
+Project exactly once. The engine publishes one plan per active requirement even
+without admission/allocation; positive unallocated RAF produces incomplete plans,
+not an empty plan list. Save verifies fully allocated run equality;
 partial/unallocated RAF stays in the independent RAF total. No new Actuals
 snapshot, legacy reconciliation, engine run or historical redistribution occurs.
 
@@ -291,9 +295,9 @@ its captures unchanged and never manufactures daily profiles. V6 encoding
 rejects schema 2. Save/Delete and ordinary accepted commands write V7 before
 publication using the same storage key. Quota/codec errors preserve previous
 state and document without purge. No UI mode, view, renderer or Timeline
-refactoring is introduced. **11B = PLANNED / NOT STARTED**; the gate is
-implementation → tests/build → ChatGPT audit → corrections → human validation
-→ DONE → only then 11B.
+refactoring is introduced. Final edge-case verification found no production defect;
+755/755 tests, typecheck, build and diff checks pass. The user-authorized closure
+is complete. **11B = PLANNED / NOT STARTED**; this mission implements no 11B work.
 
 
 ## Current UI structure
