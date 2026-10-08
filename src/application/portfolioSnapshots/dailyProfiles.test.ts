@@ -93,6 +93,59 @@ describe("11A.2 exact published daily capture", () => {
     if (["inactive", "zero-raf", "no-allocation"].includes(scenario)) assert.equal(f, "0/1");
     if (scenario === "incomplete") { assert.equal(row.endAbsenceReason, "incomplete-within-horizon"); assert.notEqual(f, row.raf); }
   });
+  for (const invalid of ["no-team", "unknown-team", "missing-priority"] as const) it(`rejects ${invalid} before publishing a Project run`, () => {
+    assert.throws(() => state("none", (dto) => {
+      const p = dto.portfolio.projects[0];
+      if (invalid === "no-team") p.requirements = [];
+      if (invalid === "unknown-team") p.requirements[0].teamId = "missing-team";
+      if (invalid === "missing-priority") dto.portfolio.priorityOrder = dto.portfolio.priorityOrder.filter((id: string) => id !== p.id);
+    }), invalid === "no-team" ? /at least one team requirement/ : invalid === "unknown-team" ? /team in the portfolio/ : /exactly once in priority order/);
+  });
+  for (const blocked of ["empty-capacity", "zero-daily-cap", "future-start", "non-working-horizon", "priority-blocked"] as const) it(`publishes incomplete plans and saves positive unallocated RAF: ${blocked}`, () => {
+    const s = state("none", (dto) => {
+      const p = dto.portfolio.projects[0];
+      if (blocked === "empty-capacity") dto.portfolio.teams.forEach((t: any) => { t.capacitySchedule = { periods: [], exceptions: [] }; });
+      if (blocked === "zero-daily-cap") p.requirements.forEach((r: any) => { r.dailyCap = "0/1"; });
+      if (blocked === "future-start") p.earliestStartDate = "2027-01-01";
+      if (blocked === "non-working-horizon") { dto.planning.startDate = "2025-01-04"; dto.planning.endDate = "2025-01-05"; }
+      if (blocked === "priority-blocked") {
+        const blocker = structuredClone(p); blocker.id = "project-blocker"; blocker.name = "Blocker";
+        blocker.requirements.forEach((r: any) => { r.remainingWorkload = "9999/1"; delete r.dailyCap; });
+        dto.portfolio.projects.push(blocker); dto.portfolio.priorityOrder.unshift(blocker.id); dto.planning.maxParallelProjects = 1;
+      }
+    });
+    const session = createPlanningSession(s); let builds = 0, writes = 0, document = "";
+    const dispatcher = createPlanningProjectionDispatcher({ session, geometryViewport: viewport, hasUnappliedChanges: () => false,
+      now: () => instant, snapshotId: () => "blocked",
+      buildProjection: (input) => { builds++; return buildPlanningSessionProjection(input); },
+      backupStore: { read: () => document, write: (text) => { writes++; document = text; } } });
+    const run = dispatcher.getProjection(), project = s.portfolio.projects[0]!;
+    const plans = run.planningResult.teamPlans.flatMap((t) => t.projectPlans.filter((p) => p.projectId === project.id));
+    assert.ok(project.isActive);
+    assert.deepEqual(plans.map((p) => p.teamId).sort(), project.requirements.map((r) => r.teamId).sort());
+    assert.ok(plans.length > 0);
+    for (const plan of plans) {
+      assert.equal(plan.complete, false); assert.deepEqual(plan.allocations, []);
+      const requirement = project.requirements.find((r) => r.teamId === plan.teamId)!;
+      assert.equal(rationalToCanonicalString(rationalOf(plan.remainingUnplannedWorkload)), rationalToCanonicalString(rationalOf(requirement.remainingWorkload)));
+    }
+    assert.equal(dispatcher.savePortfolioSnapshot().ok, true);
+    const snapshot = dispatcher.getPortfolioSnapshots()[0]!;
+    const row = snapshot.forecast.projects[0]! as HistoricalProjectForecastV2;
+    assert.equal(row.raf, "4/3"); assert.deepEqual(row.dailyProfile.days, []);
+    assert.equal(row.endAbsenceReason, "incomplete-within-horizon"); assert.equal(row.estimatedEndDate, null);
+    assert.equal(row.estimatedStartDate, null); assert.equal(row.startAbsenceReason, "no-activity");
+    assert.deepEqual(decodeFlowplanBackup(document).portfolioSnapshots, [snapshot]);
+    assert.strictEqual(dispatcher.getProjection(), run); assert.equal(builds, 1); assert.equal(writes, 1);
+  });
+  it("keeps every Team plan when one completes and another cannot allocate", () => {
+    const { s, run, row } = capture(state("none", (dto) => { dto.portfolio.projects[0].requirements[1].dailyCap = "0/1"; }));
+    const plans = run.planningResult.teamPlans.flatMap((t) => t.projectPlans.filter((p) => p.projectId === s.portfolio.projects[0]!.id));
+    assert.equal(plans.length, 2); assert.equal(plans[0]!.complete, true); assert.equal(plans[1]!.complete, false);
+    assert.deepEqual(plans[1]!.allocations, []);
+    assert.equal(rationalToCanonicalString(sum(row.dailyProfile.days.map((d) => d.forecastWorkload))), "2/3");
+    assert.equal(row.raf, "4/3"); assert.equal(row.endAbsenceReason, "incomplete-within-horizon");
+  });
   it("keeps Actuals after the planning horizon", () => {
     const { row } = capture(state("v5", (dto) => {
       const c = dto.portfolio.projects[0].snapshots[0].coverage;
