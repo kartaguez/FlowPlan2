@@ -4,7 +4,7 @@ import type { PlanningCommand, PlanningSession } from "../../application/index.j
 import type { TimelineGeometryViewport } from "../../adapters/index.js";
 import type { DomainError } from "../../domain/index.js";
 import type { PlanningBackupStore } from "../../infrastructure/backup/localPlanningBackup.js";
-import { encodeFlowplanBackupV6 } from "../../application/backup/flowplanBackupV1.js";
+import { encodeFlowplanBackupV7 } from "../../application/backup/flowplanBackupV1.js";
 import {
   buildPlanningSessionProjection,
   type BuildPlanningSessionProjectionInput,
@@ -50,7 +50,7 @@ export function createPlanningProjectionDispatcher(
 
   const historyError = (cause: unknown): PlanningProjectionDispatchResult => ({ ok: false, errors: [{ code: "PORTFOLIO_SNAPSHOT_FAILED", path: "portfolioSnapshots", message: cause instanceof Error ? cause.message : "Portfolio snapshot failed." }] });
   const commitHistory = (snapshots: readonly PortfolioSnapshot[]): PlanningProjectionDispatchResult => {
-    const result = input.session.commitPortfolioSnapshots(projectionState, snapshots, (candidate) => input.backupStore?.write(encodeFlowplanBackupV6(candidate)));
+    const result = input.session.commitPortfolioSnapshots(projectionState, snapshots, (candidate) => input.backupStore?.write(encodeFlowplanBackupV7(candidate)));
     if (!result.ok) return result;
     projectionState = result.state;
     return Object.freeze({ ok: true, projection });
@@ -83,7 +83,7 @@ export function createPlanningProjectionDispatcher(
       let candidateProjection: PlanningSessionProjection | undefined;
       const result = input.session.dispatch(command, (candidate) => {
         candidateProjection = buildProjection({ state: candidate, geometryViewport: input.geometryViewport });
-        input.backupStore?.write(encodeFlowplanBackupV6(candidate));
+        input.backupStore?.write(encodeFlowplanBackupV7(candidate));
       });
       if (!result.ok) return result;
       if (result.state === previousState) return Object.freeze({ ok: true, projection });

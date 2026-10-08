@@ -192,8 +192,16 @@ a V5 ID, reconciles or mutates a current object, or double counts legacy and V5.
 The dedicated forecast stores exact whole-Project Actuals, RAF, EAC = Actuals +
 RAF, full-order 1-based priority, estimated start/end and explicit absence
 reasons, with input/forecast schemas and engine version. None, uncovered RAF and
-covered zero remain distinct. No full PlanningResult, daily capacities,
-allocations, Team plans or diagnostics are persisted in this artifact.
+covered zero remain distinct. No full PlanningResult, daily capacities, Team
+plans or diagnostics are persisted in this artifact. Forecast schema 2 additionally freezes only exact
+Project-level daily Actuals/Forecast throughput, aggregated across Teams from
+the published run. Its mandatory sparse profile stores source Actuals coverage
+(nullable), the planning horizon, and sorted unique dates with at least one
+positive component. Omitted double-zero days do not erase knowledge coverage.
+Schema 1 remains explicitly without a profile; no historical replay or
+synthetic enrichment is permitted. Daily Actuals sum to captured Actuals; daily
+Forecast is at most RAF, equal for a fully allocated run at Save. RAF is never
+derived from the profile.
 
 Estimated start is the earliest positive canonical Project Actuals contribution
 or positive Forecast allocation across Teams, without cursor/horizon clipping.
@@ -202,17 +210,20 @@ Estimated end uses the same pure helper as Timeline: inactive → `inactive`, an
 incomplete Team → `incomplete-within-horizon`, all complete → latest defined
 Team end, otherwise `no-allocation`. There is no horizon extrapolation.
 
-Save/Delete verify state/run coherence, persist complete V6 before publication,
+Save/Delete verify state/run coherence, persist complete V7 before publication,
 and reuse the current projection without engine recomputation. A failure
 publishes nothing and leaves inputs, drafts, history and projection intact.
 Delete removes only the requested capture, with no Actuals purge or garbage
 collection. Ordinary commands retain history.
 
-V6 is self-contained: current-owned full Actuals histories are stored once;
+V7 is self-contained: current-owned full Actuals histories are stored once;
 historical inputs use references plus required frozen migration evidence.
 V1–V5 readers migrate with empty Portfolio history and their encoders refuse
-history-bearing downgrade. V6 rejects any invalid capture/reference/input or
-metric as a whole, without repair or recalculating historical metrics with a
+history-bearing downgrade. V6 retains schema 1 only; V7 accepts historical
+schema 1 and mandatory-profile schema 2. V6→V7 preserves captures unchanged,
+without daily enrichment or startup rewrite; V6 encoding refuses schema 2.
+V7 uses compact JSON and the existing storage key. V6/V7 reject any invalid
+capture/reference/input or metric as a whole, without repair or recalculating historical metrics with a
 current engine. Invalid startup documents remain preserved and reported.
 Historical IDs for Project, Reservation, Team, Program and Pas remain reserved
 while retained captures reference them, without an eternal identity registry.

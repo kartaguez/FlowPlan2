@@ -64,7 +64,12 @@ function fixture(state = rich()) {
 }
 function capture(state: PlanningSessionState) {
   const projection = buildPlanningSessionProjection({ state, geometryViewport: viewport });
-  return capturePortfolioSnapshot(state, projection.planningResult, projection.actualsReconstruction, "capture", instant);
+  // Keep the original 11A/V6 regression fixtures explicitly on schema 1.
+  const current = capturePortfolioSnapshot(state, projection.planningResult, projection.actualsReconstruction, "capture", instant);
+  const legacy = structuredClone(current) as any;
+  legacy.forecast.forecastSchemaVersion = 1;
+  for (const row of legacy.forecast.projects) delete row.dailyProfile;
+  return createPortfolioSnapshot(legacy, state.portfolio);
 }
 
 describe("11A Portfolio capture and V6", () => {
@@ -241,7 +246,13 @@ describe("11A Portfolio capture and V6", () => {
     ["invalid priorityOrder", (d) => { d.portfolioSnapshots[0].inputs.portfolio.priorityOrder.pop(); }],
   ];
   for (const [label, edit] of invalidCases) it(`rejects the entire V6 for ${label}, preserves startup/import document`, () => {
-    const app = fixture(rich("v5")); app.save(); app.save(); const raw = JSON.parse(app.document()); edit(raw.data);
+    const app = fixture(rich("v5")); app.save(); app.save(); const raw = JSON.parse(app.document());
+    raw.version = 6;
+    for (const snapshot of raw.data.portfolioSnapshots) {
+      snapshot.forecast.forecastSchemaVersion = 1;
+      for (const row of snapshot.forecast.projects) delete row.dailyProfile;
+    }
+    edit(raw.data);
     const bad = JSON.stringify(raw); assert.throws(() => decodeFlowplanBackup(bad));
     let stored = bad, writes = 0, reloads = 0;
     const store = { read: () => stored, write: (v: string) => { writes++; stored = v; } };

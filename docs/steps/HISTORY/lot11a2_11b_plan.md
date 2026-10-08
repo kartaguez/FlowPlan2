@@ -1,9 +1,11 @@
 # 11A.2 — Historical daily load profiles / 11B — Project History view
 
-Statut : **PLAN ONLY — 11A.2 PLANNED, 11B PLANNED**. Inspection et décisions
-proposées puis durcies le 2026-10-08. Ce document autorise uniquement la
-préparation du plan ;
-aucun code applicatif, test, backup ou donnée utilisateur n'est modifié.
+Statut courant : **11A.2 IN REVIEW — 11B PLANNED / NOT STARTED**.
+Le plan initial a été durci le 2026-10-08, puis la mission explicite a autorisé
+uniquement l’implémentation 11A.2. Voir le
+[canon et les résultats 11A.2](./lot11a2_canon.md). Les constats ci-dessous
+restent la trace du plan à sa baseline ; ils ne constituent pas une autorisation
+de commencer 11B avant la clôture humaine de 11A.2.
 
 ## 1. Baseline réelle et périmètre
 

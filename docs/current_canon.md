@@ -28,7 +28,7 @@ from the demo. The following capabilities are complete and active:
 - global multi-Team Reservations with ratio and fixed-daily modes, created,
   edited, and deleted in inline Portfolio cards;
 - immutable Project and Reservation Actuals snapshot histories, exact daily
-  reconstruction, Actuals-aware planning projection, and transactional V6 persistence;
+  reconstruction, Actuals-aware planning projection, and transactional V7 persistence;
 - whole-object Actuals partition/RAF editing and read-only V4/snapshot history in Portfolio cards;
 - immediate Project and Reservation activation controls; inactive entities
   remain in the Portfolio and do not participate in the forecast;
@@ -50,13 +50,13 @@ demo when the key is absent. A present but invalid document is reported and left
 untouched at startup. Accepted commands persist their candidate state before
 the session publishes it. Planning Settings can export the complete business
 state to JSON or import a validated file after confirmation; a successful
-import reloads the page. Current backups are V6 documents. V1–V5 remain
+import reloads the page. Current backups are compact V7 documents. V1–V6 remain
 readable; V1 migrates Projects and Reservations as active. The V1–V5 readers retain their historical repair policy: they remove
 orphan catalog entries, repair missing or invalid Program and own colors, and
-remove residual own colors from Program members before Domain validation. V6
-validates current and historical inputs strictly, without repair or pruning.
+remove residual own colors from Program members before Domain validation. V6/V7
+validate current and historical inputs strictly, without repair or pruning.
 Other invalid business data is rejected. Every successful import is persisted
-as V6. V4 Actuals records are retained losslessly for explicit reconciliation.
+as V7. Startup never rewrites an older valid document. V4 Actuals records are retained losslessly for explicit reconciliation.
 
 Lot 9I Project and Reservation forecast activation is validated and **DONE** at
 `c77558c3e8b2912532afbb8113ac8183fe737c18`. Both entity types default
@@ -198,7 +198,7 @@ or persistence actions publish nothing.
 
 ### Legacy V4 and V5 persistence
 
-V5 remains the object Actuals schema; V6 is the live backup and export envelope. V1–V3 import without Actuals
+V5 remains the object Actuals schema; V7 is the live backup and export envelope. V1–V3 import without Actuals
 snapshots. Imported V4 cumulative records remain lossless, read-only
 `legacyV4Actuals` migration evidence. Until an object is explicitly
 reconciled, only the legacy adapter reconstructs its Actuals. Reconciliation
@@ -209,7 +209,7 @@ exportable but never combines with it. V4 append commands are disabled.
 Historical object and Team identities remain protected while referenced.
 V5 import rejects any snapshot whose knowledge date is later than the UTC
 civil date of the backup's canonical `exportedAt`, across both object types
-and the full history. This legacy V5-reader rule is unchanged. V6 imposes no
+and the full history. This legacy V5-reader rule is unchanged. V6/V7 impose no
 technical-clock relation between exportedAt, createdAt and knowledgeDate, so
 clock rollback remains round-trippable; internal Actuals invariants still apply.
 
@@ -248,8 +248,8 @@ advanced replay/navigation/comparison remain deferred beyond that promise.
 
 ## Portfolio Snapshots — Lot 11A
 
-Status: **IN REVIEW**. Automated gates and desktop/390 px visual review passed;
-human audit remains required before DONE.
+Status: **DONE** at `f477dd6e1a31f3be7be949dad9fea4cae9667770`,
+validated baseline supplied for the 11A.2 pass.
 
 Implementation and final gate record: [11A canon](./steps/PORTFOLIO_SNAPSHOTS/lot11a_canon.md).
 The Planning header offers Save portfolio snapshot and a local-time list ordered
@@ -259,7 +259,7 @@ minimal Project metrics are deeply copied and frozen. The published run supplies
 estimated dates without recomputation. Shared helpers implement first positive
 Actuals/Forecast activity and the Timeline completion/end rule.
 
-Complete V6 documents retain current-owned Actuals histories once. Each capture
+Complete V7 documents retain current-owned Actuals histories once. Each capture
 selects a fixed V5 ID or exclusive frozen legacy evidence, never a latest-at-read
 rule. Historical validation hydrates prefixes privately, without invoking the
 engine. None, uncovered RAF-only and covered zero knowledge stay distinct.
@@ -267,6 +267,33 @@ Save/Delete leave the cursor, viewport, tabs, open cards, drafts and planning
 projection intact. Ordinary commands retain the collection and reproject once.
 Historical IDs remain reserved for all five entity kinds while a retained
 snapshot references them; removing history does no implicit Actuals collection.
+
+
+## Historical daily load profiles — Lot 11A.2
+
+Status: **IN REVIEW**. [Contract and verification](./steps/HISTORY/lot11a2_canon.md).
+New Saves use forecast schema 2 with an obligatory Project `dailyProfile`:
+`actualsRange` (nullable source knowledge coverage), `forecastRange` (complete
+planning horizon), and sorted unique `days` with canonical exact rational
+`actualsWorkload` and `forecastWorkload`. Only days with at least one positive
+component are stored. Covered zero and missing coverage remain distinct, as do
+legacy schema 1 without a profile and schema 2 with an empty list.
+
+Actuals come from the published reconstruction contributions, Forecast from
+published Project allocations, aggregated across all Teams without clipping
+Actuals to the horizon. Exact conservation, source ranges, activity dates and
+deep immutability are validated. Save verifies fully allocated run equality;
+partial/unallocated RAF stays in the independent RAF total. No new Actuals
+snapshot, legacy reconciliation, engine run or historical redistribution occurs.
+
+V7 accepts schema 1 and 2 together. V6 remains schema 1 only; import preserves
+its captures unchanged and never manufactures daily profiles. V6 encoding
+rejects schema 2. Save/Delete and ordinary accepted commands write V7 before
+publication using the same storage key. Quota/codec errors preserve previous
+state and document without purge. No UI mode, view, renderer or Timeline
+refactoring is introduced. **11B = PLANNED / NOT STARTED**; the gate is
+implementation → tests/build → ChatGPT audit → corrections → human validation
+→ DONE → only then 11B.
 
 
 ## Current UI structure

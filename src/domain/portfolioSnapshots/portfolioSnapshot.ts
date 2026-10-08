@@ -1,3 +1,4 @@
+import { validateHistoricalDailyProfile, type HistoricalDateRange, type HistoricalProjectDailyProfile } from "./historicalDailyProfile.js";
 import { createCivilDate, type CivilDate } from "../model/date.js";
 import type { Portfolio, Project } from "../model/entities.js";
 import { addRationals, rationalFromInteger, rationalToCanonicalString } from "../model/rational.js";
@@ -18,13 +19,19 @@ export interface HistoricalProjectForecast {
   readonly estimatedEndDate: CivilDate | null;
   readonly endAbsenceReason: "inactive" | "incomplete-within-horizon" | "no-allocation" | null;
 }
+export interface HistoricalProjectForecastV2 extends HistoricalProjectForecast {
+  readonly dailyProfile: HistoricalProjectDailyProfile;
+}
+export type HistoricalForecast =
+  | Readonly<{ forecastSchemaVersion: 1; engineVersion: string; projects: readonly HistoricalProjectForecast[] }>
+  | Readonly<{ forecastSchemaVersion: 2; engineVersion: string; projects: readonly HistoricalProjectForecastV2[] }>;
 export interface PortfolioSnapshot {
   readonly snapshotId: string;
   readonly createdAt: string;
   readonly inputsSchemaVersion: 1;
   readonly inputs: JsonValue;
   readonly actualsSources: readonly ActualsSource[];
-  readonly forecast: Readonly<{ forecastSchemaVersion: 1; engineVersion: string; projects: readonly HistoricalProjectForecast[] }>;
+  readonly forecast: HistoricalForecast;
 }
 
 /** No cursor or horizon clipping: totals are complete object knowledge. */
@@ -63,7 +70,7 @@ function civil(value: unknown) {
 }
 
 /** Inputs are validated separately through the shared boundary, never by the engine. */
-export function createPortfolioSnapshot(value: unknown, historicalPortfolio: Portfolio): PortfolioSnapshot {
+export function createPortfolioSnapshot(value: unknown, historicalPortfolio: Portfolio, horizon?: HistoricalDateRange): PortfolioSnapshot {
   fields(value, ["snapshotId", "createdAt", "inputsSchemaVersion", "inputs", "actualsSources", "forecast"]);
   assertSnapshotId(value.snapshotId); assertCanonicalTimestamp(value.createdAt);
   if (value.inputsSchemaVersion !== 1) throw new TypeError("Unknown inputs schema.");
@@ -82,11 +89,11 @@ export function createPortfolioSnapshot(value: unknown, historicalPortfolio: Por
     if (source.source !== (current ? "snapshot" : legacy ? "legacy-v4" : "none") || (current && source.snapshotId !== current.snapshotId)) throw new TypeError("Actuals source mismatch.");
   }
   fields(value.forecast, ["forecastSchemaVersion", "engineVersion", "projects"]);
-  if (value.forecast.forecastSchemaVersion !== 1 || typeof value.forecast.engineVersion !== "string" || !value.forecast.engineVersion.trim() || !Array.isArray(value.forecast.projects)) throw new TypeError("Unknown forecast schema/engine.");
+  if ((value.forecast.forecastSchemaVersion !== 1 && value.forecast.forecastSchemaVersion !== 2) || typeof value.forecast.engineVersion !== "string" || !value.forecast.engineVersion.trim() || !Array.isArray(value.forecast.projects)) throw new TypeError("Unknown forecast schema/engine.");
   if (value.forecast.projects.length !== historicalPortfolio.projects.length) throw new TypeError("Forecast Project count mismatch.");
   const projectIds = new Set<string>();
   for (const row of value.forecast.projects) {
-    fields(row, ["projectId", "actuals", "actualsKnowledge", "raf", "eac", "priorityPosition", "estimatedStartDate", "startAbsenceReason", "estimatedEndDate", "endAbsenceReason"]);
+    fields(row, ["projectId", "actuals", "actualsKnowledge", "raf", "eac", "priorityPosition", "estimatedStartDate", "startAbsenceReason", "estimatedEndDate", "endAbsenceReason", ...(value.forecast.forecastSchemaVersion === 2 ? ["dailyProfile"] : [])]);
     const project = historicalPortfolio.projects.find((p) => p.id === row.projectId);
     if (!project || projectIds.has(project.id)) throw new TypeError("Unknown/duplicate forecast Project.");
     projectIds.add(project.id);
@@ -103,6 +110,10 @@ export function createPortfolioSnapshot(value: unknown, historicalPortfolio: Por
     if (row.estimatedEndDate === null) {
       if (!(project.isActive ? ["incomplete-within-horizon", "no-allocation"] : ["inactive"]).includes(row.endAbsenceReason as string)) throw new TypeError("Invalid end reason.");
     } else { civil(row.estimatedEndDate); if (!project.isActive || row.endAbsenceReason !== null) throw new TypeError("Unexpected end date/reason."); }
+    if (value.forecast.forecastSchemaVersion === 2) {
+      if (!horizon) throw new TypeError("Schema 2 requires historical horizon.");
+      validateHistoricalDailyProfile(row.dailyProfile, row as unknown as HistoricalProjectForecast, project, horizon);
+    }
     if (row.estimatedStartDate !== null && row.estimatedEndDate !== null && String(row.estimatedStartDate) > String(row.estimatedEndDate)) throw new TypeError("End precedes activity.");
   }
   return immutableCopy(value) as unknown as PortfolioSnapshot;

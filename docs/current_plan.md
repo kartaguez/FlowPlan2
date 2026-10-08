@@ -422,8 +422,10 @@ trajectory. A future adoption requires separate scope/plan review.
 
 ## 11A.2 — Historical daily load profiles in Portfolio Snapshots
 
-**Status: PLANNED — documentation only.**
-See [11A.2 / 11B plan](./steps/HISTORY/lot11a2_11b_plan.md).
+**Status: IN REVIEW — implementation and automated gates complete; audit and
+human validation pending.**
+See [11A.2 canon and verification](./steps/HISTORY/lot11a2_canon.md) and
+[11A.2 / 11B plan](./steps/HISTORY/lot11a2_11b_plan.md).
 Freeze exact Project-level daily Actuals and Forecast from the already-published
 run at explicit Save, aggregated across Teams. Persist sparse positive daily
 rows, exact rational strings and coverage semantics in forecast schema 2 under
@@ -436,7 +438,7 @@ implementation cannot bypass an unstable 11A.2 contract.
 
 ## 11B — Project History view
 
-**Status: PLANNED — depends on 11A.2, no implementation started.**
+**Status: PLANNED / NOT STARTED — depends on validated DONE 11A.2.**
 See [11A.2 / 11B plan](./steps/HISTORY/lot11a2_11b_plan.md).
 A strictly read-only Planning/History mode uses the main space, its own header
 and an independent viewport, sharing only the minimal temporal and zoom/range/pan
