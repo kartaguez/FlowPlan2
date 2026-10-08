@@ -72,6 +72,43 @@ with origin (0/0) after fetch. The 11A.2 canon records the completed capture and
 755-test validation. That review was documentation-only. The subsequent authorized implementation
 is now IN REVIEW; no human DONE validation is claimed.
 
+## 11D.0 — Storage Architecture & Scalability
+
+**Status: 11D.0 PLANNED — NOT STARTED.** Documentation-only audit and
+implementation plan: [detailed plan](./steps/STORAGE/lot11d0_plan.md).
+Effective inspected baseline: `944d79ef07f704c849d9669c70e3f70dc567165a`,
+branch `codex/lot11a-portfolio-snapshots`, clean and origin 0/0 after fetch on
+2026-10-08. This effective HEAD includes **11C IN REVIEW**; it does not replace
+the validated 11A.2 baseline above. **11B remains IN REVIEW**. No status closure
+is implied, and no application code, tests, dependencies, migration, backup
+version or engine result changes in this delivery.
+
+Recommended direction: asynchronous Application persistence port, IndexedDB
+as primary local storage, separate current inputs, immutable snapshot contents,
+light metadata and historical identity indexes. Ordinary current edits must
+not rewrite or load Portfolio history. Load snapshot content on demand, bound
+RAM caches, and preserve exact historical metrics and portable V1–V7 readers /
+V7 exports independently of physical storage. Keep owned Actuals histories and
+their existing protections initially; do not invent or replay old captures.
+
+Migration proposal: fully validated staging generation, readback and atomic
+activation, idempotent resumable batches, legacy localStorage retained intact;
+revision checks inside transactions detect concurrent writes. Divergent legacy
+and IDB sources require explicit resolution, with no silent overwrite or merge.
+Old clients cannot be locked atomically across localStorage and IDB: deployment
+must address old tabs. History's global visual cap also needs an exact bounded
+batch strategy, beyond lazy loading only visible rows.
+
+Before implementation: explicit authorization, audited decisions in the plan,
+11C closure and a fixed engine baseline; stabilize/audit the 11B contract before
+its History loading changes, or obtain explicit authorization for that dependency.
+Benchmarks proposed: 5×20×365, 25×100×730 and 100×200×1095 with multiple Teams and
+Reservations, including quota, startup/save/import/export and peak/retained RAM.
+Only earlier 11B measurements are cited; none were rerun for 11D.0.
+11D.1, 11D.2 and 11D.3 remain unstarted. The design prepares storage for future
+exact daily Team/Project/Reservation/type contributions in 11D.2; their model
+and portable version require a separate approved contract.
+
 ## Corrective lot — anchored temporal zoom and range drag
 
 **Status: DONE** — human validated implementation at
