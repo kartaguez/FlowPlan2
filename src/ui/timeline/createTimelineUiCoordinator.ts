@@ -1,3 +1,4 @@
+import { mapResult, type MaybePromise } from "../asyncResult.js";
 import { createInteractionLifecycle } from "../interactionLifecycle.js";
 import { createPortfolioSnapshotsController } from "../portfolio-snapshots/createPortfolioSnapshotsController.js";
 import type { PortfolioSnapshot } from "../../domain/portfolioSnapshots/portfolioSnapshot.js";
@@ -75,7 +76,7 @@ export interface CreateTimelineUiCoordinatorInput {
   readonly elements: AppElements;
   readonly initialProjection: TimelineUiProjection;
   readonly initialDate: CivilDate;
-  readonly dispatch: (command: PlanningCommand) => TimelineProjectionCommandResult;
+  readonly dispatch: (command: PlanningCommand) => MaybePromise<TimelineProjectionCommandResult>;
   readonly getProjectEditViewModel: (id: ProjectId) => ProjectEditViewModel | undefined;
   readonly getProjectSnapshotActualsViewModel?: (id: ProjectId) => SnapshotActualsViewModel | undefined;
   readonly getReservationSnapshotActualsViewModel?: (id: ReservationId) => SnapshotActualsViewModel | undefined;
@@ -84,12 +85,13 @@ export interface CreateTimelineUiCoordinatorInput {
   readonly getTeamEditViewModel: (id: TeamId) => TeamEditViewModel | undefined;
   readonly getReservationEditViewModel: (id: ReservationId) => ReservationEditViewModel | undefined;
   readonly getReservationNavigationItems: () => readonly ReservationNavigationItem[];
-  readonly onImport?: (document: string) => "imported" | "cancelled" | "failed";
-  readonly onExport?: () => string;
+  readonly onImportFile?: (file: File) => MaybePromise<"imported" | "cancelled" | "failed">;
+  readonly onImport?: (document: string) => MaybePromise<"imported" | "cancelled" | "failed">;
+  readonly onExport?: () => MaybePromise<string | Blob>;
   readonly invalidStartupBackup?: boolean;
-  readonly getPortfolioSnapshots?: () => readonly PortfolioSnapshot[];
-  readonly onSavePortfolioSnapshot?: () => TimelineProjectionCommandResult;
-  readonly onDeletePortfolioSnapshot?: (id: string) => TimelineProjectionCommandResult;
+  readonly getSnapshotMetadata?: () => readonly Pick<PortfolioSnapshot, "snapshotId" | "createdAt">[];
+  readonly onSavePortfolioSnapshot?: () => MaybePromise<TimelineProjectionCommandResult>;
+  readonly onDeletePortfolioSnapshot?: (id: string) => MaybePromise<TimelineProjectionCommandResult>;
 }
 export interface TimelineUiCoordinatorDependencies {
   readonly renderTimeline: typeof renderTimelineSvg;
@@ -132,7 +134,7 @@ export function createTimelineUiCoordinator(
   input: CreateTimelineUiCoordinatorInput,
   dependencies: TimelineUiCoordinatorDependencies = DEFAULT_DEPENDENCIES,
 ): TimelineUiCoordinator {
-  let refreshSnapshotDirty = () => {};
+  let refreshSnapshotDirty = () => { };
   let suspended = false, destroyed = false;
   const projectDrafts = createProjectDraftStore();
   const reservationDrafts = createReservationDraftStore();
@@ -196,17 +198,21 @@ export function createTimelineUiCoordinator(
           ...(projectCreateController?.isTeamEnabled(teamId) ? ["Create Project"] : []),
           ...(reservationCreateController?.isTeamEnabled(teamId) ? ["Create Reservation"] : []),
         ];
-        return { ok: false as const, reason: "draft" as const,
-          message: `Unapplied changes concern this Team in ${names.join(", ")}. Apply or cancel those changes before deleting it.` };
+        return {
+          ok: false as const, reason: "draft" as const,
+          message: `Unapplied changes concern this Team in ${names.join(", ")}. Apply or cancel those changes before deleting it.`
+        };
       }
-      const result = input.dispatch({ kind: "remove-team", teamId });
-      if (!result.ok) return { ok: false as const, reason: "application" as const, errors: result.errors };
-      teamEditingId = undefined;
-      teamEditController.setTeam(undefined);
-      rebaseDrafts();
-      renderProjection(result.projection);
-      input.elements.teamCreateButton?.focus();
-      return { ok: true as const };
+      return mapResult(input.dispatch({ kind: "remove-team", teamId }), (result) => {
+        if (!result.ok) return { ok: false as const, reason: "application" as const, errors: result.errors };
+        teamEditingId = undefined;
+        teamEditController.setTeam(undefined);
+        rebaseDrafts();
+        renderProjection(result.projection);
+        input.elements.teamCreateButton?.focus();
+        return { ok: true as const };
+
+      });
     },
   });
   const teamCreateController = input.elements.teamCreateControls
@@ -214,11 +220,13 @@ export function createTimelineUiCoordinator(
       controls: input.elements.teamCreateControls,
       confirmDiscard,
       onCreate: (command: CreateTeamCommand) => {
-        const result = input.dispatch(command);
-        if (!result.ok) return result;
-        rebaseDrafts();
-        renderProjection(result.projection);
-        return { ok: true as const };
+        return mapResult(input.dispatch(command), (result) => {
+          if (!result.ok) return result;
+          rebaseDrafts();
+          renderProjection(result.projection);
+          return { ok: true as const };
+
+        });
       },
       onClose: () => input.elements.teamCreateButton.focus(),
     }) : undefined;
@@ -229,18 +237,20 @@ export function createTimelineUiCoordinator(
       confirmDiscard,
       onClose: () => input.elements.projectCreateButton?.focus(),
       onCreate: (command: CreateProjectCommand) => {
-        const result = input.dispatch(command);
-        if (!result.ok) return result;
-        const id = result.projection.portfolio.priorityOrder.at(-1)!;
-        const model = input.getProjectEditViewModel(id);
-        if (model) {
-          projectDrafts.initialize(id, model);
-          projectDrafts.setExpanded(id, true);
-        }
-        rebaseDrafts();
-        renderProjection(result.projection);
-        shellNavigation.projectCards.get(id)?.button.focus();
-        return { ok: true as const };
+        return mapResult(input.dispatch(command), (result) => {
+          if (!result.ok) return result;
+          const id = result.projection.portfolio.priorityOrder.at(-1)!;
+          const model = input.getProjectEditViewModel(id);
+          if (model) {
+            projectDrafts.initialize(id, model);
+            projectDrafts.setExpanded(id, true);
+          }
+          rebaseDrafts();
+          renderProjection(result.projection);
+          shellNavigation.projectCards.get(id)?.button.focus();
+          return { ok: true as const };
+
+        });
       },
     }) : undefined;
   reservationCreateController = input.elements.reservationCreateControls
@@ -251,18 +261,20 @@ export function createTimelineUiCoordinator(
       confirmDiscard,
       onClose: () => input.elements.reservationCreateButton?.focus(),
       onCreate: (command: CreateReservationCommand) => {
-        const result = input.dispatch(command);
-        if (!result.ok) return result;
-        const id = result.projection.portfolio.reservations.at(-1)!.id;
-        const model = input.getReservationEditViewModel(id);
-        if (model) {
-          reservationDrafts.initialize(id, model);
-          reservationDrafts.setExpanded(id, true);
-        }
-        rebaseDrafts();
-        renderProjection(result.projection);
-        reservationControllers.get(id)?.focusName?.();
-        return { ok: true as const };
+        return mapResult(input.dispatch(command), (result) => {
+          if (!result.ok) return result;
+          const id = result.projection.portfolio.reservations.at(-1)!.id;
+          const model = input.getReservationEditViewModel(id);
+          if (model) {
+            reservationDrafts.initialize(id, model);
+            reservationDrafts.setExpanded(id, true);
+          }
+          rebaseDrafts();
+          renderProjection(result.projection);
+          reservationControllers.get(id)?.focusName?.();
+          return { ok: true as const };
+
+        });
       },
     }) : undefined;
   const onCreateProjectClick = (): void => {
@@ -284,13 +296,16 @@ export function createTimelineUiCoordinator(
     controls: input.elements.planningSettingsControls,
     initialModel: input.getPlanningSettingsViewModel(),
     ...(input.onImport ? { onImport: input.onImport } : {}),
+    ...(input.onImportFile ? { onImportFile: input.onImportFile } : {}),
     ...(input.onExport ? { onExport: input.onExport } : {}),
     onApply: (command) => {
-      const result = input.dispatch(command);
-      if (!result.ok) return result;
-      rebaseDrafts();
-      renderProjection(result.projection);
-      return { ok: true as const };
+      return mapResult(input.dispatch(command), (result) => {
+        if (!result.ok) return result;
+        rebaseDrafts();
+        renderProjection(result.projection);
+        return { ok: true as const };
+
+      });
     },
   });
 
@@ -304,10 +319,12 @@ export function createTimelineUiCoordinator(
     (reservationCreateController?.hasUnappliedChanges?.() ?? false) ||
     (teamCreateController?.hasUnappliedChanges?.() ?? false) ||
     (planningSettingsController.hasUnappliedChanges?.() ?? false);
-  const snapshotController = input.elements.portfolioSnapshotControls && input.getPortfolioSnapshots && input.onSavePortfolioSnapshot && input.onDeletePortfolioSnapshot
-    ? createPortfolioSnapshotsController({ controls: input.elements.portfolioSnapshotControls, isDirty: hasUnappliedChanges,
-      getSnapshots: input.getPortfolioSnapshots, save: input.onSavePortfolioSnapshot, remove: input.onDeletePortfolioSnapshot,
-      confirm: (message) => input.elements.planningSettingsControls.container.ownerDocument.defaultView?.confirm(message) ?? false }) : undefined;
+  const snapshotController = input.elements.portfolioSnapshotControls && input.getSnapshotMetadata && input.onSavePortfolioSnapshot && input.onDeletePortfolioSnapshot
+    ? createPortfolioSnapshotsController({
+      controls: input.elements.portfolioSnapshotControls, isDirty: hasUnappliedChanges,
+      getSnapshots: input.getSnapshotMetadata, save: input.onSavePortfolioSnapshot, remove: input.onDeletePortfolioSnapshot,
+      confirm: (message) => input.elements.planningSettingsControls.container.ownerDocument.defaultView?.confirm(message) ?? false
+    }) : undefined;
   refreshSnapshotDirty = () => snapshotController?.refreshDirty();
   // Delegated notifications run after the owning controller has processed each edit.
   const dirtyDocument = input.elements.planningSettingsControls.container.ownerDocument;
@@ -317,9 +334,11 @@ export function createTimelineUiCoordinator(
 
   const renderCursorMetrics = (date: CivilDate): void => {
     cursorMetricsModel = buildCursorMetricsViewModel(projection.portfolio,
-      calculateCursorMetrics({ portfolio: projection.portfolio,
+      calculateCursorMetrics({
+        portfolio: projection.portfolio,
         planningResult: projection.planningResult, horizon: projection.horizon, selectedDate: date,
-        ...(projection.workingPattern ? { workingPattern: projection.workingPattern } : {}) }),
+        ...(projection.workingPattern ? { workingPattern: projection.workingPattern } : {})
+      }),
       projection.viewModel);
     dependencies.renderCursorTeamMetrics(shellNavigation.teamMetricsContainers, cursorMetricsModel.teams);
     if (shellNavigation.globalMetricsContainer) {
@@ -350,27 +369,30 @@ export function createTimelineUiCoordinator(
       input.getReservationSnapshotActualsViewModel?.(id as ReservationId);
     if (snapshotModel) {
       const store = kind === "project" ? projectSnapshotDrafts : reservationSnapshotDrafts;
-      const controller = createSnapshotActualsCardController({ host, model: snapshotModel, store,
+      const controller = createSnapshotActualsCardController({
+        host, model: snapshotModel, store,
         onDraftChange: () => syncCard(kind, id), conflict: () => actualsConflict(kind, id),
         onCardRafChange: (teamId, value) => projectControllers.get(id as ProjectId)?.setActualsRaf?.(teamId, value),
         onApply: (command) => {
           const handoff = store.get(String(id))?.modal?.handoff;
-          const result = input.dispatch(command);
-          if (!result.ok) return result;
-          if (handoff?.kind === "update-project") projectDrafts.cancel(handoff.projectId);
-          if (handoff?.kind === "update-reservation") reservationDrafts.cancel(handoff.reservationId);
-          store.cancel(String(id));
-          rebaseDrafts(); renderProjection(result.projection);
-          if (kind === "project") {
-            const card = shellNavigation.projectCards.get(id as ProjectId);
-            card?.host.querySelector?.<HTMLButtonElement>(".card-actuals > button")?.focus();
-            if (card?.host.ownerDocument.activeElement !== card?.host.querySelector?.(".card-actuals > button")) card?.button.focus();
-          } else {
-            const card = shellNavigation.reservationCards.get(id as ReservationId);
-            card?.host.querySelector?.<HTMLButtonElement>(".card-actuals > button")?.focus();
-            if (card?.host.ownerDocument.activeElement !== card?.host.querySelector?.(".card-actuals > button")) card?.button.focus();
-          }
-          return { ok: true as const };
+          return mapResult(input.dispatch(command), (result) => {
+            if (!result.ok) return result;
+            if (handoff?.kind === "update-project") projectDrafts.cancel(handoff.projectId);
+            if (handoff?.kind === "update-reservation") reservationDrafts.cancel(handoff.reservationId);
+            store.cancel(String(id));
+            rebaseDrafts(); renderProjection(result.projection);
+            if (kind === "project") {
+              const card = shellNavigation.projectCards.get(id as ProjectId);
+              card?.host.querySelector?.<HTMLButtonElement>(".card-actuals > button")?.focus();
+              if (card?.host.ownerDocument.activeElement !== card?.host.querySelector?.(".card-actuals > button")) card?.button.focus();
+            } else {
+              const card = shellNavigation.reservationCards.get(id as ReservationId);
+              card?.host.querySelector?.<HTMLButtonElement>(".card-actuals > button")?.focus();
+              if (card?.host.ownerDocument.activeElement !== card?.host.querySelector?.(".card-actuals > button")) card?.button.focus();
+            }
+            return { ok: true as const };
+
+          });
         },
       });
       if (kind === "project") projectActualsControllers.set(id as ProjectId, controller);
@@ -399,15 +421,17 @@ export function createTimelineUiCoordinator(
         const order = projection.viewModel.projects.map((project) => project.id);
         const index = order.indexOf(projectId);
         const focusId = order[index + 1] ?? order[index - 1];
-        const result = input.dispatch({ kind: "remove-project", projectId });
-        if (!result.ok) return result;
-        projectDrafts.cancel(projectId);
-        projectSnapshotDrafts.cancel(String(projectId));
-        rebaseDrafts();
-        renderProjection(result.projection);
-        if (focusId) shellNavigation.projectCards.get(focusId)?.button.focus();
-        else input.elements.projectCreateButton?.focus();
-        return { ok: true as const };
+        return mapResult(input.dispatch({ kind: "remove-project", projectId }), (result) => {
+          if (!result.ok) return result;
+          projectDrafts.cancel(projectId);
+          projectSnapshotDrafts.cancel(String(projectId));
+          rebaseDrafts();
+          renderProjection(result.projection);
+          if (focusId) shellNavigation.projectCards.get(focusId)?.button.focus();
+          else input.elements.projectCreateButton?.focus();
+          return { ok: true as const };
+
+        });
       },
       confirmDiscard,
       onCancel: () => { projectActualsControllers.get(id)?.cancelCardRaf(); syncCard("project", id); card.button.focus(); },
@@ -432,15 +456,17 @@ export function createTimelineUiCoordinator(
         const order = input.getReservationNavigationItems().map((item) => item.id);
         const index = order.indexOf(reservationId);
         const focusId = order[index + 1] ?? order[index - 1];
-        const result = input.dispatch({ kind: "remove-reservation", reservationId });
-        if (!result.ok) return result;
-        reservationDrafts.cancel(reservationId);
-        reservationSnapshotDrafts.cancel(String(reservationId));
-        rebaseDrafts();
-        renderProjection(result.projection);
-        if (focusId) shellNavigation.reservationCards.get(focusId)?.button.focus();
-        else input.elements.reservationCreateButton?.focus();
-        return { ok: true as const };
+        return mapResult(input.dispatch({ kind: "remove-reservation", reservationId }), (result) => {
+          if (!result.ok) return result;
+          reservationDrafts.cancel(reservationId);
+          reservationSnapshotDrafts.cancel(String(reservationId));
+          rebaseDrafts();
+          renderProjection(result.projection);
+          if (focusId) shellNavigation.reservationCards.get(focusId)?.button.focus();
+          else input.elements.reservationCreateButton?.focus();
+          return { ok: true as const };
+
+        });
       },
       confirmDiscard,
       onCancel: () => { syncCard("reservation", id); card.button.focus(); },
@@ -528,29 +554,33 @@ export function createTimelineUiCoordinator(
       onReservationSelect: toggleReservation,
       onProjectActiveChange: (projectId, isActive) => {
         const previousProjection = projection;
-        const result = input.dispatch({ kind: "set-project-active", projectId, isActive });
-        if (!result.ok) {
-          shellNavigation.showActivationError("project", result.errors.map((error) => error.message).join(" "));
+        return mapResult(input.dispatch({ kind: "set-project-active", projectId, isActive }), (result) => {
+          if (!result.ok) {
+            shellNavigation.showActivationError("project", result.errors.map((error) => error.message).join(" "));
+            shellNavigation.projectCards.get(projectId)?.activeButton?.focus();
+            return;
+          }
+          if (result.projection === previousProjection) return;
+          rebaseDrafts();
+          renderProjection(result.projection);
           shellNavigation.projectCards.get(projectId)?.activeButton?.focus();
-          return;
-        }
-        if (result.projection === previousProjection) return;
-        rebaseDrafts();
-        renderProjection(result.projection);
-        shellNavigation.projectCards.get(projectId)?.activeButton?.focus();
+
+        });
       },
       onReservationActiveChange: (reservationId, isActive) => {
         const previousProjection = projection;
-        const result = input.dispatch({ kind: "set-reservation-active", reservationId, isActive });
-        if (!result.ok) {
-          shellNavigation.showActivationError("reservation", result.errors.map((error) => error.message).join(" "));
+        return mapResult(input.dispatch({ kind: "set-reservation-active", reservationId, isActive }), (result) => {
+          if (!result.ok) {
+            shellNavigation.showActivationError("reservation", result.errors.map((error) => error.message).join(" "));
+            shellNavigation.reservationCards.get(reservationId)?.activeButton?.focus();
+            return;
+          }
+          if (result.projection === previousProjection) return;
+          rebaseDrafts();
+          renderProjection(result.projection);
           shellNavigation.reservationCards.get(reservationId)?.activeButton?.focus();
-          return;
-        }
-        if (result.projection === previousProjection) return;
-        rebaseDrafts();
-        renderProjection(result.projection);
-        shellNavigation.reservationCards.get(reservationId)?.activeButton?.focus();
+
+        });
       },
     });
     reorderController = dependencies.createProjectReorderController({
@@ -561,28 +591,33 @@ export function createTimelineUiCoordinator(
       onReorder: (projectId, targetPosition) => {
         const command: ReorderProjectCommand = { kind: "reorder-project", projectId, targetPosition };
         const previousProjection = projection;
-        const result = input.dispatch(command);
-        if (!result.ok) {
-          shellNavigation.showReorderError(result.errors.map((error) => error.message).join(" "));
+        return mapResult(input.dispatch(command), (result) => {
+          if (!result.ok) {
+            shellNavigation.showReorderError(result.errors.map((error) => error.message).join(" "));
+            shellNavigation.projectCards.get(projectId)?.handle.focus();
+            return;
+          }
+          if (result.projection === previousProjection) return;
+          rebaseDrafts();
+          renderProjection(result.projection);
           shellNavigation.projectCards.get(projectId)?.handle.focus();
-          return;
-        }
-        if (result.projection === previousProjection) return;
-        rebaseDrafts();
-        renderProjection(result.projection);
-        shellNavigation.projectCards.get(projectId)?.handle.focus();
+
+        });
       },
     });
     const selectedDate = projection.geometry.dates.some((day) => day.date === snapshot.selectedDate)
       ? snapshot.selectedDate : projection.viewModel.horizon.start;
     rangeDragging = false;
-    viewportController = dependencies.createViewportController({ svg: input.elements.svg,
+    viewportController = dependencies.createViewportController({
+      svg: input.elements.svg,
       geometry: projection.geometry, controls: input.elements.viewportControls,
       initialViewport: snapshot.viewport,
       getProjectionDate: () => cursorController.getState().selectedDate,
-      onViewportChange: () => cursorController?.refresh?.() });
+      onViewportChange: () => cursorController?.refresh?.()
+    });
     const teamCollectionRow = input.elements.teamCreateButton?.parentElement;
-    cursorController = dependencies.createCursorController({ svg: input.elements.svg,
+    cursorController = dependencies.createCursorController({
+      svg: input.elements.svg,
       geometry: projection.geometry,
       ...(teamCollectionRow ? { teamCollectionRow } : {}),
       initialDate: selectedDate, getViewport: viewportController.getState,
@@ -590,10 +625,13 @@ export function createTimelineUiCoordinator(
       onVisibleDateRange: (startDate, endDate) => viewportController.setVisibleDateRange(startDate, endDate),
       onRangePreviewChange: (selection: TimelineRangeSelection | undefined) => {
         rangeDragging = selection !== undefined;
-        renderTimelineRangeSelection({ svg: input.elements.svg, geometry: projection.geometry,
-          viewport: viewportController.getState(), selection });
+        renderTimelineRangeSelection({
+          svg: input.elements.svg, geometry: projection.geometry,
+          viewport: viewportController.getState(), selection
+        });
         interactionController?.refreshTooltip();
-      } });
+      }
+    });
     renderCursorMetrics(selectedDate);
     interactionController = dependencies.createInteractionController({
       svg: input.elements.svg, geometry: projection.geometry, viewModel: projection.viewModel,
@@ -653,9 +691,13 @@ export function createTimelineUiCoordinator(
         const { teams: _localTeams, ...localFields } = forecast.values;
         const { teams: _referenceTeams, ...referenceFields } = forecast.reference;
         void _localTeams; void _referenceTeams;
-        if (JSON.stringify(localFields) !== JSON.stringify(referenceFields)) return { ok: false as const,
-          errors: [{ code: "ACTUALS_HANDOFF_FORECAST_FIELDS", path: "forecast",
-            message: "Apply or revert other Forecast field changes before continuing with Actuals." }] };
+        if (JSON.stringify(localFields) !== JSON.stringify(referenceFields)) return {
+          ok: false as const,
+          errors: [{
+            code: "ACTUALS_HANDOFF_FORECAST_FIELDS", path: "forecast",
+            message: "Apply or revert other Forecast field changes before continuing with Actuals."
+          }]
+        };
       }
       const snapshot = projectSnapshotDrafts.initialize(actualsModel);
       const removed = snapshot.teams.filter((row) => row.enabled && !target.includes(row.teamId));
@@ -664,9 +706,13 @@ export function createTimelineUiCoordinator(
         const raf = before && "raf" in before ? before.raf.find((item) => item.teamId === row.teamId) : undefined;
         return raf && parseExactQuantityInput(row.raf) !== serializeQuantity(raf.amount);
       });
-      if (dirtyRemoved) return { ok: false as const,
-        errors: [{ code: "ACTUALS_HANDOFF_RAF_CONFLICT", path: "raf",
-          message: "A Team being removed has a card RAF draft. Revert or resolve it before continuing." }] };
+      if (dirtyRemoved) return {
+        ok: false as const,
+        errors: [{
+          code: "ACTUALS_HANDOFF_RAF_CONFLICT", path: "raf",
+          message: "A Team being removed has a card RAF draft. Revert or resolve it before continuing."
+        }]
+      };
       const oldRaf = actualsModel.snapshots.at(-1);
       if (oldRaf && "raf" in oldRaf && command.teamRequirements.some((requirement) => {
         const prior = oldRaf.raf.find((row) => row.teamId === requirement.teamId);
@@ -676,32 +722,48 @@ export function createTimelineUiCoordinator(
         const card = parseExactQuantityInput(quick.raf);
         const forecastRaf = serializeQuantity(requirement.remainingWorkload);
         return card !== before && forecastRaf !== before && card !== forecastRaf;
-      })) return { ok: false as const,
-        errors: [{ code: "ACTUALS_HANDOFF_RAF_CONFLICT", path: "raf",
-          message: "Forecast and the card changed the same RAF differently. Resolve the conflict before continuing." }] };
+      })) return {
+        ok: false as const,
+        errors: [{
+          code: "ACTUALS_HANDOFF_RAF_CONFLICT", path: "raf",
+          message: "Forecast and the card changed the same RAF differently. Resolve the conflict before continuing."
+        }]
+      };
       projectActualsControllers.get(command.projectId)?.openHandoff(command);
-      return { ok: false as const, errors: [{ code: "ACTUALS_HANDOFF", path: "actuals",
-        message: "Complete the Actuals dialog to apply this Team change together with its knowledge." }] };
+      return {
+        ok: false as const, errors: [{
+          code: "ACTUALS_HANDOFF", path: "actuals",
+          message: "Complete the Actuals dialog to apply this Team change together with its knowledge."
+        }]
+      };
     }
     if (cardRafDirty) {
-      if (projectDrafts.isDirty(command.projectId)) return { ok: false as const,
-        errors: [{ code: "ACTUALS_FORECAST_SEPARATION", path: "raf",
-          message: "Apply or Cancel the other Project edits before applying RAF; these changes need separate transactions." }] };
-      return projectActualsControllers.get(command.projectId)?.applyCardRaf() ?? { ok: false as const,
-        errors: [{ code: "ACTUALS_CARD_UNAVAILABLE", path: "raf", message: "Actuals card is unavailable." }] };
+      if (projectDrafts.isDirty(command.projectId)) return {
+        ok: false as const,
+        errors: [{
+          code: "ACTUALS_FORECAST_SEPARATION", path: "raf",
+          message: "Apply or Cancel the other Project edits before applying RAF; these changes need separate transactions."
+        }]
+      };
+      return projectActualsControllers.get(command.projectId)?.applyCardRaf() ?? {
+        ok: false as const,
+        errors: [{ code: "ACTUALS_CARD_UNAVAILABLE", path: "raf", message: "Actuals card is unavailable." }]
+      };
     }
-    const result = input.dispatch(command);
-    if (!result.ok) return result;
-    projectDrafts.cancel(command.projectId);
-    const model = input.getProjectEditViewModel(command.projectId);
-    if (model) {
-      projectDrafts.initialize(command.projectId, model);
-      projectDrafts.setExpanded(command.projectId, true);
-    }
-    rebaseDrafts();
-    renderProjection(result.projection);
-    shellNavigation.projectCards.get(command.projectId)?.button.focus();
-    return { ok: true as const };
+    return mapResult(input.dispatch(command), (result) => {
+      if (!result.ok) return result;
+      projectDrafts.cancel(command.projectId);
+      const model = input.getProjectEditViewModel(command.projectId);
+      if (model) {
+        projectDrafts.initialize(command.projectId, model);
+        projectDrafts.setExpanded(command.projectId, true);
+      }
+      rebaseDrafts();
+      renderProjection(result.projection);
+      shellNavigation.projectCards.get(command.projectId)?.button.focus();
+      return { ok: true as const };
+
+    });
   };
   const applyReservationUpdate = (command: UpdateReservationCommand) => {
     const actualsModel = input.getReservationSnapshotActualsViewModel?.(command.reservationId);
@@ -714,34 +776,46 @@ export function createTimelineUiCoordinator(
         const { teams: _localTeams, ...localFields } = forecast.values;
         const { teams: _referenceTeams, ...referenceFields } = forecast.reference;
         void _localTeams; void _referenceTeams;
-        if (JSON.stringify(localFields) !== JSON.stringify(referenceFields)) return { ok: false as const,
-          errors: [{ code: "ACTUALS_HANDOFF_FORECAST_FIELDS", path: "forecast",
-            message: "Apply or revert other Forecast field changes before continuing with Actuals." }] };
+        if (JSON.stringify(localFields) !== JSON.stringify(referenceFields)) return {
+          ok: false as const,
+          errors: [{
+            code: "ACTUALS_HANDOFF_FORECAST_FIELDS", path: "forecast",
+            message: "Apply or revert other Forecast field changes before continuing with Actuals."
+          }]
+        };
       }
       reservationSnapshotDrafts.initialize(actualsModel);
       reservationActualsControllers.get(command.reservationId)?.openHandoff(command);
-      return { ok: false as const, errors: [{ code: "ACTUALS_HANDOFF", path: "actuals",
-        message: "Complete the Actuals dialog to apply this Team change together with its knowledge." }] };
+      return {
+        ok: false as const, errors: [{
+          code: "ACTUALS_HANDOFF", path: "actuals",
+          message: "Complete the Actuals dialog to apply this Team change together with its knowledge."
+        }]
+      };
     }
-    const result = input.dispatch(command);
-    if (!result.ok) return result;
-    reservationDrafts.cancel(command.reservationId);
-    const model = input.getReservationEditViewModel(command.reservationId);
-    if (model) {
-      reservationDrafts.initialize(command.reservationId, model);
-      reservationDrafts.setExpanded(command.reservationId, true);
-    }
-    rebaseDrafts();
-    renderProjection(result.projection);
-    shellNavigation.reservationCards.get(command.reservationId)?.button.focus();
-    return { ok: true as const };
+    return mapResult(input.dispatch(command), (result) => {
+      if (!result.ok) return result;
+      reservationDrafts.cancel(command.reservationId);
+      const model = input.getReservationEditViewModel(command.reservationId);
+      if (model) {
+        reservationDrafts.initialize(command.reservationId, model);
+        reservationDrafts.setExpanded(command.reservationId, true);
+      }
+      rebaseDrafts();
+      renderProjection(result.projection);
+      shellNavigation.reservationCards.get(command.reservationId)?.button.focus();
+      return { ok: true as const };
+
+    });
   };
   const applyTeamUpdate = (command: UpdateTeamNameCommand | UpdateTeamCapacityPeriodsCommand) => {
-    const result = input.dispatch(command);
-    if (!result.ok) return result;
-    rebaseDrafts();
-    renderProjection(result.projection);
-    return { ok: true as const };
+    return mapResult(input.dispatch(command), (result) => {
+      if (!result.ok) return result;
+      rebaseDrafts();
+      renderProjection(result.projection);
+      return { ok: true as const };
+
+    });
   };
   mountProjection(input.initialProjection, currentSnapshot());
   if (input.invalidStartupBackup) planningSettingsController.showStartupError();

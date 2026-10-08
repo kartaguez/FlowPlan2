@@ -143,7 +143,12 @@ Team's unused capacity.
 PlanningSessionState
 ├── portfolio
 ├── planning
-└── portfolioSnapshots
+└── Current-owned Actuals histories (inside Portfolio)
+
+PlanningRepository
+├── immutable Portfolio Snapshots
+├── snapshot metadata
+└── historical identity reservations
 ```
 
 The session owns the editable source. The canonical pipeline is:
@@ -171,12 +176,19 @@ valid Apply
 → one recompute
 ```
 
-When browser persistence is active, a candidate edit is validated, projected,
-encoded, and written as one complete versioned document before the in-memory
-session publishes it. A failed write leaves the session and prior document
-unchanged. The Domain and session know no browser storage API. Import validates
-the complete document and projection before replacing the single stored value;
-an invalid import never clears existing planning data.
+When persistence is active, a candidate Current edit is validated, projected,
+encoded and atomically committed through an asynchronous Application repository
+before the in-memory session publishes it. Current writes never read or rewrite
+Portfolio Snapshot payloads. Save/Delete commit the targeted historical artifact,
+metadata and identity indexes without rewriting Current or rerunning the engine.
+Revision CAS and operation receipts protect concurrent tabs and uncertain replies.
+A failed write leaves the applied state and projection unchanged. Domain and
+session know no browser storage API. Complete portable imports are staged,
+fully validated and projected before confirmed atomic generation activation;
+a rejected import never publishes a partial dataset. V7 remains the independent
+portable artifact, while IndexedDB is the primary browser backend. The legacy
+localStorage document is preserved and tracked by its migration fingerprint;
+normal Current edits are never conflicts with unchanged legacy.
 
 Typing changes local form state only. It must not recompute planning.
 
@@ -223,7 +235,7 @@ Estimated end uses the same pure helper as Timeline: inactive → `inactive`, an
 incomplete Team → `incomplete-within-horizon`, all complete → latest defined
 Team end, otherwise `no-allocation`. There is no horizon extrapolation.
 
-Save/Delete verify state/run coherence, persist complete V7 before publication,
+Save/Delete verify state/run coherence and commit targeted History before publication,
 and reuse the current projection without engine recomputation. A failure
 publishes nothing and leaves inputs, drafts, history and projection intact.
 Delete removes only the requested capture, with no Actuals purge or garbage
@@ -235,7 +247,8 @@ V1–V5 readers migrate with empty Portfolio history and their encoders refuse
 history-bearing downgrade. V6 retains schema 1 only; V7 accepts historical
 schema 1 and mandatory-profile schema 2. V6→V7 preserves captures unchanged,
 without daily enrichment or startup rewrite; V6 encoding refuses schema 2.
-V7 uses compact JSON and the existing storage key. V6/V7 reject any invalid
+V7 uses compact portable JSON. The old storage key is a preserved legacy source,
+not the primary writer; physical IndexedDB schema versions are independent. V6/V7 reject any invalid
 capture/reference/input or metric as a whole, without repair or recalculating historical metrics with a
 current engine. Invalid startup documents remain preserved and reported.
 Historical IDs for Project, Reservation, Team, Program and Pas remain reserved
@@ -270,10 +283,13 @@ Planning and History have independent temporal UI state. Switching preserves
 Planning DOM and draft owners through explicit, idempotent suspend/resume; final
 destroy is not navigation. Global/pointer/focus interactions and observers are
 suspended explicitly. Modals block switching without abandoning their workflow.
-No business command, write or projection rebuild occurs solely from navigation.
+No business command, authoritative persistence write or Planning projection rebuild
+occurs solely from navigation. Disposable History projections and bounded temporary
+quantile workspace may be rebuilt; they never alter historical artifacts.
 History receives no editing, Save/Delete/Import or replay capabilities.
 
-History cache identity is the canonically ordered immutable snapshot-ID sequence,
+History cache identity includes generation, History revision and the canonically
+ordered immutable snapshot-ID sequence,
 not JavaScript array identity. Pan retains cap, effective zoom resamples it,
 dataset/reference changes invalidate explicitly, and application reload creates
 new caches. Snapshot colors derive only from IDs, independently of Programme.

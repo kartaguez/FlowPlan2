@@ -1,12 +1,13 @@
+import { mapResult, type MaybePromise } from "../asyncResult.js";
 import { comparePortfolioSnapshots, type PortfolioSnapshot } from "../../domain/portfolioSnapshots/portfolioSnapshot.js";
 import type { PortfolioSnapshotControls } from "../renderApp.js";
 
 export function createPortfolioSnapshotsController(input: {
   controls: PortfolioSnapshotControls;
   isDirty: () => boolean;
-  getSnapshots: () => readonly PortfolioSnapshot[];
-  save: () => Readonly<{ ok: boolean; errors?: readonly { message: string }[] }>;
-  remove: (id: string) => Readonly<{ ok: boolean; errors?: readonly { message: string }[] }>;
+  getSnapshots: () => readonly Pick<PortfolioSnapshot, "snapshotId" | "createdAt">[];
+  save: () => MaybePromise<Readonly<{ ok: boolean; errors?: readonly { message: string }[] }>>;
+  remove: (id: string) => MaybePromise<Readonly<{ ok: boolean; errors?: readonly { message: string }[] }>>;
   confirm: (message: string) => boolean;
 }) {
   const { controls } = input;
@@ -14,7 +15,7 @@ export function createPortfolioSnapshotsController(input: {
     controls.save.disabled = input.isDirty();
     controls.reason.textContent = controls.save.disabled ? "Apply or cancel all unapplied changes before saving." : "";
   };
-  const showResult = (result: ReturnType<typeof input.save>, success: string) => {
+  const showResult = (result: Awaited<ReturnType<typeof input.save>>, success: string) => {
     controls.status.textContent = result.ok ? success : result.errors?.map((e) => e.message).join(" ") ?? "Snapshot could not be saved.";
   };
   const renderList = () => {
@@ -31,9 +32,11 @@ export function createPortfolioSnapshotsController(input: {
       remove.setAttribute("aria-label", `Delete snapshot ${time.textContent} (${snapshot.snapshotId})`);
       remove.addEventListener("click", () => {
         if (!input.confirm(`Delete portfolio snapshot ${time.textContent}?`)) return;
-        const result = input.remove(snapshot.snapshotId);
-        showResult(result, "Snapshot deleted.");
-        if (result.ok) { renderList(); controls.count.focus(); }
+        return mapResult(input.remove(snapshot.snapshotId), (result) => {
+          showResult(result, "Snapshot deleted.");
+          if (result.ok) { renderList(); controls.count.focus(); }
+
+        });
       });
       row.append(time, remove); controls.list.append(row);
     }
@@ -43,8 +46,11 @@ export function createPortfolioSnapshotsController(input: {
   const save = () => {
     refreshDirty();
     if (input.isDirty()) { controls.status.textContent = "Apply or cancel all unapplied changes before saving."; return; }
-    const result = input.save(); showResult(result, "Portfolio snapshot saved.");
-    if (result.ok) renderList();
+    return mapResult(input.save(), (result) => {
+      showResult(result, "Portfolio snapshot saved.");
+      if (result.ok) renderList();
+
+    });
   };
   controls.save.addEventListener("click", save);
   renderList();

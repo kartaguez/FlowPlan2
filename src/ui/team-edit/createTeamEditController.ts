@@ -1,3 +1,4 @@
+import { mapResult, type MaybePromise } from "../asyncResult.js";
 import type {
   TeamEditViewModel,
   UpdateTeamCapacityPeriodsCommand,
@@ -25,16 +26,16 @@ export interface TeamEditController {
 export interface CreateTeamEditControllerInput {
   readonly controls: TeamEditControls;
   readonly errorContainer: HTMLElement;
-  readonly onApplyName: (command: UpdateTeamNameCommand) => TeamEditApplyResult;
+  readonly onApplyName: (command: UpdateTeamNameCommand) => MaybePromise<TeamEditApplyResult>;
   readonly onApplyPeriods: (
     command: UpdateTeamCapacityPeriodsCommand,
-  ) => TeamEditApplyResult;
+  ) => MaybePromise<TeamEditApplyResult>;
   readonly onClose?: () => void;
   readonly confirmDiscard?: (message: string) => boolean;
   readonly onDelete?: (teamId: TeamId) =>
-    | Readonly<{ ok: true }>
-    | Readonly<{ ok: false; reason: "draft"; message: string }>
-    | Readonly<{ ok: false; reason: "application"; errors: readonly DomainError[] }>;
+    MaybePromise<| Readonly<{ ok: true }>
+      | Readonly<{ ok: false; reason: "draft"; message: string }>
+      | Readonly<{ ok: false; reason: "application"; errors: readonly DomainError[] }>>;
 }
 
 interface PeriodInputs {
@@ -124,11 +125,13 @@ export function createTeamEditController(
     capacity.value = row.capacity;
     unavailabilityPercent.value = row.unavailabilityPercent;
     input.controls.capacityFields.append(fieldset);
-    return Object.freeze({ key: row.key, ...(row.referenceIndex === undefined ? {} : { referenceIndex: row.referenceIndex }),
+    return Object.freeze({
+      key: row.key, ...(row.referenceIndex === undefined ? {} : { referenceIndex: row.referenceIndex }),
       fieldset, startDate, endDate, capacity, capacityDisplay: row.capacityDisplay,
       capacityExact: row.capacityExact, unavailabilityPercent,
       unavailabilityDisplay: row.unavailabilityDisplay,
-      unavailabilityExact: row.unavailabilityExact });
+      unavailabilityExact: row.unavailabilityExact
+    });
   };
   const hydrate = (nextModel: TeamEditViewModel | undefined, preserve = true): void => {
     const sameTeam = preserve && nextModel !== undefined && model?.teamId === nextModel.teamId &&
@@ -217,22 +220,26 @@ export function createTeamEditController(
       showErrors([Object.freeze({ code: "EMPTY_TEAM_NAME", path: "team.name", message: "Team name must not be empty." })]);
       return;
     }
-    const result = input.onApplyName(Object.freeze({ kind: "update-team-name", teamId: model.teamId, name }));
-    if (!result.ok) return showErrors(result.errors);
-    if (nameInput && model) nameInput.value = model.label;
-    clearError();
+    void mapResult(input.onApplyName(Object.freeze({ kind: "update-team-name", teamId: model.teamId, name })), (result) => {
+      if (!result.ok) return showErrors(result.errors);
+      if (nameInput && model) nameInput.value = model.label;
+      clearError();
+
+    });
   };
   const onPeriodsSubmit = (event: SubmitEvent): void => {
     event.preventDefault();
     if (model === undefined) return;
     const parsed = parseTeamEditCommand(periodValues());
     if (!parsed.ok) return showErrors(parsed.errors);
-    const result = input.onApplyPeriods(parsed.command);
-    if (!result.ok) return showErrors(result.errors);
-    const currentName = nameInput?.value;
-    hydrate(model, false);
-    if (nameInput && currentName !== undefined) nameInput.value = currentName;
-    clearError();
+    void mapResult(input.onApplyPeriods(parsed.command), (result) => {
+      if (!result.ok) return showErrors(result.errors);
+      const currentName = nameInput?.value;
+      hydrate(model, false);
+      if (nameInput && currentName !== undefined) nameInput.value = currentName;
+      clearError();
+
+    });
   };
   const onCancelPeriods = (): void => {
     const currentName = nameInput?.value;
@@ -242,9 +249,11 @@ export function createTeamEditController(
   };
   const onAddPeriod = (): void => {
     if (!model) return;
-    const row = renderPeriod({ key: nextRowKey++, startDate: "", endDate: "",
+    const row = renderPeriod({
+      key: nextRowKey++, startDate: "", endDate: "",
       capacity: "", capacityDisplay: "", capacityExact: "",
-      unavailabilityPercent: "0", unavailabilityDisplay: "0", unavailabilityExact: "0/1" });
+      unavailabilityPercent: "0", unavailabilityDisplay: "0", unavailabilityExact: "0/1"
+    });
     periodInputs = Object.freeze([...periodInputs, row]);
     row.startDate.focus();
     clearError();
@@ -271,12 +280,14 @@ export function createTeamEditController(
   const onDeleteCancel = (): void => { input.controls.deleteConfirmation.hidden = true; };
   const onDeleteConfirm = (): void => {
     if (!model || !input.onDelete) return;
-    const result = input.onDelete(model.teamId);
-    if (!result.ok) {
-      if (result.reason === "application") showErrors(result.errors);
-      else showLocalMessage(result.message);
-      input.controls.deleteConfirmation.hidden = true;
-    }
+    void mapResult(input.onDelete(model.teamId), (result) => {
+      if (!result.ok) {
+        if (result.reason === "application") showErrors(result.errors);
+        else showLocalMessage(result.message);
+        input.controls.deleteConfirmation.hidden = true;
+      }
+
+    });
   };
 
   input.controls.nameForm.addEventListener("submit", onNameSubmit);

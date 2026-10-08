@@ -13,7 +13,7 @@ import {
 } from "../../domain/index.js";
 import { createDemoPlanningScenario } from "../demo/createDemoPlanningScenario.js";
 import { buildPlanningSessionProjection } from "./buildPlanningSessionProjection.js";
-import { createPlanningProjectionDispatcher } from "./createPlanningProjectionDispatcher.js";
+import { createPlanningProjectionDispatcher } from "./synchronousPlanningDispatcher.fixture.js";
 
 function must<T>(result: DomainResult<T>): T {
   if (!result.ok) throw new Error(JSON.stringify(result.errors));

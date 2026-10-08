@@ -154,7 +154,7 @@ describe("11C source to projection, capture and History",()=>{
 
 it("11C accepted erosion/RAF-only commands derive bounds once, failures stay atomic, Save/Delete reuse projection", async()=>{
   const {createPlanningSession}=await import("../../application/session/planningSession.js");
-  const {createPlanningProjectionDispatcher}=await import("./createPlanningProjectionDispatcher.js");
+  const {createPlanningProjectionDispatcher}=await import("./synchronousPlanningDispatcher.fixture.js");
   const state=fixture("zero"),p=state.portfolio.projects[0]!,current=p.snapshots![0]!;
   const today=createCivilDate("2025-10-08");assert.ok(today.ok);
   const session=createPlanningSession(state,{today:()=>today.value});let builds=0,writes=0,failWrite=false,failProjection=false,stored="prior";

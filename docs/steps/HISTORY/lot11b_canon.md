@@ -1,6 +1,6 @@
 # Lot 11B — Project History
 
-Status: **IN REVIEW**, pending independent audit and human validation. 11A and
+Status: **DONE**, explicitly closed by the user on 2026-10-08. 11A and
 11A.2 remain DONE. Implementation baseline:
 `7a3ea6bf1c6c97e248075a75bc718279158ad0f5` on
 `codex/lot11a-portfolio-snapshots`, clean and origin 0/0 after the required fetch.
@@ -288,3 +288,13 @@ engine, persistence layer, Actuals/RAF/EAC/priority rule or Planning behavior
 changed. No scope extension. Prior volume/quota and manual accessibility/physical-
 touch review limits remain; this correction pass adds no new identified risk.
 **11B remains IN REVIEW pending a new independent audit and human validation.**
+
+## Explicit user closure — 2026-10-08
+
+The user explicitly closed 11B and 11C and authorized the storage architecture
+implementation. Closure baseline: `eb38a3df8fceab30d82253cac6bc5cd325625444`, clean,
+origin 0/0 after fetch. Before storage changes: typecheck PASS, **879/879 tests
+across 95 suites PASS**, build PASS. Earlier IN REVIEW mentions describe the
+delivery history, not the current status. Engine baseline is fixed at this SHA;
+11C engine `/2`, V7 schema 1/2 and the validated History contract are unchanged.
+**11B DONE; 11C DONE.** Storage implementation will be reviewed separately.

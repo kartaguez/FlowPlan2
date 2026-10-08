@@ -1,3 +1,4 @@
+import { mapResult, type MaybePromise } from "../asyncResult.js";
 import type {
   ReservationEditViewModel,
   UpdateReservationCommand,
@@ -26,8 +27,8 @@ export interface ReservationEditController {
 export interface CreateReservationEditControllerInput {
   readonly controls: ReservationEditControls;
   readonly errorContainer: HTMLElement;
-  readonly onApply: (command: UpdateReservationCommand) => ReservationEditApplyResult;
-  readonly onDelete?: (reservationId: ReservationId) => ReservationEditApplyResult;
+  readonly onApply: (command: UpdateReservationCommand) => MaybePromise<ReservationEditApplyResult>;
+  readonly onDelete?: (reservationId: ReservationId) => MaybePromise<ReservationEditApplyResult>;
   readonly confirmDiscard?: (message: string) => boolean;
   readonly onCancel?: () => void;
   readonly draftStore?: ReservationDraftStore;
@@ -163,13 +164,16 @@ export function createReservationEditController(
   const readDraftValues = (): ReservationDraftValues => {
     if (!model || !nameInput || !startInput || !endInput) throw new TypeError("Reservation form has no model.");
     const previous = input.draftStore?.get(model.reservationId)?.values ?? reservationValuesFromModel(model);
-    return { name: nameInput.value, startDate: startInput.value, endDate: endInput.value,
+    return {
+      name: nameInput.value, startDate: startInput.value, endDate: endInput.value,
       ...(groupingControls?.read() ?? previous),
-      teams: allocations.map((row) => ({ teamId: row.teamId, enabled: row.enabled.checked,
+      teams: allocations.map((row) => ({
+        teamId: row.teamId, enabled: row.enabled.checked,
         kind: row.kind.value as "ratio" | "fixed-daily", value: row.value.value,
         ...(row.originalExact === undefined ? {} : { exact: row.originalExact }),
         expanded: row.isExpanded(),
-      })).concat(previous.teams.filter((team) => !allocations.some((row) => row.teamId === team.teamId))) };
+      })).concat(previous.teams.filter((team) => !allocations.some((row) => row.teamId === team.teamId)))
+    };
   };
   const notifyDraftChange = (): void => {
     if (!model || !nameInput || !input.draftStore) return;
@@ -213,12 +217,14 @@ export function createReservationEditController(
       showErrors(parsed.errors);
       return;
     }
-    const result = input.onApply(parsed.command);
-    if (!result.ok) {
-      showErrors(result.errors);
-      return;
-    }
-    clearError();
+    void mapResult(input.onApply(parsed.command), (result) => {
+      if (!result.ok) {
+        showErrors(result.errors);
+        return;
+      }
+      clearError();
+
+    });
   };
   const onCancel = (): void => {
     if (model && input.draftStore) {
@@ -255,12 +261,14 @@ export function createReservationEditController(
   };
   const onDeleteConfirm = (): void => {
     if (!model || !input.onDelete) return;
-    const result = input.onDelete(model.reservationId);
-    if (!result.ok) {
-      showErrors(result.errors);
-      if (input.controls.deleteConfirmation) input.controls.deleteConfirmation.hidden = true;
-      input.controls.deleteButton?.focus();
-    }
+    void mapResult(input.onDelete(model.reservationId), (result) => {
+      if (!result.ok) {
+        showErrors(result.errors);
+        if (input.controls.deleteConfirmation) input.controls.deleteConfirmation.hidden = true;
+        input.controls.deleteButton?.focus();
+      }
+
+    });
   };
   input.controls.form.addEventListener("submit", onSubmit);
   input.controls.form.addEventListener("input", notifyDraftChange);

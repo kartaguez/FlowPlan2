@@ -31,7 +31,7 @@ export function renderProjectHistorySvg(svg: SVGSVGElement, geometry: ProjectHis
       const indicator = historySvgNode(document, "path", { d: excess, class: "history-cap-excess", "vector-effect": "non-scaling-stroke", "aria-label": "Daily load exceeds visual cap. Exact amounts available in row details." });
       group.append(indicator);
     }
-    if (!row.row.days.length && (row.row.profile === "available" || row.row.metrics.startAbsenceReason === "no-activity")) {
+    if (row.row.daysLoaded !== false && !row.row.days.length && (row.row.profile === "available" || row.row.metrics.startAbsenceReason === "no-activity")) {
       group.append(historySvgNode(document, "line", { x1: geometry.viewport.x, x2: geometry.viewport.x + geometry.viewport.width,
         y1: baseline, y2: baseline, class: "history-no-activity", "vector-effect": "non-scaling-stroke" }));
     }

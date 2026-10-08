@@ -1,3 +1,4 @@
+import { mapResult, type MaybePromise } from "../asyncResult.js";
 import type {
   PlanningSettingsViewModel,
   UpdatePlanningSettingsCommand,
@@ -21,9 +22,10 @@ export function createPlanningSettingsController(input: {
   readonly initialModel: PlanningSettingsViewModel;
   readonly onApply: (
     command: UpdatePlanningSettingsCommand,
-  ) => Readonly<{ ok: true }> | Readonly<{ ok: false; errors: readonly DomainError[] }>;
-  readonly onImport?: (document: string) => "imported" | "cancelled" | "failed";
-  readonly onExport?: () => string;
+  ) => MaybePromise<Readonly<{ ok: true }> | Readonly<{ ok: false; errors: readonly DomainError[] }>>;
+  readonly onImportFile?: (file: File) => MaybePromise<"imported" | "cancelled" | "failed">;
+  readonly onImport?: (document: string) => MaybePromise<"imported" | "cancelled" | "failed">;
+  readonly onExport?: () => MaybePromise<string | Blob>;
 }): PlanningSettingsController {
   let model = input.initialModel;
   let startDate: HTMLInputElement;
@@ -89,27 +91,30 @@ export function createPlanningSettingsController(input: {
       maxParallelProjects: maxParallel.value,
     });
     if (!parsed.ok) return showErrors(parsed.errors);
-    const result = input.onApply(parsed.command);
-    if (!result.ok) return showErrors(result.errors);
-    clearError();
-    input.controls.container.hidden = true;
+    void mapResult(input.onApply(parsed.command), (result) => {
+      if (!result.ok) return showErrors(result.errors);
+      clearError();
+      input.controls.container.hidden = true;
+
+    });
   };
   const startImport = (): void => { input.controls.fileInput.value = ""; input.controls.fileInput.click(); };
   const importFile = async (): Promise<void> => {
     const file = input.controls.fileInput.files?.[0];
-    if (!file || !input.onImport) return;
+    if (!file || (!input.onImport && !input.onImportFile)) return;
     try {
-      const result = input.onImport(await file.text());
+      const result = input.onImportFile ? await input.onImportFile(file) : await input.onImport!(await file.text());
       if (result === "failed") showErrors([{ code: "IMPORT_FAILED", path: "", message: "Import failed." }]);
     } catch {
       showErrors([{ code: "IMPORT_FAILED", path: "", message: "Import failed." }]);
     }
   };
-  const exportFile = (): void => {
+  const exportFile = async (): Promise<void> => {
     try {
       if (!input.onExport) throw new Error("Export unavailable.");
       const document = input.controls.fields.ownerDocument;
-      const blob = new Blob([input.onExport()], { type: "application/json" });
+      const exported = await input.onExport();
+      const blob = typeof exported === "string" ? new Blob([exported], { type: "application/json" }) : exported;
       const url = URL.createObjectURL(blob);
       try {
         const link = document.createElement("a");

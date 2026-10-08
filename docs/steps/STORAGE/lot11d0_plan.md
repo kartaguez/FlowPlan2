@@ -1,3 +1,11 @@
+> Current implementation status (2026-10-09): **11D.0 IMPLEMENTED — IN REVIEW**.
+> The user explicitly closed 11B/11C and authorized this plan's implementation
+> at `eb38a3df8fceab30d82253cac6bc5cd325625444` on 2026-10-08. The original
+> planning-only review below is retained as history; its NOT STARTED/IN REVIEW
+> prerequisite mentions do not override those explicit closures.
+> See [delivery and verification](./lot11d0_canon.md). No 11D.2 full-capture model
+> or portable version change was implemented.
+
 # Lot 11D.0 — Storage Architecture & Scalability
 
 **Statut du plan : 11D.0 READY FOR IMPLEMENTATION — pending explicit authorization and prerequisite gates.**
@@ -989,3 +997,36 @@ n’a été exécuté dans cette passe ; code, backup et moteur inchangés.
 11B et 11C restent **IN REVIEW**. L’implémentation reste **NOT STARTED**.
 
 **11D.0 READY FOR IMPLEMENTATION — pending explicit authorization and prerequisite gates**
+
+## Implementation record — 2026-10-09
+
+A: Current-only session, historical identity constraints and separate portable
+backup dataset; synchronous characterization adapter confined to test fixtures.
+B: prepare/async commit/publish, generation/revision/currentRevision/historyRevision,
+CAS and operationId receipts (1024 retained; expired retries fail stale CAS), UI
+pending/inert without draft destruction. C: native IndexedDB v2, logical data v1,
+separate content/metadata/indexes, strict durability hint and blocked/versionchange.
+D: migration fingerprint + archived raw source, resumable staging/read-back/count
+validation, generation sealing/activation, complete validation before import
+confirmation, explicit staging cleanup and independent V7 chunks/Blob export.
+E: ephemeral projectionVersion 1, serialized worker reads, row LRU 32 MiB and
+metadata estimate 64 MiB, exact weighted multiset cap with external 4096-entry
+buffers/fan-in eight, profile/VM/gutter release while retaining temporal UI state.
+
+Validation certificate epoch 1 is private physical metadata, not a backup field.
+Reads verify checksums and reuse entry validation only for matching certificates;
+unknown/absent epochs fully validate. Current owner/prefix preservation is enforced
+at writeCurrent, and every imported generation validates all references before
+activation. No metric is repaired, enriched or re-planned.
+
+Decisions: persistent summaries were unnecessary after measured worker projection
+optimization; none introduced. Imported files use worker Blob/File reads with a
+visible 512 MiB limit; text remains one buffer, not a streaming tokenizer from disk.
+Receipt expiry does not replay an old command: its expected token is stale. Old
+activated import generations are not purged automatically. Physical quota forcing
+via Edge DevTools did not produce refusal; native injected QUOTA rollback and
+recovery are verified and the limitation is reported. The exploratory full-horizon
+Reservation benchmark exposed existing Current projection cost; it is documented,
+not hidden or used to change engine results. Results are in the linked delivery.
+
+**11B DONE; 11C DONE; 11D.0 IMPLEMENTED — IN REVIEW.**

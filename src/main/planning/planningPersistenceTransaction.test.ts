@@ -4,7 +4,7 @@ import { createPlanningSession } from "../../application/index.js";
 import { decodeFlowplanBackup } from "../../application/backup/flowplanBackupV1.js";
 import { createUnavailabilityRatio } from "../../domain/index.js";
 import { createDemoPlanningScenario } from "../demo/createDemoPlanningScenario.js";
-import { createPlanningProjectionDispatcher } from "./createPlanningProjectionDispatcher.js";
+import { createPlanningProjectionDispatcher } from "./synchronousPlanningDispatcher.fixture.js";
 
 const geometryViewport = { width: 2160, teamLaneHeight: 100, timeAxisHeight: 76 };
 

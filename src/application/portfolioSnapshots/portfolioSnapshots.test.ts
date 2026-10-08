@@ -1,8 +1,9 @@
+import type { PlanningBackupDataset } from "../backup/planningBackupDataset.js";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { createDemoPlanningScenario } from "../../main/demo/createDemoPlanningScenario.js";
 import { createPlanningSession, type PlanningSessionState } from "../session/planningSession.js";
-import { createPlanningProjectionDispatcher } from "../../main/planning/createPlanningProjectionDispatcher.js";
+import { createPlanningProjectionDispatcher } from "../../main/planning/synchronousPlanningDispatcher.fixture.js";
 import { buildPlanningSessionProjection } from "../../main/planning/buildPlanningSessionProjection.js";
 import { decodePlanningInputs, encodePlanningInputs } from "../backup/planningInputCodec.js";
 import { decodeFlowplanBackup, encodeFlowplanBackupV1, encodeFlowplanBackupV2, encodeFlowplanBackupV3, encodeFlowplanBackupV4, encodeFlowplanBackupV5, encodeFlowplanBackupV6 } from "../backup/flowplanBackupV1.js";
@@ -52,10 +53,10 @@ function rich(mode: "none" | "raf-only" | "zero" | "v5" | "legacy" | "reconciled
   }
   return decodePlanningInputs(data, 5, undefined, true);
 }
-function fixture(state = rich()) {
+function fixture(state: PlanningBackupDataset = rich()) {
   const session = createPlanningSession(state, { today: () => must(createCivilDate("2026-10-07")) });
   let clock = instant, id = 0, dirty = false, fail = false, writes = 0, builds = 0, document = "original";
-  const dispatcher = createPlanningProjectionDispatcher({ session, geometryViewport: viewport, now: () => clock, snapshotId: () => `capture-${++id}`,
+  const dispatcher = createPlanningProjectionDispatcher({ session, initialSnapshots: state.portfolioSnapshots, geometryViewport: viewport, now: () => clock, snapshotId: () => `capture-${++id}`,
     hasUnappliedChanges: () => dirty,
     buildProjection: (input) => { builds++; return buildPlanningSessionProjection(input); },
     backupStore: { read: () => document, write: (next) => { if (fail) throw new Error("quota"); writes++; document = next; } } });
@@ -320,7 +321,7 @@ describe("11A dates, identities and independence", () => {
       const loaded = decodeFlowplanBackup(encodeFlowplanBackupV6({ ...base, portfolioSnapshots: [snap] }));
       const period = old.portfolio.teams[0]!.capacitySchedule.periods[0]!;
       const capacityPeriods = [{ startDate: period.start, endDate: period.end, capacity: period.dailyCapacity, unavailability: must(unavailabilityRatioFromSerialized("0/1")) }];
-      const make = (state: PlanningSessionState) => {
+      const make = (state: PlanningBackupDataset) => {
         const app = fixture(state);
         if (kind === "teams") {
           assert.equal(app.dispatcher.dispatch({ kind: "create-team", name: "New", capacityPeriods }).ok, true);
@@ -368,10 +369,11 @@ it("captures an empty Portfolio explicitly without inventing any inputs or forec
   assert.equal(decodeFlowplanBackup(app.document()).portfolioSnapshots!.length, 1);
 });
 
-it("session initialization deep freezes historical artifacts without retaining mutable seed references", () => {
+it("history initialization deep freezes artifacts while the live session owns no collection", () => {
   const state = rich(), seed: any = structuredClone(capture(state));
-  const session = createPlanningSession({ ...state, portfolioSnapshots: [seed] });
-  const frozen = session.getState().portfolioSnapshots![0]!, before = JSON.stringify(frozen);
+  const app = fixture({ ...state, portfolioSnapshots: [seed] });
+  assert.equal(Object.hasOwn(app.session.getState(), "portfolioSnapshots"), false);
+  const frozen = app.dispatcher.getPortfolioSnapshots()[0]!, before = JSON.stringify(frozen);
   seed.inputs.portfolio.projects[0].name = "changed seed"; seed.forecast.projects[0].eac = "0/1";
   assert.equal(JSON.stringify(frozen), before); assert.throws(() => { (frozen.forecast.projects as any).pop(); }, TypeError);
 });

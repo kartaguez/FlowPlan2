@@ -8,7 +8,7 @@ import {
 } from "../../application/index.js";
 import type { createTeamEditController } from "../team-edit/createTeamEditController.js";
 import { createDemoPlanningScenario } from "../../main/demo/createDemoPlanningScenario.js";
-import { createPlanningProjectionDispatcher } from "../../main/planning/createPlanningProjectionDispatcher.js";
+import { createPlanningProjectionDispatcher } from "../../main/planning/synchronousPlanningDispatcher.fixture.js";
 import type { AppElements } from "../renderApp.js";
 import type { createProjectEditController } from "../project-edit/createProjectEditController.js";
 import type { createProjectCreateController } from "../project-edit/createProjectCreateController.js";
@@ -212,8 +212,8 @@ function fixture(withUnusedTeam = false, rejectActivation = false, withActuals =
     projectCardHost: (id: ProjectId) => latestProjectCards.get(id)?.host,
     reservationCardHost: (id: ReservationId) => latestReservationCards.get(id)?.host,
     activationErrors,
-    createProject: (command: CreateProjectCommand) => projectCreateInput.onCreate(command),
-    createReservation: (command: CreateReservationCommand) => reservationCreateInput.onCreate(command),
+    createProject: (command: CreateProjectCommand) => synchronous(projectCreateInput.onCreate(command)),
+    createReservation: (command: CreateReservationCommand) => synchronous(reservationCreateInput.onCreate(command)),
     deleteReservation: (id: ReservationId) => reservationHandles.get(id)!.onDelete!(id),
     enableTeamInCreateReservation: (id: TeamId) => createReservationEnabledTeams.add(id),
     disableTeamInCreateReservation: (id: TeamId) => createReservationEnabledTeams.delete(id),
@@ -358,7 +358,7 @@ describe("coordinator multi-draft rerender", () => {
       teamRequirements: [...project.requirements.map((row) => ({ teamId: row.teamId,
         remainingWorkload: row.remainingWorkload, ...(row.dailyCap ? { dailyCap: row.dailyCap } : {}) })),
       { teamId: newTeam, remainingWorkload: must(remainingWorkloadFromSerialized("1/1")) }] };
-    const first = app.projectHandles.get(id)!.onApply(command);
+    const first = synchronous(app.projectHandles.get(id)!.onApply(command));
     assert.equal(first.ok, false);
     if (!first.ok) assert.ok(first.errors.some((item) => item.code === "ACTUALS_HANDOFF"));
     assert.equal(app.session.getState().portfolio.projects[0]!.snapshots!.length, 1);
@@ -368,7 +368,7 @@ describe("coordinator multi-draft rerender", () => {
     all(host).find((item) => item.textContent === "Cancel Actuals")!.emit("click");
     assert.equal(forecast.isDirty(id), true);
     assert.equal(app.session.getState().portfolio.projects[0]!.snapshots!.length, 1);
-    assert.equal(app.projectHandles.get(id)!.onApply(command).ok, false);
+    assert.equal(synchronous(app.projectHandles.get(id)!.onApply(command)).ok, false);
     host = app.projectCardHost(id)!;
     all(host).find((item) => item.textContent === "Next")!.emit("click");
     all(host).find((item) => item.textContent === "Next")!.emit("click");
@@ -408,7 +408,7 @@ describe("coordinator multi-draft rerender", () => {
       name: reservation.name, startDate: reservation.startDate, endDate: reservation.endDate,
       teamAllocations: [...reservation.teamAllocations.map((row) => ({ teamId: row.teamId, ...row.amount })),
         { teamId: newTeam, kind: "ratio" as const, ratio: must(reservationRatioFromSerialized("1/2")) }] };
-    const result = app.reservationHandles.get(id)!.onApply(command);
+    const result = synchronous(app.reservationHandles.get(id)!.onApply(command));
     assert.equal(result.ok, false);
     if (!result.ok) assert.ok(result.errors.some((item) => item.code === "ACTUALS_HANDOFF"));
     assert.equal(app.session.getState().portfolio.reservations[0]!.snapshots!.length, 1);
@@ -431,7 +431,7 @@ describe("coordinator multi-draft rerender", () => {
       teamRequirements: [...project.requirements.map((row) => ({ teamId: row.teamId,
         remainingWorkload: row.remainingWorkload, ...(row.dailyCap ? { dailyCap: row.dailyCap } : {}) })),
       { teamId: newTeam, remainingWorkload: must(remainingWorkloadFromSerialized("1/1")) }] };
-    assert.equal(app.projectHandles.get(project.id)!.onApply(command).ok, true);
+    assert.equal(synchronous(app.projectHandles.get(project.id)!.onApply(command)).ok, true);
     assert.equal(app.session.getState().portfolio.projects[0]!.snapshots, undefined);
     assert.ok(app.session.getState().portfolio.projects[0]!.requirements.some((row) => row.teamId === newTeam));
     app.coordinator.destroy();
@@ -449,7 +449,7 @@ describe("coordinator multi-draft rerender", () => {
       teamRequirements: [...project.requirements.map((row) => ({ teamId: row.teamId,
         remainingWorkload: row.remainingWorkload })),
       { teamId: newTeam, remainingWorkload: must(remainingWorkloadFromSerialized("1/1")) }] };
-    const result = app.projectHandles.get(project.id)!.onApply(command);
+    const result = synchronous(app.projectHandles.get(project.id)!.onApply(command));
     assert.equal(result.ok, false);
     if (!result.ok) assert.ok(result.errors.some((item) => item.code === "ACTUALS_HANDOFF_FORECAST_FIELDS"));
     assert.equal(app.session.getState().portfolio.projects[0]!.snapshots!.length, 1);
@@ -467,7 +467,7 @@ describe("coordinator multi-draft rerender", () => {
     const command: UpdateProjectCommand = { kind: "update-project", projectId: project.id, name: project.name,
       teamRequirements: project.requirements.slice(1).map((row) => ({ teamId: row.teamId,
         remainingWorkload: row.remainingWorkload })) };
-    const result = app.projectHandles.get(project.id)!.onApply(command);
+    const result = synchronous(app.projectHandles.get(project.id)!.onApply(command));
     assert.equal(result.ok, false);
     if (!result.ok) assert.ok(result.errors.some((item) => item.code === "ACTUALS_HANDOFF_RAF_CONFLICT"));
     assert.equal(app.session.getState().portfolio.projects[0]!.snapshots!.length, 1);
@@ -489,7 +489,7 @@ describe("coordinator multi-draft rerender", () => {
     const command: UpdateProjectCommand = { kind: "update-project", projectId: project.id, name: project.name,
       teamRequirements: project.requirements.map((row) => ({ teamId: row.teamId,
         remainingWorkload: row.remainingWorkload, ...(row.dailyCap ? { dailyCap: row.dailyCap } : {}) })) };
-    assert.equal(app.projectHandles.get(project.id)!.onApply(command).ok, true);
+    assert.equal(synchronous(app.projectHandles.get(project.id)!.onApply(command)).ok, true);
     assert.equal(app.session.getState().portfolio.projects[0]!.snapshots?.length, 2);
     assert.equal(app.session.getState().portfolio.projects[0]!.snapshots?.at(-1)?.coverage?.actualsThrough,
       project.snapshots?.at(-1)?.coverage?.actualsThrough);
@@ -507,7 +507,7 @@ describe("coordinator multi-draft rerender", () => {
     const command: UpdateProjectCommand = { kind: "update-project", projectId: project.id, name: "Local name",
       teamRequirements: project.requirements.map((row) => ({ teamId: row.teamId,
         remainingWorkload: row.remainingWorkload, ...(row.dailyCap ? { dailyCap: row.dailyCap } : {}) })) };
-    const result = app.projectHandles.get(project.id)!.onApply(command);
+    const result = synchronous(app.projectHandles.get(project.id)!.onApply(command));
     assert.equal(result.ok, false);
     if (!result.ok) assert.ok(result.errors.some((item) => item.code === "ACTUALS_FORECAST_SEPARATION"));
     assert.equal(app.session.getState().portfolio.projects[0]!.snapshots?.length, 1);
@@ -582,7 +582,7 @@ describe("coordinator multi-draft rerender", () => {
         teamRequirements: project!.requirements.map((requirement) => ({ teamId: requirement.teamId,
           remainingWorkload: requirement.remainingWorkload,
           ...(requirement.dailyCap === undefined ? {} : { dailyCap: requirement.dailyCap }) })) };
-      assert.equal(app.projectHandles.get(project!.id)!.onApply(projectApply).ok, true);
+      assert.equal(synchronous(app.projectHandles.get(project!.id)!.onApply(projectApply)).ok, true);
       const reservationApply = { kind: "update-reservation" as const, reservationId: reservation!.id,
         name: reservationStore.get(reservation!.id)!.values.name,
         startDate: reservation!.startDate, endDate: reservation!.endDate,
@@ -590,7 +590,7 @@ describe("coordinator multi-draft rerender", () => {
           ...(allocation.amount.kind === "ratio"
             ? { kind: "ratio" as const, ratio: allocation.amount.ratio }
             : { kind: "fixed-daily" as const, dailyCapacity: allocation.amount.dailyCapacity }) })) };
-      assert.equal(app.reservationHandles.get(reservation!.id)!.onApply(reservationApply).ok, true);
+      assert.equal(synchronous(app.reservationHandles.get(reservation!.id)!.onApply(reservationApply)).ok, true);
       assert.equal(app.session.getState().portfolio.projects[0]!.name, "Project draft");
       assert.equal(app.session.getState().portfolio.projects[0]!.isActive, finalActive);
       assert.equal(app.session.getState().portfolio.reservations[0]!.name, "Reservation draft");
@@ -612,13 +612,13 @@ describe("coordinator multi-draft rerender", () => {
     const reservationStore = app.reservationHandles.get(other.id)!.draftStore!;
     reservationStore.update(other.id, { ...reservationStore.get(other.id)!.values, name: "Reservation local" });
     const snapshot = app.coordinator.getUiSnapshot();
-    assert.equal(app.createReservation({ kind: "create-reservation", name: "Fresh",
+    assert.equal(synchronous(app.createReservation({ kind: "create-reservation", name: "Fresh",
       startDate: app.scenario.planning.startDate, endDate: app.scenario.planning.endDate,
-      teamAllocations: [] }).ok, true);
+      teamAllocations: [] })).ok, true);
     const created = app.session.getState().portfolio.reservations.at(-1)!.id;
     assert.equal(app.reservationHandles.get(created)!.draftStore!.get(created)?.expanded, true);
     assert.equal(app.focused(), app.reservationNameFor(created));
-    assert.equal(app.deleteReservation(created).ok, true);
+    assert.equal(synchronous(app.deleteReservation(created)).ok, true);
     assert.equal(app.session.getState().portfolio.reservations.some((item) => item.id === created), false);
     assert.equal(reservationStore.get(created), undefined);
     assert.equal(reservationStore.get(other.id)?.values.name, "Reservation local");
@@ -634,17 +634,17 @@ describe("coordinator multi-draft rerender", () => {
     const id = app.unusedTeamId!;
     app.enableTeamInCreateReservation(id);
     const before = app.session.getState();
-    const blocked = app.deleteTeam(id);
+    const blocked = synchronous(app.deleteTeam(id));
     assert.equal(blocked.ok, false);
     if (!blocked.ok) assert.equal(blocked.reason, "draft");
     assert.equal(app.session.getState(), before);
     assert.equal(app.getRenderCount(), 1);
     app.disableTeamInCreateReservation(id);
-    assert.equal(app.createReservation({ kind: "create-reservation", name: "Uses Team",
+    assert.equal(synchronous(app.createReservation({ kind: "create-reservation", name: "Uses Team",
       startDate: app.scenario.planning.startDate, endDate: app.scenario.planning.endDate,
       teamAllocations: [{ teamId: id, kind: "ratio",
-        ratio: must(reservationRatioFromSerialized("1/3")) }] }).ok, true);
-    const persisted = app.deleteTeam(id);
+        ratio: must(reservationRatioFromSerialized("1/3")) }] })).ok, true);
+    const persisted = synchronous(app.deleteTeam(id));
     assert.equal(persisted.ok, false);
     if (!persisted.ok) assert.equal(persisted.reason, "application");
     app.coordinator.destroy();
@@ -664,16 +664,16 @@ describe("coordinator multi-draft rerender", () => {
     const reservationDraft = reservationStore.get(reservation.id)!;
     reservationStore.update(reservation.id, { ...reservationDraft.values, name: "Reservation local" });
     const snapshot = app.coordinator.getUiSnapshot();
-    const created = app.createProject({ kind: "create-project", name: "Fresh",
+    const created = synchronous(app.createProject({ kind: "create-project", name: "Fresh",
       teamRequirements: [{ teamId: first!.requirements[0]!.teamId,
-        remainingWorkload: first!.requirements[0]!.remainingWorkload }] });
+        remainingWorkload: first!.requirements[0]!.remainingWorkload }] }));
     assert.equal(created.ok, true);
     const id = app.session.getState().portfolio.priorityOrder.at(-1)!;
     assert.strictEqual(app.focused(), app.buttonFor(id));
     assert.equal(app.projectHandles.get(id)!.draftStore!.get(id)?.expanded, true);
     app.reorder(id, 1);
     assert.equal(app.session.getState().portfolio.priorityOrder[0], id);
-    assert.equal(app.deleteProject(id).ok, true);
+    assert.equal(synchronous(app.deleteProject(id)).ok, true);
     assert.equal(app.session.getState().portfolio.projects.some((project) => project.id === id), false);
     assert.equal(app.projectHandles.get(id)!.draftStore!.get(id), undefined);
     assert.equal(secondStore.get(second!.id)?.values.name, "Second local");
@@ -690,20 +690,20 @@ describe("coordinator multi-draft rerender", () => {
     const app = fixture(true);
     const id = app.unusedTeamId!;
     app.enableTeamInCreate(id);
-    const blockedDraft = app.deleteTeam(id);
+    const blockedDraft = synchronous(app.deleteTeam(id));
     assert.equal(blockedDraft.ok, false);
     if (!blockedDraft.ok) assert.equal(blockedDraft.reason, "draft");
     assert.equal(app.getRenderCount(), 1);
     app.disableTeamInCreate(id);
     const raf = app.scenario.portfolio.projects[0]!.requirements[0]!.remainingWorkload;
-    assert.equal(app.createProject({ kind: "create-project", name: "Uses Team",
-      teamRequirements: [{ teamId: id, remainingWorkload: raf }] }).ok, true);
+    assert.equal(synchronous(app.createProject({ kind: "create-project", name: "Uses Team",
+      teamRequirements: [{ teamId: id, remainingWorkload: raf }] })).ok, true);
     const projectId = app.session.getState().portfolio.priorityOrder.at(-1)!;
-    const blockedPersisted = app.deleteTeam(id);
+    const blockedPersisted = synchronous(app.deleteTeam(id));
     assert.equal(blockedPersisted.ok, false);
     if (!blockedPersisted.ok) assert.equal(blockedPersisted.reason, "application");
-    assert.equal(app.deleteProject(projectId).ok, true);
-    assert.equal(app.deleteTeam(id).ok, true);
+    assert.equal(synchronous(app.deleteProject(projectId)).ok, true);
+    assert.equal(synchronous(app.deleteTeam(id)).ok, true);
     app.coordinator.destroy();
   });
   it("deletes an unused Team while independent Project and Reservation drafts stay dirty", () => {
@@ -722,7 +722,7 @@ describe("coordinator multi-draft rerender", () => {
     assert.equal(projectStore.isTeamDirty(projectId, teamId), false);
     assert.equal(reservationStore.isTeamDirty(reservationId, teamId), false);
     const before = app.coordinator.getUiSnapshot();
-    assert.equal(app.deleteTeam(teamId).ok, true);
+    assert.equal(synchronous(app.deleteTeam(teamId)).ok, true);
     assert.equal(app.getRenderCount(), 2);
     assert.equal(app.session.getState().portfolio.teams.some((team) => team.id === teamId), false);
     assert.deepEqual(app.coordinator.getUiSnapshot(), before);
@@ -745,7 +745,7 @@ describe("coordinator multi-draft rerender", () => {
     store.update(projectId, { ...initial.values, teams: initial.values.teams.map((team) =>
       team.teamId === teamId ? { ...team, enabled: true, remainingWorkload: "5" } : team) });
     const previous = app.session.getState();
-    const result = app.deleteTeam(teamId);
+    const result = synchronous(app.deleteTeam(teamId));
     assert.deepEqual(result.ok, false);
     if (!result.ok) assert.equal(result.reason, "draft");
     assert.equal(app.session.getState(), previous);
@@ -764,7 +764,7 @@ describe("coordinator multi-draft rerender", () => {
     store.update(reservationId, { ...initial.values, teams: initial.values.teams.map((team) =>
       team.teamId === teamId ? { ...team, value: "25" } : team) });
     const previous = app.session.getState();
-    const result = app.deleteTeam(teamId);
+    const result = synchronous(app.deleteTeam(teamId));
     assert.deepEqual(result.ok, false);
     if (!result.ok) assert.equal(result.reason, "draft");
     assert.equal(app.session.getState(), previous);
@@ -777,7 +777,7 @@ describe("coordinator multi-draft rerender", () => {
     const app = fixture();
     const teamId = app.scenario.portfolio.teams[0]!.id;
     const previous = app.session.getState();
-    const result = app.deleteTeam(teamId);
+    const result = synchronous(app.deleteTeam(teamId));
     assert.equal(result.ok, false);
     if (!result.ok) {
       assert.equal(result.reason, "application");
@@ -858,7 +858,7 @@ describe("coordinator multi-draft rerender", () => {
       teamRequirements: a!.requirements.map((requirement) => ({ teamId: requirement.teamId,
         remainingWorkload: requirement.remainingWorkload,
         ...(requirement.dailyCap === undefined ? {} : { dailyCap: requirement.dailyCap }) })) };
-    assert.equal(app.projectHandles.get(a!.id)!.onApply(command).ok, true);
+    assert.equal(synchronous(app.projectHandles.get(a!.id)!.onApply(command)).ok, true);
     assert.equal(app.getRenderCount(), 2);
     assert.equal(bStore.get(b!.id)?.values.name, "B local draft");
     assert.equal(bStore.get(b!.id)?.expanded, true);
@@ -971,3 +971,9 @@ it("retains an invalid quick RAF and collapsed Actuals card through suspend/resu
   }
   assert.deepEqual(app.coordinator.getUiSnapshot().viewport, ui.viewport); app.coordinator.destroy();
 });
+
+/** Characterization fixtures intentionally use the synchronous adapter. */
+function synchronous<T>(value: T | Promise<T>): T {
+  if (value instanceof Promise) throw new Error("Expected synchronous characterization adapter.");
+  return value;
+}

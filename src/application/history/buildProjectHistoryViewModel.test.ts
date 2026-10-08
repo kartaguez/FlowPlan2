@@ -9,7 +9,7 @@ import { createDemoPlanningScenario } from "../../main/demo/createDemoPlanningSc
 import { projectHistoryTooltipLines } from "../../ui/history/renderProjectHistoryTooltip.js";
 import { decodePlanningInputs, encodePlanningInputs } from "../backup/planningInputCodec.js";
 import { createPlanningSession } from "../session/planningSession.js";
-import { createPlanningProjectionDispatcher } from "../../main/planning/createPlanningProjectionDispatcher.js";
+import { createPlanningProjectionDispatcher } from "../../main/planning/synchronousPlanningDispatcher.fixture.js";
 import { buildPlanningSessionProjection } from "../../main/planning/buildPlanningSessionProjection.js";
 
 describe("Project History pure projection", () => {
@@ -143,9 +143,9 @@ it("distinguishes a partial allocation from RAF beyond floating-point precision"
 it("Save always creates schema 2 and mixed V7 History preserves exact profiles and legacy metrics", () => {
   const dto = encodePlanningInputs(createDemoPlanningScenario()); addHistoryActuals(dto);
   const state = decodePlanningInputs(dto, 5, undefined, true), old = historyFixture("a", addHistoryActuals, 1);
-  const session = createPlanningSession({ ...state, portfolioSnapshots: [old] });
+  const session = createPlanningSession(state);
   let builds = 0, writes = 0, text = "", sequence = 0;
-  const dispatcher = createPlanningProjectionDispatcher({ session,
+  const dispatcher = createPlanningProjectionDispatcher({ session, initialSnapshots: [old],
     geometryViewport: { width: 1000, teamLaneHeight: 100, timeAxisHeight: 76 }, hasUnappliedChanges: () => false,
     now: () => "2026-10-08T10:00:00.000Z", snapshotId: () => `new-${++sequence}`,
     buildProjection: (input) => { builds++; return buildPlanningSessionProjection(input); },

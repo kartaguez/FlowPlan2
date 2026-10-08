@@ -1,3 +1,4 @@
+import type { PlanningBackupDataset } from "./planningBackupDataset.js";
 import type { PlanningSessionState } from "../session/planningSession.js";
 import {
   capacityFromSerialized, createCapacityException, createCapacityPeriod,
@@ -163,7 +164,7 @@ function encodeReservationLegacy(actuals: ReservationActualsChronology) {
   };
 }
 
-function encodeFlowplanBackupVersion(state: PlanningSessionState, version: 1 | 2 | 3 | 4 | 5, exportedAt: string): string {
+function encodeFlowplanBackupVersion(state: PlanningBackupDataset, version: 1 | 2 | 3 | 4 | 5, exportedAt: string): string {
   if (state.portfolioSnapshots?.length) throw new InvalidFlowplanBackup("V1–V5 cannot encode Portfolio Snapshots.");
   if (version < 5 && (state.portfolio.projects.some((p) => p.snapshots?.length) || state.portfolio.reservations.some((r) => r.snapshots?.length))) {
     throw new InvalidFlowplanBackup("V1–V4 backups cannot encode knowledge snapshots.");
@@ -253,21 +254,21 @@ export function encodePlanningInputs(state: Pick<PlanningSessionState, "portfoli
 }
 export type PlanningInputsDto = ReturnType<typeof encodePlanningInputs>;
 
-export function encodeFlowplanBackupV1(state: PlanningSessionState, exportedAt: string = new Date().toISOString()): string {
+export function encodeFlowplanBackupV1(state: PlanningBackupDataset, exportedAt: string = new Date().toISOString()): string {
   return encodeFlowplanBackupVersion(state, 1, exportedAt);
 }
 
-export function encodeFlowplanBackupV2(state: PlanningSessionState, exportedAt: string = new Date().toISOString()): string {
+export function encodeFlowplanBackupV2(state: PlanningBackupDataset, exportedAt: string = new Date().toISOString()): string {
   return encodeFlowplanBackupVersion(state, 2, exportedAt);
 }
 
-export function encodeFlowplanBackupV3(state: PlanningSessionState, exportedAt: string = new Date().toISOString()): string {
+export function encodeFlowplanBackupV3(state: PlanningBackupDataset, exportedAt: string = new Date().toISOString()): string {
   return encodeFlowplanBackupVersion(state, 3, exportedAt);
 }
-export function encodeFlowplanBackupV4(state: PlanningSessionState, exportedAt: string = new Date().toISOString()): string {
+export function encodeFlowplanBackupV4(state: PlanningBackupDataset, exportedAt: string = new Date().toISOString()): string {
   return encodeFlowplanBackupVersion(state, 4, exportedAt);
 }
-export function encodeFlowplanBackupV5(state: PlanningSessionState, exportedAt: string = new Date().toISOString()): string {
+export function encodeFlowplanBackupV5(state: PlanningBackupDataset, exportedAt: string = new Date().toISOString()): string {
   return encodeFlowplanBackupVersion(state, 5, exportedAt);
 }
 
@@ -281,7 +282,7 @@ function boolean(value: unknown, path: string): boolean {
   return value;
 }
 
-function decodeFlowplanBackupVersion(text: string, version: 1 | 2 | 3 | 4 | 5): PlanningSessionState {
+function decodeFlowplanBackupVersion(text: string, version: 1 | 2 | 3 | 4 | 5): PlanningBackupDataset {
   let parsed: unknown;
   try { parsed = JSON.parse(text); } catch { throw new InvalidFlowplanBackup("Invalid JSON."); }
   const envelope = object(parsed, "backup", ["format", "version", "exportedAt", "data"]);
@@ -294,7 +295,7 @@ function decodeFlowplanBackupVersion(text: string, version: 1 | 2 | 3 | 4 | 5): 
 }
 
 /** Strict mode rejects any data that legacy readers would repair or prune. */
-export function decodePlanningInputs(value: unknown, version: 1 | 2 | 3 | 4 | 5 = 5, exportedOn?: CivilDate, strict = false): PlanningSessionState {
+export function decodePlanningInputs(value: unknown, version: 1 | 2 | 3 | 4 | 5 = 5, exportedOn?: CivilDate, strict = false): PlanningBackupDataset {
   const data = object(value, "data", ["planning", "portfolio"]);
   const planning = object(data.planning, "planning", ["startDate", "endDate", "workingWeekdays", "maxParallelProjects"]);
   const horizon = valid(createPlanningHorizon({ start: date(planning.startDate, "planning.startDate"), end: date(planning.endDate, "planning.endDate") }));
@@ -413,11 +414,11 @@ export function decodePlanningInputs(value: unknown, version: 1 | 2 | 3 | 4 | 5 
   return state;
 }
 
-export function decodeFlowplanBackupV1(text: string): PlanningSessionState {
+export function decodeFlowplanBackupV1(text: string): PlanningBackupDataset {
   return decodeFlowplanBackupVersion(text, 1);
 }
 
-export function decodeFlowplanBackup(text: string): PlanningSessionState {
+export function decodeFlowplanBackup(text: string): PlanningBackupDataset {
   let envelope: unknown;
   try { envelope = JSON.parse(text); } catch { throw new InvalidFlowplanBackup("Invalid JSON."); }
   const source = object(envelope, "backup", ["format", "version", "exportedAt", "data"]);

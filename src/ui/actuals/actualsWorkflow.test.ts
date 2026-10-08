@@ -4,7 +4,7 @@ import { buildProjectSnapshotActualsViewModel, buildReservationSnapshotActualsVi
   buildProjectEditViewModel } from "../../application/index.js";
 import { createCivilDate, serializeQuantity, type DomainResult } from "../../domain/index.js";
 import { createDemoPlanningScenario } from "../../main/demo/createDemoPlanningScenario.js";
-import { createPlanningProjectionDispatcher } from "../../main/planning/createPlanningProjectionDispatcher.js";
+import { createPlanningProjectionDispatcher } from "../../main/planning/synchronousPlanningDispatcher.fixture.js";
 import { buildPlanningSessionProjection } from "../../main/planning/buildPlanningSessionProjection.js";
 import { createProjectDraftStore } from "../project-edit/projectDraftStore.js";
 import { actualsForecastConflict } from "./actualsForecastConflict.js";

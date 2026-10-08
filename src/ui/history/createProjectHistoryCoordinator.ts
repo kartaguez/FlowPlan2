@@ -1,3 +1,7 @@
+import type { RepositoryHistoryReader } from "../../application/history/repositoryHistoryReader.js";
+import type { HistoryScratch } from "../../application/history/historyScratch.js";
+import { computeLazyHistoryVisualCap } from "../../adapters/history/geometry/computeLazyHistoryVisualCap.js";
+import { civilDayDifference } from "../../domain/model/date.js";
 import type { PortfolioSnapshot } from "../../domain/portfolioSnapshots/portfolioSnapshot.js";
 import type { CivilDate } from "../../domain/model/date.js";
 import { buildProjectHistoryGeometry, hitTestProjectHistory, visibleHistoryDates, HISTORY_AXIS_HEIGHT, HISTORY_GROUP_HEADER_HEIGHT, HISTORY_ROW_HEIGHT } from "../../adapters/history/geometry/buildProjectHistoryGeometry.js";
@@ -14,9 +18,11 @@ import { formatCursorMd } from "../timeline/formatCursorMetrics.js";
 import { rationalToCanonicalString } from "../../domain/model/rational.js";
 
 /** Read-only composition: this API has no command, persistence, editor or engine capability. */
-export function createProjectHistoryCoordinator(input: { container: HTMLElement; getSnapshots: () => readonly PortfolioSnapshot[] }) {
+export function createProjectHistoryCoordinator(input: { container: HTMLElement } & ({ getSnapshots: () => readonly PortfolioSnapshot[] } | { reader: RepositoryHistoryReader; scratch: () => Promise<HistoryScratch> })) {
   const document = input.container.ownerDocument;
   const cache = createProjectHistoryCache();
+  const lazy = "reader" in input ? input : undefined;
+  let capRequest = 0, rowLoading = false;
   let active = false, destroyed = false, gesturing = false, frame: number | undefined;
   let geometry: ReturnType<typeof buildProjectHistoryGeometry> | undefined;
   let viewportController: TimelineViewportController | undefined, rangeController: ReturnType<typeof createTemporalRangeController> | undefined, axisRangeController: ReturnType<typeof createTemporalRangeController> | undefined;
@@ -33,6 +39,7 @@ export function createProjectHistoryCoordinator(input: { container: HTMLElement;
   const capLabel = node("span", "history-cap-label"); controls.append(zoomOut, zoomIn, reset, capLabel);
   const legend = node("div", "history-legend"); legend.setAttribute("aria-label", "Portfolio snapshots, oldest first");
   const empty = node("p", "history-empty");
+  const status = node("p", "history-storage-status"); status.setAttribute("role", "status");
   const axis = node("div", "history-axis"); const axisGutter = node("span", "history-axis-gutter", "Snapshot / Priority");
   const axisSvg = historySvgNode(document, "svg", { height: HISTORY_AXIS_HEIGHT, "aria-label": "Reference snapshot time axis" }); axis.append(axisGutter, axisSvg);
   const scroll = node("div", "history-scroll"), stage = node("div", "history-stage"), gutters = node("div", "history-gutters");
@@ -40,7 +47,7 @@ export function createProjectHistoryCoordinator(input: { container: HTMLElement;
   const tooltip = node("section", "history-tooltip"); tooltip.id = "history-project-details";
   tooltip.setAttribute("role", "region"); tooltip.setAttribute("aria-label", "Historical Project details"); tooltip.setAttribute("aria-live", "polite"); tooltip.hidden = true;
   const tooltipContent = node("div"); const dismiss = button("Close", "Close historical details"); tooltip.append(dismiss, tooltipContent);
-  stage.append(svg, gutters); scroll.append(stage); input.container.append(heading, reference, controls, help, legend, empty, axis, scroll, tooltip);
+  stage.append(svg, gutters); scroll.append(stage); input.container.append(heading, reference, controls, help, legend, status, empty, axis, scroll, tooltip);
   const clear = () => {
     tooltip.hidden = true; information = undefined;
     if (pointerFrame !== undefined) document.defaultView?.cancelAnimationFrame(pointerFrame);
@@ -50,6 +57,14 @@ export function createProjectHistoryCoordinator(input: { container: HTMLElement;
     const state = cache.getState(), hit = information;
     const row = hit && state.model.projects[hit.p]?.rows[hit.s];
     if (!hit || !row || row.kind !== "present" || !state.cap || gesturing || !active) { tooltip.hidden = true; return; }
+    if (lazy && row.daysLoaded === false) {
+      tooltipContent.replaceChildren(node("p", "", "Loading exact captured daily profile…")); tooltip.hidden = false;
+      void lazy.reader.ensureRows([{ projectIndex: hit.p, snapshotIndex: hit.s }]).then(() => {
+        if (!active || destroyed) return;
+        cache.updateModel(lazy.reader.getModel()); updateTooltip(); scheduleDraw();
+      }).catch(cause => { if (active) status.textContent = cause instanceof Error ? cause.message : "History read failed."; });
+      return;
+    }
     renderProjectHistoryTooltip(tooltipContent, row, hit.date, state.cap); tooltip.hidden = false;
     // Temporal visibility belongs to the complete captured profile, independent of mounted groups.
     const visible = state.temporal && state.viewport ? visibleHistoryDates(state.temporal, state.viewport) : undefined;
@@ -67,7 +82,22 @@ export function createProjectHistoryCoordinator(input: { container: HTMLElement;
     // Window the heavy surfaces by Project groups; logical rows and keyboard entries remain complete.
     const firstProject = Math.max(0, Math.floor(scroll.scrollTop / state.temporal.groupHeight) - 1);
     const throughProject = Math.min(state.model.projects.length, Math.ceil((scroll.scrollTop + (scroll.clientHeight || 700)) / state.temporal.groupHeight) + 1);
-    geometry = buildProjectHistoryGeometry({ model: state.model, temporal: state.temporal, viewport: state.viewport, cap: state.cap, firstProject, throughProject });
+    const firstY = scroll.scrollTop - HISTORY_ROW_HEIGHT, throughY = scroll.scrollTop + (scroll.clientHeight || 700) + HISTORY_ROW_HEIGHT;
+    if (lazy && !rowLoading) {
+      const wanted: { projectIndex: number; snapshotIndex: number }[] = [];
+      for (let p = firstProject; p < throughProject; p++) state.model.projects[p]?.rows.forEach((row, s) => {
+        const y = p * state.temporal!.groupHeight + HISTORY_GROUP_HEADER_HEIGHT + s * HISTORY_ROW_HEIGHT;
+        if (row.kind === "present" && row.daysLoaded === false && y + HISTORY_ROW_HEIGHT >= firstY && y <= throughY) wanted.push({ projectIndex: p, snapshotIndex: s });
+      });
+      if (wanted.length) {
+        rowLoading = true;
+        void lazy.reader.ensureRows(wanted).then(() => { if (active && !destroyed) { cache.updateModel(lazy.reader.getModel()); scheduleDraw(); } })
+          .catch(cause => { if (active) status.textContent = cause instanceof Error ? cause.message : "History read failed."; })
+          .finally(() => { rowLoading = false; });
+      }
+    }
+    geometry = buildProjectHistoryGeometry({ model: state.model, temporal: state.temporal, viewport: state.viewport, cap: state.cap, firstProject, throughProject,
+      ...(lazy ? { firstY, throughY } : {}) });
     const scrollbarWidth = Math.max(0, (scroll.offsetWidth ?? 0) - scroll.clientWidth - 2);
     axis.style.paddingRight = `${scrollbarWidth}px`;
     renderProjectHistorySvg(svg, geometry); renderHistoryTimeAxis(axisSvg, state.temporal, state.viewport);
@@ -187,7 +217,7 @@ export function createProjectHistoryCoordinator(input: { container: HTMLElement;
     viewportController = createTemporalViewportController({ svg, pointerSurfaces: [svg, axisSvg], geometry: state.temporal, controls: { zoomIn, zoomOut, reset }, initialViewport: state.viewport,
       getZoomAnchorX: (viewport) => viewport.x + viewport.width / 2,
       isPanPointerAllowed: (event) => event.isPrimary !== false && (event.button === undefined || event.button === 0),
-      onViewportChange: (change) => { cache.changeViewport(change); if (change.cause !== "initial") clear(); scheduleDraw(); },
+      onViewportChange: (change) => { cache.changeViewport(change, !!lazy); if (change.cause !== "initial") clear(); if (lazy && cache.getState().cap === null) void loadCap(); else scheduleDraw(); },
       onPanStateChange: (value) => { gesturing = value; if (value) clear(); },
     });
     const preview = (selection: import("../timeline/renderTimelineRangeSelection.js").TimelineRangeSelection | undefined) => {
@@ -206,6 +236,42 @@ export function createProjectHistoryCoordinator(input: { container: HTMLElement;
       onVisibleDateRange: viewportController.setVisibleDateRange, onRangePreviewChange: preview,
     });
   };
+  const loadCap = async () => {
+    if (!lazy || !active) return;
+    const state = cache.getState(); if (!state.temporal || !state.viewport) return;
+    const request = ++capRequest, temporal = state.temporal, viewport = state.viewport;
+    const [from, through] = visibleHistoryDates(temporal, viewport);
+    status.textContent = "Loading exact global visual cap…";
+    controls.inert = axis.inert = scroll.inert = true; svg.replaceChildren();
+    async function* values() {
+      for await (const day of lazy!.reader.dailyTotals(from, through)) {
+        const x = civilDayDifference(day.date, temporal.dates[0]!.date) * temporal.dayWidth;
+        if (Math.min(x + temporal.dayWidth, viewport.x + viewport.width) > Math.max(x, viewport.x)) yield { value: day.total, count: day.count };
+      }
+    }
+    try {
+      const cap = await computeLazyHistoryVisualCap(values(), await lazy.scratch());
+      if (!active || destroyed || request !== capRequest) return;
+      cache.setCap(cap); status.textContent = ""; draw();
+    } catch (cause) { if (active && request === capRequest) status.textContent = cause instanceof Error ? cause.message : "History cap failed; data was preserved."; }
+    finally { if (active && request === capRequest) controls.inert = axis.inert = scroll.inert = false; }
+  };
+  const loadLazyDataset = async () => {
+    if (!lazy) return;
+    const request = ++capRequest; status.textContent = "Loading historical metadata…";
+    controls.inert = axis.inert = scroll.inert = true;
+    try {
+      await lazy.reader.refresh((done, total) => { if (active && request === capRequest) status.textContent = `Loading historical metadata ${done}/${total}…`; });
+      if (!active || destroyed || request !== capRequest) return;
+      const changed = cache.installModel(lazy.reader.getModel(), lazy.reader.getKey());
+      if (changed) { viewportController?.destroy(); rangeController?.destroy(); axisRangeController?.destroy(); viewportController = undefined; rangeController = undefined; axisRangeController = undefined; renderDataset(); }
+      if (!viewportController) mountInteractions(); else { viewportController.resume(); rangeController?.resume(); axisRangeController?.resume(); }
+      lifecycle.resume(); resizeObserver?.observe(scroll);
+      if (!cache.getState().temporal) { status.textContent = ""; controls.inert = axis.inert = scroll.inert = false; }
+      else if (cache.getState().cap === null) await loadCap();
+      else { status.textContent = ""; controls.inert = axis.inert = scroll.inert = false; draw(); }
+    } catch (cause) { if (active && request === capRequest) { status.textContent = cause instanceof Error ? cause.message : "History read failed."; controls.inert = axis.inert = scroll.inert = false; } }
+  };
   // Pointer capture stores the release row for touch and click independently of hover updates.
   lifecycle.listen(svg, "pointerdown", (event: PointerEvent) => { pointer = event; });
   lifecycle.listen(svg, "pointerup", (event: PointerEvent) => { pointer = event; });
@@ -213,7 +279,8 @@ export function createProjectHistoryCoordinator(input: { container: HTMLElement;
     getState: cache.getState,
     resume: () => {
       if (active || destroyed) return; active = true;
-      const changed = cache.refresh(input.getSnapshots());
+      if (lazy) { void loadLazyDataset(); return; }
+      const changed = cache.refresh((input as { getSnapshots: () => readonly PortfolioSnapshot[] }).getSnapshots());
       if (changed) { viewportController?.destroy(); rangeController?.destroy(); axisRangeController?.destroy(); viewportController = undefined; rangeController = undefined; axisRangeController = undefined; renderDataset(); }
       if (!viewportController) mountInteractions(); else { viewportController.resume(); rangeController?.resume(); axisRangeController?.resume(); }
       lifecycle.resume(); resizeObserver?.observe(scroll); draw();
@@ -221,10 +288,11 @@ export function createProjectHistoryCoordinator(input: { container: HTMLElement;
     suspend: () => {
       if (!active) return; active = false;
       viewportController?.suspend(); rangeController?.suspend(); axisRangeController?.suspend(); lifecycle.suspend(); resizeObserver?.disconnect(); gesturing = false;
+      if (lazy) { capRequest++; lazy.reader.releaseAll(); cache.releaseModel(); rowButtons.clear(); gutters.replaceChildren(); svg.replaceChildren(); geometry = undefined; clear(); }
     },
     destroy: () => {
       if (destroyed) return; destroyed = true; active = false;
-      viewportController?.destroy(); rangeController?.destroy(); axisRangeController?.destroy(); lifecycle.destroy(); resizeObserver?.disconnect(); input.container.replaceChildren();
+      viewportController?.destroy(); rangeController?.destroy(); axisRangeController?.destroy(); lifecycle.destroy(); resizeObserver?.disconnect(); capRequest++; lazy?.reader.releaseAll(); input.container.replaceChildren();
     },
   };
 }

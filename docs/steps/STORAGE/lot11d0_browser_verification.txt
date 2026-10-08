@@ -1,0 +1,66 @@
+Quota override: {"usage":144899,"quota":1024,"overrideActive":true,"usageBreakdown":[{"storageType":"file_systems","usage":0},{"storageType":"indexeddb","usage":144899},{"storageType":"cache_storage","usage":0},{"storageType":"service_workers","usage":0}]}
+{
+  "browser": "Edg/154.0.4258.53",
+  "result": {
+    "assertions": 15,
+    "exportBytes": 21142,
+    "token": {
+      "generation": "stage-import",
+      "revision": 6,
+      "currentRevision": 3,
+      "historyRevision": 5
+    }
+  },
+  "quota": {
+    "overrideAccepted": true,
+    "physicalQuotaEnforced": false,
+    "nativeInjectedQuotaAtomic": true,
+    "nativeCode": "QUOTA"
+  },
+  "ui": {
+    "migrated": true,
+    "save": true,
+    "history": true,
+    "details": true,
+    "cycles": 3,
+    "legacyPreserved": true,
+    "closedHistoryRows": 0
+  },
+  "blockedUpgrade": {
+    "blocked": true,
+    "code": "BLOCKED"
+  },
+  "layout": [
+    {
+      "width": 1440,
+      "scrollWidth": 1440
+    },
+    {
+      "width": 390,
+      "scrollWidth": 390
+    }
+  ],
+  "historyLayouts": [
+    {
+      "theme": "light",
+      "width": 1440,
+      "scrollWidth": 1440
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "scrollWidth": 1440
+    },
+    {
+      "theme": "light",
+      "width": 390,
+      "scrollWidth": 390
+    },
+    {
+      "theme": "dark",
+      "width": 390,
+      "scrollWidth": 390
+    }
+  ],
+  "originIsolated": true
+}

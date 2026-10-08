@@ -1,8 +1,8 @@
 # FlowPlan2 current plan
 
 Current validated baseline:
-`507e85d5af8ed3158f9ce449e2e354609212e7b5` (validated 11A.2 DONE closure;
-code/test baseline `06e7fbb94d71fe73a35e244d4cee6626b65777c2`)
+`eb38a3df8fceab30d82253cac6bc5cd325625444` (11B/11C explicitly closed by
+the user on 2026-10-08; 879 tests, typecheck and build before storage changes)
 
 This is the operational roadmap for the active trajectory. Durable product and
 architecture rules live in [canon](./canon.md); current implementation facts
@@ -47,20 +47,22 @@ plus Lot 11A.2 exact daily profiles and V7 persistence.
 - 10C.2 Actuals / RAF workflow UX (DONE).
 - 11A Portfolio Snapshots & Forecast History Capture (DONE).
 - 11A.2 Historical daily load profiles (DONE).
+- 11B Project History (DONE — explicit user closure).
+- 11C Actuals / Forecast separation (DONE — explicit user closure).
 
-Current trajectory: **11C — Actuals / Forecast temporal separation (IN REVIEW)**;
-**11B — Project History view remains IN REVIEW**, following validated DONE
+Current trajectory: **11D.0 — Storage Architecture & Scalability (IN REVIEW)**;
+**11B — Project History view is DONE**, following validated DONE
 11A.2. See the
 [detailed implementation plan](./steps/HISTORY/lot11a2_11b_plan.md).
 11A.2 is implemented, verified and closed. Final plan review concludes
-**11B READY FOR IMPLEMENTATION** at baseline `7a3ea6b`; implementation is now **IN REVIEW**. See [11B delivery](./steps/HISTORY/lot11b_canon.md).
+**11B READY FOR IMPLEMENTATION** at baseline `7a3ea6b`; implementation is **DONE** by explicit user closure. See [11B delivery](./steps/HISTORY/lot11b_canon.md).
 
 ## Current objective and ordered sub-lots
 
 ```text
 10A (DONE) → 10B (DONE) → 10C (DONE) → 10C.1 (DONE) → 10C.2 (DONE)
-11A (DONE) → 11A.2 (DONE) → 11B (IN REVIEW)
-11C: IN REVIEW — Actuals / Forecast temporal separation
+11A (DONE) → 11A.2 (DONE) → 11B (DONE)
+11C: DONE — Actuals / Forecast temporal separation
 11A.1: DEFERRED / not adopted as product work; no dependency for 11B
 10D: superseded by 11A (not DONE)
 10E: largely superseded by 11B; advanced replay/navigation/comparison deferred
@@ -70,62 +72,32 @@ Final 11B plan review (2026-10-08): branch `codex/lot11a-portfolio-snapshots`,
 starting HEAD `507e85d5af8ed3158f9ce449e2e354609212e7b5`, clean and synchronized
 with origin (0/0) after fetch. The 11A.2 canon records the completed capture and
 755-test validation. That review was documentation-only. The subsequent authorized implementation
-is now IN REVIEW; no human DONE validation is claimed.
+was then IN REVIEW; explicit user closure subsequently marked 11B DONE.
 
 ## 11D.0 — Storage Architecture & Scalability
 
-**11D.0 READY FOR IMPLEMENTATION — pending explicit authorization and prerequisite gates.**
-Implementation remains **NOT STARTED**. Documentation-only audit and hardened
-plan: [detailed plan](./steps/STORAGE/lot11d0_plan.md). Hardening baseline:
-`47a92b1a8ef2b7c091c5984eb2baad10409397c3`, expected/observed HEAD, clean and
-origin 0/0 after fetch on 2026-10-08, branch
-`codex/lot11a-portfolio-snapshots`. Initial code audit baseline:
-`944d79ef07f704c849d9669c70e3f70dc567165a`; no code change between these commits.
-The validated 11A.2 baseline above is unchanged. **11B and 11C remain IN REVIEW**.
-No code, tests, dependencies, migration, persisted data, backup version or engine
-result changes in this delivery.
+**Status: IMPLEMENTED — IN REVIEW.** User-authorized implementation after
+explicit 11B/11C DONE closure at baseline
+`eb38a3df8fceab30d82253cac6bc5cd325625444`. The A → B → C → D → E sequence is
+implemented; see [plan and implementation record](./steps/STORAGE/lot11d0_plan.md)
+and [delivery, gates and measurements](./steps/STORAGE/lot11d0_canon.md).
 
-The five audit decisions are explicit in the amended plan:
+Current session no longer owns Portfolio captures. Async Application repository,
+IndexedDB, separate Current/History/metadata/identity indexes, CAS/receipts,
+resumable staging and atomic activation are implemented. Legacy is preserved and
+tracked by migration fingerprint; normal Current edits do not conflict with it.
+V1–V7 readers and autonomous V7 export remain, with no engine or backup bump.
+Lazy worker projections, bounded row caches, external exact cap calculation and
+History release on return Planning preserve historical metrics and Planning drafts.
+Persistent summaries and the future full daily Team/Reservation capture model
+remain absent. 11D.2/11D.3 are not implemented by this storage delivery.
 
-1. PlanningSessionState owns Current (Planning, Portfolio and owned Actuals)
-   and minimal historical identity constraints, never the complete Portfolio
-   Snapshot collection. History belongs to the repository; old APIs are replaced,
-   with no empty-history shim or indirect full-history cache.
-2. The initial storage model uses snapshotMetadata, snapshotContent and integrity
-   indexes. Persistent historySummaries require demonstrated 11B/benchmark need;
-   they are optional derived caches with projectionVersion/sourceDigest, disposable
-   and reconstructible. The immutable snapshot alone is historical authority.
-3. legacySourceFingerprintAtMigration tracks the exact migrated legacy source.
-   Normal IDB Current edits are not conflicts with unchanged legacy. A changed
-   legacy fingerprint detects a possible old client; preserve branches and resolve
-   explicitly without merge, dual-write or deleting legacy.
-4. Transaction boundaries are operation-specific: writeCurrent never touches
-   snapshots; create/deleteSnapshot never rewrite Current or rerun the engine;
-   Save checks the Current revision of its published run. Activation verifies a
-   complete validated stage then switches generation/control/revisions/receipt.
-   Parsing, projection, external hashes and dialogs remain outside transactions.
-5. Implementation order: **A ownership (memory/test) → B async/CAS (memory/test)
-   → C IndexedDB → D migration/recovery/import-export → E lazy History/memory**.
-   Gates isolate each architectural change; no deviation is currently required.
-
-Recommended direction remains an asynchronous Application port independent of
-browser/UI, IndexedDB primary, on-demand content reads, bounded caches and
-portable V1–V7 readers / complete V7 exports independent of physical storage.
-Exact historical metrics, Actuals owned protections, staging/readback/atomic
-activation, operationId/receipts, CAS, quota errors, blocked/versionchange and
-BroadcastChannel as notification only are preserved. Evolution/11B can derive
-paged projections by bounded scans without holding all captures; persisted
-summaries remain optional. Its global cap requires exact bounded batch processing.
-
-Before transverse implementation: explicit code authorization, explicit 11C
-closure and fixed engine baseline; stabilize the 11B contract or explicitly
-authorize its History changes. Phase-specific prototype/performance gates remain
-in the plan, including old-tab transition, cache budgets and cap cost. Benchmarks
-proposed: 5×20×365, 25×100×730, 100×200×1095 with multiple Teams/Reservations,
-real browser storage and peak/retained RAM. Earlier 11B measures are cited only;
-none were rerun. 11D.1/11D.2/11D.3 remain unstarted. Aggregated Project profiles
-cannot reconstruct missing historical Team/Reservation contributions for 11D.2;
-that model/portable version requires a separate approved contract.
+Review limits are recorded explicitly: large-file transient buffers, browser
+storage quota/eviction, estimated cache budgets and current Planning projection
+costs on large horizons/Reservations. Physical quota refusal was not forced by
+Edge's accepted DevTools override; native rollback and visible QUOTA errors were
+verified with injected native transaction refusal. Human storage audit/closure
+remains separate. **11B DONE; 11C DONE; 11D.0 IN REVIEW.**
 
 ## Corrective lot — anchored temporal zoom and range drag
 
@@ -495,7 +467,7 @@ plans. Typecheck, 755/755 tests (89 suites), build and diff checks pass.
 
 ## 11B — Project History view
 
-**Status: IN REVIEW — independent audit and human validation pending.**
+**Status: DONE — explicit user closure on 2026-10-08.**
 Implementation starts from mandatory baseline
 `7a3ea6bf1c6c97e248075a75bc718279158ad0f5` on the existing branch.
 11A.2 remains validated DONE. The [reviewed plan §§5–14](./steps/HISTORY/lot11a2_11b_plan.md)
@@ -512,12 +484,12 @@ review and small/target/stress performance measurements and residual limits.
 No V6/V7 format, engine or business rule changed; no historical replay/restore,
 Reservation frise, reference navigation or advanced analysis was added.
 
-Next action: independent audit against the acceptance matrix and human validation.
-Do not advance 11B to DONE automatically from successful tests or this delivery.
+The acceptance matrix and review record remain the reference for non-regression.
+11B was explicitly closed by the user on 2026-10-08; the closure is not inferred from tests alone.
 
 ## 11C — Actuals / Forecast temporal separation
 
-**Status: IN REVIEW — independent audit and human validation pending.**
+**Status: DONE — explicit user closure on 2026-10-08.**
 Implemented on `codex/lot11a-portfolio-snapshots` from the authorized mandatory
 baseline `9ac532f0451e25a4b53564b9fc6359d3f824f318`, initially clean and origin 0/0.
 The [audited plan](./steps/HISTORY/lot11c_plan.md) and mission approve P1–P7:
@@ -532,8 +504,8 @@ Team; other admissible Projects retain slots/capacity. No Actuals/RAF, format,
 persistence or History correction is introduced. Existing snapshots, including
 old overlap and engine versions, remain exact and readable without replay.
 
-Next action: independent audit and human validation. **11B remains IN REVIEW**;
-11C does not close it and does not advance automatically to DONE.
+11B and 11C were explicitly closed by the user on 2026-10-08;
+11D.0 storage audit is the next action.
 
 ## Cross-cutting non-goals for Phase 9
 
@@ -560,3 +532,13 @@ After each validated lot:
 
 These documents are not an exhaustive history. Remove stale information; do
 not append every commit, audit, fixed defect, or previous prompt.
+
+## Storage implementation authorization — 2026-10-08
+
+User instruction: close 11B and 11C and implement the hardened 11D.0 plan.
+Both prerequisite lots are **DONE** by this explicit closure, at engine baseline
+`eb38a3df8fceab30d82253cac6bc5cd325625444`; 879 tests/95 suites, typecheck and
+build passed before storage changes. History contract changes required by the
+plan are authorized. The roadmap sections above record the prior plan review;
+implementation status is now **11D.0 IN REVIEW**, following A → B → C → D → E.
+No future full daily capture model or backup version is authorized here.

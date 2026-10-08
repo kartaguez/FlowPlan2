@@ -1,3 +1,4 @@
+import { mapResult, type MaybePromise } from "../asyncResult.js";
 import type { CreateProjectCommand } from "../../application/index.js";
 import type { DomainError, Portfolio, TeamId } from "../../domain/index.js";
 import type { ProjectCreateControls } from "../renderApp.js";
@@ -31,7 +32,7 @@ export function createProjectCreateController(input: {
   readonly controls: ProjectCreateControls;
   readonly portfolio: Portfolio;
   readonly onCreate: (command: CreateProjectCommand) =>
-    Readonly<{ ok: true }> | Readonly<{ ok: false; errors: readonly DomainError[] }>;
+    MaybePromise<Readonly<{ ok: true }> | Readonly<{ ok: false; errors: readonly DomainError[] }>>;
   readonly confirmDiscard: (message: string) => boolean;
   readonly onClose: () => void;
 }): ProjectCreateController {
@@ -45,8 +46,10 @@ export function createProjectCreateController(input: {
   let earliestStartDate: HTMLInputElement;
   let objectiveEndDate: HTMLInputElement;
   let mandatory: HTMLInputElement;
-  let rows: readonly Readonly<{ teamId: TeamId; enabled: HTMLInputElement;
-    remainingWorkload: HTMLInputElement; isExpanded: () => boolean }>[] = [];
+  let rows: readonly Readonly<{
+    teamId: TeamId; enabled: HTMLInputElement;
+    remainingWorkload: HTMLInputElement; isExpanded: () => boolean
+  }>[] = [];
 
   const field = (parent: HTMLElement, label: string, type: string, name: string): HTMLInputElement => {
     const wrapper = document.createElement("label");
@@ -85,8 +88,8 @@ export function createProjectCreateController(input: {
     groupingControls = createGroupingControls(grouping, portfolio, saved?.grouping ?? {
       programId: "", programName: "", priorityFamilyId: "", priorityFamilyName: "",
       color: suggestColor("project:new", [...portfolio.programs.map((p) => p.color),
-        ...portfolio.projects.map((p) => p.ownColor).filter((color): color is string => !!color),
-        ...portfolio.reservations.map((r) => r.ownColor).filter((color): color is string => !!color)]), colorChanged: false,
+      ...portfolio.projects.map((p) => p.ownColor).filter((color): color is string => !!color),
+      ...portfolio.reservations.map((r) => r.ownColor).filter((color): color is string => !!color)]), colorChanged: false,
     }, "project:new", () => { controls.container.style?.setProperty("--project-accent", groupingControls.read().color); });
     controls.container.style?.setProperty("--project-accent", groupingControls.read().color);
     program = groupingControls.program;
@@ -123,8 +126,10 @@ export function createProjectCreateController(input: {
       remainingWorkload.value = previous?.remainingWorkload ?? "";
       const subcard = createTeamSubcard(teamList, "Project", team.id, team.name,
         previous?.enabled ?? false, details, previous?.expanded ?? false);
-      return Object.freeze({ teamId: team.id, enabled: subcard.enabled,
-        remainingWorkload, isExpanded: subcard.isExpanded });
+      return Object.freeze({
+        teamId: team.id, enabled: subcard.enabled,
+        remainingWorkload, isExpanded: subcard.isExpanded
+      });
     });
     controls.fields.append(teamList);
     controls.create.disabled = portfolio.teams.length === 0;
@@ -156,18 +161,24 @@ export function createProjectCreateController(input: {
       name: name.value, ...groupingControls.read(),
       earliestStartDate: earliestStartDate.value, objectiveEndDate: objectiveEndDate.value,
       mandatory: mandatory.checked,
-      requirements: rows.map((row) => ({ teamId: row.teamId, enabled: row.enabled.checked,
+      requirements: rows.map((row) => ({
+        teamId: row.teamId, enabled: row.enabled.checked,
         remainingWorkload: row.remainingWorkload.value, remainingWorkloadExact: "",
-        remainingWorkloadDirty: true })),
+        remainingWorkloadDirty: true
+      })),
     });
     if (!parsed.ok) return showErrors(parsed.errors);
     if (parsed.fields.teamRequirements.length === 0) {
-      return showErrors([{ code: "EMPTY_PROJECT_REQUIREMENTS", path: "requirements",
-        message: "Project must have at least one team requirement." }]);
+      return showErrors([{
+        code: "EMPTY_PROJECT_REQUIREMENTS", path: "requirements",
+        message: "Project must have at least one team requirement."
+      }]);
     }
-    const result = input.onCreate({ kind: "create-project", ...parsed.fields });
-    if (!result.ok) return showErrors(result.errors);
-    close(false);
+    void mapResult(input.onCreate({ kind: "create-project", ...parsed.fields }), (result) => {
+      if (!result.ok) return showErrors(result.errors);
+      close(false);
+
+    });
   };
   controls.cancel.addEventListener("click", onCancel);
   controls.form.addEventListener("submit", onSubmit);

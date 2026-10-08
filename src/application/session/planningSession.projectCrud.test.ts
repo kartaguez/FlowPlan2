@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { createPlanningSession, type CreateProjectCommand } from "./planningSession.js";
 import { createProjectIdGenerator } from "./projectIdGenerator.js";
-import { createPlanningProjectionDispatcher } from "../../main/planning/createPlanningProjectionDispatcher.js";
+import { createPlanningProjectionDispatcher } from "../../main/planning/synchronousPlanningDispatcher.fixture.js";
 import { calculateCursorMetrics } from "../../adapters/index.js";
 import { buildPlanningSessionProjection } from "../../main/planning/buildPlanningSessionProjection.js";
 import { createDemoPlanningScenario } from "../../main/demo/createDemoPlanningScenario.js";

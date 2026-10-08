@@ -9,7 +9,7 @@ import { decodeFlowplanBackup } from "../../application/backup/flowplanBackupV1.
 import { createCivilDate, createConsumedWorkload, createRemainingWorkload, serializeQuantity,
   type ConsumedWorkload, type RemainingWorkload } from "../../domain/index.js";
 import { buildPlanningSessionProjection } from "./buildPlanningSessionProjection.js";
-import { createPlanningProjectionDispatcher } from "./createPlanningProjectionDispatcher.js";
+import { createPlanningProjectionDispatcher } from "./synchronousPlanningDispatcher.fixture.js";
 
 const geometryViewport = Object.freeze({
   width: 2160,

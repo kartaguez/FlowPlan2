@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { createDemoPlanningScenario } from "../../main/demo/createDemoPlanningScenario.js";
 import { buildPlanningSessionProjection } from "../../main/planning/buildPlanningSessionProjection.js";
-import { createPlanningProjectionDispatcher } from "../../main/planning/createPlanningProjectionDispatcher.js";
+import { createPlanningProjectionDispatcher } from "../../main/planning/synchronousPlanningDispatcher.fixture.js";
 import { createPlanningSession } from "../session/planningSession.js";
 import { decodePlanningInputs, encodePlanningInputs } from "../backup/planningInputCodec.js";
 import { decodeFlowplanBackup, encodeFlowplanBackupV6, encodeFlowplanBackupV7 } from "../backup/flowplanBackupV1.js";
@@ -310,9 +310,9 @@ describe("11A.2 V7 and unavailable schema 1", () => {
   });
   for (const [label, failure] of [["write failure", new Error("storage unavailable")], ["quota failure", new DOMException("Quota exceeded", "QuotaExceededError")]] as const) {
     it(`schema2 Save ${label} publishes nothing and preserves prior history without engine call`, () => {
-      const { s, snapshot } = capture(); const session = createPlanningSession({ ...s, portfolioSnapshots: [snapshot] });
-      let builds = 0, writes = 0; const previousDocument = encodeFlowplanBackupV7(session.getState(), instant);
-      const dispatcher = createPlanningProjectionDispatcher({ session, geometryViewport: viewport, hasUnappliedChanges: () => false,
+      const { s, snapshot } = capture(); const session = createPlanningSession(s);
+      let builds = 0, writes = 0; const previousDocument = encodeFlowplanBackupV7({ ...session.getState(), portfolioSnapshots: [snapshot] }, instant);
+      const dispatcher = createPlanningProjectionDispatcher({ session, initialSnapshots: [snapshot], geometryViewport: viewport, hasUnappliedChanges: () => false,
         now: () => instant, snapshotId: () => "attempt",
         buildProjection: (input) => { builds++; return buildPlanningSessionProjection(input); },
         backupStore: { read: () => previousDocument, write: (text) => {
@@ -322,7 +322,7 @@ describe("11A.2 V7 and unavailable schema 1", () => {
       const result = dispatcher.savePortfolioSnapshot(); assert.equal(result.ok, false);
       if (!result.ok) { assert.equal(result.errors[0]!.code, "COMMIT_FAILED"); assert.equal(result.errors[0]!.message, "Portfolio history could not be saved."); }
       assert.strictEqual(session.getState(), before); assert.strictEqual(dispatcher.getProjection(), run);
-      assert.equal(encodeFlowplanBackupV7(session.getState(), instant), previousDocument);
+      assert.equal(encodeFlowplanBackupV7({ ...session.getState(), portfolioSnapshots: dispatcher.getPortfolioSnapshots() }, instant), previousDocument);
       assert.equal(builds, 1); assert.equal(writes, 1); assert.equal(dispatcher.getPortfolioSnapshots().length, 1);
     });
   }

@@ -1,8 +1,13 @@
+import { mapResult, type MaybePromise } from "../asyncResult.js";
 import { createInteractionLifecycle } from "../interactionLifecycle.js";
-import type { SnapshotActualsViewModel, ReplaceProjectActualsCommand, ReplaceReservationActualsCommand,
-  UpdateProjectCommand, UpdateReservationCommand } from "../../application/index.js";
-import { addDays, addRationals, createCivilDate, parseSerializedRational, rationalFromInteger, rationalOf,
-  rationalToCanonicalString, serializeQuantity, type DomainError, type TeamId } from "../../domain/index.js";
+import type {
+  SnapshotActualsViewModel, ReplaceProjectActualsCommand, ReplaceReservationActualsCommand,
+  UpdateProjectCommand, UpdateReservationCommand
+} from "../../application/index.js";
+import {
+  addDays, addRationals, createCivilDate, parseSerializedRational, rationalFromInteger, rationalOf,
+  rationalToCanonicalString, serializeQuantity, type DomainError, type TeamId
+} from "../../domain/index.js";
 import { parseExactQuantityInput } from "../../application/index.js";
 import { parseSnapshotActualsCommand } from "./parseSnapshotActualsCommand.js";
 import type { SnapshotActualsDraftStore, SnapshotPeriodDraft } from "./snapshotActualsDraftStore.js";
@@ -15,7 +20,7 @@ export interface SnapshotActualsCardControllerInput {
   readonly onCardRafChange?: (teamId: TeamId, value: string) => void;
   readonly conflict: () => string | undefined;
   readonly onApply: (command: ReplaceProjectActualsCommand | ReplaceReservationActualsCommand) =>
-    { readonly ok: true } | { readonly ok: false; readonly errors: readonly DomainError[] };
+    MaybePromise<{ readonly ok: true } | { readonly ok: false; readonly errors: readonly DomainError[] }>;
 }
 
 export function createSnapshotActualsCardController(input: SnapshotActualsCardControllerInput): {
@@ -23,7 +28,7 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
   resume(): void;
   destroy(): void;
   openHandoff(command: UpdateProjectCommand | UpdateReservationCommand): void;
-  applyCardRaf(): { readonly ok: true } | { readonly ok: false; readonly errors: readonly DomainError[] };
+  applyCardRaf(): MaybePromise<{ readonly ok: true } | { readonly ok: false; readonly errors: readonly DomainError[] }>;
   cancelCardRaf(): void;
   setCardRaf(teamId: TeamId, value: string): void;
 } {
@@ -164,23 +169,39 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
   };
   const setCardRaf = (teamId: TeamId, value: string): void => {
     const draft = input.store.get(model.id)!;
-    input.store.update(model.id, { ...draft, errors: [], teams: draft.teams.map((row) => row.teamId === teamId ?
-      { ...row, raf: value, rafConfirmed: true } : row) });
+    input.store.update(model.id, {
+      ...draft, errors: [], teams: draft.teams.map((row) => row.teamId === teamId ?
+        { ...row, raf: value, rafConfirmed: true } : row)
+    });
     input.onDraftChange(); renderQuick(); input.onCardRafChange?.(teamId, value);
   };
-  const applyCardRaf = (): { readonly ok: true } | { readonly ok: false; readonly errors: readonly DomainError[] } => {
+  const applyCardRaf = (): MaybePromise<{ readonly ok: true } | { readonly ok: false; readonly errors: readonly DomainError[] }> => {
     const draft = input.store.get(model.id)!;
-    if (draft.stale || draft.modal) return { ok: false, errors: [{ code: "ACTUALS_STALE_DRAFT", path: "raf",
-      message: "Review the open Actuals dialog or Cancel the card before Apply." }] };
-    const parsed = parseSnapshotActualsCommand(model, { ...draft,
-      teams: draft.teams.map((row) => ({ ...row, rafConfirmed: row.enabled &&
-        (!current || (parseExactQuantityInput(row.raf) !== serializeQuantity((current as Extract<NonNullable<typeof current>, { raf: unknown }>).raf.find((item) => item.teamId === row.teamId)!.amount))) })) });
-    if (!parsed.ok) { quickError.textContent = parsed.errors.map((item) => item.message).join(" "); quickError.hidden = false;
-      input.store.update(model.id, { ...draft, errors: [quickError.textContent] }); return parsed; }
-    const result = input.onApply(parsed.command);
-    if (!result.ok) { quickError.textContent = result.errors.map((item) => item.message).join(" "); quickError.hidden = false;
-      input.store.update(model.id, { ...draft, errors: [quickError.textContent] }); }
-    return result;
+    if (draft.stale || draft.modal) return {
+      ok: false, errors: [{
+        code: "ACTUALS_STALE_DRAFT", path: "raf",
+        message: "Review the open Actuals dialog or Cancel the card before Apply."
+      }]
+    };
+    const parsed = parseSnapshotActualsCommand(model, {
+      ...draft,
+      teams: draft.teams.map((row) => ({
+        ...row, rafConfirmed: row.enabled &&
+          (!current || (parseExactQuantityInput(row.raf) !== serializeQuantity((current as Extract<NonNullable<typeof current>, { raf: unknown }>).raf.find((item) => item.teamId === row.teamId)!.amount)))
+      }))
+    });
+    if (!parsed.ok) {
+      quickError.textContent = parsed.errors.map((item) => item.message).join(" "); quickError.hidden = false;
+      input.store.update(model.id, { ...draft, errors: [quickError.textContent] }); return parsed;
+    }
+    return mapResult(input.onApply(parsed.command), (result) => {
+      if (!result.ok) {
+        quickError.textContent = result.errors.map((item) => item.message).join(" "); quickError.hidden = false;
+        input.store.update(model.id, { ...draft, errors: [quickError.textContent] });
+      }
+      return result;
+
+    });
   };
   const cancelCardRaf = (): void => {
     input.store.cancel(model.id);
@@ -203,12 +224,18 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
       if (delta > 0 && changed.periods[1] === working.periods[0]) selection = { from: 0, through: 0 };
       else if (delta > 0 && changed.periods.at(-2) === working.periods.at(-1)) {
         selection = { from: changed.periods.length - 1, through: changed.periods.length - 1 };
-      } else selection = { from: Math.min(selection.from, Math.max(0, changed.periods.length - 1)),
-        through: Math.min(Math.max(selection.from, selection.through + delta), Math.max(0, changed.periods.length - 1)) };
+      } else selection = {
+        from: Math.min(selection.from, Math.max(0, changed.periods.length - 1)),
+        through: Math.min(Math.max(selection.from, selection.through + delta), Math.max(0, changed.periods.length - 1))
+      };
     }
-    input.store.update(model.id, old.modal ? { ...old, errors, modal: { ...old.modal,
-      ...(selection === undefined ? {} : { selection }), periods: changed.periods, teams, confirmed: changed.confirmed,
-      retirementConfirmed: changed.retirementConfirmed } } : { ...changed, errors });
+    input.store.update(model.id, old.modal ? {
+      ...old, errors, modal: {
+        ...old.modal,
+        ...(selection === undefined ? {} : { selection }), periods: changed.periods, teams, confirmed: changed.confirmed,
+        retirementConfirmed: changed.retirementConfirmed
+      }
+    } : { ...changed, errors });
     input.onDraftChange();
     if (rerender) render();
   };
@@ -287,14 +314,20 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
         else if (index === draft.periods.length) setModal((old) => ({ ...old, selection: "after", anchor: -1 }));
         else setModal((old) => {
           const selected = old.selection;
-          if (typeof selected !== "object" || old.anchor === -1) return { ...old, anchor: index,
-            selection: { from: index, through: index } };
+          if (typeof selected !== "object" || old.anchor === -1) return {
+            ...old, anchor: index,
+            selection: { from: index, through: index }
+          };
           if (index === selected.from - 1) return { ...old, selection: { from: index, through: selected.through } };
           if (index === selected.through + 1) return { ...old, selection: { from: selected.from, through: index } };
-          if (index === selected.from && index < selected.through) return { ...old,
-            selection: { from: index + 1, through: selected.through } };
-          if (index === selected.through && index > selected.from) return { ...old,
-            selection: { from: selected.from, through: index - 1 } };
+          if (index === selected.from && index < selected.through) return {
+            ...old,
+            selection: { from: index + 1, through: selected.through }
+          };
+          if (index === selected.through && index > selected.from) return {
+            ...old,
+            selection: { from: selected.from, through: index - 1 }
+          };
           return { ...old, anchor: index, selection: { from: index, through: index } };
         });
         fields.querySelectorAll?.<HTMLButtonElement>(".card-actuals-frieze-tile")[index + 1]?.focus();
@@ -344,10 +377,14 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
           const provenance = document.createElement("p"); provenance.textContent = label + ": RAF from card draft.";
           fields.append(provenance);
         }
-        textInput(fields, label + " RAF (exact)", team.raf, (value) => update((old) => ({ ...old,
-          teams: old.teams.map((row) => row.teamId === team.teamId ? { ...row, raf: value, rafConfirmed: true } : row) })));
-        check(fields, "Confirm " + label + " RAF" + (required ? " (required)" : ""), Boolean(team.rafConfirmed), (rafConfirmed) => update((old) => ({ ...old,
-          teams: old.teams.map((row) => row.teamId === team.teamId ? { ...row, rafConfirmed } : row) })));
+        textInput(fields, label + " RAF (exact)", team.raf, (value) => update((old) => ({
+          ...old,
+          teams: old.teams.map((row) => row.teamId === team.teamId ? { ...row, raf: value, rafConfirmed: true } : row)
+        })));
+        check(fields, "Confirm " + label + " RAF" + (required ? " (required)" : ""), Boolean(team.rafConfirmed), (rafConfirmed) => update((old) => ({
+          ...old,
+          teams: old.teams.map((row) => row.teamId === team.teamId ? { ...row, rafConfirmed } : row)
+        })));
       }
       return;
     }
@@ -402,27 +439,35 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
             const neighborIndex = field === "from" ? index - 1 : index + 1;
             const neighbor = changed[neighborIndex];
             if ((field === "from" && currentPeriod.through && date.value > currentPeriod.through) ||
-                (field === "through" && currentPeriod.from && date.value < currentPeriod.from)) {
+              (field === "through" && currentPeriod.from && date.value < currentPeriod.from)) {
               return { ...old, errors: ["A period cannot end before it starts. Use Merge or Remove for that change."] };
             }
             if (neighbor && (!editable || typeof branch.selection === "object" &&
-                (neighborIndex < branch.selection.from || neighborIndex > branch.selection.through))) {
+              (neighborIndex < branch.selection.from || neighborIndex > branch.selection.through))) {
               return { ...old, errors: ["Select the adjacent period before moving this boundary."] };
             }
             if (neighbor) {
               const shifted = addDays(date.value, field === "from" ? -1 : 1);
               if (shifted.ok && (field === "from" && shifted.value < neighbor.from ||
-                  field === "through" && shifted.value > neighbor.through)) {
+                field === "through" && shifted.value > neighbor.through)) {
                 return { ...old, errors: ["This boundary would remove the adjacent period. Use Merge or Remove."] };
               }
-              if (shifted.ok) changed[neighborIndex] = { ...neighbor,
+              if (shifted.ok) changed[neighborIndex] = {
+                ...neighbor,
                 [field === "from" ? "through" : "from"]: shifted.value,
-                values: neighbor.values.map((row) => ({ ...row,
-                  provenance: row.provenance === "domain-zero-propagated" ? row.provenance : "needs-confirmation" as const })) };
+                values: neighbor.values.map((row) => ({
+                  ...row,
+                  provenance: row.provenance === "domain-zero-propagated" ? row.provenance : "needs-confirmation" as const
+                }))
+              };
             }
-            changed[index] = { ...currentPeriod, [field]: text,
-              values: currentPeriod.values.map((row) => ({ ...row,
-                provenance: row.provenance === "domain-zero-propagated" ? row.provenance : "needs-confirmation" as const })) };
+            changed[index] = {
+              ...currentPeriod, [field]: text,
+              values: currentPeriod.values.map((row) => ({
+                ...row,
+                provenance: row.provenance === "domain-zero-propagated" ? row.provenance : "needs-confirmation" as const
+              }))
+            };
             return { ...old, periods: changed, errors: [], confirmed: false };
           }, true);
         }, "date");
@@ -434,14 +479,26 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
         const cell = document.createElement("td");
         const draftCell = period.values.find((value) => value.teamId === team.teamId);
         const control = textInput(cell, `${team.teamId} consumed`, draftCell?.text ?? "",
-          (text) => update((old) => ({ ...old, periods: old.periods.map((item, i) => i === index ? { ...item,
-            values: [...item.values.filter((value) => value.teamId !== team.teamId), { teamId: team.teamId, text,
-              provenance: "user-entered" as const }] } : item), confirmed: false })));
+          (text) => update((old) => ({
+            ...old, periods: old.periods.map((item, i) => i === index ? {
+              ...item,
+              values: [...item.values.filter((value) => value.teamId !== team.teamId), {
+                teamId: team.teamId, text,
+                provenance: "user-entered" as const
+              }]
+            } : item), confirmed: false
+          })));
         control.disabled = !editable;
         if (draftCell?.provenance === "needs-confirmation") check(cell, "Confirm suggested value", false,
-          (confirmed) => update((old) => ({ ...old, periods: old.periods.map((item, i) => i === index ? { ...item,
-            values: item.values.map((value) => value.teamId === team.teamId ? { ...value,
-              provenance: confirmed ? "user-confirmed" as const : "needs-confirmation" as const } : value) } : item) }), true));
+          (confirmed) => update((old) => ({
+            ...old, periods: old.periods.map((item, i) => i === index ? {
+              ...item,
+              values: item.values.map((value) => value.teamId === team.teamId ? {
+                ...value,
+                provenance: confirmed ? "user-confirmed" as const : "needs-confirmation" as const
+              } : value)
+            } : item)
+          }), true));
         tr.append(cell);
       }
       const actions = document.createElement("td");
@@ -464,16 +521,22 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
           const source = old.periods[index]!;
           const { originalPeriodId: _originalPeriodId, ...withoutId } = source;
           void _originalPeriodId;
-          const leftValues = source.values.map((row) => ({ ...row,
+          const leftValues = source.values.map((row) => ({
+            ...row,
             provenance: parseExactQuantityInput(row.text) === "0/1" && domainZero(row.teamId, source.from, previous.value) ?
-              "domain-zero-propagated" as const : "needs-confirmation" as const }));
-          const rightValues = source.values.map((row) => ({ ...row,
+              "domain-zero-propagated" as const : "needs-confirmation" as const
+          }));
+          const rightValues = source.values.map((row) => ({
+            ...row,
             provenance: parseExactQuantityInput(row.text) === "0/1" && domainZero(row.teamId, date.value, source.through) ?
-              "domain-zero-propagated" as const : "needs-confirmation" as const }));
-          return { ...old, periods: [...old.periods.slice(0, index),
+              "domain-zero-propagated" as const : "needs-confirmation" as const
+          }));
+          return {
+            ...old, periods: [...old.periods.slice(0, index),
             { ...withoutId, through: previous.value, values: leftValues },
             { ...withoutId, from: date.value, values: rightValues },
-            ...old.periods.slice(index + 1)] };
+            ...old.periods.slice(index + 1)]
+          };
         }, true);
       });
       const merge = document.createElement("button"); merge.type = "button"; merge.textContent = "Merge with next";
@@ -489,18 +552,24 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
           const other = second.values.find((item) => item.teamId === row.teamId);
           const zero = parseExactQuantityInput(row.text) === "0/1" &&
             parseExactQuantityInput(other?.text ?? "") === "0/1" && domainZero(row.teamId, first.from, second.through);
-          return { teamId: row.teamId, text: zero ? "0" : "", provenance: zero ?
-            "domain-zero-propagated" as const : "needs-confirmation" as const };
+          return {
+            teamId: row.teamId, text: zero ? "0" : "", provenance: zero ?
+              "domain-zero-propagated" as const : "needs-confirmation" as const
+          };
         });
-        return { ...old, periods: [...old.periods.slice(0, index),
-          { from: first.from, through: second.through, values }, ...old.periods.slice(index + 2)] };
+        return {
+          ...old, periods: [...old.periods.slice(0, index),
+          { from: first.from, through: second.through, values }, ...old.periods.slice(index + 2)]
+        };
       }, true));
       const remove = document.createElement("button"); remove.type = "button"; remove.textContent = "Remove period";
       remove.disabled = !editable || index !== 0 && index !== draft.periods.length - 1 ||
         typeof branch.selection === "object";
       remove.hidden = remove.disabled;
-      remove.addEventListener("click", () => update((old) => ({ ...old,
-        periods: old.periods.filter((_, i) => i !== index), confirmed: false }), true));
+      remove.addEventListener("click", () => update((old) => ({
+        ...old,
+        periods: old.periods.filter((_, i) => i !== index), confirmed: false
+      }), true));
       actions.append(split, splitDate, confirmSplit, cancelSplit, merge, remove); tr.append(actions); table.append(tr);
     });
     const tableScroll = document.createElement("div");
@@ -526,18 +595,26 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
         handoff.teamRequirements.find((item) => item.teamId === row.teamId) : undefined;
       const priorRaf = current && "raf" in current ? current.raf.find((item) => item.teamId === row.teamId) : undefined;
       const quickDirty = priorRaf && parseExactQuantityInput(row.raf) !== serializeQuantity(priorRaf.amount);
-      return { ...row, enabled: target ? target.has(row.teamId) : row.enabled,
+      return {
+        ...row, enabled: target ? target.has(row.teamId) : row.enabled,
         raf: requirement && (!priorRaf || !quickDirty) ? serializeQuantity(requirement.remainingWorkload) : row.raf,
-        rafConfirmed: false };
+        rafConfirmed: false
+      };
     });
-    const periods = old.periods.map((period) => ({ ...period, values: teams.filter((row) => row.enabled).map((row) =>
-      period.values.find((cell) => cell.teamId === row.teamId) ?? { teamId: row.teamId, text: "", provenance: "needs-confirmation" as const }) }));
+    const periods = old.periods.map((period) => ({
+      ...period, values: teams.filter((row) => row.enabled).map((row) =>
+        period.values.find((cell) => cell.teamId === row.teamId) ?? { teamId: row.teamId, text: "", provenance: "needs-confirmation" as const })
+    }));
     const firstPeriod = periods.length ? periods : [blankPeriod()];
-    input.store.update(model.id, { ...old, modal: { step: periods.length ? 1 : 2,
-      selection: periods.length ? { from: 0, through: handoff ? periods.length - 1 : 0 } : "initial",
-      periods: firstPeriod, teams, confirmed: false, retirementConfirmed: false, anchor: handoff ? 0 : -1,
-      prepared: !periods.length,
-      ...(handoff ? { handoff } : {}) } });
+    input.store.update(model.id, {
+      ...old, modal: {
+        step: periods.length ? 1 : 2,
+        selection: periods.length ? { from: 0, through: handoff ? periods.length - 1 : 0 } : "initial",
+        periods: firstPeriod, teams, confirmed: false, retirementConfirmed: false, anchor: handoff ? 0 : -1,
+        prepared: !periods.length,
+        ...(handoff ? { handoff } : {})
+      }
+    });
     input.onDraftChange(); render();
     fields.querySelector?.("button")?.focus();
   };
@@ -602,12 +679,18 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
     if (conflict) { error.textContent = conflict; error.hidden = false; return; }
     const draft = base.modal ? { ...base, ...base.modal } : base;
     const parsed = parseSnapshotActualsCommand(model, draft);
-    if (!parsed.ok) { error.textContent = parsed.errors.map((item) => `${item.path}: ${item.message}`).join(" "); error.hidden = false;
+    if (!parsed.ok) {
+      error.textContent = parsed.errors.map((item) => `${item.path}: ${item.message}`).join(" "); error.hidden = false;
       input.store.update(model.id, { ...base, errors: [error.textContent] });
-      modal.querySelector?.<HTMLInputElement>("input:not([disabled])")?.focus(); return; }
-    const result = input.onApply(parsed.command);
-    if (!result.ok) { error.textContent = result.errors.map((item) => `${item.path}: ${item.message}`).join(" "); error.hidden = false;
-      input.store.update(model.id, { ...base, errors: [error.textContent] }); }
+      modal.querySelector?.<HTMLInputElement>("input:not([disabled])")?.focus(); return;
+    }
+    return mapResult(input.onApply(parsed.command), (result) => {
+      if (!result.ok) {
+        error.textContent = result.errors.map((item) => `${item.path}: ${item.message}`).join(" "); error.hidden = false;
+        input.store.update(model.id, { ...base, errors: [error.textContent] });
+      }
+
+    });
   };
   const onOpenClick = () => onOpen();
   toggle.addEventListener("click", onOpenClick); cancel.addEventListener("click", onCancel); form.addEventListener("submit", onSubmit);
@@ -615,8 +698,12 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
   if (input.store.get(model.id)?.modal) {
     document.defaultView?.queueMicrotask(() => fields.querySelector?.<HTMLElement>("button, input")?.focus());
   }
-  return { suspend: lifecycle.suspend, resume: lifecycle.resume, openHandoff: (command) => onOpen(command), applyCardRaf, cancelCardRaf, setCardRaf,
-    destroy: () => { lifecycle.destroy(); toggle.removeEventListener("click", onOpenClick); cancel.removeEventListener("click", onCancel); form.removeEventListener("submit", onSubmit);
+  return {
+    suspend: lifecycle.suspend, resume: lifecycle.resume, openHandoff: (command) => onOpen(command), applyCardRaf, cancelCardRaf, setCardRaf,
+    destroy: () => {
+      lifecycle.destroy(); toggle.removeEventListener("click", onOpenClick); cancel.removeEventListener("click", onCancel); form.removeEventListener("submit", onSubmit);
       modal.removeEventListener("keydown", onKeyDown); document.removeEventListener?.("focusin", onFocusIn);
-      modal.remove?.(); } };
+      modal.remove?.();
+    }
+  };
 }

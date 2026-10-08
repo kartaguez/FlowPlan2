@@ -4,7 +4,7 @@ import { calculateCursorMetrics } from "../../adapters/index.js";
 import { rationalFromInteger, rationalToCanonicalString } from "../../domain/index.js";
 import { createDemoPlanningScenario } from "../../main/demo/createDemoPlanningScenario.js";
 import { createPlanningSession } from "../../application/index.js";
-import { createPlanningProjectionDispatcher } from "../../main/planning/createPlanningProjectionDispatcher.js";
+import { createPlanningProjectionDispatcher } from "../../main/planning/synchronousPlanningDispatcher.fixture.js";
 import { buildPlanningSessionProjection } from "../../main/planning/buildPlanningSessionProjection.js";
 import { buildCursorMetricsViewModel } from "./buildCursorMetricsViewModel.js";
 import { formatCursorMd, formatCursorPercent } from "./formatCursorMetrics.js";

@@ -1,4 +1,4 @@
-import { immutableCopy, type PortfolioSnapshot } from "../../domain/portfolioSnapshots/portfolioSnapshot.js";
+import { emptyHistoricalIdentities, type HistoricalIdentities } from "../persistence/historicalIdentities.js";
 import {
   capacityFromSerialized,
   createCapacityPeriod,
@@ -57,8 +57,6 @@ export interface PlanningSettings {
 export interface PlanningSessionState {
   readonly portfolio: Portfolio;
   readonly planning: PlanningSettings;
-  /** Optional only for pre-V6 seed callers; sessions always normalize to an empty collection. */
-  readonly portfolioSnapshots?: readonly PortfolioSnapshot[];
 }
 
 export interface UpdatePlanningSettingsCommand {
@@ -223,7 +221,9 @@ export type PlanningCommandResult =
   | Readonly<{ ok: false; errors: readonly DomainError[] }>;
 
 export interface PlanningSession {
-  readonly commitPortfolioSnapshots: (expected: PlanningSessionState, snapshots: readonly PortfolioSnapshot[], beforeCommit: (candidate: PlanningSessionState) => void) => PlanningCommandResult;
+  readonly prepare: (command: PlanningCommand) => PlanningCommandResult;
+  readonly publish: (expected: PlanningSessionState, candidate: PlanningSessionState, command: PlanningCommand) => PlanningCommandResult;
+  readonly setHistoricalIdentities: (identities: HistoricalIdentities) => void;
   readonly getState: () => PlanningSessionState;
   readonly dispatch: (command: PlanningCommand, beforeCommit?: (candidate: PlanningSessionState) => void) => PlanningCommandResult;
 }
@@ -232,47 +232,44 @@ export function createPlanningSession(
   initialState: PlanningSessionState,
   clock?: Readonly<{ today: () => CivilDate }>,
 ): PlanningSession {
-  let state = freezeState({ ...initialState, portfolioSnapshots: immutableCopy(initialState.portfolioSnapshots ?? []) });
-  const teamIds = createTeamIdGenerator(() => [...state.portfolio.teams.map((team) => team.id), ...historicalIds(state, "teams") as TeamId[]]);
-  const projectIds = createProjectIdGenerator(() => [...state.portfolio.projects.map((project) => project.id), ...historicalIds(state, "projects") as ProjectId[]]);
-  const reservationIds = createReservationIdGenerator(() => [...state.portfolio.reservations.map((reservation) => reservation.id), ...historicalIds(state, "reservations") as ReservationId[]]);
+  let state = freezeState(initialState);
+  let identities = emptyHistoricalIdentities();
+  const teamIds = createTeamIdGenerator(() => [...state.portfolio.teams.map((team) => team.id), ...identities.teams as TeamId[]]);
+  const projectIds = createProjectIdGenerator(() => [...state.portfolio.projects.map((project) => project.id), ...identities.projects as ProjectId[]]);
+  const reservationIds = createReservationIdGenerator(() => [...state.portfolio.reservations.map((reservation) => reservation.id), ...identities.reservations as ReservationId[]]);
   const historicalProgramIds = new Set(state.portfolio.programs.map((program) => program.id));
   const historicalFamilyIds = new Set(state.portfolio.priorityFamilies.map((family) => family.id));
   const refreshCatalogIds = () => {
     historicalProgramIds.clear(); historicalFamilyIds.clear();
-    for (const id of [...state.portfolio.programs.map((p) => p.id), ...historicalIds(state, "programs")]) historicalProgramIds.add(id as ProgramId);
-    for (const id of [...state.portfolio.priorityFamilies.map((p) => p.id), ...historicalIds(state, "priorityFamilies")]) historicalFamilyIds.add(id as PriorityFamilyId);
+    for (const id of [...state.portfolio.programs.map((p) => p.id), ...identities.programs]) historicalProgramIds.add(id as ProgramId);
+    for (const id of [...state.portfolio.priorityFamilies.map((p) => p.id), ...identities.priorityFamilies]) historicalFamilyIds.add(id as PriorityFamilyId);
   };
   refreshCatalogIds();
+  const prepare = (command: PlanningCommand): PlanningCommandResult => {
+    try { return applyCommand(state, command, teamIds, projectIds, reservationIds, historicalProgramIds, historicalFamilyIds, clock); }
+    catch (cause) {
+      if (!(cause instanceof GroupingResolutionError)) throw cause;
+      return failure([applicationError("INVALID_GROUPING", "grouping", cause.message)]);
+    }
+  };
+  const publish = (expected: PlanningSessionState, candidate: PlanningSessionState, command: PlanningCommand): PlanningCommandResult => {
+    if (state !== expected) return failure([applicationError("STALE_PROJECTION", "planning", "Session changed before publication.")]);
+    if (candidate === state) return Object.freeze({ ok: true, state });
+    if (command.kind === "create-team") teamIds.next();
+    if (command.kind === "create-project") projectIds.next();
+    if (command.kind === "create-reservation") reservationIds.next();
+    state = candidate; refreshCatalogIds();
+    return Object.freeze({ ok: true, state });
+  };
   return Object.freeze({
-    getState: () => state,
-    commitPortfolioSnapshots: (expected: PlanningSessionState, snapshots: readonly PortfolioSnapshot[], beforeCommit: (candidate: PlanningSessionState) => void): PlanningCommandResult => {
-      if (state !== expected) return failure([applicationError("STALE_PROJECTION", "portfolioSnapshots", "Applied state and published projection differ.")]);
-      const candidate = freezeState({ ...state, portfolioSnapshots: immutableCopy(snapshots) });
-      try { beforeCommit(candidate); } catch { return failure([applicationError("COMMIT_FAILED", "portfolioSnapshots", "Portfolio history could not be saved.")]); }
-      state = candidate; refreshCatalogIds();
-      return Object.freeze({ ok: true, state });
-    },
+    getState: () => state, prepare, publish,
+    setHistoricalIdentities: (next: HistoricalIdentities): void => { identities = next; refreshCatalogIds(); },
     dispatch: (command: PlanningCommand, beforeCommit?: (candidate: PlanningSessionState) => void): PlanningCommandResult => {
-      let candidate: PlanningCommandResult;
-      try { candidate = applyCommand(state, command, teamIds, projectIds, reservationIds, historicalProgramIds, historicalFamilyIds, clock); }
-      catch (cause) {
-        if (!(cause instanceof GroupingResolutionError)) throw cause;
-        return failure([applicationError("INVALID_GROUPING", "grouping", cause.message)]);
-      }
-      if (!candidate.ok) return candidate;
-      if (candidate.state === state) return Object.freeze({ ok: true, state });
-      try {
-        beforeCommit?.(candidate.state);
-      } catch {
-        return failure([applicationError("COMMIT_FAILED", "planning", "Planning change could not be saved.")]);
-      }
-      if (command.kind === "create-team") teamIds.next();
-      if (command.kind === "create-project") projectIds.next();
-      if (command.kind === "create-reservation") reservationIds.next();
-      state = candidate.state;
-      refreshCatalogIds();
-      return Object.freeze({ ok: true, state });
+      const candidate = prepare(command);
+      if (!candidate.ok || candidate.state === state) return candidate;
+      try { beforeCommit?.(candidate.state); }
+      catch { return failure([applicationError("COMMIT_FAILED", "planning", "Planning change could not be saved.")]); }
+      return publish(state, candidate.state, command);
     },
   });
 }
@@ -1088,12 +1085,5 @@ function failure(errors: readonly DomainError[]): PlanningCommandResult {
 }
 
 function freezeState(state: PlanningSessionState): PlanningSessionState {
-  return Object.freeze({ portfolio: state.portfolio, planning: state.planning, portfolioSnapshots: Object.freeze([...(state.portfolioSnapshots ?? [])]) });
-}
-
-function historicalIds(state: PlanningSessionState, kind: "projects" | "reservations" | "teams" | "programs" | "priorityFamilies"): string[] {
-  return (state.portfolioSnapshots ?? []).flatMap((s) => {
-    const inputs = s.inputs as { portfolio: Record<string, readonly { id: string }[]> };
-    return (inputs.portfolio[kind] ?? []).map((object) => object.id);
-  });
+  return Object.freeze({ portfolio: state.portfolio, planning: state.planning,  });
 }

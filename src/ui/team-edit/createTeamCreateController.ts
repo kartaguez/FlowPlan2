@@ -1,3 +1,4 @@
+import { mapResult, type MaybePromise } from "../asyncResult.js";
 import type { CreateTeamCommand } from "../../application/index.js";
 import type { DomainError } from "../../domain/index.js";
 import type { TeamCreateControls } from "../renderApp.js";
@@ -24,7 +25,7 @@ interface PeriodRow {
 export function createTeamCreateController(input: {
   readonly controls: TeamCreateControls;
   readonly onCreate: (command: CreateTeamCommand) =>
-    Readonly<{ ok: true }> | Readonly<{ ok: false; errors: readonly DomainError[] }>;
+    MaybePromise<Readonly<{ ok: true }> | Readonly<{ ok: false; errors: readonly DomainError[] }>>;
   readonly confirmDiscard: (message: string) => boolean;
   readonly onClose?: () => void;
 }): TeamCreateController {
@@ -102,15 +103,21 @@ export function createTeamCreateController(input: {
   const onAdd = (): void => { addRow(); clearErrors(); };
   const onSubmit = (event: SubmitEvent): void => {
     event.preventDefault();
-    const parsed = parseCreateTeamCommand({ name: controls.name.value,
-      capacityPeriods: rows.map((row, index) => ({ index, startDate: row.start.value,
+    const parsed = parseCreateTeamCommand({
+      name: controls.name.value,
+      capacityPeriods: rows.map((row, index) => ({
+        index, startDate: row.start.value,
         endDate: row.end.value, capacity: row.capacity.value, capacityExact: "",
         capacityDirty: true, unavailabilityPercent: row.unavailability.value,
-        unavailabilityExact: "", unavailabilityDirty: true })) });
+        unavailabilityExact: "", unavailabilityDirty: true
+      }))
+    });
     if (!parsed.ok) return showErrors(parsed.errors);
-    const result = input.onCreate(parsed.command);
-    if (!result.ok) return showErrors(result.errors);
-    close();
+    void mapResult(input.onCreate(parsed.command), (result) => {
+      if (!result.ok) return showErrors(result.errors);
+      close();
+
+    });
   };
   controls.addPeriod.addEventListener("click", onAdd);
   controls.cancel.addEventListener("click", onCancel);

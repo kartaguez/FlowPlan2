@@ -118,6 +118,6 @@ export function createPortfolioSnapshot(value: unknown, historicalPortfolio: Por
   }
   return immutableCopy(value) as unknown as PortfolioSnapshot;
 }
-export function comparePortfolioSnapshots(a: PortfolioSnapshot, b: PortfolioSnapshot): number {
+export function comparePortfolioSnapshots(a: Pick<PortfolioSnapshot, "snapshotId" | "createdAt">, b: Pick<PortfolioSnapshot, "snapshotId" | "createdAt">): number {
   return a.createdAt < b.createdAt ? -1 : a.createdAt > b.createdAt ? 1 : a.snapshotId < b.snapshotId ? -1 : a.snapshotId > b.snapshotId ? 1 : 0;
 }

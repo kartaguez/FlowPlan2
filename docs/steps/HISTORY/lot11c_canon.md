@@ -1,6 +1,6 @@
 # Lot 11C — Séparation temporelle Actuals / Forecast
 
-Statut : **IN REVIEW**, audit indépendant et validation humaine requis.
+Statut : **DONE**, clôture explicitement autorisée par l’utilisateur le 2026-10-08.
 11A/11A.2 restent DONE ; **11B reste IN REVIEW**, sans clôture implicite.
 Mission autorisée sur `codex/lot11a-portfolio-snapshots`, SHA initial et baseline
 `9ac532f0451e25a4b53564b9fc6359d3f824f318`. Avant modification : fetch réussi,
@@ -202,3 +202,13 @@ amendement ciblé du canon moteur, canons 10C.1 et 11A.2, relevé perf et dossie
 UI (9 PNG + JSON). Harness benchmark ajouté, aucune dépendance.
 Aucune migration, nouvelle persistance, replay, modification de snapshot ancien,
 règle Reservation, diagnostic ou refonte Planning. **Aucun travail hors 11C.**
+
+## Explicit user closure — 2026-10-08
+
+The user explicitly closed 11B and 11C and authorized the storage architecture
+implementation. Closure baseline: `eb38a3df8fceab30d82253cac6bc5cd325625444`, clean,
+origin 0/0 after fetch. Before storage changes: typecheck PASS, **879/879 tests
+across 95 suites PASS**, build PASS. Earlier IN REVIEW mentions describe the
+delivery history, not the current status. Engine baseline is fixed at this SHA;
+11C engine `/2`, V7 schema 1/2 and the validated History contract are unchanged.
+**11B DONE; 11C DONE.** Storage implementation will be reviewed separately.

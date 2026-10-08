@@ -47,13 +47,19 @@ export function computeHistoryVisualCap(model: ProjectHistoryViewModel, geometry
     }
   }
   values.sort(compareRationals);
-  if (!values.length) return rationalFromInteger(1n);
-  const max = values.at(-1)!;
-  if (values.length < 8) return minRational(max, multiplyRationals(values[Math.floor((values.length - 1) / 2)]!, rationalFromInteger(3n)));
-  const q1 = values[Math.ceil(values.length / 4) - 1]!, q3 = values[Math.ceil(3 * values.length / 4) - 1]!;
+  return historyCapFromRanks(values.length, values.at(-1), values[Math.ceil(values.length / 4) - 1],
+    values[Math.ceil(3 * values.length / 4) - 1], values[Math.floor((values.length - 1) / 2)]);
+}
+/** Shared exact presentation policy, independently of in-memory or external sorting. */
+export function historyCapFromRanks(count: number, max?: Rational, q1?: Rational, q3?: Rational, median?: Rational): Rational {
+  if (!count) return rationalFromInteger(1n);
+  if (!max) throw new TypeError("Missing history cap maximum.");
+  if (count < 8) { if (!median) throw new TypeError("Missing history cap median."); return minRational(max, multiplyRationals(median, rationalFromInteger(3n))); }
+  if (!q1 || !q3) throw new TypeError("Missing history cap quartiles.");
   const factor = createRational(3n, 2n); if (!factor.ok) throw new TypeError("Invalid fence.");
   return minRational(max, addRationals(q3, multiplyRationals(subtractRationals(q3, q1), factor.value)));
 }
+
 /** Number conversion only for a bounded pixel ratio, never for absolute business quantities. */
 export function historyPixelRatio(part: Rational, total: Rational): number {
   if (part.numerator <= 0n || total.numerator <= 0n) return 0;
@@ -65,6 +71,7 @@ export function buildProjectHistoryGeometry(input: {
   readonly model: ProjectHistoryViewModel; readonly temporal: TemporalGeometry & { readonly groupHeight: number };
   readonly viewport: TimelineViewportState; readonly cap: Rational;
   readonly firstProject?: number; readonly throughProject?: number;
+  readonly firstY?: number; readonly throughY?: number;
 }): ProjectHistoryGeometry {
   const { model, temporal, viewport, cap } = input;
   const [from, through] = visibleHistoryDates(temporal, viewport);
@@ -73,7 +80,8 @@ export function buildProjectHistoryGeometry(input: {
   for (let p = input.firstProject ?? 0; p < Math.min(model.projects.length, input.throughProject ?? model.projects.length); p++) {
     const project = model.projects[p]!;
     project.rows.forEach((row, s) => {
-      if (row.kind !== "present") return;
+      const y = p * temporal.groupHeight + HISTORY_GROUP_HEADER_HEIGHT + s * HISTORY_ROW_HEIGHT;
+      if (row.kind !== "present" || y + HISTORY_ROW_HEIGHT < (input.firstY ?? -Infinity) || y > (input.throughY ?? Infinity)) return;
       const cells: HistoryCellGeometry[] = [];
       for (let i = historyDayIndex(row.days, from); i < row.days.length && row.days[i]!.date <= through; i++) {
         const day = row.days[i]!, x = civilDayDifference(day.date, firstDate) * temporal.dayWidth;

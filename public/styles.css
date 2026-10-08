@@ -1159,3 +1159,15 @@ h1 { margin-bottom: 0; font-size: 2rem; letter-spacing: -0.04em; }
 /* Native hidden must win over the layout rules of either mode. */
 .planning-surface[hidden], .history-surface[hidden], .history-surface [hidden] { display: none !important; }
 .history-axis svg { user-select: none; touch-action: none; }
+
+/* Local storage status and recovery actions remain accessible during pending commits. */
+.storage-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+}
+.storage-status [role="status"]:empty { display: none; }
+.history-storage-status { min-height: 1.25rem; }

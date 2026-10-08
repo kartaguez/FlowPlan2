@@ -144,7 +144,7 @@ test("card RAF is dirty until global Cancel, and global Apply creates an initial
   controller.cancelCardRaf();
   assert.equal(store.isDirty(id), false);
   field.value = "7/3"; field.emit("input");
-  assert.equal(controller.applyCardRaf().ok, true);
+  assert.equal(synchronous(controller.applyCardRaf()).ok, true);
   assert.equal(intent, "initial");
   assert.equal(session.getState().portfolio.projects[0]?.snapshots?.length, 1);
   controller.destroy();
@@ -273,12 +273,18 @@ test("card RAF Apply uses raf-only after a snapshot and keeps the draft after fa
     } });
   const field = all(host).find((node) => node.attributes.has("data-raf-team"))!;
   field.value = "7/3"; field.emit("input");
-  assert.equal(controller.applyCardRaf().ok, false);
+  assert.equal(synchronous(controller.applyCardRaf()).ok, false);
   assert.equal(intent, "raf-only");
   assert.equal(store.get(id)?.teams.some((row) => row.raf === "7/3"), true);
   assert.equal(session.getState().portfolio.projects[0]!.snapshots?.length, 1);
   reject = false;
-  assert.equal(controller.applyCardRaf().ok, true);
+  assert.equal(synchronous(controller.applyCardRaf()).ok, true);
   assert.equal(session.getState().portfolio.projects[0]!.snapshots?.length, 2);
   controller.destroy();
 });
+
+/** Characterization fixtures intentionally use the synchronous adapter. */
+function synchronous<T>(value: T | Promise<T>): T {
+  if (value instanceof Promise) throw new Error("Expected synchronous characterization adapter.");
+  return value;
+}

@@ -1,9 +1,9 @@
-import type { PlanningSessionState } from "../session/planningSession.js";
+import type { PlanningBackupDataset } from "./planningBackupDataset.js";
 import { decodeFlowplanBackup as decodeLegacy, decodePlanningInputs, encodePlanningInputs, InvalidFlowplanBackup } from "./planningInputCodec.js";
 import { assertCanonicalTimestamp } from "../../domain/portfolioSnapshots/portfolioSnapshot.js";
 import { validateHistoricalSnapshot } from "../portfolioSnapshots/capturePortfolioSnapshot.js";
 
-export function decodeFlowplanBackup(text: string): PlanningSessionState {
+export function decodeFlowplanBackup(text: string): PlanningBackupDataset {
   let raw;
   try { raw = JSON.parse(text); } catch { throw new InvalidFlowplanBackup("Invalid JSON."); }
   if (raw?.version !== 6) return decodeLegacy(text);
@@ -27,7 +27,7 @@ export function decodeFlowplanBackup(text: string): PlanningSessionState {
     return Object.freeze({ ...current, portfolioSnapshots: Object.freeze(portfolioSnapshots) });
   } catch (cause) { throw new InvalidFlowplanBackup(cause instanceof Error ? cause.message : "Invalid V6."); }
 }
-export function encodeFlowplanBackupV6(state: PlanningSessionState, exportedAt = new Date().toISOString()): string {
+export function encodeFlowplanBackupV6(state: PlanningBackupDataset, exportedAt = new Date().toISOString()): string {
   const text = JSON.stringify({ format: "flowplan", version: 6, exportedAt, data: { ...encodePlanningInputs(state), portfolioSnapshots: state.portfolioSnapshots ?? [] } }, null, 2);
   decodeFlowplanBackup(text);
   return text;

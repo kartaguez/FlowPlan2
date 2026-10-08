@@ -1,3 +1,4 @@
+import { mapResult, type MaybePromise } from "../asyncResult.js";
 import type { CreateReservationCommand } from "../../application/index.js";
 import type { CivilDate, DomainError, Portfolio, TeamId } from "../../domain/index.js";
 import type { ProjectCreateControls } from "../renderApp.js";
@@ -19,8 +20,10 @@ interface Snapshot {
   readonly grouping: GroupingValues;
   readonly startDate: string;
   readonly endDate: string;
-  readonly teams: ReadonlyMap<TeamId, Readonly<{ enabled: boolean; kind: "ratio" | "fixed-daily";
-    value: string; expanded: boolean }>>;
+  readonly teams: ReadonlyMap<TeamId, Readonly<{
+    enabled: boolean; kind: "ratio" | "fixed-daily";
+    value: string; expanded: boolean
+  }>>;
 }
 
 export function createReservationCreateController(input: {
@@ -28,7 +31,7 @@ export function createReservationCreateController(input: {
   readonly portfolio: Portfolio;
   readonly horizon: Readonly<{ start: CivilDate; end: CivilDate }>;
   readonly onCreate: (command: CreateReservationCommand) =>
-    Readonly<{ ok: true }> | Readonly<{ ok: false; errors: readonly DomainError[] }>;
+    MaybePromise<Readonly<{ ok: true }> | Readonly<{ ok: false; errors: readonly DomainError[] }>>;
   readonly confirmDiscard: (message: string) => boolean;
   readonly onClose: () => void;
 }) {
@@ -68,8 +71,8 @@ export function createReservationCreateController(input: {
     groupingControls = createGroupingControls(controls.fields, portfolio, saved?.grouping ?? {
       programId: "", programName: "", priorityFamilyId: "", priorityFamilyName: "",
       color: suggestColor("reservation:new", [...portfolio.programs.map((p) => p.color),
-        ...portfolio.projects.map((p) => p.ownColor).filter((color): color is string => !!color),
-        ...portfolio.reservations.map((r) => r.ownColor).filter((color): color is string => !!color)]), colorChanged: false,
+      ...portfolio.projects.map((p) => p.ownColor).filter((color): color is string => !!color),
+      ...portfolio.reservations.map((r) => r.ownColor).filter((color): color is string => !!color)]), colorChanged: false,
     }, "reservation:new", () => { controls.container.style?.setProperty("--project-accent", groupingControls.read().color); }, "reservation");
     controls.container.style?.setProperty("--project-accent", groupingControls.read().color);
     startDate = field("Start date", "date");
@@ -140,12 +143,16 @@ export function createReservationCreateController(input: {
       teamId: row.teamId, enabled: row.enabled.checked,
       kind: row.kind.value as "ratio" | "fixed-daily", value: row.value.value, dirty: true,
     }));
-    const parsed = parseReservationFields({ name: name.value, ...groupingControls.read(),
-      startDate: startDate.value, endDate: endDate.value, teamAllocations: allocations });
+    const parsed = parseReservationFields({
+      name: name.value, ...groupingControls.read(),
+      startDate: startDate.value, endDate: endDate.value, teamAllocations: allocations
+    });
     if (!parsed.ok) return showErrors(parsed.errors);
-    const result = input.onCreate({ kind: "create-reservation", ...parsed.fields });
-    if (!result.ok) return showErrors(result.errors);
-    close(false);
+    void mapResult(input.onCreate({ kind: "create-reservation", ...parsed.fields }), (result) => {
+      if (!result.ok) return showErrors(result.errors);
+      close(false);
+
+    });
   };
   controls.cancel.addEventListener("click", onCancel);
   controls.form.addEventListener("submit", onSubmit);

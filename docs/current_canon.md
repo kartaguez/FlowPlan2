@@ -9,10 +9,12 @@ active implementation and trajectory. The remaining work is in the
 
 ## Validated implementation baseline
 
-`06e7fbb94d71fe73a35e244d4cee6626b65777c2` (11A.2 final code/test baseline, verified on
-2026-10-08 from `c295db34937dca2dbe86f403319dc8880563d94c`; documentation
-closure follows on the same branch). 11A and 11A.2 are **DONE**.
-11B is **IN REVIEW** from implementation baseline `7a3ea6bf1c6c97e248075a75bc718279158ad0f5`; independent audit and human validation remain required. See [11B contract, gates and measurements](./steps/HISTORY/lot11b_canon.md).
+Validated prerequisite baseline: `eb38a3df8fceab30d82253cac6bc5cd325625444`.
+11A/11A.2 remain DONE; their historical code baseline was
+`06e7fbb94d71fe73a35e244d4cee6626b65777c2`.
+11B and 11C are **DONE** by explicit user closure on 2026-10-08 at
+`eb38a3df8fceab30d82253cac6bc5cd325625444` (879/879 tests, typecheck and build).
+11D.0 storage implementation is **IN REVIEW**, delivered on 2026-10-09. See [11B contract, gates and measurements](./steps/HISTORY/lot11b_canon.md).
 
 The active application implements a pure planning projection over an editable
 session, restored from a local backup when available and otherwise initialized
@@ -44,19 +46,47 @@ from the demo. The following capabilities are complete and active:
 The implementation follows the state, atomicity, engine, and projection
 invariants in [canon](./canon.md).
 
-Lot 9H complete local planning backup/restore is validated and **DONE**. The
-browser loads a validated versioned document from one localStorage key, or the
-demo when the key is absent. A present but invalid document is reported and left
-untouched at startup. Accepted commands persist their candidate state before
-the session publishes it. Planning Settings can export the complete business
-state to JSON or import a validated file after confirmation; a successful
-import reloads the page. Current backups are compact V7 documents. V1–V6 remain
-readable; V1 migrates Projects and Reservations as active. The V1–V5 readers retain their historical repair policy: they remove
-orphan catalog entries, repair missing or invalid Program and own colors, and
-remove residual own colors from Program members before Domain validation. V6/V7
-validate current and historical inputs strictly, without repair or pruning.
-Other invalid business data is rejected. Every successful import is persisted
-as V7. Startup never rewrites an older valid document. V4 Actuals records are retained losslessly for explicit reconciliation.
+Lot 9H is validated **DONE**. Its single-localStorage persistence has been
+superseded by the authorized 11D.0 architecture (**IN REVIEW**). IndexedDB is
+primary. Current, immutable captures, light metadata, identity reference indexes,
+control/revisions, staging jobs and bounded receipts are stored separately.
+The live session owns Current and minimal identity constraints, not the Portfolio
+Snapshot collection. Owned Actuals histories remain in Current. Domain/engine
+remain storage-free. Current changes persist only Current before RAM publication;
+Save/Delete atomically affect History only and keep the published run.
+
+V1–V7 remain readable through their existing contracts; compact autonomous V7
+export/import is independent of physical stores. Complete imports validate each
+capture, Current projection and read-back/index counts in private staging before
+confirmation and atomic activation. Unknown/bad captures reject the whole import.
+Legacy raw localStorage is never rewritten/deleted and is archived with its
+migration fingerprint. Later Current changes are normal; changed legacy indicates
+an older client, with explicit resolution and separate recovery exports.
+Invalid startup data is preserved and editing blocked behind recovery actions,
+not silently replaced by a writable demo. An empty new depot starts from the demo.
+
+The physical DB schema is version 2, logical storage data version 1, snapshot
+validation certificate epoch 1, all separate from V7. SHA-256 is verified on read;
+matching entry-validation certificates can reuse full validation proof, because
+Current writes preserve owned histories/prefixes and imports change generation.
+Older/missing certificates use the full validator. No historical engine replay.
+
+History loads metadata/projections without retaining all capture payloads.
+Summary projections are ephemeral, versioned and rebuildable; no persistent
+historySummaries store was introduced. Worker requests and snapshot reads are
+serialized. Decoded row LRU budget is 32 MiB estimated; compact metadata index
+budget is 64 MiB estimated. Exact global cap uses date/value multiplicities and
+bounded external sorting (4096 entries, fan-in eight), without changing quartiles
+or metrics. Closing History releases rows, model/gutters and buffers, retaining
+viewport/reference/cap state only. All Planning draft owners/DOM remain alive.
+
+File imports pass Blob/File to the worker (512 MiB explicit parsing limit),
+parse/validate one capture at a time and resume incomplete staging by source hash.
+The worker still retains the file text; this is not a streaming UTF-8 importer.
+Export buffers a complete portable file as chunks/Blob; large files have real
+transient RAM costs. Storage estimates/persist requests are indicative/refusable,
+quota failures are visible and recoverable, and storage is never unlimited.
+See [storage delivery and measurements](./steps/STORAGE/lot11d0_canon.md).
 
 Lot 9I Project and Reservation forecast activation is validated and **DONE** at
 `c77558c3e8b2912532afbb8113ac8183fe737c18`. Both entity types default
@@ -243,7 +273,7 @@ focus styling.
 
 11A captures the cross-object, Forecast and capacity knowledge formerly scoped
 by 10D. Its immutable Portfolio artifact is distinct from object Actuals and
-from the disposable planning projection. Project drift is implemented in read-only 11B (IN REVIEW);
+from the disposable planning projection. Project drift is implemented in read-only 11B (DONE);
 advanced replay/navigation/comparison remain deferred beyond that promise.
 
 ## Portfolio Snapshots — Lot 11A
@@ -297,12 +327,12 @@ publication using the same storage key. Quota/codec errors preserve previous
 state and document without purge. 11A.2 itself introduced no UI mode, view, renderer or Timeline
 refactoring; the separate 11B implementation follows below. Final edge-case verification found no production defect;
 755/755 tests, typecheck, build and diff checks pass. The user-authorized closure
-is complete. The separate 11B implementation is now **IN REVIEW**; the 11A.2 release itself introduced no History UI.
+is complete. The separate 11B implementation is **DONE**; the 11A.2 release itself introduced no History UI.
 
 
 ## Project History — Lot 11B
 
-Status: **IN REVIEW**. [Implementation, acceptance coverage and measurements](./steps/HISTORY/lot11b_canon.md).
+Status: **DONE**. [Implementation, acceptance coverage and measurements](./steps/HISTORY/lot11b_canon.md).
 The workspace selector defaults to Planning and opens read-only Project History
 in the main space. Planning DOM/editor owners survive idempotent suspend/resume;
 modals explicitly block switching. Drafts, dirty, viewport/date, cards/tabs and
@@ -331,7 +361,7 @@ benchmark data and known memory/storage/color limits are recorded in the canon.
 
 ## Actuals / Forecast temporal separation — Lot 11C
 
-Status: **IN REVIEW**, pending independent audit and human validation.
+Status: **DONE**, explicitly closed by the user on 2026-10-08.
 [Implementation, matrix, measurements and UI review](./steps/HISTORY/lot11c_canon.md).
 Current Project V5 coverage supplies an inclusive Actuals end; without V5, the
 last pending V4 through applies. Uncovered/RAF-only knowledge has no bound.
@@ -344,7 +374,7 @@ other eligible Projects. Dates/metrics/Timeline consume the corrected run.
 Actuals distribution, quantities, RAF and Reservations are unchanged.
 New Saves use engine version `/2`; existing captures keep exact profiles and
 versions, including old overlap. V5/V6/V7 and History validation/rendering remain
-unchanged. 11B remains **IN REVIEW** with its own audit/validation pending.
+unchanged. 11B is **DONE** by explicit user closure.
 
 ## Current UI structure
 

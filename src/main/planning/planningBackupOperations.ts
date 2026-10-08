@@ -1,12 +1,12 @@
-import type { PlanningSessionState } from "../../application/index.js";
+import type { PlanningBackupDataset } from "../../application/backup/planningBackupDataset.js";
 import { decodeFlowplanBackup, encodeFlowplanBackupV7 } from "../../application/backup/flowplanBackupV1.js";
 import type { PlanningBackupStore } from "../../infrastructure/backup/localPlanningBackup.js";
 
 export function loadPlanningBackup(
   store: PlanningBackupStore,
-  fallback: PlanningSessionState,
-  preflight: (state: PlanningSessionState) => void,
-): Readonly<{ state: PlanningSessionState; invalid: boolean }> {
+  fallback: PlanningBackupDataset,
+  preflight: (state: PlanningBackupDataset) => void,
+): Readonly<{ state: PlanningBackupDataset; invalid: boolean }> {
   try {
     const document = store.read();
     if (document === null) return { state: fallback, invalid: false };
@@ -21,7 +21,7 @@ export function loadPlanningBackup(
 export function importPlanningBackup(input: {
   readonly document: string;
   readonly store: PlanningBackupStore;
-  readonly preflight: (state: PlanningSessionState) => void;
+  readonly preflight: (state: PlanningBackupDataset) => void;
   readonly confirm: () => boolean;
   readonly reload: () => void;
 }): "imported" | "cancelled" | "failed" {

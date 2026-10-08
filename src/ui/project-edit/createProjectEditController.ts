@@ -1,3 +1,4 @@
+import { mapResult, type MaybePromise } from "../asyncResult.js";
 import type {
   ProjectEditViewModel,
   UpdateProjectCommand,
@@ -26,8 +27,8 @@ export interface ProjectEditController {
 export interface CreateProjectEditControllerInput {
   readonly controls: ProjectEditControls;
   readonly errorContainer: HTMLElement;
-  readonly onApply: (command: UpdateProjectCommand) => ProjectEditApplyResult;
-  readonly onDelete?: (projectId: ProjectId) => ProjectEditApplyResult;
+  readonly onApply: (command: UpdateProjectCommand) => MaybePromise<ProjectEditApplyResult>;
+  readonly onDelete?: (projectId: ProjectId) => MaybePromise<ProjectEditApplyResult>;
   readonly confirmDiscard?: (message: string) => boolean;
   readonly onCancel?: () => void;
   readonly draftStore?: ProjectDraftStore;
@@ -241,7 +242,8 @@ export function createProjectEditController(
   const readDraftValues = (): ProjectDraftValues => {
     if (!model || !globalInputs) throw new TypeError("Project edit form has no selected project.");
     const previous = input.draftStore?.get(model.projectId)?.values ?? projectValuesFromModel(model);
-    return { name: globalInputs.name.value, ...globalInputs.grouping.read(),
+    return {
+      name: globalInputs.name.value, ...globalInputs.grouping.read(),
       earliestStartDate: globalInputs.earliestStartDate.value,
       objectiveEndDate: globalInputs.objectiveEndDate.value, mandatory: globalInputs.mandatory.checked,
       resolution, teams: requirementInputs.map((row) => ({
@@ -250,7 +252,8 @@ export function createProjectEditController(
         remainingWorkloadExact: row.remainingWorkloadExact,
         ...(row.dailyCapExact === undefined ? {} : { dailyCapExact: row.dailyCapExact }),
         expanded: row.isExpanded(),
-      })).concat(previous.teams.filter((team) => !requirementInputs.some((row) => row.teamId === team.teamId))) };
+      })).concat(previous.teams.filter((team) => !requirementInputs.some((row) => row.teamId === team.teamId)))
+    };
   };
   const notifyDraftChange = (): void => {
     if (!model || !globalInputs || !input.draftStore) return;
@@ -309,12 +312,14 @@ export function createProjectEditController(
       showErrors(parsed.errors);
       return;
     }
-    const result = input.onApply(parsed.command);
-    if (!result.ok) {
-      showErrors(result.errors);
-      return;
-    }
-    clearError();
+    void mapResult(input.onApply(parsed.command), (result) => {
+      if (!result.ok) {
+        showErrors(result.errors);
+        return;
+      }
+      clearError();
+
+    });
   };
   const onCancel = (): void => {
     if (model && input.draftStore) {
@@ -351,12 +356,14 @@ export function createProjectEditController(
   };
   const onDeleteConfirm = (): void => {
     if (!model || !input.onDelete) return;
-    const result = input.onDelete(model.projectId);
-    if (!result.ok) {
-      showErrors(result.errors);
-      input.controls.deleteConfirmation.hidden = true;
-      input.controls.deleteButton.focus();
-    }
+    void mapResult(input.onDelete(model.projectId), (result) => {
+      if (!result.ok) {
+        showErrors(result.errors);
+        input.controls.deleteConfirmation.hidden = true;
+        input.controls.deleteButton.focus();
+      }
+
+    });
   };
   const setProject = (project: ProjectEditViewModel | undefined): void => {
     hydrate(project);

@@ -25,7 +25,7 @@ import {
 import { createDemoPlanningScenario } from "../demo/createDemoPlanningScenario.js";
 import { calculateCursorMetrics } from "../../adapters/index.js";
 import { buildPlanningSessionProjection } from "./buildPlanningSessionProjection.js";
-import { createPlanningProjectionDispatcher } from "./createPlanningProjectionDispatcher.js";
+import { createPlanningProjectionDispatcher } from "./synchronousPlanningDispatcher.fixture.js";
 
 const geometryViewport = Object.freeze({
   width: 2160,

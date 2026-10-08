@@ -1,0 +1,48 @@
+import assert from "node:assert/strict";
+import { it } from "node:test";
+import { createMemoryPlanningRepository } from "../../infrastructure/persistence/memoryRepositoryStorage.js";
+import { createDemoPlanningScenario } from "../../main/demo/createDemoPlanningScenario.js";
+import { openPlanningRepository, assertLegacyUnchanged, exportRepositoryBackup } from "./repositoryTransfer.js";
+import { encodeFlowplanBackupV7, decodeFlowplanBackup } from "../backup/flowplanBackupV7.js";
+import { encodePlanningInputs } from "../backup/planningInputCodec.js";
+import { historyFixture } from "../history/historyTestFixture.js";
+it("migration fingerprint tracks only the original legacy source, not evolving Current", async () => {
+  const repository = createMemoryPlanningRepository(); const original = encodeFlowplanBackupV7({ ...createDemoPlanningScenario(), portfolioSnapshots: [historyFixture("a")] }); let legacy = original;
+  const migrated = await openPlanningRepository({ repository, readLegacy: () => legacy, fallback: createDemoPlanningScenario(), preflight: () => {} });
+  assert.equal(legacy, original); assert.equal(await repository.readLegacySource(), original);
+  const dto = encodePlanningInputs(migrated.state); dto.portfolio.projects[0]!.name = "New Current name";
+  const edited = await repository.writeCurrent(dto, migrated.token, "edit"); await assertLegacyUnchanged(repository, () => legacy);
+  const opened = await openPlanningRepository({ repository, readLegacy: () => legacy, fallback: createDemoPlanningScenario(), preflight: () => {} });
+  assert.equal(opened.state.portfolio.projects[0]!.name, "New Current name");
+  legacy = original + " "; await assert.rejects(assertLegacyUnchanged(repository, () => legacy), /older client/);
+  await repository.acknowledgeLegacy(await repository.fingerprint(legacy), legacy, edited); await assertLegacyUnchanged(repository, () => legacy);
+  assert.equal(await repository.readLegacySource(), original);
+  const backup = decodeFlowplanBackup((await exportRepositoryBackup(repository)).join(""));
+  assert.equal(backup.portfolio.projects[0]!.name, "New Current name"); assert.deepEqual(backup.portfolioSnapshots, [historyFixture("a")]);
+});
+it("a bad middle capture never activates partial staged history and retry is idempotent", async () => {
+  const repository = createMemoryPlanningRepository(); const current = await openPlanningRepository({ repository, readLegacy: () => null, fallback: createDemoPlanningScenario(), preflight: () => {} });
+  const document = encodeFlowplanBackupV7({ ...current.state, portfolioSnapshots: [historyFixture("a"), historyFixture("b")] });
+  const raw = JSON.parse(document); raw.data.portfolioSnapshots[1].forecast.projects[0].eac = "99/1";
+  await assert.rejects(repository.stagePortableDocument(JSON.stringify(raw), "bad"));
+  assert.deepEqual((await repository.readInfo()).token, current.token);
+  assert.equal((await repository.readInfo()).snapshotCount, 0);
+  const staged = await repository.stagePortableDocument(document, "valid");
+  assert.deepEqual(await repository.stagePortableDocument(document, "valid"), staged);
+  const committed = await repository.activateImport(staged, current.token, "valid");
+  assert.equal((await repository.readInfo()).snapshotCount, 2);
+  assert.deepEqual(await repository.activateImport(staged, current.token, "valid"), committed);
+});
+it("interrupted staging resumes by source fingerprint and never publishes partial data", async () => {
+  let fail = false, writes = 0;
+  const repository = createMemoryPlanningRepository({ beforeWrite: store => { if (fail && store === "snapshotContent" && ++writes === 2) throw new Error("interrupted"); } });
+  const current = await openPlanningRepository({ repository, readLegacy: () => null, fallback: createDemoPlanningScenario(), preflight: () => {} });
+  const text = encodeFlowplanBackupV7({ ...current.state, portfolioSnapshots: [historyFixture("a"), historyFixture("b"), historyFixture("c")] });
+  fail = true; await assert.rejects(repository.stagePortableDocument(text, "first-attempt"));
+  assert.deepEqual((await repository.readInfo()).token, current.token);
+  fail = false; const resumed = await repository.stagePortableDocument(text, "second-attempt");
+  assert.equal(resumed.generation, "stage-first-attempt");
+  await repository.activateImport(resumed, current.token, "activate-resumed");
+  assert.equal((await repository.readInfo()).snapshotCount, 3);
+  await assert.rejects(repository.activateImport(resumed, (await repository.readCurrent()).token, "new-activation"));
+});
