@@ -43,7 +43,7 @@ Lot 10C.2 Actuals/RAF workflow corrections.
 - 10C.1 Actuals knowledge snapshots and V5 migration (DONE).
 
 10C.2 Actuals / RAF workflow UX is validated and closed by the user for this pass.
-Current implementation: **11A — Portfolio Snapshots & Forecast History Capture**,
+Current trajectory: **11A — Portfolio Snapshots & Forecast History Capture**,
 [validated plan](./steps/PORTFOLIO_SNAPSHOTS/lot11a_plan.md) and
 [implementation canon](./steps/PORTFOLIO_SNAPSHOTS/lot11a_canon.md).
 
@@ -51,14 +51,16 @@ Current implementation: **11A — Portfolio Snapshots & Forecast History Capture
 
 ```text
 10A (DONE) → 10B (DONE) → 10C (DONE) → 10C.1 (DONE) → 10C.2 (DONE)
-11A (IN REVIEW) → 11B (future, drift visualization)
+11A core (IMPLEMENTED / AUDITED) → 11A.1 (PLAN BLOCKED) → 11B (BLOCKED if 11A.1 adopted)
 10D: superseded by 11A (not DONE)
 10E: largely superseded by 11B; advanced replay/navigation/comparison deferred
 ```
 
 The previous 10C.1 baseline was `17094b03cbf4c34c8424d6fa1847e0ceebd55410`.
-User closure of the inspected 10C.2 code removes the launch dependency; 11A
-still requires human audit and does not advance the validated SHA automatically. No 11B implementation is included.
+User closure of the inspected 10C.2 code removes the launch dependency. The user
+reports a positive audit of 11A core at `f477dd6e1a31f3be7be949dad9fea4cae9667770`
+on `codex/lot11a-portfolio-snapshots`. Global 11A closure and the roadmap baseline
+are not advanced in this plan-only extension pass. No 11B implementation is included.
 
 ## Corrective lot — anchored temporal zoom and range drag
 
@@ -376,7 +378,10 @@ The [current canon](./current_canon.md) records the validated 10C.1 contract.
 
 ## 11A — Portfolio Snapshots & Forecast History Capture
 
-**Status: IN REVIEW — implementation complete, awaiting human audit.** Implementation follows the
+**Status: core IMPLEMENTED / AUDITED positively at
+`f477dd6e1a31f3be7be949dad9fea4cae9667770` (user-provided audit).**
+Global 11A is not marked DONE while the historical migration extension is under
+decision. Implementation follows the
 validated plan at `da79f2c243bcba487f68c8ee441fe6efe1e65514`, retaining initial plan
 commit `2d5695848035462bf6e4fc70754ec4d3bc6d5c94` on the implementation branch.
 See [11A canon and verification](./steps/PORTFOLIO_SNAPSHOTS/lot11a_canon.md).
@@ -396,9 +401,28 @@ Historical Project/Reservation/Team/Program/Pas identities remain reserved for
 as long as retained inputs reference them. No graphical drift, replay,
 navigation or restore is added.
 
+## 11A.1 — Merge historical backups into Portfolio Snapshots
+
+**Status: PLAN BLOCKED — documentation only, no implementation authorized.**
+See [detailed plan and inspected constraints](./steps/PORTFOLIO_SNAPSHOTS/lot11a1_plan.md).
+N dated backups would produce one current state from the latest source and one
+Portfolio capture per unique source, using the shared 11A capture pipeline and
+strict V5 prefix compatibility, without adding Actuals between documents.
+
+Proposed policies: reject V6 sources already containing history; explicitly
+resolve different current states tied at the maximal exportedAt; report and
+deduplicate exact canonical sources; generate reproducible SHA-256 source IDs.
+The blocking decision concerns historical V5 owners absent from the latest
+current state: strict V6 can only resolve histories through current owners.
+Choose an explicit compatibility restriction or authorize a separate shared
+archive and format evolution. Historical lineage attestation is also submitted
+for review because legacy IDs cannot prove provenance. 11A core semantics remain
+unchanged. If adopted, 11B waits for the 11A.1 decision and closure.
+
 ## 11B — Forecast drift visualization
 
-Future lot, not implemented or planned in detail by 11A. EAC/end-date graphs,
+Future lot, blocked until 11A.1 decision/closure if adopted; not implemented or
+planned in detail by 11A. EAC/end-date graphs,
 priority history, graphical comparisons and causal attribution remain outside
 11A. Full historical navigation and snapshot restoration remain deferred to
 later explicit scope decisions.
