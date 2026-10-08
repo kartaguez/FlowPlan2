@@ -52,13 +52,13 @@ Current trajectory: **11B — Project History view**, following validated DONE
 11A.2. See the
 [detailed implementation plan](./steps/HISTORY/lot11a2_11b_plan.md).
 11A.2 is implemented, verified and closed. Final plan review concludes
-**11B READY FOR IMPLEMENTATION**; 11B remains **PLANNED / NOT STARTED**.
+**11B READY FOR IMPLEMENTATION** at baseline `7a3ea6b`; implementation is now **IN REVIEW**. See [11B delivery](./steps/HISTORY/lot11b_canon.md).
 
 ## Current objective and ordered sub-lots
 
 ```text
 10A (DONE) → 10B (DONE) → 10C (DONE) → 10C.1 (DONE) → 10C.2 (DONE)
-11A (DONE) → 11A.2 (DONE) → 11B (PLANNED / NOT STARTED)
+11A (DONE) → 11A.2 (DONE) → 11B (IN REVIEW)
 11A.1: DEFERRED / not adopted as product work; no dependency for 11B
 10D: superseded by 11A (not DONE)
 10E: largely superseded by 11B; advanced replay/navigation/comparison deferred
@@ -67,8 +67,8 @@ Current trajectory: **11B — Project History view**, following validated DONE
 Final 11B plan review (2026-10-08): branch `codex/lot11a-portfolio-snapshots`,
 starting HEAD `507e85d5af8ed3158f9ce449e2e354609212e7b5`, clean and synchronized
 with origin (0/0) after fetch. The 11A.2 canon records the completed capture and
-755-test validation. This mission updates documentation only; 11B implementation
-has not started.
+755-test validation. That review was documentation-only. The subsequent authorized implementation
+is now IN REVIEW; no human DONE validation is claimed.
 
 ## Corrective lot — anchored temporal zoom and range drag
 
@@ -438,52 +438,24 @@ plans. Typecheck, 755/755 tests (89 suites), build and diff checks pass.
 
 ## 11B — Project History view
 
-**Status: PLANNED / NOT STARTED — depends on validated DONE 11A.2.**
-See [11A.2 / 11B plan](./steps/HISTORY/lot11a2_11b_plan.md).
-A strictly read-only Planning/History mode uses the main space, its own header
-and an independent viewport, sharing only the minimal temporal and zoom/range/pan
-primitives needed. Characterize Planning by tests before each extraction and
-preserve its behavior and test expectations exactly; no general Timeline cleanup.
-Union of historical Projects, one line per global snapshot,
-latest/last-known priority ordering and metadata, frozen daily load surfaces,
-daily heights proportional to Actuals + Forecast with visible stacked components,
-an Actuals knowledge marker at `actualsRange.through` independent of positive
-days and distinct from the first positive Forecast date, common robust cap
-stable during pan and recalculated on zoom, stable snapshot colors with good
-perceptual separation for usual 8–12-snapshot collections, and exact comparison
-tooltips. The IQR formula is a tunable presentation policy, without Domain or
-persistence impact. The common axis uses the latest reference snapshot's horizon.
-Old captures expose metrics with explicit unavailable daily shapes; no replay.
-Reservations retain full captured history without dedicated rows. Full historical
-navigation, snapshot restore, replay and causal attribution remain deferred.
-Two successive implementation lots are mandatory: close 11A.2 with human
-validation and DONE status, then begin 11B.
+**Status: IN REVIEW — independent audit and human validation pending.**
+Implementation starts from mandatory baseline
+`7a3ea6bf1c6c97e248075a75bc718279158ad0f5` on the existing branch.
+11A.2 remains validated DONE. The [reviewed plan §§5–14](./steps/HISTORY/lot11a2_11b_plan.md)
+was implemented without functional recadrage or scope extension.
 
-### Final plan review — READY FOR IMPLEMENTATION
+The [11B canon and delivery record](./steps/HISTORY/lot11b_canon.md) describes
+Planning characterization and explicit suspension, immutable historical DTO
+projection, ordered-ID cache, independent viewport, exact daily stacked paths,
+common pan-stable cap, clipping and inclusive knowledge marker, tooltip deltas,
+colors, keyboard/touch/focus and read-only isolation. It records final gates
+(792/792 tests, 93 suites; typecheck/build/diff checks), 1440/390 light/dark UI
+review and small/target/stress performance measurements and residual limits.
+No V6/V7 format, engine or business rule changed; no historical replay/restore,
+Reservation frise, reference navigation or advanced analysis was added.
 
-The [final review and API matrix](./steps/HISTORY/lot11a2_11b_plan.md#14-revue-finale-avant-implémentation-11b--2026-10-08)
-checks all ten History concerns against the delivered 11A.2 contracts. No blocker
-remains. Minimal clarifications: read metadata from validated historical DTOs
-without V5 hydration at render; distinguish schema 1 unavailable from schema 2
-empty or V4-derived; retain Planning DOM and draft owners with explicit interaction
-suspension and modal toggle guard; cache by sorted immutable snapshot IDs rather
-than array identity, including backward-clock Saves; define inclusive-day marker,
-clipping, Forecast status and bounded ratio conversion at the pixel boundary.
-V6/V7 formats, engine and Planning behavior require no change to satisfy History.
-
-Safe order: characterize Planning before lifecycle/extractions, implement the pure
-History VM, validate reversible mode isolation with all draft owners, then extract
-only required temporal/gesture primitives and build History geometry/cap/tooltips.
-Acceptance covers mixed schemas and deleted Projects, whole-snapshot comparisons,
-covered-zero marker independent of Forecast, proportional daily stacks/common cap,
-pan/zoom/cache stability, repeated mode switches preserving drafts/focus/dirty,
-zero History commands/writes/recomputation, keyboard/touch and desktop/narrow
-light/dark review. Complete typecheck, full tests, build and diff check during
-implementation, retaining Planning/backup/mandatory expectations. Performance and
-quota remain measured limits, with no new storage or archive dependency.
-
-Review outcome: **11B READY FOR IMPLEMENTATION**. Status remains
-**PLANNED / NOT STARTED**; this documentary review implements no 11B code or tests.
+Next action: independent audit against the acceptance matrix and human validation.
+Do not advance 11B to DONE automatically from successful tests or this delivery.
 
 ## Cross-cutting non-goals for Phase 9
 

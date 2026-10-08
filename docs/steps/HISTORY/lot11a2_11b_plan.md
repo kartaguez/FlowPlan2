@@ -1,6 +1,9 @@
 # 11A.2 — Historical daily load profiles / 11B — Project History view
 
-Statut courant : **11A.2 DONE — 11B PLANNED / NOT STARTED**.
+Statut courant : **11A.2 DONE — 11B IN REVIEW**.
+Implémentation 11B autorisée à la baseline `7a3ea6b` et livrée suivant les §§5–14 ;
+voir [canon, validations et mesures 11B](./lot11b_canon.md). Les passages
+PLANNED / NOT STARTED ci-dessous décrivent les revues documentaires antérieures.
 Le plan initial a été durci le 2026-10-08, puis la mission explicite a autorisé
 uniquement l’implémentation 11A.2. Voir le
 [canon et les résultats 11A.2](./lot11a2_canon.md). Les constats ci-dessous
@@ -822,3 +825,24 @@ ni décision produit bloquante après ces précisions. Statut conservé :
 **PLANNED / NOT STARTED**. Cette mission ne modifie aucun code de production ou
 de test et ne relance pas les gates applicatifs déjà publiés ; vérifications de
 revue : baseline/fetch, lecture code/docs, cohérence, périmètre et diff check.
+
+## 15. Livraison de l’implémentation 11B — IN REVIEW
+
+Baseline obligatoire `7a3ea6bf1c6c97e248075a75bc718279158ad0f5`, branche
+existante propre et synchronisée après fetch. Le séquencement des §§11/14 a été
+respecté : caractérisation Planning (755 puis 756 tests), VM isolé (762),
+shell/lifecycle (766), extractions minimales et géométrie/cap (776), cache (779),
+interactions/UI puis compléments (792 tests, 93 suites). Aucun changement de
+contrat Planning pour faciliter History ; seule la liste des imports autorisés
+du test géométrique accueille la primitive temporelle extraite.
+
+Le [canon 11B](./lot11b_canon.md) détaille propriétaires/lifecycle, couverture
+du contrat, fichiers, revue 1440/390 clair/sombre, touch/clavier/focus, perf et
+limites. Le [relevé brut](./lot11b_measurements.json) contient les petits, cible,
+stress et cible avec spikes/fractions longues. Pas de recalcul métier ou décodage
+quotidien au pan ; médiane des frames navigateur cible 16,7 ms, P95 17,8 ms.
+
+Les canons/plan courants reflètent l’implémentation. Les formats V6/V7, moteur et
+règles métier restent inchangés ; aucune fonctionnalité hors 11B n’est ajoutée.
+Statut **IN REVIEW**, en attente d’audit indépendant et validation humaine.
+Ce statut ne constitue pas une clôture DONE.

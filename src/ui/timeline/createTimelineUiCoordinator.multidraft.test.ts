@@ -207,7 +207,7 @@ function fixture(withUnusedTeam = false, rejectActivation = false, withActuals =
     getReservationEditViewModel: (id) => buildReservationEditViewModel(session.getState(), id),
     getReservationNavigationItems: () => session.getState().portfolio.reservations.map((item) => ({ id: item.id, name: item.name, isActive: item.isActive })),
   }, dependencies);
-  return { scenario, session, coordinator, projectHandles, reservationHandles, dirtyControllers, saveSnapshot: dispatcher.savePortfolioSnapshot,
+  return { hideModals: () => { element.hidden = true; }, scenario, session, coordinator, projectHandles, reservationHandles, dirtyControllers, saveSnapshot: dispatcher.savePortfolioSnapshot,
     cardStateFor: (kind: "project" | "reservation", id: ProjectId | ReservationId) => cardStates.get(`${kind}:${id}`),
     projectCardHost: (id: ProjectId) => latestProjectCards.get(id)?.host,
     reservationCardHost: (id: ReservationId) => latestReservationCards.get(id)?.host,
@@ -893,4 +893,72 @@ it("global dirty covers hidden Forecast drafts in both stores across tabs and re
     assert.equal(app.coordinator.hasUnappliedChanges(), true); assert.equal(app.saveSnapshot().ok, false);
     app.coordinator.destroy();
   }
+});
+
+it("characterizes ownership: UI snapshots never serialize or normalize hidden invalid drafts", () => {
+  const app = fixture();
+  const id = app.scenario.portfolio.projects[0]!.id;
+  app.openProject(id);
+  const store = app.projectHandles.get(id)!.draftStore!;
+  const original = store.get(id)!;
+  store.update(id, { ...original.values, name: "", teams: original.values.teams.map((team) => ({ ...team, remainingWorkload: "invalid" })) });
+  app.openProject(id);
+  const draft = store.get(id);
+  const state = app.session.getState();
+  const projection = app.coordinator.getProjection();
+  const renders = app.getRenderCount();
+  for (let index = 0; index < 8; index++) app.coordinator.getUiSnapshot();
+  assert.strictEqual(store.get(id), draft);
+  assert.strictEqual(app.session.getState(), state);
+  assert.strictEqual(app.coordinator.getProjection(), projection);
+  assert.equal(app.getRenderCount(), renders);
+  assert.equal(app.coordinator.hasUnappliedChanges(), true);
+  assert.equal(app.saveSnapshot().ok, false);
+  app.coordinator.destroy();
+});
+
+it("suspend/resume preserves all draft owners and projection with no remount or command", () => {
+  const app = fixture();
+  // Fake modal surfaces are initially visible; the explicit guard must reject.
+  assert.equal(app.coordinator.suspend(), false);
+  const id = app.scenario.portfolio.projects[0]!.id;
+  app.openProject(id); const store = app.projectHandles.get(id)!.draftStore!;
+  const original = store.get(id)!;
+  store.update(id, { ...original.values, name: "", teams: original.values.teams.map((team) => ({ ...team, remainingWorkload: "invalid" })) });
+  app.openProject(id);
+  const draft = store.get(id), state = app.session.getState(), projection = app.coordinator.getProjection();
+  const ui = app.coordinator.getUiSnapshot();
+  // Set the shared fake modal surface hidden, as after normal workflow close.
+  const element = app.projectCardHost(id)!;
+  void element;
+  app.hideModals();
+  for (const owner of ["create-project", "create-reservation", "settings", "create-team", "team-edit"]) app.dirtyControllers.add(owner);
+  for (let n = 0; n < 10; n++) {
+    assert.equal(app.coordinator.suspend(), true); assert.equal(app.coordinator.suspend(), true);
+    app.coordinator.resume(); app.coordinator.resume();
+    assert.strictEqual(store.get(id), draft); assert.strictEqual(app.session.getState(), state);
+    assert.strictEqual(app.coordinator.getProjection(), projection); assert.deepEqual(app.coordinator.getUiSnapshot(), ui);
+    assert.equal(app.coordinator.hasUnappliedChanges(), true); assert.equal(app.getRenderCount(), 1);
+  }
+  assert.equal(app.saveSnapshot().ok, false); app.coordinator.destroy(); app.coordinator.destroy();
+  assert.equal(app.coordinator.suspend(), false);
+});
+
+it("retains an invalid quick RAF and collapsed Actuals card through suspend/resume", () => {
+  const app = fixture(false, false, true, true); app.hideModals();
+  const id = app.session.getState().portfolio.projects[0]!.id;
+  app.openProject(id);
+  const host = app.projectCardHost(id)!;
+  const all = (root: FakeElement): FakeElement[] => [root, ...root.children.flatMap(all)];
+  const field = all(host).find((item) => item.attributes.has("data-raf-team"))!;
+  field.value = "invalid fraction"; field.emit("input");
+  const before = app.session.getState(), ui = app.coordinator.getUiSnapshot();
+  app.openProject(id);
+  for (let n = 0; n < 5; n++) {
+    assert.equal(app.coordinator.suspend(), true); app.coordinator.resume();
+    assert.equal(field.value, "invalid fraction"); assert.strictEqual(app.projectCardHost(id), host);
+    assert.strictEqual(app.session.getState(), before); assert.equal(app.coordinator.hasUnappliedChanges(), true);
+    assert.equal(app.getRenderCount(), 1); assert.equal(app.saveSnapshot().ok, false);
+  }
+  assert.deepEqual(app.coordinator.getUiSnapshot().viewport, ui.viewport); app.coordinator.destroy();
 });

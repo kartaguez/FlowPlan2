@@ -1,3 +1,4 @@
+import type { TemporalGeometry } from "../../temporal/temporalGeometry.js";
 import type {
   Capacity,
   CivilDate,
@@ -18,7 +19,7 @@ export interface TimelineGeometryViewport {
   readonly teamCollectionActionsHeight?: number;
 }
 
-export interface TimelineGeometry {
+export interface TimelineGeometry extends TemporalGeometry {
   readonly width: number;
   readonly height: number;
   readonly dayWidth: number;

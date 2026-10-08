@@ -1,4 +1,4 @@
-import type { TimelineGeometry } from "../../adapters/index.js";
+import type { TemporalGeometry } from "../../adapters/temporal/temporalGeometry.js";
 import type { CivilDate } from "../../domain/index.js";
 import { preserveTimelineLabelTypography } from "./applyTimelineViewport.js";
 import { formatProjectionDate } from "./renderTimelineCursor.js";
@@ -13,7 +13,7 @@ export interface TimelineRangeSelection {
 
 export interface RenderTimelineRangeSelectionInput {
   readonly svg: SVGSVGElement;
-  readonly geometry: TimelineGeometry;
+  readonly geometry: TemporalGeometry;
   readonly viewport: TimelineViewportState;
   readonly selection: TimelineRangeSelection | undefined;
 }

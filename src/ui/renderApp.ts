@@ -3,6 +3,7 @@ import { createSettingsIconButton } from "./createSettingsIconButton.js";
 const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 
 export interface AppElements {
+  readonly modeControls?: Readonly<{ planning: HTMLButtonElement; history: HTMLButtonElement; planningSurface: HTMLElement; historySurface: HTMLElement }>;
   readonly portfolioSnapshotControls?: PortfolioSnapshotControls;
   readonly svg: SVGSVGElement;
   readonly diagnosticsControls: DiagnosticsControls;
@@ -540,9 +541,23 @@ export function renderApp(root: HTMLElement): AppElements {
     reservationCreateSection, reservationList);
   workspace.append(planningMain, projectSidebar);
 
-  shell.append(header, workspace, diagnosticsBackdrop, diagnosticsDialog, planningSettings, teamEdit, teamCreate);
+  const modeSelector = document.createElement("div");
+  modeSelector.className = "view-mode-selector";
+  modeSelector.setAttribute("role", "group"); modeSelector.setAttribute("aria-label", "Workspace view");
+  const planningMode = createViewportButton(document, "Planning", "Planning");
+  const historyMode = createViewportButton(document, "History", "Project History");
+  planningMode.setAttribute("aria-pressed", "true"); historyMode.setAttribute("aria-pressed", "false");
+  modeSelector.append(planningMode, historyMode); header.append(modeSelector);
+  const planningSurface = document.createElement("div");
+  planningSurface.className = "planning-surface";
+  planningSurface.append(workspace, diagnosticsBackdrop, diagnosticsDialog, planningSettings, teamEdit, teamCreate);
+  const historySurface = document.createElement("section");
+  historySurface.className = "history-surface"; historySurface.hidden = true; historySurface.tabIndex = -1;
+  historySurface.setAttribute("aria-label", "Project History");
+  shell.append(header, planningSurface, historySurface);
   root.replaceChildren(shell);
   return Object.freeze({
+    modeControls: { planning: planningMode, history: historyMode, planningSurface, historySurface },
     svg: timeline,
     diagnosticsControls,
     cursorProgress,

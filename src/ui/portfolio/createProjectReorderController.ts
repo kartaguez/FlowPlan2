@@ -1,3 +1,4 @@
+import { createInteractionLifecycle } from "../interactionLifecycle.js";
 import type { ProjectId } from "../../domain/index.js";
 
 export interface ProjectReorderCard {
@@ -22,7 +23,7 @@ interface ActiveDrag {
   moving: boolean;
 }
 
-export function createProjectReorderController(input: CreateProjectReorderControllerInput): { destroy: () => void } {
+export function createProjectReorderController(input: CreateProjectReorderControllerInput): { suspend: () => void; resume: () => void; destroy: () => void } {
   const document = input.list.ownerDocument;
   const listeners: Array<{ handle: HTMLButtonElement; down: (event: PointerEvent) => void;
     move: (event: PointerEvent) => void; up: (event: PointerEvent) => void;
@@ -64,8 +65,9 @@ export function createProjectReorderController(input: CreateProjectReorderContro
     finish(false);
   };
   const onVisibility = (): void => { if (document.hidden) finish(false); };
-  document.addEventListener("keydown", onEscape);
-  document.addEventListener("visibilitychange", onVisibility);
+  const lifecycle = createInteractionLifecycle(() => finish(false));
+  lifecycle.listen(document, "keydown", onEscape);
+  lifecycle.listen(document, "visibilitychange", onVisibility);
 
   for (const [projectId, card] of input.cards) {
     const down = (event: PointerEvent): void => {
@@ -101,15 +103,16 @@ export function createProjectReorderController(input: CreateProjectReorderContro
       event.preventDefault();
       if (target !== current) input.onReorder(projectId, target);
     };
-    card.handle.addEventListener("pointerdown", down);
-    card.handle.addEventListener("pointermove", move);
-    card.handle.addEventListener("pointerup", up);
-    card.handle.addEventListener("pointercancel", cancel);
-    card.handle.addEventListener("lostpointercapture", cancel);
-    card.handle.addEventListener("keydown", key);
+    lifecycle.listen(card.handle, "pointerdown", down);
+    lifecycle.listen(card.handle, "pointermove", move);
+    lifecycle.listen(card.handle, "pointerup", up);
+    lifecycle.listen(card.handle, "pointercancel", cancel);
+    lifecycle.listen(card.handle, "lostpointercapture", cancel);
+    lifecycle.listen(card.handle, "keydown", key);
     listeners.push({ handle: card.handle, down, move, up, cancel, key });
   }
-  return { destroy: () => {
+  return { suspend: lifecycle.suspend, resume: lifecycle.resume, destroy: () => {
+    lifecycle.destroy();
     finish(false);
     document.removeEventListener("keydown", onEscape);
     document.removeEventListener("visibilitychange", onVisibility);

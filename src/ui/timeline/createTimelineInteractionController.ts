@@ -1,3 +1,4 @@
+import { createInteractionLifecycle } from "../interactionLifecycle.js";
 import type { TimelineGeometry, TimelineViewModel } from "../../adapters/index.js";
 import type { ProjectId, Rational } from "../../domain/index.js";
 import { createTimelineInteractionLookup, renderTimelineTooltip } from "./renderTimelineInteractionDetails.js";
@@ -9,6 +10,8 @@ export interface TimelineInteractionState { readonly hovered: TimelineHit | unde
 export interface TimelineInteractionController {
   readonly getState: () => TimelineInteractionState;
   readonly refreshTooltip: () => void;
+  readonly suspend: () => void;
+  readonly resume: () => void;
   readonly destroy: () => void;
 }
 export interface CreateTimelineInteractionControllerInput {
@@ -50,13 +53,16 @@ export function createTimelineInteractionController(input: CreateTimelineInterac
     hoverPoint = { clientX: event.clientX, clientY: event.clientY };
     updateHit();
   };
-  input.svg.addEventListener("pointermove", onPointerMove);
-  input.svg.addEventListener("pointerleave", clear);
-  input.svg.addEventListener("pointercancel", clear);
+  const lifecycle = createInteractionLifecycle(clear);
+  lifecycle.listen(input.svg, "pointermove", onPointerMove);
+  lifecycle.listen(input.svg, "pointerleave", clear);
+  lifecycle.listen(input.svg, "pointercancel", clear);
   clear();
   return {
     getState: () => ({ hovered }), refreshTooltip: updateHit,
+    suspend: lifecycle.suspend, resume: lifecycle.resume,
     destroy: () => {
+      lifecycle.destroy();
       input.svg.removeEventListener("pointermove", onPointerMove);
       input.svg.removeEventListener("pointerleave", clear);
       input.svg.removeEventListener("pointercancel", clear);

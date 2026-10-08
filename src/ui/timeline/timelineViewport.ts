@@ -1,4 +1,5 @@
-import { GEOMETRY_EPSILON, type TimelineGeometry } from "../../adapters/index.js";
+import type { TemporalGeometry } from "../../adapters/temporal/temporalGeometry.js";
+import { GEOMETRY_EPSILON } from "../../adapters/index.js";
 import type { CivilDate } from "../../domain/index.js";
 
 export interface TimelineViewportState {
@@ -79,7 +80,7 @@ export function zoomTimelineViewport(
 }
 
 export interface TimelineViewportFromDateRangeInput {
-  readonly geometry: TimelineGeometry;
+  readonly geometry: TemporalGeometry;
   readonly startDate: CivilDate;
   readonly endDate: CivilDate;
   readonly minWidth: number;

@@ -1,4 +1,6 @@
-import { buildTimelineCursorGeometry, type TimelineGeometry } from "../../adapters/index.js";
+import type { TemporalGeometry } from "../../adapters/temporal/temporalGeometry.js";
+import { createInteractionLifecycle } from "../interactionLifecycle.js";
+import { buildTimelineCursorGeometry } from "../../adapters/index.js";
 import type { CivilDate } from "../../domain/index.js";
 import { applyTimelineViewport } from "./applyTimelineViewport.js";
 import {
@@ -22,27 +24,44 @@ export interface TimelineViewportControlElements {
 export interface TimelineViewportController {
   readonly getState: () => TimelineViewportState;
   readonly setVisibleDateRange: (startDate: CivilDate, endDate: CivilDate) => void;
+  readonly suspend: () => void;
+  readonly resume: () => void;
   readonly destroy: () => void;
 }
 
-export interface CreateTimelineViewportControllerInput {
+export interface TemporalViewportControllerInput {
   readonly svg: SVGSVGElement;
-  readonly geometry: TimelineGeometry;
+  readonly pointerSurfaces?: readonly SVGSVGElement[];
+  readonly geometry: TemporalGeometry;
   readonly controls: TimelineViewportControlElements;
   readonly initialViewport?: TimelineViewportState;
+  readonly getProjectionDate?: () => CivilDate;
+  readonly getZoomAnchorX?: (viewport: TimelineViewportState) => number;
+  readonly onViewportChange?: (change: TemporalViewportChange) => void;
+  readonly onPanStateChange?: (active: boolean) => void;
+  readonly isPanPointerAllowed?: (event: PointerEvent) => boolean;
+}
+
+export interface TemporalViewportChange {
+  readonly cause: "initial" | "zoom-button" | "range-zoom" | "reset" | "pan" | "restore" | "reference-change";
+  readonly previous: TimelineViewportState; readonly next: TimelineViewportState;
+}
+export interface CreateTimelineViewportControllerInput extends TemporalViewportControllerInput {
   readonly getProjectionDate: () => CivilDate;
-  readonly onViewportChange?: () => void;
 }
 
 interface ActivePan {
   readonly pointerId: number;
   readonly startClientX: number;
   readonly startViewport: TimelineViewportState;
+  readonly surface: SVGSVGElement;
 }
 
-export function createTimelineViewportController(
-  input: CreateTimelineViewportControllerInput,
-): TimelineViewportController {
+export function createTimelineViewportController(input: CreateTimelineViewportControllerInput): TimelineViewportController {
+  return createTemporalViewportController(input);
+}
+
+export function createTemporalViewportController(input: TemporalViewportControllerInput): TimelineViewportController {
   const fullViewport = createFullTimelineViewport(input.geometry.width);
   const minWidth = Math.min(
     input.geometry.width,
@@ -58,21 +77,22 @@ export function createTimelineViewportController(
         });
   let activePan: ActivePan | undefined;
 
-  const publish = (next: TimelineViewportState): void => {
+  const publish = (next: TimelineViewportState, cause: TemporalViewportChange["cause"]): void => {
+    const previous = viewport;
     viewport = clampTimelineViewport({ viewport: next, geometryWidth: input.geometry.width, minWidth });
     applyTimelineViewport({
       svg: input.svg,
       geometry: input.geometry,
       viewport,
     });
-    input.onViewportChange?.();
+    input.onViewportChange?.({ cause, previous, next: viewport });
   };
   const setVisibleDateRange = (startDate: CivilDate, endDate: CivilDate): void => {
-    publish(timelineViewportFromDateRange({ geometry: input.geometry, startDate, endDate, minWidth }));
+    publish(timelineViewportFromDateRange({ geometry: input.geometry, startDate, endDate, minWidth }), "range-zoom");
   };
   const zoom = (scale: number): void => {
-    const projectionX = buildTimelineCursorGeometry({
-      geometry: input.geometry, selectedDate: input.getProjectionDate(),
+    const projectionX = input.getZoomAnchorX?.(viewport) ?? buildTimelineCursorGeometry({
+      geometry: input.geometry, selectedDate: input.getProjectionDate!(),
     }).x;
     const anchorX = Math.max(viewport.x, Math.min(projectionX, viewport.x + viewport.width));
     publish(zoomTimelineViewport({
@@ -81,28 +101,30 @@ export function createTimelineViewportController(
       minWidth,
       anchorX,
       scale,
-    }));
+    }), "zoom-button");
   };
   const onZoomIn = (): void => zoom(1 / ZOOM_FACTOR);
   const onZoomOut = (): void => zoom(ZOOM_FACTOR);
   const onReset = (): void => {
-    publish(fullViewport);
+    publish(fullViewport, "reset");
   };
   const onPointerDown = (event: PointerEvent): void => {
-    if (!event.shiftKey) return;
-    if (typeof input.svg.setPointerCapture === "function") {
-      input.svg.setPointerCapture(event.pointerId);
+    if (!event.shiftKey || (input.isPanPointerAllowed && (activePan !== undefined || !input.isPanPointerAllowed(event)))) return;
+    const surface = (event.currentTarget ?? input.svg) as SVGSVGElement;
+    if (typeof surface.setPointerCapture === "function") {
+      surface.setPointerCapture(event.pointerId);
     }
     activePan = Object.freeze({
       pointerId: event.pointerId,
       startClientX: event.clientX,
-      startViewport: viewport,
+      startViewport: viewport, surface,
     });
+    input.onPanStateChange?.(true);
     event.preventDefault();
   };
   const onPointerMove = (event: PointerEvent): void => {
     if (activePan?.pointerId !== event.pointerId) return;
-    const bounds = input.svg.getBoundingClientRect();
+    const bounds = activePan.surface.getBoundingClientRect();
     if (!Number.isFinite(bounds.width) || bounds.width <= 0) {
       throw new TypeError("SVG displayed width must be finite and positive.");
     }
@@ -113,27 +135,36 @@ export function createTimelineViewportController(
       viewport: activePan.startViewport,
       geometryWidth: input.geometry.width,
       deltaX: timelineDelta,
-    }));
+    }), "pan");
   };
   const stopPan = (event: PointerEvent): void => {
     if (activePan?.pointerId !== event.pointerId) return;
-    releasePointerCapture(input.svg, event.pointerId);
+    releasePointerCapture(activePan.surface, event.pointerId);
     activePan = undefined;
+    input.onPanStateChange?.(false);
   };
 
-  input.controls.zoomIn.addEventListener("click", onZoomIn);
-  input.controls.zoomOut.addEventListener("click", onZoomOut);
-  input.controls.reset.addEventListener("click", onReset);
-  input.svg.addEventListener("pointerdown", onPointerDown);
-  input.svg.addEventListener("pointermove", onPointerMove);
-  input.svg.addEventListener("pointerup", stopPan);
-  input.svg.addEventListener("pointercancel", stopPan);
-  publish(viewport);
+  const lifecycle = createInteractionLifecycle(() => {
+    const pan = activePan; activePan = undefined;
+    if (pan) { releasePointerCapture(pan.surface, pan.pointerId); input.onPanStateChange?.(false); }
+  });
+  lifecycle.listen(input.controls.zoomIn, "click", onZoomIn);
+  lifecycle.listen(input.controls.zoomOut, "click", onZoomOut);
+  lifecycle.listen(input.controls.reset, "click", onReset);
+  for (const surface of new Set(input.pointerSurfaces ?? [input.svg])) {
+    lifecycle.listen(surface, "pointerdown", onPointerDown);
+    lifecycle.listen(surface, "pointermove", onPointerMove);
+    lifecycle.listen(surface, "pointerup", stopPan);
+    lifecycle.listen(surface, "pointercancel", stopPan);
+  }
+  publish(viewport, "initial");
 
   return Object.freeze({
     getState: () => viewport,
     setVisibleDateRange,
+    suspend: lifecycle.suspend, resume: lifecycle.resume,
     destroy: () => {
+      lifecycle.destroy();
       input.controls.zoomIn.removeEventListener("click", onZoomIn);
       input.controls.zoomOut.removeEventListener("click", onZoomOut);
       input.controls.reset.removeEventListener("click", onReset);
@@ -142,7 +173,7 @@ export function createTimelineViewportController(
       input.svg.removeEventListener("pointerup", stopPan);
       input.svg.removeEventListener("pointercancel", stopPan);
       if (activePan !== undefined) {
-        releasePointerCapture(input.svg, activePan.pointerId);
+        releasePointerCapture(activePan.surface, activePan.pointerId);
       }
       activePan = undefined;
     },

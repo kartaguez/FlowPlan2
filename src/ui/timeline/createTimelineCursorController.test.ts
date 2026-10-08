@@ -632,3 +632,23 @@ describe("createTimelineCursorController", () => {
     );
   });
 });
+
+it("neutralizes global shortcuts and gestures across repeated suspend/resume without losing the date", () => {
+  const app = fixture();
+  const controller = createTimelineCursorController({ svg: app.svg as unknown as SVGSVGElement,
+    geometry: app.geometry, initialDate: app.geometry.dates[0]!.date,
+    getViewport: () => ({ x: 0, width: app.geometry.width }), isModalOpen: () => false });
+  for (let n = 0; n < 8; n++) {
+    const before = controller.getState().selectedDate;
+    app.svg.dispatch("pointerdown", pointer(9, 250));
+    controller.suspend(); controller.suspend();
+    assert.equal(app.svg.capturedPointerIds.size, 0);
+    app.svg.ownerDocument.dispatch("keydown", keyboard("ArrowRight", { ctrlKey: true }));
+    assert.equal(controller.getState().selectedDate, before);
+    assert.equal(app.svg.ownerDocument.listeners.get("keydown")!.size, 0);
+    controller.resume(); controller.resume();
+    assert.equal(app.svg.ownerDocument.listeners.get("keydown")!.size, 1);
+  }
+  controller.destroy(); controller.resume();
+  assert.equal(app.svg.ownerDocument.listeners.get("keydown")!.size, 0);
+});

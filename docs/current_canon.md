@@ -12,7 +12,7 @@ active implementation and trajectory. The remaining work is in the
 `06e7fbb94d71fe73a35e244d4cee6626b65777c2` (11A.2 final code/test baseline, verified on
 2026-10-08 from `c295db34937dca2dbe86f403319dc8880563d94c`; documentation
 closure follows on the same branch). 11A and 11A.2 are **DONE**.
-11B remains **PLANNED / NOT STARTED**.
+11B is **IN REVIEW** from implementation baseline `7a3ea6bf1c6c97e248075a75bc718279158ad0f5`; independent audit and human validation remain required. See [11B contract, gates and measurements](./steps/HISTORY/lot11b_canon.md).
 
 The active application implements a pure planning projection over an editable
 session, restored from a local backup when available and otherwise initialized
@@ -243,7 +243,7 @@ focus styling.
 
 11A captures the cross-object, Forecast and capacity knowledge formerly scoped
 by 10D. Its immutable Portfolio artifact is distinct from object Actuals and
-from the disposable planning projection. Project drift remains future 11B;
+from the disposable planning projection. Project drift is implemented in read-only 11B (IN REVIEW);
 advanced replay/navigation/comparison remain deferred beyond that promise.
 
 ## Portfolio Snapshots — Lot 11A
@@ -294,11 +294,36 @@ V7 accepts schema 1 and 2 together. V6 remains schema 1 only; import preserves
 its captures unchanged and never manufactures daily profiles. V6 encoding
 rejects schema 2. Save/Delete and ordinary accepted commands write V7 before
 publication using the same storage key. Quota/codec errors preserve previous
-state and document without purge. No UI mode, view, renderer or Timeline
-refactoring is introduced. Final edge-case verification found no production defect;
+state and document without purge. 11A.2 itself introduced no UI mode, view, renderer or Timeline
+refactoring; the separate 11B implementation follows below. Final edge-case verification found no production defect;
 755/755 tests, typecheck, build and diff checks pass. The user-authorized closure
-is complete. **11B = PLANNED / NOT STARTED**; this mission implements no 11B work.
+is complete. The separate 11B implementation is now **IN REVIEW**; the 11A.2 release itself introduced no History UI.
 
+
+## Project History — Lot 11B
+
+Status: **IN REVIEW**. [Implementation, acceptance coverage and measurements](./steps/HISTORY/lot11b_canon.md).
+The workspace selector defaults to Planning and opens read-only Project History
+in the main space. Planning DOM/editor owners survive idempotent suspend/resume;
+modals explicitly block switching. Drafts, dirty, viewport/date, cards/tabs and
+focus return unchanged, without projection rebuilding or persistence.
+
+History reads validated captured DTOs only, with no current-label fallback,
+V5 hydration or engine replay. It displays the historical Project union, S rows
+per group, exact sparse daily Actuals/Forecast stacks, inclusive knowledge markers,
+legacy-profile unavailability and previous-presence comparisons. The reference
+snapshot owns one horizon; History has an independent viewport and a common
+exact visual cap, resampled on effective zoom/dataset changes and stable at pan.
+The cache compares canonical ordered snapshot IDs rather than collection copies.
+
+Rows support hover, focus, daily keyboard navigation and touch. Exact metrics,
+coverage/status, timestamps/IDs, dates/reasons and deltas remain in accessible
+details; Escape closes them. ID-derived snapshot colors are Programme-independent.
+Heavy surfaces are windowed by date and visible Project groups; full gutter rows
+retain sequential keyboard access. No Reservations frise, edit, restore, replay,
+reference selection or advanced analysis is included. Final suite: 792 tests /
+93 suites; typecheck/build/diff checks pass. Desktop/narrow and light/dark review,
+benchmark data and known memory/storage/color limits are recorded in the canon.
 
 ## Current UI structure
 
@@ -433,7 +458,7 @@ These are current implementation facts, not durable product rules:
 
 - separate Program / PriorityFamily management screens or global rename;
 - undo/redo;
-- Project drift visualization (future 11B) and advanced replay/navigation/comparison (deferred).
+- advanced historical replay/navigation/comparison and restoration (deferred).
 
 These omissions are ordered as future work in the
 [current plan](./current_plan.md); they must not be inferred from visual

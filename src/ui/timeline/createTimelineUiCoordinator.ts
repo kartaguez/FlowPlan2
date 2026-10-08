@@ -1,3 +1,4 @@
+import { createInteractionLifecycle } from "../interactionLifecycle.js";
 import { createPortfolioSnapshotsController } from "../portfolio-snapshots/createPortfolioSnapshotsController.js";
 import type { PortfolioSnapshot } from "../../domain/portfolioSnapshots/portfolioSnapshot.js";
 import type { TimelineGeometry, TimelineViewModel } from "../../adapters/index.js";
@@ -65,6 +66,9 @@ export interface TimelineUiCoordinator {
   readonly getProjection: () => TimelineUiProjection;
   readonly getUiSnapshot: () => TimelineUiSnapshot;
   readonly renderProjection: (projection: TimelineUiProjection) => void;
+  readonly isModalOpen: () => boolean;
+  readonly suspend: () => boolean;
+  readonly resume: () => void;
   readonly destroy: () => void;
 }
 export interface CreateTimelineUiCoordinatorInput {
@@ -129,6 +133,7 @@ export function createTimelineUiCoordinator(
   dependencies: TimelineUiCoordinatorDependencies = DEFAULT_DEPENDENCIES,
 ): TimelineUiCoordinator {
   let refreshSnapshotDirty = () => {};
+  let suspended = false, destroyed = false;
   const projectDrafts = createProjectDraftStore();
   const reservationDrafts = createReservationDraftStore();
   const projectSnapshotDrafts = createSnapshotActualsDraftStore();
@@ -306,8 +311,9 @@ export function createTimelineUiCoordinator(
   refreshSnapshotDirty = () => snapshotController?.refreshDirty();
   // Delegated notifications run after the owning controller has processed each edit.
   const dirtyDocument = input.elements.planningSettingsControls.container.ownerDocument;
-  const notifyDirty = () => queueMicrotask(refreshSnapshotDirty);
-  for (const event of ["input", "change", "click", "submit"]) dirtyDocument?.addEventListener?.(event, notifyDirty);
+  const notifyDirty = () => queueMicrotask(() => { if (!suspended && !destroyed) refreshSnapshotDirty(); });
+  const dirtyLifecycle = createInteractionLifecycle();
+  for (const event of ["input", "change", "click", "submit"]) dirtyLifecycle.listen(dirtyDocument, event, notifyDirty);
 
   const renderCursorMetrics = (date: CivilDate): void => {
     cursorMetricsModel = buildCursorMetricsViewModel(projection.portfolio,
@@ -740,10 +746,32 @@ export function createTimelineUiCoordinator(
   mountProjection(input.initialProjection, currentSnapshot());
   if (input.invalidStartupBackup) planningSettingsController.showStartupError();
   refreshSnapshotDirty();
+  const interactionOwners = () => [cursorController, viewportController, interactionController, reorderController,
+    diagnosticsController, ...projectActualsControllers.values(), ...reservationActualsControllers.values()];
   return {
+    isModalOpen,
+    suspend: () => {
+      if (destroyed) return false;
+      if (suspended) return true;
+      if (isModalOpen()) return false;
+      suspended = true;
+      for (const owner of interactionOwners()) owner.suspend?.();
+      dirtyLifecycle.suspend();
+      return true;
+    },
+    resume: () => {
+      if (!suspended || destroyed) return;
+      suspended = false;
+      for (const owner of interactionOwners()) owner.resume?.();
+      dirtyLifecycle.resume();
+      refreshSnapshotDirty();
+    },
     hasUnappliedChanges,
     getProjection: () => projection, getUiSnapshot: currentSnapshot, renderProjection,
     destroy: () => {
+      if (destroyed) return;
+      destroyed = true;
+      dirtyLifecycle.destroy();
       snapshotController?.destroy();
       for (const event of ["input", "change", "click", "submit"]) dirtyDocument?.removeEventListener?.(event, notifyDirty);
       destroyControllers(); teamEditController.destroy(); planningSettingsController.destroy();

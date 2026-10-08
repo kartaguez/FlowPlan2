@@ -231,6 +231,36 @@ while retained captures reference them, without an eternal identity registry.
 11A adds capture/list/Delete only. Project drift belongs to 11B; advanced replay,
 historical navigation, comparisons and restore remain deferred.
 
+## Read-only Project History
+
+Project History projects validated immutable Portfolio Snapshots through an
+Application ViewModel, History geometry and DOM/SVG. It never rehydrates/replays
+historical Actuals or uses the current Portfolio/engine to complete captured
+labels, metrics or daily shapes. Schema 1 profiles remain explicitly unavailable.
+The canonical snapshot comparator owns row order and the reference horizon;
+Projects are joined by ID across the historical union, with one row per capture.
+Comparisons use the previous presence of the same Project, skipping absences.
+
+The daily shapes use exact captured Actuals + Forecast, stacked with one common
+height scale. Inclusive Actuals knowledge coverage is independent of positive
+days and first Forecast allocation. A visual cap may reduce pixel heights
+proportionally, with an accessible excess indicator and real exact values; it
+never changes business quantities. Number conversion is limited to bounded
+pixel ratios. Cap policy is presentation, not persistence or business canon.
+
+Planning and History have independent temporal UI state. Switching preserves
+Planning DOM and draft owners through explicit, idempotent suspend/resume; final
+destroy is not navigation. Global/pointer/focus interactions and observers are
+suspended explicitly. Modals block switching without abandoning their workflow.
+No business command, write or projection rebuild occurs solely from navigation.
+History receives no editing, Save/Delete/Import or replay capabilities.
+
+History cache identity is the canonically ordered immutable snapshot-ID sequence,
+not JavaScript array identity. Pan retains cap, effective zoom resamples it,
+dataset/reference changes invalidate explicitly, and application reload creates
+new caches. Snapshot colors derive only from IDs, independently of Programme.
+Advanced replay/navigation/comparison and restoration remain deferred.
+
 ## Planning
 
 ```text

@@ -1,6 +1,7 @@
 # Lot 11A.2 — Historical daily load profiles
 
-Status: **DONE**. **11B = PLANNED / NOT STARTED**.
+Status: **DONE**. The separate [11B implementation](./lot11b_canon.md) is **IN REVIEW**.
+PLANNED / NOT STARTED mentions below describe the earlier 11A.2 release, not the current 11B status.
 
 Baseline: branch `codex/lot11a-portfolio-snapshots`, initial HEAD
 `a494be8f876729c3c2b72cd4c006541a46933984`, clean and synchronized with origin

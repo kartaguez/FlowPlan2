@@ -1,3 +1,4 @@
+import { createInteractionLifecycle } from "../interactionLifecycle.js";
 import type { SnapshotActualsViewModel, ReplaceProjectActualsCommand, ReplaceReservationActualsCommand,
   UpdateProjectCommand, UpdateReservationCommand } from "../../application/index.js";
 import { addDays, addRationals, createCivilDate, parseSerializedRational, rationalFromInteger, rationalOf,
@@ -18,6 +19,8 @@ export interface SnapshotActualsCardControllerInput {
 }
 
 export function createSnapshotActualsCardController(input: SnapshotActualsCardControllerInput): {
+  suspend(): void;
+  resume(): void;
   destroy(): void;
   openHandoff(command: UpdateProjectCommand | UpdateReservationCommand): void;
   applyCardRaf(): { readonly ok: true } | { readonly ok: false; readonly errors: readonly DomainError[] };
@@ -587,7 +590,8 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
       modal.querySelector<HTMLElement>("button:not([hidden]):not([disabled])")?.focus();
     }
   };
-  document.addEventListener?.("focusin", onFocusIn);
+  const lifecycle = createInteractionLifecycle();
+  lifecycle.listen(document, "focusin", onFocusIn);
   const onSubmit = (event: SubmitEvent) => {
     event.preventDefault();
     const base = input.store.get(model.id)!;
@@ -611,8 +615,8 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
   if (input.store.get(model.id)?.modal) {
     document.defaultView?.queueMicrotask(() => fields.querySelector?.<HTMLElement>("button, input")?.focus());
   }
-  return { openHandoff: (command) => onOpen(command), applyCardRaf, cancelCardRaf, setCardRaf,
-    destroy: () => { toggle.removeEventListener("click", onOpenClick); cancel.removeEventListener("click", onCancel); form.removeEventListener("submit", onSubmit);
+  return { suspend: lifecycle.suspend, resume: lifecycle.resume, openHandoff: (command) => onOpen(command), applyCardRaf, cancelCardRaf, setCardRaf,
+    destroy: () => { lifecycle.destroy(); toggle.removeEventListener("click", onOpenClick); cancel.removeEventListener("click", onCancel); form.removeEventListener("submit", onSubmit);
       modal.removeEventListener("keydown", onKeyDown); document.removeEventListener?.("focusin", onFocusIn);
       modal.remove?.(); } };
 }

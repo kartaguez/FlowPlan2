@@ -1,12 +1,12 @@
+import type { TemporalGeometry } from "../../adapters/temporal/temporalGeometry.js";
 import {
   GEOMETRY_EPSILON,
-  type TimelineGeometry,
 } from "../../adapters/index.js";
 import type { TimelineViewportState } from "./timelineViewport.js";
 
 export interface ApplyTimelineViewportInput {
   readonly svg: SVGSVGElement;
-  readonly geometry: TimelineGeometry;
+  readonly geometry: TemporalGeometry;
   readonly viewport: TimelineViewportState;
 }
 

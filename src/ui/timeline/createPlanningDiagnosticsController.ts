@@ -1,3 +1,4 @@
+import { createInteractionLifecycle } from "../interactionLifecycle.js";
 import type { TimelineDiagnostic } from "../../adapters/index.js";
 import type { DiagnosticsControls } from "../renderApp.js";
 import {
@@ -8,6 +9,8 @@ import {
 
 export interface PlanningDiagnosticsController {
   readonly setDiagnostics: (diagnostics: readonly TimelineDiagnostic[]) => void;
+  readonly suspend: () => void;
+  readonly resume: () => void;
   readonly destroy: () => void;
 }
 
@@ -73,9 +76,10 @@ export function createPlanningDiagnosticsController(input: {
       controls.close.focus();
     }
   };
-  controls.close.addEventListener("click", close);
-  document.addEventListener("keydown", onKeyDown, true);
-  document.addEventListener("focusin", onFocusIn);
+  const lifecycle = createInteractionLifecycle();
+  lifecycle.listen(controls.close, "click", close);
+  lifecycle.listen(document, "keydown", onKeyDown, true);
+  lifecycle.listen(document, "focusin", onFocusIn);
 
   return Object.freeze({
     setDiagnostics: (next: readonly TimelineDiagnostic[]) => {
@@ -89,7 +93,9 @@ export function createPlanningDiagnosticsController(input: {
         button.setAttribute("aria-label", `${names[group]}: ${count}`);
       }
     },
+    suspend: lifecycle.suspend, resume: lifecycle.resume,
     destroy: () => {
+      lifecycle.destroy();
       close();
       controls.close.removeEventListener("click", close);
       document.removeEventListener("keydown", onKeyDown, true);

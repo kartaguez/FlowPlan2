@@ -483,6 +483,7 @@ describe("buildTimelineGeometry", () => {
     );
 
     assert.deepEqual(importPaths, [
+      "../../temporal/temporalGeometry.js",
       "../../../domain/index.js",
       "../timelineViewModel.js",
       "./timelineGeometry.js",

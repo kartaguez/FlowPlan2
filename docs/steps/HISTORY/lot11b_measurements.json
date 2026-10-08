@@ -1,0 +1,126 @@
+{
+  "initialSha": "7a3ea6bf1c6c97e248075a75bc718279158ad0f5",
+  "date": "2026-10-08",
+  "method": "Local Node 24 and installed Chromium headless; synthetic validated sparse captures; single local measurements, not hardware-independent gates.",
+  "small": {
+    "snapshots": 3,
+    "projects": 5,
+    "days": 30,
+    "positiveDays": 6,
+    "storedDailyRows": 90,
+    "logicalRows": 15,
+    "utf8Bytes": 22447,
+    "captureMs": 2.6913750000000007,
+    "encodeMs": 1.1494169999999997,
+    "decodeMs": 0.84375,
+    "vmMs": 0.812417,
+    "zoomCapMs": 0.034040999999998434,
+    "panCacheMs": {
+      "median": 0.0007910000000030948,
+      "p95": 0.0018750000000018474,
+      "max": 0.0050829999999990605
+    },
+    "windowedGeometryMs": {
+      "median": 0.005666999999998978,
+      "p95": 0.010749999999998039,
+      "max": 0.1198750000000004
+    },
+    "heapUsedMB": 5.8384552001953125,
+    "rssMB": 59.15625
+  },
+  "target": {
+    "snapshots": 24,
+    "projects": 100,
+    "days": 730,
+    "positiveDays": 146,
+    "storedDailyRows": 350400,
+    "logicalRows": 2400,
+    "utf8Bytes": 26631198,
+    "captureMs": 697.806709,
+    "encodeMs": 500.15158400000007,
+    "decodeMs": 470.5569169999999,
+    "vmMs": 432.28537499999993,
+    "zoomCapMs": 8.857167000000118,
+    "panCacheMs": {
+      "median": 0.0010000000002037268,
+      "p95": 0.0021660000002157176,
+      "max": 0.010874999999941792
+    },
+    "windowedGeometryMs": {
+      "median": 0.18391699999983757,
+      "p95": 0.31770800000003874,
+      "max": 0.5320000000001528
+    },
+    "heapUsedMB": 480.44189453125,
+    "rssMB": 665.796875
+  },
+  "stress": {
+    "snapshots": 50,
+    "projects": 200,
+    "days": 1095,
+    "positiveDays": 219,
+    "storedDailyRows": 2190000,
+    "logicalRows": 10000,
+    "utf8Bytes": 162683010,
+    "captureMs": 4244.297083,
+    "encodeMs": 3166.39375,
+    "decodeMs": 3160.642084,
+    "vmMs": 2780.5278339999986,
+    "zoomCapMs": 50.95058400000198,
+    "panCacheMs": {
+      "median": 0.0010000000002037268,
+      "p95": 0.004750000000058208,
+      "max": 0.02208299999983865
+    },
+    "windowedGeometryMs": {
+      "median": 0.5469169999996666,
+      "p95": 0.7441249999974389,
+      "max": 2.3895840000004682
+    },
+    "heapUsedMB": 2276.3707275390625,
+    "rssMB": 2534.484375
+  },
+  "targetComplex": {
+    "snapshots": 24,
+    "projects": 100,
+    "days": 730,
+    "complexSpikesAndLongFractions": true,
+    "positiveDays": 146,
+    "storedDailyRows": 350400,
+    "logicalRows": 2400,
+    "utf8Bytes": 27520798,
+    "captureMs": 833.047959,
+    "encodeMs": 558.9375419999999,
+    "decodeMs": 523.652208,
+    "vmMs": 474.52841699999976,
+    "zoomCapMs": 13.326375000000098,
+    "panCacheMs": {
+      "median": 0.0009580000000823929,
+      "p95": 0.0027079999999841675,
+      "max": 0.00741699999980483
+    },
+    "windowedGeometryMs": {
+      "median": 0.23479200000019773,
+      "p95": 0.3487920000002305,
+      "max": 0.5841250000003129
+    },
+    "heapUsedMB": 479.0755844116211,
+    "rssMB": 694.875
+  },
+  "browserTarget": {
+    "decodeMs": 460.10000002384186,
+    "mountMs": 480.6999999284744,
+    "zoomFrameMs": 36.300000071525574,
+    "panFramesMedian": 16.699999928474426,
+    "panFramesP95": 17.799999952316284,
+    "nodes": 7776,
+    "paths": 48,
+    "rows": 2400,
+    "documentWidth": 1440,
+    "innerWidth": 1440,
+    "axisWidth": 1214,
+    "plotWidth": 1214,
+    "cap": "2",
+    "viewportWidth": 1728
+  }
+}

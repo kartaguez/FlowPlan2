@@ -1,3 +1,5 @@
+import { createProjectHistoryCoordinator } from "../ui/history/createProjectHistoryCoordinator.js";
+import { createWorkspaceModeController } from "../ui/createWorkspaceModeController.js";
 import { buildReservationNavigationItems, type TimelineGeometryViewport } from "../adapters/index.js";
 import {
   buildProjectEditViewModel,
@@ -91,5 +93,12 @@ export function createPlanningDemoApplication(
       return buildReservationNavigationItems(state.portfolio, state.planning.workingPattern);
     },
   });
+  if (elements.modeControls) {
+    const history = createProjectHistoryCoordinator({ container: elements.modeControls.historySurface,
+      getSnapshots: projectionDispatcher.getPortfolioSnapshots });
+    const modes = createWorkspaceModeController({ controls: elements.modeControls, planning: coordinator, history });
+    const planning = coordinator;
+    return { ...planning, destroy: () => { modes.destroy(); planning.destroy(); } };
+  }
   return coordinator;
 }

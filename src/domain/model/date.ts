@@ -119,3 +119,8 @@ export function isoWeekday(date: CivilDate): 1 | 2 | 3 | 4 | 5 | 6 | 7 {
   const weekday = (((toEpochDay(date) + 2) % 7) + 7) % 7;
   return (weekday + 1) as 1 | 2 | 3 | 4 | 5 | 6 | 7;
 }
+
+/** Signed civil-day difference; independent of local clocks and DST. */
+export function civilDayDifference(next: CivilDate, previous: CivilDate): number {
+  return toEpochDay(next) - toEpochDay(previous);
+}

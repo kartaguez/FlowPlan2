@@ -1,5 +1,5 @@
+import type { TemporalGeometry } from "../../temporal/temporalGeometry.js";
 import type { CivilDate } from "../../../domain/index.js";
-import type { TimelineGeometry } from "./timelineGeometry.js";
 
 export interface TimelineCursorGeometry {
   readonly date: CivilDate;
@@ -9,7 +9,7 @@ export interface TimelineCursorGeometry {
 }
 
 export interface BuildTimelineCursorGeometryInput {
-  readonly geometry: TimelineGeometry;
+  readonly geometry: TemporalGeometry;
   readonly selectedDate: CivilDate;
 }
 
@@ -34,7 +34,7 @@ export function buildTimelineCursorGeometry(
 }
 
 export interface DateAtTimelineXInput {
-  readonly geometry: TimelineGeometry;
+  readonly geometry: TemporalGeometry;
   readonly x: number;
 }
 

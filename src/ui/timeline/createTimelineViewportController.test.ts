@@ -297,3 +297,33 @@ describe("createTimelineViewportController", () => {
     );
   });
 });
+
+it("suspends pan and zoom idempotently without resetting viewport or duplicating listeners", () => {
+  const app = fixture(); app.zoomIn.dispatch("click");
+  const before = app.controller.getState();
+  app.svg.dispatch("pointerdown", pointer(11, 500, true));
+  app.controller.suspend(); app.controller.suspend();
+  assert.equal(app.svg.capturedPointerIds.size, 0);
+  for (let n = 0; n < 8; n++) {
+    app.zoomIn.dispatch("click"); assert.strictEqual(app.controller.getState(), before);
+    app.controller.resume(); app.controller.resume();
+    assert.equal(app.zoomIn.listeners.get("click")!.size, 1);
+    app.controller.suspend();
+  }
+  app.controller.resume(); assert.strictEqual(app.controller.getState(), before);
+  app.controller.destroy(); app.controller.resume();
+  assert.equal(app.zoomIn.listeners.get("click")!.size, 0);
+});
+
+it("reports viewport causes and effective clamped widths without changing the legacy anchor", () => {
+  const app = fixture(); app.controller.destroy(); const changes: { cause: string; previous: { x: number; width: number }; next: { x: number; width: number } }[] = [];
+  const controller = createTimelineViewportController({ svg: app.svg as any, geometry: app.geometry,
+    getProjectionDate: app.getProjectionDate, controls: { zoomIn: app.zoomIn as any, zoomOut: app.zoomOut as any, reset: app.reset as any }, onViewportChange: (change) => changes.push(change) });
+  assert.equal(changes[0]!.cause, "initial");
+  app.zoomIn.dispatch("click"); assert.equal(changes[1]!.cause, "zoom-button");
+  assert.equal(changes[1]!.previous.width, 1000); assert.equal(changes[1]!.next.width, 800);
+  controller.setVisibleDateRange(app.dates[0]!, app.dates[0]!);
+  assert.equal(changes.at(-1)!.cause, "range-zoom"); assert.equal(changes.at(-1)!.next.width, 140);
+  app.zoomIn.dispatch("click"); assert.equal(changes.at(-1)!.previous.width, changes.at(-1)!.next.width);
+  app.reset.dispatch("click"); assert.equal(changes.at(-1)!.cause, "reset"); controller.destroy();
+});
