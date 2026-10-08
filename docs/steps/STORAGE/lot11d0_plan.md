@@ -1,17 +1,26 @@
 # Lot 11D.0 — Storage Architecture & Scalability
 
-**Statut : 11D.0 PLANNED — NOT STARTED.** Audit et plan uniquement, 2026-10-08.
-Les propositions ci-dessous attendent audit et autorisation explicite de mise
-en œuvre. Aucun code, test, dépendance, format de backup, moteur ou donnée
-persistée n'est modifié par cette livraison. Aucun benchmark ni migration
+**Statut du plan : 11D.0 READY FOR IMPLEMENTATION — pending explicit authorization and prerequisite gates.**
+Implémentation **NOT STARTED**. Audit et durcissement documentaire uniquement,
+2026-10-08. L’orientation générale a été validée par l’audit indépendant ; les
+cinq décisions demandées sont verrouillées ci-dessous. READY qualifie le plan,
+pas une autorisation de mise en œuvre ni la clôture des prérequis.
+Aucun code, test, dépendance, format de backup, moteur ou donnée persistée
+n’est modifié par cette livraison. Aucun benchmark ni migration
 n'a été exécuté pendant cette session. 11D.1, 11D.2 et 11D.3 ne commencent pas.
 
 ## 1. État initial vérifié et dépendances
 
 Repository `kartaguez/FlowPlan2`, branche `codex/lot11a-portfolio-snapshots`.
-Baseline effective de l'audit : **`944d79ef07f704c849d9669c70e3f70dc567165a`**.
+Baseline code de l’audit initial : **`944d79ef07f704c849d9669c70e3f70dc567165a`**.
+Baseline effective du présent durcissement :
+**`47a92b1a8ef2b7c091c5984eb2baad10409397c3`**, commit du plan initial,
+sans changement de code depuis la baseline d’audit. HEAD attendu et observé
+identiques. Les contrôles fetch/status/HEAD/divergence ont été refaits : fetch
+réussi, arbre propre, branche attendue, origin **0/0**. Les contrôles suivants
+décrivent la passe initiale et restent sa trace historique.
 Contrôles initiaux, dans l'ordre demandé : `git fetch origin` réussi ;
-`git status --short` vide ; `git rev-parse HEAD` donne ce SHA ;
+`git status --short` vide ; `git rev-parse HEAD` donnait le SHA initial `944d79e` ;
 `git rev-list --left-right --count origin/codex/lot11a-portfolio-snapshots...HEAD`
 donne **0/0**. Branche confirmée, aucune remise à zéro ni réécriture d'historique.
 Aucun AGENTS.md applicable trouvé dans le repository ou les répertoires parents.
@@ -33,7 +42,8 @@ Sources normatives : [canon durable](../../canon.md),
 Les références au code sont relatives à la racine du repository et correspondent
 à la baseline effective, sauf lorsqu'elles sont expressément désignées futures.
 
-**Gate proposé avant implémentation :** audit/validation explicite de 11C et
+**Gate préalable obligatoire avant implémentation transversale :**
+audit/validation explicite de 11C et
 fixation d'un nouveau SHA de référence. Une correction 11C peut changer la
 projection courante et l'engineVersion des nouvelles captures ; elle ne doit
 jamais entraîner une réécriture historique. 11D.0 peut être audité dès maintenant.
@@ -178,7 +188,9 @@ Ces faits constituent les contraintes de la cible, pas des détails à supprimer
 
 **Orientation acquise de la mission :** IndexedDB principal, localStorage legacy,
 chargement à la demande, mémoire maîtrisée, abstraction distante possible,
-export portable. **Les modalités suivantes sont des propositions à auditer.**
+export portable. **Les cinq décisions du durcissement sont les contrats de
+conception retenus pour l’implémentation future ; les paramètres et gates
+restants sont explicités au §11. Aucun code n’est autorisé par ce plan.**
 
 ```text
 UI : drafts / navigation / état pending / erreurs
@@ -197,13 +209,45 @@ aucun `IDBDatabase`, `Storage`, curseur IDB ou réponse HTTP. Adaptateur en
 les tests ; un futur distant pourra respecter cohérence/erreurs sans adopter
 les clés physiques IDB. Aucun serveur ni synchronisation distante ajoutés.
 
-Séparer l'état éditable courant de la collection Portfolio : `PlanningSession`
-reste responsable des transitions métier pures et du Portfolio courant avec
-Actuals owned. Une façade de session Application fournit les contraintes
-historiques d'identités depuis un index exact. La séparation exige une évolution
-explicite de l'API session aujourd'hui `{portfolio,planning,portfolioSnapshots}`,
-pas un tableau vide injecté pour contourner ses protections. Aucun changement
-Domain/moteur ni métrique : mêmes inputs appliqués, même résultat.
+**Invariant d’ownership cible après l’implémentation de l’architecture planifiée
+par 11D.0 : `PlanningSessionState` ne possède plus la collection complète des
+Portfolio Snapshots.** Sa session vivante conserve Planning courant, Portfolio
+courant, histoires Actuals owned dans ce Current, et uniquement les informations
+historiques minimales nécessaires aux invariants applicatifs (réservations
+d’identités exactes, contexte de révision). Elle ne retient aucun ensemble de
+payloads historiques pour satisfaire une ancienne API. Le repository historique
+est l’autorité des captures immuables ; seuls lecteurs et caches bornés
+peuvent retenir les captures nécessaires à une consultation en cours.
+
+`PlanningSession` reste responsable des transitions métier pures. Les contraintes
+historiques d’identité sont injectées depuis un index exact versionné, mis à
+jour après commit History sans recopier les captures ou reprojeter le moteur.
+Une commande prépare son candidat avec les contraintes correspondant au token
+de base ; CAS rejette toute base devenue obsolète. Retirer le champ de session
+exige des signatures explicites, jamais `portfolioSnapshots: []` pour contourner
+les anciennes protections. Mêmes inputs appliqués, même résultat Domain/moteur.
+
+### APIs actuelles dépendantes de la collection : remplacement prévu
+
+| API/fichier actuel | Frontière de remplacement, sans collection complète dans la session |
+| --- | --- |
+| `PlanningSessionState.portfolioSnapshots`, `createPlanningSession`, `freezeState` (`application/session/planningSession.ts`) | État Current uniquement ; type de dataset backup distinct pour Current + History. Plus de copie/freeze de collection dans la session ou les transitions courantes. |
+| `historicalIds`, `refreshCatalogIds`, générateurs Team/Project/Reservation et ensembles Program/Pas | Contraintes d’IDs de cinq kinds fournies par l’index d’intégrité ; lecture de l’index au startup, mises à jour ciblées après History commit. Aucun scan de payloads sur une édition. |
+| `PlanningSession.commitPortfolioSnapshots(expected, snapshots, beforeCommit)` | Supprimé au profit des services Application `createSnapshot`/`deleteSnapshot` du repository ; publier résultat History/index/token après commit, conserver Current et projection. |
+| Dispatcher `commitHistory`, `savePortfolioSnapshot`, `deletePortfolioSnapshot`, `getPortfolioSnapshots` (`main/planning/createPlanningProjectionDispatcher.ts`) | Save capture un seul artefact depuis Current/run publié ; repository vérifie unicité et révision ; Delete opère par ID ; getter global remplacé par liste metadata paginée/lectures ciblées. Plus de spread/filter de collection ni encodeur V7 pour ces mutations. |
+| Dispatcher `dispatch` et `backupStore.write(encodeFlowplanBackupV7(candidate))` | `writeCurrent` n’encode que le Current ; orchestration préparée puis commit avant publication, aucune lecture/écriture History. |
+| Composition `createPlanningDemoApplication`, callbacks Timeline et `createPortfolioSnapshotsController.getSnapshots` | Injection de services restreints : metadata/count/Save/Delete, résultat pending en phase async ; liste sans contenu. Aucun shim reconstruisant le getter de toutes les captures. |
+| `createProjectHistoryCoordinator.getSnapshots`, `createProjectHistoryCache.refresh(collection)`, `buildProjectHistoryViewModel(collection)` | Service History de lecture paginée, projections de lignes/union et profils demandés (§7.2) ; cache borné. Le VM global reste seulement oracle de tests sur petits jeux, pas adaptateur de production masquant un `getAll` de l’histoire. |
+| Readers/writers V6/V7, garde downgrade V1–V5 (`application/backup/`) | Type Application de dataset portable distinct de la session : Current + itérateur/batches de captures. Readers conservent leur contrat logique, orientent History vers staging/repository ; export assemble V7 complet depuis le dépôt, pas `session.getState()`. Le contrôle downgrade utilise count/manifeste History, jamais une fausse liste vide. |
+| `loadPlanningBackup`, `importPlanningBackup`, export de composition | Services d’ouverture/reprise/staging/export depuis le repository. Décodeur legacy intégral autorisé exceptionnellement pour migration/import, ses buffers libérés ; aucune réinjection des captures dans la session. |
+| `captureHistoricalInputs`, `capturePortfolioSnapshot`, `hydrateHistoricalInputs`, `validateHistoricalSnapshot` | Signatures restreintes au Current/resolveur des préfixes owned nécessaires : ces fonctions n’ont pas besoin des autres Portfolio captures. Validation exacte conservée, pas de dépendance à la collection session. |
+
+**Gate anti-lazy fictif :** instrumenter aussi composition, codecs, services,
+cache et UI ; aucune couche ne peut charger/retenir indirectement toute
+l’histoire derrière un adaptateur dit lazy. Une ouverture ordinaire, mutation
+Current ou liste metadata ne construit ni dataset backup complet ni VM global.
+Export/import et scans History globaux justifiés travaillent par batches bornés ;
+aucun tableau intégral de payloads n’est conservé en session ou cache de façade.
 
 Pour la première étape, conserver **les historiques Actuals owned complets dans
 le DTO courant** et toutes leurs protections. On évite de les déplacer en même
@@ -223,27 +267,34 @@ ce petit index, jamais scanner les payloads. Sa taille dépend des IDs uniques,
 ### 4.1 Contrat de repository envisagé (sémantique, pas code livré)
 
 Toutes les opérations sont attendues ; succès d'écriture seulement après commit.
-`Token = {generation, revision}` conceptuellement ; valeurs opaques au client.
+`Token = {generation, revision, currentRevision, historyRevision}` conceptuellement ;
+valeurs opaques au client. `revision` ordonne tous les commits métier du dépôt ;
+`currentRevision` identifie les inputs Current auxquels appartient le run ;
+`historyRevision` identifie le dataset History. Détails et scopes CAS au §5.2.
 
 | Opération du port | Contrat recommandé |
 | --- | --- |
 | `readCurrent()` | DTO courant + token + version de données + contraintes d'IDs ; aucune lecture de contenu Portfolio historique. |
-| `writeCurrent(candidate, expectedToken, operationId)` | Valider DTO courant ; compare-and-swap ; remplacer seulement courant, incrémenter revision. Aucun encodeur full backup, scan ou write des captures. |
+| `writeCurrent(candidate, expectedToken, operationId)` | Valider DTO courant ; compare-and-swap ; remplacer seulement courant, incrémenter revision/currentRevision et écrire receipt. Aucun encodeur full backup, scan ou write des captures. |
 | `listSnapshotMetadata(page, expectedGeneration)` | Page triée `(createdAt,snapshotId)`, count/révision collection, cursor opaque ; IDs, date, schémas, horizon, compteurs/tailles. Aucun inputs/days. |
 | `readSnapshot(id, generation)` | Une capture complète exacte avec validation et résolution des seules références Actuals nécessaires. NotFound/corruption explicites ; aucune projection courante modifiée. |
-| `createSnapshot(artifact, expectedToken, operationId)` | Artefact déjà capturé du run cohérent/clean ; validation complète ; add unique, métadonnées et réservations d'IDs atomiques. Aucun autre payload réécrit. |
-| `deleteSnapshot(id, expectedToken, operationId)` | Capture entière, ses index/partitions seulement, transaction unique ; aucun purge Actuals ni autre capture ; NotFound explicitement traité. |
+| `createSnapshot(artifact, capturedCurrentRevision, expectedToken, operationId)` | Artefact déjà capturé du run cohérent/clean ; validation complète ; CAS du token et de currentRevision du run ; add unique, métadonnées, réservations d’IDs, historyRevision et receipt atomiques. Current non réécrit, aucun autre snapshot chargé, aucun moteur. |
+| `deleteSnapshot(id, expectedToken, operationId)` | Capture entière, ses index/partitions seulement, transaction unique ; CAS, mise à jour réservations/historyRevision/receipt ; aucun write Current, purge Actuals ni autre capture ; NotFound explicitement traité. |
 | `openExportView()` / `readExportBatch(view)` / `closeExportView(view)` | Vue cohérente du courant et de toute l'histoire, assembleur portable au-dessus du port ; aucun détail IDB exposé. Token stable ou conflit explicite, ressources libérées. |
-| `stageImport(validatedDataset)` / `activateImport(stage, expectedToken)` | Dataset invisible jusqu'à validation complète + activation atomique. Remplacement confirmé, jamais merge implicite. |
+| `stageImport(validatedDataset)` / `activateImport(stage, expectedToken, operationId)` | Dataset invisible jusqu’à validation complète ; activation CAS de generation/control/revisions/receipt uniquement. Parsing, projection et dialogue hors transaction. Remplacement confirmé, jamais merge implicite. |
 | `readPersistenceInfo()` / reprise | Versions physiques/logiques séparées, état migration/import, capacités, erreur contextualisée ; pas de pseudo-backup IDB. |
 
-Read-only History reçoit un service de lecture restreint (metadata, summaries,
-profils), jamais l'ensemble du repository mutable. Erreurs typées : validation
+Read-only History reçoit un service de lecture restreint (metadata, projections
+de lecture et profils ; summaries persistées facultatives), jamais l’ensemble
+du repository mutable. Erreurs typées : validation
 avec chemin, conflict/stale, quota, unavailable, blocked-upgrade, corrupt,
 cancelled ; distinction succès/échec/pending dans UI. Les `operationId` et reçus
 permettent de résoudre un commit dont l'accusé est perdu sans doubler un Save.
 ID et createdAt capturés une seule fois au clic ; même timestamp/recul acceptés.
 Un retry n'invente pas une nouvelle capture.
+`capturedCurrentRevision` appartient au contexte Application du run publié,
+transmis séparément à createSnapshot ; ce n’est pas un champ ajouté à l’artefact
+historique ou au backup V7. Le token generation lie ce contexte au dépôt actif.
 
 ### 4.2 Publication asynchrone sans perte de drafts
 
@@ -274,19 +325,20 @@ forecastSchemaVersion et engineVersion sont distinctes. Aucun bump backup dans
 
 | Store proposé | Clé/index et contenu |
 | --- | --- |
-| `control` | Singleton : activeGeneration, revision monotone, historyRevision, storageDataVersion, manifest validation et statut reprise. Point de publication unique. |
+| `control` | Singleton : activeGeneration, revision monotone, currentRevision, historyRevision, storageDataVersion, manifest validation, legacySourceFingerprintAtMigration et statut reprise. Point de publication unique. |
 | `current` | generation → DTO inputs V5 complet (histoires Actuals owned comprises), digest/version. Une édition ne touche que cette ligne et control/reçu. |
 | `snapshotMetadata` | `[generation,snapshotId]`; index `[generation,createdAt,snapshotId]`. Identité, schémas, horizon, taille, digest/manifeste et statut validé ; pas de jours. |
 | `snapshotContent` | `[generation,snapshotId]` → artefact exact existant schema 1/2, document JSON DTO initialement. Add seulement, jamais update d'une capture existante. |
 | `snapshotIdentityRefs` | `[generation,snapshotId,kind,id]`; index par snapshot. Références des inputs pour suppression ciblée. |
 | `identityReservations` | `[generation,kind,id]` → nombre de captures référençant l'ID ; index d'intégrité chargé sans profiles. |
-| `historySummaries` | `[generation,snapshotId,projectId]`; projection dérivée versionnée des labels/association/activation/priorité/métriques/ranges/statut et prédécesseurs lisibles, sans jours. Reconstructible depuis contenu validé, jamais nouvelle vérité métier. |
-| `jobs` / `receipts` | Migration/import : empreinte source, version, génération staging, checkpoints/validation, reçu operationId et commitToken. Retention bornée des reçus à définir sans casser retries. |
+| `historySummaries` (facultatif, après preuve de besoin) | `[generation,snapshotId,projectId]` + projectionVersion explicite et sourceDigest. Cache dérivé supprimable/reconstructible (§5.3), jamais autorité ni condition de validité d’un snapshot. Pas de store obligatoire dans le premier adaptateur. |
+| `jobs` / `receipts` | Migration/import : source legacy brute archivée et fingerprint, version, génération staging, checkpoints/validation, reçu operationId et commitToken. Le suivi source est durable, distinct des reçus opérationnels à retention bornée. |
 | `snapshotParts` (option ultérieure) | `[generation,snapshotId,dataset,partition]`, manifest count/digests ; préparation 11D.2, pas requis pour le premier adaptateur. |
 
 Métadonnées minimales O(S), summaries O(S×P) et IDs O(identités) distingués :
 ne pas appeler « légère » une liste contenant toutes les lignes/jours. Le service
-History peut lire des summaries paginées pour préserver l'union complète.
+History lit des projections paginées dérivées à la demande ; un cache
+persisté de summaries n’est ajouté qu’après preuve de besoin (§5.3).
 Caches reconstructibles supprimables seulement sans supprimer l'artefact.
 Défaillance d'un index d'intégrité : bloquer les mutations, reconstruire en
 maintenance depuis captures validées ; pas d'IDs libérés par défaut.
@@ -308,7 +360,77 @@ au crash disque. Fermer les connexions sur `versionchange`, afficher `blocked`
 pour upgrade empêché par un autre onglet ; aucune suppression automatique de DB.
 Source vérifiée le 2026-10-08 : [Indexed Database API 3.0](https://www.w3.org/TR/IndexedDB/).
 
-### 5.1 Document unique ou datasets multiples pour 11D.2
+### 5.1 Noyau initial et périmètre des transactions
+
+Le premier adaptateur privilégie `snapshotMetadata`, `snapshotContent` et index
+d’identités/intégrité, avec Current/control/jobs/receipts pour la cohérence.
+`historySummaries` n’est pas une dépendance du modèle initial ni une obligation
+de migration/import. Il n’est ajouté qu’au gate E si 11B ou les benchmarks
+démontrent qu’une projection persistée est nécessaire.
+
+### 5.2 Frontières transactionnelles opération par opération
+
+Les validations métier, capture, projection Current, hashes externes et dialogues
+sont **hors transaction**. Dans celle-ci, seules lectures CAS/control/reçus et
+écritures/contrôles d’intégrité ciblés sont autorisés. Attendre complete avant
+publication RAM. `operationId` est lié au type d’opération et à son digest :
+un reçu déjà committé du même appel retourne son résultat sans mutation ni
+incrément ; un ID réutilisé pour un autre appel est une erreur. Vérifier ce reçu
+avant le CAS d’un retry dont la réponse initiale a été perdue.
+
+| Opération | Contenu atomique / stores concernés | Lectures et écritures interdites |
+| --- | --- | --- |
+| `writeCurrent` | CAS expectedToken/generation dans control ; écrire Current candidat ; incrémenter revision et currentRevision ; receipt avec token résultant. Stores : control/current/receipts. | Aucun payload, metadata, part ou summary historique lu/encodé/écrit ; historyRevision inchangée. Les contraintes d’identité de base viennent de l’index déjà chargé et le CAS protège leur fraîcheur. |
+| `createSnapshot` | CAS expectedToken et currentRevision du run capturé, lié à generation ; add unique du snapshot immutable et metadata ; add références d’IDs et ajuster compteurs ; incrémenter revision/historyRevision ; receipt. Stores : control/snapshotContent/snapshotMetadata/snapshotIdentityRefs/identityReservations/receipts, parts ciblées si activées ultérieurement. | Aucun write Current ; aucune lecture d’autres snapshots ; aucune relance moteur. Un run dont Current est stale fait échouer Save explicitement, aucun artefact publié. |
+| `deleteSnapshot` | CAS expectedToken ; vérifier cible par clé ; retirer son content/metadata/parts/projections dérivées seulement ; décrémenter compteurs d’IDs depuis ses références ciblées ; incrémenter revision/historyRevision ; receipt. | Aucun write Current ni autre snapshot ; aucune purge Actuals owned. Invalider les caches de comparaisons, ne pas réécrire d’autres artefacts pour maintenir un prédécesseur dérivé. |
+| `activateImport` (et activation migration initiale) | CAS token/base attendu ; vérifier manifest/job scellé complet et validé de staging ; basculer activeGeneration ; mettre à jour revisions/control et receipt. Stores : control/jobs/receipts ; contenu staging déjà validé. | Aucun parsing, validation complète, moteur, hash externe ou dialogue dans transaction ; aucun recopiage global au moment de la bascule. Stage partiel/invalide : activation refusée. |
+
+| Opération réussie | revision (ordre global) | currentRevision (inputs du run) | historyRevision (dataset historique) | generation |
+| --- | --- | --- | --- | --- |
+| `writeCurrent` | +1 | +1 | inchangée | inchangée |
+| `createSnapshot` / `deleteSnapshot` | +1 | inchangée | +1 | inchangée |
+| `activateImport` / activation migration | +1 | +1 | +1, même si collection vide | nouvelle generation staging activée |
+| Lire / staging invisible / cache summary refresh / rejet / no-op / retry reçu | inchangée | inchangée | inchangée | aucune bascule active |
+
+Les compteurs sont monotones au dépôt, indépendants des clocks, jamais remis à
+zéro à l’import ; generation change empêche toute confusion d’identité. Le
+premier dépôt initialise control avec une base définie, puis applique les mêmes
+règles. Toutes mutations comparent le token complet : une modification History
+concurrente peut donc provoquer conflict même si Current n’a pas changé, ce
+choix conservateur protège les contraintes d’IDs et la cohérence du dataset.
+Un Save/Delete local réussi actualise le token et les contraintes de session
+sans modifier les inputs ; le run conserve currentRevision et est réutilisé
+sans recalcul. Un Save exige à la fois ce lien run/Current et le CAS du dépôt.
+
+Un cache dérivé éventuellement présent est invalidé/retiré pour la cible sans
+faire dépendre validité ou succès métier de sa reconstruction. Sa reconstruction
+se fait hors transaction critique, par CAS de generation/sourceDigest/version
+dérivée ; elle ne change aucune révision métier. Le manifest métier de staging
+ne contient aucune obligation de summary à jour.
+
+### 5.3 Summaries facultatives : autorité historique unique
+
+Un summary éventuel est une **projection strictement dérivée** du snapshot
+immutable validé, avec `projectionVersion` explicite et `sourceDigest`. Il peut
+être supprimé puis entièrement reconstruit depuis le repository. Absence,
+version périmée ou digest non correspondant → cache miss/reconstruction ou
+lazy refresh, jamais perte du snapshot ni rejet métier de ce dernier.
+
+Il ne participe jamais à la validité métier d’un snapshot, aux preuves de
+migration/import ou à l’export portable. Il ne constitue jamais une autorité
+pour les métriques historiques : seul `snapshotContent` et ses parts immuables
+le sont. Les valeurs affichées sont des projections de cette autorité, avec
+lien source/version vérifié ; une divergence détectée invalide le summary et
+reconstruit depuis le contenu, sans modifier, réparer ou recalculer le snapshot.
+Tester explicitement summary altéré, absent et périmé. Une erreur de cache
+reste une erreur de projection/récupération, pas une corruption du snapshot.
+
+Éviter de persister les prédécesseurs comme données par capture : ils changent
+sur Delete et se dérivent des présences retenues à historyRevision donnée. Un
+cache de comparaison peut être invalidé avec cette révision ; son existence
+reste facultative. Les pages metadata restent sans métriques/jours (§7.2).
+
+### 5.4 Document unique ou datasets multiples pour 11D.2
 
 Recommandation initiale : un document **par capture**, déjà suffisant pour ne
 plus réécrire les autres captures. Facile à valider/exporter, peu de requêtes,
@@ -360,20 +482,26 @@ par cellule/jour par défaut : cardinalité, index et coût transactionnel élev
    Ne pas présenter une réparation autorisée par un ancien reader comme une
    préservation byte-à-byte. Toute perte non prévue → erreur bloquante.
 4. Créer une génération staging et un job identifié par empreinte de source +
-   version de migrateur. Écrire courant, captures, métadonnées, summaries et
-   index par batches atomiques bornés. `add`/digest empêche un retry de doubler
+   version de migrateur. Écrire courant, captures, métadonnées et index
+   d’intégrité par batches atomiques bornés ; summaries exclues des prérequis
+   métier de staging. Un cache dérivé pourra être reconstruit après activation.
+   `add`/digest empêche un retry de doubler
    une capture ou un compteur. Aucun changement activeGeneration à ce stade.
 5. Relire **toutes** les données staging et les valider complètement : counts,
    IDs, références, préfixes V5, schémas, rationnels, conservation, manifeste et
    index. Comparer le DTO métier complet à la source décodée et chaque capture
    profondément, sans se contenter d'un hash ou d'une égalité des seuls totaux.
    Les empreintes détectent altérations, ne remplacent pas les validateurs.
+   Sceller la génération/job validé : aucun batch ne peut ensuite modifier son
+   contenu métier ; activation vérifie ce sceau. Une modification de staging
+   exige une nouvelle validation complète avant un nouveau sceau.
    Libérer les batches au fur et à mesure ; l'ancien decoder complet reste
    coûteux pour la première migration, ce coût exceptionnel doit être mesuré.
 6. Relire la source legacy avant activation. Si texte/empreinte a changé :
    arrêter, nouvelle source à auditer ; ne pas publier l'ancien staging.
    Dans une transaction IDB unique, vérifier token attendu/job validé/digests,
-   publier activeGeneration + revision + reçu de migration. Après complete,
+   publier activeGeneration, les révisions du §5.2,
+   legacySourceFingerprintAtMigration et reçu de migration. Après complete,
    le startup peut charger courant/index seulement. Conserver le texte legacy
    **sans modification ni suppression**. Ne pas installer de dual-write.
 7. Relire le manifeste actif et le reçu au redémarrage. Aucun succès annoncé
@@ -387,7 +515,7 @@ la nouvelle génération complète fait autorité. Une erreur quota/write/valida
 n'active rien. Reprise proposée : retry après libération volontaire d'espace,
 export du legacy/actif, ou abandon du staging seulement. Aucun nettoyage des
 captures actives/legacy pour faire rentrer la migration. Le coût temporaire
-ancien store + staging + ancien actif peut dépasser le quota : échec visible
+ancien store + staging + copie brute source + ancien actif peut dépasser le quota : échec visible
 et récupérable, pas promesse de migration sans espace supplémentaire.
 
 Le manifeste atteste une validation complète **à l'entrée**. Startup IDB valide
@@ -399,16 +527,48 @@ amputation de l'histoire ni fallback écrit. Ce déplacement de la validation
 historique du startup vers entrée + lecture doit être audité explicitement ;
 il ne diminue jamais la validation d'un import ou de la migration.
 
-### 6.2 Matrice de coexistence
+### 6.2 Source legacy, empreinte figée et coexistence
+
+Distinguer durablement trois objets : **document legacy source** (texte brut
+archivé sans altération dans le job de migration avant activation, en plus
+de conserver la clé localStorage), **`legacySourceFingerprintAtMigration`**
+(empreinte exacte de ce texte, figée avec le reçu/job lors de l’activation), et
+**Current IDB actif** (évolue à chaque édition normale). L’empreinte porte sur
+le texte exact, avant parse/normalisation/exportedAt généré ; algorithme et
+encodage déterministes versionnés, absence de clé distincte d’un texte vide.
+Sa vérification ne peut pas se baser sur le hash du DTO Current normalisé.
+Une édition IDB ou un import ultérieur ne rafraîchit pas cette empreinte pour
+masquer une écriture legacy ; garder le document source et son suivi dans les
+informations durables du dépôt/job, indépendamment du remplacement de generation
+importée et du nettoyage des reçus opérationnels. La source archivée permet de
+conserver la branche migrée même si un ancien client écrase la clé legacy.
+
+**Cas normal :** legacy identique à sa source migrée / empreinte figée, mais
+Current IDB différent du legacy après édition : **aucun conflit**. Interdiction
+de comparer naïvement `Current IDB == localStorage` au startup, focus ou avant
+write. Le test de suspicion compare uniquement le texte legacy relu à
+`legacySourceFingerprintAtMigration`.
+
+**Cas suspect :** contenu de la clé changé ou supprimé par rapport à cette
+empreinte après activation : possible écriture d’un ancien client. Préserver
+IDB et le legacy nouvellement observé (export brut/copie de récupération si
+écriture possible), signaler et suspendre les écritures automatiques jusqu’à
+qualification/résolution. Aucun merge ni import automatique. Un changement
+seulement de whitespace/enveloppe reste détecté, puis peut être qualifié sans
+conflit métier après validation explicite. Le suivi/accusé de résolution ne
+réécrit pas l’empreinte de migration originale ; consigner séparément le choix
+et l’empreinte reconnue pour ne pas réouvrir sans fin un événement déjà résolu.
+
+### Matrice de coexistence
 
 | Situation observée à l'ouverture | Comportement recommandé |
 | --- | --- |
 | IDB absent, legacy absent | Démo en mémoire ; première création de dépôt explicite par workflow normal, pas faux historique. |
 | IDB absent/incomplet, legacy valide | Migration proposée ; staging ne fait pas autorité. Legacy accessible pour export/retry. |
 | Legacy invalide ou version inconnue | Préserver brut et signaler ; pas de migration partielle ni overwrite par démo. Mode démo éventuel explicitement non durable tant que récupération non décidée. |
-| IDB valide, legacy empreinte identique à source migrée | IDB fait autorité, même si son courant a évolué depuis. Legacy est une copie de récupération ancienne, pas un second master. |
-| IDB valide, legacy brut différent mais dataset sémantiquement égal à la source archivée | Vérification explicite peut classer la différence d'enveloppe/whitespace ; ne pas comparer createdAt/exportedAt comme une révision. |
-| IDB valide, legacy métier divergent / non relié au reçu | **Conflit bloquant pour les écritures automatiques** ; exports distincts des deux sources, choix explicite conserver IDB ou importer/remplacer après validation. Aucun merge, priorité au timestamp ou « dernier lu gagne ». |
+| IDB valide, legacy == source migrée (empreinte figée), Current IDB != legacy | Cas normal sans conflit : IDB fait autorité ; aucune comparaison métier entre Current évolué et copie legacy ancienne. |
+| IDB valide, empreinte legacy différente, dataset sémantiquement égal à la source archivée | Cas suspect détecté ; qualification explicite d’une différence enveloppe/whitespace ; aucune réécriture automatique de l’empreinte originale ni comparaison avec le Current évolué. |
+| IDB valide, empreinte legacy changée et métier divergent de la source migrée, ou source sans reçu reconnu | **Conflit bloquant pour les écritures automatiques** ; exports distincts des deux sources, choix explicite conserver IDB ou importer/remplacer après validation. Aucun merge, priorité au timestamp ou « dernier lu gagne ». |
 | IDB corrompu/non supporté, legacy disponible | Préserver IDB, proposer récupération legacy confirmée dans nouvelle génération ; ne pas restaurer automatiquement une copie ancienne. |
 | Job validé mais activation/accusé incertain | Lire reçu/control ; actif → terminé, inactif → reprendre/activer avec CAS. |
 
@@ -418,7 +578,8 @@ ignore nos locks et ne peut pas être rendu coopératif par le nouveau code.
 Le plan ne promet donc pas une exclusivité parfaite face à cet onglet.
 Prévoir fermeture/rechargement de tous les anciens onglets avant bascule,
 message de transition et détection `storage` + relecture au focus/startup/avant
-mutations. Une divergence découverte gèle les écritures du nouveau client,
+mutations. Un changement legacy par rapport à l’empreinte migrée, et non une édition
+normale Current IDB, gèle les écritures automatiques du nouveau client,
 préserve les deux branches de données et demande résolution explicite. Le
 legacy n'est jamais réécrit par le nouveau client ; l'état IDB antérieur est
 conservé. Garantir capture de **chaque état intermédiaire** écrasé par plusieurs
@@ -428,9 +589,10 @@ de déploiement nécessaire (§11), pas une garantie fictive du repository.
 ### 6.3 Nouveaux onglets et écritures concurrentes
 
 Chaque lecture retourne un token ; toute écriture, création/suppression/import
-compare ce token dans la même transaction que sa mutation. Révision monotone
-au dépôt, indépendante de l'horloge et de snapshotId. Deux onglets sur R : un
-seul commit R+1 ; l'autre obtient conflict, garde sa session/drafts et ne publie
+compare ce token dans la même transaction que sa mutation. Révisions monotones
+au dépôt selon §5.2, indépendantes de l’horloge et de snapshotId. Deux onglets
+sur le même token R : un seul commit R+1 ; l’autre obtient conflict, garde sa
+session/drafts et ne publie
 aucun succès. Pas d'écrasement silencieux, ni retry automatique d'une commande
 sur une nouvelle base pouvant changer son sens métier.
 
@@ -467,11 +629,27 @@ Ne pas revalider tous les autres snapshots lors de cette ouverture.
 
 Le code nomme la vue **History**, correspondant ici à la consultation Evolution.
 Le VM global 11B n'est pas un lecteur lazy ; modifier uniquement le store ne
-suffit pas. Proposer un service Application de History paginée : summaries
-historiques pour union/ordre/prédécesseurs/labels/métriques, profils quotidiens
-pour groupes consultés, overscan borné. Les summaries viennent des captures
-validées, jamais des labels ou du moteur courant. Une ligne en cours de lecture
-est `loading`, jamais `absent`, `no-activity` ou `unavailable-legacy` par défaut.
+suffit pas. Service Application de History paginée : projections de lecture
+pour union/ordre/prédécesseurs/labels/métriques, profils quotidiens pour groupes
+consultés, overscan borné. **Sans historySummaries persisté**, parcourir les
+contenus validés un par un/par batches bornés, extraire les champs nécessaires
+et libérer immédiatement inputs/jours de chaque capture. Ne pas retenir une
+référence au DTO complet derrière une ligne légère. Une première ouverture peut
+ainsi parcourir toute l’histoire en stockage, mais ne charge jamais toutes les
+captures complètes simultanément.
+
+L’union/ordre/prédécesseurs exacts requièrent des informations globales de
+présence/priorité, absentes de la seule liste metadata ; conserver un index de
+lecture compact borné/paginé (temporaire avec stockage de travail si nécessaire),
+et générer les lignes/absences à la demande, sans VM Projects × captures complet
+décodant tous les jours. Mesurer séparément ce coût global des lectures de
+profils visibles. Si scans/relectures deviennent trop chers pour 11B, le gate E
+peut justifier un cache persisté historySummaries sous §5.3, projectionVersion
+et sourceDigest obligatoires. Son absence/péremption déclenche reconstruction,
+jamais perte de capture ou valeurs métier de secours. Aucun label ni métrique
+n’est complété depuis le Portfolio ou moteur courant. Une ligne en cours de
+lecture est `loading`, jamais `absent`, `no-activity` ou `unavailable-legacy`
+par défaut.
 Focus clavier charge la ligne ciblée, y compris non dessinée ; garde l'accès
 séquentiel complet et les états explicites schema 1/schema 2.
 
@@ -495,7 +673,8 @@ Ne pas annoncer un History fully lazy et instantané sur la seule base du LRU.
 
 ### 7.3 Politique de cache proposée
 
-- Distinguer metadata (faible), summaries paginées, DTO de captures, rationnels
+- Distinguer metadata (faible), projections de lecture paginées (summaries
+  persistées seulement si justifiées), DTO de captures, rationnels
   décodés, géométrie et buffers worker. Une copie immutable possédée par entrée,
   pas `immutableCopy` de la collection à chaque Save/Delete ni parse au pan.
 - Cache contenu/profils LRU borné **en octets estimés et nombre d'entrées**,
@@ -695,6 +874,17 @@ multidraft et lifecycle. Leur existence n'est pas une exécution nouvelle.
 | 11. Backup indépendant | Même export portable depuis mémoire/IDB, restore dépôt vierge sans DB source ; mixed schema/unknown engine, refs exactes, import invalide milieu/fin sans publication ; token export stable ou rejet complet. |
 | 12. Perf/mémoire reproductibles | Trois jeux §9 et variations denses/fractions, logs bytes/requests/copies/heap/long tasks, cold/warm, cache hits/evictions, absence fuite après cycles. |
 
+Gates supplémentaires du durcissement, d’abord sur repository mémoire puis
+IDB : session sans champ collection et interdiction de getters globaux en
+production ; spy de lecture/encodage de payloads historique sur writeCurrent ;
+spy de write Current et de moteur sur Save/Delete ; run currentRevision stale
+rejeté avant add ; matrice revision/currentRevision/historyRevision/generation
+exacte pour chaque succès/rejet/no-op/retry. Deux éditions IDB normales avec
+legacy inchangé produisent **zéro conflit** ; modifier legacy après activation
+produit suspicion même si Current IDB a depuis beaucoup évolué. Summary absent,
+périmé, altéré ou supprimé : reconstruction depuis capture, export et validité
+snapshot inchangés, aucune écriture de réparation dans snapshotContent.
+
 Unitaire : services préparation/commit/publication avec faux repository async,
 réponses retardées, rejection, stale, idempotence, pagination/ordre, index,
 cache budget et cancellation. Integration : **vrai IndexedDB navigateur**, pas
@@ -716,27 +906,37 @@ automatique. Cette livraison documentaire vérifie uniquement liens, portée,
 
 ### Étapes proposées après audit et autorisation
 
-1. **Fixer la baseline et décisions** : clôture explicite 11C, contrat 11B
-   stabilisé, stratégie legacy/async/cache/cap/export choisie. Caractériser
-   pipeline et fixtures sans changer résultats/backup. Relever baseline perf.
-2. **Extraire le port et orchestration async** derrière adaptateur de test et
-   façade legacy conservée ; préparer/committer/publier explicitement, protections
-   drafts/révisions. Gate parité et échecs, sans migration utilisateur.
-3. **Séparer session/histoire et index d'intégrité**, codec portable toujours
-   même contrat. Gate réservation cinq kinds et préfixes Actuals exacts ; ne
-   pas passer une history vide artificielle aux anciennes protections.
-4. **Adaptateur IDB isolé** : stores/control, CAS, receipts, metadata et contenu
-   par capture ; vrais tests navigateur. Gate atomicité, taille/reads/writes.
-5. **Migration/reprise staging + imports/exports portables** : fixtures/profils
-   isolés, validation et conflits, puis bascule seulement sous autorisation de
-   déploiement. Gate brut legacy conservé et aucune perte métier.
-6. **Lectures lazy/UI/History/RAM** : liste metadata, détail ponctuel, summaries
-   et profils paginés, cap exact batch, LRU/éviction, workers selon mesures.
-   Gate comportement 11B/drafts identique et mémoire maîtrisée.
-7. **Dimensionnement/robustesse/review** : trois jeux, quota réel, compatibilité
-   navigateurs/portable, docs résultats IN REVIEW puis audit humain séparé.
-   Préparer seulement les seams 11D.2 ; contributions quotidiennes complètes
-   attendent leur lot explicitement autorisé.
+Pré-gate : clôture explicite 11C/baseline moteur fixée, contrat 11B stabilisé
+ou changements autorisés explicitement, autorisation de code séparée.
+Caractériser le comportement et relever baseline perf sur jeux isolés.
+
+**Ordre verrouillé : ownership → async/CAS → IndexedDB → migration → lazy History.**
+Aucune déviation motivée par le code actuel n’a été identifiée. Une dépendance
+réelle découverte impose justification documentée et revue de séquence avant
+changement ; ne pas combiner implicitement les quatre ruptures architecturales.
+
+| Étape | Travail futur et backend | Gate avant l’étape suivante |
+| --- | --- | --- |
+| **A — Séparer Current et History** | Repository mémoire/test d’abord ; session sans portfolioSnapshots, services History dédiés, contraintes d’IDs exactes. Remplacer les APIs du §4, adapter le type dataset backup distinct, sans introduire async, IDB ou nouvelle stratégie transactionnelle. La persistance legacy éventuelle est isolée dans l’adaptateur transitoire : pas de collection réinjectée en session. | Même comportement, moteur et backup portable ; identité cinq kinds, Save/Delete et History indépendants de la collection session. Dépôt mémoire seul propriétaire de ses fixtures History. |
+| **B — Orchestration async/CAS** | Toujours repository mémoire/test. Tokens, CAS, operationId, receipts, file de mutations, préparation/commit/publication RAM, stale/conflict, drafts retenus ; faire varier délais/échecs sans IDB. | Vérifier matrice §5.2, Save du run exact, no-op/retry, guards dirty et conservation drafts ; aucune nouvelle dépendance backend. |
+| **C — Adaptateur IndexedDB** | Stores/control/current/metadata/content/index d’identités/revisions/receipts, transactions multi-store et tests navigateur réels ; uniquement datasets/profils isolés. A+B définissent déjà le comportement métier. | Parité adaptateur mémoire/IDB, CAS entre connexions, atomicité/complete, blocked/versionchange, quota et reads/writes ciblés ; summaries persistées non requises. |
+| **D — Migration / reprise / import-export** | localStorage source/fingerprint figé, staging scellé, activation, coexistence, reprise et backup portable complet depuis repository ; aucun dual-write. Déploiement utilisateur après gates seulement. | Validation intégrale/source intacte, cas normal Current évolué sans conflit, ancien client détecté, interruption/partial import sans publication, export autonome. |
+| **E — Lazy History / mémoire** | Metadata paging, détails ciblés, service Evolution/11B paginé, caches bornés, cap global exact par batches, éventuels summaries versionnés **si justifiés**, workers seulement après mesure. | Aucun chargement global implicite dans une couche ; même contrat History/drafts, accès clavier, cap pan/zoom et profil schema 1/2 ; benchmarks §9 et mémoire mesurée. |
+
+Dès A, les APIs History changent de frontière ; un lecteur transitoire en mémoire
+peut utiliser les fixtures déjà possédées par ce repository pour prouver la
+parité 11B sans prétendre avoir livré le lazy History de E. Aucun pont `getAll`
+vers une session ou cache global ne demeure dans la cible de production.
+Au gate C, startup Current, writeCurrent et liste metadata sont déjà sans lecture
+de contents ; les optimisations globales de consultation History restent isolées
+en E. Les étapes n’imposent pas une bascule utilisateur prématurée : C teste
+IDB isolé, D valide migration/export avant activation utilisateur ; E n’annonce
+la scalabilité History qu’après ses mesures.
+
+Après E : dimensionnement/robustesse/review sur les trois jeux, quota réel,
+compatibilité navigateurs/portable et résultats IN REVIEW ; clôture humaine
+séparée. Préparer seulement les frontières extensibles 11D.2 ; contributions
+quotidiennes complètes attendent leur contrat et autorisation propres.
 
 Ces étapes ne définissent pas implicitement les scopes numérotés 11D.1/2/3 :
 leur découpage final devra être approuvé ; aucune étape n'est lancée ici.
@@ -758,20 +958,34 @@ sans supprimer de captures actives non ciblées.
 | Baseline de lancement | Clôturer 11C explicitement et confirmer contrat 11B avant mutations transversales ; audit 11D.0 possible sans cette clôture. Nouvelle autorisation de code obligatoire. |
 | Transition vieux onglets | Exiger fermeture/reload des anciennes versions avant bascule ; détection/quarantaine des divergences. Impossibilité de verrouiller atomiquement les anciens clients à accepter explicitement. |
 | Legacy réparé | Rapport + accord si réparation retire/modifie une valeur source ; préserver brut. Arbitrer UX de résolution, jamais silently normalize un format historique. |
+| Summaries | Absents du noyau initial ; preuve 11B/benchmarks avant ajout en E, projectionVersion/sourceDigest, suppression/reconstruction, snapshot seul autoritaire. |
 | Granularité physique | Document par capture pour premier adaptateur, seams parts ; choisir parts 11D.2 après benchmarks, sans inventer son modèle/version de backup. |
-| Validation lazy | Validation intégrale à entrée, certificat manifest et validation à lecture ; startup sans scan global. Valider explicitement évolution du chemin startup historique. |
+| Validation lazy (gate D/E) | Validation intégrale à entrée, certificat manifest et validation à lecture ; startup sans scan global. Valider explicitement évolution du chemin startup historique. |
 | Async/drafts | File unique, actions conflictuelles bloquées, édition temporairement désactivée pendant commit ; préciser fermeture/navigation et messages sans Cancel implicite. |
-| History cap global | Exact scan batch/worker et éventuel tri externe, comportement pan/zoom 11B conservé. Prototype mesuré bloquant avant annonce de scalabilité History. |
-| Export cohérent | Token final avec rejet/retry pour première version ; lease/version retention seulement si contention le justifie. Fixer budget fichiers/buffers/fallback Blob. |
+| History cap global (gate E) | Exact scan batch/worker et éventuel tri externe, comportement pan/zoom 11B conservé. Prototype mesuré bloquant avant annonce de scalabilité History. |
+| Export cohérent (gate D) | Token final avec rejet/retry pour première version ; lease/version retention seulement si contention le justifie. Fixer budget fichiers/buffers/fallback Blob. |
 | Budget RAM / latences | Choisir matériels/navigateurs supportés, budgets LRU/octets/in-flight et seuils P95 à partir des trois benchmarks, sans limite métier silencieuse. |
 | Durabilité / Storage API | strict si supporté, persist opt-in et état refus visible ; politique de récupération et origins portable testées. Aucune capacité illimitée. |
 | Retention staging/reçus/generations | Durée/budget et processus abandon/récupération explicites ; préserver idempotence et exports en cours, aucune GC Actuals induite. |
 | Tests navigateur | Choisir harness vrai IDB compatible stack actuelle avant éventuelle dépendance ; mocks seuls insuffisants pour ACID/restart/quota. |
 
-Aucun blocage Git à la rédaction du plan n'a été observé. Les gates ci-dessus
-bloquent les décisions/implémentations futures concernées ; elles ne sont pas
+Aucune incompatibilité avec les contrats réels ni nouveau blocage de conception
+n’a été découvert pendant ce durcissement. Les cinq demandes de l’audit sont
+intégrées ; les paramètres de dimensionnement/prototypes sont des gates de
+validation des étapes concernées, pas des décisions d’ownership ou de
+transaction encore ambiguës. Aucun blocage Git à la rédaction du plan observé.
+Les gates ci-dessus bloquent les décisions/implémentations futures concernées ;
+elles ne sont pas
 résolues implicitement par ce commit documentaire. Le stockage distant, moteur
 historique, restauration de capture, fusion 11A.1, archive/purge Actuals,
 compression et changement de règles métier restent hors périmètre.
 
-**Statut final : 11D.0 PLANNED — NOT STARTED.**
+Revue de cohérence documentaire : plan intégral relu, APIs actuelles distinguées
+des remplacements futurs, aucune history vide de contournement ni cache global
+de payloads dans la cible, aucune comparaison Current/legacy, summary facultatif
+sans autorité, transactions ciblées, staging complet avant activation, calculs
+hors transaction et export V7 autonome. Aucun test, benchmark ou migration
+n’a été exécuté dans cette passe ; code, backup et moteur inchangés.
+11B et 11C restent **IN REVIEW**. L’implémentation reste **NOT STARTED**.
+
+**11D.0 READY FOR IMPLEMENTATION — pending explicit authorization and prerequisite gates**

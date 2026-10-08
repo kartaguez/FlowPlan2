@@ -74,40 +74,58 @@ is now IN REVIEW; no human DONE validation is claimed.
 
 ## 11D.0 — Storage Architecture & Scalability
 
-**Status: 11D.0 PLANNED — NOT STARTED.** Documentation-only audit and
-implementation plan: [detailed plan](./steps/STORAGE/lot11d0_plan.md).
-Effective inspected baseline: `944d79ef07f704c849d9669c70e3f70dc567165a`,
-branch `codex/lot11a-portfolio-snapshots`, clean and origin 0/0 after fetch on
-2026-10-08. This effective HEAD includes **11C IN REVIEW**; it does not replace
-the validated 11A.2 baseline above. **11B remains IN REVIEW**. No status closure
-is implied, and no application code, tests, dependencies, migration, backup
-version or engine result changes in this delivery.
+**11D.0 READY FOR IMPLEMENTATION — pending explicit authorization and prerequisite gates.**
+Implementation remains **NOT STARTED**. Documentation-only audit and hardened
+plan: [detailed plan](./steps/STORAGE/lot11d0_plan.md). Hardening baseline:
+`47a92b1a8ef2b7c091c5984eb2baad10409397c3`, expected/observed HEAD, clean and
+origin 0/0 after fetch on 2026-10-08, branch
+`codex/lot11a-portfolio-snapshots`. Initial code audit baseline:
+`944d79ef07f704c849d9669c70e3f70dc567165a`; no code change between these commits.
+The validated 11A.2 baseline above is unchanged. **11B and 11C remain IN REVIEW**.
+No code, tests, dependencies, migration, persisted data, backup version or engine
+result changes in this delivery.
 
-Recommended direction: asynchronous Application persistence port, IndexedDB
-as primary local storage, separate current inputs, immutable snapshot contents,
-light metadata and historical identity indexes. Ordinary current edits must
-not rewrite or load Portfolio history. Load snapshot content on demand, bound
-RAM caches, and preserve exact historical metrics and portable V1–V7 readers /
-V7 exports independently of physical storage. Keep owned Actuals histories and
-their existing protections initially; do not invent or replay old captures.
+The five audit decisions are explicit in the amended plan:
 
-Migration proposal: fully validated staging generation, readback and atomic
-activation, idempotent resumable batches, legacy localStorage retained intact;
-revision checks inside transactions detect concurrent writes. Divergent legacy
-and IDB sources require explicit resolution, with no silent overwrite or merge.
-Old clients cannot be locked atomically across localStorage and IDB: deployment
-must address old tabs. History's global visual cap also needs an exact bounded
-batch strategy, beyond lazy loading only visible rows.
+1. PlanningSessionState owns Current (Planning, Portfolio and owned Actuals)
+   and minimal historical identity constraints, never the complete Portfolio
+   Snapshot collection. History belongs to the repository; old APIs are replaced,
+   with no empty-history shim or indirect full-history cache.
+2. The initial storage model uses snapshotMetadata, snapshotContent and integrity
+   indexes. Persistent historySummaries require demonstrated 11B/benchmark need;
+   they are optional derived caches with projectionVersion/sourceDigest, disposable
+   and reconstructible. The immutable snapshot alone is historical authority.
+3. legacySourceFingerprintAtMigration tracks the exact migrated legacy source.
+   Normal IDB Current edits are not conflicts with unchanged legacy. A changed
+   legacy fingerprint detects a possible old client; preserve branches and resolve
+   explicitly without merge, dual-write or deleting legacy.
+4. Transaction boundaries are operation-specific: writeCurrent never touches
+   snapshots; create/deleteSnapshot never rewrite Current or rerun the engine;
+   Save checks the Current revision of its published run. Activation verifies a
+   complete validated stage then switches generation/control/revisions/receipt.
+   Parsing, projection, external hashes and dialogs remain outside transactions.
+5. Implementation order: **A ownership (memory/test) → B async/CAS (memory/test)
+   → C IndexedDB → D migration/recovery/import-export → E lazy History/memory**.
+   Gates isolate each architectural change; no deviation is currently required.
 
-Before implementation: explicit authorization, audited decisions in the plan,
-11C closure and a fixed engine baseline; stabilize/audit the 11B contract before
-its History loading changes, or obtain explicit authorization for that dependency.
-Benchmarks proposed: 5×20×365, 25×100×730 and 100×200×1095 with multiple Teams and
-Reservations, including quota, startup/save/import/export and peak/retained RAM.
-Only earlier 11B measurements are cited; none were rerun for 11D.0.
-11D.1, 11D.2 and 11D.3 remain unstarted. The design prepares storage for future
-exact daily Team/Project/Reservation/type contributions in 11D.2; their model
-and portable version require a separate approved contract.
+Recommended direction remains an asynchronous Application port independent of
+browser/UI, IndexedDB primary, on-demand content reads, bounded caches and
+portable V1–V7 readers / complete V7 exports independent of physical storage.
+Exact historical metrics, Actuals owned protections, staging/readback/atomic
+activation, operationId/receipts, CAS, quota errors, blocked/versionchange and
+BroadcastChannel as notification only are preserved. Evolution/11B can derive
+paged projections by bounded scans without holding all captures; persisted
+summaries remain optional. Its global cap requires exact bounded batch processing.
+
+Before transverse implementation: explicit code authorization, explicit 11C
+closure and fixed engine baseline; stabilize the 11B contract or explicitly
+authorize its History changes. Phase-specific prototype/performance gates remain
+in the plan, including old-tab transition, cache budgets and cap cost. Benchmarks
+proposed: 5×20×365, 25×100×730, 100×200×1095 with multiple Teams/Reservations,
+real browser storage and peak/retained RAM. Earlier 11B measures are cited only;
+none were rerun. 11D.1/11D.2/11D.3 remain unstarted. Aggregated Project profiles
+cannot reconstruct missing historical Team/Reservation contributions for 11D.2;
+that model/portable version requires a separate approved contract.
 
 ## Corrective lot — anchored temporal zoom and range drag
 
