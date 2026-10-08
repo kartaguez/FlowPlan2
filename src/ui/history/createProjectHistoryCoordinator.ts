@@ -51,7 +51,12 @@ export function createProjectHistoryCoordinator(input: { container: HTMLElement;
     const row = hit && state.model.projects[hit.p]?.rows[hit.s];
     if (!hit || !row || row.kind !== "present" || !state.cap || gesturing || !active) { tooltip.hidden = true; return; }
     renderProjectHistoryTooltip(tooltipContent, row, hit.date, state.cap); tooltip.hidden = false;
-    if (row.days.length && geometry && !geometry.rows.find((r) => r.projectIndex === hit.p && r.snapshotIndex === hit.s)?.cells.length) {
+    // Temporal visibility belongs to the complete captured profile, independent of mounted groups.
+    const visible = state.temporal && state.viewport ? visibleHistoryDates(state.temporal, state.viewport) : undefined;
+    const horizon = state.model.horizon;
+    if (row.profile === "available" && row.days.some((day) => day.total.numerator > 0n) && visible && horizon
+      && !row.days.some((day) => day.total.numerator > 0n && day.date >= horizon.from && day.date <= horizon.through
+        && day.date >= visible[0] && day.date <= visible[1])) {
       const text = node("p", "", "Captured activity lies outside the visible window or reference axis."); tooltipContent.append(text);
     }
   };

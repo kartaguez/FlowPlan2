@@ -2,7 +2,7 @@ import type { PlanningInputsDto } from "../backup/planningInputCodec.js";
 import { comparePortfolioSnapshots, immutableCopy, type PortfolioSnapshot, type HistoricalProjectForecast } from "../../domain/portfolioSnapshots/portfolioSnapshot.js";
 import type { HistoricalDateRange } from "../../domain/portfolioSnapshots/historicalDailyProfile.js";
 import { civilDayDifference, type CivilDate } from "../../domain/model/date.js";
-import { addRationals, subtractRationals, parseSerializedRational, rationalFromInteger, type Rational } from "../../domain/model/rational.js";
+import { addRationals, compareRationals, subtractRationals, parseSerializedRational, rationalFromInteger, type Rational } from "../../domain/model/rational.js";
 
 export interface HistoricalAssociation { readonly id: string; readonly name: string }
 export interface HistoryMetadata {
@@ -28,7 +28,7 @@ export interface HistoryPresentRow {
   readonly profile: "available" | "unavailable-legacy";
   readonly actualsRange: HistoricalDateRange | null; readonly forecastRange: HistoricalDateRange | null;
   readonly days: readonly HistoryDay[]; readonly firstForecastPositiveDate: CivilDate | null;
-  readonly forecastStatus: "inactive" | "no remaining workload" | "allocated" | "no allocation within horizon" | "daily allocations unavailable";
+  readonly forecastStatus: "inactive" | "no remaining workload" | "fully allocated" | "partially allocated" | "no allocation within horizon" | "daily allocations unavailable";
   readonly comparison: HistoryComparison | null;
 }
 export type HistoryRow = HistoryPresentRow | Readonly<{ kind: "absent"; snapshotId: string }>;
@@ -79,7 +79,8 @@ export function buildProjectHistoryViewModel(collection: readonly PortfolioSnaps
       }));
       const historicalMetadata = metadata[index]!.projects.get(metrics.projectId)!;
       const raf = historyQuantity(metrics.raf);
-      const allocated = days.reduce((sum, day) => addRationals(sum, day.forecast), rationalFromInteger(0n));
+      const zero = rationalFromInteger(0n);
+      const allocated = days.reduce((sum, day) => addRationals(sum, day.forecast), zero);
       // Copy the metric DTO without retaining the schema-2 profile a second time.
       const { projectId, actuals, actualsKnowledge, eac, priorityPosition, estimatedStartDate, startAbsenceReason, estimatedEndDate, endAbsenceReason } = metrics;
       return [metrics.projectId, { kind: "present", snapshotId: snapshot.snapshotId, createdAt: snapshot.createdAt,
@@ -88,8 +89,9 @@ export function buildProjectHistoryViewModel(collection: readonly PortfolioSnaps
         profile: profile ? "available" : "unavailable-legacy", days,
         actualsRange: profile?.actualsRange ?? null, forecastRange: profile?.forecastRange ?? null,
         firstForecastPositiveDate: days.find((day) => day.forecast.numerator > 0n)?.date ?? null,
-        forecastStatus: !historicalMetadata.isActive ? "inactive" : raf.numerator === 0n ? "no remaining workload"
-          : !profile ? "daily allocations unavailable" : allocated.numerator > 0n ? "allocated" : "no allocation within horizon",
+        forecastStatus: !historicalMetadata.isActive ? "inactive" : compareRationals(raf, zero) === 0 ? "no remaining workload"
+          : !profile ? "daily allocations unavailable" : compareRationals(allocated, zero) === 0 ? "no allocation within horizon"
+          : compareRationals(allocated, raf) === 0 ? "fully allocated" : "partially allocated",
       }];
     }));
   });

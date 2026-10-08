@@ -449,7 +449,8 @@ Planning characterization and explicit suspension, immutable historical DTO
 projection, ordered-ID cache, independent viewport, exact daily stacked paths,
 common pan-stable cap, clipping and inclusive knowledge marker, tooltip deltas,
 colors, keyboard/touch/focus and read-only isolation. It records final gates
-(792/792 tests, 93 suites; typecheck/build/diff checks), 1440/390 light/dark UI
+(initially 792/792; post-audit corrections 805/805 tests, 93 suites;
+typecheck/build/diff checks), 1440/390 light/dark UI
 review and small/target/stress performance measurements and residual limits.
 No V6/V7 format, engine or business rule changed; no historical replay/restore,
 Reservation frise, reference navigation or advanced analysis was added.

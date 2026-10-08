@@ -1,11 +1,16 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { buildProjectHistoryViewModel, historyDayIndex } from "./buildProjectHistoryViewModel.js";
-import { historyFixture } from "./historyTestFixture.js";
-import { rationalToCanonicalString } from "../../domain/model/rational.js";
+import { addHistoryActuals, historyFixture } from "./historyTestFixture.js";
+import { addRationals, compareRationals, rationalFromInteger, rationalToCanonicalString } from "../../domain/model/rational.js";
 import { civilDayDifference, createCivilDate } from "../../domain/model/date.js";
 import { decodeFlowplanBackup, encodeFlowplanBackupV7 } from "../backup/flowplanBackupV1.js";
 import { createDemoPlanningScenario } from "../../main/demo/createDemoPlanningScenario.js";
+import { projectHistoryTooltipLines } from "../../ui/history/renderProjectHistoryTooltip.js";
+import { decodePlanningInputs, encodePlanningInputs } from "../backup/planningInputCodec.js";
+import { createPlanningSession } from "../session/planningSession.js";
+import { createPlanningProjectionDispatcher } from "../../main/planning/createPlanningProjectionDispatcher.js";
+import { buildPlanningSessionProjection } from "../../main/planning/buildPlanningSessionProjection.js";
 
 describe("Project History pure projection", () => {
   it("has no substituted horizon or projects for an empty collection", () => {
@@ -52,7 +57,7 @@ describe("Project History pure projection", () => {
     assert.equal(row.kind, "present"); if (row.kind !== "present") return;
     assert.equal(rationalToCanonicalString(row.comparison!.eac.delta), "835/3");
     assert.equal(row.metrics.endAbsenceReason, "incomplete-within-horizon");
-    assert.equal(row.forecastStatus, "allocated");
+    assert.equal(row.forecastStatus, "partially allocated");
     assert.equal(historyDayIndex(row.days, row.days[0]!.date), 0);
     assert.equal(rationalToCanonicalString(row.days[0]!.total), rationalToCanonicalString(row.days[0]!.forecast));
   });
@@ -89,4 +94,83 @@ it("compares Programme and Pas IDs/labels including renames, None and date delta
   const next = buildProjectHistoryViewModel([first, none]).projects.find((p) => p.metadata.id === first.forecast.projects[0]!.projectId)!.rows[1]!;
   if (next.kind !== "present") throw new Error();
   assert.equal(next.metadata.program, null); assert.equal(next.metadata.pas, null); assert.equal(next.comparison!.programChanged, true);
+});
+
+for (const status of ["fully allocated", "partially allocated", "no allocation within horizon", "no remaining workload", "inactive", "daily allocations unavailable"] as const) {
+  it(`qualifies exact captured Forecast as ${status}`, () => {
+    const snapshot = historyFixture("status", (dto) => {
+      const p = dto.portfolio.projects[0]!;
+      p.requirements.forEach((r) => { r.remainingWorkload = "2/3"; });
+      if (status === "partially allocated") p.requirements[1]!.dailyCap = "0/1";
+      if (status === "no allocation within horizon") p.earliestStartDate = "2027-01-01" as any;
+      if (status === "no remaining workload") p.requirements.forEach((r) => { r.remainingWorkload = "0/1"; });
+      if (status === "inactive") p.isActive = false;
+    }, status === "daily allocations unavailable" ? 1 : 2);
+    const row = buildProjectHistoryViewModel([snapshot]).projects.find((p) => p.metadata.id === snapshot.forecast.projects[0]!.projectId)!.rows[0]!;
+    assert.equal(row.kind, "present"); if (row.kind !== "present") throw new Error();
+    assert.equal(row.forecastStatus, status);
+    const sum = row.days.reduce((sum, d) => addRationals(sum, d.forecast), rationalFromInteger(0n));
+    if (status === "fully allocated") assert.equal(compareRationals(sum, row.raf), 0);
+    if (status === "partially allocated") {
+      assert.equal(compareRationals(sum, rationalFromInteger(0n)), 1);
+      assert.equal(compareRationals(sum, row.raf), -1);
+      assert.equal(row.metrics.endAbsenceReason, "incomplete-within-horizon");
+    }
+    assert.ok(projectHistoryTooltipLines(row, undefined, rationalFromInteger(1n)).includes(`Forecast: ${status}`));
+  });
+}
+
+it("distinguishes a partial allocation from RAF beyond floating-point precision", () => {
+  const snapshot = historyFixture("precision", (dto) => {
+    dto.planning.endDate = dto.planning.startDate;
+    dto.portfolio.teams.forEach((t) => {
+      t.capacitySchedule.exceptions = [];
+      t.capacitySchedule.periods.forEach((p) => { p.dailyCapacity = "2/1"; });
+    });
+    const p = dto.portfolio.projects[0]!;
+    p.requirements.forEach((r) => { r.remainingWorkload = "0/1"; });
+    p.requirements[0]!.remainingWorkload = "9007199254740993/9007199254740992";
+    p.requirements[0]!.dailyCap = "1/1";
+  });
+  const row = buildProjectHistoryViewModel([snapshot]).projects.find((p) => p.metadata.id === snapshot.forecast.projects[0]!.projectId)!.rows[0]!;
+  if (row.kind !== "present") throw new Error();
+  const sum = row.days.reduce((a, d) => addRationals(a, d.forecast), rationalFromInteger(0n));
+  assert.equal(rationalToCanonicalString(sum), "1/1");
+  assert.equal(rationalToCanonicalString(row.raf), "9007199254740993/9007199254740992");
+  assert.equal(row.forecastStatus, "partially allocated");
+});
+
+it("Save always creates schema 2 and mixed V7 History preserves exact profiles and legacy metrics", () => {
+  const dto = encodePlanningInputs(createDemoPlanningScenario()); addHistoryActuals(dto);
+  const state = decodePlanningInputs(dto, 5, undefined, true), old = historyFixture("a", addHistoryActuals, 1);
+  const session = createPlanningSession({ ...state, portfolioSnapshots: [old] });
+  let builds = 0, writes = 0, text = "", sequence = 0;
+  const dispatcher = createPlanningProjectionDispatcher({ session,
+    geometryViewport: { width: 1000, teamLaneHeight: 100, timeAxisHeight: 76 }, hasUnappliedChanges: () => false,
+    now: () => "2026-10-08T10:00:00.000Z", snapshotId: () => `new-${++sequence}`,
+    buildProjection: (input) => { builds++; return buildPlanningSessionProjection(input); },
+    backupStore: { read: () => text, write: (next) => { writes++; text = next; } } });
+  const run = dispatcher.getProjection();
+  assert.equal(dispatcher.savePortfolioSnapshot().ok, true);
+  assert.equal(dispatcher.savePortfolioSnapshot().ok, true);
+  const captures = dispatcher.getPortfolioSnapshots();
+  assert.deepEqual(captures.map((s) => s.forecast.forecastSchemaVersion), [1, 2, 2]);
+  const loaded = decodeFlowplanBackup(text);
+  assert.deepEqual(loaded.portfolioSnapshots, captures);
+  assert.deepEqual(decodeFlowplanBackup(encodeFlowplanBackupV7(loaded)).portfolioSnapshots, captures);
+  const vm = buildProjectHistoryViewModel(loaded.portfolioSnapshots!);
+  const rows = vm.projects.find((p) => p.metadata.id === old.forecast.projects[0]!.projectId)!.rows;
+  const legacy = rows[0]!; if (legacy.kind !== "present") throw new Error();
+  assert.deepEqual(legacy.metrics, old.forecast.projects[0]);
+  assert.equal(legacy.profile, "unavailable-legacy"); assert.deepEqual(legacy.days, []);
+  assert.equal(Object.hasOwn(captures[0]!.forecast.projects[0]!, "dailyProfile"), false);
+  for (const row of rows.slice(1)) {
+    if (row.kind !== "present") throw new Error();
+    assert.equal(row.profile, "available"); assert.equal(row.metrics.actuals, "2/3");
+    assert.ok(row.days.some((d) => compareRationals(d.actuals, rationalFromInteger(0n)) > 0));
+    assert.ok(row.days.some((d) => compareRationals(d.forecast, rationalFromInteger(0n)) > 0));
+    assert.equal(rationalToCanonicalString(row.days.reduce((sum, d) => addRationals(sum, d.actuals), rationalFromInteger(0n))), row.metrics.actuals);
+    assert.doesNotMatch(projectHistoryTooltipLines(row, vm.horizon!.from, rationalFromInteger(1n)).join("\n"), /Daily profile unavailable/);
+  }
+  assert.equal(builds, 1); assert.equal(writes, 2); assert.strictEqual(dispatcher.getProjection(), run);
 });

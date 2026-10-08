@@ -523,12 +523,14 @@ Un jour omis du profil disponible a un débit simulé zéro ; hors actualsRange,
 indiquer absence de couverture, sans qualifier ce zéro d'observation connue.
 Les reasons end
 existantes expliquent inactive/incomplete/no-allocation ; ajouter dans le VM
-un statut Forecast « allocated / inactive / no remaining workload / no allocation
+un statut Forecast « fully allocated / partially allocated / inactive / no remaining workload / no allocation
 within horizon » à partir des inputs et profil, sans diagnostiquer une cause
 moteur inexistante. Ordre de décision : inactive, puis RAF exact zéro, puis
-profil disponible avec somme Forecast positive = allocated, sinon profil
-disponible = no allocation within horizon. `allocated` inclut les allocations
-partielles ; garder la reason de fin et RAF séparément. Pour schema 1 actif avec
+profil disponible avec somme Forecast égale au RAF positif = fully allocated,
+somme strictement positive inférieure au RAF = partially allocated, sinon somme
+nulle = no allocation within horizon. Comparaisons rationnelles exactes uniquement ;
+garder la reason de fin et RAF séparément. Cette distinction remplace le statut
+initial `allocated` après l'audit 11B ; aucun contrat de capture ne change. Pour schema 1 actif avec
 RAF positif : statut d'allocation indisponible, préciser « daily allocations
 unavailable », sans déduire un zéro d'une fin absente. Ne jamais consulter les
 Team plans actuels pour compléter ce statut.

@@ -926,6 +926,13 @@ it("suspend/resume preserves all draft owners and projection with no remount or 
   const original = store.get(id)!;
   store.update(id, { ...original.values, name: "", teams: original.values.teams.map((team) => ({ ...team, remainingWorkload: "invalid" })) });
   app.openProject(id);
+  const reservationId = app.scenario.portfolio.reservations[0]!.id;
+  app.openReservation(reservationId);
+  const reservationStore = app.reservationHandles.get(reservationId)!.draftStore!;
+  const reservationOriginal = reservationStore.get(reservationId)!;
+  reservationStore.update(reservationId, { ...reservationOriginal.values, name: "Hidden unapplied Reservation" });
+  app.openReservation(reservationId); // Collapse the second simultaneous draft.
+  const reservationDraft = reservationStore.get(reservationId);
   const draft = store.get(id), state = app.session.getState(), projection = app.coordinator.getProjection();
   const ui = app.coordinator.getUiSnapshot();
   // Set the shared fake modal surface hidden, as after normal workflow close.
@@ -936,9 +943,11 @@ it("suspend/resume preserves all draft owners and projection with no remount or 
   for (let n = 0; n < 10; n++) {
     assert.equal(app.coordinator.suspend(), true); assert.equal(app.coordinator.suspend(), true);
     app.coordinator.resume(); app.coordinator.resume();
-    assert.strictEqual(store.get(id), draft); assert.strictEqual(app.session.getState(), state);
+    assert.strictEqual(store.get(id), draft); assert.strictEqual(reservationStore.get(reservationId), reservationDraft);
+    assert.strictEqual(app.session.getState(), state);
     assert.strictEqual(app.coordinator.getProjection(), projection); assert.deepEqual(app.coordinator.getUiSnapshot(), ui);
     assert.equal(app.coordinator.hasUnappliedChanges(), true); assert.equal(app.getRenderCount(), 1);
+    assert.equal(app.saveSnapshot().ok, false);
   }
   assert.equal(app.saveSnapshot().ok, false); app.coordinator.destroy(); app.coordinator.destroy();
   assert.equal(app.coordinator.suspend(), false);

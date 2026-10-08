@@ -25,7 +25,10 @@ Schema 1 is `unavailable-legacy`, never synthesized into an empty daily profile.
 Schema 2 preserves source coverage, sparse exact Actuals/Forecast, first positive
 Forecast, and whole-Project Actuals/RAF/EAC. Empty sparse profiles, uncovered
 knowledge, covered zero, inactive Projects, partial allocations and unallocated
-RAF remain distinct. `allocated` does not imply RAF completion.
+RAF remain distinct. Forecast status uses exact rational comparisons: positive
+RAF with daily Forecast equal to RAF is `fully allocated`; a positive sum below
+RAF is `partially allocated`; zero is `no allocation within horizon`. Inactive,
+zero RAF and unavailable schema 1 retain their specific qualifications.
 
 Comparisons skip absent snapshots to the previous presence of the same ID.
 Priority and signed EAC deltas, start/end dates and absence reasons, Programme,
@@ -225,3 +228,63 @@ No engine, V6/V7 format, capture, Actuals/RAF/EAC/priority rule changed. No
 Reservation frise, historical edition, restoration, replay, reference selector,
 causal analysis, filtering/collapse or other out-of-11B capability was added.
 **11B remains IN REVIEW, never DONE without independent audit and human validation.**
+
+## Post-audit corrections — 2026-10-08
+
+Initial HEAD: `665c9032665acd102c8a216d0ea39c7205c215e2`, the delivered 11B
+implementation immediately following required baseline
+`7a3ea6bf1c6c97e248075a75bc718279158ad0f5`. Required fetch/status/HEAD/divergence
+checks passed before edits: correct branch, clean working tree, origin 0/0.
+
+Correction A: the ViewModel previously collapsed every positive daily Forecast
+sum into `allocated`. It now compares the exact sum with RAF using the existing
+`compareRationals`, distinguishing fully allocated, partially allocated and no
+allocation within horizon. Inactive, no remaining workload and daily allocations
+unavailable retain their precedence. Tooltips display the resulting status.
+No business quantity is converted to Number; metrics and captured data are unchanged.
+
+Correction B: the tooltip previously inferred temporal visibility from
+`geometry.rows`, which includes only vertically mounted groups. It now checks
+positive captured daily totals against the intersection of the reference horizon
+and current temporal viewport, using inclusive civil-day bounds. A vertically
+unmounted row with temporally visible activity therefore retains correct details.
+Absent, unavailable schema 1 and empty schema 2 rows never receive the outside-
+window message. Vertical virtualization remains enabled.
+
+Thirteen new tests (no new suite):
+
+- `buildProjectHistoryViewModel.test.ts`: six Forecast qualifications and their
+  tooltip labels; a partial RAF differing from its allocation beyond floating-
+  point precision; Save → schema 2 → mixed V7 round trips → History with exact
+  Actuals/Forecast and unchanged schema 1 metrics (eight tests).
+- `createProjectHistoryCoordinator.test.ts`: vertical scroll with an unmounted
+  focused row and retained virtualization; inclusive first/last visible days,
+  range zoom, button zoom, pan and Reset; reference-axis clipping with a schema 1
+  reference; absent/legacy/empty exceptions; mixed-schema Actuals and Forecast
+  SVG paths, keyboard details and schema 2 label availability (five tests).
+- The existing Planning multidraft characterization was strengthened: an invalid
+  Project draft and a collapsed Reservation draft coexist through ten idempotent
+  suspend/resume cycles; identities, session, projection, UI snapshot, dirty and
+  blocked Save are checked on every cycle. No Planning production code changed.
+
+Schema verification: old schema 1 captures remain readable with exact historical
+metrics and no synthesized daily profile. Two consecutive successful Saves both
+produce schema 2, persist V7 and reuse the published projection (one initial build,
+exactly two writes). Import/export preserves each capture and its schema exactly.
+Positive schema 2 Actuals and Forecast render actual SVG surfaces; every valid
+schema 2 row in the mixed collection lacks the unavailable label in its details
+and accessibility text, including empty schema 2. Existing V6/V7 validation,
+source/capture and no-replay regression tests also pass. No old capture was edited.
+
+Final gates: `npm run typecheck` PASS; `npm test` **805/805 tests, 93 suites**, zero
+failures/cancelled/skipped/todo; `npm run build` PASS; `git diff --check` PASS.
+The existing Planning characterizations, modal guards, listener counts, focus,
+keyboard/touch/Escape, History viewport restoration and pan/Save/Delete cache tests
+were replayed in the complete suite without weakening their expectations.
+
+Only the two History production modules, History tests/shared fixture, Planning
+characterization test and necessary documentation changed. No V6/V7 format,
+engine, persistence layer, Actuals/RAF/EAC/priority rule or Planning behavior
+changed. No scope extension. Prior volume/quota and manual accessibility/physical-
+touch review limits remain; this correction pass adds no new identified risk.
+**11B remains IN REVIEW pending a new independent audit and human validation.**

@@ -315,13 +315,17 @@ legacy-profile unavailability and previous-presence comparisons. The reference
 snapshot owns one horizon; History has an independent viewport and a common
 exact visual cap, resampled on effective zoom/dataset changes and stable at pan.
 The cache compares canonical ordered snapshot IDs rather than collection copies.
+Forecast details distinguish fully/partially allocated and unallocated positive
+RAF by exact rational comparison. Activity outside the visible window is determined
+from captured days intersecting the reference horizon and temporal viewport,
+independently of vertical virtualization.
 
 Rows support hover, focus, daily keyboard navigation and touch. Exact metrics,
 coverage/status, timestamps/IDs, dates/reasons and deltas remain in accessible
 details; Escape closes them. ID-derived snapshot colors are Programme-independent.
 Heavy surfaces are windowed by date and visible Project groups; full gutter rows
 retain sequential keyboard access. No Reservations frise, edit, restore, replay,
-reference selection or advanced analysis is included. Final suite: 792 tests /
+reference selection or advanced analysis is included. Post-audit suite: 805 tests /
 93 suites; typecheck/build/diff checks pass. Desktop/narrow and light/dark review,
 benchmark data and known memory/storage/color limits are recorded in the canon.
 
