@@ -59,6 +59,7 @@ Current trajectory: **11B — Project History view**, following validated DONE
 ```text
 10A (DONE) → 10B (DONE) → 10C (DONE) → 10C.1 (DONE) → 10C.2 (DONE)
 11A (DONE) → 11A.2 (DONE) → 11B (IN REVIEW)
+11C: PLANNED / NOT STARTED — Actuals / Forecast temporal separation (plan only)
 11A.1: DEFERRED / not adopted as product work; no dependency for 11B
 10D: superseded by 11A (not DONE)
 10E: largely superseded by 11B; advanced replay/navigation/comparison deferred
@@ -457,6 +458,23 @@ Reservation frise, reference navigation or advanced analysis was added.
 
 Next action: independent audit against the acceptance matrix and human validation.
 Do not advance 11B to DONE automatically from successful tests or this delivery.
+
+## 11C — Actuals / Forecast temporal separation
+
+**Status: PLANNED / NOT STARTED — documentation only.**
+The [11C implementation plan](./steps/HISTORY/lot11c_plan.md) examines baseline
+`4d39ad40053a70ed51c5b18bce8c8a683fb920fb` on the existing branch
+`codex/lot11a-portfolio-snapshots`. Project Forecast must occur strictly after
+the inclusive end of its current Actuals coverage, across every associated Team,
+including Teams without historical consumption. The plan covers the derived
+engine input, admission, Mandatory lookahead, boundaries, projections, capture,
+tests and termination. Legacy/erosion policies and separate Reservation semantics
+are explicit proposals for audit. Existing snapshots and V5/V6/V7 formats remain
+unchanged; History performs no replay or historical correction.
+
+No production code or test is changed or started. Next action: audit the plan,
+resolve its stated decisions, then await explicit implementation authorization.
+**11B remains IN REVIEW**, with independent audit and human validation pending.
 
 ## Cross-cutting non-goals for Phase 9
 
