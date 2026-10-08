@@ -1,4 +1,5 @@
 import { loadPlanningBackup } from "../../main/planning/planningBackupOperations.js";
+import { readFileSync } from "node:fs";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { createDemoPlanningScenario } from "../../main/demo/createDemoPlanningScenario.js";
@@ -190,7 +191,9 @@ describe("11A.2 exact published daily capture", () => {
       c.actualsFrom = "2025-01-01"; c.actualsThrough = "2025-01-01";
       c.periods = [{ ...c.periods[0], from: c.actualsFrom, through: c.actualsThrough }];
     });
-    const { row } = capture(s);
+    const historical = validateHistoricalSnapshot(JSON.parse(readFileSync("src/main/planning/fixtures/lot11c-baseline-overlap.json", "utf8")), s);
+    const row = historical.forecast.projects[0]! as HistoricalProjectForecastV2;
+    assert.equal(historical.forecast.engineVersion, "planning-engine-v1/actuals-aware/1");
     assert.ok(row.dailyProfile.days.some((d) => d.actualsWorkload !== "0/1" && d.forecastWorkload !== "0/1"));
   });
   it("rejects a purported fully allocated run when its daily Forecast does not conserve RAF", () => {

@@ -54,7 +54,7 @@ describe("global multi-team reservations", () => {
       horizon: must(createPlanningHorizon({ start: day, end: day })),
       workingPattern: everyDay,
       maxParallelProjects: must(createMaxParallelProjects(1)),
-      actualOccupation: [],
+      projectActualsKnowledge: portfolio.projects.map(project => ({ projectId: project.id, actualsThrough: null })), actualOccupation: [],
     });
     assert.equal(result.diagnostics[0]?.code, "TEAM_OVER_RESERVED");
   });

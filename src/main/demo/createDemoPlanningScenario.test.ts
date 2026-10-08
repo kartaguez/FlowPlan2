@@ -49,7 +49,7 @@ describe("demo planning bootstrap", () => {
       horizon,
       workingPattern: scenario.planning.workingPattern,
       maxParallelProjects: scenario.planning.maxParallelProjects,
-      actualOccupation: [],
+      projectActualsKnowledge: scenario.portfolio.projects.map(project => ({ projectId: project.id, actualsThrough: null })), actualOccupation: [],
     });
     const viewModel = buildTimelineViewModel({
       portfolio: scenario.portfolio,
@@ -128,7 +128,7 @@ describe("demo planning bootstrap", () => {
       end: scenario.planning.endDate }));
     const { planningResult } = recomputePlanning({ portfolio: scenario.portfolio, horizon,
       workingPattern: scenario.planning.workingPattern,
-      maxParallelProjects: scenario.planning.maxParallelProjects, actualOccupation: [] });
+      maxParallelProjects: scenario.planning.maxParallelProjects, projectActualsKnowledge: scenario.portfolio.projects.map(project => ({ projectId: project.id, actualsThrough: null })), actualOccupation: [] });
     const viewModel = buildTimelineViewModel({ portfolio: scenario.portfolio, horizon,
       planningResult, workingPattern: scenario.planning.workingPattern });
     const lookup = createTimelineInteractionLookup(viewModel);

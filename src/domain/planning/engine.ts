@@ -1,6 +1,7 @@
 import { dailyCapacitySnapshot } from "../capacity/calculations.js";
 import {
   civilDatesInclusive,
+  createCivilDate,
   compareCivilDates,
   type CivilDate,
 } from "../model/date.js";
@@ -28,6 +29,7 @@ import {
   rationalOf,
   remainingWorkloadFromRational,
   type MaxParallelProjects,
+  type ProjectId,
 } from "../model/scalars.js";
 import type {
   DeadlineStatus,
@@ -45,6 +47,7 @@ import type {
 interface ProjectTeamState {
   readonly project: Project;
   readonly requirement: ProjectTeamRequirement;
+  readonly actualsThrough: CivilDate | null;
   remaining: Rational;
   planned: Rational;
   readonly allocations: ProjectAllocation[];
@@ -69,6 +72,7 @@ const NORMAL_ALLOCATION_QUANTUM = unwrapProvenQuantity(
 function projectsForTeam(
   portfolio: Portfolio,
   team: Team,
+  knowledge: ReadonlyMap<ProjectId, CivilDate | null>,
 ): ProjectTeamState[] {
   const projectsById = new Map(
     portfolio.projects.map((project) => [project.id, project]),
@@ -85,6 +89,7 @@ function projectsForTeam(
     states.push({
       project,
       requirement,
+      actualsThrough: knowledge.get(project.id)!,
       remaining: rationalOf(requirement.remainingWorkload),
       planned: ZERO,
       allocations: [],
@@ -95,6 +100,12 @@ function projectsForTeam(
   }
 
   return states;
+}
+
+/** Shared by admission and every Mandatory accessibility path; no T+1 arithmetic. */
+function isProjectDateEligible(state: ProjectTeamState, date: CivilDate): boolean {
+  return (!state.project.earliestStartDate || compareCivilDates(date, state.project.earliestStartDate) >= 0)
+    && (state.actualsThrough === null || compareCivilDates(date, state.actualsThrough) > 0);
 }
 
 function selectAdmittedProjects(
@@ -109,12 +120,7 @@ function selectAdmittedProjects(
 
   for (const state of states) {
     if (isZero(state.remaining)) continue;
-    if (
-      state.project.earliestStartDate &&
-      compareCivilDates(date, state.project.earliestStartDate) < 0
-    ) {
-      continue;
-    }
+    if (!isProjectDateEligible(state, date)) continue;
     if (state.requirement.dailyCap) {
       const dailyCap = rationalOf(state.requirement.dailyCap);
       if (isZero(dailyCap)) continue;
@@ -242,6 +248,7 @@ function deadlineAccessibleCapacity(
   residualByDate: Map<CivilDate, Rational>,
   dailyAllocations: ReadonlyMap<ProjectTeamState, Rational>,
 ): Rational {
+  if (!isProjectDateEligible(state, date)) return ZERO;
   let residual = residualByDate.get(date);
   if (residual === undefined) {
     residual = baseCapacityForDate(date);
@@ -515,8 +522,9 @@ function planTeam(
   input: PlanningInput,
   team: Team,
   diagnostics: PlanningDiagnostic[],
+  knowledge: ReadonlyMap<ProjectId, CivilDate | null>,
 ): TeamPlanningResult {
-  const states = projectsForTeam(input.portfolio, team);
+  const states = projectsForTeam(input.portfolio, team, knowledge);
   const dayCapacities: TeamDayCapacity[] = [];
   const dayAdmissions: TeamDayAdmission[] = [];
   const occupation = new Map<CivilDate, NonNullable<PlanningInput["actualOccupation"]>[number]>();
@@ -609,6 +617,24 @@ function planTeam(
  * consumption, then normal fair sharing of the remaining capacity.
  */
 export function planPortfolio(input: PlanningInput): PlanningResult {
+  const projectIds = new Set(input.portfolio.projects.map((project) => project.id));
+  const knowledge = new Map<ProjectId, CivilDate | null>();
+  if (!Array.isArray(input.projectActualsKnowledge)) {
+    throw new TypeError("projectActualsKnowledge: expected a complete Project array.");
+  }
+  for (const [index, row] of input.projectActualsKnowledge.entries()) {
+    const path = `projectActualsKnowledge[${index}]`;
+    if (!row || typeof row !== "object" || !projectIds.has(row.projectId) || knowledge.has(row.projectId)) {
+      throw new TypeError(`${path}: unknown or duplicate Project ID ${row?.projectId}.`);
+    }
+    if (row.actualsThrough !== null && (typeof row.actualsThrough !== "string" || !createCivilDate(row.actualsThrough).ok)) {
+      throw new TypeError(`${path}.${row.projectId}.actualsThrough: expected canonical civil date or null.`);
+    }
+    knowledge.set(row.projectId, row.actualsThrough);
+  }
+  for (const id of projectIds) {
+    if (!knowledge.has(id)) throw new TypeError(`projectActualsKnowledge: missing Project ${id}.`);
+  }
   const diagnostics: PlanningDiagnostic[] = [];
   const teamIds = new Set(input.portfolio.teams.map((team) => team.id));
   const occupationKeys = new Set<string>();
@@ -624,7 +650,7 @@ export function planPortfolio(input: PlanningInput): PlanningResult {
   return Object.freeze({
     teamPlans: Object.freeze(
       input.portfolio.teams.map((team) =>
-        planTeam(input, team, diagnostics),
+        planTeam(input, team, diagnostics, knowledge),
       ),
     ),
     diagnostics: Object.freeze(diagnostics),

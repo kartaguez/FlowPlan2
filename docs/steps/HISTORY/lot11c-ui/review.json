@@ -1,0 +1,454 @@
+[
+  {
+    "scenario": "september",
+    "width": 1440,
+    "theme": "light",
+    "scrollWidth": 1440,
+    "allocations": [
+      {
+        "date": "2025-10-01",
+        "team": "team-alpha"
+      },
+      {
+        "date": "2025-10-02",
+        "team": "team-alpha"
+      },
+      {
+        "date": "2025-10-03",
+        "team": "team-alpha"
+      },
+      {
+        "date": "2025-10-04",
+        "team": "team-alpha"
+      },
+      {
+        "date": "2025-10-05",
+        "team": "team-alpha"
+      },
+      {
+        "date": "2025-10-06",
+        "team": "team-alpha"
+      },
+      {
+        "date": "2025-10-01",
+        "team": "team-beta"
+      },
+      {
+        "date": "2025-10-02",
+        "team": "team-beta"
+      },
+      {
+        "date": "2025-10-03",
+        "team": "team-beta"
+      },
+      {
+        "date": "2025-10-04",
+        "team": "team-beta"
+      },
+      {
+        "date": "2025-10-05",
+        "team": "team-beta"
+      },
+      {
+        "date": "2025-10-06",
+        "team": "team-beta"
+      },
+      {
+        "date": "2025-10-07",
+        "team": "team-beta"
+      },
+      {
+        "date": "2025-10-08",
+        "team": "team-beta"
+      }
+    ],
+    "paths": [],
+    "body": "FLOWPLAN\n\nFlowPlan\nPlanning\nHistory\nPlanning\nSave portfolio snapshot\nPortfolio snapshots (0)\nProjected progress on 01/09/2025\nProjects\nPrograms\nPas\nProject Atlas\n\nPriority 1 · Program Phoenix · Pas Strategic\n\nProjected end\n2025-10-08\nWorkload\n0 MD / 16 MD allocated to date\n0%\nProject Boreal\n\nPriority 2 · Program Phoenix · Pas —\n\nProjected end\n2025-10-18\nWorkload\n2 MD / 69 MD allocated to date\n2.9%\nProject Cobalt\n\nPriority 3 · Program — · Pas Regulatory\n\nProjected end\n2025-10-16\nWorkload\n1 MD / 38 MD allocated to date\n2.63%\nProject Delta\n\nPriority 4 · Program — · Pas —\n\nProjected end\nIncomplete"
+  },
+  {
+    "scenario": "september",
+    "width": 1440,
+    "theme": "dark",
+    "scrollWidth": 1440,
+    "allocations": [
+      {
+        "date": "2025-10-01",
+        "team": "team-alpha"
+      },
+      {
+        "date": "2025-10-02",
+        "team": "team-alpha"
+      },
+      {
+        "date": "2025-10-03",
+        "team": "team-alpha"
+      },
+      {
+        "date": "2025-10-04",
+        "team": "team-alpha"
+      },
+      {
+        "date": "2025-10-05",
+        "team": "team-alpha"
+      },
+      {
+        "date": "2025-10-06",
+        "team": "team-alpha"
+      },
+      {
+        "date": "2025-10-01",
+        "team": "team-beta"
+      },
+      {
+        "date": "2025-10-02",
+        "team": "team-beta"
+      },
+      {
+        "date": "2025-10-03",
+        "team": "team-beta"
+      },
+      {
+        "date": "2025-10-04",
+        "team": "team-beta"
+      },
+      {
+        "date": "2025-10-05",
+        "team": "team-beta"
+      },
+      {
+        "date": "2025-10-06",
+        "team": "team-beta"
+      },
+      {
+        "date": "2025-10-07",
+        "team": "team-beta"
+      },
+      {
+        "date": "2025-10-08",
+        "team": "team-beta"
+      }
+    ],
+    "paths": [],
+    "body": "FLOWPLAN\n\nFlowPlan\nPlanning\nHistory\nPlanning\nSave portfolio snapshot\nPortfolio snapshots (0)\nProjected progress on 01/09/2025\nProjects\nPrograms\nPas\nProject Atlas\n\nPriority 1 · Program Phoenix · Pas Strategic\n\nProjected end\n2025-10-08\nWorkload\n0 MD / 16 MD allocated to date\n0%\nProject Boreal\n\nPriority 2 · Program Phoenix · Pas —\n\nProjected end\n2025-10-18\nWorkload\n2 MD / 69 MD allocated to date\n2.9%\nProject Cobalt\n\nPriority 3 · Program — · Pas Regulatory\n\nProjected end\n2025-10-16\nWorkload\n1 MD / 38 MD allocated to date\n2.63%\nProject Delta\n\nPriority 4 · Program — · Pas —\n\nProjected end\nIncomplete"
+  },
+  {
+    "scenario": "september",
+    "width": 390,
+    "theme": "light",
+    "scrollWidth": 390,
+    "allocations": [
+      {
+        "date": "2025-10-01",
+        "team": "team-alpha"
+      },
+      {
+        "date": "2025-10-02",
+        "team": "team-alpha"
+      },
+      {
+        "date": "2025-10-03",
+        "team": "team-alpha"
+      },
+      {
+        "date": "2025-10-04",
+        "team": "team-alpha"
+      },
+      {
+        "date": "2025-10-05",
+        "team": "team-alpha"
+      },
+      {
+        "date": "2025-10-06",
+        "team": "team-alpha"
+      },
+      {
+        "date": "2025-10-01",
+        "team": "team-beta"
+      },
+      {
+        "date": "2025-10-02",
+        "team": "team-beta"
+      },
+      {
+        "date": "2025-10-03",
+        "team": "team-beta"
+      },
+      {
+        "date": "2025-10-04",
+        "team": "team-beta"
+      },
+      {
+        "date": "2025-10-05",
+        "team": "team-beta"
+      },
+      {
+        "date": "2025-10-06",
+        "team": "team-beta"
+      },
+      {
+        "date": "2025-10-07",
+        "team": "team-beta"
+      },
+      {
+        "date": "2025-10-08",
+        "team": "team-beta"
+      }
+    ],
+    "paths": [],
+    "body": "FLOWPLAN\n\nFlowPlan\nPlanning\nHistory\nPlanning\nSave portfolio snapshot\nPortfolio snapshots (0)\nProjected progress on 01/09/2025\nProjects\nPrograms\nPas\nProject Atlas\n\nPriority 1 · Program Phoenix · Pas Strategic\n\nProjected end\n2025-10-08\nWorkload\n0 MD / 16 MD allocated to date\n0%\nProject Boreal\n\nPriority 2 · Program Phoenix · Pas —\n\nProjected end\n2025-10-18\nWorkload\n2 MD / 69 MD allocated to date\n2.9%\nProject Cobalt\n\nPriority 3 · Program — · Pas Regulatory\n\nProjected end\n2025-10-16\nWorkload\n1 MD / 38 MD allocated to date\n2.63%\nProject Delta\n\nPriority 4 · Program — · Pas —\n\nProjected end\nIncomplete"
+  },
+  {
+    "scenario": "september",
+    "width": 390,
+    "theme": "dark",
+    "scrollWidth": 390,
+    "allocations": [
+      {
+        "date": "2025-10-01",
+        "team": "team-alpha"
+      },
+      {
+        "date": "2025-10-02",
+        "team": "team-alpha"
+      },
+      {
+        "date": "2025-10-03",
+        "team": "team-alpha"
+      },
+      {
+        "date": "2025-10-04",
+        "team": "team-alpha"
+      },
+      {
+        "date": "2025-10-05",
+        "team": "team-alpha"
+      },
+      {
+        "date": "2025-10-06",
+        "team": "team-alpha"
+      },
+      {
+        "date": "2025-10-01",
+        "team": "team-beta"
+      },
+      {
+        "date": "2025-10-02",
+        "team": "team-beta"
+      },
+      {
+        "date": "2025-10-03",
+        "team": "team-beta"
+      },
+      {
+        "date": "2025-10-04",
+        "team": "team-beta"
+      },
+      {
+        "date": "2025-10-05",
+        "team": "team-beta"
+      },
+      {
+        "date": "2025-10-06",
+        "team": "team-beta"
+      },
+      {
+        "date": "2025-10-07",
+        "team": "team-beta"
+      },
+      {
+        "date": "2025-10-08",
+        "team": "team-beta"
+      }
+    ],
+    "paths": [],
+    "body": "FLOWPLAN\n\nFlowPlan\nPlanning\nHistory\nPlanning\nSave portfolio snapshot\nPortfolio snapshots (0)\nProjected progress on 01/09/2025\nProjects\nPrograms\nPas\nProject Atlas\n\nPriority 1 · Program Phoenix · Pas Strategic\n\nProjected end\n2025-10-08\nWorkload\n0 MD / 16 MD allocated to date\n0%\nProject Boreal\n\nPriority 2 · Program Phoenix · Pas —\n\nProjected end\n2025-10-18\nWorkload\n2 MD / 69 MD allocated to date\n2.9%\nProject Cobalt\n\nPriority 3 · Program — · Pas Regulatory\n\nProjected end\n2025-10-16\nWorkload\n1 MD / 38 MD allocated to date\n2.63%\nProject Delta\n\nPriority 4 · Program — · Pas —\n\nProjected end\nIncomplete"
+  },
+  {
+    "scenario": "mixed",
+    "width": 1440,
+    "theme": "light",
+    "scrollWidth": 1440,
+    "allocations": [
+      {
+        "date": "2025-01-02",
+        "team": "team-alpha"
+      },
+      {
+        "date": "2025-01-02",
+        "team": "team-beta"
+      }
+    ],
+    "paths": [
+      {
+        "id": "11c-baseline-overlap",
+        "paths": [
+          {
+            "class": "history-actuals",
+            "d": "M0,78H24V73.111111116H0Z"
+          },
+          {
+            "class": "history-forecast",
+            "d": "M0,73.111111116H24V63.333333348000004H0Z"
+          }
+        ]
+      },
+      {
+        "id": "11c-new-separated",
+        "paths": [
+          {
+            "class": "history-actuals",
+            "d": "M0,108H24V103.111111116H0Z"
+          },
+          {
+            "class": "history-forecast",
+            "d": "M24,108H48V98.22222223200001H24Z"
+          }
+        ]
+      }
+    ],
+    "body": "FLOWPLAN\n\nFlowPlan\nPlanning\nHistory\nProject History\n\nReference snapshot: Oct 8, 2026\n\n−\n+\nReset\nVisual cap 3 MD/day\n\nDrag a date range to zoom · Shift + drag to pan · Focus a row and use ← → / Home / End for daily details. Heights share a visual cap; dark = Actuals, pastel = Forecast.\n\nOct 8, 2026\nOct 8, 2026 · Reference\nSnapshot / Priority\n2025\nJan\nFeb\nMar\nProject Atlas\nProgramme Phoenix · Pas Strategic\n#1\n#1\nProject Boreal\nProgramme Phoenix · Pas None\n#2\n#2\nProject Cobalt\nProgramme None · Pas Regulatory\n#3\n#3\nProject Delta\nProgramme None · Pas None\n#4\n#4"
+  },
+  {
+    "scenario": "mixed",
+    "width": 1440,
+    "theme": "dark",
+    "scrollWidth": 1440,
+    "allocations": [
+      {
+        "date": "2025-01-02",
+        "team": "team-alpha"
+      },
+      {
+        "date": "2025-01-02",
+        "team": "team-beta"
+      }
+    ],
+    "paths": [
+      {
+        "id": "11c-baseline-overlap",
+        "paths": [
+          {
+            "class": "history-actuals",
+            "d": "M0,78H24V73.111111116H0Z"
+          },
+          {
+            "class": "history-forecast",
+            "d": "M0,73.111111116H24V63.333333348000004H0Z"
+          }
+        ]
+      },
+      {
+        "id": "11c-new-separated",
+        "paths": [
+          {
+            "class": "history-actuals",
+            "d": "M0,108H24V103.111111116H0Z"
+          },
+          {
+            "class": "history-forecast",
+            "d": "M24,108H48V98.22222223200001H24Z"
+          }
+        ]
+      }
+    ],
+    "body": "FLOWPLAN\n\nFlowPlan\nPlanning\nHistory\nProject History\n\nReference snapshot: Oct 8, 2026\n\n−\n+\nReset\nVisual cap 3 MD/day\n\nDrag a date range to zoom · Shift + drag to pan · Focus a row and use ← → / Home / End for daily details. Heights share a visual cap; dark = Actuals, pastel = Forecast.\n\nOct 8, 2026\nOct 8, 2026 · Reference\nSnapshot / Priority\n2025\nJan\nFeb\nMar\nProject Atlas\nProgramme Phoenix · Pas Strategic\n#1\n#1\nProject Boreal\nProgramme Phoenix · Pas None\n#2\n#2\nProject Cobalt\nProgramme None · Pas Regulatory\n#3\n#3\nProject Delta\nProgramme None · Pas None\n#4\n#4"
+  },
+  {
+    "scenario": "mixed",
+    "width": 390,
+    "theme": "light",
+    "scrollWidth": 390,
+    "allocations": [
+      {
+        "date": "2025-01-02",
+        "team": "team-alpha"
+      },
+      {
+        "date": "2025-01-02",
+        "team": "team-beta"
+      }
+    ],
+    "paths": [
+      {
+        "id": "11c-baseline-overlap",
+        "paths": [
+          {
+            "class": "history-actuals",
+            "d": "M0,78H24V73.111111116H0Z"
+          },
+          {
+            "class": "history-forecast",
+            "d": "M0,73.111111116H24V63.333333348000004H0Z"
+          }
+        ]
+      },
+      {
+        "id": "11c-new-separated",
+        "paths": [
+          {
+            "class": "history-actuals",
+            "d": "M0,108H24V103.111111116H0Z"
+          },
+          {
+            "class": "history-forecast",
+            "d": "M24,108H48V98.22222223200001H24Z"
+          }
+        ]
+      }
+    ],
+    "body": "FLOWPLAN\n\nFlowPlan\nPlanning\nHistory\nProject History\n\nReference snapshot: Oct 8, 2026\n\n−\n+\nReset\nVisual cap 3 MD/day\n\nDrag a date range to zoom · Shift + drag to pan · Focus a row and use ← → / Home / End for daily details. Heights share a visual cap; dark = Actuals, pastel = Forecast.\n\nOct 8, 2026\nOct 8, 2026 · Reference\nSnapshot / Priority\n2025\nJan\nFeb\nMar\nProject Atlas\nProgramme Phoenix · Pas Strategic\n#1\n#1\nProject Boreal\nProgramme Phoenix · Pas None\n#2\n#2\nProject Cobalt\nProgramme None · Pas Regulatory\n#3\n#3\nProject Delta\nProgramme None · Pas None\n#4\n#4"
+  },
+  {
+    "scenario": "mixed",
+    "width": 390,
+    "theme": "dark",
+    "scrollWidth": 390,
+    "allocations": [
+      {
+        "date": "2025-01-02",
+        "team": "team-alpha"
+      },
+      {
+        "date": "2025-01-02",
+        "team": "team-beta"
+      }
+    ],
+    "paths": [
+      {
+        "id": "11c-baseline-overlap",
+        "paths": [
+          {
+            "class": "history-actuals",
+            "d": "M0,78H24V73.111111116H0Z"
+          },
+          {
+            "class": "history-forecast",
+            "d": "M0,73.111111116H24V63.333333348000004H0Z"
+          }
+        ]
+      },
+      {
+        "id": "11c-new-separated",
+        "paths": [
+          {
+            "class": "history-actuals",
+            "d": "M0,108H24V103.111111116H0Z"
+          },
+          {
+            "class": "history-forecast",
+            "d": "M24,108H48V98.22222223200001H24Z"
+          }
+        ]
+      }
+    ],
+    "body": "FLOWPLAN\n\nFlowPlan\nPlanning\nHistory\nProject History\n\nReference snapshot: Oct 8, 2026\n\n−\n+\nReset\nVisual cap 3 MD/day\n\nDrag a date range to zoom · Shift + drag to pan · Focus a row and use ← → / Home / End for daily details. Heights share a visual cap; dark = Actuals, pastel = Forecast.\n\nOct 8, 2026\nOct 8, 2026 · Reference\nSnapshot / Priority\n2025\nJan\nFeb\nMar\nProject Atlas\nProgramme Phoenix · Pas Strategic\n#1\n#1\nProject Boreal\nProgramme Phoenix · Pas None\n#2\n#2\nProject Cobalt\nProgramme None · Pas Regulatory\n#3\n#3\nProject Delta\nProgramme None · Pas None\n#4\n#4"
+  },
+  {
+    "focused": "history-row-entry",
+    "details": "FLOWPLAN\n\nFlowPlan\nPlanning\nHistory\nProject History\n\nReference snapshot: Oct 8, 2026\n\n−\n+\nReset\nVisual cap 3 MD/day\n\nDrag a date range to zoom · Shift + drag to pan · Focus a row and use ← → / Home / End for daily details. Heights share a visual cap; dark = Actuals, pastel = Forecast.\n\nOct 8, 2026\nOct 8, 2026 · Reference\nSnapshot / Priority\n2025\nJan\nFeb\nMar\nProject Atlas\nProgramme Phoenix · Pas Strategic\n#1\n#1\nProject Boreal\nProgramme Phoenix · Pas None\n#2\n#2\nProject Cobalt\nProgramme None · Pas Regulatory\n#3\n#3\nProject Delta\nProgramme None · Pas None\n#4\n#4\nClose\nProject Atlas\n\nSnapshot 10/08/2026, 12:00:00.000 PM GMT+02:00 · 2026-10-08T10:00:00.000Z · ID 11c-baseline-overlap\n\nProject ID project-atlas · Active\n\nProgramme: Phoenix [program-phoenix] · Pas: Strategic [pas-strategic]\n\nPriority #1\n\nActuals 0.67 MD (exact 2/3) · RAF 1.33 MD (exact 4/3) · EAC 2 MD (exact 2/1)\n\nActuals knowledge: covered\n\nEstimated start: 2025-01-01\n\nEstimated end: 2025-01-01\n\nForecast: fully allocated\n\nActuals coverage: 2025-01-01 through 2025-01-01 inclusive. Forecast horizon: 2025-01-01 through 2025-03-31.\n\nActuals knowledge through: 2025-01-01 · First positive Forecast: 2025-01-01\n\nActuals and Forecast overlap; components are stacked on their captured dates.\n\nFirst presence; no previous comparison."
+  },
+  {
+    "returned": "Planning timeline. Projection date 2025-01-01. Use Left and Right arrows to move the date.",
+    "storageIntact": true
+  }
+]

@@ -225,8 +225,8 @@ capacity. Source kind, object, snapshot, period, Team and day flow to timeline
 hit testing and tooltips. Metrics and overload diagnostics use only the active
 source mode for each object and the current projected run.
 
-The planning engine receives current RAF and exact daily occupation, not
-snapshot histories. Actual Project and Reservation occupation is applied
+The planning engine receives current RAF, exact daily occupation and mandatory
+derived Project Actuals boundaries, not snapshot histories. Actual Project and Reservation occupation is applied
 before Reservation forecast and Project forecast. `isActive` affects only
 forecast participation. Project, Program and Pas progress stays forecast
 based, so Actuals occupation is not subtracted from RAF a second time.
@@ -328,6 +328,23 @@ retain sequential keyboard access. No Reservations frise, edit, restore, replay,
 reference selection or advanced analysis is included. Post-audit suite: 805 tests /
 93 suites; typecheck/build/diff checks pass. Desktop/narrow and light/dark review,
 benchmark data and known memory/storage/color limits are recorded in the canon.
+
+## Actuals / Forecast temporal separation — Lot 11C
+
+Status: **IN REVIEW**, pending independent audit and human validation.
+[Implementation, matrix, measurements and UI review](./steps/HISTORY/lot11c_canon.md).
+Current Project V5 coverage supplies an inclusive Actuals end; without V5, the
+last pending V4 through applies. Uncovered/RAF-only knowledge has no bound.
+Zero consumption retains coverage; erosion and rectification immediately use
+the current source. One immutable derived line exists for every Project,
+including inactive Projects, and the engine rejects incomplete/invalid inputs.
+The common admission/Mandatory predicate requires every Forecast date > this
+end across all Teams, preserving priority, slots, caps and shared capacity for
+other eligible Projects. Dates/metrics/Timeline consume the corrected run.
+Actuals distribution, quantities, RAF and Reservations are unchanged.
+New Saves use engine version `/2`; existing captures keep exact profiles and
+versions, including old overlap. V5/V6/V7 and History validation/rendering remain
+unchanged. 11B remains **IN REVIEW** with its own audit/validation pending.
 
 ## Current UI structure
 

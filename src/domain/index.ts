@@ -122,6 +122,7 @@ export { transitionProjectRequirements } from "./actuals/requirements.js";
 export { reconstructActuals, actualOccupationFromReconstruction, type ActualsDailyContribution, type ActualsTeamDayTotal, type ActualsReconstruction } from "./actuals/reconstruction.js";
 export type {
   PlanningInput,
+  ProjectActualsKnowledge,
   ActualOccupationDay,
   PlanningResult,
   DeadlineStatus,
@@ -136,3 +137,5 @@ export type {
 } from "./planning/contracts.js";
 
 export { projectEstimatedStartDate, projectEstimatedEndDate } from "./planning/projectEstimatedDates.js";
+
+export { projectActualsKnowledgeFromPortfolio } from "./actuals/projectActualsKnowledge.js";

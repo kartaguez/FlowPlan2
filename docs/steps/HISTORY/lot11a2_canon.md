@@ -165,3 +165,13 @@ No other issue remains in the examined scope. No production code, V7 format,
 daily-profile contract, Actuals/Forecast calculation, engine, Timeline or History
 implementation changed. **11A.2 DONE; 11B PLANNED / NOT STARTED.**
 11A.1 merge/archive work remains deferred.
+
+## Current projection amendment — 11C (IN REVIEW)
+
+New captures identify `planning-engine-v1/actuals-aware/2` and freeze the run
+whose positive Project Forecast is strictly after current source coverage on
+all Teams. Capture remains an exact projection without filtering or recompute.
+All previous schema 1/2 captures and engine versions, including overlapping
+daily profiles, retain their historical validation and exact History display.
+The 11A.2 schema and DONE status, and 11B IN REVIEW, are unchanged.
+See [11C implementation](./lot11c_canon.md).

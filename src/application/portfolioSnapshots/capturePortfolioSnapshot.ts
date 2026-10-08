@@ -8,7 +8,7 @@ import { projectExactTotals } from "../../domain/portfolioSnapshots/portfolioSna
 import { projectEstimatedStartDate, projectEstimatedEndDate } from "../../domain/planning/projectEstimatedDates.js";
 import type { ActualsReconstruction, PlanningResult } from "../../domain/index.js";
 
-export const PLANNING_ENGINE_VERSION = "planning-engine-v1/actuals-aware/1";
+export const PLANNING_ENGINE_VERSION = "planning-engine-v1/actuals-aware/2";
 
 export function captureHistoricalInputs(state: PlanningSessionState) {
   const inputs = encodePlanningInputs(state);

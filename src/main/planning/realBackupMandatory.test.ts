@@ -81,7 +81,7 @@ it("rebuilds the real 12178 - SDD projection when its objective becomes Mandator
   };
   const [planningResult, planningMs] = measure(() => recomputePlanning({ portfolio: current.portfolio,
     horizon: horizon.value, workingPattern: current.planning.workingPattern,
-    maxParallelProjects: current.planning.maxParallelProjects, actualOccupation: [] }).planningResult);
+    maxParallelProjects: current.planning.maxParallelProjects, projectActualsKnowledge: current.portfolio.projects.map(project => ({ projectId: project.id, actualsThrough: null })), actualOccupation: [] }).planningResult);
   const [viewModel, viewModelMs] = measure(() => buildTimelineViewModel({ portfolio: current.portfolio,
     horizon: horizon.value, planningResult, workingPattern: current.planning.workingPattern }));
   const [geometry, geometryMs] = measure(() => buildTimelineGeometry({ viewModel, viewport }));

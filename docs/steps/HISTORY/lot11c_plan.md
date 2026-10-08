@@ -1,6 +1,12 @@
 # Lot 11C — Séparation temporelle Actuals / Forecast
 
-**Statut : PLANNED / NOT STARTED — plan uniquement, à auditer.**
+**Statut courant : IN REVIEW — implémentation autorisée et livrée.**
+La mission explicite à baseline `9ac532f0451e25a4b53564b9fc6359d3f824f318`
+approuve P1–P7 et autorise code/tests/docs. Voir le
+[canon d’implémentation et validations](./lot11c_canon.md).
+11B reste IN REVIEW ; aucune clôture implicite. Le texte suivant conserve le
+plan original audité et sa livraison documentaire PLANNED / NOT STARTED ; ses
+attentes et critères s’appliquent à l’implémentation autorisée.
 Aucune implémentation n'est autorisée par ce document. Attendre l'audit du plan
 et l'autorisation explicite avant tout changement de production ou de tests.
 11A et 11A.2 restent DONE ; **11B reste IN REVIEW**, en attente d'audit

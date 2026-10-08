@@ -6,6 +6,7 @@ import {
   type MaxParallelProjects,
   type WorkingPattern,
   type ActualOccupationDay,
+  type ProjectActualsKnowledge,
 } from "../../domain/index.js";
 
 export interface RecomputePlanningRequest {
@@ -13,6 +14,7 @@ export interface RecomputePlanningRequest {
   readonly horizon: PlanningHorizon;
   readonly workingPattern: WorkingPattern;
   readonly maxParallelProjects: MaxParallelProjects;
+  readonly projectActualsKnowledge: readonly ProjectActualsKnowledge[];
   readonly actualOccupation: readonly ActualOccupationDay[];
 }
 
@@ -29,6 +31,7 @@ export function recomputePlanning(
       horizon: request.horizon,
       workingPattern: request.workingPattern,
       maxParallelProjects: request.maxParallelProjects,
+      projectActualsKnowledge: request.projectActualsKnowledge,
       actualOccupation: request.actualOccupation,
     }),
   };

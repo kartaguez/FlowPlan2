@@ -19,6 +19,8 @@ import {
   createPriorityFamilyId,
   createProjectTeamRequirement,
   createRemainingWorkload,
+  remainingWorkloadFromSerialized,
+  dailyCapFromSerialized,
   createReservationId,
   createReservationRatio,
   reservationRatioFromSerialized,
@@ -123,10 +125,10 @@ function makeProject(
           createProjectTeamRequirement({
             teamId: requirement.team.id,
             remainingWorkload: must(
-              createRemainingWorkload(requirement.workload),
+              requirement.workload.includes("/") ? remainingWorkloadFromSerialized(requirement.workload) : createRemainingWorkload(requirement.workload),
             ),
             ...(requirement.dailyCap !== undefined
-              ? { dailyCap: must(createDailyCap(requirement.dailyCap)) }
+              ? { dailyCap: must(requirement.dailyCap.includes("/") ? dailyCapFromSerialized(requirement.dailyCap) : createDailyCap(requirement.dailyCap)) }
               : {}),
           }),
         ),
@@ -183,7 +185,7 @@ function makeInput(
     maxParallelProjects: must(
       createMaxParallelProjects(testParallelByTeamId.get(teams[0]!.id) ?? 3),
     ),
-    actualOccupation: [],
+    projectActualsKnowledge: portfolio.projects.map(project => ({ projectId: project.id, actualsThrough: null })), actualOccupation: [],
   };
 }
 
@@ -2173,5 +2175,89 @@ describe("Planning Engine V1 canonical scenarios", () => {
     assert.equal(changed.teamPlans[0]!.dayCapacities.length, 1);
     assert.equal(findProjectPlan(findTeamPlan(changed, team), project).deadlineStatus, "UNFEASIBLE");
     assert.ok(changed.diagnostics.some((item) => item.code === "DEADLINE_UNFEASIBLE"));
+  });
+});
+
+it("characterizes occupation without Project knowledge: spare covered-day capacity allows Forecast", () => {
+  const team = makeTeam("11c-characterization", "2");
+  const project = makeProject("covered", [{ team, workload: "1" }]);
+  const input = makeInput([team], [project], "2025-09-30", "2025-10-01");
+  const result = planPortfolio({ ...input, actualOccupation: [{ teamId: team.id,
+    date: date("2025-09-30"), projectActual: must(createCapacity("1")), reservationActual: must(createCapacity("0")) }] });
+  assert.deepEqual(allocations(findProjectPlan(findTeamPlan(result, team), project)), [[date("2025-09-30"), "1"]]);
+});
+
+describe("11C Project temporal knowledge", () => {
+  const withBounds = (input: PlanningInput, bounds: readonly (string | null)[]): PlanningInput => ({ ...input,
+    projectActualsKnowledge: input.portfolio.projects.map((p, i) => ({ projectId: p.id, actualsThrough: bounds[i] === null ? null : date(bounds[i]!) })) });
+  function prove(input: PlanningInput, result: PlanningResult) {
+    const bounds = new Map(input.projectActualsKnowledge.map(r => [r.projectId, r.actualsThrough]));
+    for (const team of result.teamPlans) {
+      for (const admission of team.dayAdmissions) for (const id of admission.admittedProjectIds) {
+        const t = bounds.get(id); assert.ok(t === null || (t !== undefined && admission.date > t));
+      }
+      for (const plan of team.projectPlans) {
+        const t = bounds.get(plan.projectId);
+        for (const allocation of plan.allocations) if (rationalOf(allocation.workload).numerator > 0n) {
+          assert.ok(t === null || (t !== undefined && allocation.date > t), `${plan.projectId}/${team.teamId}/${allocation.date} <= ${t}`);
+          assert.ok(allocation.date >= input.horizon.start && allocation.date <= input.horizon.end);
+        }
+        const req = input.portfolio.projects.find(p => p.id === plan.projectId)!.requirements.find(r => r.teamId === team.teamId)!;
+        assert.equal(compareRationals(addRationals(rationalOf(plan.plannedWorkload), rationalOf(plan.remainingUnplannedWorkload)), rationalOf(req.remainingWorkload)), 0);
+      }
+    }
+  }
+  for (const through of [null, "2025-08-31", "2025-09-01", "2025-09-30", "2025-10-31", "2025-12-31", "9999-12-31"] as const) {
+    for (const cap of [undefined, "0", "1/3", "1"] as const) it(`exhaustively checks all Teams, boundary ${through}, cap ${cap}`, () => {
+      const a = makeTeam("11c-a", "1", 1), b = makeTeam("11c-b", "1", 1);
+      const p = makeProject("blocked-first", [{team:a, workload:"1/3", ...(cap === undefined ? {} : {dailyCap:cap})}, {team:b, workload:"2/3"}]);
+      const q = makeProject("eligible-second", [{team:a, workload:"10"}, {team:b, workload:"10"}]);
+      const input = withBounds(makeInput([a,b], [p,q], "2025-09-01", "2025-10-31"), [through,null]);
+      const result = planPortfolio(input); prove(input,result);
+      if (through && through >= "2025-09-01") for (const team of result.teamPlans) {
+        assert.deepEqual(team.dayAdmissions[0]!.admittedProjectIds, [q.id]);
+        assert.equal(team.projectPlans[1]!.allocations[0]!.date, "2025-09-01");
+      }
+      if (through === "2025-09-30") assert.equal(findProjectPlan(findTeamPlan(result,b),p).allocations[0]!.date,"2025-10-01");
+      if (through && through >= "2025-10-31") for (const team of result.teamPlans) {
+        assert.equal(team.projectPlans[0]!.complete,false); assert.equal(team.projectPlans[0]!.projectedEndDate,undefined);
+        assert.ok(result.diagnostics.some(d=>d.code==="PROJECT_REMAINS_UNPLANNED_AT_HORIZON" && d.projectId===p.id && d.teamId===team.teamId));
+      }
+    });
+  }
+  for (const earliest of ["2025-09-29","2025-09-30","2025-10-01","2025-10-02","2025-11-01"]) it(`combines earliest ${earliest} with exclusive Actuals end`, () => {
+    const t=makeTeam("11c-earliest","1"),p=makeProject("p",[{team:t,workload:"1"}],{earliestStartDate:earliest});
+    const input=withBounds(makeInput([t],[p],"2025-09-29","2025-10-03"),["2025-09-30"]);const result=planPortfolio(input);prove(input,result);
+    assert.equal(result.teamPlans[0]!.projectPlans[0]!.allocations[0]?.date,earliest>"2025-10-03"?undefined:earliest>"2025-10-01"?earliest:"2025-10-01");
+  });
+  for (const deadline of ["2025-08-31","2025-09-29","2025-09-30","2025-10-01","2025-10-03","2025-11-01"]) {
+    for (const laterMandatory of [false,true]) it(`Mandatory ${deadline}, later reader ${laterMandatory}: blocked Project leaves capacity`,()=>{
+      const t=makeTeam("11c-deadline","1");
+      const p=makeProject("blocked",[{team:t,workload:"3/2"}],{mandatoryDeadline:deadline});
+      const q=makeProject("eligible",[{team:t,workload:"2"}],{mandatoryDeadline:"2025-10-03"});
+      const r=makeProject("later",[{team:t,workload:"1/3",dailyCap:"1/3"}],laterMandatory?{mandatoryDeadline:"2025-10-04"}:{});
+      const input=withBounds(makeInput([t],[p,q,r],"2025-09-29","2025-10-03"),["2025-09-30",null,null]);
+      const result=planPortfolio(input);prove(input,result);
+      const qp=findProjectPlan(findTeamPlan(result,t),q);assert.ok(qp.allocations.some(a=>a.date<="2025-09-30"));assert.equal(qp.deadlineStatuses![0]!.status,"FEASIBLE");
+      const pp=findProjectPlan(findTeamPlan(result,t),p);
+      assert.equal(pp.deadlineStatuses![0]!.status,deadline<"2025-09-29"?"MISSED":"PENDING");
+      assert.ok(!result.diagnostics.some(d=>d.code==="DEADLINE_UNFEASIBLE"&&d.projectId===p.id&&d.date!<="2025-09-30"));
+      assert.ok(result.diagnostics.filter(d=>d.code==="DEADLINE_MISSED"&&d.projectId===p.id).length<=1);
+    });
+  }
+  for(const [start,through,end] of [["2025-12-31","2025-12-31","2026-01-01"],["2024-02-28","2024-02-29","2024-03-01"],["9999-12-31","9999-12-31","9999-12-31"]]) it(`civil boundary ${through} does not add a day`,()=>{
+    const base=makeTeam("date-team","1");const t=must(createTeam({...base,capacitySchedule:must(createTeamCapacitySchedule({periods:[must(createCapacityPeriod({start:date(start!),end:date(end!),dailyCapacity:must(createCapacity("1"))}))],exceptions:[]}))}));
+    const p=makeProject("date-project",[{team:t,workload:"1"}]);const input=withBounds(makeInput([t],[p],start!,end!),[through!]);const result=planPortfolio(input);prove(input,result);
+    assert.equal(result.teamPlans[0]!.projectPlans[0]!.allocations[0]?.date,through===end?undefined:end);
+  });
+  it("validates total, unique, known IDs and canonical dates including inactive Projects",()=>{
+    const t=makeTeam("guard-team","1"),p=makeProject("guard-project",[{team:t,workload:"1"}]);const input=makeInput([t],[p],"2025-01-01","2025-01-01");
+    const row=input.projectActualsKnowledge[0]!;
+    for(const value of [undefined,null,{},[],[row,row],[{...row,projectId:"unknown"}], [{...row,actualsThrough:"2025-02-30"}], [{...row,actualsThrough:"2025-1-01"}], [{projectId:p.id}], [null]]) {
+      assert.throws(()=>planPortfolio({...input,projectActualsKnowledge:value} as unknown as PlanningInput),/projectActualsKnowledge/);
+    }
+    const inactive=must(createProject({...p,isActive:false}));const off={...input,portfolio:must(createPortfolio({...input.portfolio,projects:[inactive]}))};
+    assert.throws(()=>planPortfolio({...off,projectActualsKnowledge:[]}),/missing Project/);assert.deepEqual(planPortfolio(off).teamPlans[0]!.projectPlans,[]);
+    const empty={...input,portfolio:must(createPortfolio({...input.portfolio,projects:[],priorityOrder:[]})),projectActualsKnowledge:[]};assert.doesNotThrow(()=>planPortfolio(empty));
   });
 });

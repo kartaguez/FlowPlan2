@@ -473,7 +473,7 @@ describe("buildTimelineViewModel", () => {
         createWorkingPattern({ workingWeekdays: [1, 2, 3, 4, 5] }),
       ),
       maxParallelProjects: must(createMaxParallelProjects(2)),
-      actualOccupation: [],
+      projectActualsKnowledge: input.portfolio.projects.map(project => ({ projectId: project.id, actualsThrough: null })), actualOccupation: [],
     });
     const viewModel = buildTimelineViewModel({
       portfolio: input.portfolio,

@@ -48,7 +48,8 @@ plus Lot 11A.2 exact daily profiles and V7 persistence.
 - 11A Portfolio Snapshots & Forecast History Capture (DONE).
 - 11A.2 Historical daily load profiles (DONE).
 
-Current trajectory: **11B — Project History view**, following validated DONE
+Current trajectory: **11C — Actuals / Forecast temporal separation (IN REVIEW)**;
+**11B — Project History view remains IN REVIEW**, following validated DONE
 11A.2. See the
 [detailed implementation plan](./steps/HISTORY/lot11a2_11b_plan.md).
 11A.2 is implemented, verified and closed. Final plan review concludes
@@ -59,7 +60,7 @@ Current trajectory: **11B — Project History view**, following validated DONE
 ```text
 10A (DONE) → 10B (DONE) → 10C (DONE) → 10C.1 (DONE) → 10C.2 (DONE)
 11A (DONE) → 11A.2 (DONE) → 11B (IN REVIEW)
-11C: PLANNED / NOT STARTED — Actuals / Forecast temporal separation (plan only)
+11C: IN REVIEW — Actuals / Forecast temporal separation
 11A.1: DEFERRED / not adopted as product work; no dependency for 11B
 10D: superseded by 11A (not DONE)
 10E: largely superseded by 11B; advanced replay/navigation/comparison deferred
@@ -461,20 +462,23 @@ Do not advance 11B to DONE automatically from successful tests or this delivery.
 
 ## 11C — Actuals / Forecast temporal separation
 
-**Status: PLANNED / NOT STARTED — documentation only.**
-The [11C implementation plan](./steps/HISTORY/lot11c_plan.md) examines baseline
-`4d39ad40053a70ed51c5b18bce8c8a683fb920fb` on the existing branch
-`codex/lot11a-portfolio-snapshots`. Project Forecast must occur strictly after
-the inclusive end of its current Actuals coverage, across every associated Team,
-including Teams without historical consumption. The plan covers the derived
-engine input, admission, Mandatory lookahead, boundaries, projections, capture,
-tests and termination. Legacy/erosion policies and separate Reservation semantics
-are explicit proposals for audit. Existing snapshots and V5/V6/V7 formats remain
-unchanged; History performs no replay or historical correction.
+**Status: IN REVIEW — independent audit and human validation pending.**
+Implemented on `codex/lot11a-portfolio-snapshots` from the authorized mandatory
+baseline `9ac532f0451e25a4b53564b9fc6359d3f824f318`, initially clean and origin 0/0.
+The [audited plan](./steps/HISTORY/lot11c_plan.md) and mission approve P1–P7:
+current V5 coverage or last pending V4 through, uncovered null, current erosion,
+mandatory total derived input, common admission/Mandatory guard, unchanged
+Reservations and `/2` for new captures only.
 
-No production code or test is changed or started. Next action: audit the plan,
-resolve its stated decisions, then await explicit implementation authorization.
-**11B remains IN REVIEW**, with independent audit and human validation pending.
+[11C implementation canon](./steps/HISTORY/lot11c_canon.md) records the source,
+engine, integration/history tests, performance and 1440/390 light/dark review.
+Project Forecast is strictly after its inclusive current Actuals end on every
+Team; other admissible Projects retain slots/capacity. No Actuals/RAF, format,
+persistence or History correction is introduced. Existing snapshots, including
+old overlap and engine versions, remain exact and readable without replay.
+
+Next action: independent audit and human validation. **11B remains IN REVIEW**;
+11C does not close it and does not advance automatically to DONE.
 
 ## Cross-cutting non-goals for Phase 9
 

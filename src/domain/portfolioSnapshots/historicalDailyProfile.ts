@@ -4,7 +4,9 @@ import { addRationals, compareRationals, rationalFromInteger, rationalToCanonica
 import { capacityFromSerialized, consumedWorkloadFromSerialized, rationalOf, serializeQuantity } from "../model/scalars.js";
 import type { HistoricalProjectForecast } from "./portfolioSnapshot.js";
 
-export interface HistoricalDateRange { readonly from: CivilDate; readonly through: CivilDate }
+import { projectActualsRange, type ProjectActualsRange } from "../actuals/projectActualsKnowledge.js";
+export { projectActualsRange } from "../actuals/projectActualsKnowledge.js";
+export type HistoricalDateRange = ProjectActualsRange;
 export interface HistoricalProjectDailyLoad { readonly date: CivilDate; readonly actualsWorkload: string; readonly forecastWorkload: string }
 export interface HistoricalProjectDailyProfile {
   readonly actualsRange: HistoricalDateRange | null;
@@ -13,14 +15,6 @@ export interface HistoricalProjectDailyProfile {
 }
 export const ZERO = rationalFromInteger(0n);
 
-/** Coverage is knowledge, including zero days; never infer it from throughput. */
-export function projectActualsRange(project: Project): HistoricalDateRange | null {
-  const current = project.snapshots?.at(-1);
-  if (current) return current.coverage ? { from: current.coverage.actualsFrom, through: current.coverage.actualsThrough } : null;
-  const legacy = project.legacyV4Actuals ?? project.actuals;
-  const last = legacy?.records.at(-1);
-  return legacy && last ? { from: legacy.actualsFromDate, through: last.actualsThroughDate } : null;
-}
 function fields(value: unknown, keys: readonly string[]): asserts value is Record<string, unknown> {
   if (!value || typeof value !== "object" || Array.isArray(value) || Object.keys(value).length !== keys.length || keys.some((k) => !Object.hasOwn(value, k))) throw new TypeError("Invalid fields.");
 }

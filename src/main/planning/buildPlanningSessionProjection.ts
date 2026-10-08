@@ -10,7 +10,7 @@ import {
   type PlanningSessionState,
 } from "../../application/index.js";
 import type { PlanningHorizon, PlanningResult, Portfolio, WorkingPattern, ActualsReconstruction } from "../../domain/index.js";
-import { actualOccupationFromReconstruction, createPlanningHorizon, reconstructActuals } from "../../domain/index.js";
+import { projectActualsKnowledgeFromPortfolio, actualOccupationFromReconstruction, createPlanningHorizon, reconstructActuals } from "../../domain/index.js";
 
 export interface PlanningSessionProjection {
   readonly portfolio: Portfolio;
@@ -43,6 +43,7 @@ export function buildPlanningSessionProjection(
     horizon: horizonResult.value,
     workingPattern: input.state.planning.workingPattern,
     maxParallelProjects: input.state.planning.maxParallelProjects,
+    projectActualsKnowledge: projectActualsKnowledgeFromPortfolio(input.state.portfolio),
     actualOccupation: actualOccupationFromReconstruction(actualsReconstruction),
   });
   const { planningResult } = recomputePlanning(planningInput);

@@ -63,3 +63,14 @@ same object must be sequenced before Actuals Apply.
 replay a whole historical planning state. 10E must label historical versus
 current inputs in drift comparisons. An object-scoped Actuals snapshot does
 not freeze Team capacity, calendar, or unrelated objects.
+
+## Downstream amendment — 11C (IN REVIEW)
+
+The current metadata additionally derives the inclusive Project boundary passed
+to planning, independently of daily occupation. Coverage including zero blocks
+Project Forecast through its end on every Team; absent coverage/RAF-only gives
+null. Current erosion/rectification is authoritative, without a maximum over
+prior versions. Pending V4 uses its last object through, including accepted
+future dates. Actuals/RAF contracts and distribution remain unchanged.
+[11C](../HISTORY/lot11c_canon.md) changes current projection only; older Portfolio
+Snapshots, including overlaps, retain exact profiles/versions without replay.

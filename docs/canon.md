@@ -53,17 +53,29 @@ The engine answers this question:
 
 ```text
 current object snapshot or pending V4 legacy → deterministic reconstruction → daily Project/Reservation occupation
-current RAF + daily occupation + forecast inputs → Planning Engine
+current RAF + daily occupation + derived Project Actuals boundaries + forecast inputs → Planning Engine
 ```
 
 Snapshot histories and retained legacy records remain upstream. Each object
 has exactly one active Actuals source: its current V5 snapshot, or pending V4
-legacy before reconciliation. The engine receives only exact, non-negative
-calculated daily occupation by Team/date; an absent row means zero. It never
+legacy before reconciliation. The engine receives exact, non-negative calculated daily occupation by Team/date
+and a mandatory total Project knowledge array; an absent occupation row means zero. It never
 owns records, partitions, reconstruction weights, or snapshots. A Project's
 current snapshot RAF is mirrored into its forecast requirements and is never
 reduced again by the engine. V5 preserves immutable history; V4 records remain
 read-only migration evidence after explicit reconciliation.
+
+For each Project, the inclusive current Actuals end T comes from current V5
+coverage, otherwise the last pending V4 record; no coverage (including RAF-only)
+means null. Covered zero remains knowledge. Current erosion/rectification takes
+precedence over previous versions, and accepted future V4 dates remain intact.
+Every positive Project Forecast allocation must have date > T when T exists,
+on every Team. The same civil-date eligibility predicate controls admission and
+Mandatory accessibility before allocation, without consuming a slot or cancelling
+shared residual capacity for an ineligible Project. No T+1 arithmetic is needed.
+The engine validates known unique IDs, completeness and canonical dates/null;
+it never derives knowledge from positive days, clocks or daily occupation.
+Reservations retain their independent additive Actuals/forecast semantics.
 
 ## Layered architecture
 
@@ -206,6 +218,7 @@ derived from the profile.
 Estimated start is the earliest positive canonical Project Actuals contribution
 or positive Forecast allocation across Teams, without cursor/horizon clipping.
 No activity means `no-activity`; inactive Projects can have an Actuals start.
+The Actuals end never substitutes for this first positive activity date.
 Estimated end uses the same pure helper as Timeline: inactive → `inactive`, any
 incomplete Team → `incomplete-within-horizon`, all complete → latest defined
 Team end, otherwise `no-allocation`. There is no horizon extrapolation.
@@ -227,6 +240,11 @@ capture/reference/input or metric as a whole, without repair or recalculating hi
 current engine. Invalid startup documents remain preserved and reported.
 Historical IDs for Project, Reservation, Team, Program and Pas remain reserved
 while retained captures reference them, without an eternal identity registry.
+
+New captures from the temporal-separation engine identify
+`planning-engine-v1/actuals-aware/2`. Older engine versions and profiles retain
+all captured values, including Actuals/Forecast overlap. Historical validation
+and display impose no retrospective separation rule and perform no replay.
 
 11A adds capture/list/Delete only. Project drift belongs to 11B; advanced replay,
 historical navigation, comparisons and restore remain deferred.

@@ -358,8 +358,15 @@ de précision flottante.
 Le contrat conceptuel d'entrée contient : horizon, équipes, capacité effective
 accessible par équipe/date, `maxParallelProjectsPerTeam`, réservations fermes,
 ordre global stable et RAF courant par couple projet-équipe, ainsi que les dates
-et plafonds ci-dessus. Il ne contient pas de DOM, consommé, snapshots, cutoff,
-`seedAssignmentsByTeam`, ni `excludedDatesByTeamProject`.
+et plafonds ci-dessus. Amendements 10B/11C : occupation quotidienne exacte
+Project/Reservation et tableau dérivé obligatoire `projectActualsKnowledge`,
+complet par Project. La borne inclusive vient de la source courante amont ;
+admission et accessibilité Mandatory comparent directement `date > T`.
+Il ne contient pas de DOM, consommés bruts, partitions, snapshots, cutoff global,
+`seedAssignmentsByTeam`, ni `excludedDatesByTeamProject`. La borne Project ne
+modifie ni RAF, ni distribution Actuals, ni demande Reservation ; les résidus
+partagés ne sont jamais annulés par son inéligibilité. Voir le
+[canon 11C](../steps/HISTORY/lot11c_canon.md).
 
 ## Planner outputs
 

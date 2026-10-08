@@ -10,12 +10,19 @@ import type {
   TeamId,
 } from "../model/scalars.js";
 
+export interface ProjectActualsKnowledge {
+  readonly projectId: ProjectId;
+  readonly actualsThrough: CivilDate | null;
+}
+
 export interface PlanningInput {
   readonly portfolio: Portfolio;
   readonly horizon: PlanningHorizon;
   readonly workingPattern: WorkingPattern;
   /** Shared value, enforced independently inside every team plan. */
   readonly maxParallelProjects: MaxParallelProjects;
+  /** Inclusive current Actuals boundary, total over all Projects (including inactive). */
+  readonly projectActualsKnowledge: readonly ProjectActualsKnowledge[];
   /** Calculated daily occupation only; no historical records enter the engine. */
   readonly actualOccupation: readonly ActualOccupationDay[];
 }

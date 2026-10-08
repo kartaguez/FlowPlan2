@@ -1,0 +1,1040 @@
+{
+  "snapshotId": "11c-baseline-overlap",
+  "createdAt": "2026-10-08T10:00:00.000Z",
+  "inputsSchemaVersion": 1,
+  "inputs": {
+    "planning": {
+      "startDate": "2025-01-01",
+      "endDate": "2025-03-31",
+      "workingWeekdays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "maxParallelProjects": 2
+    },
+    "portfolio": {
+      "teams": [
+        {
+          "id": "team-alpha",
+          "name": "Team Alpha",
+          "capacitySchedule": {
+            "periods": [
+              {
+                "start": "2025-01-01",
+                "end": "2025-01-31",
+                "dailyCapacity": "3/1"
+              },
+              {
+                "start": "2025-02-01",
+                "end": "2025-03-31",
+                "dailyCapacity": "5/2"
+              }
+            ],
+            "exceptions": []
+          }
+        },
+        {
+          "id": "team-beta",
+          "name": "Team Beta",
+          "capacitySchedule": {
+            "periods": [
+              {
+                "start": "2025-01-01",
+                "end": "2025-03-31",
+                "dailyCapacity": "2/1"
+              }
+            ],
+            "exceptions": []
+          }
+        },
+        {
+          "id": "team-gamma",
+          "name": "Team Gamma",
+          "capacitySchedule": {
+            "periods": [
+              {
+                "start": "2025-01-01",
+                "end": "2025-03-31",
+                "dailyCapacity": "3/2"
+              }
+            ],
+            "exceptions": []
+          }
+        }
+      ],
+      "projects": [
+        {
+          "id": "project-atlas",
+          "name": "Project Atlas",
+          "isActive": true,
+          "programId": "program-phoenix",
+          "priorityFamilyId": "pas-strategic",
+          "objectiveEndDate": "2025-02-28",
+          "migrationStatus": "native",
+          "requirements": [
+            {
+              "teamId": "team-alpha",
+              "remainingWorkload": "2/3",
+              "dailyCap": "3/2"
+            },
+            {
+              "teamId": "team-beta",
+              "remainingWorkload": "2/3",
+              "dailyCap": "1/1"
+            }
+          ]
+        },
+        {
+          "id": "project-boreal",
+          "name": "Project Boreal",
+          "isActive": true,
+          "programId": "program-phoenix",
+          "earliestStartDate": "2025-02-03",
+          "objectiveEndDate": "2025-03-21",
+          "migrationStatus": "none",
+          "requirements": [
+            {
+              "teamId": "team-alpha",
+              "remainingWorkload": "45/1",
+              "dailyCap": "3/2"
+            },
+            {
+              "teamId": "team-gamma",
+              "remainingWorkload": "24/1",
+              "dailyCap": "3/4"
+            }
+          ]
+        },
+        {
+          "id": "project-cobalt",
+          "name": "Project Cobalt",
+          "isActive": true,
+          "ownColor": "#4B987D",
+          "priorityFamilyId": "pas-regulatory",
+          "mandatoryDeadline": "2025-03-14",
+          "migrationStatus": "none",
+          "requirements": [
+            {
+              "teamId": "team-beta",
+              "remainingWorkload": "38/1",
+              "dailyCap": "1/1"
+            }
+          ]
+        },
+        {
+          "id": "project-delta",
+          "name": "Project Delta",
+          "isActive": true,
+          "ownColor": "#A9764D",
+          "migrationStatus": "none",
+          "requirements": [
+            {
+              "teamId": "team-alpha",
+              "remainingWorkload": "30/1",
+              "dailyCap": "1/1"
+            },
+            {
+              "teamId": "team-beta",
+              "remainingWorkload": "22/1",
+              "dailyCap": "1/1"
+            },
+            {
+              "teamId": "team-gamma",
+              "remainingWorkload": "22/1",
+              "dailyCap": "1/1"
+            }
+          ]
+        }
+      ],
+      "programs": [
+        {
+          "id": "program-phoenix",
+          "name": "Phoenix",
+          "color": "#A9764D"
+        }
+      ],
+      "priorityFamilies": [
+        {
+          "id": "pas-strategic",
+          "name": "Strategic"
+        },
+        {
+          "id": "pas-regulatory",
+          "name": "Regulatory"
+        }
+      ],
+      "priorityOrder": [
+        "project-atlas",
+        "project-boreal",
+        "project-cobalt",
+        "project-delta"
+      ],
+      "reservations": [
+        {
+          "id": "reservation-run",
+          "name": "Run",
+          "startDate": "2025-01-20",
+          "endDate": "2025-02-14",
+          "isActive": true,
+          "ownColor": "#776F9B",
+          "migrationStatus": "none",
+          "teamAllocations": [
+            {
+              "teamId": "team-alpha",
+              "amount": {
+                "kind": "ratio",
+                "ratio": "1/5"
+              }
+            },
+            {
+              "teamId": "team-beta",
+              "amount": {
+                "kind": "fixed-daily",
+                "dailyCapacity": "1/1"
+              }
+            }
+          ]
+        },
+        {
+          "id": "reservation-support",
+          "name": "Support",
+          "startDate": "2025-02-10",
+          "endDate": "2025-02-12",
+          "isActive": true,
+          "ownColor": "#B76583",
+          "migrationStatus": "none",
+          "teamAllocations": [
+            {
+              "teamId": "team-gamma",
+              "amount": {
+                "kind": "fixed-daily",
+                "dailyCapacity": "2/1"
+              }
+            },
+            {
+              "teamId": "team-alpha",
+              "amount": {
+                "kind": "fixed-daily",
+                "dailyCapacity": "1/1"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "actualsSources": [
+    {
+      "kind": "project",
+      "objectId": "project-atlas",
+      "source": "snapshot",
+      "snapshotId": "project:project-atlas:v1"
+    },
+    {
+      "kind": "project",
+      "objectId": "project-boreal",
+      "source": "none"
+    },
+    {
+      "kind": "project",
+      "objectId": "project-cobalt",
+      "source": "none"
+    },
+    {
+      "kind": "project",
+      "objectId": "project-delta",
+      "source": "none"
+    },
+    {
+      "kind": "reservation",
+      "objectId": "reservation-run",
+      "source": "none"
+    },
+    {
+      "kind": "reservation",
+      "objectId": "reservation-support",
+      "source": "none"
+    }
+  ],
+  "forecast": {
+    "forecastSchemaVersion": 2,
+    "engineVersion": "planning-engine-v1/actuals-aware/1",
+    "projects": [
+      {
+        "projectId": "project-atlas",
+        "actuals": "2/3",
+        "actualsKnowledge": "covered",
+        "raf": "4/3",
+        "eac": "2/1",
+        "dailyProfile": {
+          "actualsRange": {
+            "from": "2025-01-01",
+            "through": "2025-01-01"
+          },
+          "forecastRange": {
+            "from": "2025-01-01",
+            "through": "2025-03-31"
+          },
+          "days": [
+            {
+              "date": "2025-01-01",
+              "actualsWorkload": "2/3",
+              "forecastWorkload": "4/3"
+            }
+          ]
+        },
+        "priorityPosition": 1,
+        "estimatedStartDate": "2025-01-01",
+        "startAbsenceReason": null,
+        "estimatedEndDate": "2025-01-01",
+        "endAbsenceReason": null
+      },
+      {
+        "projectId": "project-boreal",
+        "actuals": "0/1",
+        "actualsKnowledge": "none",
+        "raf": "69/1",
+        "eac": "69/1",
+        "dailyProfile": {
+          "actualsRange": null,
+          "forecastRange": {
+            "from": "2025-01-01",
+            "through": "2025-03-31"
+          },
+          "days": [
+            {
+              "date": "2025-02-03",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "3/2"
+            },
+            {
+              "date": "2025-02-04",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "3/2"
+            },
+            {
+              "date": "2025-02-05",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "3/2"
+            },
+            {
+              "date": "2025-02-06",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "3/2"
+            },
+            {
+              "date": "2025-02-07",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "3/2"
+            },
+            {
+              "date": "2025-02-10",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "1/2"
+            },
+            {
+              "date": "2025-02-11",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "1/2"
+            },
+            {
+              "date": "2025-02-12",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "1/2"
+            },
+            {
+              "date": "2025-02-13",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-02-14",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-02-17",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-02-18",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-02-19",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-02-20",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-02-21",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-02-24",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-02-25",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-02-26",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-02-27",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-02-28",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-03-03",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-03-04",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-03-05",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-03-06",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-03-07",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-03-10",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-03-11",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-03-12",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-03-13",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-03-14",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-03-17",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-03-18",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-03-19",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-03-20",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "3/2"
+            },
+            {
+              "date": "2025-03-21",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "1/2"
+            },
+            {
+              "date": "2025-03-24",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "1/2"
+            },
+            {
+              "date": "2025-03-25",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "1/2"
+            },
+            {
+              "date": "2025-03-26",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "1/2"
+            },
+            {
+              "date": "2025-03-27",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "1/2"
+            },
+            {
+              "date": "2025-03-28",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "1/2"
+            },
+            {
+              "date": "2025-03-31",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "1/2"
+            }
+          ]
+        },
+        "priorityPosition": 2,
+        "estimatedStartDate": "2025-02-03",
+        "startAbsenceReason": null,
+        "estimatedEndDate": null,
+        "endAbsenceReason": "incomplete-within-horizon"
+      },
+      {
+        "projectId": "project-cobalt",
+        "actuals": "0/1",
+        "actualsKnowledge": "none",
+        "raf": "38/1",
+        "eac": "38/1",
+        "dailyProfile": {
+          "actualsRange": null,
+          "forecastRange": {
+            "from": "2025-01-01",
+            "through": "2025-03-31"
+          },
+          "days": [
+            {
+              "date": "2025-01-01",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-01-02",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-01-03",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-01-06",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-01-07",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-01-08",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-01-09",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-01-10",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-01-13",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-01-14",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-01-15",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-01-16",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-01-17",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-01-20",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-01-21",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-01-22",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-01-23",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-01-24",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-01-27",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-01-28",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-01-29",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-01-30",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-01-31",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-02-03",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-02-04",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-02-05",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-02-06",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-02-07",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-02-10",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-02-11",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-02-12",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-02-13",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-02-14",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-02-17",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-02-18",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-02-19",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-02-20",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-02-21",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-02-24",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-02-25",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-02-26",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-02-27",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-02-28",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-03-03",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-03-04",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-03-05",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-03-06",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-03-07",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-03-10",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-03-11",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-03-12",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-03-13",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            },
+            {
+              "date": "2025-03-14",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "38/53"
+            }
+          ]
+        },
+        "priorityPosition": 3,
+        "estimatedStartDate": "2025-01-01",
+        "startAbsenceReason": null,
+        "estimatedEndDate": "2025-03-14",
+        "endAbsenceReason": null
+      },
+      {
+        "projectId": "project-delta",
+        "actuals": "0/1",
+        "actualsKnowledge": "none",
+        "raf": "74/1",
+        "eac": "74/1",
+        "dailyProfile": {
+          "actualsRange": null,
+          "forecastRange": {
+            "from": "2025-01-01",
+            "through": "2025-03-31"
+          },
+          "days": [
+            {
+              "date": "2025-01-01",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-01-02",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "3/1"
+            },
+            {
+              "date": "2025-01-03",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "3/1"
+            },
+            {
+              "date": "2025-01-06",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "3/1"
+            },
+            {
+              "date": "2025-01-07",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "3/1"
+            },
+            {
+              "date": "2025-01-08",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "3/1"
+            },
+            {
+              "date": "2025-01-09",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "3/1"
+            },
+            {
+              "date": "2025-01-10",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "3/1"
+            },
+            {
+              "date": "2025-01-13",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "3/1"
+            },
+            {
+              "date": "2025-01-14",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "3/1"
+            },
+            {
+              "date": "2025-01-15",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "3/1"
+            },
+            {
+              "date": "2025-01-16",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "3/1"
+            },
+            {
+              "date": "2025-01-17",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "3/1"
+            },
+            {
+              "date": "2025-01-20",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-01-21",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-01-22",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-01-23",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-01-24",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-01-27",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-01-28",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-01-29",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-01-30",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "2/1"
+            },
+            {
+              "date": "2025-01-31",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "1/1"
+            },
+            {
+              "date": "2025-02-03",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "1/1"
+            },
+            {
+              "date": "2025-02-04",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "1/1"
+            },
+            {
+              "date": "2025-02-05",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "1/1"
+            },
+            {
+              "date": "2025-02-06",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "1/1"
+            },
+            {
+              "date": "2025-02-07",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "1/1"
+            },
+            {
+              "date": "2025-02-10",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "1/2"
+            },
+            {
+              "date": "2025-02-11",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "1/2"
+            },
+            {
+              "date": "2025-02-12",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "1/2"
+            },
+            {
+              "date": "2025-02-13",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "1/2"
+            },
+            {
+              "date": "2025-02-17",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "1/1"
+            },
+            {
+              "date": "2025-02-18",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "1/1"
+            },
+            {
+              "date": "2025-02-19",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "1/1"
+            },
+            {
+              "date": "2025-02-20",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "1/1"
+            },
+            {
+              "date": "2025-02-21",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "1/1"
+            },
+            {
+              "date": "2025-02-24",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "1/1"
+            },
+            {
+              "date": "2025-02-25",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "1/1"
+            },
+            {
+              "date": "2025-02-26",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "1/1"
+            },
+            {
+              "date": "2025-02-27",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "1/1"
+            },
+            {
+              "date": "2025-02-28",
+              "actualsWorkload": "0/1",
+              "forecastWorkload": "1/1"
+            }
+          ]
+        },
+        "priorityPosition": 4,
+        "estimatedStartDate": "2025-01-01",
+        "startAbsenceReason": null,
+        "estimatedEndDate": "2025-02-28",
+        "endAbsenceReason": null
+      }
+    ]
+  }
+}
