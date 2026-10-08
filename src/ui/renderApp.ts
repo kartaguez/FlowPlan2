@@ -3,6 +3,7 @@ import { createSettingsIconButton } from "./createSettingsIconButton.js";
 const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 
 export interface AppElements {
+  readonly portfolioSnapshotControls?: PortfolioSnapshotControls;
   readonly svg: SVGSVGElement;
   readonly diagnosticsControls: DiagnosticsControls;
   readonly cursorProgress: HTMLElement;
@@ -147,6 +148,23 @@ export function renderApp(root: HTMLElement): AppElements {
     "Edit planning settings",
   );
   planningHeading.append(workspaceTitle, planningSettingsButton);
+  const snapshotActions = document.createElement("div");
+  snapshotActions.className = "portfolio-snapshot-actions";
+  const snapshotSave = document.createElement("button");
+  snapshotSave.type = "button"; snapshotSave.textContent = "Save portfolio snapshot";
+  const snapshotReason = document.createElement("span");
+  snapshotReason.id = "portfolio-snapshot-reason";
+  snapshotSave.setAttribute("aria-describedby", snapshotReason.id);
+  const snapshotStatus = document.createElement("span");
+  snapshotStatus.setAttribute("role", "status");
+  const snapshotDetails = document.createElement("details");
+  const snapshotCount = document.createElement("summary");
+  const snapshotList = document.createElement("ul");
+  snapshotDetails.append(snapshotCount, snapshotList);
+  snapshotActions.append(snapshotSave, snapshotReason, snapshotStatus, snapshotDetails);
+  planningHeading.append(snapshotActions);
+  const portfolioSnapshotControls = { save: snapshotSave, reason: snapshotReason, status: snapshotStatus,
+    details: snapshotDetails, count: snapshotCount, list: snapshotList };
   const viewportControlContainer = document.createElement("div");
   viewportControlContainer.className = "timeline-viewport-controls";
   viewportControlContainer.setAttribute("role", "group");
@@ -531,6 +549,7 @@ export function renderApp(root: HTMLElement): AppElements {
     viewportControls,
     planningSettingsButton,
     planningSettingsControls,
+    portfolioSnapshotControls,
     tooltip,
     teamEditControls,
     teamCreateButton,
@@ -561,4 +580,13 @@ function createViewportButton(
   button.setAttribute("aria-label", label);
   button.textContent = text;
   return button;
+}
+
+export interface PortfolioSnapshotControls {
+  readonly save: HTMLButtonElement;
+  readonly reason: HTMLElement;
+  readonly status: HTMLElement;
+  readonly details: HTMLDetailsElement;
+  readonly count: HTMLElement;
+  readonly list: HTMLElement;
 }

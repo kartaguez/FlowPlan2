@@ -10,6 +10,7 @@ export interface ProjectCreateController {
   readonly open: () => void;
   readonly requestClose: () => boolean;
   readonly isOpen: () => boolean;
+  readonly hasUnappliedChanges: () => boolean;
   readonly isTeamEnabled: (teamId: TeamId) => boolean;
   readonly setPortfolio: (portfolio: Portfolio) => void;
   readonly destroy: () => void;
@@ -172,6 +173,7 @@ export function createProjectCreateController(input: {
   controls.form.addEventListener("submit", onSubmit);
   render();
   return Object.freeze({
+    hasUnappliedChanges: () => !controls.container.hidden && isDirty(),
     open: () => { render(); clearError(); controls.container.hidden = false; name.focus(); },
     requestClose,
     isOpen: () => !controls.container.hidden,

@@ -1,4 +1,4 @@
-import {
+import { projectEstimatedEndDate,
   requestedReservationCapacity,
   addRationals,
   rationalFromInteger,
@@ -112,11 +112,9 @@ export function buildTimelineViewModel(
     projects: Object.freeze(orderedProjects.map((project) => {
       if (!requireProject(projectsById, project.id).isActive) return project;
       const states = teams.flatMap((team) => team.projectStates.filter((state) => state.projectId === project.id));
-      const estimatedWithinHorizon = states.every((state) => state.complete);
-      const dates = states.flatMap((state) => state.projectedEndDate === undefined ? [] : [state.projectedEndDate]);
-      const estimatedEndDate = estimatedWithinHorizon && dates.length > 0
-        ? dates.reduce((latest, date) => date > latest ? date : latest)
-        : undefined;
+      const end = projectEstimatedEndDate(true, states);
+      const estimatedWithinHorizon = end.complete;
+      const estimatedEndDate = end.date ?? undefined;
       return Object.freeze({ ...project, estimatedWithinHorizon,
         ...(estimatedEndDate === undefined ? {} : { estimatedEndDate }) });
     })),

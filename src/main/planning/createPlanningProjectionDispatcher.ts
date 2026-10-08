@@ -1,8 +1,10 @@
+import { capturePortfolioSnapshot } from "../../application/portfolioSnapshots/capturePortfolioSnapshot.js";
+import { assertSnapshotId, type PortfolioSnapshot } from "../../domain/portfolioSnapshots/portfolioSnapshot.js";
 import type { PlanningCommand, PlanningSession } from "../../application/index.js";
 import type { TimelineGeometryViewport } from "../../adapters/index.js";
 import type { DomainError } from "../../domain/index.js";
 import type { PlanningBackupStore } from "../../infrastructure/backup/localPlanningBackup.js";
-import { encodeFlowplanBackupV5 } from "../../application/backup/flowplanBackupV1.js";
+import { encodeFlowplanBackupV6 } from "../../application/backup/flowplanBackupV1.js";
 import {
   buildPlanningSessionProjection,
   type BuildPlanningSessionProjectionInput,
@@ -10,6 +12,9 @@ import {
 } from "./buildPlanningSessionProjection.js";
 
 export interface PlanningProjectionDispatcher {
+  readonly savePortfolioSnapshot: () => PlanningProjectionDispatchResult;
+  readonly deletePortfolioSnapshot: (snapshotId: string) => PlanningProjectionDispatchResult;
+  readonly getPortfolioSnapshots: () => readonly PortfolioSnapshot[];
   readonly getProjection: () => PlanningSessionProjection;
   readonly dispatch: (
     command: PlanningCommand,
@@ -22,6 +27,9 @@ export type PlanningProjectionDispatchResult =
 
 export interface CreatePlanningProjectionDispatcherInput {
   readonly session: PlanningSession;
+  readonly hasUnappliedChanges?: () => boolean;
+  readonly now?: () => string;
+  readonly snapshotId?: () => string;
   readonly geometryViewport: TimelineGeometryViewport;
   readonly backupStore?: PlanningBackupStore;
   readonly buildProjection?: (
@@ -34,23 +42,53 @@ export function createPlanningProjectionDispatcher(
 ): PlanningProjectionDispatcher {
   const buildProjection =
     input.buildProjection ?? buildPlanningSessionProjection;
+  let projectionState = input.session.getState();
   let projection = buildProjection({
     state: input.session.getState(),
     geometryViewport: input.geometryViewport,
   });
 
+  const historyError = (cause: unknown): PlanningProjectionDispatchResult => ({ ok: false, errors: [{ code: "PORTFOLIO_SNAPSHOT_FAILED", path: "portfolioSnapshots", message: cause instanceof Error ? cause.message : "Portfolio snapshot failed." }] });
+  const commitHistory = (snapshots: readonly PortfolioSnapshot[]): PlanningProjectionDispatchResult => {
+    const result = input.session.commitPortfolioSnapshots(projectionState, snapshots, (candidate) => input.backupStore?.write(encodeFlowplanBackupV6(candidate)));
+    if (!result.ok) return result;
+    projectionState = result.state;
+    return Object.freeze({ ok: true, projection });
+  };
   return Object.freeze({
+    getPortfolioSnapshots: () => input.session.getState().portfolioSnapshots ?? [],
+    savePortfolioSnapshot: (): PlanningProjectionDispatchResult => {
+      try {
+        if (!input.hasUnappliedChanges || input.hasUnappliedChanges()) throw new TypeError("Apply or cancel all unapplied changes before saving.");
+        const state = input.session.getState();
+        if (state !== projectionState) throw new TypeError("Applied state and published projection differ.");
+        const createdAt = (input.now ?? (() => new Date().toISOString()))();
+        const snapshotId = (input.snapshotId ?? (() => crypto.randomUUID()))();
+        if (state.portfolioSnapshots?.some((s) => s.snapshotId === snapshotId)) throw new TypeError("Duplicate Portfolio snapshotId.");
+        const snapshot = capturePortfolioSnapshot(state, projection.planningResult, projection.actualsReconstruction, snapshotId, createdAt);
+        return commitHistory([...(state.portfolioSnapshots ?? []), snapshot]);
+      } catch (cause) { return historyError(cause); }
+    },
+    deletePortfolioSnapshot: (snapshotId: string): PlanningProjectionDispatchResult => {
+      try {
+        assertSnapshotId(snapshotId);
+        const snapshots = input.session.getState().portfolioSnapshots ?? [];
+        if (!snapshots.some((s) => s.snapshotId === snapshotId)) throw new TypeError("Unknown Portfolio snapshotId.");
+        return commitHistory(snapshots.filter((s) => s.snapshotId !== snapshotId));
+      } catch (cause) { return historyError(cause); }
+    },
     getProjection: () => projection,
     dispatch: (command: PlanningCommand): PlanningProjectionDispatchResult => {
       const previousState = input.session.getState();
       let candidateProjection: PlanningSessionProjection | undefined;
       const result = input.session.dispatch(command, (candidate) => {
         candidateProjection = buildProjection({ state: candidate, geometryViewport: input.geometryViewport });
-        input.backupStore?.write(encodeFlowplanBackupV5(candidate));
+        input.backupStore?.write(encodeFlowplanBackupV6(candidate));
       });
       if (!result.ok) return result;
       if (result.state === previousState) return Object.freeze({ ok: true, projection });
       projection = candidateProjection!;
+      projectionState = result.state;
       return Object.freeze({ ok: true, projection });
     },
   });

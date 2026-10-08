@@ -155,3 +155,12 @@ describe("Create Project form", () => {
     app.controller.destroy();
   });
 });
+
+it("exposes invalid unapplied Create Project changes and cleans on cancel", () => {
+  const app = fixture(); app.controller.open(); assert.equal(app.controller.hasUnappliedChanges(), false);
+  app.field("project.name").value = " "; assert.equal(app.controller.hasUnappliedChanges(), true);
+  app.controls.form.dispatch("submit", { preventDefault() {} }); assert.equal(app.commands.length, 0);
+  assert.equal(app.controller.hasUnappliedChanges(), true);
+  app.controller.requestClose(); assert.equal(app.controller.hasUnappliedChanges(), false);
+  app.controller.destroy();
+});

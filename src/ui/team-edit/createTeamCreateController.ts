@@ -7,6 +7,7 @@ export interface TeamCreateController {
   readonly open: () => void;
   readonly requestClose: () => boolean;
   readonly isOpen: () => boolean;
+  readonly hasUnappliedChanges: () => boolean;
   readonly destroy: () => void;
 }
 
@@ -116,6 +117,7 @@ export function createTeamCreateController(input: {
   controls.form.addEventListener("submit", onSubmit);
   reset();
   return Object.freeze({
+    hasUnappliedChanges: () => !controls.container.hidden && isDirty(),
     open: () => { reset(); controls.container.hidden = false; controls.name.focus(); },
     requestClose,
     isOpen: () => !controls.container.hidden,

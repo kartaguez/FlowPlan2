@@ -1,7 +1,7 @@
 # FlowPlan2 current plan
 
 Current validated baseline:
-`17094b03cbf4c34c8424d6fa1847e0ceebd55410`
+`843cb966b9cda0b13d1695f73aa005847e8fbb8a` (10C.2 closed by the user)
 
 This is the operational roadmap for the active trajectory. Durable product and
 architecture rules live in [canon](./canon.md); current implementation facts
@@ -10,7 +10,8 @@ and temporary constraints live in [current canon](./current_canon.md).
 The validated baseline includes the Program/Pas, Reservation progress, colors,
 temporal zoom corrective lots, Lot 10A Actuals with V4 backup, Lot 10B
 Actuals-aware planning projection, Lot 10C Actuals workflows and UI, and
-Lot 10C.1 object-scoped knowledge snapshots with V5 persistence.
+Lot 10C.1 object-scoped knowledge snapshots with V5 persistence and
+Lot 10C.2 Actuals/RAF workflow corrections.
 
 ## Completed
 
@@ -41,30 +42,23 @@ Lot 10C.1 object-scoped knowledge snapshots with V5 persistence.
 - 10C Actuals workflows and UI (DONE).
 - 10C.1 Actuals knowledge snapshots and V5 migration (DONE).
 
-Current implementation review: 10C.2 Actuals / RAF workflow UX (IN REVIEW).
-Next step in planning: **11A — Portfolio Snapshots & Forecast History Capture
-(READY FOR IMPLEMENTATION — plan only)**, [dedicated implementation plan](./steps/PORTFOLIO_SNAPSHOTS/lot11a_plan.md).
-This documentation pass neither implements 11A nor validates 10C.2.
+10C.2 Actuals / RAF workflow UX is validated and closed by the user for this pass.
+Current implementation: **11A — Portfolio Snapshots & Forecast History Capture**,
+[validated plan](./steps/PORTFOLIO_SNAPSHOTS/lot11a_plan.md) and
+[implementation canon](./steps/PORTFOLIO_SNAPSHOTS/lot11a_canon.md).
 
 ## Current objective and ordered sub-lots
 
 ```text
-Lot 9I — Project and Reservation forecast activation (DONE)
-Corrective lot — usage-driven Program/Pas and colors (DONE)
-Corrective lot — anchored temporal zoom and range drag (DONE)
-Lot 10 — Actuals & History (OPEN)
-10A (DONE) → 10B (DONE) → 10C (DONE) → 10C.1 (DONE) → 10C.2 (IN REVIEW)
-Next planning trajectory: 11A (READY plan, capture/persistence; code gated by 10C.2) → 11B (future, drift visualization)
+10A (DONE) → 10B (DONE) → 10C (DONE) → 10C.1 (DONE) → 10C.2 (DONE)
+11A (IN REVIEW) → 11B (future, drift visualization)
 10D: superseded by 11A (not DONE)
 10E: largely superseded by 11B; advanced replay/navigation/comparison deferred
 ```
 
-Lots through 9I, the Projection date presentation pass, both corrective lots,
-10A through 10C.1 are validated. 10C.2 awaits audit of its implementation commit.
-11A is the next step in planning; implementation remains dependent on 10C.2
-audit and closure. Its plan has no open business decision. 10D is superseded
-by 11A without residual capture scope; 10E is largely superseded by 11B, with
-advanced replay/navigation/comparison deferred, not implemented.
+The previous 10C.1 baseline was `17094b03cbf4c34c8424d6fa1847e0ceebd55410`.
+User closure of the inspected 10C.2 code removes the launch dependency; 11A
+still requires human audit and does not advance the validated SHA automatically. No 11B implementation is included.
 
 ## Corrective lot — anchored temporal zoom and range drag
 
@@ -312,7 +306,7 @@ use candidate state → projection → persistence → publication. Forecast
 Reservations, metrics, and `PlanningInput` remain on their existing 10A
 boundary; 10B now integrates calculated daily occupation into planning.
 Current capacity schedules and working pattern can reshape reconstructed
-historical days; whole-Portfolio knowledge capture is planned in 11A and drift
+historical days; whole-Portfolio knowledge capture is implemented in 11A and drift
 visualization in 11B, with advanced historical replay/navigation deferred.
 
 ## 10B — Actuals-aware planning projection
@@ -355,7 +349,7 @@ manually. Implementation and final dirty correction were audited at
 
 ## 10C.2 — Actuals / RAF workflow UX
 
-**Status: IN REVIEW.** [10C.2 plan and implementation record](./steps/ACTUALS/lot10c2_plan.md). The Project card now shows an exact Actuals summary with a quick RAF draft, Apply/Revert and an explicitly confirmed first RAF. Reservation has a summary without RAF. A single Actuals draft store owns the Project three-step or Reservation two-step modal, with contiguous zone selection, period operations, per-cell evidence and explicit stale review. Forecast remains the Team membership editor; dependent membership changes enter one atomic Actuals handoff, while autonomous Forecast changes retain the normal path. The implementation reuses the 10C.1 Domain, whole-object session command, projection and V5 transaction. Desktop and 390 px browser review and automated gates are recorded in the lot document. Further implementation follows only after audit and validation of 10C.2; 11A is now the next step in planning.
+**Status: DONE — user-validated and closed for the 11A implementation pass.** [10C.2 plan and implementation record](./steps/ACTUALS/lot10c2_plan.md). The Project card now shows an exact Actuals summary with a quick RAF draft, Apply/Revert and an explicitly confirmed first RAF. Reservation has a summary without RAF. A single Actuals draft store owns the Project three-step or Reservation two-step modal, with contiguous zone selection, period operations, per-cell evidence and explicit stale review. Forecast remains the Team membership editor; dependent membership changes enter one atomic Actuals handoff, while autonomous Forecast changes retain the normal path. The implementation reuses the 10C.1 Domain, whole-object session command, projection and V5 transaction. Desktop and 390 px browser review and automated gates are recorded in the lot document. The user has closed 10C.2; its Actuals invariants remain unchanged by 11A.
 
 ## 10D — Knowledge snapshots
 
@@ -382,36 +376,25 @@ The [current canon](./current_canon.md) records the validated 10C.1 contract.
 
 ## 11A — Portfolio Snapshots & Forecast History Capture
 
-**Status: READY FOR IMPLEMENTATION — plan only.** See the
-[11A implementation plan](./steps/PORTFOLIO_SNAPSHOTS/lot11a_plan.md), based on
-inspection of clean `main` at `843cb966b9cda0b13d1695f73aa005847e8fbb8a`, revised
-from plan commit `2d5695848035462bf6e4fc70754ec4d3bc6d5c94`.
-No implementation is included in this documentation pass.
+**Status: IN REVIEW — implementation complete, awaiting human audit.** Implementation follows the
+validated plan at `da79f2c243bcba487f68c8ee441fe6efe1e65514`, retaining initial plan
+commit `2d5695848035462bf6e4fc70754ec4d3bc6d5c94` on the implementation branch.
+See [11A canon and verification](./steps/PORTFOLIO_SNAPSHOTS/lot11a_canon.md).
 
-Capture explicit, immutable, deletable whole-Portfolio snapshots with complete
-historical inputs and exact minimal Project forecast: Actuals, RAF, EAC,
-priorityPosition, estimated start/end dates and absence reasons, engine/forecast
-versions. No complete PlanningResult or daily result duplication. Start is the
-first positive canonical Actuals contribution or positive Forecast allocation
-(minimum of both); end uses the shared canonical Timeline rule. snapshotId is
-the identity; equal createdAt timestamps and system-clock rollback are allowed.
-V6 is self-contained, readers V1–V5 migrate to an empty Portfolio Snapshot list,
-and older encoders reject downgrade. Global dirty checks and atomic Save/Delete
-remain required.
+Explicit Save freezes complete shared-codec historical inputs, exact Actuals
+source references (or frozen pending V4 evidence), and minimal exact Project
+Actuals/RAF/EAC, priority and estimated dates. Identical timestamps and backward
+technical clocks are accepted. Save checks every draft owner again at action
+time and verifies the applied state against the published run. Save/Delete
+persist V6 before publication and reuse the projection without recomputation.
 
-V5 sources use canonical snapshot references. Inspection demonstrates that a
-universal pure lossless V4 → V5 conversion is impossible under current rules
-(future coverage, historical positive Teams outside current membership, explicit
-cell/RAF confirmations). The plan therefore retains frozen legacy evidence only
-as a justified pending-migration exception, with no fabricated V5 ID, no
-reconciliation or mutation of the current object at Save, and no conversion to
-none. Details and fixtures are normative in the dedicated plan.
-
-No business decision remains open in the 11A plan. **Implementation must not
-start until 10C.2 has been audited and closed.** 11A depends on its final Actuals
-snapshot model, RAF sources, dirty stores, Apply/Cancel and UI mechanisms.
-10C.2 remains IN REVIEW; this pass does not audit or validate it, and the
-validated baseline is unchanged.
+V6 imports are self-contained and strict. Historical V5 sources resolve exact
+IDs through consecutive prefixes with historical memberships and RAF; legacy
+capture never reconciles current objects. V1–V5 readers remain and start with
+empty Portfolio history; their encoders refuse history-bearing downgrades.
+Historical Project/Reservation/Team/Program/Pas identities remain reserved for
+as long as retained inputs reference them. No graphical drift, replay,
+navigation or restore is added.
 
 ## 11B — Forecast drift visualization
 

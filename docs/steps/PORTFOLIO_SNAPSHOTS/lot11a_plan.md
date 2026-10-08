@@ -511,3 +511,16 @@ recyclage d'IDs et extraction des helpers sont des travaux techniques
 identifiés. Documenter la frontière forecast historique/projection jetable
 et Save/Delete sans recompute pendant l'implémentation. Aucun de ces travaux
 n'est réalisé ou déclaré validé dans cette révision documentaire.
+
+## Implementation record — 2026-10-08
+
+The normative READY plan above is retained unchanged. The user closed 10C.2
+before authorizing this implementation. The implementation follows validated
+revision `da79f2c243bcba487f68c8ee441fe6efe1e65514` on
+`codex/lot11a-portfolio-snapshots`; its current contract and verification are
+recorded in [lot11a_canon](./lot11a_canon.md). Typecheck, **696/696 tests (87
+suites)**, build and **119/119 targeted regression tests** pass. Edge visual
+review completed at 1440 px and 390 px, including Save/liste/Delete, dirty,
+keyboard/focus and equal document/viewport widths. No 11B work is included.
+
+**11A IMPLEMENTATION: IN REVIEW.** Human audit is still required before DONE.

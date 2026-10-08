@@ -170,3 +170,18 @@ describe("PlanningSettingsController", () => {
     );
   });
 });
+
+it("exposes invalid Planning Settings dirty and preserves it across model publication", () => {
+  const app = fixture(); assert.equal(app.controller.hasUnappliedChanges(), false);
+  app.trigger.click(); assert.equal(app.controller.hasUnappliedChanges(), false);
+  named(app.controls.fields, "planning.maxParallelProjects").value = "invalid";
+  assert.equal(app.controller.hasUnappliedChanges(), true);
+  app.controller.setModel(model(3));
+  assert.equal(named(app.controls.fields, "planning.maxParallelProjects").value, "invalid");
+  app.controls.form.dispatch("submit", { preventDefault() {} });
+  assert.equal(app.controller.hasUnappliedChanges(), true); assert.equal(app.commands.length, 0);
+  app.controls.cancel.click(); assert.equal(app.controller.hasUnappliedChanges(), false);
+  app.trigger.click(); assert.equal(app.controller.hasUnappliedChanges(), false);
+  named(app.controls.fields, "planning.startDate").value = ""; assert.equal(app.controller.hasUnappliedChanges(), true);
+  app.controller.destroy();
+});

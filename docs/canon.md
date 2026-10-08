@@ -130,7 +130,8 @@ Team's unused capacity.
 ```text
 PlanningSessionState
 ├── portfolio
-└── planning
+├── planning
+└── portfolioSnapshots
 ```
 
 The session owns the editable source. The canonical pipeline is:
@@ -166,6 +167,58 @@ the complete document and projection before replacing the single stored value;
 an invalid import never clears existing planning data.
 
 Typing changes local form state only. It must not recompute planning.
+
+## Portfolio Snapshot historical artifact
+
+A Portfolio Snapshot is created only by explicit user Save, is deeply immutable,
+and can only be deleted as a whole. Its unique stable `snapshotId` is its identity;
+`createdAt` is the canonical UTC technical clock read at Save, independent of
+Projection date and Actuals dates. Same-day, identical timestamps and backward
+clocks are valid; list order is deterministically `(createdAt, snapshotId)`.
+
+Save is forbidden while any Forecast, Actuals/RAF, Team, Create or Planning
+Settings draft remains unapplied, including hidden or invalid drafts. The UI
+aggregates owner state and the dedicated service rechecks it at the actual Save.
+No dirty flag is persisted and Domain has no UI/store dependency.
+
+Historical inputs reuse the complete non-recursive backup input boundary:
+planning settings, horizon/calendar/concurrency, capacity schedules/exceptions,
+all active/inactive objects, requirements/allocations, grouping/colors,
+constraints and complete priority order. V5 Actuals select an explicit owned
+snapshot ID; validation uses the consecutive prefix ending at that ID. Pending
+V4 uses exclusive frozen legacy evidence and RAF provenance. Save never invents
+a V5 ID, reconciles or mutates a current object, or double counts legacy and V5.
+
+The dedicated forecast stores exact whole-Project Actuals, RAF, EAC = Actuals +
+RAF, full-order 1-based priority, estimated start/end and explicit absence
+reasons, with input/forecast schemas and engine version. None, uncovered RAF and
+covered zero remain distinct. No full PlanningResult, daily capacities,
+allocations, Team plans or diagnostics are persisted in this artifact.
+
+Estimated start is the earliest positive canonical Project Actuals contribution
+or positive Forecast allocation across Teams, without cursor/horizon clipping.
+No activity means `no-activity`; inactive Projects can have an Actuals start.
+Estimated end uses the same pure helper as Timeline: inactive → `inactive`, any
+incomplete Team → `incomplete-within-horizon`, all complete → latest defined
+Team end, otherwise `no-allocation`. There is no horizon extrapolation.
+
+Save/Delete verify state/run coherence, persist complete V6 before publication,
+and reuse the current projection without engine recomputation. A failure
+publishes nothing and leaves inputs, drafts, history and projection intact.
+Delete removes only the requested capture, with no Actuals purge or garbage
+collection. Ordinary commands retain history.
+
+V6 is self-contained: current-owned full Actuals histories are stored once;
+historical inputs use references plus required frozen migration evidence.
+V1–V5 readers migrate with empty Portfolio history and their encoders refuse
+history-bearing downgrade. V6 rejects any invalid capture/reference/input or
+metric as a whole, without repair or recalculating historical metrics with a
+current engine. Invalid startup documents remain preserved and reported.
+Historical IDs for Project, Reservation, Team, Program and Pas remain reserved
+while retained captures reference them, without an eternal identity registry.
+
+11A adds capture/list/Delete only. Project drift belongs to 11B; advanced replay,
+historical navigation, comparisons and restore remain deferred.
 
 ## Planning
 

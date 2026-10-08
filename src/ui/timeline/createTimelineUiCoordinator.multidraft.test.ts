@@ -86,7 +86,9 @@ function fixture(withUnusedTeam = false, rejectActivation = false, withActuals =
     assert.equal(reservationParsed.ok, true);
     if (reservationParsed.ok) assert.equal(session.dispatch(reservationParsed.command).ok, true);
   }
-  const dispatcher = createPlanningProjectionDispatcher({ session,
+  let coordinator: ReturnType<typeof createTimelineUiCoordinator>;
+  const dirtyControllers = new Set<string>();
+  const dispatcher = createPlanningProjectionDispatcher({ session, hasUnappliedChanges: () => coordinator.hasUnappliedChanges(),
     geometryViewport: { width: 1000, teamLaneHeight: 100, teamHeaderHeight: 112, timeAxisHeight: 56 } });
   const document = new FakeDocument();
   const element = document.createElement("div") as unknown as HTMLElement;
@@ -95,6 +97,7 @@ function fixture(withUnusedTeam = false, rejectActivation = false, withActuals =
     teamPanels: element, projectList: element, reservationList: element,
     projectTab: element, reservationTab: element, applicationError: element,
     planningSettingsButton: element, planningSettingsControls: { container: element },
+    teamCreateControls: { container: element }, teamCreateButton: document.createElement("button"),
     teamEditControls: { container: element }, diagnosticsControls: { dialog: element },
     projectCreateControls: { container: element }, projectCreateButton: document.createElement("button"),
     projectCreateSection: element,
@@ -142,15 +145,18 @@ function fixture(withUnusedTeam = false, rejectActivation = false, withActuals =
       setProject(model: { projectId: ProjectId } | undefined) { if (model) projectHandles.set(model.projectId, input); },
       getProjectId: () => undefined, destroy() {},
     }),
+    createTeamCreateController: () => ({ open() {}, isOpen: () => false, requestClose: () => true, hasUnappliedChanges: () => dirtyControllers.has("create-team"), destroy() {} }),
     createProjectCreateController: (input: Parameters<typeof createProjectCreateController>[0]) => {
       projectCreateInput = input;
       return { open() {}, requestClose: () => true, isOpen: () => false,
+        hasUnappliedChanges: () => dirtyControllers.has("create-project"),
         isTeamEnabled: (id: TeamId) => createEnabledTeams.has(id),
         setPortfolio() {}, destroy() {} };
     },
     createReservationCreateController: (input: Parameters<typeof createReservationCreateController>[0]) => {
       reservationCreateInput = input;
       return { open() {}, requestClose: () => true, isOpen: () => false,
+        hasUnappliedChanges: () => dirtyControllers.has("create-reservation"),
         isTeamEnabled: (id: TeamId) => createReservationEnabledTeams.has(id),
         setContext() {}, destroy() {} };
     },
@@ -173,9 +179,9 @@ function fixture(withUnusedTeam = false, rejectActivation = false, withActuals =
     createTeamEditController: (input: Parameters<typeof createTeamEditController>[0]) => {
       teamEditInput = input;
       return { setTeam() {}, getTeamId: () => undefined, requestClose: () => true,
-        hasUnappliedChanges: () => false, destroy() {} };
+        hasUnappliedChanges: () => dirtyControllers.has("team-edit"), destroy() {} };
     },
-    createPlanningSettingsController: () => ({ setModel() {}, destroy() {} }),
+    createPlanningSettingsController: () => ({ setModel() {}, hasUnappliedChanges: () => dirtyControllers.has("settings"), destroy() {} }),
     renderShellNavigation: (input: typeof shellInput) => {
       shellInput = input;
       return { teamMetricsContainers: new Map(), ...cards(), getActiveTab: () => "projects",
@@ -186,7 +192,7 @@ function fixture(withUnusedTeam = false, rejectActivation = false, withActuals =
     },
     renderCursorTeamMetrics: () => {}, createCursorProgressSurface: () => ({ render() {}, destroy() {} }),
   } as unknown as TimelineUiCoordinatorDependencies;
-  const coordinator = createTimelineUiCoordinator({
+  coordinator = createTimelineUiCoordinator({
     elements, initialProjection: dispatcher.getProjection(), initialDate: scenario.planning.startDate,
     dispatch: (command) => rejectActivation &&
       (command.kind === "set-project-active" || command.kind === "set-reservation-active")
@@ -201,7 +207,7 @@ function fixture(withUnusedTeam = false, rejectActivation = false, withActuals =
     getReservationEditViewModel: (id) => buildReservationEditViewModel(session.getState(), id),
     getReservationNavigationItems: () => session.getState().portfolio.reservations.map((item) => ({ id: item.id, name: item.name, isActive: item.isActive })),
   }, dependencies);
-  return { scenario, session, coordinator, projectHandles, reservationHandles,
+  return { scenario, session, coordinator, projectHandles, reservationHandles, dirtyControllers, saveSnapshot: dispatcher.savePortfolioSnapshot,
     cardStateFor: (kind: "project" | "reservation", id: ProjectId | ReservationId) => cardStates.get(`${kind}:${id}`),
     projectCardHost: (id: ProjectId) => latestProjectCards.get(id)?.host,
     reservationCardHost: (id: ReservationId) => latestReservationCards.get(id)?.host,
@@ -264,23 +270,29 @@ describe("coordinator multi-draft rerender", () => {
       open();
       all(host()).find((item) => item.textContent === "Update actuals")!.emit("click");
       assert.equal(app.cardStateFor(kind, id)?.dirty, false);
+      assert.equal(app.coordinator.hasUnappliedChanges(), false);
       open();
       assert.equal(app.cardStateFor(kind, id)?.expanded, false);
       assert.equal(app.cardStateFor(kind, id)?.dirty, false);
+      assert.equal(app.coordinator.hasUnappliedChanges(), false);
       open();
       assert.equal(app.cardStateFor(kind, id)?.expanded, true);
       assert.equal(app.cardStateFor(kind, id)?.dirty, false);
+      assert.equal(app.coordinator.hasUnappliedChanges(), false);
       setField(host(), `${(kind === "project" ? app.scenario.portfolio.projects[0]!.requirements :
         app.scenario.portfolio.reservations[0]!.teamAllocations)[0]!.teamId} consumed`, "0");
       assert.equal(app.cardStateFor(kind, id)?.dirty, true);
+      assert.equal(app.coordinator.hasUnappliedChanges(), true);
       all(host()).find((item) => item.textContent === "Cancel Actuals")!.emit("click");
       assert.equal(app.cardStateFor(kind, id)?.dirty, false);
+      assert.equal(app.coordinator.hasUnappliedChanges(), false);
       all(host()).find((item) => item.textContent === "Update actuals")!.emit("click");
       const teams = kind === "project" ? app.scenario.portfolio.projects[0]!.requirements.map((row) => row.teamId)
         : app.scenario.portfolio.reservations[0]!.teamAllocations.map((row) => row.teamId);
       prepareOneDay(host(), kind, teams);
       all(host()).find((item) => item.className.includes("card-actuals-form"))!.emit("submit");
       assert.equal(app.cardStateFor(kind, id)?.dirty, false);
+      assert.equal(app.coordinator.hasUnappliedChanges(), false);
       const saved = kind === "project" ? app.session.getState().portfolio.projects[0]?.snapshots :
         app.session.getState().portfolio.reservations[0]?.snapshots;
       assert.equal(saved?.length, 1);
@@ -857,4 +869,28 @@ describe("coordinator multi-draft rerender", () => {
     assert.equal(app.session.getState().portfolio.projects.find((item) => item.id === b!.id)?.name, b!.name);
     app.coordinator.destroy();
   });
+});
+
+it("global dirty covers each controller owner and service rechecks it", () => {
+  const app = fixture(); assert.equal(app.coordinator.hasUnappliedChanges(), false);
+  for (const source of ["create-project", "create-reservation", "create-team", "team-edit", "settings"]) {
+    app.dirtyControllers.add(source); assert.equal(app.coordinator.hasUnappliedChanges(), true, source);
+    assert.equal(app.saveSnapshot().ok, false, source); app.dirtyControllers.delete(source);
+    assert.equal(app.coordinator.hasUnappliedChanges(), false, source);
+  }
+  assert.equal(app.saveSnapshot().ok, true); app.coordinator.destroy();
+});
+it("global dirty covers hidden Forecast drafts in both stores across tabs and remount", () => {
+  for (const kind of ["project", "reservation"] as const) {
+    const app = fixture(); const entity = kind === "project" ? app.scenario.portfolio.projects[0]! : app.scenario.portfolio.reservations[0]!;
+    if (kind === "project") app.openProject(entity.id as ProjectId); else app.openReservation(entity.id as ReservationId);
+    const handle = kind === "project" ? app.projectHandles.get(entity.id as ProjectId)! : app.reservationHandles.get(entity.id as ReservationId)!;
+    const store: any = handle.draftStore; const draft = store.get(entity.id);
+    store.update(entity.id, { ...draft.values, name: "invalid unapplied" }); handle.onDraftChange?.();
+    if (kind === "project") app.openProject(entity.id as ProjectId); else app.openReservation(entity.id as ReservationId);
+    assert.equal(app.coordinator.hasUnappliedChanges(), true); assert.equal(app.saveSnapshot().ok, false);
+    app.coordinator.renderProjection(app.coordinator.getProjection());
+    assert.equal(app.coordinator.hasUnappliedChanges(), true); assert.equal(app.saveSnapshot().ok, false);
+    app.coordinator.destroy();
+  }
 });

@@ -9,6 +9,7 @@ import { parsePlanningSettingsCommand } from "./parsePlanningSettingsCommand.js"
 const WEEKDAYS = Object.freeze(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]);
 
 export interface PlanningSettingsController {
+  readonly hasUnappliedChanges: () => boolean;
   readonly setModel: (model: PlanningSettingsViewModel) => void;
   readonly showStartupError: () => void;
   readonly destroy: () => void;
@@ -30,6 +31,9 @@ export function createPlanningSettingsController(input: {
   let weekdays: readonly HTMLInputElement[];
   let maxParallel: HTMLInputElement;
 
+  const hasUnappliedChanges = (): boolean => !input.controls.container.hidden && (
+    startDate.value !== model.startDate || endDate.value !== model.endDate || maxParallel.value !== String(model.maxParallelProjects) ||
+    weekdays.some((field, index) => field.checked !== model.workingWeekdays.includes((index + 1) as 1 | 2 | 3 | 4 | 5 | 6 | 7)));
   const showErrors = (errors: readonly DomainError[]): void => {
     input.controls.error.textContent = errors.map((item) => item.path ? `${item.path}: ${item.message}` : item.message).join(" ");
     input.controls.error.hidden = false;
@@ -126,7 +130,8 @@ export function createPlanningSettingsController(input: {
   input.controls.exportButton?.addEventListener("click", exportFile);
   hydrate();
   return Object.freeze({
-    setModel: (next: PlanningSettingsViewModel) => { model = next; if (!input.controls.container.hidden) hydrate(); },
+    hasUnappliedChanges,
+    setModel: (next: PlanningSettingsViewModel) => { const dirty = hasUnappliedChanges(); model = next; if (!dirty && !input.controls.container.hidden) hydrate(); },
     showStartupError: () => { open(); showErrors([{ code: "INVALID_LOCAL_BACKUP", path: "", message: "Saved planning data is invalid. Demo loaded; the saved data was preserved." }]); },
     destroy: () => {
       input.trigger.removeEventListener("click", open);

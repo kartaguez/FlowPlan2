@@ -1,3 +1,5 @@
+import { createPortfolioSnapshotsController } from "../portfolio-snapshots/createPortfolioSnapshotsController.js";
+import type { PortfolioSnapshot } from "../../domain/portfolioSnapshots/portfolioSnapshot.js";
 import type { TimelineGeometry, TimelineViewModel } from "../../adapters/index.js";
 import type { ReservationNavigationItem } from "../../adapters/index.js";
 import { calculateCursorMetrics } from "../../adapters/index.js";
@@ -59,6 +61,7 @@ export interface TimelineUiSnapshot {
   readonly teamEditingId?: TeamId;
 }
 export interface TimelineUiCoordinator {
+  readonly hasUnappliedChanges: () => boolean;
   readonly getProjection: () => TimelineUiProjection;
   readonly getUiSnapshot: () => TimelineUiSnapshot;
   readonly renderProjection: (projection: TimelineUiProjection) => void;
@@ -80,6 +83,9 @@ export interface CreateTimelineUiCoordinatorInput {
   readonly onImport?: (document: string) => "imported" | "cancelled" | "failed";
   readonly onExport?: () => string;
   readonly invalidStartupBackup?: boolean;
+  readonly getPortfolioSnapshots?: () => readonly PortfolioSnapshot[];
+  readonly onSavePortfolioSnapshot?: () => TimelineProjectionCommandResult;
+  readonly onDeletePortfolioSnapshot?: (id: string) => TimelineProjectionCommandResult;
 }
 export interface TimelineUiCoordinatorDependencies {
   readonly renderTimeline: typeof renderTimelineSvg;
@@ -122,6 +128,7 @@ export function createTimelineUiCoordinator(
   input: CreateTimelineUiCoordinatorInput,
   dependencies: TimelineUiCoordinatorDependencies = DEFAULT_DEPENDENCIES,
 ): TimelineUiCoordinator {
+  let refreshSnapshotDirty = () => {};
   const projectDrafts = createProjectDraftStore();
   const reservationDrafts = createReservationDraftStore();
   const projectSnapshotDrafts = createSnapshotActualsDraftStore();
@@ -282,6 +289,26 @@ export function createTimelineUiCoordinator(
     },
   });
 
+  const hasUnappliedChanges = () =>
+    projectDrafts.ids().some((id) => projectDrafts.isDirty(id)) ||
+    reservationDrafts.ids().some((id) => reservationDrafts.isDirty(id)) ||
+    projectSnapshotDrafts.ids().some((id) => projectSnapshotDrafts.isDirty(id)) ||
+    reservationSnapshotDrafts.ids().some((id) => reservationSnapshotDrafts.isDirty(id)) ||
+    (teamEditController.hasUnappliedChanges?.() ?? false) ||
+    (projectCreateController?.hasUnappliedChanges?.() ?? false) ||
+    (reservationCreateController?.hasUnappliedChanges?.() ?? false) ||
+    (teamCreateController?.hasUnappliedChanges?.() ?? false) ||
+    (planningSettingsController.hasUnappliedChanges?.() ?? false);
+  const snapshotController = input.elements.portfolioSnapshotControls && input.getPortfolioSnapshots && input.onSavePortfolioSnapshot && input.onDeletePortfolioSnapshot
+    ? createPortfolioSnapshotsController({ controls: input.elements.portfolioSnapshotControls, isDirty: hasUnappliedChanges,
+      getSnapshots: input.getPortfolioSnapshots, save: input.onSavePortfolioSnapshot, remove: input.onDeletePortfolioSnapshot,
+      confirm: (message) => input.elements.planningSettingsControls.container.ownerDocument.defaultView?.confirm(message) ?? false }) : undefined;
+  refreshSnapshotDirty = () => snapshotController?.refreshDirty();
+  // Delegated notifications run after the owning controller has processed each edit.
+  const dirtyDocument = input.elements.planningSettingsControls.container.ownerDocument;
+  const notifyDirty = () => queueMicrotask(refreshSnapshotDirty);
+  for (const event of ["input", "change", "click", "submit"]) dirtyDocument?.addEventListener?.(event, notifyDirty);
+
   const renderCursorMetrics = (date: CivilDate): void => {
     cursorMetricsModel = buildCursorMetricsViewModel(projection.portfolio,
       calculateCursorMetrics({ portfolio: projection.portfolio,
@@ -295,6 +322,7 @@ export function createTimelineUiCoordinator(
     progressSurface.render(cursorMetricsModel, activeProgressView);
   };
   const syncCard = (kind: "project" | "reservation", id: ProjectId | ReservationId): void => {
+    refreshSnapshotDirty();
     if (kind === "project") {
       const draft = projectDrafts.get(id as ProjectId);
       shellNavigation.setCardState("project", id, draft?.expanded ?? false,
@@ -468,6 +496,7 @@ export function createTimelineUiCoordinator(
     dependencies.renderTimeline({ svg: input.elements.svg, geometry: projection.geometry, colors });
     diagnosticsController.setDiagnostics(projection.viewModel.diagnostics);
     planningSettingsController.setModel(input.getPlanningSettingsViewModel());
+    refreshSnapshotDirty();
     projectCreateController?.setPortfolio(projection.portfolio);
     reservationCreateController?.setContext(projection.portfolio, projection.horizon);
     shellNavigation = dependencies.renderShellNavigation({
@@ -710,9 +739,13 @@ export function createTimelineUiCoordinator(
   };
   mountProjection(input.initialProjection, currentSnapshot());
   if (input.invalidStartupBackup) planningSettingsController.showStartupError();
+  refreshSnapshotDirty();
   return {
+    hasUnappliedChanges,
     getProjection: () => projection, getUiSnapshot: currentSnapshot, renderProjection,
     destroy: () => {
+      snapshotController?.destroy();
+      for (const event of ["input", "change", "click", "submit"]) dirtyDocument?.removeEventListener?.(event, notifyDirty);
       destroyControllers(); teamEditController.destroy(); planningSettingsController.destroy();
       teamCreateController?.destroy();
       projectCreateController?.destroy();

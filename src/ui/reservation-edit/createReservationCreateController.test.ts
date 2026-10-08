@@ -96,3 +96,13 @@ describe("Create Reservation form", () => {
     if (allocation.kind === "ratio") assert.equal(serializeQuantity(allocation.ratio), "1/300");
   });
 });
+
+it("exposes invalid unapplied Create Reservation dates and cleans on cancel", () => {
+  const app = fixture(false); app.controller.open(); assert.equal(app.controller.hasUnappliedChanges(), false);
+  const date = descendants(app.controls.fields).find((e) => e.type === "date")!;
+  date.value = ""; assert.equal(app.controller.hasUnappliedChanges(), true);
+  app.controls.form.dispatch("submit", { preventDefault() {} }); assert.equal(app.commands.length, 0);
+  assert.equal(app.controller.hasUnappliedChanges(), true);
+  app.controller.requestClose(); assert.equal(app.controller.hasUnappliedChanges(), false);
+  app.controller.destroy();
+});

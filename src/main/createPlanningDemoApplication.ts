@@ -14,7 +14,7 @@ import type { DemoPlanningScenario } from "./demo/createDemoPlanningScenario.js"
 import { createPlanningProjectionDispatcher } from "./planning/createPlanningProjectionDispatcher.js";
 import { buildPlanningSessionProjection } from "./planning/buildPlanningSessionProjection.js";
 import { importPlanningBackup, loadPlanningBackup } from "./planning/planningBackupOperations.js";
-import { encodeFlowplanBackupV5 } from "../application/backup/flowplanBackupV1.js";
+import { encodeFlowplanBackupV6 } from "../application/backup/flowplanBackupV1.js";
 import { createCivilDate } from "../domain/index.js";
 import type { PlanningBackupStore } from "../infrastructure/backup/localPlanningBackup.js";
 
@@ -41,17 +41,22 @@ export function createPlanningDemoApplication(
     if (!current.ok) throw new TypeError("Application clock returned an invalid civil date.");
     return current.value;
   } });
+  let coordinator: ReturnType<typeof createTimelineUiCoordinator> | undefined;
   const projectionDispatcher = createPlanningProjectionDispatcher({
     session,
+    hasUnappliedChanges: () => coordinator?.hasUnappliedChanges() ?? true,
     geometryViewport: DEMO_GEOMETRY_VIEWPORT,
     ...(backupStore ? { backupStore } : {}),
   });
-  return createTimelineUiCoordinator({
+  coordinator = createTimelineUiCoordinator({
+    getPortfolioSnapshots: projectionDispatcher.getPortfolioSnapshots,
+    onSavePortfolioSnapshot: projectionDispatcher.savePortfolioSnapshot,
+    onDeletePortfolioSnapshot: projectionDispatcher.deletePortfolioSnapshot,
     elements,
     initialProjection: projectionDispatcher.getProjection(),
     initialDate: loaded.state.planning.startDate,
     invalidStartupBackup: loaded.invalid,
-    onExport: () => encodeFlowplanBackupV5(session.getState()),
+    onExport: () => encodeFlowplanBackupV6(session.getState()),
     ...(backupStore ? { onImport: (document: string) => importPlanningBackup({
       document, store: backupStore, preflight,
       confirm: () => elements.planningSettingsControls.container.ownerDocument.defaultView?.confirm(
@@ -86,4 +91,5 @@ export function createPlanningDemoApplication(
       return buildReservationNavigationItems(state.portfolio, state.planning.workingPattern);
     },
   });
+  return coordinator;
 }

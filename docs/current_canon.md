@@ -9,8 +9,10 @@ active implementation and trajectory. The remaining work is in the
 
 ## Validated implementation baseline
 
-`17094b03cbf4c34c8424d6fa1847e0ceebd55410` (validated through Lot
-10C.1, including the V5 import knowledge-date correction).
+`843cb966b9cda0b13d1695f73aa005847e8fbb8a` (10C.2 code inspected by the
+validated 11A plan; 10C.2 closed by the user for this implementation pass).
+The prior 10C.1 baseline remains recorded at
+`17094b03cbf4c34c8424d6fa1847e0ceebd55410`. 11A is not human-validated yet.
 
 The active application implements a pure planning projection over an editable
 session, restored from a local backup when available and otherwise initialized
@@ -26,7 +28,7 @@ from the demo. The following capabilities are complete and active:
 - global multi-Team Reservations with ratio and fixed-daily modes, created,
   edited, and deleted in inline Portfolio cards;
 - immutable Project and Reservation Actuals snapshot histories, exact daily
-  reconstruction, Actuals-aware planning projection, and transactional V5 persistence;
+  reconstruction, Actuals-aware planning projection, and transactional V6 persistence;
 - whole-object Actuals partition/RAF editing and read-only V4/snapshot history in Portfolio cards;
 - immediate Project and Reservation activation controls; inactive entities
   remain in the Portfolio and do not participate in the forecast;
@@ -48,12 +50,13 @@ demo when the key is absent. A present but invalid document is reported and left
 untouched at startup. Accepted commands persist their candidate state before
 the session publishes it. Planning Settings can export the complete business
 state to JSON or import a validated file after confirmation; a successful
-import reloads the page. Current backups are V5 documents. V1–V4 remain
-readable; V1 migrates Projects and Reservations as active. Import removes
-orphan catalog entries, repairs missing or invalid Program and own colors, and
-removes residual own colors from Program members before Domain validation.
+import reloads the page. Current backups are V6 documents. V1–V5 remain
+readable; V1 migrates Projects and Reservations as active. The V1–V5 readers retain their historical repair policy: they remove
+orphan catalog entries, repair missing or invalid Program and own colors, and
+remove residual own colors from Program members before Domain validation. V6
+validates current and historical inputs strictly, without repair or pruning.
 Other invalid business data is rejected. Every successful import is persisted
-as V5. V4 Actuals records are retained losslessly for explicit reconciliation.
+as V6. V4 Actuals records are retained losslessly for explicit reconciliation.
 
 Lot 9I Project and Reservation forecast activation is validated and **DONE** at
 `c77558c3e8b2912532afbb8113ac8183fe737c18`. Both entity types default
@@ -163,8 +166,9 @@ initial period. There is no manual period reorder or Domain period ID.
 
 ## Current objective — Lot 10: Actuals & History
 
-10A, 10B, 10C and 10C.1 are validated **DONE** lots. 10C.2 is **IN REVIEW**;
-10D has not started and 10E remains open. The current business contract is the
+10A through 10C.2 are validated **DONE** lots (10C.2 closed by the user
+for the 11A pass). 10D is **superseded by 11A**, not DONE. 10E is
+**largely superseded by 11B**, with advanced replay/navigation/comparison deferred. The current business contract is the
 [10C.1 snapshot canon](./steps/ACTUALS/lot10c1_canon.md);
 the 10A–10C documents describe their historical releases.
 
@@ -194,7 +198,7 @@ or persistence actions publish nothing.
 
 ### Legacy V4 and V5 persistence
 
-V5 is the live backup and export format. V1–V3 import without Actuals
+V5 remains the object Actuals schema; V6 is the live backup and export envelope. V1–V3 import without Actuals
 snapshots. Imported V4 cumulative records remain lossless, read-only
 `legacyV4Actuals` migration evidence. Until an object is explicitly
 reconciled, only the legacy adapter reconstructs its Actuals. Reconciliation
@@ -205,7 +209,9 @@ exportable but never combines with it. V4 append commands are disabled.
 Historical object and Team identities remain protected while referenced.
 V5 import rejects any snapshot whose knowledge date is later than the UTC
 civil date of the backup's canonical `exportedAt`, across both object types
-and the full history.
+and the full history. This legacy V5-reader rule is unchanged. V6 imposes no
+technical-clock relation between exportedAt, createdAt and knowledgeDate, so
+clock rollback remains round-trippable; internal Actuals invariants still apply.
 
 ### Daily reconstruction, planning and UI
 
@@ -235,16 +241,39 @@ be sequenced and rebased before a dependent Actuals Apply. The matrix scrolls
 horizontally in narrow cards while labels and action controls retain keyboard
 focus styling.
 
-10D must capture additional cross-object, Forecast and capacity knowledge
-required for whole-planning historical replay. 10E drift comparisons must
-identify which inputs are historical and which remain current. An object
-snapshot alone does not freeze unrelated planning inputs.
+11A captures the cross-object, Forecast and capacity knowledge formerly scoped
+by 10D. Its immutable Portfolio artifact is distinct from object Actuals and
+from the disposable planning projection. Project drift remains future 11B;
+advanced replay/navigation/comparison remain deferred beyond that promise.
+
+## Portfolio Snapshots — Lot 11A
+
+Status: **IN REVIEW**. Automated gates and desktop/390 px visual review passed;
+human audit remains required before DONE.
+
+Implementation and final gate record: [11A canon](./steps/PORTFOLIO_SNAPSHOTS/lot11a_canon.md).
+The Planning header offers Save portfolio snapshot and a local-time list ordered
+by `(createdAt, snapshotId)` ascending. Save is clean-only with a live global
+dirty precondition; Delete confirms one entire snapshot. All inputs and exact
+minimal Project metrics are deeply copied and frozen. The published run supplies
+estimated dates without recomputation. Shared helpers implement first positive
+Actuals/Forecast activity and the Timeline completion/end rule.
+
+Complete V6 documents retain current-owned Actuals histories once. Each capture
+selects a fixed V5 ID or exclusive frozen legacy evidence, never a latest-at-read
+rule. Historical validation hydrates prefixes privately, without invoking the
+engine. None, uncovered RAF-only and covered zero knowledge stay distinct.
+Save/Delete leave the cursor, viewport, tabs, open cards, drafts and planning
+projection intact. Ordinary commands retain the collection and reproject once.
+Historical IDs remain reserved for all five entity kinds while a retained
+snapshot references them; removing history does no implicit Actuals collection.
+
 
 ## Current UI structure
 
 ```text
 Planning
-├── global Settings icon
+├── global Settings icon, Save portfolio snapshot and snapshot list/Delete
 ├── cumulative Projects / Programs / Pas progress, titled with the Projection date
 ├── compact diagnostics counts → details modal
 ├── viewport controls
@@ -339,8 +368,9 @@ The editable session currently accepts:
   enabled Team allocations;
 - `remove-reservation`: removes one existing global Reservation.
 
-Every accepted change immutably replaces session state and triggers one
-projection rebuild. A same-position reorder retains the existing state and
+Every ordinary accepted input change immutably replaces session state and triggers one
+projection rebuild. Dedicated Portfolio Snapshot Save/Delete persist first and
+reuse the projection with zero recomputation. A same-position reorder retains the existing state and
 projection. Rejected commands do neither.
 
 ## Active temporary constraints
@@ -372,7 +402,7 @@ These are current implementation facts, not durable product rules:
 
 - separate Program / PriorityFamily management screens or global rename;
 - undo/redo;
-- whole-planning knowledge replay and historical drift comparison (deferred to 10D–10E).
+- Project drift visualization (future 11B) and advanced replay/navigation/comparison (deferred).
 
 These omissions are ordered as future work in the
 [current plan](./current_plan.md); they must not be inferred from visual

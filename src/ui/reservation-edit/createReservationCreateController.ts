@@ -151,6 +151,7 @@ export function createReservationCreateController(input: {
   controls.form.addEventListener("submit", onSubmit);
   render();
   return Object.freeze({
+    hasUnappliedChanges: () => !controls.container.hidden && isDirty(),
     open: () => { render(); clearError(); controls.container.hidden = false; name.focus(); },
     requestClose,
     isOpen: () => !controls.container.hidden,

@@ -95,3 +95,12 @@ describe("Create Team form", () => {
     app.controller.destroy();
   });
 });
+
+it("exposes invalid unapplied Create Team periods and cleans on cancel", () => {
+  const app = fixture(); app.controller.open(); assert.equal(app.controller.hasUnappliedChanges(), false);
+  app.periodInputs(0)[2]!.value = "bad"; assert.equal(app.controller.hasUnappliedChanges(), true);
+  app.controls.form.dispatch("submit", { preventDefault() {} }); assert.equal(app.commands.length, 0);
+  assert.equal(app.controller.hasUnappliedChanges(), true);
+  app.controller.requestClose(); assert.equal(app.controller.hasUnappliedChanges(), false);
+  app.controller.destroy();
+});

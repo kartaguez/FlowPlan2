@@ -1,3 +1,4 @@
+import { immutableCopy, type PortfolioSnapshot } from "../../domain/portfolioSnapshots/portfolioSnapshot.js";
 import {
   capacityFromSerialized,
   createCapacityPeriod,
@@ -56,6 +57,8 @@ export interface PlanningSettings {
 export interface PlanningSessionState {
   readonly portfolio: Portfolio;
   readonly planning: PlanningSettings;
+  /** Optional only for pre-V6 seed callers; sessions always normalize to an empty collection. */
+  readonly portfolioSnapshots?: readonly PortfolioSnapshot[];
 }
 
 export interface UpdatePlanningSettingsCommand {
@@ -220,6 +223,7 @@ export type PlanningCommandResult =
   | Readonly<{ ok: false; errors: readonly DomainError[] }>;
 
 export interface PlanningSession {
+  readonly commitPortfolioSnapshots: (expected: PlanningSessionState, snapshots: readonly PortfolioSnapshot[], beforeCommit: (candidate: PlanningSessionState) => void) => PlanningCommandResult;
   readonly getState: () => PlanningSessionState;
   readonly dispatch: (command: PlanningCommand, beforeCommit?: (candidate: PlanningSessionState) => void) => PlanningCommandResult;
 }
@@ -228,14 +232,27 @@ export function createPlanningSession(
   initialState: PlanningSessionState,
   clock?: Readonly<{ today: () => CivilDate }>,
 ): PlanningSession {
-  let state = freezeState(initialState);
-  const teamIds = createTeamIdGenerator(() => state.portfolio.teams.map((team) => team.id));
-  const projectIds = createProjectIdGenerator(() => state.portfolio.projects.map((project) => project.id));
-  const reservationIds = createReservationIdGenerator(() => state.portfolio.reservations.map((reservation) => reservation.id));
+  let state = freezeState({ ...initialState, portfolioSnapshots: immutableCopy(initialState.portfolioSnapshots ?? []) });
+  const teamIds = createTeamIdGenerator(() => [...state.portfolio.teams.map((team) => team.id), ...historicalIds(state, "teams") as TeamId[]]);
+  const projectIds = createProjectIdGenerator(() => [...state.portfolio.projects.map((project) => project.id), ...historicalIds(state, "projects") as ProjectId[]]);
+  const reservationIds = createReservationIdGenerator(() => [...state.portfolio.reservations.map((reservation) => reservation.id), ...historicalIds(state, "reservations") as ReservationId[]]);
   const historicalProgramIds = new Set(state.portfolio.programs.map((program) => program.id));
   const historicalFamilyIds = new Set(state.portfolio.priorityFamilies.map((family) => family.id));
+  const refreshCatalogIds = () => {
+    historicalProgramIds.clear(); historicalFamilyIds.clear();
+    for (const id of [...state.portfolio.programs.map((p) => p.id), ...historicalIds(state, "programs")]) historicalProgramIds.add(id as ProgramId);
+    for (const id of [...state.portfolio.priorityFamilies.map((p) => p.id), ...historicalIds(state, "priorityFamilies")]) historicalFamilyIds.add(id as PriorityFamilyId);
+  };
+  refreshCatalogIds();
   return Object.freeze({
     getState: () => state,
+    commitPortfolioSnapshots: (expected: PlanningSessionState, snapshots: readonly PortfolioSnapshot[], beforeCommit: (candidate: PlanningSessionState) => void): PlanningCommandResult => {
+      if (state !== expected) return failure([applicationError("STALE_PROJECTION", "portfolioSnapshots", "Applied state and published projection differ.")]);
+      const candidate = freezeState({ ...state, portfolioSnapshots: immutableCopy(snapshots) });
+      try { beforeCommit(candidate); } catch { return failure([applicationError("COMMIT_FAILED", "portfolioSnapshots", "Portfolio history could not be saved.")]); }
+      state = candidate; refreshCatalogIds();
+      return Object.freeze({ ok: true, state });
+    },
     dispatch: (command: PlanningCommand, beforeCommit?: (candidate: PlanningSessionState) => void): PlanningCommandResult => {
       let candidate: PlanningCommandResult;
       try { candidate = applyCommand(state, command, teamIds, projectIds, reservationIds, historicalProgramIds, historicalFamilyIds, clock); }
@@ -254,8 +271,7 @@ export function createPlanningSession(
       if (command.kind === "create-project") projectIds.next();
       if (command.kind === "create-reservation") reservationIds.next();
       state = candidate.state;
-      for (const program of state.portfolio.programs) historicalProgramIds.add(program.id);
-      for (const family of state.portfolio.priorityFamilies) historicalFamilyIds.add(family.id);
+      refreshCatalogIds();
       return Object.freeze({ ok: true, state });
     },
   });
@@ -348,7 +364,7 @@ function replaceProjectActuals(
   const portfolio = createPortfolio({ ...state.portfolio,
     projects: state.portfolio.projects.map((item) => item.id === project.id ? updated.value : item) });
   if (!portfolio.ok) return failure(portfolio.errors);
-  return Object.freeze({ ok: true, state: freezeState({ portfolio: portfolio.value, planning: state.planning }) });
+  return Object.freeze({ ok: true, state: freezeState({ ...state, portfolio: portfolio.value, planning: state.planning }) });
 }
 
 function replaceReservationActuals(
@@ -528,7 +544,7 @@ function replaceReservations(state: PlanningSessionState, reservations: readonly
   if (!portfolio.ok) return failure(portfolio.errors);
   return Object.freeze({
     ok: true,
-    state: freezeState({ portfolio: portfolio.value, planning: state.planning }),
+    state: freezeState({ ...state, portfolio: portfolio.value, planning: state.planning }),
   });
 }
 
@@ -569,6 +585,7 @@ function updatePlanningSettings(
   return Object.freeze({
     ok: true,
     state: freezeState({
+      ...state,
       portfolio: state.portfolio,
       planning: Object.freeze({
         startDate: horizon.value.start,
@@ -640,7 +657,7 @@ function addTeam(
     reservations: state.portfolio.reservations,
   });
   if (!portfolio.ok) return failure(portfolio.errors);
-  return Object.freeze({ ok: true, state: freezeState({ portfolio: portfolio.value, planning: state.planning }) });
+  return Object.freeze({ ok: true, state: freezeState({ ...state, portfolio: portfolio.value, planning: state.planning }) });
 }
 
 function removeTeam(
@@ -692,7 +709,7 @@ function removeTeam(
     reservations: state.portfolio.reservations,
   });
   if (!portfolio.ok) return failure(portfolio.errors);
-  return Object.freeze({ ok: true, state: freezeState({ portfolio: portfolio.value, planning: state.planning }) });
+  return Object.freeze({ ok: true, state: freezeState({ ...state, portfolio: portfolio.value, planning: state.planning }) });
 }
 
 function buildTeamCapacityPeriods(
@@ -766,7 +783,7 @@ function replaceTeam(
   if (!portfolio.ok) return failure(portfolio.errors);
   return Object.freeze({
     ok: true,
-    state: freezeState({ portfolio: portfolio.value, planning: state.planning }),
+    state: freezeState({ ...state, portfolio: portfolio.value, planning: state.planning }),
   });
 }
 
@@ -811,7 +828,7 @@ function addProject(
     reservations: state.portfolio.reservations,
   });
   if (!portfolio.ok) return failure(portfolio.errors);
-  return Object.freeze({ ok: true, state: freezeState({ portfolio: portfolio.value, planning: state.planning }) });
+  return Object.freeze({ ok: true, state: freezeState({ ...state, portfolio: portfolio.value, planning: state.planning }) });
 }
 
 function removeProject(
@@ -836,7 +853,7 @@ function removeProject(
     reservations: state.portfolio.reservations,
   });
   if (!portfolio.ok) return failure(portfolio.errors);
-  return Object.freeze({ ok: true, state: freezeState({ portfolio: portfolio.value, planning: state.planning }) });
+  return Object.freeze({ ok: true, state: freezeState({ ...state, portfolio: portfolio.value, planning: state.planning }) });
 }
 
 function updateProject(
@@ -978,7 +995,7 @@ function updateProject(
 
   return Object.freeze({
     ok: true,
-    state: freezeState({ portfolio: portfolio.value, planning: state.planning }),
+    state: freezeState({ ...state, portfolio: portfolio.value, planning: state.planning }),
   });
 }
 
@@ -1008,7 +1025,7 @@ function reorderProject(
     reservations: state.portfolio.reservations,
   });
   if (!portfolio.ok) return failure(portfolio.errors);
-  return Object.freeze({ ok: true, state: freezeState({ portfolio: portfolio.value, planning: state.planning }) });
+  return Object.freeze({ ok: true, state: freezeState({ ...state, portfolio: portfolio.value, planning: state.planning }) });
 }
 
 function setProjectActive(
@@ -1027,7 +1044,7 @@ function setProjectActive(
     projects: state.portfolio.projects.map((item) => item.id === project.id ? updated.value : item),
   });
   if (!portfolio.ok) return failure(portfolio.errors);
-  return Object.freeze({ ok: true, state: freezeState({ portfolio: portfolio.value, planning: state.planning }) });
+  return Object.freeze({ ok: true, state: freezeState({ ...state, portfolio: portfolio.value, planning: state.planning }) });
 }
 
 function setReservationActive(
@@ -1071,5 +1088,12 @@ function failure(errors: readonly DomainError[]): PlanningCommandResult {
 }
 
 function freezeState(state: PlanningSessionState): PlanningSessionState {
-  return Object.freeze({ portfolio: state.portfolio, planning: state.planning });
+  return Object.freeze({ portfolio: state.portfolio, planning: state.planning, portfolioSnapshots: Object.freeze([...(state.portfolioSnapshots ?? [])]) });
+}
+
+function historicalIds(state: PlanningSessionState, kind: "projects" | "reservations" | "teams" | "programs" | "priorityFamilies"): string[] {
+  return (state.portfolioSnapshots ?? []).flatMap((s) => {
+    const inputs = s.inputs as { portfolio: Record<string, readonly { id: string }[]> };
+    return (inputs.portfolio[kind] ?? []).map((object) => object.id);
+  });
 }
