@@ -14,6 +14,12 @@ passants (89 suites), typecheck/build/diff checks OK. Baseline de départ :
 clôture sur la même branche. Le canon lié détaille la preuve. 11B reste
 **PLANNED / NOT STARTED** et n’a pas été implémenté pendant cette mission.
 
+Revue finale 11B du 2026-10-08 sur la baseline validée
+`507e85d5af8ed3158f9ce449e2e354609212e7b5` : **11B READY FOR IMPLEMENTATION**.
+Le §14 confronte les contrats livrés au plan et précise les résolutions ; il
+actualise les constats historiques des §1–4 sans rouvrir 11A.2.
+11B reste **PLANNED / NOT STARTED** ; cette revue est documentaire uniquement.
+
 ## 1. Baseline réelle et périmètre
 
 Branche inspectée : `codex/lot11a-portfolio-snapshots`.
@@ -160,7 +166,7 @@ Ajouter un projecteur pur Application, voisin de `capturePortfolioSnapshot.ts` :
    seulement la projection Project et aucun détail Team persistant.
 3. Joindre les deux maps à l'union des dates ; compléter composante manquante
    par ZERO, retirer double zéro, trier dates. Ajouter les ranges de source et
-   horizon pour chaque Project représenté, même zéro requirement/inactif.
+   horizon pour chaque Project représenté, même RAF zéro/inactif.
 4. Assembler schema 2 dans la capture existante ; valider les invariants,
    copier/freeze tout l'artefact, écrire V7 par la transaction existante avant
    publication. Aucune lecture de draft, reconstruction ou appel moteur ici.
@@ -241,10 +247,15 @@ Reservations ou leurs inputs dans V7, même si 11B ne les dessine pas.
 
 Créer `src/application/history/buildProjectHistoryViewModel.ts` et ses types,
 projection pure immutable sans DOM, pixels ni engine. Entrée : collection
-validée de captures ; utiliser le codec historique partagé pour lire noms,
-associations, état actif et horizon. Fournir une projection de métadonnées
-historical inputs au-dessus du DTO partagé ; ne pas lancer reconstruction,
-ne pas cloner/réhydrater toutes les chaînes V5 pour chaque pan/rerender.
+validée de captures ; lire noms, associations, état actif et horizon via une
+projection de métadonnées des inputs, typée par `PlanningInputsDto` du codec
+partagé. Cette projection de lecture reste à créer : `inputs` est `JsonValue`,
+pas un `PlanningSessionState`. Lire seulement `planning` et les champs
+Project/Program/priorityFamily nécessaires dans l'artefact déjà validé.
+Ne pas appeler `decodePlanningInputs` sur les inputs historiques privés de leurs
+chaînes V5, ni `hydrateHistoricalInputs`/`validateHistoricalSnapshot` pour afficher
+History ; ces fonctions servent à la validation complète au chargement/Save.
+Ne pas lancer reconstruction ni cloner/réhydrater les chaînes V5 au rendu.
 La validation complète reste au chargement/Save, pas dans le renderer.
 
 Sortir un modèle avec snapshots ordonnés et référence, horizon de référence,
@@ -267,9 +278,18 @@ sauvegarder viewport, Projection date, tabs, expanded cards, drafts RAF/modal,
 Create/Team/Settings et focus ; suspendre listeners/raccourcis/pointer gestures,
 fermer tooltip. Garder les propriétaires/stores de drafts vivants hors de la
 surface, sans Apply, Cancel ni rebase artificiel. Son `destroy()` actuel est
-réservé à la destruction finale. Sous modale ouverte, le toggle extérieur est
-inaccessible par modalité existante ; après fermeture, bascule autorisée même
-dirty. History affiche seulement les captures committées. Retour Planning
+réservé à la destruction finale. `getUiSnapshot()` seul ne sauvegarde ni les
+stores ni les valeurs locales des éditeurs. Conserver la surface DOM Planning
+et ses propriétaires d'édition ; ajouter la suspension des interactions sans
+passer par `renderProjection`/`mountProjection` ni leurs `setModel`/rebases.
+Masquer et rendre inerte cette surface pendant History. Sous modale ouverte,
+désactiver le toggle et refuser aussi sa callback de bascule : ne pas supposer
+que tous les dialogues existants bloquent le focus extérieur. Réutiliser la
+détection `isModalOpen` (Actuals/handoff, Settings, Team/Create Team, diagnostics).
+Après fermeture selon le workflow existant, bascule autorisée même dirty,
+notamment pour Create Project/Reservation inline. Aucun close/Cancel implicite
+pour rendre la bascule possible. History affiche seulement les captures committées.
+Retour Planning
 restaure les brouillons, y compris invalides et cachés ; la garde Save reste
 active. Aucun listener Planning global ne continue à modifier une vue cachée.
 
@@ -313,7 +333,7 @@ axe qui ne se déforme pas avec le zoom. Aucun Actuals/RAF/EAC imprimé sur la f
 | État d'une ligne | Restitution explicite |
 | --- | --- |
 | Project absent | Ligne vraiment vide, sans priorité/trait/marker/tooltip métier. Emplacement conservé ; état accessible « absent from snapshot » sans glyph visible. |
-| Present, profil disponible, aucun débit positif global | Trait horizontal fin neutre sur toute largeur temporelle, priorité visible ; tooltip « present in this snapshot, no activity ». RAF positif non alloué n'est pas une activité. |
+| Present, profil disponible, aucun débit positif global | Trait horizontal fin neutre sur toute largeur temporelle, priorité visible ; tooltip « present in this snapshot, no activity ». Conserver le marqueur si actualsRange existe, même avec days vide. RAF positif non alloué n'est pas une activité. |
 | Present, ancien schema 1 sans profil | Priorité et métriques/raisons au tooltip, petite indication non métrique dans la gouttière « Daily profile unavailable ». Aucune forme approximée, aucun rectangle start/end, aucun replay. Si start null/no-activity prouve déjà zéro activité, autoriser le trait sémantique sans prétendre un profil disponible ; conserver l'indication legacy. |
 | Present avec activité, toutes charges hors fenêtre/axe | Aucune forme visible mais priorité et tooltip indiquant activité hors fenêtre ; ne pas dessiner le trait no-activity. |
 | Inactive / Actuals seuls | Actuals affichés si positifs ; pas de Forecast, reason inactive ou autre affichée au tooltip. |
@@ -474,10 +494,18 @@ pas reconstruction du History VM. Changement de zoom = reprojection géométriqu
 avec nouvelle échelle Y commune, sans moteur. Back/forth de mode conserve cap
 et fenêtre source. Référence supprimée/changée depuis Planning : reset History
 sur nouvel horizon, reconstituer ordre/union/comparaisons et cap explicitement.
-Suppression d'une capture non référence : invalider modèle/distribution et
-initialiser le cap au prochain accès (changement de données, pas pan).
+Ajout ou suppression d'une capture sans changement de référence : reconstruire
+modèle/comparaisons/distribution et initialiser le cap sur la fenêtre restaurée
+au prochain accès, en conservant le viewport (changement de données, pas pan).
+Cela couvre aussi un Save à horloge reculée qui ne devient pas la référence.
+Comparer la liste des snapshotIds après tri : `freezeState` recrée le tableau
+lors de commandes ordinaires, et Save/Delete recopient profondément les captures.
+Un changement d'identité JS seul n'invalide donc ni VM, ni cap, ni viewport.
+Les IDs identifient des artefacts immutables dans cette session ; l'import
+recharge déjà l'application et recrée les caches. Aucun hash quotidien requis.
 Suppression du dernier snapshot = état vide. Zoom + puis − retrouve les mêmes
-bornes selon les clamps/ancre existants ; pas d'historique d'undo supplémentaire.
+bornes hors clamps ; après clamp, appliquer la math existante sans garantir une
+inversion exacte ni ajouter d'historique d'undo.
 
 ## 8. Tooltip, comparaisons et hits
 
@@ -487,12 +515,20 @@ ordre snapshotId tranche. Première présence : aucune comparaison. Delete d'une
 capture recalcule le prédécesseur parmi celles retenues, sans mutation des captures.
 
 Tooltip de chaque present : date/heure complète/timezone/ID de Portfolio Snapshot,
-priorité, Actuals, RAF, EAC, start/end et reasons explicites. Les reasons end
+priorité, Actuals, RAF, EAC, actualsKnowledge, start/end et reasons explicites.
+Un jour omis du profil disponible a un débit simulé zéro ; hors actualsRange,
+indiquer absence de couverture, sans qualifier ce zéro d'observation connue.
+Les reasons end
 existantes expliquent inactive/incomplete/no-allocation ; ajouter dans le VM
 un statut Forecast « allocated / inactive / no remaining workload / no allocation
 within horizon » à partir des inputs et profil, sans diagnostiquer une cause
-moteur inexistante. Pour schema 1 : préciser « daily allocations unavailable »,
-et ne pas déduire absence de Forecast uniquement d'une fin absente.
+moteur inexistante. Ordre de décision : inactive, puis RAF exact zéro, puis
+profil disponible avec somme Forecast positive = allocated, sinon profil
+disponible = no allocation within horizon. `allocated` inclut les allocations
+partielles ; garder la reason de fin et RAF séparément. Pour schema 1 actif avec
+RAF positif : statut d'allocation indisponible, préciser « daily allocations
+unavailable », sans déduire un zéro d'une fin absente. Ne jamais consulter les
+Team plans actuels pour compléter ce statut.
 
 | Comparaison | Comportement |
 | --- | --- |
@@ -517,6 +553,12 @@ row par index Y, date par temporal X, lookup daily par index/map, sans scan DOM.
 Tooltip hors SVG pour largeur lisible, focus/keyboard et tap en plus de hover,
 Escape/dismiss, pas d'ouverture d'édition. Masquer pendant gestes range/pan et
 reprendre après release ; ne pas conserver de hit vers capture supprimée.
+Au focus d'une ligne present, montrer les informations de ligne ; sur cette
+ligne, Left/Right parcourt les jours de la fenêtre visible, Home/End ses bornes
+(première flèche initialise au premier jour visible). Cette date de tooltip est
+un état local History, sans cursor/Projection date Planning ; schema 1 garde
+l'indication unavailable. Tab passe entre lignes/contrôles, Escape ferme sans
+changer de mode. La navigation clavier ne déclenche ni pan ni commande métier.
 
 ## 9. Couleurs et accessibilité
 
@@ -578,7 +620,7 @@ Une éventuelle archive/IndexedDB/compression requiert un lot ultérieur explici
 pas une promesse de capacité illimitée dans ce plan.
 
 History VM : O(S×Punion + K) pour N lignes exactes par groupe, maps de labels et
-présence/prédécesseurs ; cache sur référence immutable de collection, quantités
+présence/prédécesseurs ; cache sur collection logique immutable selon §7, quantités
 décodées une fois, pas de parsing au pan. Construire les sous-ensembles temporels
 par recherche binaire dans les listes triées, sans matérialiser D zéros par ligne.
 Cap : O(M log M) sur M jours positifs de la fenêtre au zoom, pas à chaque pan.
@@ -630,10 +672,12 @@ pour contourner un contrat 11A.2 encore instable.
 
 ### 11B
 
-1. History projection/VM et comparaisons pures sur artefacts validés.
-2. Shell de mode, suspend/resume Planning, header/légende History et read-only.
-3. Caractérisation Planning par tests avant extraction minimale de primitives
-   TemporalGeometry ; tests Planning inchangés, géométrie/renderer History daily.
+1. Caractérisation Planning sur baseline, avant tout changement de lifecycle ou
+   extraction : gestes, état UI, propriétaires des drafts et dirty global.
+2. History projection/VM et comparaisons pures sur artefacts validés.
+3. Shell de mode et suspend/resume Planning validés par aller-retour avec drafts ;
+   puis extraction minimale TemporalGeometry, géométrie/renderer History daily,
+   header/légende read-only. Tests Planning inchangés à chaque frontière.
 4. Mutualisation minimale viewport/range selon le protocole §7, state indépendant
    et cap zoom/pan ; aucune généralisation sans nécessité démontrée pour 11B.
 5. Tooltips, hits, priorités, couleurs/thèmes/accessibilité.
@@ -671,7 +715,8 @@ baseline/lecture code, cohérence du plan, liens, diff et périmètre documents.
 ## 13. Blockers, décisions et exclusions
 
 Aucun blocker de branche/ascendance ni décision produit manquante pour préparer
-ce plan. 11B dépend réellement de l'implémentation 11A.2, encore PLANNED.
+ce plan. La dépendance 11A.2 est satisfaite : **DONE**, baseline validée
+`507e85d5af8ed3158f9ce449e2e354609212e7b5`. Voir la revue finale §14.
 Les risques identifiés deviennent des critères de validation, pas des motifs
 pour rejouer l'histoire : volume/quota, lifecycle suspend/resume des drafts,
 extraction du range controller et lisibilité d'une palette nombreuse.
@@ -688,3 +733,92 @@ Reservations conservent tout l'historique sans nouvelles frises. Aucun replay
 complet, restore, comparaison avancée de capacités/surcharge, filtre causal,
 édition historique, engine registry, stack framework/E2E nouvelle ou mutation
 applicative n'appartient à cette livraison documentaire.
+
+## 14. Revue finale avant implémentation 11B — 2026-10-08
+
+### Baseline et confrontation aux API livrées
+
+`git fetch origin` effectué ; branche `codex/lot11a-portfolio-snapshots`, HEAD et
+upstream à `507e85d5af8ed3158f9ce449e2e354609212e7b5`, avance/retard 0/0 et
+working tree initial propre. Les quatre documents demandés ont été relus
+intégralement, ainsi que les contrats/capture/codecs 11A.2, dispatcher/session,
+composition UI et primitives/controllers Timeline concernés. Les §1–4 restent
+la trace de conception 11A.2 ; leur futur grammatical ne désigne aucun travail
+de persistence supplémentaire pour 11B. Le canon 11A.2 décrit le résultat livré.
+
+| Point vérifié | API/contrat réel et décision finale |
+| --- | --- |
+| 1. Lecture V6/V7 sans recalcul | `flowplanBackupV1.ts` dispatch vers V7 puis V6/anciens lecteurs ; `validateHistoricalSnapshot` hydrate les sources à l'entrée et valide sans moteur. History consomme uniquement les `PortfolioSnapshot` validés de `getPortfolioSnapshots()`, pas le texte backup ni les fonctions de capture/reconstruction. Projection légère des métadonnées sur `PlanningInputsDto` (§5) ; aucune dépendance au Portfolio courant. |
+| 2. Schema 1/2 | `HistoricalForecast` discrimine `forecast.forecastSchemaVersion` ; le type `HistoricalProjectForecastV2` impose le profil, la factory refuse extra profile schema 1/missing profile schema 2. Brancher sur le discriminant avant de lire les rows. `unavailable-legacy` signifie ici ancien schéma forecast, distinct de `actualsKnowledge: legacy-v4` : un schema 2 issu de V4 possède bien un profil disponible. Aucun enrichissement schema 1. |
+| 3. Projects et snapshots | `comparePortfolioSnapshots` fournit le tri lexical exact ; le stockage n'impose pas l'ordre chronologique. Trier une copie, indexer rows et métadonnées par ProjectId, construire union et S lignes selon §5. Les catalogues historiques contiennent `programs` et `priorityFamilies` ; afficher Pas depuis ces derniers. Absent = absence du Project dans cette capture, jamais inactif ou profil vide. Supprimés actuels restent lisibles ; première présence sans comparaison. |
+| 4. Frises empilées/cap | `captureDailyProfiles` agrège toutes Teams ; les valeurs du profil sont déjà les résultats exacts à dessiner, aucun adapter Planning nécessaire. Sparse double-zéro omis, somme Actuals conservée, Forecast ≤ RAF, EAC autonome. Les §6–7 définissent addition exacte, cap global et réduction proportionnelle ; aucun calcul métier à recréer. |
+| 5. Fin de connaissance Actuals | `HistoricalProjectDailyProfile.actualsRange` est la couverture de source capturée, y compris zéro ; marker à `x(day)+width(day)`, pas au centre cursor Planning. `firstForecastPositiveDate` est un dérivé de lecture distinct, nullable. Profil vide couvert garde marker ; range null/schema 1 n'en fabrique pas. |
+| 6. Temps/comparaisons | Horizon depuis `inputs.planning.startDate/endDate` du maximum du comparateur, même schema 1. Légende informative, aucune sélection d'une autre référence à ajouter. Cellules `[x,x+dayWidth)` ; fenêtre visible intersecte un jour si l'intersection a une largeur positive, les contacts au bord seuls n'entrent pas dans le cap. Clipper axe puis viewport, jamais les totaux/comparaisons. Le dernier jour et sa borne inclusive de connaissance restent représentables sans ajouter une date après l'horizon. `toEpochDay` de `domain/model/date.ts` est privé : exposer une différence civile minimale utilisant ce helper pour le delta signé nouvelle−ancienne ; aucun replay, DST ou Date locale. |
+| 7. Zoom/pan/range | Math existante `timelineViewport.ts`, epsilon `1e-9`, zoom 1.25, minimum 7 jours ; contrôleur actuel lié à `TimelineGeometry`, ancre cursor et callback sans cause. Extraire seulement le contrat temporel et l'ancre ; garder la callback Planning et ses effets compatibles. History suit les causes §7 ; restore/reference/data-change sont des événements de son coordinator, pas des commandes Planning. Cap figé au pan, recalcul sur largeur réellement changée, dataset distingué des nouvelles références JS. Aucun aller-retour zoom exactement inversible garanti lorsqu'un clamp a tronqué les bornes. |
+| 8. Isolation et drafts | `TimelineUiSnapshot` contient viewport/date/progress/tab/Team editing ID, pas les stores, focus ou drafts Create/Settings. `destroy()` et `mountProjection()` ne sont pas des API suspend/resume. Préserver owners et DOM Planning ; suspendre curseur global, focus handlers Actuals, dirty observer et gestes/reorder, annuler seulement capture/preview/hover. Garde modale explicite (§5), puis restore sans setModel/rebase/Apply/Cancel. Aucun changement de `PlanningSessionState`, projection publiée ou backup à la bascule. |
+| 9. Tooltips/accessibilité/read-only | `createTimelineInteractionController` et `timelineHitTesting` sont spécifiques Planning : seul client→coordonnées/typographie est commun. History crée hits de rows et tooltip accessible propre. La bande present est accessible même sans surface ; une entrée focalisable par ligne present donne métriques/reasons/comparaison, navigation de jour dans la ligne permet les valeurs quotidiennes sans souris, Escape ferme. Les boutons zoom/Reset restent clavier accessibles. Absent est annoncé comme tel sans tooltip métier. History ne reçoit aucun dispatch ni callback Save/Delete/Import/éditeur ; Portfolio entier caché/inert. |
+| 10. Tests | `dailyProfiles.test.ts` couvre déjà mixed schemas, covered-zero/none/RAF-only, V4/V5 exclusifs, chevauchement, conservation, V6 sans réécriture et absence de replay ; réutiliser ces contrats en fixtures History sans affaiblir les assertions. `createTimelineUiCoordinator.multidraft.test.ts`, cursor/viewport/interaction, geometry et renderApp tests sont les bases de caractérisation avant extraction. Aucune nouvelle stack E2E requise. |
+
+### Écarts et résolutions minimales
+
+- Dépendance 11A.2 encore dite PLANNED au §13 et référence de clôture implicite :
+  remplacer par DONE à la baseline validée ; aucun travail V6/V7 supplémentaire.
+- Lecture « codec historique » trop large : définir le lecteur de métadonnées
+  léger au-dessus du DTO déjà validé, sans hydration des chaînes V5 au rendu.
+- Suspension non offerte par les API réelles et modalité inégale des dialogues :
+  garder DOM/owners, ajouter pause des interactions et garde explicite du toggle.
+  Les drafts modaux restent protégés par la modale ; aucun abandon automatique.
+- Cache par référence de collection incompatible avec `freezeState` : comparer
+  les IDs triés, ignorer les simples copies, traiter aussi les ajouts non référence.
+- Statut Forecast/legacy, profil vide couvert et bornes graphiques : préciser les
+  distinctions ci-dessus. Un statut `allocated` ne promet pas un RAF complet.
+- Conversion de charge vers pixels : `capacityToGeometryNumber` est privé et
+  refuse overflow/underflow d'une charge absolue. History doit convertir les
+  ratios déjà bornés `[0,1]` avec un helper de présentation local (quotient BigInt
+  à précision pixel suffisante, puis Number), sans convertir les deux opérandes
+  géants séparément. Une hauteur subpixel peut être nulle ; les quantités exactes
+  et le hit de ligne restent accessibles. Ne pas modifier le helper Planning.
+
+### Ordre sûr et critères d'acceptation
+
+Le séquencement 11B du §11 s'applique, avec les gates suivants :
+
+1. Fixer les tests de caractérisation Planning sur la baseline avant lifecycle
+   et extractions ; conserver leurs attentes. Lire fixtures V6/schema 1 et V7
+   mixtes via les lecteurs existants, puis tester VM pur et métadonnées sans
+   source courante, y compris Project supprimé et engineVersion inconnu.
+2. Valider shell/suspension avec allers-retours répétés : Forecast/Reservation,
+   RAF invalide, cartes/Teams collapsed et tabs cachés, Create inline inchangé,
+   drafts Actuals retenus après fermeture existante ; sous toutes modales,
+   toggle refusé sans fermeture ni perte. Vérifier focus, dirty et Save bloqué au
+   retour, zéro dispatch/write/rebuild à la bascule et aucune accumulation de
+   listeners. Ctrl+flèches en History ne touche jamais Projection date Planning.
+3. Extraire temps/ancre/range un par un avec gates Planning, puis construire
+   géométrie/frises/cap : tiers et grands rationnels, gaps, empty covered zero,
+   RAF non alloué, partial/inactive, chevauchement, marker hors axe et dernier
+   jour, clipping d'anciens horizons et référence schema 1. Comparaisons exactes
+   sur profils entiers avec absences, null dates, mêmes timestamps et renommages.
+4. Tester cache/viewport : pan garde cap même sur nouveau spike ; zoom effectif
+   seul change l'échelle, no-op et translations non ; retour/resize préservent
+   la fenêtre et le cap. Commande Planning ordinaire avec tableau recréé laisse
+   History intact ; Save à horloge reculée, Delete non référence, nouvelle
+   référence et collection vide invalident selon §7. Import reprend Planning au
+   reload selon l'existant, sans restaurer un cache de l'ancienne application.
+5. Valider tooltip clavier/tap/hover, Escape, focus visible et états textuels,
+   couleurs stables et revue 1440/390 px light/dark, puis mesurer VM/zoom/pan et
+   volume selon §10 sans imposer virtualisation/storage nouveau avant mesure.
+   Exécuter typecheck, suite complète (baseline publiée : 755 tests/89 suites),
+   build et diff check ; garder notamment backup, dirty, mandatory et gestes
+   Planning sans régression. Documenter les limites mesurées, pas de purge.
+
+Acceptation : toutes ces gates et la matrice §12 passent ; History est strictement
+read-only, ne recalcule aucune histoire, garde l'exactitude quotidienne jusqu'aux
+pixels, et Planning revient avec son état complet inchangé. Les mesures 11A.2
+attestent déjà la limite de quota possible ; ce risque connu ne requiert aucune
+dépendance d'archive/11A.1/IndexedDB pour 11B.
+
+Conclusion de revue : **11B READY FOR IMPLEMENTATION**, aucun contrat manquant
+ni décision produit bloquante après ces précisions. Statut conservé :
+**PLANNED / NOT STARTED**. Cette mission ne modifie aucun code de production ou
+de test et ne relance pas les gates applicatifs déjà publiés ; vérifications de
+revue : baseline/fetch, lecture code/docs, cohérence, périmètre et diff check.

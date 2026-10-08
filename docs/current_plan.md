@@ -1,8 +1,8 @@
 # FlowPlan2 current plan
 
 Current validated baseline:
-`06e7fbb94d71fe73a35e244d4cee6626b65777c2` (11A.2 final verified code/test baseline;
-documentation closure follows on the same branch)
+`507e85d5af8ed3158f9ce449e2e354609212e7b5` (validated 11A.2 DONE closure;
+code/test baseline `06e7fbb94d71fe73a35e244d4cee6626b65777c2`)
 
 This is the operational roadmap for the active trajectory. Durable product and
 architecture rules live in [canon](./canon.md); current implementation facts
@@ -48,10 +48,11 @@ plus Lot 11A.2 exact daily profiles and V7 persistence.
 - 11A Portfolio Snapshots & Forecast History Capture (DONE).
 - 11A.2 Historical daily load profiles (DONE).
 
-Current trajectory: **11A.2 — Historical daily load profiles**, then
-**11B — Project History view**. See the
+Current trajectory: **11B — Project History view**, following validated DONE
+11A.2. See the
 [detailed implementation plan](./steps/HISTORY/lot11a2_11b_plan.md).
-11A.2 is implemented, verified and closed. 11B remains PLANNED / NOT STARTED.
+11A.2 is implemented, verified and closed. Final plan review concludes
+**11B READY FOR IMPLEMENTATION**; 11B remains **PLANNED / NOT STARTED**.
 
 ## Current objective and ordered sub-lots
 
@@ -63,11 +64,11 @@ Current trajectory: **11A.2 — Historical daily load profiles**, then
 10E: largely superseded by 11B; advanced replay/navigation/comparison deferred
 ```
 
-Final verification branch: `codex/lot11a-portfolio-snapshots`; starting HEAD
-`c295db34937dca2dbe86f403319dc8880563d94c`, clean and synchronized with origin
-after fetch. The 11A.2 canon records the invariants, nine additional regression
-tests and final validation. This mission authorizes 11A.2 closure only; no 11B
-implementation was performed.
+Final 11B plan review (2026-10-08): branch `codex/lot11a-portfolio-snapshots`,
+starting HEAD `507e85d5af8ed3158f9ce449e2e354609212e7b5`, clean and synchronized
+with origin (0/0) after fetch. The 11A.2 canon records the completed capture and
+755-test validation. This mission updates documentation only; 11B implementation
+has not started.
 
 ## Corrective lot — anchored temporal zoom and range drag
 
@@ -457,6 +458,32 @@ Reservations retain full captured history without dedicated rows. Full historica
 navigation, snapshot restore, replay and causal attribution remain deferred.
 Two successive implementation lots are mandatory: close 11A.2 with human
 validation and DONE status, then begin 11B.
+
+### Final plan review — READY FOR IMPLEMENTATION
+
+The [final review and API matrix](./steps/HISTORY/lot11a2_11b_plan.md#14-revue-finale-avant-implémentation-11b--2026-10-08)
+checks all ten History concerns against the delivered 11A.2 contracts. No blocker
+remains. Minimal clarifications: read metadata from validated historical DTOs
+without V5 hydration at render; distinguish schema 1 unavailable from schema 2
+empty or V4-derived; retain Planning DOM and draft owners with explicit interaction
+suspension and modal toggle guard; cache by sorted immutable snapshot IDs rather
+than array identity, including backward-clock Saves; define inclusive-day marker,
+clipping, Forecast status and bounded ratio conversion at the pixel boundary.
+V6/V7 formats, engine and Planning behavior require no change to satisfy History.
+
+Safe order: characterize Planning before lifecycle/extractions, implement the pure
+History VM, validate reversible mode isolation with all draft owners, then extract
+only required temporal/gesture primitives and build History geometry/cap/tooltips.
+Acceptance covers mixed schemas and deleted Projects, whole-snapshot comparisons,
+covered-zero marker independent of Forecast, proportional daily stacks/common cap,
+pan/zoom/cache stability, repeated mode switches preserving drafts/focus/dirty,
+zero History commands/writes/recomputation, keyboard/touch and desktop/narrow
+light/dark review. Complete typecheck, full tests, build and diff check during
+implementation, retaining Planning/backup/mandatory expectations. Performance and
+quota remain measured limits, with no new storage or archive dependency.
+
+Review outcome: **11B READY FOR IMPLEMENTATION**. Status remains
+**PLANNED / NOT STARTED**; this documentary review implements no 11B code or tests.
 
 ## Cross-cutting non-goals for Phase 9
 
