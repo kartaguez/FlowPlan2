@@ -430,22 +430,32 @@ rows, exact rational strings and coverage semantics in forecast schema 2 under
 V7; V6/schema 1 captures remain unchanged and explicitly lack a daily profile.
 No engine/reconstruction during Save or future historical display, no full
 PlanningResult and no artificial V4 reconciliation. Implement and validate
-Domain/capture/persistence/tests/docs before starting 11B.
+Domain/capture/persistence/tests/docs, then tests, build, audit, any corrections,
+human validation and **DONE** closure before starting 11B. Parallel 11B
+implementation cannot bypass an unstable 11A.2 contract.
 
 ## 11B — Project History view
 
 **Status: PLANNED — depends on 11A.2, no implementation started.**
 See [11A.2 / 11B plan](./steps/HISTORY/lot11a2_11b_plan.md).
 A strictly read-only Planning/History mode uses the main space, its own header
-and an independent viewport, reusing shared temporal geometry and zoom/range/pan
-controllers. Union of historical Projects, one line per global snapshot,
+and an independent viewport, sharing only the minimal temporal and zoom/range/pan
+primitives needed. Characterize Planning by tests before each extraction and
+preserve its behavior and test expectations exactly; no general Timeline cleanup.
+Union of historical Projects, one line per global snapshot,
 latest/last-known priority ordering and metadata, frozen daily load surfaces,
-common robust cap stable during pan, snapshot colors and exact comparison
-tooltips. The common axis uses the latest reference snapshot's horizon.
+daily heights proportional to Actuals + Forecast with visible stacked components,
+an Actuals knowledge marker at `actualsRange.through` independent of positive
+days and distinct from the first positive Forecast date, common robust cap
+stable during pan and recalculated on zoom, stable snapshot colors with good
+perceptual separation for usual 8–12-snapshot collections, and exact comparison
+tooltips. The IQR formula is a tunable presentation policy, without Domain or
+persistence impact. The common axis uses the latest reference snapshot's horizon.
 Old captures expose metrics with explicit unavailable daily shapes; no replay.
 Reservations retain full captured history without dedicated rows. Full historical
 navigation, snapshot restore, replay and causal attribution remain deferred.
-Two successive implementation lots/commits are recommended: 11A.2, then 11B.
+Two successive implementation lots are mandatory: close 11A.2 with human
+validation and DONE status, then begin 11B.
 
 ## Cross-cutting non-goals for Phase 9
 

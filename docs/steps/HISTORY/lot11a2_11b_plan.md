@@ -1,13 +1,17 @@
 # 11A.2 — Historical daily load profiles / 11B — Project History view
 
 Statut : **PLAN ONLY — 11A.2 PLANNED, 11B PLANNED**. Inspection et décisions
-proposées le 2026-10-08. Ce document autorise uniquement la préparation du plan ;
+proposées puis durcies le 2026-10-08. Ce document autorise uniquement la
+préparation du plan ;
 aucun code applicatif, test, backup ou donnée utilisateur n'est modifié.
 
 ## 1. Baseline réelle et périmètre
 
 Branche inspectée : `codex/lot11a-portfolio-snapshots`.
-HEAD de départ : `a51f08626c65c698037e919d44577ad39a5beafb`.
+HEAD de la première étude : `a51f08626c65c698037e919d44577ad39a5beafb`.
+Baseline code 11A : `f477dd6e1a31f3be7be949dad9fea4cae9667770`.
+HEAD de départ du durcissement documentaire :
+`9f44d991702e62b60eaad56b5a88c62de7368ac7` (plan 11A.2 / 11B).
 Working tree initial propre ; upstream `origin/codex/lot11a-portfolio-snapshots`,
 remote `https://github.com/kartaguez/FlowPlan2.git`.
 
@@ -18,7 +22,8 @@ Les trois commits demandés existent et sont ancêtres du HEAD (contrôle
 - `da79f2c243bcba487f68c8ee441fe6efe1e65514` : contrat révisé 11A ;
 - `f477dd6e1a31f3be7be949dad9fea4cae9667770` : implémentation 11A/V6.
 
-Le HEAD ajoute seulement le plan 11A.1 à l'implémentation 11A. Les docs
+Le HEAD de la première étude ajoute seulement le plan 11A.1 à l'implémentation
+11A. Les docs
 `canon.md`, `current_canon.md`, `current_plan.md`, les plans/canons 10C.1,
 10C.2 et les trois documents de `PORTFOLIO_SNAPSHOTS/` ont été lus.
 Le code livré a été inspecté directement. Les mentions IN REVIEW dans les
@@ -51,6 +56,9 @@ superseded by 11B, avec replay/navigation/analyses avancées différés.
 | `src/ui/timeline/createTimelineCursorController.ts` | Range drag dans le contrôleur cursor (seuil 4 CSS px), clic date et raccourcis globaux mêlés. Extraire le geste commun, ne pas instancier un faux cursor Planning en History. |
 | `src/adapters/timeline/geometry/buildTimelineGeometry.ts`, `timelineCursorGeometry.ts` | Dates/X, axe année/mois et conversion date/X mêlés à géométrie Team. Extraire primitives temporelles ; géométrie History dédiée sans capacités Team. |
 | `src/ui/timeline/applyTimelineViewport.ts`, `timelineHitTesting.ts`, `createTimelineInteractionController.ts` | viewBox/typographie et conversion client→timeline réutilisables ; hits Planning spécifiques à remplacer par hits de lignes History. |
+
+Toutes les extractions transversales proposées dans ce document sont soumises
+au protocole de mutualisation minimale et de non-régression Planning du §7.
 
 Le canon 11A exclut les profils quotidiens parce que 11A ne les promettait pas.
 11A.2 est précisément l'extension versionnée autorisée de cette frontière ;
@@ -307,19 +315,43 @@ axe année/mois et conversions date/X de la géométrie Timeline dans une interf
 vues. History n'a pas de fake Team/capacité ni de PlanningResult adapter.
 
 Dessiner des surfaces en escalier par cellules journalières, largeur = un jour
-civil, hauteur linéaire = md/jour × facteur **commun**. Pas d'interpolation lisse
-inventant du débit pendant les zéros. Actuals depuis baseline, Forecast empilé
-au-dessus si même jour ; ainsi aire non capée = somme exacte des deux charges
-à un facteur pixels commun. Tous Projects et snapshots partagent ce facteur ;
-pas de normalisation par ligne/Project, même après scroll vertical.
+civil. Formaliser la quantité exacte :
 
-Le Domain autorise chevauchement Actuals/Forecast et des trous temporels : il
-n'existe pas nécessairement une frontière unique chronologique. Afficher un
-petit marqueur au bord gauche du premier jour Forecast positif lorsqu'il y a
-aussi des Actuals positives ; tooltip « Forecast begins » et mention overlap
-si les ranges positives se chevauchent. Sans Forecast ou sans Actuals : pas de
-fausse frontière. Ne pas déplacer les valeurs pour faire une frise séquentielle.
-Marker hors axe/fenêtre simplement clippé ; pas de marker créé à un bord de
+`dailyTotalWorkload = actualsWorkload + forecastWorkload`.
+
+La hauteur totale de la cellule/journée est proportionnelle à ce total, avec
+un facteur **commun** à tous Projects et snapshots. Dans cette hauteur,
+Actuals est la partie foncée/saturée depuis la baseline et Forecast la partie
+pastel empilée au-dessus. Si les deux sont présents le même jour, aucun
+recouvrement graphique ne peut cacher une composante. Sous le plafond visuel :
+`surface Actuals ∝ Σ Actuals`, `surface Forecast ∝ Σ Forecast`, et
+`surface totale ∝ Σ Actuals + Σ Forecast`. Pas de normalisation par ligne/Project,
+même après scroll vertical, ni d'interpolation lisse inventant du débit pendant
+les zéros. La conversion en pixels appartient exclusivement à Geometry/UI,
+jamais au Domain.
+
+Le marqueur principal matérialise la **fin de la période de connaissance
+Actuals du snapshot**, à `actualsRange.through` quand cette plage existe.
+Le positionner sur la borne de fin de ce jour inclusif, avec tooltip explicitant
+la date et « Actuals knowledge through ». Il ne dépend pas des jours positifs :
+une couverture connue avec uniquement des zéros conserve ce marqueur.
+Si `actualsRange` est null, aucun marqueur de fin d'Actuals ; schema 1 sans
+profil ne reçoit aucune borne inventée.
+
+Distinguer explicitement trois concepts dans le modèle de lecture/rendu :
+
+- borne de connaissance Actuals : `actualsRange.through` ;
+- premier jour Forecast positif : `firstForecastPositiveDate`, dérivé du profil
+  disponible (null sans Forecast positif), information distincte au tooltip ;
+- profil de charge effectivement présent : les deux composantes quotidiennes.
+
+Ces dates peuvent différer. Ne jamais redéfinir la frontière métier
+Actuals/Forecast comme le premier jour d'une allocation Forecast positive.
+En cas de chevauchement valide, le même jour ou sur des périodes : ne déplacer
+ni tronquer aucune charge, afficher les deux composantes réelles empilées et
+conserver le marqueur à `actualsRange.through`. Le tooltip peut signaler le
+chevauchement pour expliquer le rendu ; aucune frise séquentielle artificielle.
+Marqueur hors axe/fenêtre simplement clippé, sans marqueur fabriqué au bord du
 viewport. End absent ne supprime pas les allocations réelles disponibles :
 dessiner leur profil et rien après leur dernier jour, ni flèche ni hachure.
 
@@ -331,16 +363,28 @@ et de tous les Projects, dans la fenêtre X visible (jours intersectés), clipp�
 à l'axe de référence. Les lignes absent/legacy et zéros ne participent pas à
 la distribution ; le scroll vertical ne change pas le cap commun.
 
-Proposition déterministe : trier les valeurs exactes ; pour n ≥ 8, quartiles
+**Contrat stable de présentation 11B** : plafond déterministe, dérivé des
+données affichées, commun à toutes les lignes, robuste aux outliers, recalculé
+lorsqu'un zoom change la fenêtre/le niveau temporel selon §7 et stable pendant
+un simple pan. Dépassements explicitement signalés, vraie valeur toujours
+accessible au tooltip. Ce contrat n'est ni un invariant métier ni un contrat
+de persistance.
+
+**Initial presentation strategy / tunable rendering policy** : trier les
+valeurs exactes ; pour n ≥ 8, quartiles
 nearest-rank Q1/Q3, plafond `min(max, Q3 + 1.5 × (Q3−Q1))`. Pour 1 ≤ n < 8,
 `min(max, 3 × médiane inférieure)` ; n=0, référence d'affichage 1 md/jour sans
 activité. Facteurs rationnels, comparaisons exactes ; aucune interpolation
 flottante dans le quantile. Positivité garantie ; IQR nul donne Q3 positif.
 Le fence ignore un spike isolé, conserve la majorité des débits et est plus
 robuste qu'un max. Si les gros débits sont fréquents, ils relèvent naturellement
-le cap. Le fallback petit échantillon est une convention visuelle, pas une
-statistique métier ; la tester avec bimodalité et singleton, l'ajuster uniquement
-par revue visuelle documentée si nécessaire.
+le cap. Toute la formule IQR et son fallback sont une politique de rendu initiale
+ajustable après revue visuelle documentée. Ils peuvent évoluer sans migration
+de backup, changement Domain ou du contrat Portfolio Snapshot, ni rupture de
+compatibilité. Aucun paramètre de cette formule n'est persisté dans le snapshot.
+Les tests privilégient les propriétés du contrat stable ; des tests unitaires
+de la stratégie choisie (bimodalité, singleton, IQR nul notamment) restent
+souhaitables, sans ériger cette formule en canon produit.
 
 Hauteur pleine commune = cap. Si total dépasse cap, réduire les deux composantes
 proportionnellement `cap/total` (préserve leur ratio sans cacher Forecast),
@@ -358,7 +402,36 @@ restauré à son retour, aucun changement du viewport/selectedDate Planning.
 `HistoryUiState` contient viewport, referenceSnapshotId, zoomRevision,
 cap et fenêtre d'échantillonnage de ce cap, hover/transient range. Ne rien persister.
 
-Généraliser le contrôleur existant sur `TemporalGeometry` et callback d'ancre
+### Mutualisation minimale, sans changement de comportement Planning
+
+**Invariant : aucun comportement Planning existant ne peut changer pour
+satisfaire History.** Les extractions `TemporalGeometry`, range gesture,
+notifications viewport enrichies et primitives zoom/pan/date→X doivent rester
+minimales. History conserve son état séparé et n'impose pas ses concepts au
+Planning. Aucun cleanup architectural opportuniste ni refactoring général de
+la Timeline Planning dans 11B.
+
+Préserver exactement Projection date, ancrage du zoom Planning, boutons +/−/Reset,
+sélection de plage, seuil de drag 4 CSS px, minimum 7 jours (horizon plus court
+selon l'existant), Shift+drag pan, click-to-date Planning, Ctrl+Left/Ctrl+Right,
+tooltips et hit testing actuels, suppression de sélection native de texte,
+pointer cancel/capture, conservation des drafts et viewport Planning.
+
+Avant **toute** extraction transversale :
+
+1. caractériser le comportement Planning existant par tests sur la baseline ;
+2. extraire seulement la primitive minimale nécessaire à 11B ;
+3. vérifier que les tests Planning restent identiques et passent sans adapter
+   leurs attentes à History ;
+4. poursuivre une généralisation supplémentaire uniquement si un besoin réel
+   de 11B la rend nécessaire, avec la même vérification de non-régression.
+
+Les propositions ci-dessous sont subordonnées à cet invariant ; enrichir un
+callback ou une interface ne doit changer ni les effets ni le cycle de vie
+observable du Planning.
+
+Adapter au minimum le contrôleur existant sur `TemporalGeometry` et callback
+d'ancre
 `getZoomAnchorX`. Planning conserve exactement son ancre Projection date/clamp ;
 History utilise le centre visible (pas de Projection date métier nouvelle).
 Réutiliser clamp, zoom, pan, date-range, minimum 7 jours ou horizon plus court,
@@ -432,17 +505,31 @@ reprendre après release ; ne pas conserver de hit vers capture supprimée.
 
 ## 9. Couleurs et accessibilité
 
-Une couleur stable de base par snapshotId, commune à tous Projects/légende.
-Proposition : hash déterministe versionné du snapshotId vers une teinte HSL,
-avec saturation/luminance bornées pour les thèmes ; départ depuis une palette
-qualitative testée, variations de teinte déterministes pour nombreux IDs.
-Ni index dans collection, ni date seule, ni Math.random au render. Suppression,
-import, rerender, pan/zoom ne recolorent aucune autre capture. Palette non
-Programme ; dériver Actuals foncé/saturé et Forecast pastel avec contour adapté
-au light/dark. Hash peut collisionner : dates/ordre et nuances sont des repères
-complémentaires, ne pas promettre une infinité de couleurs perceptuellement
-uniques. Éviter résolution de collision dépendant de la collection qui changerait
-les anciennes couleurs. Revue 1, 8, 24 et 50 snapshots dans les deux thèmes.
+Une couleur stable de base par snapshotId, commune à tous Projects/légende et
+indépendante du Programme. Compromis proposé : fonction pure versionnée de
+`snapshotId` vers un espace perceptuel (par exemple OKLCH), avec gamut et
+contraste vérifiés dans les deux thèmes. Utiliser plusieurs dimensions
+perceptuelles (teinte, chroma, luminance), une distribution déterministe bien
+répartie issue du hash et une palette qualitative de référence ; éviter un
+simple modulo sur une petite palette qui multiplie les couleurs identiques.
+Dériver Actuals foncé/saturé et Forecast pastel avec contour adapté au light/dark.
+
+Pour les collections usuelles, environ 8–12 snapshots simultanément affichés,
+viser une distance perceptuelle suffisante entre couleurs de base et éviter
+autant que possible les couleurs identiques ou quasi identiques. Évaluer les
+distances et le rendu sur des jeux représentatifs de 1, 8 et 12 IDs ; ajuster
+la politique avant validation visuelle. Une fonction de l'ID seul ne peut
+garantir l'absence de toute proximité pour des IDs arbitraires : compromis
+explicite entre bonne discrimination usuelle et stabilité absolue.
+
+Ni index de collection, ni date seule, ni Math.random au render, ni résolution
+de collision recalculée selon la collection. Ajout/suppression d'autres snapshots,
+import, rerender, pan et zoom ne recolorent aucune capture existante. La fonction
+validée reste stable ; aucune nouvelle donnée métier ou migration de snapshot
+pour gérer les couleurs. Pour de très grands nombres, les couleurs seules
+peuvent ne plus suffire : légende, ordre des lignes et dates restent les autres
+canaux d'identification. Revue complémentaire à 24 et 50 snapshots dans les deux
+thèmes, sans promettre une infinité de couleurs perceptuellement uniques.
 
 Légende globale wrap/scroll interne si longue ; heure accessible au focus/tap,
 date visible répétée pour captures même jour, ID en tooltip. Labels/gouttière
@@ -513,17 +600,27 @@ Cette passe ne produit que le commit documentaire.
 3. V7, dispatch versions, guards downgrade et wiring persistence/import/export.
 4. Tests capture, conservation, validation/migration/transaction et volume.
 5. Docs : canon durable/courant, canon 11A.2, statut IN REVIEW puis DONE seulement
-   après audit ; conserver le contrat historique schema 1.
+   après tests, build, audit, corrections éventuelles et validation humaine ;
+   conserver le contrat historique schema 1.
 
-Gate bloquant pour 11B : profils réellement capturés et round-trippés V7,
-anciens profils explicitement indisponibles. Aucun fallback par moteur.
+**Gate bloquant : clôturer entièrement 11A.2 avant de commencer 11B.**
+Séquence obligatoire : implémentation 11A.2 → tests → build → audit → corrections
+éventuelles et revalidation → validation humaine → statut **DONE**. Profils
+réellement capturés et round-trippés V7, anciens profils explicitement
+indisponibles ; aucun fallback par moteur. IN REVIEW ou des tests passants
+seuls ne permettent pas de démarrer 11B. Aucune implémentation 11B en parallèle
+pour contourner un contrat 11A.2 encore instable.
+
+Étape 2 : seulement après cette clôture, commencer 11B.
 
 ### 11B
 
 1. History projection/VM et comparaisons pures sur artefacts validés.
 2. Shell de mode, suspend/resume Planning, header/légende History et read-only.
-3. Primitives TemporalGeometry partagées, géométrie/renderer History daily.
-4. Généralisation contrôleurs viewport/range, state indépendant et cap zoom/pan.
+3. Caractérisation Planning par tests avant extraction minimale de primitives
+   TemporalGeometry ; tests Planning inchangés, géométrie/renderer History daily.
+4. Mutualisation minimale viewport/range selon le protocole §7, state indépendant
+   et cap zoom/pan ; aucune généralisation sans nécessité démontrée pour 11B.
 5. Tooltips, hits, priorités, couleurs/thèmes/accessibilité.
 6. Tests par frontière et mesures de performance ciblées.
 7. Review manuelle desktop 1440 px et narrow/mobile 390 px, light/dark : espaces,
@@ -545,10 +642,11 @@ anciens profils explicitement indisponibles. Aucun fallback par moteur.
 | Transaction/local | Save/Delete zéro recompute, dirty caché/invalid/handoff, mismatch run, quota échec avant publication ; startup invalide conservé, import Cancel/preflight fail intact, export V7 complet, suppression ciblée sans Actuals GC, ordinary commands conservent tous profils. |
 | History projection | Union incluant supprimés/inactifs ; ordre latest priority puis last-known et tie ProjectId ; S lignes pour S snapshots ; absent/present/no-activity/legacy/activité hors fenêtre ; metadata latest-known ; current absent n'invalide pas inputs autonomes. |
 | Comparaisons | Prédécesseur même Project en sautant absences, same timestamp tri ID, première présence, suppression prédécesseur ; priority/EAC delta exact signé ; Programme/Pas changement ID/nom/None ; active transitions ; drift dates positif/négatif/zéro, null×date/null×null/reasons, année bissextile et DST sans influence. |
-| Geometry/render | Axe unique référence (dernier V6 possible), clipping ancien horizon, hauteurs daily exactes avant pixels, gaps sans interpolation, échelle commune, empilement jour chevauchant, cap total proportional, indicator et vraie valeur ; Actuals foncé/Forecast pastel, marker première allocation sans fabrication, absent réellement vide, no-activity full-width, legacy sans forme. |
-| Cap/viewport | Distributions skewed/bimodales/IQR zéro/1–7 jours/empty, gros rationnels ; zoom +/−/Reset/range après pan recalculent si niveau changé, pan et same-width déplacement stables, no-op clamp stable, restore/rerender stable, référence/dataset changement explicite ; cap ne dépend pas du scroll Y. |
+| Geometry/render | Axe unique référence (dernier V6 possible), clipping ancien horizon, dailyTotalWorkload = actualsWorkload + forecastWorkload, hauteur totale proportionnelle et surfaces de chaque composante proportionnelles sous cap, pixels uniquement Geometry/UI, gaps sans interpolation, échelle commune, empilement jour chevauchant, cap total proportional, indicator et vraie valeur ; Actuals foncé/Forecast pastel, marqueur actualsRange.through même si couverture zéro, aucun si range null ; firstForecastPositiveDate distincte, chevauchement sans déplacement/troncature, absent réellement vide, no-activity full-width, legacy sans forme. |
+| Cap/viewport | Propriétés du contrat stable : déterminisme, données affichées, cap commun robuste aux outliers, dépassement signalé/vraie valeur au tooltip ; stratégie initiale testée séparément sur skewed/bimodales/IQR zéro/1–7 jours/empty et gros rationnels sans canoniser la formule ; zoom +/−/Reset/range après pan recalculent si niveau changé, pan et same-width déplacement stables, no-op clamp stable, restore/rerender stable, référence/dataset changement explicite ; cap ne dépend pas du scroll Y. |
+| Non-régression Planning / extraction | Tests de caractérisation avant chaque extraction minimale ; attentes inchangées pour Projection date, ancre, +/−/Reset, range, seuil 4 px, minimum 7 jours, Shift pan, click-to-date, Ctrl+Left/Right, tooltips, hits, sélection native supprimée, pointercancel/capture, drafts et viewport ; généralisation supplémentaire seulement nécessaire à 11B. |
 | Interaction/mode | Toggle réversible, aucun dispatch/write/engine en History, panneau Portfolio absent et non focusable, listener Planning suspendu ; drafts RAF/Actuals/Forecast/Create/Settings invalides conservés, dirty Save au retour ; 7-day minimum, 4px range, reverse drag, pointercancel, Shift pan, texte non sélectionnable, hover/click/tap/focus et tooltip no-activity/legacy. |
-| Couleurs/UI/performance | ID color stable import/delete/pan/zoom, dates mêmes jours, thèmes et nombreux snapshots, focus/touch, labels non déformés, responsive sans overflow ; paths et hit testing sans nœud/jour, mesures Save/JSON/decode/VM/zoom/pan, quota sans purge. |
+| Couleurs/UI/performance | ID color stable ajout/import/delete/rerender/pan/zoom, indépendant Programme ; distance perceptuelle et revue 8–12 snapshots usuels, collisions sans recoloration des autres, dates/légende/ordre pour nombreux snapshots, thèmes, focus/touch, labels non déformés, responsive sans overflow ; paths et hit testing sans nœud/jour, mesures Save/JSON/decode/VM/zoom/pan, quota sans purge. |
 
 Après chacun des lots autorisés : `npm run typecheck`, `npm test`,
 `npm run build`, `git diff --check`, régressions backup/mandatory existantes.
@@ -564,7 +662,8 @@ pour rejouer l'histoire : volume/quota, lifecycle suspend/resume des drafts,
 extraction du range controller et lisibilité d'une palette nombreuse.
 
 Deux ambiguïtés métier résolues explicitement : un chevauchement daily n'est
-pas une frontière séquentielle unique (marker Forecast begins), et une somme de
+pas une frontière séquentielle unique (marqueur de connaissance à
+actualsRange.through, distinct de firstForecastPositiveDate), et une somme de
 Forecast alloué peut être inférieure au RAF/EAC (aucune charge inventée).
 Les anciens profils restent indisponibles, même si les inputs pourraient être
 rejoués aujourd'hui. Le cap est commun, robuste, stable au pan et informatif.
