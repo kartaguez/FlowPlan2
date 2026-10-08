@@ -1,7 +1,7 @@
 # FlowPlan2 current plan
 
 Current validated baseline:
-`843cb966b9cda0b13d1695f73aa005847e8fbb8a` (10C.2 closed by the user)
+`f477dd6e1a31f3be7be949dad9fea4cae9667770` (11A validated by the user)
 
 This is the operational roadmap for the active trajectory. Durable product and
 architecture rules live in [canon](./canon.md); current implementation facts
@@ -11,7 +11,8 @@ The validated baseline includes the Program/Pas, Reservation progress, colors,
 temporal zoom corrective lots, Lot 10A Actuals with V4 backup, Lot 10B
 Actuals-aware planning projection, Lot 10C Actuals workflows and UI, and
 Lot 10C.1 object-scoped knowledge snapshots with V5 persistence and
-Lot 10C.2 Actuals/RAF workflow corrections.
+Lot 10C.2 Actuals/RAF workflow corrections, and Lot 11A Portfolio Snapshots
+with immutable historical inputs, exact Project metrics and V6 persistence.
 
 ## Completed
 
@@ -41,26 +42,34 @@ Lot 10C.2 Actuals/RAF workflow corrections.
 - 10B Actuals-aware planning projection (DONE).
 - 10C Actuals workflows and UI (DONE).
 - 10C.1 Actuals knowledge snapshots and V5 migration (DONE).
+- 10C.2 Actuals / RAF workflow UX (DONE).
+- 11A Portfolio Snapshots & Forecast History Capture (DONE).
 
-10C.2 Actuals / RAF workflow UX is validated and closed by the user for this pass.
-Current trajectory: **11A — Portfolio Snapshots & Forecast History Capture**,
-[validated plan](./steps/PORTFOLIO_SNAPSHOTS/lot11a_plan.md) and
-[implementation canon](./steps/PORTFOLIO_SNAPSHOTS/lot11a_canon.md).
+Current trajectory: **11A.2 — Historical daily load profiles**, then
+**11B — Project History view**. See the
+[detailed implementation plan](./steps/HISTORY/lot11a2_11b_plan.md).
+This is a documentation-only preparation; neither lot is implemented.
 
 ## Current objective and ordered sub-lots
 
 ```text
 10A (DONE) → 10B (DONE) → 10C (DONE) → 10C.1 (DONE) → 10C.2 (DONE)
-11A core (IMPLEMENTED / AUDITED) → 11A.1 (PLAN BLOCKED) → 11B (BLOCKED if 11A.1 adopted)
+11A (DONE) → 11A.2 (PLANNED) → 11B (PLANNED)
+11A.1: DEFERRED / not adopted as product work; no dependency for 11B
 10D: superseded by 11A (not DONE)
 10E: largely superseded by 11B; advanced replay/navigation/comparison deferred
 ```
 
-The previous 10C.1 baseline was `17094b03cbf4c34c8424d6fa1847e0ceebd55410`.
-User closure of the inspected 10C.2 code removes the launch dependency. The user
-reports a positive audit of 11A core at `f477dd6e1a31f3be7be949dad9fea4cae9667770`
-on `codex/lot11a-portfolio-snapshots`. Global 11A closure and the roadmap baseline
-are not advanced in this plan-only extension pass. No 11B implementation is included.
+Inspected branch: `codex/lot11a-portfolio-snapshots`; starting HEAD
+`a51f08626c65c698037e919d44577ad39a5beafb`, clean working tree.
+The implementation `f477dd6e1a31f3be7be949dad9fea4cae9667770` and both 11A plan
+commits `2d5695848035462bf6e4fc70754ec4d3bc6d5c94` and
+`da79f2c243bcba487f68c8ee441fe6efe1e65514` are ancestors of this HEAD.
+The prior 10C.2 baseline was `843cb966b9cda0b13d1695f73aa005847e8fbb8a`.
+The user-provided positive audit recorded by the 11A.1 plan and this mission
+establishes 11A closure. Older IN REVIEW wording in implementation canons is
+a historical review record, not a missing-code baseline. Those canons remain
+untouched in this planning pass; the operative statuses are recorded here.
 
 ## Corrective lot — anchored temporal zoom and range drag
 
@@ -378,13 +387,14 @@ The [current canon](./current_canon.md) records the validated 10C.1 contract.
 
 ## 11A — Portfolio Snapshots & Forecast History Capture
 
-**Status: core IMPLEMENTED / AUDITED positively at
-`f477dd6e1a31f3be7be949dad9fea4cae9667770` (user-provided audit).**
-Global 11A is not marked DONE while the historical migration extension is under
-decision. Implementation follows the
-validated plan at `da79f2c243bcba487f68c8ee441fe6efe1e65514`, retaining initial plan
-commit `2d5695848035462bf6e4fc70754ec4d3bc6d5c94` on the implementation branch.
+**Status: DONE** — validated implementation at
+`f477dd6e1a31f3be7be949dad9fea4cae9667770` (user-provided positive audit,
+recorded in the prior planning pass and confirmed by the current framing).
+Implementation follows the validated plan at
+`da79f2c243bcba487f68c8ee441fe6efe1e65514`, retaining initial plan commit
+`2d5695848035462bf6e4fc70754ec4d3bc6d5c94` on this branch.
 See [11A canon and verification](./steps/PORTFOLIO_SNAPSHOTS/lot11a_canon.md).
+11A closure does not depend on adopting the separate 11A.1 merge study.
 
 Explicit Save freezes complete shared-codec historical inputs, exact Actuals
 source references (or frozen pending V4 evidence), and minimal exact Project
@@ -403,29 +413,39 @@ navigation or restore is added.
 
 ## 11A.1 — Merge historical backups into Portfolio Snapshots
 
-**Status: PLAN BLOCKED — documentation only, no implementation authorized.**
-See [detailed plan and inspected constraints](./steps/PORTFOLIO_SNAPSHOTS/lot11a1_plan.md).
-N dated backups would produce one current state from the latest source and one
-Portfolio capture per unique source, using the shared 11A capture pipeline and
-strict V5 prefix compatibility, without adding Actuals between documents.
+**Status: DEFERRED / not adopted as product work.**
+The [prior study](./steps/PORTFOLIO_SNAPSHOTS/lot11a1_plan.md) remains a
+record of historical-backup merge constraints (detached V5 owners and lineage).
+No merge, shared archive or lineage attestation is included in 11A.2/11B.
+Those unresolved study decisions do not block the adopted Project History
+trajectory. A future adoption requires separate scope/plan review.
 
-Proposed policies: reject V6 sources already containing history; explicitly
-resolve different current states tied at the maximal exportedAt; report and
-deduplicate exact canonical sources; generate reproducible SHA-256 source IDs.
-The blocking decision concerns historical V5 owners absent from the latest
-current state: strict V6 can only resolve histories through current owners.
-Choose an explicit compatibility restriction or authorize a separate shared
-archive and format evolution. Historical lineage attestation is also submitted
-for review because legacy IDs cannot prove provenance. 11A core semantics remain
-unchanged. If adopted, 11B waits for the 11A.1 decision and closure.
+## 11A.2 — Historical daily load profiles in Portfolio Snapshots
 
-## 11B — Forecast drift visualization
+**Status: PLANNED — documentation only.**
+See [11A.2 / 11B plan](./steps/HISTORY/lot11a2_11b_plan.md).
+Freeze exact Project-level daily Actuals and Forecast from the already-published
+run at explicit Save, aggregated across Teams. Persist sparse positive daily
+rows, exact rational strings and coverage semantics in forecast schema 2 under
+V7; V6/schema 1 captures remain unchanged and explicitly lack a daily profile.
+No engine/reconstruction during Save or future historical display, no full
+PlanningResult and no artificial V4 reconciliation. Implement and validate
+Domain/capture/persistence/tests/docs before starting 11B.
 
-Future lot, blocked until 11A.1 decision/closure if adopted; not implemented or
-planned in detail by 11A. EAC/end-date graphs,
-priority history, graphical comparisons and causal attribution remain outside
-11A. Full historical navigation and snapshot restoration remain deferred to
-later explicit scope decisions.
+## 11B — Project History view
+
+**Status: PLANNED — depends on 11A.2, no implementation started.**
+See [11A.2 / 11B plan](./steps/HISTORY/lot11a2_11b_plan.md).
+A strictly read-only Planning/History mode uses the main space, its own header
+and an independent viewport, reusing shared temporal geometry and zoom/range/pan
+controllers. Union of historical Projects, one line per global snapshot,
+latest/last-known priority ordering and metadata, frozen daily load surfaces,
+common robust cap stable during pan, snapshot colors and exact comparison
+tooltips. The common axis uses the latest reference snapshot's horizon.
+Old captures expose metrics with explicit unavailable daily shapes; no replay.
+Reservations retain full captured history without dedicated rows. Full historical
+navigation, snapshot restore, replay and causal attribution remain deferred.
+Two successive implementation lots/commits are recommended: 11A.2, then 11B.
 
 ## Cross-cutting non-goals for Phase 9
 
