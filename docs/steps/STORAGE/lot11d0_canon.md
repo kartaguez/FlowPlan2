@@ -61,15 +61,15 @@ require reload, never delete the DB. Receipts retain the latest 1024 commits;
 expired correct retries have stale expected tokens and cannot replay a write.
 operationId uniqueness remains a caller contract after receipt expiry.
 
-SHA-256 covers exact stored Current/capture texts. **Validation certificate epoch
-1** is private storage metadata, never a portable backup field. Every artifact
-fully validates on entry and read-back. Matching certificates permit checksum-
-verified reads to reuse that proof; Current writes preserve owned reference
-prefixes/owners, and imports revalidate all references under a new generation.
-Absent/unknown certificates invoke complete historical validation. This is
-integrity/certification inside the application, not authentication against a
-malicious origin able to forge both bytes and metadata. No metric is repaired or
-replayed with a current engine.
+SHA-256 covers exact stored Current/capture texts and proves integrity, not business
+validity. Following the independent audit, **strategy B: systematic validation**
+replaces the certificate shortcut. New content carries no validationVersion;
+existing epoch-1/unknown metadata is ignored. Both worker snapshot and History
+paths call the same complete validator: strict historical inputs/Actuals prefixes,
+Domain structure/Forecast/references/identities/temporal invariants. Current is
+read from the same expected repository token. No metric is repaired or replayed.
+The additional read cost is measured separately below; the original table records
+pre-correction performance and cannot establish current snapshot-read latency.
 
 ## Migration, conflicts, files and recovery
 
@@ -177,7 +177,7 @@ are much smaller operations; current horizons/Reservations still have their own
 scaling costs. Large import/export transient memory and retained inactive import
 versions are material limits, not storage-capacity promises.
 
-### Executed browser dimensions — 2026-10-09
+### Original implementation browser dimensions — 2026-10-09
 
 Edge 154.0.4258.53, isolated temporary profiles; sparse positive every fifth civil
 day, 3/5/8 Teams and 8/30/80 staggered 30-day Reservations. Current RAF is reduced
@@ -204,7 +204,7 @@ node scripts/benchmark-storage.mjs --output=docs/steps/STORAGE/lot11d0_measureme
 after build. FLOWPLAN_BROWSER may select an installed Chromium binary.
 No dependency or user-profile access is required.
 
-Final gates: **typecheck PASS; 904/904 tests, 96 suites PASS; build PASS;
+Original implementation gates, before these audit corrections: **typecheck PASS; 904/904 tests, 96 suites PASS; build PASS;
 git diff --check PASS**. No skipped/cancelled/todo tests. Real browser report:
 [verification](./lot11d0_browser_verification.txt). Inspected renders:
 [Planning 1440](./lot11d0-ui/planning-1440.png),
@@ -218,3 +218,148 @@ upgrade reports BLOCKED; legacy remains byte-identical through migration, Save
 and three mode cycles, and closed History retains zero gutter rows.
 
 **11B DONE; 11C DONE; 11D.0 IMPLEMENTED — IN REVIEW.**
+
+## Independent-audit corrections — 2026-10-09
+
+Corrective baseline: `8086ddf14f609d0f1c9e16cd480bf17de3f13f6b`;
+expected branch, clean working tree and origin 0/0 verified after fetch before edits.
+No other lot starts; portable V7, Domain and engine remain unchanged.
+
+### Concurrent History requests
+
+Cause: a waiter returned after another request's Promise without checking its own
+missing rows. A FIFO Promise queue now re-evaluates each requested subset after the
+preceding request; common cached rows are reused. Each request binds the epoch and
+full token, and requires a model built for that token. Refresh/release/cancel detach
+obsolete work so a newer view need not wait for old IO; stale results/errors cannot
+publish or clear newer profiles. Totals also recheck after awaiting IO, between
+samples and at scan completion. No exhaustive History load is introduced by ensureRows.
+
+Eviction precedes insertion, preserving the estimated LRU budget at every cache
+mutation. Each request pins only its requested cached rows during its own work;
+requests whose visible set cannot fit reject explicitly rather than looping.
+Published reader models are rebuilt before yielding after eviction. A later request
+may evict earlier profiles; callers do not acquire indefinite pins. Decoding a single
+snapshot/projection still has transient memory outside the retained-row estimate.
+Underlying already-issued worker IO is not physically cancelled; its response is
+invalidated, and the worker still serializes native work.
+
+Thirteen concurrency/cancellation regression tests, including controlled-Promise
+interleavings, cover disjoint/overlapping/successive
+requests, release while IO is held, refresh/token/generation invalidation, stale
+errors, read errors, LRU eviction, oversized and concurrently pinned visible sets.
+
+### Commit outcomes and recovery
+
+Cause: repository commit and local reconciliation were treated as one generic
+failure. The dispatcher now distinguishes pre-commit work, authoritative abort,
+unknown commit outcome, confirmed commit with failed reconciliation, and success.
+PersistenceError.commitOutcome defaults to unknown; only native onabort or the
+memory adapter's discarded transaction candidate proves not-applied. Error codes,
+network failures or lost acknowledgment do not prove rollback. Native oncomplete
+catches notification failures and rejects as uncertain instead of leaving the
+Promise unsettled after a durable write.
+
+Unknown/confirmed-unreconciled outcomes latch recovery state and block Current,
+Save and Delete before touching the old projection/token. Save/Delete compare the
+complete readback token with the confirmed token; a foreign commit requires reload.
+UI locks editing, cancels retained History work, keeps draft owners/values and
+shows an explicit message and Reload planning action. Nested pending cleanup no
+longer erases the recovery message. File and string import activation use the same
+recovery guard; versionchange also blocks editing. Reload requires confirmation
+when drafts exist; cancelling keeps them. Startup reads persisted authority and
+rebuilds a new coherent session, projection and token. There is no automatic draft
+replacement/rebase or synthetic local revision. Drafts are RAM-only: explicitly
+confirmed reload discards them; this correction adds no draft persistence system.
+
+Retry of the same refused operation keeps operationId; Save also retains its exact
+capture/timestamp, with no repeat engine calculation. Receipt lookup remains before
+CAS. Nine dispatcher tests exercise UI-facing error results, all blocked mutation
+paths, Save/Delete readback failures, foreign Current commit, failed RAM publication,
+proven abort/retry, lost acknowledgment, unknown failure and explicit recovery.
+
+### Validation paths and transaction audit
+
+Cause: content() assigned validationVersion=1 independently of complete validation,
+and the worker trusted that metadata after checksum verification. No private
+certificate is emitted now. Creation validates against the token-bound Current
+before add; import/legacy migration validate every source capture before staging,
+then stored captures/Current/indexes before sealing. Incomplete resume revalidates
+source and stored artifacts; activation requires a sealed complete job and CAS.
+Complete existing jobs are immutable through repository APIs. Existing generations
+are checked lazily with full business validation on each capture read; startup
+still reads only Current/indexes. Old metadata cannot bypass the validator.
+
+Nine regression tests cover legacy certificates, structural/business invalidity
+with valid digests, absent/unknown versions, later Current edits, corruption,
+interrupted staging/resume and invalid mixed import without activation. Native
+browser tests cover both actual worker paths, native staging and receipt retries.
+
+All transaction awaits were reviewed: they await adapter requests only. Heavy
+business validation/hashing remains outside transactions. Owned Current-prefix
+comparisons were moved out of the write transaction, using normalized candidate
+inputs and a token-bound Current read; final CAS prevents a foreign change between
+validation and commit. Receipt is checked before that read and again in mutate.
+No IndexedDB dependency enters Application ports, Domain or engine.
+
+### Corrective verification and residual limits
+
+Final gates: typecheck/build/diff-check PASS; **935/935 Node tests, 96 suites**,
+0 failed/skipped/cancelled/todo; **31 added** (13 History, 9 dispatcher, 9 validation).
+The targeted repository/transfer/concurrency suite passes **41/41** (included in
+the complete suite, not additional unique tests). The separate portable-server
+suite passes **3/3**, bringing the unique Node total to **938**, 0 failures/skips.
+No portable-server test was added. Edge **154.0.4258.53** passes
+the existing native repository/UI suite (15 repository assertions plus UI/quota/
+upgrade/layout checks) and **11/11 added browser scenarios**, 0 failed/skipped.
+Migration, interrupted recovery, portable V7 export/import, receipts, native abort,
+worker validation and UI drafts/reload are exercised. Detailed results are in the
+corrective delivery and
+[corrective browser report](./lot11d0_audit_browser_verification.txt).
+[Corrective performance measurements](./lot11d0_audit_measurements.json) rerun the
+same three sparse fixtures and distinguish validation read overhead from Current
+engine startup costs. They remain sampled local measurements, not latency/absolute
+RAM guarantees. Worker validation and snapshot reads match the final implementation;
+the final between-sample totals cancellation guard was added after that performance
+run, so cap durations are reference measurements before this additional guard. The original full-horizon/large-import limitations remain applicable.
+
+| S×P×D | Validated snapshot open median ms | Current write median ms | History summaries ms | Reference cap ms | Export ms |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 5×20×365 | 3.5 | 1.9 | 17.5 | 16.8 | 17.4 |
+| 25×100×730 | 34.8 | 5.1 | 730.2 | 771.4 | 807.7 |
+| 100×200×1095 | 110.6 | 14.1 | 8581.5 | 9349.6 | 10206.9 |
+
+Snapshot open rises from the original 1.0/7.7/25.2 ms to 3.5/34.8/110.6 ms.
+Safety takes priority over certificate reuse; validation remains off the main
+thread in the browser worker. History remains lazy, but summary/cap/export scan
+all requested captures and now pay full validation cost. All three engine digests
+match the original measurements; retained-row cache after release is zero.
+
+Native quota rollback is tested by injected refusal; an attempted physical quota
+probe was not enforced by Edge. No physical-quota saturation success is claimed.
+
+**11B DONE; 11C DONE; 11D.0 IMPLEMENTED — IN REVIEW.** Independent re-audit of the
+corrective commit is required before any closure.
+
+### Corrective file inventory
+
+- `docs/current_canon.md`
+- `docs/current_plan.md`
+- `docs/steps/STORAGE/lot11d0_audit_browser_verification.txt`
+- `docs/steps/STORAGE/lot11d0_audit_measurements.json`
+- `docs/steps/STORAGE/lot11d0_canon.md`
+- `docs/steps/STORAGE/lot11d0_plan.md`
+- `scripts/browser-storage-audit-test.mjs`
+- `src/application/history/repositoryHistoryReader.test.ts`
+- `src/application/history/repositoryHistoryReader.ts`
+- `src/application/persistence/createPlanningRepository.ts`
+- `src/application/persistence/planningRepository.ts`
+- `src/application/persistence/repositoryStorage.ts`
+- `src/application/persistence/validateStoredSnapshot.test.ts`
+- `src/application/persistence/validateStoredSnapshot.ts`
+- `src/infrastructure/persistence/indexedDbRepositoryStorage.ts`
+- `src/infrastructure/persistence/memoryRepositoryStorage.ts`
+- `src/infrastructure/persistence/planningStorageWorker.ts`
+- `src/main/createPersistentPlanningApplication.ts`
+- `src/main/planning/createRepositoryPlanningDispatcher.test.ts`
+- `src/main/planning/createRepositoryPlanningDispatcher.ts`

@@ -82,6 +82,11 @@ explicit 11B/11C DONE closure at baseline
 implemented; see [plan and implementation record](./steps/STORAGE/lot11d0_plan.md)
 and [delivery, gates and measurements](./steps/STORAGE/lot11d0_canon.md).
 
+Post-audit corrections from baseline `8086ddf14f609d0f1c9e16cd480bf17de3f13f6b`
+coordinate concurrent History requests, require recovery after uncertain commits
+or failed local reconciliation, and remove the validation-certificate shortcut.
+The corrective commit requires independent re-audit; this lot is not DONE.
+
 Current session no longer owns Portfolio captures. Async Application repository,
 IndexedDB, separate Current/History/metadata/identity indexes, CAS/receipts,
 resumable staging and atomic activation are implemented. Legacy is preserved and

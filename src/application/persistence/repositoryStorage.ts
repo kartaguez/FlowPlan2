@@ -11,6 +11,9 @@ export interface RepositoryTransaction {
   trimReceipts(keep: number): Promise<void>;
   scan<T>(store: RepositoryStore, prefix: readonly string[] | string, after?: RepositoryKey, limit?: number): Promise<readonly StorageRow<T>[]>;
 }
+/** Transaction bodies await adapter requests only; parsing, hashes and business validation
+ * happen before entry. A rejected write is not proof of rollback unless the adapter
+ * explicitly reports commitOutcome=not-applied after authoritative abort. */
 export interface RepositoryStorage {
   transaction<T>(stores: readonly RepositoryStore[], mode: "readonly" | "readwrite", body: (tx: RepositoryTransaction) => Promise<T>): Promise<T>;
   close(): void;

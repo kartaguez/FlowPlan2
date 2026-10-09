@@ -38,7 +38,10 @@ export interface SnapshotPage {
 }
 export type PersistenceErrorCode = "CONFLICT" | "NOT_FOUND" | "QUOTA" | "CORRUPT" | "UNAVAILABLE" | "BLOCKED" | "INVALID" | "LEGACY_CONFLICT";
 export class PersistenceError extends Error {
-  constructor(readonly code: PersistenceErrorCode, message: string, options?: ErrorOptions) { super(message, options); this.name = "PersistenceError"; }
+  /** Only an authoritative pre-commit refusal/abort may claim not-applied.
+   * A transport/storage error or lost acknowledgment defaults to unknown. */
+  readonly commitOutcome: "not-applied" | "unknown";
+  constructor(readonly code: PersistenceErrorCode, message: string, options?: ErrorOptions & { commitOutcome?: "not-applied" | "unknown" }) { super(message, options); this.name = "PersistenceError"; this.commitOutcome = options?.commitOutcome ?? "unknown"; }
 }
 export function sameToken(a: RepositoryToken | null, b: RepositoryToken | null): boolean {
   return a === null ? b === null : b !== null && a.generation === b.generation && a.revision === b.revision && a.currentRevision === b.currentRevision && a.historyRevision === b.historyRevision;

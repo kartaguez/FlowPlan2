@@ -74,8 +74,8 @@ export async function openIndexedDbRepositoryStorage(input: {
             rows.push({ key: row.key as RepositoryKey, value: row.value as T }); row.continue(); };
         }),
       };
-      native.oncomplete = () => { settled = true; if (mode === "readwrite") input.onCommit?.(); resolve(result as never); };
-      native.onabort = () => { settled = true; reject(persistenceError(failure ?? native.error)); };
+      native.oncomplete = () => { settled = true; try { if (mode === "readwrite") input.onCommit?.(); resolve(result as never); } catch (cause) { reject(persistenceError(cause)); } };
+      native.onabort = () => { settled = true; const cause = persistenceError(failure ?? native.error); reject(new PersistenceError(cause instanceof PersistenceError ? cause.code : "UNAVAILABLE", cause.message, { cause, commitOutcome: "not-applied" })); };
       native.onerror = () => { failure ??= native.error; };
       void body(tx).then(value => { result = value; }, cause => { failure = cause; if (!settled) { try { native.abort(); } catch { reject(persistenceError(cause)); } } });
     }),

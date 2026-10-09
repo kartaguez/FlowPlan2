@@ -30,8 +30,11 @@ export async function createPersistentPlanningApplication(root: HTMLElement, con
   const readLegacy = () => window.localStorage.getItem(PLANNING_BACKUP_KEY);
   let repository: PlanningRepository | undefined, coordinator: TimelineUiCoordinator | undefined;
   let readHistoryProjection: HistoryProjectionReader | undefined;
+  let recoveryRequired = false;
+  let releaseHistory = () => {};
+  const requireRecovery = (detail: string) => { recoveryRequired = true; releaseHistory(); report(new Error(detail)); root.inert = true; reload.hidden = false; };
   let ready = false, pending = 0, legacyNeedsCheck = false;
-  const busy = (value: boolean) => { pending += value ? 1 : -1; root.inert = !ready || pending > 0; root.setAttribute("aria-busy", String(pending > 0)); if (pending) { storageError = false; message.textContent = "Saving local planning…"; } else if (ready && !storageError) message.textContent = ""; };
+  const busy = (value: boolean) => { pending += value ? 1 : -1; root.inert = recoveryRequired || !ready || pending > 0; root.setAttribute("aria-busy", String(pending > 0)); if (pending && !recoveryRequired) { storageError = false; message.textContent = "Saving local planning…"; } else if (ready && !storageError) message.textContent = ""; };
   root.inert = true; message.textContent = "Opening local planning…";
   const channel = typeof BroadcastChannel !== "undefined" ? new BroadcastChannel("flowplan-planning-revisions") : undefined;
   const onStorage = (event: StorageEvent) => { if (event.key === PLANNING_BACKUP_KEY || event.key === null) { legacyNeedsCheck = true; void checkForChanges(); } };
@@ -94,7 +97,7 @@ export async function createPersistentPlanningApplication(root: HTMLElement, con
   try {
     const opened = await openIndexedDbPlanningRepository({ factory: window.indexedDB, ...(configuration.databaseName ? { name: configuration.databaseName } : {}),
       onBlocked: () => report(new PersistenceError("BLOCKED", "Close older tabs to finish the storage upgrade.")),
-      onVersionChange: () => { message.textContent = "Local storage was upgraded in another tab. Reload before editing."; reload.hidden = false; },
+      onVersionChange: () => requireRecovery("Local storage was upgraded in another tab. Your drafts were preserved; reload before editing."),
       onCommit: () => channel?.postMessage({ type: "committed" }),
     });
     repository = opened; readHistoryProjection = opened.readHistoryProjection;
@@ -104,15 +107,15 @@ export async function createPersistentPlanningApplication(root: HTMLElement, con
     const session = createPlanningSession(current.state, { today: () => { const day = createCivilDate(new Date().toISOString().slice(0, 10)); if (!day.ok) throw new Error("Invalid application clock."); return day.value; } });
     let metadata: readonly SnapshotMetadata[] = [];
     const dispatcher = createRepositoryPlanningDispatcher({ repository: repo, current, session, geometryViewport: PLANNING_GEOMETRY_VIEWPORT,
-      hasUnappliedChanges: () => coordinator?.hasUnappliedChanges() ?? true, pending: busy,
-      beforeMutation: async () => { if (legacyNeedsCheck) { await assertLegacyUnchanged(repo, readLegacy); legacyNeedsCheck = false; }
+      hasUnappliedChanges: () => coordinator?.hasUnappliedChanges() ?? true, pending: busy, recoveryRequired: requireRecovery,
+      beforeMutation: async () => { if (recoveryRequired) throw new PersistenceError("CONFLICT", "Reload persisted planning before editing."); if (legacyNeedsCheck) { await assertLegacyUnchanged(repo, readLegacy); legacyNeedsCheck = false; }
         if (!sameToken((await repo.readInfo()).token, dispatcher.getToken())) throw new PersistenceError("CONFLICT", "Another tab changed planning. Your drafts were preserved; export or reload before editing."); },
     });
     checkForChanges = async () => {
       if (pending) return;
       try {
         if (legacyNeedsCheck) { await assertLegacyUnchanged(repo, readLegacy); legacyNeedsCheck = false; }
-        if (!sameToken((await repo.readInfo()).token, dispatcher.getToken())) { message.textContent = "Another tab changed planning. Your drafts were preserved; reload explicitly before editing."; reload.hidden = false; }
+        if (!sameToken((await repo.readInfo()).token, dispatcher.getToken())) dispatcher.requireReload("Another tab changed planning.", "stale");
       } catch (cause) { report(cause); keep.hidden = false; reload.hidden = false; }
     };
     if (channel) channel.onmessage = () => { void checkForChanges(); };
@@ -120,31 +123,42 @@ export async function createPersistentPlanningApplication(root: HTMLElement, con
       do { const page = await repo.listSnapshotMetadata(dispatcher.getToken(), after); items.push(...page.items); after = page.next; } while (after); metadata = Object.freeze(items); };
     await refreshMetadata();
     const history = createRepositoryHistoryReader(repo, dispatcher.getToken, 32 * 1024 * 1024, readHistoryProjection);
+    releaseHistory = history.releaseAll;
+    const activateImport = async (...args: Parameters<PlanningRepository["activateImport"]>) => {
+      try {
+        const token = await repo.activateImport(...args);
+        dispatcher.requireReload("Imported planning is committed. Reload to rebuild the application.", "committed-unreconciled");
+        return token;
+      } catch (cause) {
+        if (!(cause instanceof PersistenceError && cause.commitOutcome === "not-applied")) dispatcher.requireReload("Import activation may have committed.");
+        throw cause;
+      }
+    };
     const historyMutation = async (operation: () => ReturnType<typeof dispatcher.savePortfolioSnapshot>) => {
       busy(true); try { const result = await operation(); if (result.ok) await refreshMetadata(); return result; }
-      catch (cause) { return { ok: false as const, errors: [{ code: "COMMIT_FAILED", path: "history", message: `History may have committed; reload to verify. ${cause instanceof Error ? cause.message : "Metadata unavailable."}` }] }; }
+      catch (cause) { const failure = dispatcher.requireReload(cause instanceof Error ? cause.message : "Metadata unavailable.", "committed-unreconciled"); return { ok: false as const, errors: [{ code: failure.code, path: "history", message: failure.message }] }; }
       finally { busy(false); }
     };
     const importFile = async (file: File): Promise<"imported" | "cancelled" | "failed"> => {
       if (file.size > 512 * 1024 * 1024) { report(new PersistenceError("INVALID", "This file exceeds the current import limit (512 MiB). Existing data was preserved.")); return "failed"; }
-      if (pending) return "failed";
+      if (pending || recoveryRequired) return "failed";
       busy(true); const expected = dispatcher.getToken();
       try { await assertLegacyUnchanged(repo, readLegacy); const header = await opened.inspectPortableFile(file); preflight(header.current);
         const id = crypto.randomUUID(), stage = await opened.stagePortableFile(file, id);
-        if (!window.confirm("Importing this fully validated file will replace all current planning and history. Continue?")) { await repo.discardStage(stage); return "cancelled"; }
-        await repo.activateImport(stage, expected, id); window.location.reload(); return "imported";
-      } catch (cause) { report(cause); return "failed"; } finally { busy(false); }
+        if (!window.confirm("Importing this fully validated file will replace all current planning and history. Unapplied drafts will be discarded on reload. Continue?")) { await repo.discardStage(stage); return "cancelled"; }
+        await activateImport(stage, expected, id); window.location.reload(); return "imported";
+      } catch (cause) { if (!recoveryRequired) report(cause); return "failed"; } finally { busy(false); }
     };
     const mounted = mountPlanningApplication({ elements: renderApp(root), session, state: current.state,
       dispatcher: { ...dispatcher, getSnapshotMetadata: () => metadata,
         savePortfolioSnapshot: () => historyMutation(dispatcher.savePortfolioSnapshot), deletePortfolioSnapshot: id => historyMutation(() => dispatcher.deletePortfolioSnapshot(id)) },
       onExport: async () => new Blob([...(await exportRepositoryBackup(repo))], { type: "application/json" }),
       onImportFile: importFile,
-      onImport: async document => { busy(true); try { if (dispatcher.isPending()) throw new PersistenceError("CONFLICT", "Wait for the planning operation before importing."); await assertLegacyUnchanged(repo, readLegacy);
-          const result = await importRepositoryBackup({ repository: repo, document, expected: dispatcher.getToken(), operationId: crypto.randomUUID(), preflight,
-            confirm: () => window.confirm("Importing this validated file will replace all current planning and history. Continue?") });
+      onImport: async document => { if (pending || recoveryRequired) return "failed"; busy(true); try { if (dispatcher.isPending()) throw new PersistenceError("CONFLICT", "Wait for the planning operation before importing."); await assertLegacyUnchanged(repo, readLegacy);
+          const result = await importRepositoryBackup({ repository: { ...repo, activateImport }, document, expected: dispatcher.getToken(), operationId: crypto.randomUUID(), preflight,
+            confirm: () => window.confirm("Importing this validated file will replace all current planning and history. Unapplied drafts will be discarded on reload. Continue?") });
           if (result === "imported") window.location.reload(); return result;
-        } catch (cause) { report(cause); return "failed"; } finally { busy(false); } },
+        } catch (cause) { if (!recoveryRequired) report(cause); return "failed"; } finally { busy(false); } },
       createHistory: container => createProjectHistoryCoordinator({ container, reader: history, scratch: () => createIndexedDbHistoryScratch(window.indexedDB) }),
       onMounted: next => { coordinator = next; },
     });

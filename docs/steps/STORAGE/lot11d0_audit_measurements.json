@@ -1,0 +1,1436 @@
+{
+  "date": "2026-10-09",
+  "browser": "Edg/154.0.4258.53",
+  "method": "30-day staggered Reservations, sparse every fifth civil day. Isolated real IndexedDB browser, deterministic sparse synthetic captures, actual Current engine parity. Two warmups + ten timed runs; stage/export/cap single runs. 500ms sampling observes used heap + backing buffers across attached main/worker contexts, not whole-process RSS or a guaranteed absolute peak. Final GC samples cover the main context only.",
+  "reports": [
+    {
+      "snapshots": 5,
+      "projects": 20,
+      "days": 365,
+      "teams": 3,
+      "reservations": 8,
+      "storedDailyRows": 7300,
+      "logicalBytes": 631748,
+      "snapshotBytes": 124073,
+      "importStageMs": 111.89999997615814,
+      "activationMs": 1.1999999284744263,
+      "exportMs": 17.40000009536743,
+      "exportBytes": 631748,
+      "fullUiStartupMs": 140.60000002384186,
+      "startup": {
+        "medianMs": 86.5,
+        "p95Ms": 87.60000002384186,
+        "samples": [
+          87.39999997615814,
+          86,
+          87.60000002384186,
+          85.89999997615814,
+          86.20000004768372,
+          86.89999997615814,
+          86.20000004768372,
+          86.5,
+          86.30000007152557,
+          86.79999995231628
+        ]
+      },
+      "writeCurrent": {
+        "medianMs": 1.9000000953674316,
+        "p95Ms": 2.5,
+        "samples": [
+          1.9000000953674316,
+          2.5,
+          2.3000000715255737,
+          1.7000000476837158,
+          1.899999976158142,
+          2,
+          1.899999976158142,
+          1.6999999284744263,
+          2.100000023841858,
+          1.899999976158142
+        ]
+      },
+      "snapshotOpen": {
+        "medianMs": 3.5,
+        "p95Ms": 3.899999976158142,
+        "samples": [
+          3.5,
+          3.899999976158142,
+          3.0999999046325684,
+          3.899999976158142,
+          3.100000023841858,
+          3.6999999284744263,
+          3.100000023841858,
+          3.100000023841858,
+          3.5,
+          3.3000000715255737
+        ]
+      },
+      "metadataFirstPage": {
+        "medianMs": 0.5,
+        "p95Ms": 0.7999999523162842,
+        "samples": [
+          0.5,
+          0.5,
+          0.5,
+          0.3999999761581421,
+          0.6999999284744263,
+          0.40000009536743164,
+          0.5,
+          0.5,
+          0.3999999761581421,
+          0.7999999523162842
+        ]
+      },
+      "historyMetadataMs": 17.5,
+      "rowOpenMs": 3.100000023841858,
+      "exactGlobalCapMs": 16.799999952316284,
+      "exactCap": "3/2",
+      "cacheBeforeClose": {
+        "rows": 1,
+        "estimatedBytes": 19712,
+        "budget": 33554432
+      },
+      "cacheAfterClose": {
+        "rows": 0,
+        "estimatedBytes": 0,
+        "budget": 33554432
+      },
+      "engineDigest": "4ec3ce07530a70a2afe4ee727716ed442877bc261ca6065736cc65a874b75783",
+      "engineParity": true,
+      "storageEstimate": {
+        "quota": 10737887888,
+        "usage": 469648,
+        "usageDetails": {
+          "indexedDB": 469648
+        }
+      },
+      "memorySampling": {
+        "intervalMs": 500,
+        "samples": [
+          {
+            "atMs": 1791519388547,
+            "contexts": 1,
+            "usedPlusBackingBytes": 472442
+          },
+          {
+            "atMs": 1791519389081,
+            "contexts": 2,
+            "usedPlusBackingBytes": 25575147
+          },
+          {
+            "atMs": 1791519389549,
+            "contexts": 2,
+            "usedPlusBackingBytes": 48977078
+          },
+          {
+            "atMs": 1791519390050,
+            "contexts": 2,
+            "usedPlusBackingBytes": 53508823
+          },
+          {
+            "atMs": 1791519390222,
+            "contexts": 1,
+            "usedPlusBackingBytes": 37782368
+          }
+        ],
+        "observedPeakBytes": 53508823,
+        "includesWorkerContexts": true
+      },
+      "mainHeapBeforeGc": {
+        "usedSize": 34529464,
+        "totalSize": 98418688,
+        "embedderHeapUsedSize": 22533224,
+        "backingStorageSize": 3252904
+      },
+      "mainHeapAfterGc": {
+        "usedSize": 3548684,
+        "totalSize": 6307840,
+        "embedderHeapUsedSize": 1268616,
+        "backingStorageSize": 810310
+      }
+    },
+    {
+      "snapshots": 25,
+      "projects": 100,
+      "days": 730,
+      "teams": 5,
+      "reservations": 30,
+      "storedDailyRows": 365000,
+      "logicalBytes": 28802899,
+      "snapshotBytes": 1149376,
+      "importStageMs": 4420.700000047684,
+      "activationMs": 0.8999999761581421,
+      "exportMs": 807.6999999284744,
+      "exportBytes": 28802899,
+      "fullUiStartupMs": 1598.1000000238419,
+      "startup": {
+        "medianMs": 1494.8999999761581,
+        "p95Ms": 1499.2000000476837,
+        "samples": [
+          1494.2999999523163,
+          1492.4000000953674,
+          1492.3999999761581,
+          1496.3999999761581,
+          1492,
+          1493.1999999284744,
+          1495,
+          1499.2000000476837,
+          1494.8999999761581,
+          1495.8999999761581
+        ]
+      },
+      "writeCurrent": {
+        "medianMs": 5.100000023841858,
+        "p95Ms": 8.699999928474426,
+        "samples": [
+          4.799999952316284,
+          5.399999976158142,
+          4.700000047683716,
+          4.299999952316284,
+          5.100000023841858,
+          4.300000071525574,
+          5.299999952316284,
+          8.699999928474426,
+          4.5,
+          5.900000095367432
+        ]
+      },
+      "snapshotOpen": {
+        "medianMs": 34.800000071525574,
+        "p95Ms": 38.199999928474426,
+        "samples": [
+          34.299999952316284,
+          35.200000047683716,
+          38.199999928474426,
+          34.90000009536743,
+          34.799999952316284,
+          34.299999952316284,
+          35.10000002384186,
+          34.800000071525574,
+          28.100000023841858,
+          31.899999976158142
+        ]
+      },
+      "metadataFirstPage": {
+        "medianMs": 0.8000000715255737,
+        "p95Ms": 8.600000023841858,
+        "samples": [
+          0.8000000715255737,
+          0.6999999284744263,
+          0.8000000715255737,
+          0.7999999523162842,
+          8.600000023841858,
+          0.7000000476837158,
+          0.7999999523162842,
+          0.8999999761581421,
+          0.7000000476837158,
+          1.899999976158142
+        ]
+      },
+      "historyMetadataMs": 730.1999999284744,
+      "rowOpenMs": 31.899999976158142,
+      "exactGlobalCapMs": 771.4000000953674,
+      "exactCap": "5/2",
+      "cacheBeforeClose": {
+        "rows": 1,
+        "estimatedBytes": 38400,
+        "budget": 33554432
+      },
+      "cacheAfterClose": {
+        "rows": 0,
+        "estimatedBytes": 0,
+        "budget": 33554432
+      },
+      "engineDigest": "d6433792dec652f396a8f0c6bf2b5f8eba5e18e9371412f59c36152234954400",
+      "engineParity": true,
+      "storageEstimate": {
+        "quota": 10742164081,
+        "usage": 4745841,
+        "usageDetails": {
+          "indexedDB": 4745841
+        }
+      },
+      "memorySampling": {
+        "intervalMs": 500,
+        "samples": [
+          {
+            "atMs": 1791519390239,
+            "contexts": 1,
+            "usedPlusBackingBytes": 4358994
+          },
+          {
+            "atMs": 1791519391883,
+            "contexts": 1,
+            "usedPlusBackingBytes": 158699050
+          },
+          {
+            "atMs": 1791519392276,
+            "contexts": 2,
+            "usedPlusBackingBytes": 125335844
+          },
+          {
+            "atMs": 1791519392750,
+            "contexts": 2,
+            "usedPlusBackingBytes": 127530203
+          },
+          {
+            "atMs": 1791519393254,
+            "contexts": 2,
+            "usedPlusBackingBytes": 104446735
+          },
+          {
+            "atMs": 1791519393753,
+            "contexts": 2,
+            "usedPlusBackingBytes": 153704386
+          },
+          {
+            "atMs": 1791519394256,
+            "contexts": 2,
+            "usedPlusBackingBytes": 186979576
+          },
+          {
+            "atMs": 1791519394756,
+            "contexts": 2,
+            "usedPlusBackingBytes": 141846690
+          },
+          {
+            "atMs": 1791519395262,
+            "contexts": 2,
+            "usedPlusBackingBytes": 179209930
+          },
+          {
+            "atMs": 1791519395760,
+            "contexts": 2,
+            "usedPlusBackingBytes": 165907666
+          },
+          {
+            "atMs": 1791519396261,
+            "contexts": 2,
+            "usedPlusBackingBytes": 158347410
+          },
+          {
+            "atMs": 1791519397759,
+            "contexts": 2,
+            "usedPlusBackingBytes": 125937999
+          },
+          {
+            "atMs": 1791519397767,
+            "contexts": 2,
+            "usedPlusBackingBytes": 133101636
+          },
+          {
+            "atMs": 1791519399272,
+            "contexts": 2,
+            "usedPlusBackingBytes": 148217229
+          },
+          {
+            "atMs": 1791519400814,
+            "contexts": 2,
+            "usedPlusBackingBytes": 116035533
+          },
+          {
+            "atMs": 1791519402346,
+            "contexts": 2,
+            "usedPlusBackingBytes": 137058539
+          },
+          {
+            "atMs": 1791519403880,
+            "contexts": 2,
+            "usedPlusBackingBytes": 122969395
+          },
+          {
+            "atMs": 1791519405420,
+            "contexts": 2,
+            "usedPlusBackingBytes": 143831343
+          },
+          {
+            "atMs": 1791519406952,
+            "contexts": 2,
+            "usedPlusBackingBytes": 164482437
+          },
+          {
+            "atMs": 1791519408494,
+            "contexts": 2,
+            "usedPlusBackingBytes": 136533639
+          },
+          {
+            "atMs": 1791519410028,
+            "contexts": 2,
+            "usedPlusBackingBytes": 157204757
+          },
+          {
+            "atMs": 1791519411568,
+            "contexts": 2,
+            "usedPlusBackingBytes": 142915969
+          },
+          {
+            "atMs": 1791519413108,
+            "contexts": 2,
+            "usedPlusBackingBytes": 71978237
+          },
+          {
+            "atMs": 1791519414637,
+            "contexts": 2,
+            "usedPlusBackingBytes": 64117426
+          },
+          {
+            "atMs": 1791519416180,
+            "contexts": 2,
+            "usedPlusBackingBytes": 41324995
+          },
+          {
+            "atMs": 1791519416341,
+            "contexts": 2,
+            "usedPlusBackingBytes": 43282291
+          },
+          {
+            "atMs": 1791519416841,
+            "contexts": 2,
+            "usedPlusBackingBytes": 121031201
+          },
+          {
+            "atMs": 1791519417342,
+            "contexts": 2,
+            "usedPlusBackingBytes": 116362907
+          },
+          {
+            "atMs": 1791519417850,
+            "contexts": 2,
+            "usedPlusBackingBytes": 68073943
+          },
+          {
+            "atMs": 1791519418346,
+            "contexts": 2,
+            "usedPlusBackingBytes": 103489979
+          },
+          {
+            "atMs": 1791519420060,
+            "contexts": 2,
+            "usedPlusBackingBytes": 101217270
+          },
+          {
+            "atMs": 1791519420152,
+            "contexts": 1,
+            "usedPlusBackingBytes": 86459188
+          }
+        ],
+        "observedPeakBytes": 186979576,
+        "includesWorkerContexts": true
+      },
+      "mainHeapBeforeGc": {
+        "usedSize": 61119480,
+        "totalSize": 122880000,
+        "embedderHeapUsedSize": 76018712,
+        "backingStorageSize": 25339708
+      },
+      "mainHeapAfterGc": {
+        "usedSize": 3675808,
+        "totalSize": 4734976,
+        "embedderHeapUsedSize": 2017600,
+        "backingStorageSize": 810310
+      }
+    },
+    {
+      "snapshots": 100,
+      "projects": 200,
+      "days": 1095,
+      "teams": 8,
+      "reservations": 80,
+      "storedDailyRows": 4380000,
+      "logicalBytes": 341253652,
+      "snapshotBytes": 3410454,
+      "importStageMs": 48584.39999997616,
+      "activationMs": 0.8999999761581421,
+      "exportMs": 10206.899999976158,
+      "exportBytes": 341253652,
+      "fullUiStartupMs": 13359.199999928474,
+      "startup": {
+        "medianMs": 12985,
+        "p95Ms": 13496.399999976158,
+        "samples": [
+          12957.699999928474,
+          12962.399999976158,
+          12971.799999952316,
+          12993,
+          13178.200000047684,
+          12968.600000023842,
+          12971.300000071526,
+          12990.900000095367,
+          13496.399999976158,
+          12985
+        ]
+      },
+      "writeCurrent": {
+        "medianMs": 14.099999904632568,
+        "p95Ms": 18.399999976158142,
+        "samples": [
+          18.299999952316284,
+          11,
+          13.600000023841858,
+          14.199999928474426,
+          14.099999904632568,
+          18.399999976158142,
+          12.899999976158142,
+          11.5,
+          15.100000023841858,
+          14
+        ]
+      },
+      "snapshotOpen": {
+        "medianMs": 110.60000002384186,
+        "p95Ms": 126.80000007152557,
+        "samples": [
+          114.20000004768372,
+          110.40000009536743,
+          109.60000002384186,
+          126.80000007152557,
+          108.90000009536743,
+          110.60000002384186,
+          109.60000002384186,
+          110.60000002384186,
+          111.29999995231628,
+          109.5
+        ]
+      },
+      "metadataFirstPage": {
+        "medianMs": 1.399999976158142,
+        "p95Ms": 1.7000000476837158,
+        "samples": [
+          1.7000000476837158,
+          1.399999976158142,
+          1.5,
+          1.5999999046325684,
+          1.2999999523162842,
+          1.399999976158142,
+          1.1999999284744263,
+          1.1999999284744263,
+          1.600000023841858,
+          1.399999976158142
+        ]
+      },
+      "historyMetadataMs": 8581.5,
+      "rowOpenMs": 88.69999992847443,
+      "exactGlobalCapMs": 9349.600000023842,
+      "exactCap": "4/1",
+      "cacheBeforeClose": {
+        "rows": 1,
+        "estimatedBytes": 57088,
+        "budget": 33554432
+      },
+      "cacheAfterClose": {
+        "rows": 0,
+        "estimatedBytes": 0,
+        "budget": 33554432
+      },
+      "engineDigest": "3851ad12f61f6edfb788bad2783ad2ffacb370d90ee1f5f6cd0ca4b2516ff9ab",
+      "engineParity": true,
+      "storageEstimate": {
+        "quota": 10763858507,
+        "usage": 26440267,
+        "usageDetails": {
+          "indexedDB": 26440267
+        }
+      },
+      "memorySampling": {
+        "intervalMs": 500,
+        "samples": [
+          {
+            "atMs": 1791519420175,
+            "contexts": 1,
+            "usedPlusBackingBytes": 4486118
+          },
+          {
+            "atMs": 1791519421424,
+            "contexts": 1,
+            "usedPlusBackingBytes": 691575498
+          },
+          {
+            "atMs": 1791519434904,
+            "contexts": 1,
+            "usedPlusBackingBytes": 1100508863
+          },
+          {
+            "atMs": 1791519435234,
+            "contexts": 2,
+            "usedPlusBackingBytes": 1413013405
+          },
+          {
+            "atMs": 1791519435736,
+            "contexts": 2,
+            "usedPlusBackingBytes": 1412891985
+          },
+          {
+            "atMs": 1791519436238,
+            "contexts": 2,
+            "usedPlusBackingBytes": 1412759021
+          },
+          {
+            "atMs": 1791519436740,
+            "contexts": 2,
+            "usedPlusBackingBytes": 1413028125
+          },
+          {
+            "atMs": 1791519437242,
+            "contexts": 2,
+            "usedPlusBackingBytes": 1413275369
+          },
+          {
+            "atMs": 1791519437745,
+            "contexts": 2,
+            "usedPlusBackingBytes": 1413957993
+          },
+          {
+            "atMs": 1791519438246,
+            "contexts": 2,
+            "usedPlusBackingBytes": 1413173061
+          },
+          {
+            "atMs": 1791519438748,
+            "contexts": 2,
+            "usedPlusBackingBytes": 1412883033
+          },
+          {
+            "atMs": 1791519439720,
+            "contexts": 2,
+            "usedPlusBackingBytes": 1754148060
+          },
+          {
+            "atMs": 1791519439756,
+            "contexts": 2,
+            "usedPlusBackingBytes": 1758530342
+          },
+          {
+            "atMs": 1791519440258,
+            "contexts": 2,
+            "usedPlusBackingBytes": 1455085028
+          },
+          {
+            "atMs": 1791519440761,
+            "contexts": 2,
+            "usedPlusBackingBytes": 1454890736
+          },
+          {
+            "atMs": 1791519441265,
+            "contexts": 2,
+            "usedPlusBackingBytes": 1451414538
+          },
+          {
+            "atMs": 1791519441763,
+            "contexts": 2,
+            "usedPlusBackingBytes": 1451294500
+          },
+          {
+            "atMs": 1791519442264,
+            "contexts": 2,
+            "usedPlusBackingBytes": 1429782696
+          },
+          {
+            "atMs": 1791519442767,
+            "contexts": 2,
+            "usedPlusBackingBytes": 1479546608
+          },
+          {
+            "atMs": 1791519443268,
+            "contexts": 2,
+            "usedPlusBackingBytes": 392874527
+          },
+          {
+            "atMs": 1791519443771,
+            "contexts": 2,
+            "usedPlusBackingBytes": 388421567
+          },
+          {
+            "atMs": 1791519444273,
+            "contexts": 2,
+            "usedPlusBackingBytes": 388421567
+          },
+          {
+            "atMs": 1791519444775,
+            "contexts": 2,
+            "usedPlusBackingBytes": 388304783
+          },
+          {
+            "atMs": 1791519445278,
+            "contexts": 2,
+            "usedPlusBackingBytes": 388116026
+          },
+          {
+            "atMs": 1791519445779,
+            "contexts": 2,
+            "usedPlusBackingBytes": 423366375
+          },
+          {
+            "atMs": 1791519446280,
+            "contexts": 2,
+            "usedPlusBackingBytes": 425107123
+          },
+          {
+            "atMs": 1791519446783,
+            "contexts": 2,
+            "usedPlusBackingBytes": 449158051
+          },
+          {
+            "atMs": 1791519447284,
+            "contexts": 2,
+            "usedPlusBackingBytes": 433981975
+          },
+          {
+            "atMs": 1791519447785,
+            "contexts": 2,
+            "usedPlusBackingBytes": 440833943
+          },
+          {
+            "atMs": 1791519448286,
+            "contexts": 2,
+            "usedPlusBackingBytes": 432275271
+          },
+          {
+            "atMs": 1791519448789,
+            "contexts": 2,
+            "usedPlusBackingBytes": 432272763
+          },
+          {
+            "atMs": 1791519449290,
+            "contexts": 2,
+            "usedPlusBackingBytes": 432084879
+          },
+          {
+            "atMs": 1791519449793,
+            "contexts": 2,
+            "usedPlusBackingBytes": 421730215
+          },
+          {
+            "atMs": 1791519450294,
+            "contexts": 2,
+            "usedPlusBackingBytes": 408868619
+          },
+          {
+            "atMs": 1791519450797,
+            "contexts": 2,
+            "usedPlusBackingBytes": 425440331
+          },
+          {
+            "atMs": 1791519451298,
+            "contexts": 2,
+            "usedPlusBackingBytes": 397917607
+          },
+          {
+            "atMs": 1791519451801,
+            "contexts": 2,
+            "usedPlusBackingBytes": 397927731
+          },
+          {
+            "atMs": 1791519452302,
+            "contexts": 2,
+            "usedPlusBackingBytes": 397826515
+          },
+          {
+            "atMs": 1791519452805,
+            "contexts": 2,
+            "usedPlusBackingBytes": 410288101
+          },
+          {
+            "atMs": 1791519453310,
+            "contexts": 2,
+            "usedPlusBackingBytes": 427009031
+          },
+          {
+            "atMs": 1791519453809,
+            "contexts": 2,
+            "usedPlusBackingBytes": 500094623
+          },
+          {
+            "atMs": 1791519454312,
+            "contexts": 2,
+            "usedPlusBackingBytes": 404456739
+          },
+          {
+            "atMs": 1791519454812,
+            "contexts": 2,
+            "usedPlusBackingBytes": 477758051
+          },
+          {
+            "atMs": 1791519455315,
+            "contexts": 2,
+            "usedPlusBackingBytes": 545694303
+          },
+          {
+            "atMs": 1791519455816,
+            "contexts": 2,
+            "usedPlusBackingBytes": 464336803
+          },
+          {
+            "atMs": 1791519456319,
+            "contexts": 2,
+            "usedPlusBackingBytes": 505066375
+          },
+          {
+            "atMs": 1791519456819,
+            "contexts": 2,
+            "usedPlusBackingBytes": 443651495
+          },
+          {
+            "atMs": 1791519457320,
+            "contexts": 2,
+            "usedPlusBackingBytes": 508428183
+          },
+          {
+            "atMs": 1791519457822,
+            "contexts": 2,
+            "usedPlusBackingBytes": 423276787
+          },
+          {
+            "atMs": 1791519458329,
+            "contexts": 2,
+            "usedPlusBackingBytes": 490819915
+          },
+          {
+            "atMs": 1791519458826,
+            "contexts": 2,
+            "usedPlusBackingBytes": 555708835
+          },
+          {
+            "atMs": 1791519459329,
+            "contexts": 2,
+            "usedPlusBackingBytes": 468939927
+          },
+          {
+            "atMs": 1791519459840,
+            "contexts": 2,
+            "usedPlusBackingBytes": 507423459
+          },
+          {
+            "atMs": 1791519460333,
+            "contexts": 2,
+            "usedPlusBackingBytes": 439302003
+          },
+          {
+            "atMs": 1791519460837,
+            "contexts": 2,
+            "usedPlusBackingBytes": 514753603
+          },
+          {
+            "atMs": 1791519461337,
+            "contexts": 2,
+            "usedPlusBackingBytes": 405839207
+          },
+          {
+            "atMs": 1791519461838,
+            "contexts": 2,
+            "usedPlusBackingBytes": 489738575
+          },
+          {
+            "atMs": 1791519462341,
+            "contexts": 2,
+            "usedPlusBackingBytes": 560497187
+          },
+          {
+            "atMs": 1791519462842,
+            "contexts": 2,
+            "usedPlusBackingBytes": 450841351
+          },
+          {
+            "atMs": 1791519463344,
+            "contexts": 2,
+            "usedPlusBackingBytes": 518488071
+          },
+          {
+            "atMs": 1791519463847,
+            "contexts": 2,
+            "usedPlusBackingBytes": 433296355
+          },
+          {
+            "atMs": 1791519464348,
+            "contexts": 2,
+            "usedPlusBackingBytes": 514579971
+          },
+          {
+            "atMs": 1791519464851,
+            "contexts": 2,
+            "usedPlusBackingBytes": 422067111
+          },
+          {
+            "atMs": 1791519465352,
+            "contexts": 2,
+            "usedPlusBackingBytes": 479369123
+          },
+          {
+            "atMs": 1791519465855,
+            "contexts": 2,
+            "usedPlusBackingBytes": 535611851
+          },
+          {
+            "atMs": 1791519466356,
+            "contexts": 2,
+            "usedPlusBackingBytes": 460358311
+          },
+          {
+            "atMs": 1791519466859,
+            "contexts": 2,
+            "usedPlusBackingBytes": 519876091
+          },
+          {
+            "atMs": 1791519467361,
+            "contexts": 2,
+            "usedPlusBackingBytes": 432944723
+          },
+          {
+            "atMs": 1791519467866,
+            "contexts": 2,
+            "usedPlusBackingBytes": 495902323
+          },
+          {
+            "atMs": 1791519468364,
+            "contexts": 2,
+            "usedPlusBackingBytes": 422157667
+          },
+          {
+            "atMs": 1791519468867,
+            "contexts": 2,
+            "usedPlusBackingBytes": 481880779
+          },
+          {
+            "atMs": 1791519469368,
+            "contexts": 2,
+            "usedPlusBackingBytes": 530665443
+          },
+          {
+            "atMs": 1791519469871,
+            "contexts": 2,
+            "usedPlusBackingBytes": 451493091
+          },
+          {
+            "atMs": 1791519470372,
+            "contexts": 2,
+            "usedPlusBackingBytes": 533853671
+          },
+          {
+            "atMs": 1791519470874,
+            "contexts": 2,
+            "usedPlusBackingBytes": 429298955
+          },
+          {
+            "atMs": 1791519471376,
+            "contexts": 2,
+            "usedPlusBackingBytes": 506034107
+          },
+          {
+            "atMs": 1791519471879,
+            "contexts": 2,
+            "usedPlusBackingBytes": 410975087
+          },
+          {
+            "atMs": 1791519472380,
+            "contexts": 2,
+            "usedPlusBackingBytes": 492655949
+          },
+          {
+            "atMs": 1791519472883,
+            "contexts": 2,
+            "usedPlusBackingBytes": 565375833
+          },
+          {
+            "atMs": 1791519473387,
+            "contexts": 2,
+            "usedPlusBackingBytes": 459240117
+          },
+          {
+            "atMs": 1791519473887,
+            "contexts": 2,
+            "usedPlusBackingBytes": 549104651
+          },
+          {
+            "atMs": 1791519474392,
+            "contexts": 2,
+            "usedPlusBackingBytes": 486526447
+          },
+          {
+            "atMs": 1791519474890,
+            "contexts": 2,
+            "usedPlusBackingBytes": 604289965
+          },
+          {
+            "atMs": 1791519475393,
+            "contexts": 2,
+            "usedPlusBackingBytes": 413882009
+          },
+          {
+            "atMs": 1791519475894,
+            "contexts": 2,
+            "usedPlusBackingBytes": 474901831
+          },
+          {
+            "atMs": 1791519476397,
+            "contexts": 2,
+            "usedPlusBackingBytes": 566966293
+          },
+          {
+            "atMs": 1791519476902,
+            "contexts": 2,
+            "usedPlusBackingBytes": 445772557
+          },
+          {
+            "atMs": 1791519477401,
+            "contexts": 2,
+            "usedPlusBackingBytes": 417550313
+          },
+          {
+            "atMs": 1791519477902,
+            "contexts": 2,
+            "usedPlusBackingBytes": 492922355
+          },
+          {
+            "atMs": 1791519478405,
+            "contexts": 2,
+            "usedPlusBackingBytes": 447273161
+          },
+          {
+            "atMs": 1791519478906,
+            "contexts": 2,
+            "usedPlusBackingBytes": 401406965
+          },
+          {
+            "atMs": 1791519479410,
+            "contexts": 2,
+            "usedPlusBackingBytes": 422093399
+          },
+          {
+            "atMs": 1791519479912,
+            "contexts": 2,
+            "usedPlusBackingBytes": 452048453
+          },
+          {
+            "atMs": 1791519480413,
+            "contexts": 2,
+            "usedPlusBackingBytes": 400313365
+          },
+          {
+            "atMs": 1791519480916,
+            "contexts": 2,
+            "usedPlusBackingBytes": 478033799
+          },
+          {
+            "atMs": 1791519481417,
+            "contexts": 2,
+            "usedPlusBackingBytes": 447256189
+          },
+          {
+            "atMs": 1791519481920,
+            "contexts": 2,
+            "usedPlusBackingBytes": 418278457
+          },
+          {
+            "atMs": 1791519482421,
+            "contexts": 2,
+            "usedPlusBackingBytes": 489511159
+          },
+          {
+            "atMs": 1791519482924,
+            "contexts": 2,
+            "usedPlusBackingBytes": 417965465
+          },
+          {
+            "atMs": 1791519496144,
+            "contexts": 2,
+            "usedPlusBackingBytes": 489938017
+          },
+          {
+            "atMs": 1791519508877,
+            "contexts": 2,
+            "usedPlusBackingBytes": 111640556
+          },
+          {
+            "atMs": 1791519521960,
+            "contexts": 2,
+            "usedPlusBackingBytes": 114665333
+          },
+          {
+            "atMs": 1791519522089,
+            "contexts": 2,
+            "usedPlusBackingBytes": 116405798
+          },
+          {
+            "atMs": 1791519535057,
+            "contexts": 2,
+            "usedPlusBackingBytes": 159769374
+          },
+          {
+            "atMs": 1791519535130,
+            "contexts": 2,
+            "usedPlusBackingBytes": 128710701
+          },
+          {
+            "atMs": 1791519548151,
+            "contexts": 2,
+            "usedPlusBackingBytes": 207746452
+          },
+          {
+            "atMs": 1791519548180,
+            "contexts": 2,
+            "usedPlusBackingBytes": 186580599
+          },
+          {
+            "atMs": 1791519561269,
+            "contexts": 2,
+            "usedPlusBackingBytes": 251742994
+          },
+          {
+            "atMs": 1791519574590,
+            "contexts": 2,
+            "usedPlusBackingBytes": 97605921
+          },
+          {
+            "atMs": 1791519587683,
+            "contexts": 2,
+            "usedPlusBackingBytes": 91766349
+          },
+          {
+            "atMs": 1791519600785,
+            "contexts": 2,
+            "usedPlusBackingBytes": 131660646
+          },
+          {
+            "atMs": 1791519600884,
+            "contexts": 2,
+            "usedPlusBackingBytes": 135375925
+          },
+          {
+            "atMs": 1791519613899,
+            "contexts": 2,
+            "usedPlusBackingBytes": 175072296
+          },
+          {
+            "atMs": 1791519613932,
+            "contexts": 2,
+            "usedPlusBackingBytes": 191937751
+          },
+          {
+            "atMs": 1791519627519,
+            "contexts": 2,
+            "usedPlusBackingBytes": 218794596
+          },
+          {
+            "atMs": 1791519640632,
+            "contexts": 2,
+            "usedPlusBackingBytes": 95348275
+          },
+          {
+            "atMs": 1791519653776,
+            "contexts": 2,
+            "usedPlusBackingBytes": 100303907
+          },
+          {
+            "atMs": 1791519654089,
+            "contexts": 2,
+            "usedPlusBackingBytes": 94490458
+          },
+          {
+            "atMs": 1791519654592,
+            "contexts": 2,
+            "usedPlusBackingBytes": 99861262
+          },
+          {
+            "atMs": 1791519655093,
+            "contexts": 2,
+            "usedPlusBackingBytes": 102799855
+          },
+          {
+            "atMs": 1791519655596,
+            "contexts": 2,
+            "usedPlusBackingBytes": 98927111
+          },
+          {
+            "atMs": 1791519656097,
+            "contexts": 2,
+            "usedPlusBackingBytes": 100691227
+          },
+          {
+            "atMs": 1791519656600,
+            "contexts": 2,
+            "usedPlusBackingBytes": 79165259
+          },
+          {
+            "atMs": 1791519657102,
+            "contexts": 2,
+            "usedPlusBackingBytes": 44220241
+          },
+          {
+            "atMs": 1791519657605,
+            "contexts": 2,
+            "usedPlusBackingBytes": 47628433
+          },
+          {
+            "atMs": 1791519658109,
+            "contexts": 2,
+            "usedPlusBackingBytes": 51031713
+          },
+          {
+            "atMs": 1791519658608,
+            "contexts": 2,
+            "usedPlusBackingBytes": 86089793
+          },
+          {
+            "atMs": 1791519659111,
+            "contexts": 2,
+            "usedPlusBackingBytes": 88968890
+          },
+          {
+            "atMs": 1791519659612,
+            "contexts": 2,
+            "usedPlusBackingBytes": 90234057
+          },
+          {
+            "atMs": 1791519660115,
+            "contexts": 2,
+            "usedPlusBackingBytes": 82297470
+          },
+          {
+            "atMs": 1791519660618,
+            "contexts": 2,
+            "usedPlusBackingBytes": 63822955
+          },
+          {
+            "atMs": 1791519661118,
+            "contexts": 2,
+            "usedPlusBackingBytes": 63014572
+          },
+          {
+            "atMs": 1791519661619,
+            "contexts": 2,
+            "usedPlusBackingBytes": 96996027
+          },
+          {
+            "atMs": 1791519662122,
+            "contexts": 2,
+            "usedPlusBackingBytes": 75016439
+          },
+          {
+            "atMs": 1791519662623,
+            "contexts": 2,
+            "usedPlusBackingBytes": 61441526
+          },
+          {
+            "atMs": 1791519663125,
+            "contexts": 2,
+            "usedPlusBackingBytes": 83323773
+          },
+          {
+            "atMs": 1791519663628,
+            "contexts": 2,
+            "usedPlusBackingBytes": 128689789
+          },
+          {
+            "atMs": 1791519664135,
+            "contexts": 2,
+            "usedPlusBackingBytes": 169217283
+          },
+          {
+            "atMs": 1791519664632,
+            "contexts": 2,
+            "usedPlusBackingBytes": 93670997
+          },
+          {
+            "atMs": 1791519665135,
+            "contexts": 2,
+            "usedPlusBackingBytes": 134070461
+          },
+          {
+            "atMs": 1791519665638,
+            "contexts": 2,
+            "usedPlusBackingBytes": 185247939
+          },
+          {
+            "atMs": 1791519666144,
+            "contexts": 2,
+            "usedPlusBackingBytes": 84663043
+          },
+          {
+            "atMs": 1791519666642,
+            "contexts": 2,
+            "usedPlusBackingBytes": 143478519
+          },
+          {
+            "atMs": 1791519667142,
+            "contexts": 2,
+            "usedPlusBackingBytes": 223046321
+          },
+          {
+            "atMs": 1791519667645,
+            "contexts": 2,
+            "usedPlusBackingBytes": 101123166
+          },
+          {
+            "atMs": 1791519668146,
+            "contexts": 2,
+            "usedPlusBackingBytes": 103681367
+          },
+          {
+            "atMs": 1791519668649,
+            "contexts": 2,
+            "usedPlusBackingBytes": 196928819
+          },
+          {
+            "atMs": 1791519669150,
+            "contexts": 2,
+            "usedPlusBackingBytes": 252164521
+          },
+          {
+            "atMs": 1791519669653,
+            "contexts": 2,
+            "usedPlusBackingBytes": 90605413
+          },
+          {
+            "atMs": 1791519670154,
+            "contexts": 2,
+            "usedPlusBackingBytes": 83896881
+          },
+          {
+            "atMs": 1791519670657,
+            "contexts": 2,
+            "usedPlusBackingBytes": 104176067
+          },
+          {
+            "atMs": 1791519671159,
+            "contexts": 2,
+            "usedPlusBackingBytes": 167600811
+          },
+          {
+            "atMs": 1791519671660,
+            "contexts": 2,
+            "usedPlusBackingBytes": 217037729
+          },
+          {
+            "atMs": 1791519672163,
+            "contexts": 2,
+            "usedPlusBackingBytes": 81511286
+          },
+          {
+            "atMs": 1791519672664,
+            "contexts": 2,
+            "usedPlusBackingBytes": 152319622
+          },
+          {
+            "atMs": 1791519673167,
+            "contexts": 2,
+            "usedPlusBackingBytes": 116932758
+          },
+          {
+            "atMs": 1791519673670,
+            "contexts": 2,
+            "usedPlusBackingBytes": 172288306
+          },
+          {
+            "atMs": 1791519674174,
+            "contexts": 2,
+            "usedPlusBackingBytes": 146080286
+          },
+          {
+            "atMs": 1791519674678,
+            "contexts": 2,
+            "usedPlusBackingBytes": 208222778
+          },
+          {
+            "atMs": 1791519675185,
+            "contexts": 2,
+            "usedPlusBackingBytes": 259095034
+          },
+          {
+            "atMs": 1791519675677,
+            "contexts": 2,
+            "usedPlusBackingBytes": 304559382
+          },
+          {
+            "atMs": 1791519676180,
+            "contexts": 2,
+            "usedPlusBackingBytes": 214296042
+          },
+          {
+            "atMs": 1791519676685,
+            "contexts": 2,
+            "usedPlusBackingBytes": 258527110
+          },
+          {
+            "atMs": 1791519677188,
+            "contexts": 2,
+            "usedPlusBackingBytes": 327302205
+          },
+          {
+            "atMs": 1791519677685,
+            "contexts": 2,
+            "usedPlusBackingBytes": 398072289
+          },
+          {
+            "atMs": 1791519678188,
+            "contexts": 2,
+            "usedPlusBackingBytes": 463439537
+          },
+          {
+            "atMs": 1791519678689,
+            "contexts": 2,
+            "usedPlusBackingBytes": 492220253
+          },
+          {
+            "atMs": 1791519679192,
+            "contexts": 2,
+            "usedPlusBackingBytes": 551979185
+          },
+          {
+            "atMs": 1791519679693,
+            "contexts": 2,
+            "usedPlusBackingBytes": 329021872
+          },
+          {
+            "atMs": 1791519680196,
+            "contexts": 2,
+            "usedPlusBackingBytes": 398054900
+          },
+          {
+            "atMs": 1791519680700,
+            "contexts": 2,
+            "usedPlusBackingBytes": 428148124
+          },
+          {
+            "atMs": 1791519681200,
+            "contexts": 2,
+            "usedPlusBackingBytes": 494419492
+          },
+          {
+            "atMs": 1791519681703,
+            "contexts": 2,
+            "usedPlusBackingBytes": 538054328
+          },
+          {
+            "atMs": 1791519682329,
+            "contexts": 2,
+            "usedPlusBackingBytes": 908485028
+          },
+          {
+            "atMs": 1791519695356,
+            "contexts": 2,
+            "usedPlusBackingBytes": 958384750
+          },
+          {
+            "atMs": 1791519695716,
+            "contexts": 1,
+            "usedPlusBackingBytes": 58952404
+          }
+        ],
+        "observedPeakBytes": 1758530342,
+        "includesWorkerContexts": true
+      },
+      "mainHeapBeforeGc": {
+        "usedSize": 58111352,
+        "totalSize": 130252800,
+        "embedderHeapUsedSize": 178111760,
+        "backingStorageSize": 841052
+      },
+      "mainHeapAfterGc": {
+        "usedSize": 6894744,
+        "totalSize": 8667136,
+        "embedderHeapUsedSize": 2237744,
+        "backingStorageSize": 810310
+      }
+    }
+  ],
+  "measurementScope": "All validation/storage corrections are included. A final per-sample History totals cancellation guard was added after this run; worker snapshot validation/read timings reflect final code, cap timings precede that guard."
+}

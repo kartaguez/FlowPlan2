@@ -1,0 +1,114 @@
+Lot 11D.0 post-audit — 2026-10-09
+Baseline: 8086ddf14f609d0f1c9e16cd480bf17de3f13f6b
+Status: IMPLEMENTED — IN REVIEW
+
+Final typecheck/build: PASS
+Full Node suite: 935 tests, 96 suites; 935 pass, 0 fail, 0 skipped, 0 cancelled, 0 todo.
+Added Node tests: 31 (History 13, dispatcher 9, stored validation/staging 9).
+Portable-server Node suite: 3 pass, 0 fail, 0 skipped; no new portable-server tests.
+Total unique Node tests across the full application and portable-server suites: 938 pass, 0 fail, 0 skipped.
+Targeted repository/transfer/concurrency/validation suite: 41 pass, 0 fail, 0 skipped.
+
+Commands:
+npm run typecheck
+npm test
+node --test .test-dist/application/persistence/*.test.js .test-dist/application/history/repositoryHistoryReader.test.js .test-dist/main/planning/createRepositoryPlanningDispatcher.test.js
+npm run build
+npm run test:portable
+node scripts/browser-storage-test.mjs
+node scripts/browser-storage-audit-test.mjs
+git diff --check
+
+Real browser standard suite (native IDB, isolated origin/profile):
+Quota override: {"usage":144689,"quota":1024,"overrideActive":true,"usageBreakdown":[{"storageType":"file_systems","usage":0},{"storageType":"indexeddb","usage":144689},{"storageType":"cache_storage","usage":0},{"storageType":"service_workers","usage":0}]}
+{
+  "browser": "Edg/154.0.4258.53",
+  "result": {
+    "assertions": 15,
+    "exportBytes": 21142,
+    "token": {
+      "generation": "stage-import",
+      "revision": 6,
+      "currentRevision": 3,
+      "historyRevision": 5
+    }
+  },
+  "quota": {
+    "overrideAccepted": true,
+    "physicalQuotaEnforced": false,
+    "nativeInjectedQuotaAtomic": true,
+    "nativeCode": "QUOTA"
+  },
+  "ui": {
+    "migrated": true,
+    "save": true,
+    "history": true,
+    "details": true,
+    "cycles": 3,
+    "legacyPreserved": true,
+    "closedHistoryRows": 0
+  },
+  "blockedUpgrade": {
+    "blocked": true,
+    "code": "BLOCKED"
+  },
+  "layout": [
+    {
+      "width": 1440,
+      "scrollWidth": 1440
+    },
+    {
+      "width": 390,
+      "scrollWidth": 390
+    }
+  ],
+  "historyLayouts": [
+    {
+      "theme": "light",
+      "width": 1440,
+      "scrollWidth": 1440
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "scrollWidth": 1440
+    },
+    {
+      "theme": "light",
+      "width": 390,
+      "scrollWidth": 390
+    },
+    {
+      "theme": "dark",
+      "width": 390,
+      "scrollWidth": 390
+    }
+  ],
+  "originIsolated": true
+}
+
+Added audit browser suite: 11 scenarios, 11 pass, 0 fail, 0 skipped.
+{
+  "browser": "Edg/154.0.4258.53",
+  "tests": 11,
+  "passed": 11,
+  "failed": 0,
+  "skipped": 0,
+  "cases": [
+    "valid legacy certificate: worker read and History",
+    "structural forgery with valid digest rejected by both worker paths",
+    "business forgery with valid digest rejected by both worker paths",
+    "corruption after certification rejected",
+    "native abort proves rollback and preserves persisted authority",
+    "post-complete notification failure rejects as uncertain and receipt retry is idempotent",
+    "invalid mid-import cannot activate and incomplete native staging resumes",
+    "native save commit with failed local reconciliation blocks subsequent UI-facing mutations",
+    "native delete commit with failed local reconciliation blocks subsequent UI-facing mutations",
+    "native current commit with failed local reconciliation blocks subsequent UI-facing mutations",
+    "mounted UI retains drafts and blocks Save/Delete/Apply after a lost native acknowledgment; recovery rereads authority"
+  ]
+}
+
+Browser scenarios are separate from Node test counts. The existing browser suite reports 15 repository assertions plus UI/quota/upgrade/layout checks, not a Node-style test count. No physical quota refusal was enforced by the attempted override; injected native quota abort was atomic.
+
+All three performance cases are rerun through scripts/benchmark-storage.mjs; see lot11d0_audit_measurements.json.

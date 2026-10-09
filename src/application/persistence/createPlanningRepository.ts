@@ -1,3 +1,4 @@
+import { validateStoredSnapshotContent } from "./validateStoredSnapshot.js";
 import { assertCanonicalTimestamp, assertSnapshotId } from "../../domain/portfolioSnapshots/portfolioSnapshot.js";
 import { createCivilDate } from "../../domain/model/date.js";
 import { legacyRepairs } from "./repositoryTransfer.js";
@@ -39,7 +40,7 @@ function advance(control: Control, kind: "current" | "history" | "import"): Cont
 /** Validation/hashing is deliberately outside the storage transaction. */
 export function createPlanningRepository(storage: RepositoryStorage, digest: (text: string) => Promise<string>, validateStoredSnapshot?: (snapshot: Content, current: Content) => Promise<PortfolioSnapshot>): PlanningRepository {
   const hash = (text: string | null) => text === null ? Promise.resolve("absent") : digest(text);
-  const content = async (value: unknown): Promise<Content> => { const text = JSON.stringify(value); return { text, digest: await digest(text), validationVersion: 1 }; };
+  const content = async (value: unknown): Promise<Content> => { const text = JSON.stringify(value); return { text, digest: await digest(text) }; };
   const verified = async (value: Content): Promise<unknown> => {
     if (await digest(value.text) !== value.digest) throw new PersistenceError("CORRUPT", "Stored content checksum mismatch. Data was preserved.");
     try { return JSON.parse(value.text); } catch (cause) { throw new PersistenceError("CORRUPT", "Stored JSON is invalid.", { cause }); }
@@ -80,7 +81,7 @@ export function createPlanningRepository(storage: RepositoryStorage, digest: (te
   const readSnapshotContent = async (id: string, expected: RepositoryToken): Promise<PortfolioSnapshot> => {
     const [saved, current] = await Promise.all([readContent("snapshotContent", [expected.generation, id], expected), readContent("current", [expected.generation], expected)]);
     const valid = validateStoredSnapshot ? await validateStoredSnapshot(saved, current)
-      : validateHistoricalSnapshot(await verified(saved), decodePlanningInputs(await verified(current), 5, undefined, true));
+      : await validateStoredSnapshotContent(saved, current, digest);
     if (valid.snapshotId !== id) throw new PersistenceError("CORRUPT", "Historical content identity mismatch.");
     return valid;
   };
@@ -194,18 +195,24 @@ export function createPlanningRepository(storage: RepositoryStorage, digest: (te
       return { state: Object.freeze({ portfolio: state.portfolio, planning: state.planning }), token: result.token, identities: result.identities, snapshotCount: result.snapshotCount };
     },
     writeCurrent: async (candidate, expected, id) => {
-      const state = decodePlanningInputs(candidate, 5, undefined, true), saved = await content(encodePlanningInputs(state));
+      const state = decodePlanningInputs(candidate, 5, undefined, true), normalized = encodePlanningInputs(state), saved = await content(normalized);
       const signature = await digest(JSON.stringify(["current", expected, saved.digest]));
+      const receipt = await storage.transaction(["receipts"], "readonly", tx => tx.get<Receipt>("receipts", id));
+      if (receipt) {
+        if (receipt.signature !== signature) throw new PersistenceError("INVALID", "operationId reused for a different request.");
+        return receipt.token;
+      }
+      // Owned-prefix checks can be large. Perform them outside IDB; the final CAS
+      // proves that this Current is still the one being replaced.
+      const oldInputs = await verified(await readContent("current", [expected.generation], expected)) as PlanningInputsDto;
+      for (const kind of ["projects", "reservations"] as const) for (const owner of oldInputs.portfolio[kind]) {
+        const replacement = normalized.portfolio[kind].find(item => item.id === owner.id);
+        if ((owner.snapshots?.length || owner.legacyV4Actuals) && !replacement) throw new PersistenceError("INVALID", "Cannot remove an owned Actuals history through writeCurrent.");
+        if (owner.snapshots?.some((snapshot, i) => JSON.stringify(snapshot) !== JSON.stringify(replacement?.snapshots?.[i]))) throw new PersistenceError("INVALID", "Owned Actuals history is immutable.");
+        if (owner.legacyV4Actuals && (!replacement?.legacyV4Actuals || owner.legacyV4Actuals.actualsFromDate !== replacement.legacyV4Actuals.actualsFromDate || JSON.stringify(owner.legacyV4Actuals.records) !== JSON.stringify(replacement.legacyV4Actuals.records))) throw new PersistenceError("INVALID", "Legacy Actuals evidence cannot be changed or removed.");
+      }
       return mutate(CURRENT_STORES, expected, id, signature, async (tx, original) => {
         const next = advance(required(original, "Current unavailable."), "current");
-        const previous = required(await tx.get<Content>("current", [next.generation]), "Current missing.");
-        const oldInputs = JSON.parse(previous.text) as PlanningInputsDto;
-        for (const kind of ["projects", "reservations"] as const) for (const owner of oldInputs.portfolio[kind]) {
-          const replacement = candidate.portfolio[kind].find(item => item.id === owner.id);
-          if ((owner.snapshots?.length || owner.legacyV4Actuals) && !replacement) throw new PersistenceError("INVALID", "Cannot remove an owned Actuals history through writeCurrent.");
-          if (owner.snapshots?.some((snapshot, i) => JSON.stringify(snapshot) !== JSON.stringify(replacement?.snapshots?.[i]))) throw new PersistenceError("INVALID", "Owned Actuals history is immutable.");
-          if (owner.legacyV4Actuals && (!replacement?.legacyV4Actuals || owner.legacyV4Actuals.actualsFromDate !== replacement.legacyV4Actuals.actualsFromDate || JSON.stringify(owner.legacyV4Actuals.records) !== JSON.stringify(replacement.legacyV4Actuals.records))) throw new PersistenceError("INVALID", "Legacy Actuals evidence cannot be changed or removed.");
-        }
         await tx.put("current", [next.generation], saved); return next;
       });
     },

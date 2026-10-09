@@ -1030,3 +1030,26 @@ Reservation benchmark exposed existing Current projection cost; it is documented
 not hidden or used to change engine results. Results are in the linked delivery.
 
 **11B DONE; 11C DONE; 11D.0 IMPLEMENTED — IN REVIEW.**
+
+## Post-audit contract clarification — 2026-10-09
+
+Corrective baseline `8086ddf14f609d0f1c9e16cd480bf17de3f13f6b`; targeted corrections
+remain **11D.0 IMPLEMENTED — IN REVIEW**, pending independent re-audit.
+
+- ensureRows success means its eligible requested rows were loaded, or the request
+  was invalidated by epoch/view/generation/revision change. Waiting on another
+  request is insufficient: re-evaluate missing rows, deduplicate through the LRU,
+  reject a visible set exceeding the budget, and prevent stale publication.
+- A failed mutation leaves the old local state usable only when non-commit/rollback
+  is guaranteed. Unknown acknowledgment and confirmed commit with failed local
+  reconciliation require recovery, blocking every Current/History mutation.
+  Preserve drafts and offer explicit reload with discard confirmation; reconstruct
+  from persisted authority, never a local revision increment.
+- Digest/certificate metadata does not prove business validity. Strategy B is used:
+  every snapshot read executes the complete historical validator, regardless of
+  validationVersion. New content has no certificate. Creation, migration/import,
+  resumed staging and sealing still validate completely before activation.
+
+[Corrective implementation, tests and limits](./lot11d0_canon.md#independent-audit-corrections--2026-10-09)
+supersedes the original certificate-reuse claim. No 11D.1/11D.2/11D.3 or portable
+format change is authorized or implemented.

@@ -1,5 +1,6 @@
 import { REPOSITORY_STORES, type RepositoryKey, type RepositoryStorage, type RepositoryStore, type RepositoryTransaction, type StorageRow } from "../../application/persistence/repositoryStorage.js";
 import { createPlanningRepository } from "../../application/persistence/createPlanningRepository.js";
+import { PersistenceError } from "../../application/persistence/planningRepository.js";
 import { sha256 } from "./fingerprint.js";
 function compare(a: RepositoryKey, b: RepositoryKey): number {
   if (typeof a === "string" && typeof b === "string") return a < b ? -1 : a > b ? 1 : 0;
@@ -35,7 +36,10 @@ export function createMemoryRepositoryStorage(input: {
               .sort((a, b) => compare(a.key, b.key)).slice(0, limit).map(row => structuredClone(row)) as StorageRow<V>[];
           },
         };
-        const result = await body(tx); if (mode === "readwrite") stores = candidate; return result;
+        let result: T;
+        try { result = await body(tx); }
+        catch (cause) { throw new PersistenceError(cause instanceof PersistenceError ? cause.code : "UNAVAILABLE", cause instanceof Error ? cause.message : "Transaction aborted.", { cause, commitOutcome: "not-applied" }); }
+        if (mode === "readwrite") stores = candidate; return result;
       });
       queue = operation.catch(() => {}); return operation;
     },

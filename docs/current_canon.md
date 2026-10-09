@@ -65,16 +65,26 @@ an older client, with explicit resolution and separate recovery exports.
 Invalid startup data is preserved and editing blocked behind recovery actions,
 not silently replaced by a writable demo. An empty new depot starts from the demo.
 
-The physical DB schema is version 2, logical storage data version 1, snapshot
-validation certificate epoch 1, all separate from V7. SHA-256 is verified on read;
-matching entry-validation certificates can reuse full validation proof, because
-Current writes preserve owned histories/prefixes and imports change generation.
-Older/missing certificates use the full validator. No historical engine replay.
+The physical DB schema is version 2 and logical storage data version 1, separate
+from V7. SHA-256 proves byte integrity only. Every snapshot read runs complete
+business validation against the persisted Current, including historical Actuals
+prefix resolution. Legacy validationVersion metadata is ignored; new content is
+not certified. No historical engine replay.
+
+A proven transaction abort leaves the local state usable. Unknown commit outcomes
+and confirmed commits with failed local reconciliation require recovery: all
+Current/History mutations are blocked, drafts remain in their owners, and a visible
+message offers explicit reload. Reload warns before discarding drafts and rebuilds
+the session/projection/token from persisted authority. No local revision increment
+substitutes for reconciliation. Receipt retries keep operationId stable and consult
+the receipt before CAS. Post-commit notification errors are uncertain, not rollback.
 
 History loads metadata/projections without retaining all capture payloads.
 Summary projections are ephemeral, versioned and rebuildable; no persistent
 historySummaries store was introduced. Worker requests and snapshot reads are
-serialized. Decoded row LRU budget is 32 MiB estimated; compact metadata index
+serialized. Concurrent ensureRows calls re-evaluate missing rows in FIFO order;
+release/refresh invalidate obsolete work by epoch and complete repository token.
+Invalidated reads cannot publish or clear newer cached rows. Decoded row LRU budget is 32 MiB estimated; compact metadata index
 budget is 64 MiB estimated. Exact global cap uses date/value multiplicities and
 bounded external sorting (4096 entries, fan-in eight), without changing quartiles
 or metrics. Closing History releases rows, model/gutters and buffers, retaining
