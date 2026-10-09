@@ -131,6 +131,7 @@ await withStorageBrowser(async ({evaluate,browser,call}) => {
         assert(card().querySelector('.card-actuals-host').closest('form')===card().querySelector('form'),'stable host outside fields');
         assert(!card().querySelector('form form'),'nested forms');
         input(other().querySelector('[data-raf-team]'),'1/');
+        input(other().querySelector('[name="project.name"]'),'Other Forecast');
         if(order==='new-Team') {
           const toggle=card().querySelector('input[aria-label="Project enabled for Team Gamma"]');toggle.checked=true;toggle.dispatchEvent(new Event('change',{bubbles:true}));
           const initialRaf=card().querySelector('[name="requirements.team-gamma.remainingWorkload"]');assert(initialRaf,'initial RAF absent');input(initialRaf,'0,00001');
@@ -159,6 +160,11 @@ await withStorageBrowser(async ({evaluate,browser,call}) => {
         const tabs=[...root.querySelectorAll('[role="tab"]')];if(tabs.length>=2){tabs[1].click();tabs[0].click()}
         button(card(),'Update actuals');const modal=document.querySelector('.card-actuals-modal:not([hidden])');assert(modal,'modal missing');
         assert(field().disabled,'card RAF editable while modal owns branch');
+        // Even a delivered card event must respect the open-modal guard before cleanup.
+        button(card(),'Cancel card');
+        assert(!modal.hidden&&field().value==='0,00001'&&name().value==='Local Forecast','card Cancel bypassed modal guard');
+        button(other(),'Cancel card');
+        assert(other().querySelector('[data-raf-team]').value==='1/'&&other().querySelector('[name="project.name"]').value==='Other Forecast','other card bypassed global modal guard');
         const first=modal.querySelector('input:not([disabled])'),cancel=[...modal.querySelectorAll('button')].find(node=>node.textContent==='Cancel modal');
         cancel.focus();modal.dispatchEvent(new KeyboardEvent('keydown',{key:'Tab',bubbles:true,cancelable:true}));assert(modal.contains(document.activeElement),'focus escaped modal');
         modal.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));assert(modal.hidden,'Escape failed');
@@ -166,7 +172,14 @@ await withStorageBrowser(async ({evaluate,browser,call}) => {
         assert((await repository.readCurrent()).token.currentRevision===before.token.currentRevision,'modal navigation wrote');
         // Card Cancel abandons this card only. Another card remains dirty/raw.
         button(card(),'Cancel card');assert(name().value===initial.name,'card Cancel lost scope');
-        assert(field().value==='55','card Cancel did not restore published RAF');assert(other().querySelector('[data-raf-team]').value==='1/','other draft lost');
+        assert(parseExactQuantityInput(field().value)===serializeQuantity(initial.requirements[0].remainingWorkload),'card Cancel did not restore exact published RAF');
+        assert(other().querySelector('[data-raf-team]').value==='1/'&&other().querySelector('[name="project.name"]').value==='Other Forecast','other draft lost');
+        projectButtons[0].click();projectButtons[0].click();
+        assert(name().value===initial.name&&parseExactQuantityInput(field().value)===serializeQuantity(initial.requirements[0].remainingWorkload),'reopening restored abandoned drafts');
+        const cancelled=await repository.readCurrent();
+        assert(cancelled.token.currentRevision===before.token.currentRevision,'Cancel wrote Current');
+        assert(JSON.stringify(cancelled.state)===JSON.stringify(before.state),'Cancel changed persisted inputs or histories');
+        assert(![...card().querySelectorAll('.application-error')].some(node=>!node.hidden&&node.textContent),'abandoned error survives Cancel');
         // Forecast publication cannot implicitly apply or confirm RAF. Sequence
         // two explicit transactions, then ensure a repeated RAF Apply is a no-op.
         input(name(),'Published Forecast');card().querySelector('form').requestSubmit();await wait(()=>!root.inert&&name().value==='Published Forecast');
@@ -175,7 +188,7 @@ await withStorageBrowser(async ({evaluate,browser,call}) => {
         assert(serializeQuantity(after.state.portfolio.projects[0].requirements[0].remainingWorkload)==='1/100000','RAF lost');
         card().querySelector('form').requestSubmit();await new Promise(resolve=>setTimeout(resolve,30));assert((await repository.readCurrent()).token.currentRevision===after.token.currentRevision,'RAF applied twice');
         assert(other().querySelector('[data-raf-team]').value==='1/'&&app.hasUnappliedChanges(),'other owner cleaned');
-        results.push({scenario:order,pass:true,commits:2,modalCancelPreservesCard:true,cardCancelScoped:true,repeatNoOp:true,focusContained:true});
+        results.push({scenario:order,pass:true,commits:2,modalCancelPreservesCard:true,cardCancelScoped:true,reopenPublishedExact:true,modalCardGuard:true,cancelWrites:0,repeatNoOp:true,focusContained:true});
       } finally {if(order==='long-decimal'){window.uxReviewApp=app;window.uxReviewRoot=root}else{app.destroy();root.remove()}repository.close()}
     }
     return results;

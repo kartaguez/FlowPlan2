@@ -346,3 +346,29 @@ for (const kind of ["project", "reservation"] as const) test(`11D.1 compact ${ki
   assert.equal(all(host).filter(node => node.attributes.has("data-raf-team")).length, 0);
   controller.destroy();
 });
+
+test("11D.1 final Cancel clears abandoned RAF proofs/errors/base and preserves another RAM owner exactly", () => {
+  const state = createDemoPlanningScenario(), [a, b] = state.portfolio.projects;
+  assert.ok(a && b);
+  const model = buildProjectSnapshotActualsViewModel(state, a.id)!;
+  const store = createSnapshotActualsDraftStore(), opening = store.initialize(model);
+  const other = store.initialize(buildProjectSnapshotActualsViewModel(state, b.id)!);
+  store.update(b.id, { ...other, teams: other.teams.map((row, i) => i === 0 ? { ...row, raf: "1/" } : row), errors: ["Other error"] });
+  const otherDraft = store.get(b.id)!;
+  store.update(a.id, { ...opening, stale: true, confirmed: true, retirementConfirmed: true, errors: ["Abandoned error"],
+    teams: opening.teams.map(row => row.enabled ? { ...row, raf: "2/3", rafConfirmed: true } : row) });
+  const host = new FakeDocument().createElement("div"); let dispatches = 0;
+  const controller = createSnapshotActualsCardController({ host: host as unknown as HTMLElement, model, store,
+    onDraftChange() {}, conflict: () => undefined, onApply: () => { dispatches++; return { ok: true }; } });
+  controller.cancelCardRaf();
+  assert.deepEqual(store.get(a.id), opening);
+  assert.strictEqual(store.get(b.id), otherDraft);
+  assert.strictEqual(store.get(b.id)!.baseModel, otherDraft.baseModel);
+  assert.strictEqual(store.get(b.id)!.model.currentBase, otherDraft.model.currentBase);
+  assert.equal(store.isDirty(a.id), false); assert.equal(store.isDirty(b.id), true); assert.equal(dispatches, 0);
+  controller.destroy();
+  const remount = createSnapshotActualsCardController({ host: new FakeDocument().createElement("div") as unknown as HTMLElement,
+    model, store, onDraftChange() {}, conflict: () => undefined, onApply: () => { dispatches++; return { ok: true }; } });
+  assert.deepEqual(store.get(a.id), opening); assert.strictEqual(store.get(b.id), otherDraft); assert.equal(dispatches, 0);
+  remount.destroy();
+});

@@ -31,6 +31,7 @@ export interface CreateProjectEditControllerInput {
   readonly onDelete?: (projectId: ProjectId) => MaybePromise<ProjectEditApplyResult>;
   readonly confirmDiscard?: (message: string) => boolean;
   readonly onCancel?: () => void;
+  readonly canCancel?: () => boolean;
   readonly draftStore?: ProjectDraftStore;
   readonly onDraftChange?: () => void;
   readonly getActualsRaf?: (teamId: TeamId) => string | undefined;
@@ -314,6 +315,7 @@ export function createProjectEditController(
     });
   };
   const onCancel = (): void => {
+    if (input.canCancel?.() === false) return;
     if (model && input.draftStore) {
       const expanded = input.draftStore.get(model.projectId)?.expanded ?? true;
       input.draftStore.cancel(model.projectId);

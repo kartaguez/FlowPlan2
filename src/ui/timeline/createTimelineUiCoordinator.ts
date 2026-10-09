@@ -434,6 +434,7 @@ export function createTimelineUiCoordinator(
         });
       },
       confirmDiscard,
+      canCancel: () => !isModalOpen(),
       onCancel: () => { projectActualsControllers.get(id)?.cancelCardRaf(); syncCard("project", id); card.button.focus(); },
     });
     controller.setProject(model);

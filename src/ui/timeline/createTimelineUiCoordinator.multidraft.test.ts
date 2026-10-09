@@ -3,14 +3,14 @@ import { describe, it } from "node:test";
 import {
   buildPlanningSettingsViewModel, buildProjectEditViewModel, buildReservationEditViewModel,
   buildProjectSnapshotActualsViewModel, buildReservationSnapshotActualsViewModel,
-  buildTeamEditViewModel, createPlanningSession, type CreateProjectCommand, type CreateReservationCommand,
+  buildTeamEditViewModel, createPlanningSession, type CreateProjectCommand, type CreateReservationCommand, type UpdateProjectCurrentRafCommand,
   type UpdateProjectCommand, type UpdateReservationCommand,
 } from "../../application/index.js";
 import type { createTeamEditController } from "../team-edit/createTeamEditController.js";
 import { createDemoPlanningScenario } from "../../main/demo/createDemoPlanningScenario.js";
 import { createPlanningProjectionDispatcher } from "../../main/planning/synchronousPlanningDispatcher.fixture.js";
 import type { AppElements } from "../renderApp.js";
-import type { createProjectEditController } from "../project-edit/createProjectEditController.js";
+import { createProjectEditController } from "../project-edit/createProjectEditController.js";
 import type { createProjectCreateController } from "../project-edit/createProjectCreateController.js";
 import type { createProjectReorderController } from "../portfolio/createProjectReorderController.js";
 import type { createReservationEditController } from "../reservation-edit/createReservationEditController.js";
@@ -25,7 +25,11 @@ function must<T>(result: DomainResult<T>): T { if (!result.ok) throw new Error(J
 
 class FakeDocument {
   activeElement: FakeElement | undefined;
-  createElement(tagName: string): FakeElement { return new FakeElement(this, tagName); }
+  readonly elements: FakeElement[] = [];
+  querySelectorAll(selector: string): FakeElement[] {
+    return selector === ".card-actuals-modal" ? this.elements.filter(node => node.className === "card-actuals-modal") : [];
+  }
+  createElement(tagName: string): FakeElement { const node = new FakeElement(this, tagName); this.elements.push(node); return node; }
   createTextNode(text: string): FakeElement { const node = new FakeElement(this, "#text"); node.textContent = text; return node; }
 }
 class FakeElement {
@@ -37,7 +41,10 @@ class FakeElement {
   id = "";
   disabled = false;
   className = "";
-  readonly style = {};
+  readonly style = { setProperty() {} };
+  readonly dataset: Record<string, string> = {};
+  name = "";
+  prepend(...children: FakeElement[]): void { this.children.unshift(...children); }
   readonly attributes = new Map<string, string>();
   readonly children: FakeElement[] = [];
   readonly listeners = new Map<string, Set<(event: { preventDefault?: () => void }) => void>>();
@@ -56,7 +63,7 @@ class FakeElement {
     (target === this || this.children.some((child) => child.contains(target))); }
 }
 
-function fixture(withUnusedTeam = false, rejectActivation = false, withActuals = false, initialSnapshot = false) {
+function fixture(withUnusedTeam = false, rejectActivation = false, withActuals = false, initialSnapshot = false, realProjectController = false) {
   const scenario = createDemoPlanningScenario();
   const session = createPlanningSession(scenario, { today: () => must(createCivilDate("2025-01-06")) });
   if (withUnusedTeam) {
@@ -105,6 +112,7 @@ function fixture(withUnusedTeam = false, rejectActivation = false, withActuals =
     reservationCreateSection: element,
   } as unknown as AppElements;
   let renderCount = 0;
+  let dispatchCount = 0;
   let reorderInput: Parameters<typeof createProjectReorderController>[0];
   let teamEditInput: Parameters<typeof createTeamEditController>[0];
   let projectCreateInput: Parameters<typeof createProjectCreateController>[0];
@@ -141,10 +149,17 @@ function fixture(withUnusedTeam = false, rejectActivation = false, withActuals =
       getState: () => ({ selectedDate: input.initialDate }), destroy() {},
     }),
     createInteractionController: () => ({ getState: () => ({ hovered: undefined }), refreshTooltip() {}, destroy() {} }),
-    createProjectEditController: (input: Parameters<typeof createProjectEditController>[0]) => ({
-      setProject(model: { projectId: ProjectId } | undefined) { if (model) projectHandles.set(model.projectId, input); },
-      getProjectId: () => undefined, destroy() {},
-    }),
+    createProjectEditController: (input: Parameters<typeof createProjectEditController>[0]) => {
+      if (realProjectController) {
+        const controller = createProjectEditController(input);
+        return { ...controller, setProject(model: Parameters<typeof controller.setProject>[0]) {
+          if (model) projectHandles.set(model.projectId, input);
+          controller.setProject(model);
+        } };
+      }
+      return { setProject(model: { projectId: ProjectId } | undefined) { if (model) projectHandles.set(model.projectId, input); },
+        getProjectId: () => undefined, destroy() {} };
+    },
     createTeamCreateController: () => ({ open() {}, isOpen: () => false, requestClose: () => true, hasUnappliedChanges: () => dirtyControllers.has("create-team"), destroy() {} }),
     createProjectCreateController: (input: Parameters<typeof createProjectCreateController>[0]) => {
       projectCreateInput = input;
@@ -194,10 +209,10 @@ function fixture(withUnusedTeam = false, rejectActivation = false, withActuals =
   } as unknown as TimelineUiCoordinatorDependencies;
   coordinator = createTimelineUiCoordinator({
     elements, initialProjection: dispatcher.getProjection(), initialDate: scenario.planning.startDate,
-    dispatch: (command) => rejectActivation &&
+    dispatch: (command) => { dispatchCount++; return rejectActivation &&
       (command.kind === "set-project-active" || command.kind === "set-reservation-active")
       ? { ok: false as const, errors: [{ code: "COMMIT_FAILED", path: "planning", message: "Planning change could not be saved." }] }
-      : dispatcher.dispatch(command),
+      : dispatcher.dispatch(command); },
     getProjectEditViewModel: (id) => buildProjectEditViewModel(session.getState(), id),
     ...(withActuals ? { getProjectSnapshotActualsViewModel: (id: ProjectId) => buildProjectSnapshotActualsViewModel(session.getState(), id),
       getReservationSnapshotActualsViewModel: (id: ReservationId) => buildReservationSnapshotActualsViewModel(session.getState(), id) } : {}),
@@ -234,6 +249,8 @@ function fixture(withUnusedTeam = false, rejectActivation = false, withActuals =
     openReservation: (id: ReservationId) => shellInput.onReservationSelect(id),
     setProjectActive: (id: ProjectId, isActive: boolean) => shellInput.onProjectActiveChange(id, isActive),
     setReservationActive: (id: ReservationId, isActive: boolean) => shellInput.onReservationActiveChange(id, isActive),
+    publishRemoteRaf: (command: UpdateProjectCurrentRafCommand) => synchronous(dispatcher.dispatch(command)),
+    getDispatchCount: () => dispatchCount,
     getRenderCount: () => renderCount };
 }
 
@@ -1047,5 +1064,104 @@ it("11D.1 repeated clean card Apply validates RAF via A no-op, with no Forecast 
     assert.strictEqual(app.coordinator.getProjection(), projection);
     assert.equal(state.portfolio.projects[0]!.snapshots?.length ?? 0, 0);
   }
+  app.coordinator.destroy();
+});
+
+// Full Cancel chain: real Forecast/Actuals controllers and both RAM stores.
+for (const order of ["Forecast then RAF", "RAF then Forecast"] as const) {
+  it(`11D.1 final S1/S2/S3/S5 ${order}: Cancel discards both owners, errors and remount residue`, () => {
+    const app = fixture(false, false, true, true, true); app.hideModals();
+    const [a, b] = app.session.getState().portfolio.projects;
+    assert.ok(a && b); app.openProject(a.id); app.openProject(b.id);
+    const nodes = (root: FakeElement): FakeElement[] => [root, ...root.children.flatMap(nodes)];
+    const handle = () => app.projectHandles.get(a.id)!;
+    const raf = (id: ProjectId) => nodes(app.projectCardHost(id)!).find(node => node.attributes.has("data-raf-team"))!;
+    const forecast = (id: ProjectId, text: string) => {
+      const h = app.projectHandles.get(id)!;
+      const field = nodes(h.controls.fields as unknown as FakeElement).find(node => node.name === "project.name")!;
+      field.value = text; (h.controls.form as unknown as FakeElement).emit("input");
+    };
+    const changeRaf = () => { raf(a.id).value = "0,00001"; raf(a.id).emit("input"); };
+    if (order.startsWith("Forecast")) { forecast(a.id, "Local A"); changeRaf(); }
+    else { changeRaf(); forecast(a.id, "Local A"); }
+    forecast(b.id, "Local B"); raf(b.id).value = "1/"; raf(b.id).emit("input");
+    const bDraft = handle().draftStore!.get(b.id), bText = raf(b.id).value;
+    const state = app.session.getState(), projection = app.coordinator.getProjection(), renders = app.getRenderCount();
+    // Certain command refusal; neither intention is published or discarded.
+    (handle().controls.form as unknown as FakeElement).emit("submit");
+    assert.equal(handle().draftStore!.get(a.id)!.values.name, "Local A");
+    assert.equal(raf(a.id).value, "0,00001"); assert.ok(handle().draftStore!.get(a.id)!.errors.length);
+    const dispatches = app.getDispatchCount();
+    (handle().controls.cancel as unknown as FakeElement).emit("click");
+    assert.equal(app.getDispatchCount(), dispatches);
+    assert.equal(handle().draftStore!.isDirty(a.id), false);
+    assert.deepEqual(handle().draftStore!.get(a.id)!.errors, []);
+    assert.equal(handle().draftStore!.get(a.id)!.values.name, a.name);
+    assert.equal(raf(a.id).value, buildProjectEditViewModel(state, a.id)!.requirements[0]!.remainingWorkload);
+    assert.strictEqual(handle().draftStore!.get(b.id), bDraft); assert.equal(raf(b.id).value, bText);
+    assert.equal(handle().draftStore!.isDirty(b.id), true);
+    assert.strictEqual(app.session.getState(), state); assert.strictEqual(app.coordinator.getProjection(), projection);
+    assert.equal(app.getRenderCount(), renders);
+    app.openProject(a.id); app.openProject(a.id);
+    app.coordinator.renderProjection(projection);
+    assert.equal(handle().draftStore!.get(a.id)!.values.name, a.name);
+    assert.equal(raf(a.id).value, buildProjectEditViewModel(state, a.id)!.requirements[0]!.remainingWorkload);
+    assert.equal(raf(b.id).value, bText); assert.strictEqual(app.session.getState(), state);
+    app.coordinator.destroy();
+  });
+}
+
+it("11D.1 final S6: card Cancel cannot discard Forecast before the modal guard", () => {
+  const app = fixture(false, false, true, false, true); app.hideModals();
+  const a = app.session.getState().portfolio.projects[0]!; app.openProject(a.id);
+  const nodes = (root: FakeElement): FakeElement[] => [root, ...root.children.flatMap(nodes)];
+  const handle = app.projectHandles.get(a.id)!;
+  const draft = handle.draftStore!.get(a.id)!;
+  handle.draftStore!.update(a.id, { ...draft.values, name: "Local Forecast" }); handle.onDraftChange?.();
+  const raf = () => nodes(app.projectCardHost(a.id)!).find(node => node.attributes.has("data-raf-team"))!;
+  raf().value = "0,00001"; raf().emit("input");
+  nodes(app.projectCardHost(a.id)!).find(node => node.textContent === "Update actuals")!.emit("click");
+  const before = handle.draftStore!.get(a.id), state = app.session.getState(), projection = app.coordinator.getProjection();
+  // Deliver a card action while a modal branch owns the card; no cleanup may precede the guard.
+  (handle.controls.cancel as unknown as FakeElement).emit("click");
+  assert.strictEqual(handle.draftStore!.get(a.id), before);
+  assert.equal(raf().value, "0,00001"); assert.equal(raf().disabled, true);
+  nodes(app.projectCardHost(a.id)!).find(node => node.textContent === "Cancel modal")!.emit("click");
+  assert.equal(handle.draftStore!.get(a.id)!.values.name, "Local Forecast"); assert.equal(raf().value, "0,00001");
+  (handle.controls.cancel as unknown as FakeElement).emit("click");
+  assert.equal(handle.draftStore!.isDirty(a.id), false); assert.equal(app.coordinator.hasUnappliedChanges(), false);
+  assert.strictEqual(app.session.getState(), state); assert.strictEqual(app.coordinator.getProjection(), projection);
+  app.coordinator.destroy();
+});
+
+for (const concurrency of ["compatible", "stale"] as const) it(`11D.1 final S4 ${concurrency}: Cancel uses published Current, never the abandoned RAM base`, () => {
+  const app = fixture(false, false, true, true, true); app.hideModals();
+  const a = app.session.getState().portfolio.projects[0]!; app.openProject(a.id);
+  const nodes = (root: FakeElement): FakeElement[] => [root, ...root.children.flatMap(nodes)];
+  const handle = () => app.projectHandles.get(a.id)!;
+  const raf = () => nodes(app.projectCardHost(a.id)!).filter(node => node.attributes.has("data-raf-team"));
+  const draft = handle().draftStore!.get(a.id)!;
+  handle().draftStore!.update(a.id, { ...draft.values, name: "Abandoned Forecast" }); handle().onDraftChange?.();
+  raf()[0]!.value = "2/3"; raf()[0]!.emit("input");
+  const model = buildProjectSnapshotActualsViewModel(app.session.getState(), a.id)!;
+  assert.ok(model.currentBase);
+  const index = concurrency === "compatible" ? 1 : 0;
+  assert.equal(app.publishRemoteRaf({ kind: "update-project-current-raf", projectId: a.id, base: model.currentBase,
+    patch: [{ teamId: a.requirements[index]!.teamId, remainingWorkload: must(remainingWorkloadFromSerialized("3/7")) }] }).ok, true);
+  // A confirmed independent activation causes the real coordinator rebase/remount.
+  app.setProjectActive(a.id, !a.isActive);
+  assert.equal(raf()[0]!.value, "2/3");
+  if (concurrency === "stale") assert.ok(nodes(app.projectCardHost(a.id)!).some(node => node.textContent.includes("changed. Your draft")));
+  const published = app.session.getState(), projection = app.coordinator.getProjection(), renders = app.getRenderCount(), dispatches = app.getDispatchCount();
+  (handle().controls.cancel as unknown as FakeElement).emit("click");
+  assert.equal(app.getDispatchCount(), dispatches); assert.equal(app.getRenderCount(), renders);
+  assert.strictEqual(app.session.getState(), published); assert.strictEqual(app.coordinator.getProjection(), projection);
+  const expected = buildProjectEditViewModel(published, a.id)!;
+  assert.equal(handle().draftStore!.get(a.id)!.values.name, expected.label);
+  assert.deepEqual(raf().map(row => row.value), expected.requirements.filter(row => row.enabled).map(row => row.remainingWorkload));
+  assert.equal(app.coordinator.hasUnappliedChanges(), false);
+  app.openProject(a.id); app.openProject(a.id); app.coordinator.renderProjection(projection);
+  assert.deepEqual(raf().map(row => row.value), expected.requirements.filter(row => row.enabled).map(row => row.remainingWorkload));
+  assert.equal(app.coordinator.hasUnappliedChanges(), false); assert.strictEqual(app.session.getState(), published);
   app.coordinator.destroy();
 });
