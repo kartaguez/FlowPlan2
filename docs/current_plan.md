@@ -51,7 +51,7 @@ plus Lot 11A.2 exact daily profiles and V7 persistence.
 - 11C Actuals / Forecast separation (DONE — explicit user closure).
 - 11D.0 Storage Architecture & Scalability (DONE — favorable independent audit and explicit user closure).
 
-Current trajectory: **11D.1 — UX Actuals & RAF (PLANNED / NOT STARTED)**;
+Current trajectory: **11D.1 — RAF model separation prerequisite, then UX Actuals & RAF (PLANNED / NOT STARTED)**;
 **11D.0 — Storage Architecture & Scalability remains DONE**;
 **11B — Project History view is DONE**, following validated DONE
 11A.2. See the
@@ -66,7 +66,7 @@ Current trajectory: **11D.1 — UX Actuals & RAF (PLANNED / NOT STARTED)**;
 11A (DONE) → 11A.2 (DONE) → 11B (DONE)
 11C: DONE — Actuals / Forecast temporal separation
 11D.0: DONE — Storage Architecture & Scalability
-11D.1: PLANNED / NOT STARTED — UX Actuals & RAF; documentation only
+11D.1: PLANNED / NOT STARTED — RAF model separation prerequisite, then UX; documentation only
 11D.2 / 11D.3: NOT STARTED — outside this planning mission
 11A.1: DEFERRED / not adopted as product work; no dependency for 11B
 10D: superseded by 11A (not DONE)
@@ -79,33 +79,42 @@ with origin (0/0) after fetch. The 11A.2 canon records the completed capture and
 755-test validation. That review was documentation-only. The subsequent authorized implementation
 was then IN REVIEW; explicit user closure subsequently marked 11B DONE.
 
-## 11D.1 — UX Actuals & RAF
+## 11D.1 — RAF model prerequisite, then UX Actuals & RAF
 
-Separate impact study for independent audit (2026-10-09):
-[Current RAF and Portfolio Snapshot replay](./arch/RAF_CURRENT_AND_PORTFOLIO_REPLAY_IMPACT_AUDIT.md),
-examined at `cdb022e91889749de7139a375998fe61edd12041`. It studies RAF authority
-separation, replay with the current engine and inputs-only tradeoffs beyond
-the UX scope below. Proposals are not adopted; no implementation or migration
-is authorized by this documentary publication, and no future lot is opened.
+**Status: PLANNED / NOT STARTED.** No implementation has started.
+**11D.0 remains DONE.** 11D.2/11D.3 remain NOT STARTED.
 
-**Status: PLANNED / NOT STARTED.** Documentation-only planning authorized on
-2026-10-09, branch `codex/lot11a-portfolio-snapshots`, verified starting HEAD
-`05115e4df6ec59c1a045801389e310529634bb9c`, clean and origin 0/0 after fetch.
-See the [detailed plan](./steps/ACTUALS/lot11d1_plan.md).
+New documentary prerequisite (2026-10-09):
+[Current RAF / Actuals snapshot RAF separation plan](./steps/ACTUALS/lot11d1_raf_model_plan.md).
+Verified branch `codex/lot11a-portfolio-snapshots`, starting HEAD
+`4bfc8842cf0aeda30e7f72b19594d1db262df035`, clean and origin 0/0 after fetch.
+The plan is submitted for independent ChatGPT audit; it is not READY FOR
+IMPLEMENTATION. Audit and explicit implementation authorization are required.
 
-Scope: exact decimal input with point/comma and preserved rational fractions;
-compact Project/Reservation Actuals summaries with one global period, exact
-Team totals and Project quick RAF through existing card Apply/Cancel. Preserve
-the existing Actuals modal, evidence, independent RAM drafts, Forecast handoff,
-async Current/CAS commit and recovery contracts. No Domain, engine, Forecast
-semantics, History, IndexedDB/CAS or V7 format change is proposed. Technical
-resource protections require measured justification and must not silently limit
-business precision. The plan includes component/data maps, ordered gates and
-a detailed test matrix; no implementation or tests have started.
+The prerequisite proposes requirements as the sole current RAF authority,
+immutable historical snapshot RAF, an explicit independent RAF command, atomic
+Actuals + RAF publication, canonical draft bases and unchanged repository
+prepare → private projection → CAS commit → publish / recovery guarantees.
+Necessary Domain and logical codec changes are planned, including an explicit
+V8 / inputs schema 2 compatibility strategy; no physical IndexedDB format
+change is proposed. Existing Actuals and Portfolio Snapshots are retained.
+No implementation, migration or tests are delivered by this documentation.
 
-11D.0 remains **DONE**. Independent ChatGPT audit of this plan and subsequent
-explicit implementation authorization are required. Stop after documentary
-commit/push; 11D.2/11D.3 remain NOT STARTED and outside this mission.
+The [impact study](./arch/RAF_CURRENT_AND_PORTFOLIO_REPLAY_IMPACT_AUDIT.md),
+examined at `cdb022e91889749de7139a375998fe61edd12041`, remains an analysis
+source, not implementation authorization. The new model plan resolves its RAF
+prerequisite only; no replay service, inputs-only capture or future lot is opened.
+
+The earlier [UX plan](./steps/ACTUALS/lot11d1_plan.md), documented at
+`05115e4df6ec59c1a045801389e310529634bb9c`, remains a future presentation
+proposal. Its assumptions of permanent RAF equality, quick RAF creating an
+Actuals version, and no Domain/format changes do not govern this new prerequisite.
+After model audit, the UX plan must be reconciled before any UX implementation.
+The compact table, new exact numeric rendering and modal redesign remain outside
+this model mission, as do History cache and IndexedDB optimizations.
+
+Only the new model plan and this roadmap are modified. Stop after documentary
+commit/push; no implementation is authorized by this publication.
 
 ## 11D.0 — Storage Architecture & Scalability
 
