@@ -1,8 +1,12 @@
-> Current implementation status (2026-10-09): **11D.0 IMPLEMENTED — IN REVIEW**.
+> Current implementation status (2026-10-09): **11D.0 DONE**.
+> Favorable independent re-audit validates the three corrected MAJOR findings at
+> `8d95f7406ff40a6d2d041b41784a3915173989c8`; explicit user instruction closes the lot.
+> This closure is documentary only and starts no other lot.
 > The user explicitly closed 11B/11C and authorized this plan's implementation
 > at `eb38a3df8fceab30d82253cac6bc5cd325625444` on 2026-10-08. The original
 > planning-only review below is retained as history; its NOT STARTED/IN REVIEW
-> prerequisite mentions do not override those explicit closures.
+> prerequisite mentions do not override those explicit closures. All subsequent
+> IN REVIEW records below describe historical delivery stages, not current status.
 > See [delivery and verification](./lot11d0_canon.md). No 11D.2 full-capture model
 > or portable version change was implemented.
 
@@ -1034,7 +1038,8 @@ not hidden or used to change engine results. Results are in the linked delivery.
 ## Post-audit contract clarification — 2026-10-09
 
 Corrective baseline `8086ddf14f609d0f1c9e16cd480bf17de3f13f6b`; targeted corrections
-remain **11D.0 IMPLEMENTED — IN REVIEW**, pending independent re-audit.
+were delivered **IN REVIEW** and are now validated and closed **DONE** at
+`8d95f7406ff40a6d2d041b41784a3915173989c8` following favorable independent re-audit.
 
 - ensureRows success means its eligible requested rows were loaded, or the request
   was invalidated by epoch/view/generation/revision change. Waiting on another
@@ -1053,3 +1058,27 @@ remain **11D.0 IMPLEMENTED — IN REVIEW**, pending independent re-audit.
 [Corrective implementation, tests and limits](./lot11d0_canon.md#independent-audit-corrections--2026-10-09)
 supersedes the original certificate-reuse claim. No 11D.1/11D.2/11D.3 or portable
 format change is authorized or implemented.
+
+## Documentary closure — 2026-10-09
+
+**11D.0 — DONE.** The favorable independent audit and explicit user closure
+validate the corrective implementation `8d95f7406ff40a6d2d041b41784a3915173989c8`.
+The three MAJOR findings (History concurrency, uncertain/unreconciled commits,
+and snapshot validation) are corrected and validated.
+
+Recorded verification: typecheck/build PASS; 935/935 application Node tests in
+96 suites and 3/3 portable-server tests (938 unique total), no failures/skips;
+41/41 targeted tests included in the application suite; native Edge suite and
+11/11 added browser scenarios PASS. See the
+[delivery closure and residual limits](./lot11d0_canon.md#documentary-closure--2026-10-09).
+These existing results were not rerun during documentary closure.
+
+Residual limits retained: unapplied drafts are lost after confirmed reload;
+32 MiB row and 64 MiB index memory budgets are estimates; large import/export
+files require transient buffers; no successful physical quota-exceedance test
+is claimed (injected native refusal only); every snapshot read pays systematic
+validation cost, including summary/cap/export scans.
+
+Closure started from the expected branch, clean working tree and origin 0/0 after
+fetch. Only documentation changes; no code, test, script or dependency changes,
+and no other lot starts.

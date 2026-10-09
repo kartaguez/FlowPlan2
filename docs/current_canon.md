@@ -14,7 +14,15 @@ Validated prerequisite baseline: `eb38a3df8fceab30d82253cac6bc5cd325625444`.
 `06e7fbb94d71fe73a35e244d4cee6626b65777c2`.
 11B and 11C are **DONE** by explicit user closure on 2026-10-08 at
 `eb38a3df8fceab30d82253cac6bc5cd325625444` (879/879 tests, typecheck and build).
-11D.0 storage implementation is **IN REVIEW**, delivered on 2026-10-09. See [11B contract, gates and measurements](./steps/HISTORY/lot11b_canon.md).
+11D.0 storage implementation is **DONE**, explicitly closed by the user on
+2026-10-09 after favorable independent audit of `8d95f7406ff40a6d2d041b41784a3915173989c8`.
+All three MAJOR findings are corrected and validated. This commit is the current
+validated implementation baseline. The closure changes documentation only and
+starts no other lot. Recorded gates: typecheck/build PASS, 935/935 application
+Node tests (96 suites) plus 3/3 portable-server tests (938 unique total),
+41/41 targeted tests included in the application total, native Edge suite and
+11/11 added browser scenarios PASS; these checks were not rerun for closure.
+See [11D.0 delivery, gates and closure](./steps/STORAGE/lot11d0_canon.md).
 
 The active application implements a pure planning projection over an editable
 session, restored from a local backup when available and otherwise initialized
@@ -47,7 +55,7 @@ The implementation follows the state, atomicity, engine, and projection
 invariants in [canon](./canon.md).
 
 Lot 9H is validated **DONE**. Its single-localStorage persistence has been
-superseded by the authorized 11D.0 architecture (**IN REVIEW**). IndexedDB is
+superseded by the authorized 11D.0 architecture (**DONE**). IndexedDB is
 primary. Current, immutable captures, light metadata, identity reference indexes,
 control/revisions, staging jobs and bounded receipts are stored separately.
 The live session owns Current and minimal identity constraints, not the Portfolio
@@ -74,7 +82,8 @@ not certified. No historical engine replay.
 A proven transaction abort leaves the local state usable. Unknown commit outcomes
 and confirmed commits with failed local reconciliation require recovery: all
 Current/History mutations are blocked, drafts remain in their owners, and a visible
-message offers explicit reload. Reload warns before discarding drafts and rebuilds
+message offers explicit reload. Unapplied drafts are RAM-only and are lost after
+confirmation of reload; cancelling reload preserves them. Reload rebuilds
 the session/projection/token from persisted authority. No local revision increment
 substitutes for reconciliation. Receipt retries keep operationId stable and consult
 the receipt before CAS. Post-commit notification errors are uncertain, not rollback.
@@ -96,7 +105,11 @@ The worker still retains the file text; this is not a streaming UTF-8 importer.
 Export buffers a complete portable file as chunks/Blob; large files have real
 transient RAM costs. Storage estimates/persist requests are indicative/refusable,
 quota failures are visible and recoverable, and storage is never unlimited.
-See [storage delivery and measurements](./steps/STORAGE/lot11d0_canon.md).
+No physical quota-exceedance test succeeded: Edge did not enforce the attempted
+override; only injected native quota refusal/rollback is verified. Memory budgets
+remain estimates, and systematic snapshot validation adds read/summary/cap/export
+cost despite worker execution. These residual limits remain accepted at closure.
+See [storage delivery, closure and measurements](./steps/STORAGE/lot11d0_canon.md).
 
 Lot 9I Project and Reservation forecast activation is validated and **DONE** at
 `c77558c3e8b2912532afbb8113ac8183fe737c18`. Both entity types default

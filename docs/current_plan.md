@@ -1,8 +1,8 @@
 # FlowPlan2 current plan
 
 Current validated baseline:
-`eb38a3df8fceab30d82253cac6bc5cd325625444` (11B/11C explicitly closed by
-the user on 2026-10-08; 879 tests, typecheck and build before storage changes)
+`8d95f7406ff40a6d2d041b41784a3915173989c8` (11D.0 corrective implementation validated by
+favorable independent audit; explicitly closed by the user on 2026-10-09)
 
 This is the operational roadmap for the active trajectory. Durable product and
 architecture rules live in [canon](./canon.md); current implementation facts
@@ -49,8 +49,9 @@ plus Lot 11A.2 exact daily profiles and V7 persistence.
 - 11A.2 Historical daily load profiles (DONE).
 - 11B Project History (DONE — explicit user closure).
 - 11C Actuals / Forecast separation (DONE — explicit user closure).
+- 11D.0 Storage Architecture & Scalability (DONE — favorable independent audit and explicit user closure).
 
-Current trajectory: **11D.0 — Storage Architecture & Scalability (IN REVIEW)**;
+Current trajectory: **11D.0 — Storage Architecture & Scalability (DONE)**;
 **11B — Project History view is DONE**, following validated DONE
 11A.2. See the
 [detailed implementation plan](./steps/HISTORY/lot11a2_11b_plan.md).
@@ -63,6 +64,7 @@ Current trajectory: **11D.0 — Storage Architecture & Scalability (IN REVIEW)**
 10A (DONE) → 10B (DONE) → 10C (DONE) → 10C.1 (DONE) → 10C.2 (DONE)
 11A (DONE) → 11A.2 (DONE) → 11B (DONE)
 11C: DONE — Actuals / Forecast temporal separation
+11D.0: DONE — Storage Architecture & Scalability; no other lot started
 11A.1: DEFERRED / not adopted as product work; no dependency for 11B
 10D: superseded by 11A (not DONE)
 10E: largely superseded by 11B; advanced replay/navigation/comparison deferred
@@ -76,7 +78,8 @@ was then IN REVIEW; explicit user closure subsequently marked 11B DONE.
 
 ## 11D.0 — Storage Architecture & Scalability
 
-**Status: IMPLEMENTED — IN REVIEW.** User-authorized implementation after
+**Status: DONE — explicit user closure on 2026-10-09 after favorable independent audit.**
+Validated corrective implementation: `8d95f7406ff40a6d2d041b41784a3915173989c8`. User-authorized implementation after
 explicit 11B/11C DONE closure at baseline
 `eb38a3df8fceab30d82253cac6bc5cd325625444`. The A → B → C → D → E sequence is
 implemented; see [plan and implementation record](./steps/STORAGE/lot11d0_plan.md)
@@ -85,7 +88,13 @@ and [delivery, gates and measurements](./steps/STORAGE/lot11d0_canon.md).
 Post-audit corrections from baseline `8086ddf14f609d0f1c9e16cd480bf17de3f13f6b`
 coordinate concurrent History requests, require recovery after uncertain commits
 or failed local reconciliation, and remove the validation-certificate shortcut.
-The corrective commit requires independent re-audit; this lot is not DONE.
+The independent re-audit is favorable: all three MAJOR findings are corrected
+and validated. The user authorized this strictly documentary closure.
+Recorded implementation gates: typecheck/build PASS; 935/935 application Node
+tests (96 suites), 3/3 portable-server tests, 938 unique Node tests total;
+41/41 targeted tests included in the application total; native Edge suite and
+11/11 added browser scenarios PASS. These are existing verification results,
+not tests rerun during closure.
 
 Current session no longer owns Portfolio captures. Async Application repository,
 IndexedDB, separate Current/History/metadata/identity indexes, CAS/receipts,
@@ -97,12 +106,16 @@ History release on return Planning preserve historical metrics and Planning draf
 Persistent summaries and the future full daily Team/Reservation capture model
 remain absent. 11D.2/11D.3 are not implemented by this storage delivery.
 
-Review limits are recorded explicitly: large-file transient buffers, browser
+Residual limits remain explicit: unapplied RAM-only drafts are lost after
+confirmed reload; systematic snapshot validation adds read/summary/cap/export
+cost. Other retained limits: large-file transient buffers, browser
 storage quota/eviction, estimated cache budgets and current Planning projection
 costs on large horizons/Reservations. Physical quota refusal was not forced by
 Edge's accepted DevTools override; native rollback and visible QUOTA errors were
-verified with injected native transaction refusal. Human storage audit/closure
-remains separate. **11B DONE; 11C DONE; 11D.0 IN REVIEW.**
+verified with injected native transaction refusal. The favorable independent audit
+and explicit user instruction close this lot.
+No code, test, script or dependency changes; no other lot starts.
+**11B DONE; 11C DONE; 11D.0 DONE.**
 
 ## Corrective lot — anchored temporal zoom and range drag
 

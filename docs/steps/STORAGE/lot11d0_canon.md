@@ -1,7 +1,10 @@
 # Lot 11D.0 — Storage architecture delivery
 
-**Status: IMPLEMENTED — IN REVIEW**, 2026-10-09. Independent storage audit and
-human closure remain required. **11B DONE; 11C DONE** by explicit user instruction
+**Status: DONE**, 2026-10-09. Favorable independent audit and explicit user
+closure validate corrective implementation `8d95f7406ff40a6d2d041b41784a3915173989c8`;
+all three MAJOR findings are corrected and validated. Closure is documentary only
+and starts no other lot. Earlier IN REVIEW records below are historical.
+**11B DONE; 11C DONE** by explicit user instruction
 on 2026-10-08. Implementation baseline/initial SHA:
 `eb38a3df8fceab30d82253cac6bc5cd325625444`, clean and origin 0/0 after fetch,
 branch `codex/lot11a-portfolio-snapshots`. Prerequisite gates before storage:
@@ -338,8 +341,8 @@ match the original measurements; retained-row cache after release is zero.
 Native quota rollback is tested by injected refusal; an attempted physical quota
 probe was not enforced by Edge. No physical-quota saturation success is claimed.
 
-**11B DONE; 11C DONE; 11D.0 IMPLEMENTED — IN REVIEW.** Independent re-audit of the
-corrective commit is required before any closure.
+**11B DONE; 11C DONE; 11D.0 DONE.** Independent re-audit of the corrective
+commit is favorable; explicit user closure is recorded below.
 
 ### Corrective file inventory
 
@@ -363,3 +366,38 @@ corrective commit is required before any closure.
 - `src/main/createPersistentPlanningApplication.ts`
 - `src/main/planning/createRepositoryPlanningDispatcher.test.ts`
 - `src/main/planning/createRepositoryPlanningDispatcher.ts`
+
+## Documentary closure — 2026-10-09
+
+**11D.0 — DONE**, by explicit user instruction after favorable independent audit.
+Validated corrective implementation and closure initial SHA:
+`8d95f7406ff40a6d2d041b41784a3915173989c8` (`fix(storage): address lot 11D.0 audit findings`).
+Expected branch `codex/lot11a-portfolio-snapshots`, clean working tree and origin
+0/0 verified after fetch before documentary edits. The three MAJOR findings are
+corrected and validated: concurrent History requests, uncertain/confirmed but
+unreconciled commits, and complete systematic snapshot validation.
+
+Existing verification results for that implementation: typecheck/build/diff-check
+PASS; 935/935 application Node tests (96 suites), 3/3 portable-server tests,
+938 unique Node tests total, no failures/skips; 41/41 targeted tests are included
+in the application count. Native Edge repository/UI suite and 11/11 added browser
+scenarios PASS. The reports and measurements linked above remain evidence from
+implementation verification; closure does not rerun or alter those tests or data.
+
+Residual limits explicitly retained at DONE:
+
+- Unapplied RAM-only drafts are lost after the user confirms reload; cancelling
+  reload retains them. No draft persistence was introduced.
+- Row LRU 32 MiB and compact index 64 MiB budgets are estimates, not absolute
+  process-memory or peak-RAM guarantees.
+- Large files require transient import text and export chunks/Blob buffers;
+  import is not full UTF-8 streaming and RAM is not constant.
+- No successful physical quota-exceedance test is claimed. The Edge override
+  did not enforce refusal; injected native QuotaExceededError rollback is verified.
+- Complete validation on every snapshot read adds measured cost to opens and
+  summary/cap/export scans; worker execution does not remove that cost.
+
+The original Current projection scaling cost and retained inactive generations
+also remain documented above. This closure modifies only current plan/canon and
+the lot plan/canon. No code, test, script or dependency changes. No other lot starts.
+The documentary diff is checked with `git diff --check` before commit/push.
