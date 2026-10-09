@@ -3,6 +3,11 @@
 **Statut : PLAN POUR AUDIT INDÉPENDANT CHATGPT / PLANNED / NOT STARTED.**
 Date : 2026-10-09. Aucune implémentation autorisée ou commencée.
 **11D.0 reste DONE ; 11D.2 et 11D.3 restent NOT STARTED.**
+Durcissement R1/R2 du 2026-10-09 : décisions utilisateur acquises, consignées
+à la baseline `7ab7019397746c208c83f9e0d6900fdaafb326ec`, branche attendue,
+arbre propre et origin 0/0 après fetch. Les contrôles du tableau §1 décrivent
+la rédaction initiale ; ce durcissement ne modifie que le présent document.
+
 Ce plan prépare le modèle, les commandes et leur compatibilité avant la nouvelle
 carte Project et le replay. Il n'est pas READY FOR IMPLEMENTATION. Les décisions
 ci-dessous sont des propositions à auditer, sauf les exigences fonctionnelles
@@ -56,7 +61,7 @@ métier n'a été exécuté, créé ou modifié pour cette mission documentaire.
 | `src/application/session/projectEditViewModel.ts` | Affiche `latest-actuals` dès qu'un snapshot existe : ce discriminant pilote le wiring, pas seulement un texte. |
 | `src/application/session/snapshotActualsViewModel.ts` | Expose déjà `forecastRaf` provenant des requirements. Réutilisable comme RAF publié. |
 | `src/ui/actuals/snapshotActualsDraftStore.ts` : `fromModel`, `rebase`, `review` | Priorité au RAF du snapshot ; rebase déclenché par version/membership seulement ; `review` reconstruit la base depuis un préfixe et le modèle récent. Cette reconstruction ne pourra pas restituer un ancien RAF courant. |
-| `src/ui/actuals/parseSnapshotActualsCommand.ts`, `createSnapshotActualsCardController.ts` | RAF rapide produit `initial` ou `raf-only` par la commande Actuals. À rerouter vers A ; modale/handoff vers B. |
+| `src/ui/actuals/parseSnapshotActualsCommand.ts`, `createSnapshotActualsCardController.ts` | RAF rapide produit `initial` ou `raf-only` par la commande Actuals. À rerouter vers A ; sortie modale évaluée par Application selon R2, handoff membership vers B. |
 | `src/ui/timeline/createTimelineUiCoordinator.ts`, `actualsForecastConflict.ts`, éditeurs Project | Owners indépendants et handoff existants ; gardes RAF/Forecast, nettoyage ciblé après succès. Adapter la sémantique, conserver composition et disposition. |
 | `src/main/planning/createRepositoryPlanningDispatcher.ts` | `prepare` → projection privée → `writeCurrent` CAS → `publish` ; no-op par identité ; recovery et receipts déjà implémentés. |
 | `src/application/persistence/createPlanningRepository.ts` | Decode strict V5 des inputs Current ; comparaison des préfixes Actuals et records legacy hors transaction ; CAS final. Métadonnées History imposent inputsSchemaVersion 1. |
@@ -127,13 +132,30 @@ n'est pas acquise. Les canons ne sont pas modifiés par la présente mission.
    totale ou un membership sur un ancien V5 sans couverture peut toujours
    publier une nouvelle version sans couverture : connaissance réellement changée.
 
-Proposition de confirmations : toute publication B **effective** confirme
-explicitement le RAF de toutes les Teams participantes, même inchangé, et le
-retrait explicite des Teams concernées. Cela complète le minimum actuel
-(changed-through/RAF changé/nouvelle Team) et évite d'assimiler un carry-forward
-à une validation de connaissance. Les cellules consommées restent sélectives,
-avec l'exception Domain-zero existante. A valide les seules valeurs RAF modifiées
-par le geste Apply ; ni formatage ni ouverture ne constituent confirmation.
+### R1 — Confirmation RAF conditionnelle (décision acquise)
+
+Dans Update Actuals, l'ensemble des confirmations RAF requises est l'union de :
+
+- toutes les Teams participantes si la couverture **ou la partition temporelle**
+  change : présence/absence de couverture, bornes, ajout/retrait/split/merge ou
+  changement des intervalles, même si actualsThrough reste identique ;
+- à périodes identiques, les seules Teams dont au moins une consommation exacte
+  change ; si seule Team A change, aucun RAF de Team B à confirmer en plus ;
+- les Teams dont le RAF numérique change par rapport au RAF **courant publié**,
+  et les confirmations propres aux ajouts, retraits et réintroductions existants.
+
+Ces obligations sont cumulatives. Une valeur RAF inchangée peut nécessiter une
+confirmation, par exemple après consommation modifiée. Le RAF courant différent
+du dernier RAF historique n'est pas à lui seul une modification candidate et
+n'étend pas les confirmations à une Team non concernée. Le contexte Domain de
+publication utilise la connaissance sélectionnée et le RAF courant de référence
+pour évaluer R1 ; ne pas réintroduire une comparaison globale au RAF historique.
+Les preuves de consommation restent sélectives avec l'exception Domain-zero
+existante ; les confirmations de membership/retrait du §4 restent obligatoires.
+Une modification concurrente invalide les confirmations dépendant de l'ancienne
+base, puis impose stale/review selon §5. Confirmation, changement numérique et
+formatage sont distincts : ni représentation équivalente ni ouverture de champ
+ne confirment une valeur. A valide ses seules valeurs RAF modifiées par Apply.
 
 ## 3. Décisions d'architecture proposées
 
@@ -202,52 +224,85 @@ Deux patches de Teams différentes peuvent se rebaser si source/membership reste
 identiques ; la commande contrôle toujours ses propres valeurs de référence.
 Deux patches contradictoires du même RAF sont refusés avant projection.
 
+### R2 — Validation du parcours Update Actuals et sélection Application
+
+Conserver le candidat whole-object, `baseVersion`, intent, evidence, membership
+Forecast et caps transportables. Ajouter une **base Current Project explicite** :
+source sélectionnée, membership, map RAF publiée complète et caps pertinents au
+handoff. Base RAM, sérialisations exactes, aucun nouveau champ Domain persisté.
+
+La validation du parcours est un use case Application, testable sans UI. Elle
+sélectionne l'opération effective A/B ou no-op ; aucun nouveau type de commande
+composite n'est introduit. Le payload de validation peut réutiliser le contrat
+candidat existant, mais son origine modale ne signifie pas automatiquement B.
+Le parser UI transmet l'intention complète et ses preuves, sans décider A/B.
+La sélection et la préparation appartiennent à une même opération privée contre
+la même référence Current ; les appels directs Application passent par les mêmes
+contrôles. Aucun dispatch imbriqué ni boucle de publication.
+
+Ordre obligatoire :
+
+1. Initialiser les périodes depuis la connaissance Actuals sélectionnée et les
+   RAF depuis requirements réellement publiés. Copier les RAF dirty de carte
+   dans la branche avec leur provenance ; aucun fallback RAF historique.
+2. Vérifier payload, Project, `baseVersion`/snapshotId/source, base RAF complète,
+   membership et caps contre Current publié. Toute base périmée bloque avant
+   routage, même si le candidat paraît identique. Garder draft et preuves à revoir.
+3. Valider structure, quantités et identités de périodes ; comparer exactement
+   connaissance Actuals candidate/publiée et RAF candidats/courants publiés.
+   Connaissance = participation, retiredZeroTeams, couverture, intervalles et
+   consommés exacts ; une consommation seule est un changement Actuals. RAF,
+   confirmations et metadata techniques sont exclus du comparateur Actuals.
+   Un changement artificiel d'ID ne vaut pas changement métier et reste soumis
+   aux validations d'identité. Fractions réduites équivalentes ne changent rien.
+4. Appliquer la table R2 et les preuves requises pour l'opération retenue ;
+   préparer au maximum un candidat session. Ne pas appeler d'abord A puis B.
+
+| Actuals candidates / publiées | RAF candidats / courants publiés | Opération effective |
+| --- | --- | --- |
+| Inchangés | Inchangés | No-op complet, même state/projection/token ; aucun snapshot ni write |
+| Inchangés | Modifiés | A `update-project-current-raf`, patch des seuls RAF modifiés ; zéro snapshot Actuals |
+| Modifiés | Inchangés | B `replace-project-actuals`, un snapshot Actuals + RAF ; confirmations R1 même si RAF numérique inchangé |
+| Modifiés | Modifiés | B `replace-project-actuals`, un snapshot Actuals + RAF ; union des obligations R1 |
+
+Pour la branche A issue du parcours, conserver les contrôles de la **base complète**
+réalisés avant routage : ne pas perdre la détection d'une révision concurrente de
+RAF non ciblé en réduisant le candidat en patch. Les bases A habituelles restent
+celles du §4.A. Pour no-op, confirmations seules ne créent rien. Un candidat
+reprenant délibérément un ancien RAF différent peut produire A seulement après
+validation de base et geste explicite ; jamais restauration par fallback.
+
 ### B — `replace-project-actuals` (publication Actuals + RAF)
 
-Conserver `baseVersion`, candidat whole-object, intent, evidence, membership
-Forecast et caps transportables. Ajouter une **base Current Project explicite** :
-source sélectionnée, membership, map RAF publiée complète, caps pertinents au
-handoff. Ce n'est pas un champ Domain persisté. Les valeurs de base sont des
-sérialisations exactes ; leur validation ne repose pas sur le DOM.
+B est retenue uniquement si la connaissance Actuals change selon R2. Valider
+intent, horloge et preuves de consommation existantes, puis confirmations RAF
+conditionnelles R1 et membership. Première connaissance native/reconcile explicite
+exige couverture confirmée, éventuellement toute zéro ; RAF seul avant snapshot
+est A et ne change ni migrationStatus ni source legacy. Un payload sans périodes
+ne supprime pas implicitement la source legacy pending : distinguer connaissance
+inchangée et réconciliation/érosion explicitement demandée.
 
-1. Initialiser périodes depuis la connaissance Actuals sélectionnée, RAF depuis
-   requirements réellement publiés. Une capture historique sélectionnée pour
-   lecture ne devient pas une restauration ; B utilise la source courante.
-2. Copier les RAF dirty locaux dans la branche, avec provenance visible ; ce ne
-   sont pas des RAF publiés. Valeur historique différente ne sert jamais de fallback.
-3. Prepare contrôle `baseVersion`/snapshotId/source et base RAF/membership/caps.
-   Toute différence non revue → erreur métier ciblée avant projection. Vérification
-   Application obligatoire pour appel direct, pas seulement garde UI.
-4. Valider candidat complet et preuves. Première connaissance native ou reconcile
-   explicite exige couverture confirmée (éventuellement toute zéro). RAF seul
-   pré-snapshot utilise A, ne change pas migrationStatus ni source legacy.
-5. Déterminer séparément le changement de connaissance Actuals : participation,
-   retiredZeroTeams, couverture, bornes et consommés exacts. RAF et metadata
-   techniques exclus de ce comparateur ; identités de périodes toujours validées.
-6. Si connaissance inchangée et RAF candidat = RAF courant publié : no-op complet,
-   même si snapshot historique a un RAF différent. Ne pas ajouter une version
-   pour rétablir l'égalité. Si connaissance inchangée mais RAF cible différent :
-   refuser cette intention avec « révision RAF courant requise » ; utiliser A
-   explicitement. Aucune conversion implicite B→A et aucun alignement sur l'ancien RAF.
-7. Si connaissance change : `replaceProjectSnapshot` ajoute exactement une version,
-   valide intent/horloge/evidence et préserve tout le préfixe. Confirmer tous les
-   RAF participants ; bâtir requirements depuis le RAF du **snapshot validé**,
-   non une deuxième interprétation du payload ; valider postcondition égalité.
-8. Un candidat session complet, une projection, un writeCurrent CAS, publication
-   unique après commit ; aucun requirement/snapshot publié avant les autres.
+`replaceProjectSnapshot` ajoute exactement une version validée, préserve le préfixe
+et reçoit le contexte RAF courant pour preuves/retrait. Reconstruire requirements
+depuis le RAF du **nouveau snapshot validé**, non une deuxième interprétation du
+payload ; vérifier l'égalité post-publication. Un RAF repris depuis Current reste
+repris, même divergent du dernier snapshot historique : confirmation R1 seulement
+pour les Teams concernées, valeurs explicites conservées, aucun réalignement ancien.
 
-Le no-op B exige aussi que les paramètres Forecast transportés soient inchangés.
-Si seules les daily caps changent, utiliser explicitement `update-project`, sans
-snapshot ; un handoff vide ne doit ni absorber ces changements ni annoncer un
-succès qui les aurait perdus. Aucune commande caps-only n'est convertie en B.
+Une validation effective A ou B prépare une seule projection et un seul
+`writeCurrent` CAS ; publication unique après commit confirmé. Aucun état
+intermédiaire, aucune séquence A→B. Refus/stale/no-op : zéro projection/commit et
+aucune version consommée. Les confirmations ne modifient ni version ni knowledgeDate
+à elles seules. B initial/reconcile/membership/extension/erosion/replace conserve
+son sens ; `raf-only` ancien reste historique, aucun nouveau snapshot par RAF seul.
+Le helper historique peut servir aux fixtures/validations anciennes mais pas à un
+chemin de mutation production raf-only. Reservation : contrat inchangé, aucun RAF.
 
-Les confirmations ne créent pas une version seules. Même candidat métier ne
-change ni version ni knowledgeDate. Stale/refus ne consomme aucun ID.
-Pour B effectif, initial/reconcile/membership/extension/erosion/replace conservent
-leur sens ; `raf-only` n'est plus une commande de publication nouvelle. Le helper
-historique peut rester disponible pour fixtures/validation de transitions anciennes
-mais ne doit être accessible à aucun chemin de mutation de production.
-Reservation : contrats inchangés, aucun RAF ni commande A.
+La table R2 suppose les paramètres Forecast transportés inchangés ou valides dans
+un handoff B de membership. Si seules les daily caps changent, utiliser explicitement
+`update-project`, sans snapshot. Si caps et RAF changent sans nouvelle connaissance,
+conserver la garde/séquencement des champs Forecast : ne pas absorber les caps
+dans A ni annoncer un no-op qui les perdrait. Aucune commande composite supplémentaire.
 
 ### Retrait, réintroduction et legacy
 
@@ -298,8 +353,9 @@ pas JSON de scalars WeakMap (qui ne représente pas les quantités).
 Une base modifiée déclenche rebase même si version Actuals inchangée. Comparer
 par IDs, pas indices seuls ; nouvelle Team/liste réordonnée est détectée.
 Modale ouverte : aucun rebase silencieux, stale et revue explicite. RAF repris
-ou fusionnés nécessitent confirmations renouvelées. Ne pas fabriquer evidence
-pour une valeur distante nouvellement adoptée. Changement Actuals concurrent :
+ou fusionnés invalident les confirmations dépendantes ; renouveler celles requises
+par R1 et membership après revue, sans confirmation globale automatique. Ne pas
+fabriquer evidence pour une valeur distante nouvellement adoptée. Changement Actuals concurrent :
 conserver le rebase sûr existant pour champs disjoints et partition identique,
 mais avancer baseVersion seulement après merge validé. Partition modifiée par
 une branche ou membership divergent → stale ; aucun changement de date masqué.
@@ -451,8 +507,8 @@ n'est jamais modifiée par A/B ; Save demeure séparé et dirty-guarded.
 | 2. Première connaissance Actuals | B initial, couverture zéro ou positive explicitement confirmée, RAF courant comme base puis RAF confirmé ; exactement v1 | 1/1, alignement atomique, T=through |
 | 3. Ancien RAF-only | Snapshot/ID/version restent valides ; A ne crée ni v+1 ni couverture ; prochaine connaissance couverte via B | A effectif 1/1, T=null si source sans couverture ; historiques inchangés |
 | 4. Révision après Actuals | Requirements seuls changent, divergence valide avec snapshot courant | 1/1 ; T et reconstruction identiques ; nouveau RAF utilisé après T |
-| 5. B après plusieurs A | Base = dernier RAF publié, jamais RAF du dernier snapshot ; B confirme RAF choisi | Un seul snapshot en plus et 1/1 ; aucun historique des A inventé |
-| 6. Rectification/érosion après A | B reprend RAF courant ; preuves et nouveaux IDs nécessaires ; érosion totale peut enlever coverage, pas history | 1/1, equality nouveau snapshot/requirements ; nouvelle T ou null, aucun maximum historique |
+| 5. Nouvelle connaissance après plusieurs A | Base = dernier RAF publié, jamais RAF du dernier snapshot ; Application retient B, confirmations R1 conditionnelles | Un seul snapshot en plus et 1/1 ; aucun historique des A inventé |
+| 6. Rectification/érosion après A | B reprend RAF courant ; consommation seule à périodes identiques confirme RAF des seules Teams affectées ; couverture/partition modifiée confirme tous ; preuves/IDs préservés | 1/1, equality nouveau snapshot/requirements ; nouvelle T ou null, aucun maximum historique |
 | 7. RAF courant zéro | Requirement membre conservé ; ancienne valeur historique reste ; zéro ne vaut pas retrait ni absence de couverture | A effectif 1/1, aucun Forecast de cette Team ; actualOccupation/T conservés |
 | 8. Team ajoutée | Avant source dépendante : update-project membership/RAF initial explicite, pas V5 ; après V5 ou legacy dépendant : handoff B, cellules toutes explicites | 1/1 ; B un snapshot et égalité ; source none ne devient pas V5 par ajout autonome |
 | 9. Retrait consommés tous zéro | Après V5 : B membership + marqueur + confirmation RAF courant/ancien, requirement absent ; nonzero refusé | Succès 1/1 et un snapshot ; refus 0/0 ; Team historique non supprimable |
@@ -461,7 +517,14 @@ n'est jamais modifiée par A/B ; Save demeure séparé et dirty-guarded.
 | 12. V4 réconcilié, V5 conservé | A diverge de V5 ; B prend ce RAF courant, V4 reste preuve ; pas de cumul double | 1/1, borne/reconstruction V5 seulement |
 | 13. Project inactif | A/B permis avec validations identiques ; snapshots/RAF enregistrés, position priorité conservée | 1/1 ; aucune allocation Forecast ni progress actif ; Actuals contribue toujours à occupation |
 | 14. Plusieurs cartes dirty | Bases séparées ; succès nettoie cible seule ; autres rebase/stale ; Save bloqué tant que dirty | Une opération effectue 1/1 ; saisie/autres cartes 0/0 ; failure garde toutes les branches |
-| 15. Commande identique publié | A exact canonique no-op ; B connaissance identique + RAF publié identique no-op même si historique diverge ; base stale refusée | 0/0, mêmes state/projection/token/history/IDs ; aucun passage implicite à V5/schema 2 |
+| 15. Validation identique publié | R2 no-op après contrôle bases, y compris texte équivalent et RAF historique divergent ; confirmations seules inertes ; base stale refusée | 0/0, mêmes state/projection/token/history/IDs ; aucun passage implicite à V5/schema 2 |
+
+Cas additionnel Update Actuals : connaissance strictement inchangée + RAF modifié
+→ Application choisit A, requirements seuls, zéro nouveau snapshot, 1/1. Une
+consommation modifiée avec RAF numérique inchangé mais confirmé selon R1 → B,
+un snapshot et 1/1 ; aucune confirmation supplémentaire de Team non concernée
+à partition identique, sauf membership. La table R2 s'applique aussi aux Projects
+inactifs et aux anciens RAF-only, sans changement des invariants de projection.
 
 Une réaffirmation du seul RAF historique différent est une intention A explicite,
 jamais un effet secondaire de Cancel, import, érosion ou ouverture de modale.
@@ -476,9 +539,9 @@ Inventaire prévisionnel, pas autorisation actuelle. Les tests restent près des
 | --- | --- |
 | Domain `model/entities.ts`, `actuals/requirements.ts`, `actuals/transition.ts`, `domain/index.ts` | Lever verrous numériques courants, isoler contrôles legacy, contexte retrait RAF courant, comparateur connaissance, contrat publication nouvelle ; exports minimaux |
 | Domain `actuals/snapshots.ts` | Contrats historiques conservés ; seulement ajustement documentaire/type si indispensable, pas nouveau champ RAF |
-| Application `session/planningSession.ts`, `application/index.ts` | Commande A, bases A/B obligatoires, patch requirements, contrôle direct, no-op B séparé, alignement postcondition ; update-project préserve RAF untouched |
+| Application `session/planningSession.ts`, `application/index.ts` | Commande A, bases A/B obligatoires, patch requirements, contrôle direct, sélection R2 privée A/B/no-op indépendante UI, preuves R1, alignement postcondition ; update-project préserve RAF untouched |
 | Application `session/projectEditViewModel.ts`, `snapshotActualsViewModel.ts` | RAF courant et base exacte explicites ; supprimer routage gouverné par latest-actuals |
-| UI `actuals/snapshotActualsDraftStore.ts`, `parseSnapshotActualsCommand.ts`, `createSnapshotActualsCardController.ts`, `actualsForecastConflict.ts` | Base immutable RAM, rebase RAF sans version nouvelle, preuves, quick A, modal B ; pas refonte visuelle |
+| UI `actuals/snapshotActualsDraftStore.ts`, `parseSnapshotActualsCommand.ts`, `createSnapshotActualsCardController.ts`, `actualsForecastConflict.ts` | Base immutable RAM, rebase RAF sans version nouvelle, preuves R1, quick A, candidat modal vers routage Application R2 ; pas refonte visuelle |
 | UI `project-edit/projectDraftStore.ts`, `parseProjectEditCommand.ts`, `createProjectEditController.ts`, `timeline/createTimelineUiCoordinator.ts` | Base/patch RAF, champs untouched préservés, sync owners, séquencement et handoff ; création garde RAF initial explicite |
 | Backup `planningInputCodec.ts`, `flowplanBackupV6.ts`, `flowplanBackupV7.ts`, nouveau `flowplanBackupV8.ts`, `flowplanBackupV1.ts`, `portableBackupParts.ts`, `planningBackupDataset.ts` | Dispatch de schéma/version, ancienne validation numérique, encodeur moderne, downgrade guards, strict round-trip schéma adapté |
 | Domain `portfolioSnapshots/portfolioSnapshot.ts` et Application `capturePortfolioSnapshot.ts` | Inputs 1/2, hydrate versionné, sources exactes ; forecast schémas/totaux/moteur inchangés |
@@ -498,12 +561,12 @@ pas la preuve async/native. Aucun CSS, dépendance ou nouveau script nécessaire
 
 | Étape | Travail et dépendances | Gate pour poursuivre |
 | --- | --- | --- |
-| P0 — contrat audité | Arrêter choix confirmations/no-op B/versionnement et payloads ; identifier assertions anciennes ; caractériser baseline sans production | Audit ChatGPT favorable et autorisation explicite ; aucun développement avant |
+| P0 — contrat audité | Intégrer décisions acquises R1/R2 ; auditer versionnement et payloads ; identifier assertions anciennes ; caractériser baseline sans production | Audit ChatGPT favorable et autorisation explicite ; aucun développement avant |
 | P1 — compatibilité en premier | Isoler validation numérique ancienne, codec inputs 1/2 et V8, strict round-trip par schéma, downgrade ; lire tous les anciens fixtures | Anciennes données inchangées, anciennes divergences toujours rejetées ; nouveau discriminant inconnu refuse proprement |
 | P2 — Domain séparé | Lever les deux verrous numériques, garder membership/provenance/IDs ; contexte RAF courant retrait et comparateur connaissance | Factories acceptent divergence cible, refusent violations restantes ; anciens snapshots raf-only toujours valides |
-| P3 — commandes A/B | Base métier obligatoire et prepare ; A patch, B no-op/new knowledge/égalité, première connaissance, handoff | Tests appels directs, stale et no-op ; exactement un candidat, aucun état intermédiaire |
+| P3 — commandes A/B | Base métier obligatoire et prepare ; A patch, sélection Application R2, B new knowledge/égalité, confirmations R1, première connaissance, handoff | Quatre branches R2 sans UI, preuves R1, stale avant routage ; au maximum un candidat/projection/CAS, aucun état intermédiaire |
 | P4 — repository/captures | Current opaque schema 2, sources/prefixes schema 1/2, metadata, worker/import/export ; CAS/receipts/recovery conservés | Round-trip mixte, import invalide atomique, 11D.0 rollback/recovery ; aucun rewrite History/format physique |
-| P5 — wiring et drafts minimaux | quick RAF→A, modale→B, base RAF réelle, trois voies, preuves/review, update-project untouched | Deux A, A→B, B→B, membership, multidrafts et onglet ; saisie zéro moteur/write, aucune refonte de carte |
+| P5 — wiring et drafts minimaux | quick RAF→A, modale→validation Application R2, base RAF réelle, trois voies, preuves/review, update-project untouched | Deux A, A→B, B→B, membership, multidrafts et onglet ; saisie zéro moteur/write, aucune refonte de carte |
 | P6 — intégration et documentation | Validation complète, storage navigateur isolé, ancienne History et 11C, examen final de portée ; canons ciblés futurs | Tous critères §10 ; livraison IN REVIEW pour audit, jamais auto-DONE ; aucun replay/11D.2/11D.3 |
 
 P1–P4 peuvent être préparés successivement mais leur activation en production
@@ -527,12 +590,17 @@ compteurs projection/write/snapshot vérifiés, pas seulement résultat visuel.
 | D5 Domain | Extension/rectification/split/merge/érosion/totale après révision RAF | Intent, hors-zone, identités, exact zero propagation, coverage≤knowledgeDate préservés ; contexte courant pour confirmations |
 | A1 Application | A avant/après Actuals, legacy, inactive, multi-Team | Requirements ciblés seuls changent, histories/legacy/source/caps inchangés ; aucun snapshot, une projection/write effectifs ; session + dispatcher |
 | A2 Application | A target équivalent (`2/6` vs `1/3`), zéro, gros rationnels ; base stale même target=current | No-op exact même state/projection/token, zéro clock/write ; stale refus avant projection ; pas premier V5 |
-| A3 Application | B après plusieurs A, through inchangé/modifié, extension/rectification/érosion | Candidat RAF depuis dernier Current, tous RAF confirmés, exactement une version, requirements égaux nouveau snapshot, 1 projection/1 write |
-| A4 Application | B connaissance identique et RAF courant divergent de l'historique ; target ancien historique | No-op si target=current ; target différent refuse orientation RAF seule ; aucune version ni restauration implicite |
+| A3 Application | Nouvelle connaissance après plusieurs A ; RAF courant divergent du dernier historique ; extension/rectification/érosion | B reprend les RAF courants explicitement validés selon R1, sans restauration historique ; exactement une version, requirements égaux nouveau snapshot, 1 projection/1 write |
+| A4 Application | Update Actuals strictement inchangés ; RAF modifié ou inchangé, historique divergent ou non | R2 choisit A si RAF modifié : zéro snapshot, 1 projection/1 write ; sinon no-op complet ; bases vérifiées avant routage, aucune restauration implicite |
 | A5 Application | Premier V5 natif/reconcile explicite, RAF seul initial, membership source none/V5/legacy | Première couverture validée crée v1 ; simple RAF ne crée pas v1 et ne réconcilie pas ; handoff contrôlé |
 | A6 Application | update-project ancien draft untouched RAF ; révision cachée ; caps/date/name changé | RAF publié préservé pour untouched ; révision cachée refuse ; membre ajouté RAF explicite ; pas écrasement par whole-object |
+| R1a Domain/Application | Consommation Team A modifiée, périodes identiques, RAF numérique inchangé ; Team B inchangée | B et confirmation RAF A uniquement, sauf membership ; manque de preuve A refuse ; absence de confirmation B n'empêche pas publication ; preuves consommées conservées |
+| R1b Domain/Application | Bornes from/through, couverture ou partition split/merge modifiées ; through éventuellement identique | Confirmation de tous les RAF participants, même valeurs inchangées ; absence de toute preuve requise refuse sans mutation |
+| R1c Domain/Application | RAF numérique modifié, membership ajout/retrait/réintroduction, confirmations après concurrence | Union obligations R1/membership ; formatage ne confirme pas ; preuve fondée sur ancienne base invalidée et revue nécessaire |
+| R2a Application sans UI | Quatre couples Actuals/RAF identiques ou différents ; consommation seule compte comme Actuals | Respectivement no-op, A, B, B ; snapshots 0/0/1/1, projections et commits 0/1/1/1 ; aucun enchaînement A→B |
+| R2b Application sans UI | RAF texte `2/6` vs `1/3`, consommés équivalents, confirmations seules ; bases RAF/Actuals/membership périmées avec target apparent identique | No-op complet seulement bases valides ; équivalence exacte sans faux changement ; stale avant sélection, zéro projection/commit |
 | C1 Drafts | Deux A même Team contradictoires, disjoints, mêmes valeurs équivalentes | Conflit ciblé ou merge sûr, convergence no-op après revue ; textes/bases préservés, pas compteur persistant |
-| C2 Drafts/Application | A puis B ancien baseVersion identique ; B puis A ; deux B | Contrôle base RAF et source, refus direct prepare même sans UI ; rebase sûr/version explicite, aucune perte consommés ; workflow/session |
+| C2 Drafts/Application | Révision RAF concurrente pendant Update Actuals, baseVersion identique ; nouvelle Actuals puis A ; deux Actuals | Stale/review avant routage R2 même no-op apparent, preuves dépendantes invalidées ; contrôle direct Application sans UI ; textes/consommés/branches conservés, aucune perte de draft |
 | C3 Drafts | Changement membership/RAF, ajout/retrait Team, modale ouverte, rafConfirmed auparavant | Stale structurel ; review explicite et preuves invalidées ; Team dirty retirée jamais ignorée |
 | C4 UI intégration | Plusieurs cartes dirty, carte différente appliquée, RAF carte et branche modal, Cancel/Escape/remount/History suspend | Nettoyage cible seul, branche restaurée exactement, dirty/Save cohérents ; pas recalcul durant saisie/tab/collapse/review ; coordinator multidraft |
 | T1 Main/repository | Validation invalide, projection qui lève, encode/refus avant commit | Même state/projection/token, aucune write ; drafts présents ; dispatcher async/transactions |
@@ -542,7 +610,8 @@ compteurs projection/write/snapshot vérifiés, pas seulement résultat visuel.
 | K2 Compatibilité | V8 divergent, V4 pending/réconcilié, anciens raf-only, zéro/fractions longues | encode/decode profondément égal ; strict par schéma, unknown/fields en trop refusés ; downgrade refuse perte |
 | K3 Portfolio | Anciennes captures inputs1 forecast1/2 `/1` overlap et `/2`, nouvelles inputs2 divergentes, collection mixte | Anciennes captures/metadata/digests inchangés, pas enrichissement/replay ; totaux sur RAF capturé, pas snapshot.raf ; Portfolio/dailyProfiles/History tests |
 | K4 Références | Capture référence ancien snapshot après A et B, membership ultérieur, owner absent/prefix modifié | Résolution ID/préfixe exacts ; broken references/refus immutable owned ; identité historique réservée ; validateStoredSnapshot/repository |
-| K5 Repository/import | Startup ancien sans rewrite, no-op A ancien, Save inputs2 avec Current ancien, staged V8/ancien/invalid middle, export/reimport | Zéro conversion persistée startup/no-op ; Save History seul ; activation entière seulement après preflight, source/raw/fingerprint préservés |
+| K5 Repository/import | Startup ancien sans rewrite, no-op A ancien, staged V8/ancien/invalid middle, export/reimport | Zéro conversion persistée startup/no-op ; activation entière seulement après preflight, source/raw/fingerprint préservés |
+| K6 Repository/import/export — bloquant | Current ancien sans discriminant + nouvelles captures inputs2 ; Current nouveau inputs2 + anciennes captures inputs1 forecast1/2 ; collections mixtes | ReadCurrent/readSnapshot/validation worker/export V8/import staged/read-back/activation/reopen réussissent ; RAF et sources exacts, préfixes/IDs/profils/digests anciens conservés ; Save History seul ne réécrit pas Current ancien, A ne réécrit pas captures anciennes ; aucune normalisation destructive ni replay |
 | F1 11C moteur/intégration | RAF indépendant après covered-zero, borne fin horizon/9999, earliest avant/après T, Mandatory, érosion totale/partielle | Pour chaque allocation positive de toutes Teams date>T ; aucune borne modifiée par A ; aucun Forecast historique corrigé ; `lot11cTemporalSeparation.test.ts` et moteur existants |
 | F2 Projection/metrics | Inactive, RAF0, horizon bloqué, grande fraction, reconstruction actuelle après A | Actuals/occupation identiques ; RAF/EAC/progress nouveau run exact ; Forecast jamais réduit de nouveau par consommé |
 | S1 Storage/portée | A/B avec nombreuses captures ; simple saisie ; Save/Delete | Aucun read/write payload History pour Current ; History revision/content inchangés ; Save/Delete zéro moteur et pas rewrite Current ; gates 11D.0 |
@@ -576,10 +645,13 @@ sans double compter les suites ciblées. N'annoncer aucun gate ici comme exécut
 
 Acceptation bloquante : D1–S1 passants ; RAF unique requirements, snapshots anciens
 inchangés, égalité post-publication B, divergence A valide ; A/saisie sans snapshot,
-B une seule version si connaissance change ; no-op zéro travail ; aucun ancien
-RAF recopié ; bases/RAM/CAS distincts ; failures/recovery 11D.0 inchangés ; toute
+R1 conditionnel et quatre branches R2 prouvées sans UI ; B une seule version si
+connaissance change, consommation seule comprise ; chaque validation au maximum
+une mutation/projection/commit CAS ; no-op zéro travail après contrôle bases ;
+aucun ancien RAF recopié ; bases/RAM/CAS distincts ; failures/recovery 11D.0 inchangés ; toute
 donnée ancienne valide acceptée sans réécriture destructive ; nouveaux formats
-explicites ; identités/sources exactes ; Forecast strictement après couverture.
+explicites ; K6 mixte Current/captures bloquant en repository/import/export ;
+identités/sources exactes ; Forecast strictement après couverture.
 Le diff futur ne contient ni replay ni formats inputs-only ni travail UX hors
 wiring nécessaire. Livraison pour audit d'implémentation, pas fermeture autonome.
 
@@ -587,8 +659,8 @@ wiring nécessaire. Livraison pour audit d'implémentation, pas fermeture autono
 
 | Risque / décision proposée à auditer | Réponse et limite |
 | --- | --- |
-| Confirmation de tous RAF à chaque B effectif | Proposition volontairement plus explicite que 10C.1 ; nécessite validation de l'audit, pas une exigence métier déjà canonisée |
-| B sans changement Actuals mais RAF différent | Proposer refus orienté A, jamais snapshot ou alignement silencieux ; clarification du no-op quand Current diverge |
+| Confirmation RAF trop large ou manquante | Décision R1 acquise : couverture/partition → tous ; consommation seule → Teams affectées ; union RAF numérique/membership, aucune confirmation automatique par formatage |
+| Routage lié à la modale plutôt qu'au métier | Décision R2 acquise : Application contrôle bases puis compare exactement et choisit no-op/A/B ; quatre branches testées sans UI, une seule transaction effective |
 | Première connaissance native/reconcile couverte | Proposition de commande : RAF seul reste A ; les données historiques sans couverture et érosions totales restent valides ; auditer cette restriction des nouveaux appels |
 | V8 + inputs2 + discriminant Current | Choix recommandé pour rupture sémantique ; accepter en audit la portée logique codecs/worker/metadata tout en gardant physique IDB inchangé |
 | Ancien logiciel sur dépôt nouveau | Discriminant ferme bloque lecture/édition ; ancien raw localStorage reste disponible et conflit legacy conservé ; ne pas promettre compatibilité d'écriture descendante |
@@ -602,7 +674,8 @@ wiring nécessaire. Livraison pour audit d'implémentation, pas fermeture autono
 
 Aucun arbitrage supplémentaire n'est nécessaire pour l'autorité requirements,
 l'immuabilité historique, l'alignement atomique de B ou la conservation des raf-only :
-ils sont fixés par le mandat. Les choix ci-dessus sont concrets et soumis à audit,
+ils sont fixés par le mandat, comme les décisions R1/R2 de ce durcissement. Les
+autres choix ci-dessus restent concrets et soumis à audit,
 sans démarrer l'implémentation. Hors périmètre : tableau compact, nouveau rendu
 numérique, refonte modale, service replay, inputs-only, cache History, optimisations
 IndexedDB et lots 11D.2/11D.3.
