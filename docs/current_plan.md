@@ -1,5 +1,24 @@
 # FlowPlan2 current plan
 
+## Trajectoire documentaire active — Portfolio versionné (PLAN ONLY)
+
+La mission du 2026-10-09 à la baseline documentaire
+`1128246c101701b653569b62ca015d04366a2f79` formalise le
+[plan architectural et de faisabilité](./steps/PORTFOLIO_VERSIONED/architecture_plan.md).
+Il confronte les 23 invariants demandés aux contrats réels, explicite les arbitrages,
+la migration V4–V8, les risques et les gates des sept lots proposés.
+Aucun nouveau lot commencé, implémenté ou DONE ; aucune implémentation autorisée.
+
+La cible normalisée remplace la proposition 11D.2 de configurations copiées dans
+les captures : Current et nouvelles captures deviennent des manifestes de refs
+exactes vers des versions immuables de toutes les entités nécessaires. Les acquis
+validés 11D.0, 11D.1 et 11D.2/G1 restent préservés. Les sections anciennes ci-dessous
+restent des enregistrements de livraison et de trajectoire antérieure ; les choix
+« configurations copiées / normalisation hors scope » ne sont plus la cible active.
+11D.3 est remplacé par contrats/persistance/bascule ; 11D.4 rebasé en moteur/service ;
+11D.5 reporté à la consultation puis aux comparaisons sur le nouveau service.
+Arbitrages et audit du plan requis avant tout lot d'implémentation.
+
 Current validated baseline:
 `ee66a72cb6073c753681af95acae5122f93f13d3` (11D.2 G1 proof implementation validated by
 favorable independent audit; documentary DONE closure authorized by the user on 2026-10-09)

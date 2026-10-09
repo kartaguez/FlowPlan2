@@ -7,6 +7,16 @@ For durable invariants and architecture, see [canon](./canon.md).
 active implementation and trajectory. The remaining work is in the
 [current plan](./current_plan.md).
 
+## Nouvelle étude architecturale — PLAN ONLY
+
+Le [plan Portfolio versionné](./steps/PORTFOLIO_VERSIONED/architecture_plan.md)
+a été rédigé à la baseline `1128246c101701b653569b62ca015d04366a2f79`.
+Il décrit une cible demandée par l'utilisateur et des propositions à arbitrer,
+aucun contrat implémenté. Le code et les formats restent ceux décrits ci-dessous ;
+les acquis 11D.0/11D.1/11D.2 sont conservés. La nouvelle trajectoire remplace la
+cible copiée de 11D.2, sans changer sa preuve G1 ; voir le
+[current plan](./current_plan.md). Aucun lot nouveau commencé ou DONE.
+
 ## 11D.1 UX — DONE
 
 Authorized implementation from `075b2a6c18175eabdcbdb401556a81591f32635f`, after
