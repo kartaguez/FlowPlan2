@@ -51,7 +51,8 @@ plus Lot 11A.2 exact daily profiles and V7 persistence.
 - 11C Actuals / Forecast separation (DONE — explicit user closure).
 - 11D.0 Storage Architecture & Scalability (DONE — favorable independent audit and explicit user closure).
 
-Current trajectory: **11D.0 — Storage Architecture & Scalability (DONE)**;
+Current trajectory: **11D.1 — UX Actuals & RAF (PLANNED / NOT STARTED)**;
+**11D.0 — Storage Architecture & Scalability remains DONE**;
 **11B — Project History view is DONE**, following validated DONE
 11A.2. See the
 [detailed implementation plan](./steps/HISTORY/lot11a2_11b_plan.md).
@@ -64,7 +65,9 @@ Current trajectory: **11D.0 — Storage Architecture & Scalability (DONE)**;
 10A (DONE) → 10B (DONE) → 10C (DONE) → 10C.1 (DONE) → 10C.2 (DONE)
 11A (DONE) → 11A.2 (DONE) → 11B (DONE)
 11C: DONE — Actuals / Forecast temporal separation
-11D.0: DONE — Storage Architecture & Scalability; no other lot started
+11D.0: DONE — Storage Architecture & Scalability
+11D.1: PLANNED / NOT STARTED — UX Actuals & RAF; documentation only
+11D.2 / 11D.3: NOT STARTED — outside this planning mission
 11A.1: DEFERRED / not adopted as product work; no dependency for 11B
 10D: superseded by 11A (not DONE)
 10E: largely superseded by 11B; advanced replay/navigation/comparison deferred
@@ -75,6 +78,27 @@ starting HEAD `507e85d5af8ed3158f9ce449e2e354609212e7b5`, clean and synchronized
 with origin (0/0) after fetch. The 11A.2 canon records the completed capture and
 755-test validation. That review was documentation-only. The subsequent authorized implementation
 was then IN REVIEW; explicit user closure subsequently marked 11B DONE.
+
+## 11D.1 — UX Actuals & RAF
+
+**Status: PLANNED / NOT STARTED.** Documentation-only planning authorized on
+2026-10-09, branch `codex/lot11a-portfolio-snapshots`, verified starting HEAD
+`05115e4df6ec59c1a045801389e310529634bb9c`, clean and origin 0/0 after fetch.
+See the [detailed plan](./steps/ACTUALS/lot11d1_plan.md).
+
+Scope: exact decimal input with point/comma and preserved rational fractions;
+compact Project/Reservation Actuals summaries with one global period, exact
+Team totals and Project quick RAF through existing card Apply/Cancel. Preserve
+the existing Actuals modal, evidence, independent RAM drafts, Forecast handoff,
+async Current/CAS commit and recovery contracts. No Domain, engine, Forecast
+semantics, History, IndexedDB/CAS or V7 format change is proposed. Technical
+resource protections require measured justification and must not silently limit
+business precision. The plan includes component/data maps, ordered gates and
+a detailed test matrix; no implementation or tests have started.
+
+11D.0 remains **DONE**. Independent ChatGPT audit of this plan and subsequent
+explicit implementation authorization are required. Stop after documentary
+commit/push; 11D.2/11D.3 remain NOT STARTED and outside this mission.
 
 ## 11D.0 — Storage Architecture & Scalability
 
