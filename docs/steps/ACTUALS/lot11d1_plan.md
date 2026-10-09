@@ -1,12 +1,15 @@
 # Lot 11D.1 — UX Actuals & RAF
 
-**Statut : 11D.1 UX — IN REVIEW.**
+**Statut : 11D.1 UX — DONE.**
 Audit indépendant favorable avec trois réserves mineures, intégrées ci-dessous
 le 2026-10-09. Autorisation utilisateur : amendement committé/poussé avant A → E,
 implémentation et validations complètes, livraison **IN REVIEW** sans clôture.
 **11D.0 DONE ; 11D.1 RAF Model DONE**, corrections V1/V2/R1 normatives.
 A → E implémentées et validées : [livraison pour audit](./lot11d1_ux_review.md).
-Aucune clôture DONE ; arrêt pour audit indépendant ChatGPT.
+Clôture conditionnelle autorisée après audit indépendant d'implémentation
+favorable et vérification finale S1–S6 concluante le 2026-10-09.
+[Canon de clôture et gates finaux](./lot11d1_ux_canon.md).
+Les étapes de plan/livraison IN REVIEW ci-dessous restent historiques.
 
 ## 1. Baseline Git vérifiée
 
@@ -770,3 +773,35 @@ réserves audit, status Git/origin. Commit et push normaux sur la branche exista
 
 **Statut attendu : 11D.1 UX — IN REVIEW**, arrêt pour audit indépendant ChatGPT.
 Aucun DONE automatique, aucun autre lot commencé.
+
+
+## 15. Vérification finale et clôture autorisée — 2026-10-09
+
+Baseline attendue/réelle `0d73ad950f0ee17f896e4e7d1d9b60258b23d229`,
+fetch réussi, branche attendue, arbre propre, origin 0/0. Audit indépendant
+favorable rapporté par l'utilisateur ; autorisation explicite de clôturer si
+la vérification Cancel carte et tous les gates passent.
+
+S1/S2 Forecast puis RAF et inverse : deux owners abandonnés, exact publié
+restitué après fermeture/réouverture et remount. S3 : B garde Forecast, texte RAF
+invalide et bases RAM. S4 compatible/stale : dernier Current publié restitué,
+aucun ancien conflit/base réintroduit. S5 : refus certain conserve drafts/erreurs,
+puis Cancel les abandonne sans dispatch. S6 : Cancel modal garde les drafts carte ;
+Cancel carte reçu pendant une modale est bloqué avant tout nettoyage.
+
+Défaut S6 reproduit rouge avant correction : le handler Forecast nettoyait avant
+le callback RAF sans consulter la garde modale. Ajout minimal `canCancel` au
+contrôleur Project, branché sur `!isModalOpen()` existant du coordinateur.
+Apply/handoff/review et stores métier inchangés ; aucun changement Domain,
+Application, moteur, commande, codec, repository ou persistance.
+
+Six nouvelles régressions Node ; tests ciblés 80/80 inclus dans 1055/1055 Node
+(96 suites), portable 3/3 ; typecheck/build/diff check exit 0 ; stockage natif
+15 assertions + UI/upgrade/layout/quota injectée ; audit natif 22/22 ; RAF natif
+11/11 V1/V2/R1 + UX 4/4 dont S1/S2 renforcés. Aucun test retiré/affaibli/skippé.
+Implémentation `0b70e4888e3c8e3b9881ed62ccc91654546a9590`, puis commit documentaire
+distinct de clôture ; SHA final identifié par ce commit Git et fourni à la livraison
+(pas d'auto-référence impossible du commit dans son propre contenu).
+
+**Décision : 11D.1 UX — DONE.** Réserves de mesure/recovery existantes conservées,
+rapport IN REVIEW intact, aucun autre lot commencé.

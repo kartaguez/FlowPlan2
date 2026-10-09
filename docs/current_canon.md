@@ -7,7 +7,7 @@ For durable invariants and architecture, see [canon](./canon.md).
 active implementation and trajectory. The remaining work is in the
 [current plan](./current_plan.md).
 
-## 11D.1 UX — IN REVIEW
+## 11D.1 UX — DONE
 
 Authorized implementation from `075b2a6c18175eabdcbdb401556a81591f32635f`, after
 favorable independent plan audit and separate R1/R2/R3 documentary commit/push.
@@ -22,14 +22,25 @@ long decimal/rebase costs without changing precision, proof or authority.
 A pristine Project Apply uses existing A base validation/no-op, avoiding a
 redundant Forecast write; any Forecast change retains its existing command path.
 
-Gates: typecheck/build/diff check, 1049/1049 Node tests (96 suites), 3/3 portable,
+Final gates: typecheck/build/diff check, 1055/1055 Node tests (96 suites), 3/3 portable,
 native storage (15 repository assertions plus UI/upgrade/layout/injected quota),
 22/22 storage audit, 11/11 V1/V2/R1 and 4/4 mounted UX scenarios. No skip/failure.
 Screenshots and native keyboard reviewed at 1440/390 px. Requirements authority,
 A/B/R2 and R1 proofs, V1/V2, RAM bases, confirmed publication, immutable snapshots,
 V1–V8 mixed captures and 11C remain intact. Domain, commands, engine and storage
 formats/CAS unchanged. This supersedes the unimplemented exact UX statements in
-historical prerequisite deliveries below. No DONE closure or following lot.
+historical prerequisite deliveries below.
+Following the favorable independent implementation audit reported by the user,
+the authorized final mixed Forecast/RAF Cancel verification passes S1–S6.
+A delivered Cancel card event during an open modal exposed a missing handler
+guard: the Project controller now checks the coordinator's existing modal gate
+before cleaning either owner. Six added Node regressions and strengthened native
+S1/S2 cover scoped discard, pristine reopening/remount, compatible/stale rebase,
+certain command refusal, proof/error cleanup and modal branch preservation.
+[Final closure, evidence and limits](./steps/ACTUALS/lot11d1_ux_canon.md).
+Baseline `0d73ad950f0ee17f896e4e7d1d9b60258b23d229`;
+implementation `0b70e4888e3c8e3b9881ed62ccc91654546a9590`.
+11D.1 UX is DONE by the user's conditional closure; no following lot started.
 
 ## 11D.1 RAF Model — DONE
 

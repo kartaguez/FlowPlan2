@@ -1,0 +1,448 @@
+11D.1 UX final verification — 2026-10-09
+Baseline: 0d73ad950f0ee17f896e4e7d1d9b60258b23d229
+Implementation: 0b70e4888e3c8e3b9881ed62ccc91654546a9590
+
+Red-before correction: integrated S6 event during open modal
+2 passing mixed-draft cases, 1 failing S6 case.
+Assertion: Forecast owner reference unchanged. Actual name Project Atlas; expected Local Forecast.
+Green-after correction: 5/5 integrated final scenarios, followed by 1 additional controller/store regression.
+
+Initial sandbox browser attempts: exit 1 (listen EPERM 127.0.0.1).
+Rerun with approved localhost/native browser execution: all three gates exit 0.
+No gate substituted or disabled.
+
+$ node --test .test-dist/ui/actuals/createSnapshotActualsCardController.test.js .test-dist/ui/actuals/actualsWorkflow.test.js .test-dist/ui/project-edit/createProjectEditController.test.js .test-dist/ui/project-edit/projectDraftStore.test.js .test-dist/ui/timeline/createTimelineUiCoordinator.test.js .test-dist/ui/timeline/createTimelineUiCoordinator.multidraft.test.js
+Exit: 0
+✔ Timeline UI coordinator (25.666416ms)
+ℹ tests 80
+ℹ suites 4
+ℹ pass 80
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 550.166459
+
+$ npm run typecheck
+Exit: 0
+
+> flowplan@0.1.0 typecheck
+> tsc -p tsconfig.app.json --noEmit
+
+
+$ npm test
+Exit: 0
+✔ TimelineViewport (2.587833ms)
+ℹ tests 1055
+ℹ suites 96
+ℹ pass 1055
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2313.923625
+
+$ npm run build
+Exit: 0
+
+> flowplan@0.1.0 build
+> node scripts/build.mjs
+
+
+$ npm run test:portable
+Exit: 0
+
+> flowplan@0.1.0 test:portable
+> node --test scripts/portable-server.test.cjs
+
+✔ serves embedded web assets with correct headers (0.427ms)
+✔ HEAD omits the body and keeps the asset length (0.067125ms)
+✔ rejects other hosts, methods, and unknown assets (0.06225ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 38.802542
+
+$ npm run test:storage
+Exit: 0
+
+> flowplan@0.1.0 test:storage
+> npm run build && node scripts/browser-storage-test.mjs
+
+
+> flowplan@0.1.0 build
+> node scripts/build.mjs
+
+Quota override: {"usage":144889,"quota":1024,"overrideActive":true,"usageBreakdown":[{"storageType":"file_systems","usage":0},{"storageType":"indexeddb","usage":144889},{"storageType":"cache_storage","usage":0},{"storageType":"service_workers","usage":0}]}
+{
+  "browser": "Edg/154.0.4258.53",
+  "result": {
+    "assertions": 15,
+    "exportBytes": 21182,
+    "token": {
+      "generation": "stage-import",
+      "revision": 6,
+      "currentRevision": 3,
+      "historyRevision": 5
+    }
+  },
+  "quota": {
+    "overrideAccepted": true,
+    "physicalQuotaEnforced": false,
+    "nativeInjectedQuotaAtomic": true,
+    "nativeCode": "QUOTA"
+  },
+  "ui": {
+    "migrated": true,
+    "save": true,
+    "history": true,
+    "details": true,
+    "cycles": 3,
+    "legacyPreserved": true,
+    "closedHistoryRows": 0
+  },
+  "blockedUpgrade": {
+    "blocked": true,
+    "code": "BLOCKED"
+  },
+  "layout": [
+    {
+      "width": 1440,
+      "scrollWidth": 1440
+    },
+    {
+      "width": 390,
+      "scrollWidth": 390
+    }
+  ],
+  "historyLayouts": [
+    {
+      "theme": "light",
+      "width": 1440,
+      "scrollWidth": 1440
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "scrollWidth": 1440
+    },
+    {
+      "theme": "light",
+      "width": 390,
+      "scrollWidth": 390
+    },
+    {
+      "theme": "dark",
+      "width": 390,
+      "scrollWidth": 390
+    }
+  ],
+  "originIsolated": true
+}
+
+$ node scripts/browser-storage-audit-test.mjs
+Exit: 0
+{"review":{"multipleDirtyCardsPreserved":true,"currentRAF":"2/3","historicalRAF":"1/3","snapshots":1},"layouts":[{"width":1440,"scrollWidth":1440},{"width":390,"scrollWidth":390}]}
+{
+  "browser": "Edg/154.0.4258.53",
+  "tests": 22,
+  "passed": 22,
+  "failed": 0,
+  "skipped": 0,
+  "cases": [
+    "valid legacy certificate: worker read and History",
+    "structural forgery with valid digest rejected by both worker paths",
+    "business forgery with valid digest rejected by both worker paths",
+    "corruption after certification rejected",
+    "native abort proves rollback and preserves persisted authority",
+    "post-complete notification failure rejects as uncertain and receipt retry is idempotent",
+    "invalid mid-import cannot activate and incomplete native staging resumes",
+    "native save commit with failed local reconciliation blocks subsequent UI-facing mutations",
+    "native delete commit with failed local reconciliation blocks subsequent UI-facing mutations",
+    "native current commit with failed local reconciliation blocks subsequent UI-facing mutations",
+    "11D.1 native R2 false/false",
+    "11D.1 native R2 false/true",
+    "11D.1 native R2 true/false",
+    "11D.1 native R2 true/true",
+    "11D.1 native mixed inputs1/2, old Current startup, CAS lost, export/import/reopen",
+    "11D.1 native Update Actuals modal R2 false/false",
+    "11D.1 native Update Actuals modal R2 false/true",
+    "11D.1 native Update Actuals modal R2 true/false",
+    "11D.1 native Update Actuals modal R2 true/true",
+    "11D.1 native RAF abort / explicit retry",
+    "11D.1 native RAF ack lost / recovery",
+    "mounted UI retains drafts and blocks Save/Delete/Apply after a lost native acknowledgment; recovery rereads authority"
+  ]
+}
+
+$ node scripts/browser-raf-final-test.mjs
+Exit: 0
+{
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Edg/154.0.4258.53",
+    "revision": "@5af6e80f702cffe10645c6d6433668f011b739be",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36 Edg/154.0.0.0",
+    "jsVersion": "15.4.11.7"
+  },
+  "scenarios": [
+    {
+      "scenario": "open",
+      "pass": true,
+      "projections": 0,
+      "writes": 0
+    },
+    {
+      "scenario": "period-restored",
+      "pass": true,
+      "projections": 0,
+      "writes": 0
+    },
+    {
+      "scenario": "consumption-restored",
+      "pass": true,
+      "projections": 0,
+      "writes": 0
+    },
+    {
+      "scenario": "split-undone",
+      "pass": true,
+      "projections": 0,
+      "writes": 0
+    },
+    {
+      "scenario": "merge-undone",
+      "pass": true,
+      "projections": 0,
+      "writes": 0
+    },
+    {
+      "scenario": "equivalent",
+      "pass": true,
+      "projections": 0,
+      "writes": 0
+    },
+    {
+      "scenario": "consumption-real",
+      "pass": true,
+      "projections": 1,
+      "writes": 1
+    },
+    {
+      "scenario": "concurrent-A",
+      "pass": true,
+      "projections": 1,
+      "writes": 1
+    },
+    {
+      "scenario": "concurrent-B",
+      "pass": true,
+      "projections": 1,
+      "writes": 1
+    },
+    {
+      "scenario": "equivalent-raf-proof",
+      "pass": true,
+      "projections": 1,
+      "writes": 1
+    },
+    {
+      "scenario": "numeric-raf-proof",
+      "pass": true,
+      "projections": 1,
+      "writes": 1
+    }
+  ]
+}
+{
+  "gate": "11D.1 exact numeric performance",
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Edg/154.0.4258.53",
+    "revision": "@5af6e80f702cffe10645c6d6433668f011b739be",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36 Edg/154.0.0.0",
+    "jsVersion": "15.4.11.7"
+  },
+  "iterations": 7,
+  "median": true,
+  "rows": [
+    {
+      "n": 16,
+      "parseMs": 0,
+      "domainRenderMs": 0,
+      "exactRenderMs": 0,
+      "warmRenderMs": 0,
+      "finiteFractionMs": 0,
+      "nonfiniteFractionMs": 0,
+      "multiTeamSumMs": 0,
+      "distinctDenominatorSumMs": 0,
+      "render40InputsColdMs": 0,
+      "render40InputsMs": 0,
+      "dirtyMs": 0,
+      "unchangedRebaseMs": 0,
+      "rebaseMs": 0.10000002384185791,
+      "typingMs": 0,
+      "frameDelayMs": 0.09999990463256836,
+      "outputLength": 18
+    },
+    {
+      "n": 100,
+      "parseMs": 0,
+      "domainRenderMs": 0,
+      "exactRenderMs": 0,
+      "warmRenderMs": 0,
+      "finiteFractionMs": 0,
+      "nonfiniteFractionMs": 0,
+      "multiTeamSumMs": 0,
+      "distinctDenominatorSumMs": 0,
+      "render40InputsColdMs": 0.10000002384185791,
+      "render40InputsMs": 0,
+      "dirtyMs": 0,
+      "unchangedRebaseMs": 0,
+      "rebaseMs": 0.10000002384185791,
+      "typingMs": 0.10000002384185791,
+      "frameDelayMs": 8.399999976158142,
+      "outputLength": 102
+    },
+    {
+      "n": 1000,
+      "parseMs": 0.10000002384185791,
+      "domainRenderMs": 1.100000023841858,
+      "exactRenderMs": 0,
+      "warmRenderMs": 0,
+      "finiteFractionMs": 0,
+      "nonfiniteFractionMs": 0,
+      "multiTeamSumMs": 0,
+      "distinctDenominatorSumMs": 0,
+      "render40InputsColdMs": 1.6999999284744263,
+      "render40InputsMs": 0,
+      "dirtyMs": 0,
+      "unchangedRebaseMs": 0,
+      "rebaseMs": 2.1999999284744263,
+      "typingMs": 0.10000002384185791,
+      "frameDelayMs": 0.5,
+      "outputLength": 1002
+    },
+    {
+      "n": 10000,
+      "parseMs": 0.5,
+      "domainRenderMs": 367.60000002384186,
+      "exactRenderMs": 0.6999999284744263,
+      "warmRenderMs": 0,
+      "finiteFractionMs": 0.19999992847442627,
+      "nonfiniteFractionMs": 0.10000002384185791,
+      "multiTeamSumMs": 0.2999999523162842,
+      "distinctDenominatorSumMs": 0.5,
+      "render40InputsColdMs": 29.5,
+      "render40InputsMs": 0.10000002384185791,
+      "dirtyMs": 0.20000004768371582,
+      "unchangedRebaseMs": 0.2999999523162842,
+      "rebaseMs": 14.5,
+      "typingMs": 0.2999999523162842,
+      "frameDelayMs": 1.100000023841858,
+      "outputLength": 10002
+    }
+  ],
+  "heap": {
+    "before": {
+      "usedSize": 472156,
+      "totalSize": 1048576,
+      "embedderHeapUsedSize": 1387032,
+      "backingStorageSize": 6
+    },
+    "after": {
+      "usedSize": 37763572,
+      "totalSize": 58638336,
+      "embedderHeapUsedSize": 2118744,
+      "backingStorageSize": 215892
+    },
+    "deltaUsed": 37291416
+  }
+}
+{
+  "gate": "11D.1 mounted UX",
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Edg/154.0.4258.53",
+    "revision": "@5af6e80f702cffe10645c6d6433668f011b739be",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36 Edg/154.0.0.0",
+    "jsVersion": "15.4.11.7"
+  },
+  "scenarios": [
+    {
+      "scenario": "RAF-Forecast",
+      "pass": true,
+      "commits": 2,
+      "modalCancelPreservesCard": true,
+      "cardCancelScoped": true,
+      "reopenPublishedExact": true,
+      "modalCardGuard": true,
+      "cancelWrites": 0,
+      "repeatNoOp": true,
+      "focusContained": true
+    },
+    {
+      "scenario": "Forecast-RAF",
+      "pass": true,
+      "commits": 2,
+      "modalCancelPreservesCard": true,
+      "cardCancelScoped": true,
+      "reopenPublishedExact": true,
+      "modalCardGuard": true,
+      "cancelWrites": 0,
+      "repeatNoOp": true,
+      "focusContained": true
+    },
+    {
+      "scenario": "new-Team",
+      "pass": true,
+      "commits": 1
+    },
+    {
+      "scenario": "long-decimal",
+      "pass": true,
+      "inputMs": 0.8999999761581421,
+      "frameDelayMs": 0.19999992847442627,
+      "applyMs": 41.10000002384186,
+      "length": 10002,
+      "commits": 1
+    }
+  ],
+  "layouts": [
+    {
+      "surface": "long-card",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "valueLength": 10002
+    },
+    {
+      "surface": "modal",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "formsInCard": false
+    },
+    {
+      "surface": "long-card",
+      "width": 390,
+      "scrollWidth": 390,
+      "valueLength": 10002
+    },
+    {
+      "surface": "modal",
+      "width": 390,
+      "scrollWidth": 390,
+      "formsInCard": false
+    }
+  ],
+  "nativeKeyboard": {
+    "tabContained": true,
+    "escapeRestoresFocusAndRaw": true
+  }
+}
+
+$ git diff --check
+Exit: 0; no output (implementation and final documentation).
