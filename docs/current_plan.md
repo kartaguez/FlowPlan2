@@ -68,7 +68,8 @@ Current trajectory: **11D.1 RAF Model — DONE; 11D.1 UX — DONE**;
 11D.0: DONE — Storage Architecture & Scalability
 11D.1 RAF Model: DONE — favorable independent audit and final V1/V2 verification
 11D.1 UX: DONE — favorable independent audit, final Cancel S1–S6 gates pass
-11D.2 / 11D.3: NOT STARTED — outside this planning mission
+11D.2: PLAN PROPOSED — inputs-only architecture / replay feasibility; implementation NOT STARTED
+11D.3 / 11D.4 / 11D.5: ENVISAGED — NOT STARTED; independent audit and authorization required
 11A.1: DEFERRED / not adopted as product work; no dependency for 11B
 10D: superseded by 11A (not DONE)
 10E: largely superseded by 11B; advanced replay/navigation/comparison deferred
@@ -79,6 +80,51 @@ starting HEAD `507e85d5af8ed3158f9ce449e2e354609212e7b5`, clean and synchronized
 with origin (0/0) after fetch. The 11A.2 canon records the completed capture and
 755-test validation. That review was documentation-only. The subsequent authorized implementation
 was then IN REVIEW; explicit user closure subsequently marked 11B DONE.
+
+## 11D.2 — Inputs-only historical architecture and replay contract
+
+**Status: PLAN PROPOSED — documentation only; implementation NOT STARTED.**
+Framing baseline `8103f2e63c9df81621f0806ec711fa9b71c96194`, branch
+`codex/lot11a-portfolio-snapshots`, clean and origin 0/0 after fetch.
+The [dedicated architectural plan](./steps/STORAGE/lot11d2_plan.md) confronts
+existing contracts with the new user-validated trajectory. 11D.0 and both
+11D.1 sub-lots remain DONE; durable canons continue to describe delivered code.
+
+Validated target decisions: new Portfolio Snapshots retain historical inputs
+and immutable shared Actuals references; calculated results are disposable.
+Normal consultation of **all** snapshots will use the current calculation chain,
+with no promise of exact reproduction of old forecasts. Historical requirements
+remain the RAF authority; no Current input substitution. 11C temporal separation
+and 11D.1 historical Actuals RAF remain intact. Unresolvable or unsimulable inputs
+show “Recalcul indisponible” with diagnostics, without captured-result fallback,
+automatic repair or snapshot rewrite. Old inputs/results/profiles/versions/IDs
+and references remain preserved; explicit conversion is outside scope.
+
+11D.2 plans the inputs completeness/Actuals retention audit, exact canonical
+replay feasibility proof and performance characterization. Proofs, benchmarks,
+code, tests and formats are not changed by this planning delivery. The future
+Application pipeline must support Current and an identified historical snapshot,
+independent of UI/ViewModels/geometries. Metadata, direct business facts and full
+simulation are separate levels; RAM cache keys include resolved inputs and chain
+identity. No initial persistent cache or systematic full-history simulation on
+opening. The current global graphical-cap scan requires an explicit progressive
+scale arbitration before integration; a direct engine substitution would defeat
+lazy loading. See blockers, measurable gates and remaining questions in the plan.
+
+Envisaged lots: 11D.3 Inputs-Only Capture & Persistence; 11D.4 Historical
+Simulation Service; 11D.5 Historical Views Integration. Recommended delivery
+order puts the service and legacy-view integration before activating inputs-only
+Save, or uses one gated activation after all are ready. A capture must never be
+available in production without a working consultation service. Each stage
+requires independent audit and explicit implementation authorization.
+
+This target supersedes the earlier proposed persistence of full daily
+Team/Project/Reservation results in 11D.0 §5.4; it does not alter the delivered
+storage, CAS, receipts, atomicity or recovery guarantees. Existing 11A/11A.2/11B
+captured-result contracts below remain historical implementation records until
+an authorized integration changes consultation. Planning/Trends source boundaries
+are anticipated only: no selection, navigation, rename, comparison-interaction
+or visual redesign is planned or implemented here.
 
 ## 11D.1 — RAF Model
 
