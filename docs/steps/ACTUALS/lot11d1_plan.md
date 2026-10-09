@@ -1,181 +1,158 @@
 # Lot 11D.1 — UX Actuals & RAF
 
-**Statut : PLANNED / NOT STARTED.** Plan documentaire du 2026-10-09.
-**11D.0 reste DONE.** Audit indépendant ChatGPT puis autorisation explicite
-requis avant toute implémentation. Ce document ne livre aucun code ni test,
-ne constitue pas un canon d'implémentation et n'ouvre ni 11D.2 ni 11D.3.
+**Statut : 11D.1 UX — READY FOR INDEPENDENT PLAN AUDIT.**
+Révision documentaire du 2026-10-09 ; implémentation **PLANNED / NOT STARTED**.
+**11D.0 DONE ; 11D.1 RAF Model DONE.** Audit indépendant ChatGPT puis
+nouvelle autorisation explicite requis avant développement. Ce document est
+l'unique plan UX 11D.1 ; aucun second plan, code, test ou canon de clôture ajouté.
 
 ## 1. Baseline Git vérifiée
 
-Avant toute modification documentaire, `git fetch origin` a réussi.
+Avant toute modification : `git fetch origin` réussi, puis vérification de la
+branche, du HEAD, de `git status --short` et de la divergence.
 
-| Vérification | Résultat |
+| Contrôle | Résultat |
 | --- | --- |
-| Dépôt local | `/Users/Kartaguez/FlowPlan2` ; dépôt demandé `kartaguez/FlowPlan2` |
-| Branche active et cible | `codex/lot11a-portfolio-snapshots` |
-| `git status --short` initial | Vide : arbre propre |
-| HEAD réel | `05115e4df6ec59c1a045801389e310529634bb9c` |
-| HEAD de référence demandé | `05115e4df6ec59c1a045801389e310529634bb9c` |
-| `origin/codex/lot11a-portfolio-snapshots` après fetch | Même SHA |
-| `git rev-list --left-right --count HEAD...origin/codex/lot11a-portfolio-snapshots` | `0 / 0` |
-| Écart à examiner | Aucun : HEAD identique à la référence |
+| Dépôt | `/Users/Kartaguez/FlowPlan2`, `kartaguez/FlowPlan2` |
+| Branche active/cible | `codex/lot11a-portfolio-snapshots` |
+| HEAD attendu et réel | `294963f8da077e37471e84dc3d639eb64630989e` |
+| Status initial | Vide, arbre propre |
+| Origin après fetch | Même SHA ; avance/retard `0/0` |
+| Écart baseline | Aucun |
+| Instructions locales | Aucun `AGENTS.md` trouvé dans le dépôt |
 
-La baseline **d'implémentation validée** 11D.0 reste
-`8d95f7406ff40a6d2d041b41784a3915173989c8`, citée dans les canons.
-Elle est distincte du HEAD documentaire de départ ci-dessus. Aucun reset,
-écrasement de modifications ou force-push n'est prévu. Aucun `AGENTS.md`
-n'a été trouvé dans le dépôt ; aucun document 11D.1 préexistant n'a été trouvé.
+La baseline de clôture 11D.0 `8d95f7406ff40a6d2d041b41784a3915173989c8`
+est une référence historique distincte. Aucun reset, écrasement ou force-push.
+Le SHA de livraison documentaire sera fourni après commit, sans auto-référence.
 
-## 2. Sources normatives consultées et priorité
+## 2. Sources consultées et priorité
 
 - [Canon durable](../../canon.md), [canon courant](../../current_canon.md),
-  [roadmap courante](../../current_plan.md).
-- [10C.1 plan](./lot10c1_plan.md), [10C.1 canon](./lot10c1_canon.md),
-  [10C.2 plan et compte rendu](./lot10c2_plan.md).
-  Aucun canon séparé 10C.2 n'existe : le plan contient sa réalisation ; le
-  canon courant atteste sa clôture DONE.
-- [11A plan](../PORTFOLIO_SNAPSHOTS/lot11a_plan.md),
-  [11A canon](../PORTFOLIO_SNAPSHOTS/lot11a_canon.md).
-- [11A.2 / 11B plan](../HISTORY/lot11a2_11b_plan.md),
-  [11A.2 canon](../HISTORY/lot11a2_canon.md), [11B canon](../HISTORY/lot11b_canon.md).
-- [11C plan](../HISTORY/lot11c_plan.md), [11C canon](../HISTORY/lot11c_canon.md).
-- [11D.0 plan, corrections et clôture](../STORAGE/lot11d0_plan.md),
-  [11D.0 canon](../STORAGE/lot11d0_canon.md).
+  [roadmap](../../current_plan.md) et version antérieure du présent plan.
+- [RAF Model : plan audité](./lot11d1_raf_model_plan.md) et
+  [livraison/clôture avec corrections finales V1/V2/R1](./lot11d1_raf_model_canon.md).
+- [10C.1 canon](./lot10c1_canon.md), [10C.2 plan et réalisation](./lot10c2_plan.md).
+  Il n'existe pas de canon séparé 10C.2 : réalisation et canon courant documentent
+  sa clôture. Les anciennes règles de RAF sont historiques, supersédées par 11D.1.
+- [11C canon](../HISTORY/lot11c_canon.md) et
+  [11D.0 canon, corrections et clôture](../STORAGE/lot11d0_canon.md).
 
-Les anciennes mentions IN REVIEW, les transactions localStorage/V5/V6 et les
-intentions de refonte des anciens plans sont des traces historiques. Le canon
-courant, les clôtures explicites et le code réel priment : 10C.2, 11A, 11A.2,
-11B, 11C, 11D.0 sont DONE ; la production utilise le dispatcher repository
-asynchrone, IndexedDB/CAS et V7. La stratégie de validation systématique 11D.0
-remplace l'ancienne proposition de certificat. Aucun contrat historique n'est
-réécrit par le présent lot. FlowPlan1 est une intention de continuité visuelle,
-pas une source technique inspectée ni une architecture à recopier.
+**EXISTANT prioritaire** : RAF Model livré, y compris ses corrections finales,
+prime sur les hypothèses antérieures UX et les mentions historiques IN REVIEW.
+Production : repository asynchrone, IndexedDB/CAS, V8, Current RAF model2,
+captures inputs1/inputs2 mixtes, moteur `/2`. Les résultats de clôture (1009
+Node + 3 portable, 22 + 11 scénarios natifs) sont des preuves historiques ;
+aucune suite d'implémentation n'est exécutée dans cette mission documentaire.
+Les seules mesures nouvelles sont les sondes numériques du §5, sans build.
 
-## 3. Cartographie réelle des composants
+**À MODIFIER** : présentation et interactions Actuals/RAF dans les chemins
+existants. **À AJOUTER** : rendu exact ciblé, labels/provenance et tests UX.
+**HORS PÉRIMÈTRE** : nouveau modèle/transaction, Domain, moteur, stockage,
+formats, replay, inputs-only, 11D.2/11D.3. Ne pas copier une architecture FlowPlan1.
 
-Les chemins ci-dessous ont été inspectés en lecture seule, avec recherche des
-appels réels ; les tests résident auprès des modules dans `src/`.
+## 3. Cartographie réelle et portée future
 
-| Zone / fichiers réels | EXISTANT — à préserver | À MODIFIER / À AJOUTER |
+Fichiers inspectés en lecture seule, appels et tests voisins confrontés aux
+canons. Les noms existants `forecastRaf` et `rafAuthority` ne changent pas
+l'autorité : le premier contient le RAF des requirements ; le second garde
+une provenance historique, jamais un verrou courant ni un choix de routage.
+
+| Fichiers réels | EXISTANT à conserver | À MODIFIER / À AJOUTER après autorisation |
 | --- | --- | --- |
-| `src/domain/model/rational.ts`, `scalars.ts` | Rationnels réduits BigInt ; parse décimal point, fraction ; factories non négatives ; sérialisation canonique ; rendu fini sans précision possible | Aucun changement Domain prévu |
-| `src/application/session/editableQuantity.ts` | Parse exact partagé, pourcentages exacts ; `EDITING_DECIMAL_PRECISION = 3` | Ajouter un rendu exact ciblé Actuals/RAF ; adapter le parse Application à la virgule ; contrôler ses consommateurs |
-| `src/application/session/snapshotActualsViewModel.ts` | Snapshots et legacy typés, Teams Portfolio, participation, daily caps, RAF Forecast et allocations exacts | Projection de présentation compacte, dérivée seulement, si utile ; pas de nouvelle autorité |
-| `src/application/session/projectEditViewModel.ts` | Texte RAF + `remainingWorkloadExact`, autorité `latest-actuals` / `current-configuration`, daily cap exact | Utiliser le rendu exact ciblé pour le RAF Forecast et Actuals |
-| `src/application/session/teamReservationsEditViewModel.ts` | `buildReservationEditViewModel` ; ratio en pourcentage et fixed-daily, valeur exacte séparée | Préserver l'éditeur et ses unités ; caractériser l'effet du parse partagé |
-| `src/ui/actuals/snapshotActualsDraftStore.ts` | Map RAM par objet ; baseVersion/ID ; textes canoniques copiés du modèle ; branche modale ; dirty canonique ; rebase/review à trois voies | Initialisation lisible exacte, sans reformater les textes déjà saisis ; conserver provenance et états de confirmation |
-| `src/ui/actuals/parseSnapshotActualsCommand.ts` | Candidat complet, factories typées, intents, IDs conservés si inchangés, evidence sélective, refus stale | Appliquer le contrat de saisie commun ; messages précis, aucun allégement de preuve |
-| `src/ui/actuals/createSnapshotActualsCardController.ts` | Synthèse cumulée exacte ; RAF rapide ; modal 2/3 étapes ; histoires V4/V5 readonly ; focus/trap/Escape | Période globale, trois/deux colonnes, rendu exact, historique compact et détails ; ajustements locaux de champs/erreurs |
-| `src/ui/project-edit/createProjectEditController.ts`, `projectDraftStore.ts`, `parseProjectEditCommand.ts` | Sous-cartes Teams, membership, RAF Forecast ; latest-Actuals synchronisé via callbacks ; exact original préservé si champ untouched | Réduire le doublon RAF sous autorité snapshot ; comparer le RAF métier canonique pour dirty/rebase/parse, garder les textes invalides |
-| `src/ui/project-edit/createProjectCreateController.ts` | Création sans snapshot, parser partagé `parseProjectFields` | Vérifier contrat décimal du RAF de création ; aucun changement de création métier |
-| `src/ui/reservation-edit/createReservationEditController.ts`, `reservationDraftStore.ts`, `parseReservationEditCommand.ts`, `createReservationCreateController.ts` | Membership Forecast, allocations ratio/fixed, drafts indépendants | Aucune colonne RAF ni déplacement des allocations ; non-régression du parse partagé |
-| `src/ui/timeline/renderTimelineShellNavigation.ts` | Cartes Project/Reservation, hôtes `.portfolio-card-content`, tabs, expansion, activation et reorder | Préserver navigation et identité des cartes |
-| `src/ui/portfolio/createPortfolioEditControls.ts`, `createTeamSubcard.ts`, `src/ui/renderApp.ts` | Vrais formulaires, Apply/Cancel de carte, erreurs alert, Delete ; Team OFF sans détails | Composition locale pour placer les actions de carte après Actuals/history ; labels et associations de formulaire conservés |
-| `src/ui/timeline/createTimelineUiCoordinator.ts`, `src/ui/actuals/actualsForecastConflict.ts` | Propriétaire des quatre stores ; dirty global ; handoff, nettoyage ciblé après succès, suspend/resume et remount | Adapter seulement wiring/présentation RAF et égalité exacte ; garder gardes de séquencement |
-| `public/styles.css` | `.card-actuals-*`, matrice scroll interne, modal bornée, focus visible, frise wrap, styles cartes/Teams et media 420 px | Styles compacts spécifiques à la synthèse, sans comprimer la matrice éditoriale de modale |
-| `src/application/session/planningSession.ts`, `src/domain/actuals/transition.ts`, `snapshots.ts`, `requirements.ts` | Commandes whole-object, exact no-op, evidence, bornes, versions et miroir RAF | HORS PÉRIMÈTRE de modification ; références de validation et de non-régression |
-| `src/main/planning/createRepositoryPlanningDispatcher.ts`, `src/application/persistence/createPlanningRepository.ts`, `planningRepository.ts`, infrastructure IndexedDB | prepare → projection privée → writeCurrent CAS → publish ; recovery ; History séparé | HORS PÉRIMÈTRE de modification ; assertions d'intégration |
-| `src/application/backup/planningInputCodec.ts`, codecs V5/V6/V7 et `flowplanBackupV1.ts` | `serializeQuantity` canonique, sources et histoires exactes | HORS PÉRIMÈTRE de modification ; round-trip V7 à vérifier |
+| `src/domain/model/rational.ts`, `scalars.ts` | BigInt réduit, parse exact, rendu fini sans précision et erreur `DECIMAL_PRECISION_REQUIRED` | Aucun changement Domain |
+| `src/application/session/editableQuantity.ts` | Parse point/fraction exact ; rendu historique à 3 chiffres ; pourcentages partagés | Helper exact ciblé Actuals/RAF et acceptation virgule à la frontière Application ; caractériser tous les consommateurs si parse partagé adapté |
+| `src/application/session/projectEditViewModel.ts`, `snapshotActualsViewModel.ts` | `remainingWorkloadExact`, `currentRafEditable`, `forecastRaf` issu requirements, `currentBase`, snapshots typés | Rendu RAF exact ; agrégation compacte dérivée seulement si utile pour tests, aucune autorité nouvelle |
+| `src/application/session/projectCurrentRaf.ts`, `planningSession.ts` | Base RAM immutable ; A patch ciblé ; B base complète, identités puis R2 ; R1 ; no-op exact | Références/test oracles seulement, contrats hors modification |
+| `src/ui/actuals/snapshotActualsDraftStore.ts` | Owners RAM par objet, `baseModel` distinct du modèle récent, branche modale, rebase/review exact, preuves sélectives | Initialisation lisible exacte sans réécriture d'un draft ; adapter comparaisons à la virgule, conserver toute base/provenance |
+| `src/ui/actuals/parseSnapshotActualsCommand.ts` | Candidat whole-object/base/evidence ; restauration IDs par connaissance complète exacte après split/merge annulé | Parse ciblé/messages ; aucun choix A/B UI, aucune modification des obligations |
+| `src/ui/actuals/createSnapshotActualsCardController.ts` | Cumuls exacts `addRationals`, quick A, modale R2, confirmations explicites, frise/history, focus/Escape | Bloc compact/période unique, rendu exact, distinction publié/draft/à confirmer, labels erreurs/review |
+| `src/ui/project-edit/createProjectEditController.ts`, `projectDraftStore.ts`, `parseProjectEditCommand.ts` | Membership, caps exacts cachés, intention RAF untouched explicite, callbacks RAF courant | Supprimer le doublon pour les membres édités dans le tableau ; collecter depuis store/modèle, pas depuis présence du champ DOM ; égalité RAF exacte |
+| `src/ui/project-edit/createProjectCreateController.ts` | Création et RAF initial explicite, aucun snapshot | Parse/rendu exact du RAF ; aucun changement création/membership |
+| `src/application/session/teamReservationsEditViewModel.ts`, `src/ui/reservation-edit/createReservationEditController.ts`, `reservationDraftStore.ts`, `parseReservationEditCommand.ts`, `createReservationCreateController.ts` | Allocations ratio/fixed-daily, unités et exact untouched | Non-régression des consommateurs partagés ; aucune colonne RAF, aucun déplacement allocations |
+| `src/ui/timeline/createTimelineUiCoordinator.ts`, `src/ui/actuals/actualsForecastConflict.ts` | Quatre stores, dirty global, A, handoff B unique, gardes de séquencement, nettoyage après succès | Wiring du tableau unique, erreurs de concurrence parlant de RAF/Current même version Actuals ; ownership inchangé |
+| `src/ui/portfolio/createPortfolioEditControls.ts`, `src/ui/renderApp.ts` | Formulaires réels, Apply/Cancel, alert/Delete | Hôte stable et placement local des actions ; pas de formulaire imbriqué |
+| `src/ui/timeline/renderTimelineShellNavigation.ts`, `src/ui/portfolio/createTeamSubcard.ts` | Identités, tabs, expansion, activation, reorder ; toggle membership unique | Préserver ; ajuster uniquement si besoin DOM démontré |
+| `public/styles.css` | Matrice modale à scroll interne, focus/media 420 px | Styles propres au tableau compact, dates/erreurs/quantités longues et responsive |
+| `src/main/planning/createRepositoryPlanningDispatcher.ts`, `src/application/persistence/createPlanningRepository.ts`, `planningRepository.ts`, infrastructure IndexedDB/worker | Prepare → projection privée → CAS → publish ; receipts/recovery | Hors modification, espions et tests d'intégration existants |
+| `src/application/backup/planningInputCodec.ts`, `flowplanBackupV1.ts`, `flowplanBackupV6.ts`, `flowplanBackupV7.ts`, `flowplanBackupV8.ts`, `portableBackupParts.ts` | Validation versionnée V1–V8, inputs1/2 ; vieux Current non réécrit | Hors modification, matrices compatibilité conservées |
 
-### Structure UI constatée
+Le shell crée un hôte de carte ; le coordinateur monte le formulaire Forecast
+puis la section Actuals sœur. Les actions sont aujourd'hui avant Actuals.
+La synthèse répète from/through par Team (Project 5 colonnes, Reservation 4).
+Les `<details>` historiques sont déjà repliés. La modale vit sur `document.body`,
+hors formulaire carte ; ses champs quantité sont `type=text`, ses dates sont
+validées au blur, son workflow 2/3 étapes et son focus sont gérés localement.
+Remount repart des stores ; suspend/resume conserve les owners/DOM Planning.
+La future composition doit conserver ces garanties sans refonte globale.
 
-Le shell crée les cartes et leur hôte. Le coordinateur ajoute d'abord le
-formulaire Forecast créé par `createPortfolioEditControls`, puis une section
-Actuals sœur. Les Apply/Cancel sont actuellement dans le formulaire Forecast,
-avant la section Actuals. Les sous-cartes Team sont créées par les contrôleurs
-Forecast ; leur toggle reste l'unique UI de membership. Les champs Actuals ne
-sont pas les champs Forecast, même lorsque deux RAF sont synchronisés.
+## 4. Autorités, commandes et données publiées
 
-La synthèse actuelle répète `Actuals from` et `Actuals through` par Team ;
-Project a cinq colonnes, Reservation quatre. Les cumuls sont déjà faits par
-`addRationals`, jamais par float, mais affichés en fraction canonique (`25/2`).
-Le statut principal contient version et knowledgeDate. Les détails V5 et V4
-sont déjà des `<details>` sans `open`, donc repliés par défaut. Le code actuel
-montre version/date/périodes/RAF, mais pas explicitement tous les snapshot IDs,
-period IDs et marqueurs : leur accessibilité complète sera un ajout UI local.
+### RAF courant et RAF historique
 
-La modale est montée sur `document.body`, hors du formulaire de carte. Elle
-utilise des champs texte pour consommés/RAF, une matrice distincte, des champs
-date validés au blur, une frise avec sélection contiguë, Back/Next, Apply final,
-Cancel/Escape et une garde focus. Le coordinateur inclut la modale dans ses
-gardes de navigation/raccourcis. Remount recrée les contrôles depuis les stores ;
-suspend/resume conserve le DOM Planning. Aucune réécriture globale de l'éditeur
-n'est nécessaire ni proposée.
-
-## 4. Chemins de données et transformations à surveiller
-
-### Actuals consommés et RAF sous autorité snapshot
+**EXISTANT** : `Project.requirements[].remainingWorkload` est l'unique RAF courant,
+avant et après snapshot, legacy ou réconciliation, Project actif ou inactif.
+Les RAF des snapshots restent historiques immuables. B effectif aligne
+requirements et RAF du nouveau snapshot atomiquement ; cette égalité est une
+postcondition de publication, pas un invariant permanent. Aucun consommé n'est
+soustrait de nouveau au RAF. Aucun fallback vers `snapshot.raf` pour éditer Current.
 
 ```text
-Domain quantity (WeakMap → Rational BigInt réduit)
-→ SnapshotActualsViewModel (quantités typées, snapshot courant)
-→ synthèse : addRationals des périodes ; aujourd'hui fraction canonique
-→ draft fromModel : serializeQuantity exact, texte fraction
-→ input DOM type=text ; événement input copie le texte brut dans le store RAM
-→ branche modale / draft rapide (provenance, confirmations, base)
-→ parseExactQuantityInput → consumedWorkloadFromSerialized / remainingWorkloadFromSerialized
-→ parseSnapshotActualsCommand (intent, périodes, evidence, membership/daily caps/allocations)
-→ replace-project-actuals / replace-reservation-actuals
-→ PlanningSession.prepare → Domain transition/snapshot/Portfolio validation
-→ projection candidate privée → encodePlanningInputs (rationnels canoniques)
-→ repository.writeCurrent attendu CAS → commit confirmé → session.publish
-→ rebase/rendu et nettoyage des seuls drafts concernés après succès
+requirements → VM.forecastRaf + currentBase → draft carte RAM → tableau RAF
+→ Apply carte → update-project-current-raf (A)
+→ prepare → projection privée → writeCurrent CAS → commit confirmé → publish
+
+snapshot courant → périodes/consommés publiés → branche modale + RAF requirements
+→ parseSnapshotActualsCommand : replace-project-actuals (B, parcours de validation)
+→ Application : bases + structure/identités + comparaison exacte → routage R2
+→ au maximum un candidat/projection/write/publish
 ```
 
-La synthèse de carte lit le snapshot **publié**, pas la somme de toutes les
-versions ; elle ne prétend pas que les saisies de la modale sont publiées.
-Le récapitulatif de modale peut calculer les totaux de sa branche exactement,
-mais une cellule invalide/incomplète rend le total « incomplete », jamais zéro.
-Le RAF visible de carte lit le draft RAM ; son origine/suggestion reste explicite.
+Une synthèse Consumed somme seulement les périodes du snapshot courant, jamais
+les versions historiques. Un récapitulatif de branche additionne des valeurs
+exactes valides ; incomplet/invalide rend le total incomplet, jamais zéro implicite.
+La carte montre le consommé publié et le RAF draft clairement identifié ; la
+modale distingue valeur publiée récente, vraie base d'ouverture, saisie locale
+et preuve à renouveler. Afficher récent ne remplace jamais `baseModel`.
 
-### RAF Forecast, création, et deuxième champ de carte
+### R2 livré, à conserver sans adaptation métier
 
-```text
-Project.requirements.remainingWorkload exact
-→ ProjectEditViewModel : formatQuantityForEditing (3 chiffres) + serializedExact
-→ projectValuesFromModel : latest-actuals prend l'exact ; sinon texte formaté
-→ sous-carte Team type=text
-→ Forecast projectDraftStore (comparaisons actuellement textuelles)
-→ formValues : dirty textuel ; parse garde serializedExact si untouched
-→ update-project / create-project si RAF Forecast autonome
-  OU callback getActualsRaf / onActualsRafInput vers snapshot store si latest-actuals
-→ coordinateur : RAF seul → applyCardRaf → replace-project-actuals
-  OU membership dépendant → handoff unique → commande Actuals complète
-→ même prepare/validation/projection/CAS/commit/publish
-```
+Bases source/version/ID, membership, RAF complet et paramètres transportés
+validés **avant** routage, même si target semble identique. Les identités de
+périodes restent validées avant no-op. Connaissance Actuals = participation,
+retired markers, couverture/partition et consommés exacts ; RAF et IDs techniques
+ne sont pas un changement de connaissance, mais restent validés séparément.
 
-Le tableau rapide possède aussi un RAF même avant le premier snapshot ; le
-store l'initialise depuis `forecastRaf` comme suggestion. Modifier ce champ
-crée une intention de connaissance `initial` sans couverture ; modifier le
-RAF Forecast pré-snapshot suit la commande Forecast. Ce sont deux intentions
-existantes à rendre explicites, sans les fusionner par un nouveau service.
-La modale possède encore son propre champ RAF **dans sa branche**, ce qui est
-nécessaire au Cancel : il n'est pas un doublon d'autorité persistée.
-
-Reservation : `teamReservationsEditViewModel` conserve `value` et `exact` ;
-ratio → pourcentage à trois chiffres et `parseExactPercentageInput` (/100 exact),
-fixed-daily → quantité et `parseExactQuantityInput`. Le parse Actuals transporte
-l'allocation canonique du modèle ou du handoff, pas un nouveau champ RAF.
-Ni unités, ni allocations Forecast ne sont simplifiées par 11D.1.
-
-| Transformation actuelle | Risque précis | Traitement futur |
+| Changement Actuals réel | Changement RAF courant réel | Résultat R2 |
 | --- | --- | --- |
-| `formatQuantityForEditing(..., 3)` | **Troncature**, pas arrondi : `1/3 → 0.333`, `1/10000 → 0` ; un champ re-saisi peut changer la vérité | Rendu exact ciblé ; conserver l'exact original des champs untouched |
-| `formatPercentageForEditing` | Même troncature mais hors Actuals/RAF ; effet partagé à contrôler | Ne pas changer la politique des pourcentages dans ce lot |
-| Parse décimal Domain | Point seulement, syntaxe stricte, BigInt exact ; virgule invalide | Normalisation Application ciblée avant parse, aucun float |
-| Dirty/rebase Actuals `values`, `mergeExact`, `review` | Équivalence déjà canonique ; virgule ne l'est pas encore ; parse répété pendant frappe | Étendre normalisation, préserver textes bruts, réduire calculs redondants |
-| Dirty/rebase Forecast Project + `remainingWorkloadDirty` | Égalité textuelle peut faire diverger `1.25`, `5/4`, rendu point/virgule | Égalité exacte pour RAF valide ; fallback texte pour invalide/incomplet ; conserver structure/membership dirty |
-| renderQuick | Valide immédiatement et affiche une erreur générique pour `1,`/vide ; ne détruit pas le texte ; ne réécrit pas le champ focus | Distinguer édition en cours de refus à Apply, éviter annonce d'erreur intrusive par frappe |
-| Rendu/remount | fromModel fractions, hydrate ou synchronisation peut remplacer un texte par un autre ; focus DOM perdu au rebuild | Formater seulement une initialisation propre ; texte/selection de draft restaurés ; focus logique par objet/Team/champ |
-| Evidence | Changer le format ne doit pas valoir confirmation ni perdre copied/needs-confirmation | Convertir la présentation sans toucher provenance/rafConfirmed ; confirmation reste geste explicite |
-| No-op | Domain compare les rationnels et la partition ; dispatcher évite projection/write si même état | Tester ouverture/Apply inchangé et équivalences ; préserver IDs et exacts |
-| Number | Pas de conversion quantité métier constatée dans ces chemins ; Number/Math pour index, étapes et dates | Interdire parseFloat/Number/toFixed dans conversion de quantité ; pixels et compteurs restent hors vérité métier |
+| Non | Non | Même state/projection/token ; zéro snapshot/projection/write |
+| Non | Oui | A effectif, RAF requirements seuls ; zéro snapshot, 1 projection/1 write |
+| Oui | Non | B effectif, 1 nouveau snapshot, 1 projection/1 write ; R1 requis |
+| Oui | Oui | B effectif, 1 nouveau snapshot, 1 projection/1 write ; union R1 |
+
+Le parser peut conserver un intent historique `raf-only` pour un candidat
+inchangé : il ne décide pas de publier un snapshot. Application refuse cet
+intent pour une connaissance réellement changée. Aucun dispatch A puis B,
+nouvelle transaction ou nouvelle autorité RAF. Caps seuls suivent `update-project` ;
+caps + RAF sans Actuals doivent être séquencés selon la garde existante.
+
+A vérifie identité/source/membership et RAF ciblés contre sa base RAM ; préserve
+caps, provenance, histories, source et champs non ciblés. Patch non vide, unique,
+membres connus, valeurs exactes non négatives. B contrôle la base **complète**,
+y compris RAF non ciblé, avant réduction éventuelle vers A. Une base périmée
+n'est jamais blanchie par un target égal à Current.
+
+Avant premier snapshot : création/ajout autonome fournit le RAF initial explicite
+dans requirements, révision d'un membre publié suit A, sans V5 ni reconciliation.
+La première connaissance native ou reconciliation explicite exige une couverture
+validée, même entièrement zéro. Les anciens snapshots RAF-only restent valides,
+référençables et non renumérotés ; A n'en ajoute pas. Érosion totale ultérieure
+peut supprimer la couverture via B ; absence, uncovered et covered-zero restent distincts.
 
 ## 5. Contrat de saisie numérique exact
 
 **Décisions utilisateur acquises** : entiers, point et virgule ; décimales finies
 sans plafond de précision UX ; fractions exactes ; non négatif ; aucun séparateur
-de milliers ; drafts incomplets ; aucune approximation ; V7 inchangé.
+de milliers ; drafts incomplets ; aucune approximation ; contrats V1–V8 et inputs1/inputs2 inchangés.
 
 ### Normalisation et validation Application proposées
 
@@ -257,7 +234,7 @@ avant BigInt ; intercepter les exceptions à la frontière Application, erreur
 visible et texte conservé ; mémoriser la canonicalisation par texte inchangé
 avec durée/cache bornés au draft, coalescer les calculs de synthèse, ne pas
 reformater sur chaque frappe ; afficher les textes longs dans un champ de taille
-bornée avec défilement, sans découper sa valeur. Mesurer après autorisation des
+bornée avec défilement, sans découper sa valeur. Compléter après autorisation les mesures locales ci-dessous avec des
 longueurs croissantes (16, 100, 1 000, 10 000 chiffres comme échantillons, **pas
 comme limites**), fractions à grand dénominateur et matrice multi-Team.
 Comparer parsing, dirty, rendu et Apply, avec moteur/navigateur et tailles notés.
@@ -270,334 +247,478 @@ valeurs. Un garde de ressources est technique, distinct du nombre de décimales
 acceptées ; un seuil chiffré refusant des entrées demanderait un arbitrage étayé
 avant ce sous-travail. Aucun seuil ni nouveau worker n'est décidé par ce plan.
 
-## 6. Présentation concrète des cartes
+### Mesure locale exploratoire effectuée pendant cette révision
+
+2026-10-09, Node v24.21.0, macOS arm64. Sources `rational.ts`/`result.ts` de la
+baseline transpilées en modules dans un répertoire temporaire puis supprimé ;
+aucun build, fichier source, script ou dépendance modifié. Une chauffe et sept
+itérations par opération, médiane en ms. Entrée décimale `0.` suivie de n fois
+`1` ; rendu sans précision du rationnel parsé ; sonde séparée `1/(2^n)`.
+
+| n (échantillon) | Parse décimal ms | Rendu décimal fini ms | 40 parses ms | Chiffres du dénominateur 2^n | Longueur rendue 1/(2^n) | Rendu 1/(2^n) ms |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 16 | 0,0022 | 0,0026 | 0,0233 | 5 | 18 | 0,0019 |
+| 100 | 0,0010 | 0,0346 | 0,0386 | 31 | 102 | 0,0193 |
+| 1 000 | 0,0045 | 1,1995 | 0,1173 | 302 | 1 002 | 0,2891 |
+| 10 000 | 0,0924 | 265,1148 | 3,8168 | 3 011 | 10 002 | 36,6669 |
+
+Ces sondes mesurent les helpers existants, pas une future UI ni son Apply.
+Les compteurs/temps sont des nombres de diagnostic, les quantités restent BigInt.
+Le rendu fini long est un risque concret de blocage du thread ; les 40 parses
+simulent une répétition et ne constituent pas une mesure de matrice DOM.
+Pas de plafond déduit, pas de garantie de latence/RAM, pas de pic mémoire mesuré.
+Étape A doit compléter en navigateur, avec PGCD défavorable, grandes fractions
+non finies, cumuls de dénominateurs distincts, nombreuses cellules, heap observé
+et durée de frappe/dirty/rendu/Apply. Mémorisation bornée au draft et absence de
+rendu répété sont les premières protections ; tout budget refusant une valeur
+exacte doit être documenté et audité avant adoption. Un nouveau worker n'est pas
+implicitement autorisé. Aucune limite arbitraire de décimales n'est introduite.
+
+## 6. Cartes compactes et historique
 
 ### Project
 
 ```text
 Actuals & RAF
 Actuals period: 01/09/2026 → 30/09/2026
-
 Team          Consumed (j.h)      RAF (j.h)
 Alpha         12,5                [ 8,25 ]
 Beta           7,5                [ 5    ]
-
 [Update actuals…]
-History ▾
+History ▸
                          Apply   Cancel
 ```
 
-**À MODIFIER** : une période globale au-dessus du tableau ; supprimer les
-colonnes de dates répétées. Cumuls exacts du snapshot courant par Team, ordre
-Portfolio, pas de quotidien ni de cumul des snapshots. RAF texte directement
-éditable, sans ouvrir la Team. Labels visibles/associés incluant Team et unité.
-Le titre, la période et les boutons restent lisibles à 390 px.
+**À MODIFIER** : une période globale mutualisée entre Teams, trois colonnes,
+cumuls exacts du snapshot courant, RAF courant exclusivement requirements,
+ordre Portfolio, labels associés Team/unité. RAF directement éditable dans le
+tableau ; aucun bouton RAF dédié. Apply/Cancel carte conservent leur rôle.
+Les valeurs saisies mais non publiées portent un indicateur de draft sans
+présenter le consommé de branche comme déjà publié.
 
-**EXISTANT** : sous-cartes Forecast pour membership et paramètres, activation,
-Delete, reorder, dirty, Apply/Cancel de carte. **À MODIFIER** : sous autorité
-snapshot, retirer le second champ RAF éditable du panneau Team et son texte
-technique redondant ; le tableau devient l'entrée rapide unique pour ce RAF.
-Conserver l'exact dans le modèle/commandes et le dailyCap caché ; ne pas retirer
-un requirement parce que son champ est absent du DOM. Sans snapshot, le RAF
-Forecast reste dans son éditeur existant ; le tableau indique distinctement
-« RAF Forecast suggestion — not recorded » et son édition prépare un premier
-RAF de connaissance. Cette coexistence garde le séquencement actuel au §7.
+**À MODIFIER** : retirer le doublon RAF des sous-cartes Forecast pour chaque
+membre dont le tableau est le point de saisie, **y compris avant premier snapshot**.
+Ne retirer aucun requirement, intention untouched, cap caché ou toggle membership.
+La collecte formulaire doit lire le store/modèle, sans supposer un input RAF
+présent. Les callbacks existants deviennent des raccords internes au tableau,
+pas deux champs éditables. Pas de second owner ni de store RAF supplémentaire.
 
-**À MODIFIER** : composition des sections/actions pour une lecture Forecast →
-Actuals/RAF → Update actuals → History → Apply/Cancel de carte. Réutiliser les
-boutons et handlers existants. Une solution locale possible est un hôte Actuals
-stable dans le formulaire de carte, entre fields et actions ; la modale reste
-hors formulaire. Ne pas imbriquer les formulaires, créer de submit parasite,
-ni déplacer Actuals dans un conteneur `fields` effacé par hydrate. Le détail DOM
-est une proposition à vérifier par les tests de composition, pas une obligation.
+**EXISTANT à préserver avant snapshot** : le tableau affiche les membres publiés,
+Consumed `—`, période inconnue et RAF courant déjà enregistré dans requirements,
+jamais une suggestion non enregistrée. A est utilisable directement. Create
+Project et Team nouvellement activée mais non publiée conservent leur saisie
+RAF initiale explicite dans le draft Forecast : ce requirement n'existe pas
+encore dans le tableau publié. Conserver ce champ tant qu'il n'a pas un point
+de saisie unique dans le tableau ; ce n'est pas un doublon de membre publié.
+Ne pas supprimer sa valeur par absence DOM. Après Apply autonome le nouveau
+membre rejoint le tableau. Si le garde existant impose un handoff (notamment
+RAF carte dirty + membership), garder ce chemin, sans contourner ses preuves.
+Ne pas forcer un snapshot pour une simple révision A ou un ajout Forecast autonome.
+
+**À MODIFIER** : lecture Forecast → Actuals/RAF → Update actuals → History →
+Apply/Cancel. Hôte stable hors `fields` effacés au hydrate, éventuellement dans
+le formulaire avant actions ; modale toujours hors formulaire. Buttons de
+navigation/History type button, aucune soumission imbriquée ou croisée.
+Activation/Delete/reorder et plusieurs cartes ouvertes restent fonctionnels.
 
 ### Reservation
 
-Même bloc compact, titre `Actuals`, même période globale et deux colonnes
-`Team | Consumed (j.h)`. **Aucune colonne RAF** ; aucune commande RAF. Zéro,
-une ou plusieurs Teams acceptées : état vide lisible si aucune participante,
-sans ligne zéro fictive. Les allocations Forecast ratio/fixed-daily restent
-dans leurs sous-cartes et gardent leurs unités, dates et éditeur.
+Titre `Actuals`, même période globale et tableau `Team | Consumed (j.h)`.
+**Aucune colonne RAF, aucun routage A**. Zéro/une/plusieurs Teams ; état vide
+lisible, aucune ligne zéro fictive. Les allocations Forecast restent dans les
+sous-cartes, ratio en pourcentage et fixed-daily en demande quotidienne, avec
+leurs unités et valeurs exactes untouched ; jamais converties en RAF/total.
 
-### Historique et états spécifiques
+### History et états
 
-**EXISTANT** : lecture seule et repli par défaut. **À MODIFIER** : entrée
-`History` compacte, avec sections V5 et legacy V4 identifiées. **À AJOUTER** :
-détails accessibles version, knowledgeDate, snapshotId, couverture/partition,
-periodIds, participation/retiredZeroTeams, quantités et RAF Project exacts ;
-legacy conserve ses dates/cumuls/RAF/provenance disponibles sans inventer d'ID
-V5. Les détails techniques ne figurent plus dans le résumé principal.
-L'historique est celui des objets dans Current ; il ne demande aucun chargement
-de captures **Portfolio History**. Pas d'édition/restauration/suppression dedans.
+**EXISTANT** : readonly et replié par défaut. **À MODIFIER** : entrée compacte
+`History`, détails V5 et legacy identifiés. **À AJOUTER** : accès complet version,
+knowledgeDate, snapshotId, periodIds, couverture/partition, participants,
+retiredZeroTeams, consommés et RAF historiques exacts, provenance legacy disponible.
+Aucun ID V5 inventé pour V4. Les données techniques détaillées restent dans History.
+Pas d'édition/restauration/suppression ; histoires objet dans Current seulement,
+aucune lecture de captures Portfolio History pour éditer Current.
 
-| État | Présentation et comportement attendus |
+| État | Présentation et contrat |
 | --- | --- |
-| Aucun snapshot, aucun legacy | « No Actuals recorded » ; période inconnue, Consumed `—` ; RAF Forecast suggestion, jamais connaissance zéro |
-| Snapshot RAF-only / sans couverture | « No Actuals coverage » ; période `—`, Consumed `—` ; RAF enregistré exact, même s'il vaut zéro |
-| Snapshot couvert | Une période globale, cumuls exacts par Team ; RAF snapshot autoritaire |
-| Couverture connue, consommation nulle | Dates présentes et `0`, jamais absence ; borne Project 11C toujours active |
-| Legacy V4 pending | Message explicite de réconciliation ; historique readonly ; ne pas présenter des deltas legacy comme une partition V5 confirmée ; entrée « Reconcile legacy Actuals » conservée |
-| Actuals/RAF draft | RAF saisi visible, carte dirty ; consommés publiés dans la carte et preview de branche dans la modale identifiés ; suggestion/confirmation sans ambiguïté |
-| Stale / conflit objet | Message visible, Apply refusé ; textes conservés, revue explicite ou Cancel selon le contrat existant |
-| Validation / persistance en échec | Erreur précise et drafts conservés ; abort prouvé distinct de recovery obligatoire ; pas d'annonce de succès ni de nettoyage prématuré |
+| Aucun snapshot/legacy | No Actuals recorded ; période `—`, Consumed `—`, RAF courant éditable requirements ; A sans premier V5 |
+| Ancien snapshot sans couverture / érosion totale | Période/Consumed `—`, RAF courant requirements ; RAF historique dans History uniquement |
+| Snapshot couvert positif ou zéro | Dates communes, exacts par Team ; zéro rendu `0`, borne 11C conservée même sans occupation positive |
+| Legacy pending | Message reconciliation explicite, données V4 readonly ; ne pas inventer une partition V5/cumul courant V5 ; RAF requirements éditable, A ne réconcilie pas |
+| Draft carte/modale | Publié vs saisie distincts ; preview de branche nommée ; besoins de confirmation visibles par Team/cellule |
+| Stale/conflit | Base/récent/local accessibles, Apply bloqué, textes gardés ; Review explicite seulement si sûr, sinon Cancel/réouverture |
+| Échec/pending/recovery | Pas de succès prématuré ; texte conservé ; abort prouvé distinct de commit incertain ; recovery bloque mutations |
 
-## 7. Interaction carte/modale et ownership
+## 7. Ownership, R1 et corrections finales obligatoires
 
-| Geste | Contrat EXISTANT à préserver ; adaptation uniquement de présentation |
+### Interactions
+
+| Geste | EXISTANT à préserver / adaptation ciblée |
 | --- | --- |
-| Frappe RAF rapide | Store snapshot RAM pour cette carte, aucune mutation session/projection/persistance ; désactivée quand sa modale est ouverte |
-| Apply global, RAF seul | Même `applyCardRaf`, commande `replace-project-actuals` initial ou raf-only ; ancienne couverture/périodes/consommés copiés exactement |
-| RAF et autres champs Forecast dirty | Le coordinateur refuse aujourd'hui si ces changements ne peuvent être publiés atomiquement ; garde les deux intentions et explique le séquencement. Ne pas ajouter de transaction combinée hors contrats existants |
-| Ouverture modale | Copier le draft RAF de carte dans une branche modale, montrer sa provenance ; l'original, même invalide, reste conservé |
-| Next/Back | Garder valeurs, sélection, provenance et confirmations ; aucun dispatch intermédiaire |
-| Apply final modale | Validation complète des preuves ; une commande whole-object, une projection et un commit effectif ; nettoyage ciblé seulement après succès |
-| Cancel/Escape modale | Supprimer uniquement la branche, restaurer exactement le draft de carte préalable et le Forecast ayant déclenché un handoff |
-| Cancel global carte | Restaurer Forecast et Actuals/RAF publiés pour cet objet ; autres cartes inchangées |
-| Handoff Forecast → Actuals | Membership cible + paramètres transportables + evidence/RAF dans un candidat unique ; pas de publication Forecast préalable |
-| Échec | Conserver branches, textes, Forecast, bases, conflits et autres drafts ; pas de nouvelle version sur validation/refus/abort prouvé |
-| No-op | Équivalence canonique et partition identique : pas de snapshot/version/write/projection. Exception existante : établissement explicite du premier snapshot (modale initial/reconcile) est une nouvelle connaissance même si RAF égale la suggestion Forecast |
+| Frappe tableau RAF | Store RAM existant, aucun dispatch, projection ou write ; désactivée durant branche modale |
+| Apply carte RAF seul | `applyCardRaf` → A ; zéro snapshot quelle que soit la source ; équivalence vraie zéro projection/write |
+| RAF + autres champs Forecast non transportables | Garde/séquencement explicite, toutes intentions conservées ; aucune transaction composite inventée |
+| Update actuals | Copie du draft carte dans branche unique, même invalide ; RAF base requirements ; ouverture ne confirme rien |
+| Next/Back/sélection | Étapes, textes, provenance/preuves conservés selon leurs invalidations existantes ; zéro publication intermédiaire |
+| Apply modal | Candidat B + preuves vers Application R2 ; résultat no-op/A/B réel ; nettoyage cible après résultat confirmé seulement |
+| Cancel/Escape modal | Détruire branche uniquement, restaurer draft carte/Forecast préalable textuellement ; autres cartes conservées |
+| Cancel carte | Restaurer état publié de cet objet uniquement, sans write ni restauration historique |
+| Handoff membership | Forecast propriétaire des Teams/caps/allocations ; Actuals readonly membership cible, un seul candidat B, aucune publication préalable |
+| Échec | Owners/bases/branches/textes/erreurs conservés ; refus/abort prouvé ne consomme aucune version |
 
-Ne pas créer Apply RAF/Revert RAF. L'Apply modal demeure l'action finale de la
-transaction Actuals ; il ne remplace pas l'Apply de carte des éditions directes.
-Ne pas convertir le fait d'ouvrir, de reformater ou de fermer un champ en
-établissement implicite de connaissance initiale.
+### R1 livré : changements réels et preuves délibérées
 
-## 8. Drafts, confirmations, conflits et stockage 11D.0
+**EXISTANT** : confirmations RAF requises = union de :
 
-**EXISTANT** : deux instances du store Actuals (Project/Reservation) et deux
-stores Forecast possédés par le coordinateur, plusieurs cartes dirty possibles.
-Le Domain reste seul juge du candidat. Dirty compare la valeur exacte pour un
-RAF complet ; les incomplets restent des différences textuelles récupérables.
-Aucun résultat de parsing ne remplace le texte saisi dans le store.
+- tous les participants si présence de couverture, bornes ou partition changent
+  (from seul, through, prepend/append, split/merge, érosion comprise) ;
+- à partition identique, seules Teams dont une consommation exacte change ;
+- Teams dont le RAF numérique change contre requirements publiés, plus obligations
+  d'ajout/retrait/réintroduction existantes.
 
-Les marqueurs copied/user-entered/user-confirmed/domain-zero-propagated/
-needs-confirmation et rafConfirmed sont indépendants du formatage. Une borne
-modifiée, split, merge ou remplacement non nul ne proratisent jamais. Une
-suggestion visible doit être explicitement confirmée ; un RAF rendu autrement
-ne confirme rien. Changement d'actualsThrough exige confirmation de tous les
-RAF participants ; participation nouvelle exige chaque cellule, même zéro.
+Divergence RAF courant/historique seule n'ajoute aucune obligation. Une valeur
+RAF inchangée peut néanmoins nécessiter une confirmation après consommation.
+Cellules copied/user-entered/user-confirmed/domain-zero-propagated/
+needs-confirmation et preuves RAF restent distinctes du formatage.
+Nouveau participant : consommés de chaque période et RAF explicitement fournis,
+y compris zéro. Aucun prorata non nul ; propagation zéro seulement zone déjà
+connue entièrement zéro selon Domain. Retrait : consommés courants tous nuls,
+confirmation union RAF historique/courant et marqueur ; A vers zéro ne retire pas
+la Team et ne contourne pas un consommé non nul. Réintroduction fournit de
+nouvelles cellules/RAF, jamais restauration depuis History. Dernier requirement
+non retirable. Les dates restent civiles fixes, inclusives/contiguës, sans
+synchronisation avec dates Forecast/horizon ; coverage≤knowledgeDate inchangé.
 
-Rebase automatique seulement si membership/partition compatibles et champs
-sans conflit ; comparaison à trois voies sur exact canonique. Partition
-concurrente ou même champ changé différemment → stale, textes gardés. Modale
-ouverte : aucun rebase silencieux ; `review` explicite n'est possible que dans
-les cas sûrs actuels. Le parse et le Domain revérifient la baseVersion ; le CAS
-repository protège en plus contre une révision distante de Current. Ces deux
-contrôles ne sont pas interchangeables.
+**V1 — restitution IDs** : parser retrouve l'ID publié par intervalle et toutes
+consommations exactes quand une période est restaurée, même si split/merge a
+perdu `originalPeriodId`. Ouvrir/Apply inchangé, bornes ou consommation restaurées,
+split puis merge annulé, merge puis split annulé doivent garder tous les IDs et
+être des no-ops. Un changement d'ID artificiel reste refusé par Application/Domain.
+Ne pas remplacer ce contrôle par une comparaison ignorant les identités.
 
-**EXISTANT — 11D.0** : drafts uniquement RAM, non exportés comme données Current.
-Le root devient inert durant le commit ; erreur/pending ne détruit pas les
-owners. `writeCurrent` ne lit/réécrit aucune capture Portfolio History ; les
-histoires Actuals détenues par l'objet restent dans Current et préfixes immuables.
-Publication uniquement après validation, projection privée et commit confirmé.
+**V2 — review concurrent RAF autorisée** : conserver périodes/consommations
+locales et leurs provenances quand Actuals distants n'ont pas changé. Après
+Review explicite, fusion RAF à trois voies contre vraie base et Current récent,
+actualisation de la base RAM, invalidation **sélective** des confirmations dont
+le RAF base a changé. Consommation locale A + RAF distant A exige renouvellement
+A ; consommation locale A + RAF distant B garde la preuve A non affectée, B
+invalidée mais non requise si B inchangée pour R1. Une couverture locale modifiée
+reste conservée et exige tous les RAF. RAF local invalide ne garde aucune preuve.
+Actuals/partition/membership/paramètres distants incompatibles ou RAF contradictoire
+refusent review, gardent le draft, demandent Cancel/réouverture ; pas de merge forcé.
 
-Abort certain → erreur/retry avec draft gardé. Commit incertain, commit confirmé
-mais réconciliation locale impossible, ou Current distant → recovery obligatoire,
-mutations bloquées, draft visible/conservé, reload explicite avec confirmation
-de perte des drafts RAM. Ne pas annoncer rollback si le commit est inconnu,
-ne pas relancer automatiquement Apply ni créer une révision locale de secours.
-Pas de modification IndexedDB, CAS, receipts, migrations ou récupération.
+**R1 — frappe indépendante** : `1,25`, `1.25`, `1.2500`, `5/4` ne créent aucune
+confirmation. Un changement numérique invalide la preuve précédente ; texte
+équivalent ne conserve que la preuve **déjà explicite**. Checkbox de confirmation
+ou geste explicite existant est nécessaire ; ni focus, blur, rendu, initialisation,
+frappe, adoption distante ou ouverture ne fabrique de preuve. `onOpen` remet
+les confirmations RAF de branche à false : le marqueur quick interne n'est pas
+une preuve R1 transmissible. Ne pas convertir Apply A en confirmation modal B.
 
-## 9. Architecture et fichiers potentiellement impactés
+## 8. Concurrence, no-op et transaction 11D.0
 
-**À MODIFIER / À AJOUTER après autorisation seulement** :
+**EXISTANT** : quatre stores coordonnés, plusieurs cartes dirty simultanées,
+RAM uniquement, non exportée. Base carte/branche/handoff immutable ; modèle récent
+séparé ; comparison exacte avec fallback texte pour incomplet/invalide. Source,
+membership, caps/allocations et RAF doivent détecter changement à version Actuals
+inchangée. Ne reconstruire aucune base depuis dernier snapshot/`old.model` rafraîchi.
 
-- Application : helper exact dans `editableQuantity.ts` ou module voisin exporté
-  par `src/application/index.ts` ; parse décimal localisé ; format RAF dans
-  `projectEditViewModel.ts` ; projection compacte dans `snapshotActualsViewModel.ts`
-  seulement si elle rend l'agrégation testable sans dépendance DOM.
-- UI Actuals : les trois fichiers store/controller/parser et messages,
-  récapitulatifs exacts, labels et historique.
-- UI Forecast Project : contrôleur/store/parser pour égalité sémantique du RAF,
-  retrait du doublon snapshot et conservation des commandes/fields exacts.
-  Contrôleur Create seulement si un changement local de champ est nécessaire.
-- Composition : `createTimelineUiCoordinator.ts`, `createPortfolioEditControls.ts`,
-  types de contrôles dans `renderApp.ts` si un hôte stable est exposé.
-  Shell/TeamSubcard seulement si un besoin précis est démontré ; pas de refonte.
-- `public/styles.css` : séparer styles du tableau compact et de la matrice modale.
-- Tests Application et UI listés au §12 ; intégration storage/backup uniquement
-  pour renforcer les garanties existantes, sans modification de leurs contrats.
+Rebase automatique carte seulement si structure/paramètres compatibles et
+champs non contradictoires ; textes invalides et équivalents conservés. Modale
+ouverte toujours stale/review explicite, aucun rebase silencieux. Les cas sûrs
+et refus V2 du §7 ne sont ni élargis ni réduits pour simplifier l'écran.
+Review ne publie rien ; revalider toutes preuves nécessaires à Apply.
+Les contrôles parser/session base métier ne remplacent pas CAS repository.
 
-**HORS PÉRIMÈTRE** : moteur et reconstruction ; sémantique Forecast/History ;
-Domain ; IndexedDB/CAS ; formats V5/V6/V7 ; captures Portfolio ; dépendances,
-scripts ; daily contributions 11D.2, navigation/replay 11D.3.
-Le partage du parseur ne constitue pas une autorisation de remodeler tous ses
-consommateurs. Garder le formatage des capacités/pourcentages existant.
+Prepare → projection privée → `writeCurrent` sous token → commit confirmé →
+publish ; zéro état intermédiaire. No-op vrai, après contrôles de base/identités :
+zéro horloge snapshot/version/projection/write/conversion persistée. A effectif
+et B effectif : chacun une seule projection/write ; B seulement un nouveau
+snapshot. Plusieurs A avant B n'inventent pas de journal RAF.
 
-Si une impossibilité Domain apparaît, arrêter ce sous-travail et documenter
-le candidat concret, l'invariant, pourquoi UI/Application ne suffit pas, le
-changement minimal et impacts compatibilité/tests pour audit séparé. Une
-simplification de code n'est pas une justification. Les API actuelles couvrent
-le rendu décimal fini/fraction et les transactions nécessaires.
+Abort certain : aucune publication, draft gardé et retry explicite existant.
+Commit incertain, commit confirmé mais reconciliation locale impossible ou CAS
+distant perdu : recovery obligatoire, mutations Current/Save/Delete/import
+bloquées, owners conservés et reload explicite. Confirmation de reload informe
+la perte des drafts RAM ; Cancel reload les garde. Aucun rollback annoncé pour
+outcome inconnu, retry automatique ou incrément local de secours. Root inert
+durant commit ; pas de nettoyage d'owner sur pending/erreur.
 
-## 10. Invariants et risques
+## 9. Invariants et risques de portée
 
-| Risque | Mitigation / preuve attendue |
+| Invariant / risque | Protection et preuve attendue |
 | --- | --- |
-| Perte des décimales longues ou de `1/3` lors du rendu | Rendu sans précision, fallback fraction exacte, round-trip canonique ; untouched garde original exact |
-| Changement dirty/conflict dû à une virgule ou un rendu | Comparaison métier exacte du RAF, fallback brut incomplet ; pas de changement de membership masqué |
-| Mise en forme prise pour confirmation | Provenance et evidence inchangées ; tests de suggestions ambiguës et confirmation RAF |
-| Second owner RAF après retrait du champ Team | Tableau relié au store existant ; modèle/commandes toujours complets ; callbacks et drafts antérieurs caractérisés |
-| Deux intentions pré-snapshot confondues | RAF Forecast vs suggestion de connaissance explicitement libellés ; séquencement/conflict actuel préservé |
-| Apply soumis au mauvais formulaire | Hôte stable hors fields hydratés ; modale hors formulaire ; tests Enter, submit et un seul dispatch |
-| Coût BigInt / développement fini gigantesque | Protections §5, mesures ciblées, cache temporaire ; aucun seuil de précision silencieux |
-| Draft perdu au remount / recovery | Texte brut et branche dans store ; tests collapse/tabs/suspend/rebuild ; pas de cleanup sur failure |
-| Confusion absence/covered-zero | Discriminants source/couverture, dates et `—`/`0` distincts ; ne pas déduire couverture d'occupation positive |
-| Édition Current recharge Portfolio History | Espions repository : aucun readSnapshot/content/write History ; captures byte/structure identiques |
-| 390 px, noms et chiffres longs | Colonnes réduites, min-width:0, taille de champ bornée, scroll interne ; boutons/erreurs visibles, document sans overflow |
-| Test ancien contourné | Garder toutes les assertions métier ; changer seulement sélecteurs/libellés/layout nécessaires, ajouter les cas UX manquants |
+| Autorité RAF | Requirements seuls Current ; History immutable ; A zéro snapshot et B égalité post-publication seulement |
+| Numérique | Aucun Number/parseFloat/toFixed pour quantités ; fini complet/fraction exacte ; raw draft, équivalence et round-trip ; coûts §5 |
+| Domain/moteur | Aucun changement ; reconstruction, caps, membership, activation et engine `/2` inchangés |
+| 11C | T source exclusive courant, couvert zéro conserve T ; Forecast positif date>T sur toutes Teams ; A ne change pas T |
+| IndexedDB/CAS | Schema2/storage data1/stores/keys/indices/receipts inchangés ; aucune modification de modèle ou recovery |
+| Compatibilité | V1–V8 et inputs1/2/forecast1/2 mixtes, ancien contrat numérique strict ; vieux Current read/Save/no-op sans rewrite ; V8 export exact |
+| Identités/provenance | IDs/preuves/hors-zone et préfixes append-only ; V1 ; legacy records et autorité de provenance conservés ; aucune histoire réécrite |
+| Dirty indépendant | Plusieurs cartes, tabs/collapse/remount/History suspend ; nettoyage owner cible après commit confirmé ; draft incomplet toujours récupérable |
+| Doublon retiré | Requirements/caps/intention untouched collectés depuis store ; ajout initial explicite conservé, aucun membership déduit d'input absent |
+| Concurrence | Base RAM réelle, rebase trois voies, V2, preuves sélectives ; stale avant R2 même target=current ; CAS final distinct |
+| Pas de travail à la frappe | Aucun dispatch/recalcul moteur/write ; parsing local exact permis, cache borné si utile ; aucun rendu qui change la valeur |
+| History | Aucun readSnapshot/payload/content/metadata capture inutile pour Current ; historiques objet accessibles sans Portfolio History |
+| Publication/recovery | Privé avant commit ; abort/unknown distingués, recovery obligatoire après incertain/unreconciled, drafts gardés |
+| Formulaires/responsive | Hôte stable, modale body, un seul submit, focus/restoration, scroll interne ; document sans overflow à 390 px |
+| Tests | Assertions existantes conservées ; changer seulement selectors/layout nécessaires ; aucun skip ou affaiblissement métier |
 
-Invariants supplémentaires : valeurs non négatives ; couverture contiguë incluse
-avant knowledgeDate ; IDs copiés pour périodes unchanged ; pas de somme des
-snapshots ; RAF indépendant des consommés ; dailyCap préservé ; exclusivité
-legacy/V5 ; borne 11C globale au Project y compris consommation zéro ; activation
-ne change pas Actuals ; aucun recalcul durant frappe/navigation ; V7 autonome
-exact ; captures historiques immuables ; commit précède publication.
+**HORS PÉRIMÈTRE** : Domain, engine/reconstruction, sémantique Forecast/History,
+commandes/R1/R2, formats V1–V8/inputs, stockage, scripts/dépendances, replay,
+daily contributions 11D.2 et navigation 11D.3. Pas de réécriture globale du
+parseur ou formatage des capacités/pourcentages. Si une impossibilité apparaît,
+documenter candidat minimal, invariant violé, preuve issue du code/tests,
+pourquoi UI/Application ne suffit pas et alternatives avant audit séparé ;
+ne pas modifier le métier pour contourner le blocage.
 
-## 11. Découpage ordonné et points de vérification
+## 10. Plan d'exécution A → B → C → D → E
 
-Chaque étape reste future et contrôlée par audit/autorisation ; commencer par
-caractériser les chemins réellement touchés, puis modifier localement.
+Toutes les étapes sont futures ; audit indépendant et autorisation préalables.
+Les fichiers tests cités au §11 sont les tests voisins réellement présents.
+Chaque étape conserve ses critères même si B/C sont livrées ensemble pour
+éviter une composition temporairement incohérente.
 
-| Étape | Travail futur | Gate avant suite |
+### A — Saisie, parsing et affichage numériques exacts
+
+- **Fichiers** : `editableQuantity.ts` ou helper Application voisin à ajouter,
+  `src/application/index.ts`, `projectEditViewModel.ts`, store/parser/controller
+  Actuals et parsers Project/Create consommateurs ; tests N1–N8. Ne pas changer Domain.
+- **Conservé** : sérialisation canonique, exact untouched, non-négativité,
+  preuves, incomplets RAM, contrats ratio/fixed et syntaxe de dates.
+- **À MODIFIER / AJOUTER** : helper fini complet/fraction, virgule à la lecture
+  métier seule, comparaison RAF exacte, messages ciblés/ressources ; formater
+  uniquement les initialisations propres, jamais le texte en cours.
+- **Dépendances** : APIs Domain existantes ; inventaire des callers du parse partagé
+  avant adaptation, aucune nouvelle dépendance. B/C/D utilisent ce contrat.
+- **Risques** : coût BigInt/rendu mesuré, exceptions, cache non borné, preuve
+  inventée ou faux dirty ; mitigation §5 et §7, aucun plafond implicite.
+- **Tests** : N1–N8, V1/R1, parsers Project/Actuals et Reservation/capacité
+  affectés si parse partagé ; mesures browser parsing/dirty/rendu/Apply et mémoire.
+- **Acceptation** : tous exacts round-trip ; équivalences sans write/confirmation,
+  raw incomplet gardé mais non publiable ; résultats ressources documentés,
+  absence de limite silencieuse et de float métier. Si budget bloquant démontré,
+  alternatives auditées avant adoption, sans engager Domain/worker.
+
+### B — Cartes compactes Project/Reservation et historique
+
+- **Fichiers** : `createSnapshotActualsCardController.ts`, éventuellement
+  `snapshotActualsViewModel.ts` pour projection testable, `createPortfolioEditControls.ts`,
+  `renderApp.ts`, composition `createTimelineUiCoordinator.ts`, `public/styles.css`.
+- **Conservé** : valeurs publiées, source/absence/zero/legacy, ordre Teams,
+  form handlers Apply/Cancel, historique readonly, expansion/activation/Delete.
+- **À MODIFIER / AJOUTER** : période commune 3/2 colonnes, rendu A, History compact
+  replié et détails exacts complets ; hôte/actions stables, labels d'unité/provenance.
+- **Dépendances** : A ; C assure le point RAF unique. UI compacte ne modifie pas commandes.
+- **Risques** : faux zéro, double cumul, historique RAF pris pour Current,
+  submit croisé, longueurs/overflow ; oracles C1–C3/U1–U2.
+- **Tests** : VM/controller Project/Reservation, 0/1/N Teams et tous états §6,
+  cumuls multi-périodes, hôte hydrate/remount, readonly sans read Portfolio History.
+- **Acceptation** : dates mutualisées, colonnes demandées, RAF requirements
+  y compris sans snapshot, historique replié ; aucun payload historique muté,
+  aucune allocation Reservation/unité affectée, aucun formulaire imbriqué.
+
+### C — RAF courant, suppression doublon, dirty et rebase
+
+- **Fichiers** : `createProjectEditController.ts`, `projectDraftStore.ts`,
+  `parseProjectEditCommand.ts`, `createProjectCreateController.ts` si nécessaire,
+  trois modules Actuals, `createTimelineUiCoordinator.ts`, `actualsForecastConflict.ts`.
+- **Conservé** : A/B/R2 livrés, bases RAM, garde Forecast/RAF, handoff membership,
+  caps/allocations, Apply/Cancel/owners et ajouts pré-snapshot explicites.
+- **À MODIFIER** : suppression du champ membre publié doublon, accès store au
+  lieu d'input absent, dirty/rebase exact point/virgule/fraction et messages
+  Current/RAF même sans nouvelle version ; aucune seconde intention persistante.
+- **Dépendances** : A/B ; caractériser les collectes et callbacks actuels avant
+  retrait DOM. D utilise les mêmes preuves/branches.
+- **Risques** : faux retrait requirement, perte RAF initial d'ajout, reset raw,
+  confusion version Actuals/CAS et régression V2 ; garder refus structurels.
+- **Tests** : A1–A4, R2a–R2c, C4–C6, M6–M7, V1/V2/R1 et multidraft/coordinator ;
+  spy counts no-op/A/B et absence read History ; parsers untouched/caps.
+- **Acceptation** : point RAF unique pour membre publié avant/après snapshot,
+  A seul aucun snapshot, nouveaux membres/création fonctionnels, R2 Application
+  intact, plusieurs dirty préservés ; rebase/review sûr sans perte de consommés/preuves.
+
+### D — Modale, confirmations, erreurs, focus et responsive
+
+- **Fichiers** : controller/store/parser Actuals, coordinateur pour guards/focus,
+  `public/styles.css` ; aucune refonte frise/transaction ou nouvelle autorité.
+- **Conservé** : prepend/append, sélection contiguë, replacement/split/merge,
+  érosion et reconcile legacy, dates fixes/hors-zone, evidence sélective et IDs,
+  Back/Next/Cancel, deux étapes Reservation/troisième RAF Project.
+- **À MODIFIER / AJOUTER** : rendu exact A dans champs/cumuls/suggestions/history,
+  publié vs branche vs besoins explicites, raisons R1, erreur par Team/période,
+  Review parlant de Current, focus logique/restoration, styles compact/responsive.
+- **Dépendances** : A/C, bases et contrats existants ; pas de preuve générée par rendu.
+- **Risques** : blur/init confirment, renouvellement trop large/manquant,
+  remount perd texte/caret, frise inaccessible ; contrôles V1/V2/R1/U2.
+- **Tests** : M1–M7, V1/V2/R1, refus couverture/date/evidence, Enter/Escape/trap,
+  focus après erreur/succès/Cancel/Review/remount, desktop/390 px et longues valeurs.
+- **Acceptation** : toutes opérations conservées, R1 exactement conditionnel,
+  aucun RAF confirmé par frappe équivalente, V2 conserve branches/provenance,
+  aucune perte d'ID restauré V1 ; erreurs/actions accessibles sans overflow document.
+
+### E — Validation complète et revue navigateur
+
+- **Fichiers** : suites existantes §11, tests UI/Application voisins renforcés
+  seulement selon delta ; rapports de validation futurs dans livraison. Domain,
+  codecs/repository/worker sont oracles conservés, pas implémentations à modifier.
+- **Conservé** : toutes assertions métier/compatibilité/atomicité et fixtures
+  anciennes, scopes de tests synchrones vs async/native ; aucun skip ni nouvel E2E.
+- **À AJOUTER** : preuves intégration pour UI finale, compteurs write/projection/version,
+  mesures A complétées, revue réelle des captures et compte rendu des limites.
+- **Dépendances** : A–D gates ciblées passantes ; production complète construite
+  pour tests natifs, origine/profil isolés, aucune donnée utilisateur manipulée.
+- **Risques** : suite verte masquant anciennes assertions, benchmark pris pour
+  garantie, simple DOM pris pour CAS ; revue diff/assertions et natif obligatoire.
+- **Tests/gates** : `npm run typecheck`, `npm test`, `npm run build`,
+  `npm run test:storage`, `npm run test:portable`,
+  `node scripts/browser-storage-audit-test.mjs`,
+  `node scripts/browser-raf-final-test.mjs`, `git diff --check` ; scripts existants
+  lancés sans nouvelle stack. Cas UX additionnels via outils navigateur existants.
+- **Acceptation** : §12 intégral, V1/V2/R1 natifs répétés avec layout final,
+  R2 quatre branches avec counts, vieux Current et mixed captures V8 round-trip,
+  failures/CAS/recovery, 1440/390 px et clavier ; livraison IN REVIEW pour audit
+  d'implémentation, jamais auto-DONE. Ne pas démarrer E dans cette mission de plan.
+
+## 11. Matrice complète de validation future
+
+Les cas ci-dessous sont futurs ; les résultats RAF Model cités §2 ne sont pas
+une validation UX. Suites réellement présentes :
+
+- **NUM** : `src/application/session/editableQuantity.test.ts`,
+  `projectEditViewModel.test.ts`, `teamReservationsEditViewModel.test.ts`,
+  `src/ui/project-edit/parseProjectEditCommand.test.ts`,
+  `src/ui/reservation-edit/parseReservationEditCommand.test.ts` et leurs stores/controllers.
+- **UX** : `src/ui/actuals/createSnapshotActualsCardController.test.ts`,
+  `actualsWorkflow.test.ts`, `src/ui/project-edit/createProjectEditController.test.ts`,
+  `createProjectCreateController.test.ts`, `projectDraftStore.test.ts`,
+  Reservation equivalents, `src/ui/timeline/createTimelineUiCoordinator.test.ts`
+  et `createTimelineUiCoordinator.multidraft.test.ts`.
+- **MODEL** : `src/application/session/lot11d1RafModel.test.ts`,
+  `planningSession.lot10c1.test.ts`, `planningSession.test.ts`,
+  `src/domain/actuals/snapshots.test.ts`, entities et membership existants.
+- **TX** : `src/main/planning/createRepositoryPlanningDispatcher.test.ts`,
+  `planningPersistenceTransaction.test.ts`, `createPlanningProjectionDispatcher.test.ts`,
+  `src/application/persistence/planningRepository.test.ts`,
+  `validateStoredSnapshot.test.ts`, `repositoryTransfer.test.ts`.
+- **COMPAT** : `src/application/backup/flowplanBackupV1.test.ts`,
+  `flowplanBackupV5.test.ts`, `portableBackupParts.test.ts`,
+  `src/application/portfolioSnapshots/portfolioSnapshots.test.ts`, `dailyProfiles.test.ts`,
+  TX/worker/native gates. Les cas V4 sont notamment dans `flowplanBackupV1.test.ts` ;
+  aucun fichier `flowplanBackupV4.test.ts` n'existe. Il n'existe pas nécessairement un test éponyme par codec.
+- **TEMP** : `src/main/planning/lot11cTemporalSeparation.test.ts`,
+  `lot10c1SnapshotProjection.test.ts`, `buildPlanningSessionProjection.test.ts`,
+  moteur/metrics et History existants conservés.
+
+| ID | Scénarios | Oracle et suites |
 | --- | --- | --- |
-| A — conversion exacte | Helper rendu fini/fraction, normalisation virgule, égalité canonique et erreurs ressources ; mesures BigInt ciblées | Tableau numérique §12 passant ; round-trip, no-op et limites documentés ; arbitrage technique seulement si cas mesuré l'exige |
-| B — carte compacte | Cumuls présentés exactement, une période, états absents/zero/legacy, historique détaillé replié, hôte/actions | Project/Reservation 0/1/N Teams ; aucun changement commande/session ; carte et formulaires accessibles |
-| C — RAF Forecast/Actuals | Rendu exact de tous les RAF concernés ; retirer doublon snapshot, comparaison dirty/rebase exacte, wiring ciblé | RAF rapide et Forecast pré-snapshot, créations, équivalences, conflits et handoff ; aucune seconde autorité |
-| D — modale/responsive | Appliquer le rendu aux champs/récapitulatifs et labels ; erreurs, focus/restoration/remount ; CSS spécifique | Toute capacité existante conservée, aucune evidence inventée ; clavier et 390 px/desktop |
-| E — intégration et revue | Suite complète, V7, CAS/failures/recovery/History, revue navigateur et diff de portée | Critères §13 satisfaits ; livraison pour audit d'implémentation, sans auto-DONE |
+| N1 | `0`, entiers, point/virgule, `1.2500`, `5/4`, longues décimales | Canonique exact, tous 1,25 équivalents ; NUM/UX |
+| N2 | `1/3`, `2/7`, `1/8`, `10/8` | Non fini fraction, fini décimal intégral ; parse(format(q))=q ; NUM |
+| N3 | Négatifs entier/décimal/fraction, `-0`, dénominateur zéro | Factories non négatives inchangées ; -0 selon contrat actuel ; état publié intact ; NUM/MODEL |
+| N4 | Vide, `1,`, `1.`, `1/`, `-`, texte ; séparateurs mixtes/groupements/exposants/plus/`01`/`.5` | Raw après blur/remount, incomplet/invalide non publiable, pas zéro implicite hors Domain-zero ; NUM/UX |
+| N5 | >2^53, <0,001, grandes fractions/BigInt, 2^n/5^n, cumuls dénominateurs distincts | Exact sans scientifique/troncature ; coûts/erreurs ressources mesurés, texte conservé ; NUM et §5 |
+| N6 | Domain→VM→draft→parse→commande ; ouverture/Apply inchangé/Cancel | Exact et IDs identiques, no-op zéro clock/version/projection/write ; NUM/UX/MODEL/TX |
+| N7 | `1,25`/`1.25`/`1.2500`/`5/4` en dirty/rebase/conflit | Pas faux dirty/conflit, pas confirmation créée ; invalide reste dirty ; stores/UX |
+| N8 | Virgule partagée et champs untouched capacité/ratio/fixed-daily | Unités/exacts antérieurs préservés ; pas refonte pourcentages/capacités ; NUM/Reservation/Team parsers |
+| C1 | Project 1/N, Reservation 0/1/N Teams, noms/valeurs longs | 3/2 colonnes, période unique, somme snapshot courant seulement, ordre Portfolio ; UX |
+| C2 | Aucun snapshot, ancien RAF-only positif/zéro, couvert zéro/positif, érosion totale | `—` vs `0`, RAF requirements partout, aucun premier V5 par A ; UX/MODEL/TEMP |
+| C3 | Legacy pending/réconcilié, History replié | V4 readonly/provenance/RAF historiques exacts, pas partition inventée/double cumul/reconcile par A ; UX/COMPAT |
+| C4 | Retrait doublon sous-carte, création et nouveau membre non publié avant snapshot | Membership/caps/exact untouched complets sans input DOM, RAF initial explicite conservé, un point membre publié ; Project parser/controller/coordinator |
+| C5 | RAF + autre champ dirty, caps seuls, caps+RAF, plusieurs cartes dirty | Garde/séquencement inchangé, pas nettoyage silencieux/composite ; caps seuls update-project sans snapshot ; UX/MODEL |
+| C6 | Apply A puis B, Cancel modal/carte, tab/collapse/remount/suspend History | Owners indépendants, draft raw invalides préservés, Save dirty-guarded, aucun rendu historique→Current ; UX |
+| A1 | A sans snapshot/ancien RAF-only/couvert/legacy/réconcilié/inactif, 1/N Teams | Requirements patch seuls, caps/legacy/source/histories identiques, 0 snapshot, 1 projection/write si effectif ; MODEL/TX/native |
+| A2 | A exact équivalent/zéro/grande valeur ; patch absent/vide/duplicate/unknown/nonmembre/négatif | Valide équivalent no-op 0/0, invalide refus 0/0 ; pas clock/version/convert vieux Current ; MODEL/TX |
+| A3 | A base source/membership/RAF ciblé stale, target=current ; patches disjoints | Stale avant equality, conflit ciblé ou rebase sûr, pas overwrite ; MODEL/UX |
+| A4 | update-project untouched après A ; révision cachée ; nouveau membre RAF initial | RAF publié conservé, hidden numeric revision refusée, caps exacts, initial explicite ; MODEL/Project parser |
+| R2a | Quatre couples changements Actuals/RAF avec historique divergent | no-op/A/B/B ; snapshots 0/0/1/1, projections/write 0/1/1/1, alignement B seulement ; MODEL/TX et modal native |
+| R2b | Confirmations seules, rationnels équivalents, base complète stale non ciblée malgré target=current | No-op uniquement après bases/identités ; stale avant routing, zéro write ; MODEL/UX |
+| R2c | Plusieurs A puis B consommation/extension/érosion ; no-op startup ancien | B base dernier RAF courant, pas restauration historique ni journal A, ancien Current non réécrit au no-op ; MODEL/TX/COMPAT |
+| R1a | Consommation A seule, partition fixe, RAF numérique inchangé, B non confirmée | B requiert RAF A et preuve consumed ; B non requise si non concernée, absence A refuse ; MODEL/UX |
+| R1b | from/through/présence coverage/partition split/merge/érosion, through identique possible | Tous participants RAF confirmés, union numérique/membership ; sans preuve zéro publication ; MODEL/UX |
+| R1c | RAF numérique modifié, ajout/retrait/réintroduction ; courant0/historique>0 et inverse | Union obligations, nonzero consommé interdit retrait, new zero explicite, préfixes/markers protégés ; MODEL/UX |
+| R1d | Frappe équivalente puis différente, init/rendu/focus/blur/open/Review | Zéro preuve inventée, équivalent conserve preuve explicite existante seulement, changement invalide ; onOpen false ; UX/native |
+| V1 | Open unchanged, dates/consommés changés puis restaurés, split→merge annulé, merge→split annulé ; fractions équivalentes | IDs originaux retrouvés, snapshot/version/state/projection/token identiques, 0 write/projection ; artificial ID substitution toujours refusée ; parser/MODEL/UX/native final |
+| V2a | Consommé local A + RAF distant A, même version Actuals ; Review puis Apply sans/avec renouvellement A | Local consommation/provenance gardée, base actualisée seulement Review, sans preuve refus, avec preuve B unique 1/1 ; UX/MODEL/native final |
+| V2b | Consommé local A + RAF distant B ; RAF équivalent/disjoint, invalid local, deux cartes dirty | Preuve A gardée si non affectée, B invalidée et requise seulement selon R1, raw autre carte gardé ; invalid ne garde preuve ; UX/native final |
+| V2c | Couverture locale modifiée + RAF distant seul ; Actuals/membership/caps/partition distant ou RAF contradictoire | Cas sûr garde branche/all-Team R1 ; cas incompatibles Review refuse/draft conservé/Cancel explicite, aucune fusion forcée ; UX/MODEL |
+| M1 | Première couverture Project/Reservation, RAF modifié avant entrée, covered-zero/reconcile | Étape sélection absente sans coverage, 2/3 étapes, couverture explicite v1, jamais RAF seul premier V5 ; UX/MODEL |
+| M2 | Prepend/append/sélection contiguë 1/N périodes/remplacement/hors-zone | Dates fixes sans trou/overlap, hors-zone exact/copied IDs, intent/editedZone réels ; UX/Domain existant |
+| M3 | Split/merge/bornes/retrait périodes/érosion partielle/totale | Nonzero jamais proratisé, needs-confirmation/evidence sélective ; zero propagation seulement permis ; refus conservés ; UX/MODEL |
+| M4 | from seul/through, RAF courant divergent historique, partition fixe/consommé seul | R1 selon réel, aucune confirmation globale ou fallback historique ; UX/MODEL |
+| M5 | Back/Cancel/Escape à chaque étape, RAF invalide/long préexistant | Branche seule annulée, drafts initiaux restaurés raw, étape/focus remount ; UX |
+| M6 | Concurrence A→B, B→A, B→B, disjoint/convergent/contradiction, membership/source | Base métier et full B vs targeted A contrôlées, version identique détectée ; V2/refus/review explicites ; stores/MODEL |
+| M7 | Handoff Project/Reservation ajout/retrait/réintroduction, RAF dirty retiré, autre Forecast dirty ; success/failure/Cancel | Une commande/evidence complète, aucun préalable publié, retrait impossible refusé, Forecast/RAF préalables gardés ; succès owner seul ; UX/MODEL |
+| I1 | Input, tabs/collapse/suspend/remount/review, plusieurs cartes dirty | Zéro dispatch moteur/write, raw/dirty/ownership indépendants ; UX/coordinator spies |
+| I2 | Validation/Domain/projection/encode failure, abort certain/quota et retry | État/projection/token inchangés et drafts visibles, erreur spécifique ; TX/native |
+| I3 | CAS deux connexions/notification absente, ack perdu après A/B, publish local échoue après commit | Recovery blocage mutations, draft gardé jusqu'au reload confirmé, aucun rollback fictif/retry auto ; TX/native |
+| I4 | Actions effectives vs no-op, confirmation seule, restored knowledge | Counts exacts §4, state identity et préfixes/IDs/preuves ; MODEL/TX/UX |
+| I5 | Export/import après saisies UX de longues décimales/1/3, source V4/V5 sélectionnée après A/B et collection mixte | Anciens validators stricts, V8 exact export/stage/read-back/reimport/reopen, sources/IDs/profils historiques identiques ; COMPAT/TX/worker/native |
+| K1 | Readers V1–V7, V4 intermittent/futur/provenance, V5 knowledgeDate≤UTC exportedAt, anciens invalides RAF | Acceptation/rejet historique identiques, conversion RAM exacte sans snapshot inventé ; COMPAT |
+| K2 | V8 RAF divergent, pending/réconcilié, anciens uncovered/RAF-only ; discriminant inconnu/extra fields/downgrade | Round-trip exact ; inconnu refuse ; downgrade refuse perte/divergence, jamais réalignement ; COMPAT |
+| K3 | Anciennes captures inputs1 forecast1/2 engine /1 chevauchant et /2 ; nouvelles inputs2 divergentes | Captures/metadata/digests/profils inchangés, RAF/EAC requirements capturés et non owner Current/source.raf ; Portfolio/History |
+| K4 | Capture sélectionne ancien snapshot après A/B/membership ultérieur ; source none/legacy exclusive, owner/référence/préfixe invalide | Résolution ID/préfixe historique exact, invalides refusés, IDs réservés et legacy authority map protégée ; TX/COMPAT |
+| K5 | Read/Save/no-op vieux Current sans discriminant, import ancien/V8 invalide au milieu/interrompu | Pas rewrite vieux Current par read/Save/no-op ; staging/read-back/activation entière uniquement, raw/fingerprint inchangé ; TX/native |
+| K6 | Vieux Current + nouvelles captures inputs2 ; nouveau Current inputs2 + captures inputs1 forecast1/2 ; collection mixte | ReadCurrent/readSnapshot/worker/export V8/stage/read-back/import/reopen exacts ; A ne réécrit aucune capture, Save ne convertit pas vieux Current, sources/IDs/digests conservés ; TX/native bloquant |
+| I6 | A/B/édition Current avec nombreuses captures ; Save/Delete séparés | Aucun read/write payload/content/metadata capture pour Current, History revision inchangée ; Save/Delete sans moteur/rewrite Current ; TX/native |
+| I7 | B/RAF après couvert zéro, érosion, earliest/Mandatory/horizon/borne extrême, Project inactif | 11C positif date>T toutes Teams, A T et occupation inchangés, activation Actuals intacte, aucune correction capture ancienne ; TEMP/MODEL |
+| U1 | 1440/390 px, 0/1/N, longues valeurs/noms, History et modale scroll | document.scrollWidth=innerWidth ; scroll interne seulement, boutons/dates/erreurs accessibles, champ garde valeur entière ; browser |
+| U2 | Tab/Shift+Tab/Enter/Escape/arrows, focus erreur/succès/Cancel/Review/remount | Labels Team/unité, trap/restoration, focus visible, un submit, raccourcis frise bloqués en modale ; UX/browser |
 
-L'ordre A → B → C → D → E reprend le séquencement indicatif. B inclut
-l'historique car il appartient à la synthèse de carte ; D ne refond pas l'éditeur.
-Les tests ciblés accompagnent chaque étape, E consolide les non-régressions.
-Si B/C doivent être livrés ensemble pour éviter temporairement un doublon ou
-un formulaire incomplet, garder leurs gates distincts et un commit cohérent.
-Aucun sous-lot Domain/storage/engine n'est ajouté.
+Les regressions V1/V2/R1 finales sont obligatoires et s'ajoutent aux capacités
+10C.1/10C.2, pas à leur remplacement. Les suites Domain historiques raf-only
+restent des validations des données anciennes, sans légitimer une nouvelle
+publication RAF-only production. Garder les fixtures anciennes et leurs
+assertions négatives numériques ; ne pas les convertir en inputs2 pour masquer
+une régression. Les suites synchronous fixtures ne prouvent pas seules CAS/recovery.
 
-## 12. Matrice détaillée de tests futurs
+`formatQuantityForEditing(1/3)=0.333` peut rester testé pour l'ancien helper
+hors surfaces Actuals/RAF ; tester le nouveau helper ciblé séparément. Adapter
+seulement selectors/libellés/layout devenus obsolètes, conserver les assertions
+métier, dates, IDs, evidence, atomicité, drafts et focus. Aucun test retiré,
+skippé ou assertion affaiblie pour une suite verte. Compter les tests ciblés
+dans le total complet, scénarios natifs séparément, résultats/limites réels consignés.
 
-Les suites existantes ont été inspectées ; aucun test n'est ajouté, modifié ou
-exécuté dans cette passe documentaire. Les anciens fixtures synchrones
-caractérisent le métier ; ils ne prouvent pas seuls le CAS asynchrone 11D.0.
-Les résultats 935/935 + 3/3 de 11D.0 sont des résultats historiques, pas des
-validations 11D.1.
+## 12. Critères d'acceptation et décisions acquises
 
-| ID | Scénarios minimum | Oracle / couche et suites à utiliser |
-| --- | --- | --- |
-| N1 | `0`, `12`, `1.25`, `1,25`, `5/4`, `1.2500`, `0,0001`, nombreux chiffres fractionnaires | Sérialisation canonique exacte attendue, aucun Number ; `editableQuantity.test.ts` et parser Project/Actuals |
-| N2 | `1/3`, `2/7`, fini `1/8`, fraction équivalente `10/8` | Fraction infinie préservée ; fini entièrement décimal ; parse(format(q)) = serialize(q) |
-| N3 | `-1`, `-0.1`, `-1/3`, denominateur zéro ; caractériser `-0` | Négatifs rejetés par factories, état publié intact ; zéro signé conforme au contrat §5 |
-| N4 | Vide, `1,`, `1.`, `1/`, `-`, texte ; mix point/virgule, espaces/groupements, exposants, `01`, `.5` | Texte présent dans draft après input/blur/remount ; incomplet/invalide inapplicable, message ciblé ; pas de zéro implicite hors règle Domain-zero |
-| N5 | Entier > 2^53, très grand numérateur/dénominateur ; petites valeurs < 0.001 ; longue partie finie et développement de puissance 2/5 | Exact attendu BigInt, jamais scientifique/tronqué ; mesures et erreurs ressources visibles sans perte de draft ; longueurs échantillons §5 |
-| N6 | Domain → VM → champ → draft → parse → commande → Domain ; ouverture, Apply unchanged, Cancel | Exact identique, period IDs/partition inchangés ; aucun snapshot/projection/write pour no-op existant ; helper/Application et UI |
-| N7 | `1,25` vs `1.25` vs `5/4` en dirty, rebase et conflit des RAF Forecast/Actuals | Même métier, pas de faux conflit/version ; invalide différent reste dirty ; `projectDraftStore.test.ts`, `actualsWorkflow.test.ts`, parser Project |
-| C1 | Project 1/N Teams ; Reservation 0/1/N Teams ; noms longs | 3/2 colonnes, une période globale seulement, ordre Portfolio, cumuls exacts multi-périodes ; `createSnapshotActualsCardController.test.ts` |
-| C2 | Aucun snapshot, RAF-only positif/zéro, covered zéro, covered positif, total erosion | `—` vs `0`, suggestion vs RAF enregistré, borne non positive toujours connue ; tests VM/controller et session existants |
-| C3 | Legacy V4 pending puis V5 réconcilié avec legacy retenu | Action reconcile explicite, histoires repliées readonly, détails accessibles ; aucune somme double/partition inventée |
-| C4 | RAF rapide, autre champ Forecast dirty, création Project RAF décimal/fraction, plusieurs cartes dirty | Simulation inert ; Apply/Cancel global, gardes existantes, nettoyage ciblé ; contrôleurs Project/Create et coordinator multidraft |
-| C5 | RAF pré-snapshot Forecast édité et suggestion Actuals éditée, équivalente ou contradictoire | Deux intentions distinguées, conflit/séquencement sans perte ; premier snapshot seulement par validation explicite de connaissance |
-| M1 | Première saisie Project/Reservation ; RAF-only → première couverture | Ouverture directe aux périodes ; 3/2 étapes adaptées ; candidate complet et explicit zero validé |
-| M2 | Prepend/append, zone centrale 1/N périodes, remplacement partitions | Hors-zone copié exact et mêmes IDs, dates contiguës, bon intent/editedZone ; controller, `actualsWorkflow.test.ts` et suites Domain existantes |
-| M3 | Split/merge/bornes déplacées/retrait de périodes/érosion | Aucun prorata non nul ; suggestions needs-confirmation, evidence sélective ; zero propagation seulement connue ; tests de refus conservés |
-| M4 | Changement through, RAF inchangé/modifié, changement from seul | Confirmation RAF quand nécessaire ; format équivalent ne remplace pas la preuve ; consommation ambiguë explicitement confirmée |
-| M5 | Back, Cancel à chaque étape, Escape ; RAF invalide/long avant ouverture | Branche supprimée uniquement, RAF carte/Forecast originaux restaurés textuellement ; remount garde étape et données ; focus Update actuals ou carte |
-| M6 | Snapshot concurrent, RAF disjoints/identiques/conflictuels, partition/membership concurrent | Rebase sûr seulement ; modal stale jusqu'à review ; base ID/version cohérents, erreurs et textes gardés |
-| M7 | Handoff Project et Reservation : ajout/retrait/réintroduction, RAF rapide préalable, autre champ dirty | Une commande/evidence complète ; aucune publication préalable ; retrait impossible refusé ; Cancel/failure garde Forecast ; success nettoie cet objet seulement ; coordinator multidraft |
-| I1 | Frappe numérique, changement de tab/collapse, suspend/resume et remount | Zéro dispatch/projection/write ; texte/dirty indépendants ; `createTimelineUiCoordinator.multidraft.test.ts`, stores/controllers |
-| I2 | Validation/refus Domain/projection failure, abort de persistance prouvé | Session/projection/token inchangés, draft/modal/erreurs conservés ; `actualsWorkflow.test.ts`, `planningSession.lot10c1.test.ts`, dispatcher async |
-| I3 | CAS concurrent, ack perdu/commit incertain, publication locale impossible après commit | Recovery bloque mutations, garde drafts jusqu'au reload explicitement confirmé ; pas de faux rollback ni retry automatique ; `createRepositoryPlanningDispatcher.test.ts`, UI recovery existante |
-| I4 | Apply métier effectif / no-op équivalent | Respectivement une projection et un writeCurrent effectif / zéro ; un snapshot effectif ou zéro version ; repository spies et session |
-| I5 | Export/import V7 après décimales longues et `1/3`, legacy retenu, captures schemas 1/2 existantes | Canonical rationals exacts, captures/IDs/valeurs historiques inchangés ; suites backup V5/V6/V7, `portableBackupParts.test.ts`, `repositoryTransfer.test.ts` |
-| I6 | Simple édition Current avec nombreuses captures Portfolio | Aucun chargement/readSnapshot de payload History, aucune mutation History/content/metadata/indices de capture ; `planningRepository.test.ts` et dispatcher async |
-| U1 | 390 px et desktop 1440 px, 0/1/N Teams, noms et quantités longues ; modale scroll | scrollWidth document = innerWidth ; scroll interne seulement si nécessaire, dates/boutons/erreurs accessibles, aucune valeur DOM coupée |
-| U2 | Tab/Shift+Tab, Enter, Escape, frise arrows, focus après succès/Cancel/review/remount | Labels Team/unité, focus visible/trap/restoration, alert sans annonce intrusive à chaque frappe, aucune soumission croisée ; contrôleurs et revue navigateur |
+1. N1–N8 : exact point/virgule/fraction, fini intégral/non fini fraction, raw
+   incomplet conservé/non publiable, aucun float ni plafond précision implicite.
+2. Project trois colonnes/Reservation deux, une période commune, current consumed
+   exact ; RAF requirements seul, historique readonly replié sans fallback.
+3. Avant snapshot, A et RAF courant éditable fonctionnent sans V5 ; création/ajout
+   initial explicites conservés, membership/caps/allocations/unités intacts.
+4. Apply/Cancel carte sans boutons RAF dédiés, doublon supprimé pour membre du
+   tableau ; plusieurs dirty/branches/handoff restent indépendants et récupérables.
+5. A et quatre branches R2 exactes avec counts ; zéro snapshot RAF seul ; vrai
+   no-op zéro write/projection, ID substitution invalide toujours refusée.
+6. V1/V2/R1 passent en tests et navigateur réel : IDs restaurés, consommés
+   locaux conservés en review autorisée, preuve séparée de frappe équivalente.
+7. Toutes opérations modales et dates fixes conservées, R1 union exacte,
+   preuves/IDs/hors-zone/provenance intactes, pas prorata non nul ni confirmation implicite.
+8. V1–V8/mixed captures valides exacts ; anciennes données invalides refusées ;
+   histoire immutable et aucun accès Portfolio History inutile pour Current.
+9. Saisie/navigation/review zéro calcul moteur/write ; publication après commit
+   confirmé seulement ; CAS/abort/uncertain/recovery démontrés sans perte silencieuse.
+10. Domain/moteur/11C/IndexedDB/CAS/versions métier inchangés ; gates E passantes,
+    desktop/390 px/clavier/focus accessibles ; diff futur ciblé UI/Application/CSS/tests.
 
-Suites supplémentaires à préserver : `projectEditViewModel.test.ts`,
-`teamReservationsEditViewModel.test.ts`, parsers/contrôleurs/stores Reservation,
-`createTimelineUiCoordinator.test.ts`, navigation/TeamSubcard,
-`planningSession.lot10c1.test.ts`, `src/domain/actuals/snapshots.test.ts`,
-projections 10C.1/11C, persistence/backup/Portfolio captures et History existants.
-Le test actuel qui vérifie `formatQuantityForEditing(1/3) = 0.333` peut rester
-pour la fonction historique hors RAF ; ajouter le contrat exact ciblé plutôt
-que supprimer sa protection. Les tests de layout devenus obsolètes changent
-seulement leurs attentes de structure ; conserver les assertions métier,
-transactions, evidence et focus. Aucun skip ni affaiblissement pour faire passer
-la nouvelle disposition.
+Les choix utilisateur sont définitifs : aucune question sur virgule/fractions,
+précision, RAF requirements, A/B/R1/R2 ou ownership n'est rouverte. Les détails
+DOM/helper/cache sont des choix d'implémentation à vérifier par tests, pas de
+nouveaux arbitrages métier. Aucun blocage Domain identifié à cette baseline.
+Risque concret restant : coût du rendu fini long §5, à mesurer sur UI finale et
+traiter sans plafond silencieux. RAM drafts perdus au reload confirmé et refus
+des merges structurels incompatibles restent les limites existantes 11D.0/RAF Model.
+Toute protection de ressources refusant des valeurs doit fournir mesures,
+comportement visible, texte exact gardé et alternatives pour audit avant adoption.
 
-Les tests V6/V7 se trouvent notamment dans
-`src/application/portfolioSnapshots/portfolioSnapshots.test.ts` et
-`dailyProfiles.test.ts` ; les codecs n'ont pas chacun une suite éponyme.
+## 13. Livraison documentaire et arrêt
 
-Gates futures : `npm run typecheck`, `npm test`, `npm run build` ; suites storage
-natives et portable existantes adaptées au risque, dont `npm run test:storage`
-et `npm run test:portable` pour intégration 11D.0/V7. Pas de nouvelle dépendance,
-script ou stack E2E. Revue réelle navigateur en stockage isolé, desktop et 390 px,
-avec captures et résultats consignés après autorisation d'implémentation.
+Seuls `docs/steps/ACTUALS/lot11d1_plan.md` et `docs/current_plan.md` peuvent changer
+ici. `git diff --check`, inspection paths/stat/diff avant commit, commit
+documentaire puis push normal sur `codex/lot11a-portfolio-snapshots` ; contrôler
+origin synchronisé `0/0` et arbre propre. Aucun code/test/script/dépendance/canon
+modifié ; aucune implémentation engagée ou lot déclaré DONE par cette mission.
 
-## 13. Critères d'acceptation vérifiables
-
-1. Tous N1–N7 passent : point/virgule/fractions, aucune perte exacte, aucune
-   limite artificielle de décimales ; erreurs ressources distinctes documentées.
-2. Le rendu Actuals/RAF ne passe jamais par precision=3 ni Number ; fini complet
-   ou fraction exacte, y compris cumuls et suggestions. Les drafts bruts survivent.
-3. Période globale unique ; Project trois colonnes, Reservation deux ; toutes
-   les distinctions de source/couverture/zero du §6 vérifiées.
-4. RAF rapide intégré aux Apply/Cancel de carte, aucun bouton RAF spécialisé ;
-   champ snapshot redondant supprimé sans perte de membership/dailyCap/exact.
-5. Toutes les capacités modales M1–M7 conservées ; preuve explicite requise,
-   aucun prorata non nul et aucun changement de borne transformant une suggestion
-   en consommation confirmée.
-6. Plusieurs cartes dirty restent indépendantes à travers commit, tab, collapse,
-   remount et navigation ; Cancel modal vs global respectent leurs owners.
-7. Frappe = aucun recalcul/write ; action effective = un commit ; no-op = aucun
-   snapshot ni commit. Échec garde les textes ; outcome incertain impose recovery.
-8. V7 et captures historiques restent exacts et identiques ; simple édition
-   Current n'accède pas aux payloads Portfolio History et ne contourne pas CAS.
-9. Desktop/390 px, clavier/focus/labels/erreurs réussissent sans overflow document,
-   sans boutons inaccessibles ni texte métier tronqué dans la valeur d'un champ.
-10. Gates complètes réussies, tests existants préservés ; diff de production futur
-    limité à UI/Application présentation/CSS nécessaires. Tout élargissement
-    démontré revient en audit avant implémentation concernée.
-
-## 14. Questions, propositions et blocages
-
-Aucune impossibilité Domain ni blocage métier identifié à cette baseline.
-Les décisions fonctionnelles du mandat ne sont pas rouvertes.
-
-Propositions à auditer : helper exact **ciblé**, virgule de présentation sans
-localiser la sérialisation ; tableau unique pour le RAF sous snapshot ; garde
-existante pour RAF + autres champs Forecast ; hôte de composition stable plutôt
-qu'une refonte de la modale. Les noms de helpers et la structure DOM exacte
-seront choisis avec les tests après autorisation.
-
-Seul arbitrage technique conditionnel : si des mesures A prouvent qu'une entrée
-ou un rendu exact dépassent les ressources utilisables, valider une protection
-explicite et son comportement, sans limite de précision métier silencieuse.
-Aucun chiffre de limite ou promesse de performance n'est acquis sans mesure.
-La revue FlowPlan1 n'est pas nécessaire pour ces critères ; aucun accès à son
-code n'est présumé.
-
-## 15. Livraison documentaire et arrêt
-
-Seuls ce fichier et `docs/current_plan.md` sont autorisés à changer.
-Avant commit : vérifier diff/stat/paths, `git diff --check`, 11D.0 DONE et
-11D.1 PLANNED / NOT STARTED. Commit documentaire puis push normal sur
-`origin/codex/lot11a-portfolio-snapshots`, vérifier arbre propre et avance/retard
-0/0. Le SHA documentaire et le résultat Git sont fournis dans le rapport final,
-pas par auto-référence dans ce fichier.
-
-**Aucune implémentation commencée. 11D.1 PLANNED / NOT STARTED.**
-Arrêt après commit/push documentaire. Prochaine étape : audit indépendant du
-plan par ChatGPT ; seule une autorisation explicite après cet audit peut ouvrir
-l'implémentation. 11D.2 et 11D.3 restent hors périmètre et non commencés.
-
-## Downstream RAF model amendment — 11D.1 (IN REVIEW)
-
-The historical release described above is preserved. The separately authorized
-[11D.1 RAF Model delivery](./lot11d1_raf_model_canon.md) supersedes permanent
-RAF equality and quick RAF-only snapshot publication in the current application.
-Requirements own current RAF; snapshot RAF is immutable historical knowledge.
-Actuals publication aligns them atomically, with Application R2 and conditional
-R1 confirmations. V8/inputs2 version this semantics while V1–V7/inputs1 retain
-historical validation. No presentation redesign, replay or inputs-only work is
-included. The future UX plan must use this model before any implementation.
+**11D.1 UX — READY FOR INDEPENDENT PLAN AUDIT ; PLANNED / NOT STARTED.**
+Arrêt après commit/push. Prochaine étape : audit indépendant ChatGPT du plan,
+puis seulement autorisation explicite de développement. 11D.2/11D.3 non commencés.
