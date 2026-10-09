@@ -68,7 +68,7 @@ Current trajectory: **11D.1 RAF Model — DONE; 11D.1 UX — DONE**;
 11D.0: DONE — Storage Architecture & Scalability
 11D.1 RAF Model: DONE — favorable independent audit and final V1/V2 verification
 11D.1 UX: DONE — favorable independent audit, final Cancel S1–S6 gates pass
-11D.2: PLAN PROPOSED — inputs-only architecture / replay feasibility; implementation NOT STARTED
+11D.2: PLANNED / NOT STARTED — hardened inputs-only plan; final independent review required
 11D.3 / 11D.4 / 11D.5: ENVISAGED — NOT STARTED; independent audit and authorization required
 11A.1: DEFERRED / not adopted as product work; no dependency for 11B
 10D: superseded by 11A (not DONE)
@@ -83,15 +83,19 @@ was then IN REVIEW; explicit user closure subsequently marked 11B DONE.
 
 ## 11D.2 — Inputs-only historical architecture and replay contract
 
-**Status: PLAN PROPOSED — documentation only; implementation NOT STARTED.**
-Framing baseline `8103f2e63c9df81621f0806ec711fa9b71c96194`, branch
+**Status: 11D.2 — PLANNED / NOT STARTED — documentation only.**
+Hardening baseline `e37b8d0a6e183bb05aac5cb1e84f15eaa2b16ff4`, branch
 `codex/lot11a-portfolio-snapshots`, clean and origin 0/0 after fetch.
 The [dedicated architectural plan](./steps/STORAGE/lot11d2_plan.md) confronts
 existing contracts with the new user-validated trajectory. 11D.0 and both
 11D.1 sub-lots remain DONE; durable canons continue to describe delivered code.
 
 Validated target decisions: new Portfolio Snapshots retain historical inputs
-and immutable shared Actuals references; calculated results are disposable.
+and immutable shared Actuals references; no calculated results in new captures.
+Team/Project/Reservation configurations are copied into each capture; only
+Actuals knowledge is shared by immutable references. V5 versions remain
+object-scoped, with common periods and exact per-Team consumption; V4 retains
+its historical representation. Full entity normalization is outside scope.
 Normal consultation of **all** snapshots will use the current calculation chain,
 with no promise of exact reproduction of old forecasts. Historical requirements
 remain the RAF authority; no Current input substitution. 11C temporal separation
@@ -100,16 +104,34 @@ show “Recalcul indisponible” with diagnostics, without captured-result fallb
 automatic repair or snapshot rewrite. Old inputs/results/profiles/versions/IDs
 and references remain preserved; explicit conversion is outside scope.
 
-11D.2 plans the inputs completeness/Actuals retention audit, exact canonical
-replay feasibility proof and performance characterization. Proofs, benchmarks,
-code, tests and formats are not changed by this planning delivery. The future
-Application pipeline must support Current and an identified historical snapshot,
-independent of UI/ViewModels/geometries. Metadata, direct business facts and full
-simulation are separate levels; RAM cache keys include resolved inputs and chain
-identity. No initial persistent cache or systematic full-history simulation on
-opening. The current global graphical-cap scan requires an explicit progressive
-scale arbitration before integration; a direct engine substitution would defeat
-lazy loading. See blockers, measurable gates and remaining questions in the plan.
+11D.2 will prove completeness for the current engine, Actuals dependency closure,
+exact historical reconstruction, representative determinism and replay feasibility,
+with initial direct CPU/RAM characterization and documented limits. It does not
+certify future worker, cache, concurrency or UI performance; those and definitive
+budgets belong to their implementation lots. An exploratory budget overrun
+requires analysis and possible architectural adjustment, not automatic rejection
+of inputs-only. No proof, benchmark, code, test or format is changed here.
+
+The future Application pipeline supports Current and historical snapshots,
+independent of UI/ViewModels/geometries. Four stages distinguish indexed snapshot
+listing, progressive entity discovery, Actuals resolution/business facts, and
+simulated results. Unexamined presence remains unknown; the initial display does
+not promise a complete historical catalogue. RAM cache limits do not bound
+simulation peaks: prior cost estimation, temporary/worker copy characterization
+and explicit refusal of unsustainable runs must preserve Current availability.
+A published Current projection matching exact inputs and calculation chain may
+be reused without duplicate simulation; CAS, atomic publication, dirty drafts
+and recovery stay intact. Chain identity covers business transformations without
+purely visual invalidations. Diagnostics distinguish non-resimulable valid
+captures, missing dependencies, unsupported formats, corruption and transient
+read/resource errors, with distinct repository reactions and no old-result fallback.
+
+No initial persistent cache or systematic full-history calculation on opening.
+The global exact cap at cold opening conflicts with progressive loading; scope
+arbitration is deferred to History/Trends integration, without blocking 11D.2
+feasibility or designing a new interaction. Functional Trends evolution remains
+outside scope. The amended plan awaits a final independent review before any
+implementation authorization.
 
 Envisaged lots: 11D.3 Inputs-Only Capture & Persistence; 11D.4 Historical
 Simulation Service; 11D.5 Historical Views Integration. Recommended delivery
