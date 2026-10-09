@@ -1,0 +1,2120 @@
+{
+  "baseline": "633dfc9459c7398f800abfb47439e1251e7bd7aa",
+  "chainFiles": {
+    "src/application/backup/planningInputCodec.ts": "28cdaf2940040a9cabb668a34acb1e7974dad787abbd0c79fc9f1320ba6a2da4",
+    "src/application/portfolioSnapshots/capturePortfolioSnapshot.ts": "107810b44268699ce4d3a9f44a9076c3270c9ecdf7aae263e0d97dc4a46bfeae",
+    "src/domain/actuals/reconstruction.ts": "978920ec435cc728cdda2d4afc8819a3403a6286a63ac861b695efb78461077f",
+    "src/domain/actuals/projectActualsKnowledge.ts": "f3186aacd58144ef593868f898300bad17842910cf553868bd829e19baf968e2",
+    "src/domain/planning/engine.ts": "23b5c981d567a99a200ebc5b5a38f253ada146598f0de1ccd665dd1e4ecf512f",
+    "src/domain/capacity/calculations.ts": "695e74129d154c66560a6b81bcb580f9959148a6050dec0e014f1013e71a2404",
+    "src/domain/planning/projectEstimatedDates.ts": "db75a7c423df14104782d79394592181df8c7bea24cbab74b8da2eecd4d2d778",
+    "src/domain/portfolioSnapshots/portfolioSnapshot.ts": "1fc02d6b7d5959d2c2d74411f1050b2d5ab2babad253d4de07da91fef2b699f0"
+  },
+  "canonicalContract": "lot11d2-business/1",
+  "cases": [
+    {
+      "name": "none",
+      "inputsSchemaVersion": 1,
+      "parity": true,
+      "repetitions": 10,
+      "canonicalDigest": "62b9f44dae9695a56058aba329dbaf7d69a392ef17e4aca436a28155070d73d2",
+      "resolvedDigest": "1517cf865c6c15e1877d50da21d8d642cd925260908efa85e16e5160a7ee5141",
+      "projects": [
+        {
+          "projectId": "project-atlas",
+          "name": "Project Atlas",
+          "priorityPosition": 1,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "3/1",
+          "eac": "3/1",
+          "start": "2025-01-10",
+          "end": {
+            "date": "2025-01-31",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-boreal",
+          "name": "Project Boreal",
+          "priorityPosition": 2,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "69/1",
+          "eac": "69/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "inactive",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-cobalt",
+          "name": "Project Cobalt",
+          "priorityPosition": 3,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "38/1",
+          "eac": "38/1",
+          "start": "2025-01-02",
+          "end": {
+            "date": "2025-03-14",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-delta",
+          "name": "Project Delta",
+          "priorityPosition": 4,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "74/1",
+          "eac": "74/1",
+          "start": "2025-01-01",
+          "end": {
+            "date": "2025-02-20",
+            "reason": null,
+            "complete": true
+          }
+        }
+      ],
+      "diagnostics": [],
+      "actualContributions": 0
+    },
+    {
+      "name": "none",
+      "inputsSchemaVersion": 2,
+      "parity": true,
+      "repetitions": 10,
+      "canonicalDigest": "62b9f44dae9695a56058aba329dbaf7d69a392ef17e4aca436a28155070d73d2",
+      "resolvedDigest": "1517cf865c6c15e1877d50da21d8d642cd925260908efa85e16e5160a7ee5141",
+      "projects": [
+        {
+          "projectId": "project-atlas",
+          "name": "Project Atlas",
+          "priorityPosition": 1,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "3/1",
+          "eac": "3/1",
+          "start": "2025-01-10",
+          "end": {
+            "date": "2025-01-31",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-boreal",
+          "name": "Project Boreal",
+          "priorityPosition": 2,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "69/1",
+          "eac": "69/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "inactive",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-cobalt",
+          "name": "Project Cobalt",
+          "priorityPosition": 3,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "38/1",
+          "eac": "38/1",
+          "start": "2025-01-02",
+          "end": {
+            "date": "2025-03-14",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-delta",
+          "name": "Project Delta",
+          "priorityPosition": 4,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "74/1",
+          "eac": "74/1",
+          "start": "2025-01-01",
+          "end": {
+            "date": "2025-02-20",
+            "reason": null,
+            "complete": true
+          }
+        }
+      ],
+      "diagnostics": [],
+      "actualContributions": 0
+    },
+    {
+      "name": "raf-only",
+      "inputsSchemaVersion": 1,
+      "parity": true,
+      "repetitions": 10,
+      "canonicalDigest": "91de4263e38ef71e372060f1660e62c3b615453f798c17c4f7ea8ad48f763839",
+      "resolvedDigest": "38cec2e6c96477af8d8a3765a875f63b77abb00f7fe962ba99ffa5ca88bcc710",
+      "projects": [
+        {
+          "projectId": "project-atlas",
+          "name": "Project Atlas",
+          "priorityPosition": 1,
+          "actuals": "0/1",
+          "actualsKnowledge": "uncovered",
+          "raf": "3/1",
+          "eac": "3/1",
+          "start": "2025-01-10",
+          "end": {
+            "date": "2025-01-31",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-boreal",
+          "name": "Project Boreal",
+          "priorityPosition": 2,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "69/1",
+          "eac": "69/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "inactive",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-cobalt",
+          "name": "Project Cobalt",
+          "priorityPosition": 3,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "38/1",
+          "eac": "38/1",
+          "start": "2025-01-02",
+          "end": {
+            "date": "2025-03-14",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-delta",
+          "name": "Project Delta",
+          "priorityPosition": 4,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "74/1",
+          "eac": "74/1",
+          "start": "2025-01-01",
+          "end": {
+            "date": "2025-02-20",
+            "reason": null,
+            "complete": true
+          }
+        }
+      ],
+      "diagnostics": [],
+      "actualContributions": 2
+    },
+    {
+      "name": "raf-only",
+      "inputsSchemaVersion": 2,
+      "parity": true,
+      "repetitions": 10,
+      "canonicalDigest": "91de4263e38ef71e372060f1660e62c3b615453f798c17c4f7ea8ad48f763839",
+      "resolvedDigest": "38cec2e6c96477af8d8a3765a875f63b77abb00f7fe962ba99ffa5ca88bcc710",
+      "projects": [
+        {
+          "projectId": "project-atlas",
+          "name": "Project Atlas",
+          "priorityPosition": 1,
+          "actuals": "0/1",
+          "actualsKnowledge": "uncovered",
+          "raf": "3/1",
+          "eac": "3/1",
+          "start": "2025-01-10",
+          "end": {
+            "date": "2025-01-31",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-boreal",
+          "name": "Project Boreal",
+          "priorityPosition": 2,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "69/1",
+          "eac": "69/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "inactive",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-cobalt",
+          "name": "Project Cobalt",
+          "priorityPosition": 3,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "38/1",
+          "eac": "38/1",
+          "start": "2025-01-02",
+          "end": {
+            "date": "2025-03-14",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-delta",
+          "name": "Project Delta",
+          "priorityPosition": 4,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "74/1",
+          "eac": "74/1",
+          "start": "2025-01-01",
+          "end": {
+            "date": "2025-02-20",
+            "reason": null,
+            "complete": true
+          }
+        }
+      ],
+      "diagnostics": [],
+      "actualContributions": 2
+    },
+    {
+      "name": "zero",
+      "inputsSchemaVersion": 1,
+      "parity": true,
+      "repetitions": 10,
+      "canonicalDigest": "aa1788943d05f3fef5e325674af0951ba05182f094cc8aedf40ced99bad75ecc",
+      "resolvedDigest": "acc6fc544699d51802deea11755212109fd44d1b102ce46efb2e81381ef33db5",
+      "projects": [
+        {
+          "projectId": "project-atlas",
+          "name": "Project Atlas",
+          "priorityPosition": 1,
+          "actuals": "0/1",
+          "actualsKnowledge": "covered",
+          "raf": "3/1",
+          "eac": "3/1",
+          "start": "2025-01-10",
+          "end": {
+            "date": "2025-01-31",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-boreal",
+          "name": "Project Boreal",
+          "priorityPosition": 2,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "69/1",
+          "eac": "69/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "inactive",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-cobalt",
+          "name": "Project Cobalt",
+          "priorityPosition": 3,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "38/1",
+          "eac": "38/1",
+          "start": "2025-01-02",
+          "end": {
+            "date": "2025-03-14",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-delta",
+          "name": "Project Delta",
+          "priorityPosition": 4,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "74/1",
+          "eac": "74/1",
+          "start": "2025-01-01",
+          "end": {
+            "date": "2025-02-20",
+            "reason": null,
+            "complete": true
+          }
+        }
+      ],
+      "diagnostics": [],
+      "actualContributions": 6
+    },
+    {
+      "name": "zero",
+      "inputsSchemaVersion": 2,
+      "parity": true,
+      "repetitions": 10,
+      "canonicalDigest": "aa1788943d05f3fef5e325674af0951ba05182f094cc8aedf40ced99bad75ecc",
+      "resolvedDigest": "acc6fc544699d51802deea11755212109fd44d1b102ce46efb2e81381ef33db5",
+      "projects": [
+        {
+          "projectId": "project-atlas",
+          "name": "Project Atlas",
+          "priorityPosition": 1,
+          "actuals": "0/1",
+          "actualsKnowledge": "covered",
+          "raf": "3/1",
+          "eac": "3/1",
+          "start": "2025-01-10",
+          "end": {
+            "date": "2025-01-31",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-boreal",
+          "name": "Project Boreal",
+          "priorityPosition": 2,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "69/1",
+          "eac": "69/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "inactive",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-cobalt",
+          "name": "Project Cobalt",
+          "priorityPosition": 3,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "38/1",
+          "eac": "38/1",
+          "start": "2025-01-02",
+          "end": {
+            "date": "2025-03-14",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-delta",
+          "name": "Project Delta",
+          "priorityPosition": 4,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "74/1",
+          "eac": "74/1",
+          "start": "2025-01-01",
+          "end": {
+            "date": "2025-02-20",
+            "reason": null,
+            "complete": true
+          }
+        }
+      ],
+      "diagnostics": [],
+      "actualContributions": 6
+    },
+    {
+      "name": "v5",
+      "inputsSchemaVersion": 1,
+      "parity": true,
+      "repetitions": 10,
+      "canonicalDigest": "7c2cf0bf4bda85d27e6b68992b3453cb40fb40e06b0d1e299dde51984600bbe6",
+      "resolvedDigest": "b415fa930f3f3a0220cb2e66422dc4bb3dd96c457d40714fc0f56821f91e03c6",
+      "projects": [
+        {
+          "projectId": "project-atlas",
+          "name": "Project Atlas",
+          "priorityPosition": 1,
+          "actuals": "2/3",
+          "actualsKnowledge": "covered",
+          "raf": "3/1",
+          "eac": "11/3",
+          "start": "2024-12-01",
+          "end": {
+            "date": "2025-01-31",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-boreal",
+          "name": "Project Boreal",
+          "priorityPosition": 2,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "69/1",
+          "eac": "69/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "inactive",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-cobalt",
+          "name": "Project Cobalt",
+          "priorityPosition": 3,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "38/1",
+          "eac": "38/1",
+          "start": "2025-01-02",
+          "end": {
+            "date": "2025-03-14",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-delta",
+          "name": "Project Delta",
+          "priorityPosition": 4,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "74/1",
+          "eac": "74/1",
+          "start": "2025-01-01",
+          "end": {
+            "date": "2025-02-20",
+            "reason": null,
+            "complete": true
+          }
+        }
+      ],
+      "diagnostics": [],
+      "actualContributions": 6
+    },
+    {
+      "name": "v5",
+      "inputsSchemaVersion": 2,
+      "parity": true,
+      "repetitions": 10,
+      "canonicalDigest": "7c2cf0bf4bda85d27e6b68992b3453cb40fb40e06b0d1e299dde51984600bbe6",
+      "resolvedDigest": "b415fa930f3f3a0220cb2e66422dc4bb3dd96c457d40714fc0f56821f91e03c6",
+      "projects": [
+        {
+          "projectId": "project-atlas",
+          "name": "Project Atlas",
+          "priorityPosition": 1,
+          "actuals": "2/3",
+          "actualsKnowledge": "covered",
+          "raf": "3/1",
+          "eac": "11/3",
+          "start": "2024-12-01",
+          "end": {
+            "date": "2025-01-31",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-boreal",
+          "name": "Project Boreal",
+          "priorityPosition": 2,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "69/1",
+          "eac": "69/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "inactive",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-cobalt",
+          "name": "Project Cobalt",
+          "priorityPosition": 3,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "38/1",
+          "eac": "38/1",
+          "start": "2025-01-02",
+          "end": {
+            "date": "2025-03-14",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-delta",
+          "name": "Project Delta",
+          "priorityPosition": 4,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "74/1",
+          "eac": "74/1",
+          "start": "2025-01-01",
+          "end": {
+            "date": "2025-02-20",
+            "reason": null,
+            "complete": true
+          }
+        }
+      ],
+      "diagnostics": [],
+      "actualContributions": 6
+    },
+    {
+      "name": "legacy",
+      "inputsSchemaVersion": 1,
+      "parity": true,
+      "repetitions": 10,
+      "canonicalDigest": "b5ac66b7599070c6aead172176ced04f52c78db674624690336082d08a5855ab",
+      "resolvedDigest": "3efb9371322f1435380e5f2acb54ebf737a6e151f5c9dd7793964d5d59696aa5",
+      "projects": [
+        {
+          "projectId": "project-atlas",
+          "name": "Project Atlas",
+          "priorityPosition": 1,
+          "actuals": "8/3",
+          "actualsKnowledge": "legacy-v4",
+          "raf": "3/1",
+          "eac": "17/3",
+          "start": "2024-12-01",
+          "end": {
+            "date": "2025-01-31",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-boreal",
+          "name": "Project Boreal",
+          "priorityPosition": 2,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "69/1",
+          "eac": "69/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "inactive",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-cobalt",
+          "name": "Project Cobalt",
+          "priorityPosition": 3,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "38/1",
+          "eac": "38/1",
+          "start": "2025-01-02",
+          "end": {
+            "date": "2025-03-14",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-delta",
+          "name": "Project Delta",
+          "priorityPosition": 4,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "74/1",
+          "eac": "74/1",
+          "start": "2025-01-01",
+          "end": {
+            "date": "2025-02-20",
+            "reason": null,
+            "complete": true
+          }
+        }
+      ],
+      "diagnostics": [],
+      "actualContributions": 6
+    },
+    {
+      "name": "legacy",
+      "inputsSchemaVersion": 2,
+      "parity": true,
+      "repetitions": 10,
+      "canonicalDigest": "b5ac66b7599070c6aead172176ced04f52c78db674624690336082d08a5855ab",
+      "resolvedDigest": "3efb9371322f1435380e5f2acb54ebf737a6e151f5c9dd7793964d5d59696aa5",
+      "projects": [
+        {
+          "projectId": "project-atlas",
+          "name": "Project Atlas",
+          "priorityPosition": 1,
+          "actuals": "8/3",
+          "actualsKnowledge": "legacy-v4",
+          "raf": "3/1",
+          "eac": "17/3",
+          "start": "2024-12-01",
+          "end": {
+            "date": "2025-01-31",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-boreal",
+          "name": "Project Boreal",
+          "priorityPosition": 2,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "69/1",
+          "eac": "69/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "inactive",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-cobalt",
+          "name": "Project Cobalt",
+          "priorityPosition": 3,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "38/1",
+          "eac": "38/1",
+          "start": "2025-01-02",
+          "end": {
+            "date": "2025-03-14",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-delta",
+          "name": "Project Delta",
+          "priorityPosition": 4,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "74/1",
+          "eac": "74/1",
+          "start": "2025-01-01",
+          "end": {
+            "date": "2025-02-20",
+            "reason": null,
+            "complete": true
+          }
+        }
+      ],
+      "diagnostics": [],
+      "actualContributions": 6
+    },
+    {
+      "name": "reconciled",
+      "inputsSchemaVersion": 1,
+      "parity": true,
+      "repetitions": 10,
+      "canonicalDigest": "caad574ea02a62762d9081355aa5f554b103974c68708f9f8a04513c07b186e5",
+      "resolvedDigest": "dae91db70742c129610e9898f5c97b0496459fbb1e15de5831cb4cc3db7f3f42",
+      "projects": [
+        {
+          "projectId": "project-atlas",
+          "name": "Project Atlas",
+          "priorityPosition": 1,
+          "actuals": "2/3",
+          "actualsKnowledge": "covered",
+          "raf": "3/1",
+          "eac": "11/3",
+          "start": "2024-12-01",
+          "end": {
+            "date": "2025-01-31",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-boreal",
+          "name": "Project Boreal",
+          "priorityPosition": 2,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "69/1",
+          "eac": "69/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "inactive",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-cobalt",
+          "name": "Project Cobalt",
+          "priorityPosition": 3,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "38/1",
+          "eac": "38/1",
+          "start": "2025-01-02",
+          "end": {
+            "date": "2025-03-14",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-delta",
+          "name": "Project Delta",
+          "priorityPosition": 4,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "74/1",
+          "eac": "74/1",
+          "start": "2025-01-01",
+          "end": {
+            "date": "2025-02-20",
+            "reason": null,
+            "complete": true
+          }
+        }
+      ],
+      "diagnostics": [],
+      "actualContributions": 8
+    },
+    {
+      "name": "reconciled",
+      "inputsSchemaVersion": 2,
+      "parity": true,
+      "repetitions": 10,
+      "canonicalDigest": "caad574ea02a62762d9081355aa5f554b103974c68708f9f8a04513c07b186e5",
+      "resolvedDigest": "dae91db70742c129610e9898f5c97b0496459fbb1e15de5831cb4cc3db7f3f42",
+      "projects": [
+        {
+          "projectId": "project-atlas",
+          "name": "Project Atlas",
+          "priorityPosition": 1,
+          "actuals": "2/3",
+          "actualsKnowledge": "covered",
+          "raf": "3/1",
+          "eac": "11/3",
+          "start": "2024-12-01",
+          "end": {
+            "date": "2025-01-31",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-boreal",
+          "name": "Project Boreal",
+          "priorityPosition": 2,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "69/1",
+          "eac": "69/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "inactive",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-cobalt",
+          "name": "Project Cobalt",
+          "priorityPosition": 3,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "38/1",
+          "eac": "38/1",
+          "start": "2025-01-02",
+          "end": {
+            "date": "2025-03-14",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-delta",
+          "name": "Project Delta",
+          "priorityPosition": 4,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "74/1",
+          "eac": "74/1",
+          "start": "2025-01-01",
+          "end": {
+            "date": "2025-02-20",
+            "reason": null,
+            "complete": true
+          }
+        }
+      ],
+      "diagnostics": [],
+      "actualContributions": 8
+    },
+    {
+      "name": "versions-erosion-correction",
+      "inputsSchemaVersion": 1,
+      "parity": true,
+      "repetitions": 10,
+      "canonicalDigest": "9844c9583a8e456314affa4a6e394347eec9d346f353cde0c7841f55b60926c2",
+      "resolvedDigest": "cfa037b753ab1e54e0d07664b1759f4e9f81d14dfc5ee6ecb9c001eda3da7db7",
+      "projects": [
+        {
+          "projectId": "project-atlas",
+          "name": "Project Atlas",
+          "priorityPosition": 1,
+          "actuals": "38/101",
+          "actualsKnowledge": "covered",
+          "raf": "3/1",
+          "eac": "341/101",
+          "start": "2024-12-01",
+          "end": {
+            "date": "2025-01-31",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-boreal",
+          "name": "Project Boreal",
+          "priorityPosition": 2,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "69/1",
+          "eac": "69/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "inactive",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-cobalt",
+          "name": "Project Cobalt",
+          "priorityPosition": 3,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "38/1",
+          "eac": "38/1",
+          "start": "2025-01-02",
+          "end": {
+            "date": "2025-03-14",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-delta",
+          "name": "Project Delta",
+          "priorityPosition": 4,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "74/1",
+          "eac": "74/1",
+          "start": "2025-01-01",
+          "end": {
+            "date": "2025-02-20",
+            "reason": null,
+            "complete": true
+          }
+        }
+      ],
+      "diagnostics": [],
+      "actualContributions": 64
+    },
+    {
+      "name": "versions-erosion-correction",
+      "inputsSchemaVersion": 2,
+      "parity": true,
+      "repetitions": 10,
+      "canonicalDigest": "9844c9583a8e456314affa4a6e394347eec9d346f353cde0c7841f55b60926c2",
+      "resolvedDigest": "cfa037b753ab1e54e0d07664b1759f4e9f81d14dfc5ee6ecb9c001eda3da7db7",
+      "projects": [
+        {
+          "projectId": "project-atlas",
+          "name": "Project Atlas",
+          "priorityPosition": 1,
+          "actuals": "38/101",
+          "actualsKnowledge": "covered",
+          "raf": "3/1",
+          "eac": "341/101",
+          "start": "2024-12-01",
+          "end": {
+            "date": "2025-01-31",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-boreal",
+          "name": "Project Boreal",
+          "priorityPosition": 2,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "69/1",
+          "eac": "69/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "inactive",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-cobalt",
+          "name": "Project Cobalt",
+          "priorityPosition": 3,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "38/1",
+          "eac": "38/1",
+          "start": "2025-01-02",
+          "end": {
+            "date": "2025-03-14",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-delta",
+          "name": "Project Delta",
+          "priorityPosition": 4,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "74/1",
+          "eac": "74/1",
+          "start": "2025-01-01",
+          "end": {
+            "date": "2025-02-20",
+            "reason": null,
+            "complete": true
+          }
+        }
+      ],
+      "diagnostics": [],
+      "actualContributions": 64
+    },
+    {
+      "name": "retired-reintroduced",
+      "inputsSchemaVersion": 1,
+      "parity": true,
+      "repetitions": 10,
+      "canonicalDigest": "e99b5f0246a443e7c704b1465ee3ba54fd9d9daf499e37592f9d524419fdda6c",
+      "resolvedDigest": "44b74dd46e5c20cc7218bd892635c0951eeafd38f83e3e834d23ffa370d378eb",
+      "projects": [
+        {
+          "projectId": "project-atlas",
+          "name": "Project Atlas",
+          "priorityPosition": 1,
+          "actuals": "0/1",
+          "actualsKnowledge": "covered",
+          "raf": "3/1",
+          "eac": "3/1",
+          "start": "2025-01-10",
+          "end": {
+            "date": "2025-01-31",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-boreal",
+          "name": "Project Boreal",
+          "priorityPosition": 2,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "69/1",
+          "eac": "69/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "inactive",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-cobalt",
+          "name": "Project Cobalt",
+          "priorityPosition": 3,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "38/1",
+          "eac": "38/1",
+          "start": "2025-01-02",
+          "end": {
+            "date": "2025-03-14",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-delta",
+          "name": "Project Delta",
+          "priorityPosition": 4,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "74/1",
+          "eac": "74/1",
+          "start": "2025-01-01",
+          "end": {
+            "date": "2025-02-20",
+            "reason": null,
+            "complete": true
+          }
+        }
+      ],
+      "diagnostics": [],
+      "actualContributions": 6
+    },
+    {
+      "name": "retired-reintroduced",
+      "inputsSchemaVersion": 2,
+      "parity": true,
+      "repetitions": 10,
+      "canonicalDigest": "e99b5f0246a443e7c704b1465ee3ba54fd9d9daf499e37592f9d524419fdda6c",
+      "resolvedDigest": "44b74dd46e5c20cc7218bd892635c0951eeafd38f83e3e834d23ffa370d378eb",
+      "projects": [
+        {
+          "projectId": "project-atlas",
+          "name": "Project Atlas",
+          "priorityPosition": 1,
+          "actuals": "0/1",
+          "actualsKnowledge": "covered",
+          "raf": "3/1",
+          "eac": "3/1",
+          "start": "2025-01-10",
+          "end": {
+            "date": "2025-01-31",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-boreal",
+          "name": "Project Boreal",
+          "priorityPosition": 2,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "69/1",
+          "eac": "69/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "inactive",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-cobalt",
+          "name": "Project Cobalt",
+          "priorityPosition": 3,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "38/1",
+          "eac": "38/1",
+          "start": "2025-01-02",
+          "end": {
+            "date": "2025-03-14",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-delta",
+          "name": "Project Delta",
+          "priorityPosition": 4,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "74/1",
+          "eac": "74/1",
+          "start": "2025-01-01",
+          "end": {
+            "date": "2025-02-20",
+            "reason": null,
+            "complete": true
+          }
+        }
+      ],
+      "diagnostics": [],
+      "actualContributions": 6
+    },
+    {
+      "name": "independent-raf",
+      "inputsSchemaVersion": 2,
+      "parity": true,
+      "repetitions": 10,
+      "canonicalDigest": "d15f852136186ab3b7db25ecb84c97aab413b2b16e007e152ab1096205f5017b",
+      "resolvedDigest": "9c3497a72361c716f1bc4b028acba4bb27fefb3d7065eae84ee3121ed72d0373",
+      "projects": [
+        {
+          "projectId": "project-atlas",
+          "name": "Project Atlas",
+          "priorityPosition": 1,
+          "actuals": "2/3",
+          "actualsKnowledge": "covered",
+          "raf": "275/309",
+          "eac": "481/309",
+          "start": "2024-12-01",
+          "end": {
+            "date": "2025-01-13",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-boreal",
+          "name": "Project Boreal",
+          "priorityPosition": 2,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "69/1",
+          "eac": "69/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "inactive",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-cobalt",
+          "name": "Project Cobalt",
+          "priorityPosition": 3,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "38/1",
+          "eac": "38/1",
+          "start": "2025-01-02",
+          "end": {
+            "date": "2025-03-14",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-delta",
+          "name": "Project Delta",
+          "priorityPosition": 4,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "74/1",
+          "eac": "74/1",
+          "start": "2025-01-01",
+          "end": {
+            "date": "2025-02-20",
+            "reason": null,
+            "complete": true
+          }
+        }
+      ],
+      "diagnostics": [],
+      "actualContributions": 6
+    },
+    {
+      "name": "zero-capacity-impossible",
+      "inputsSchemaVersion": 1,
+      "parity": true,
+      "repetitions": 10,
+      "canonicalDigest": "89b1b07995b6ed9da414cd8af8f73361ac0c35439139fe216b4fafa1d40e1585",
+      "resolvedDigest": "bdbc8c61b810ef80ba77b691979c865f110c2b51ff01a4010004198933d04e6d",
+      "projects": [
+        {
+          "projectId": "project-atlas",
+          "name": "Project Atlas",
+          "priorityPosition": 1,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "3/1",
+          "eac": "3/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "incomplete-within-horizon",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-boreal",
+          "name": "Project Boreal",
+          "priorityPosition": 2,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "69/1",
+          "eac": "69/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "inactive",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-cobalt",
+          "name": "Project Cobalt",
+          "priorityPosition": 3,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "38/1",
+          "eac": "38/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "incomplete-within-horizon",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-delta",
+          "name": "Project Delta",
+          "priorityPosition": 4,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "74/1",
+          "eac": "74/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "incomplete-within-horizon",
+            "complete": false
+          }
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "DEADLINE_MISSED",
+          "teamId": "team-alpha",
+          "projectId": "project-atlas",
+          "date": "2025-02-02"
+        },
+        {
+          "code": "DEADLINE_MISSED",
+          "teamId": "team-beta",
+          "projectId": "project-atlas",
+          "date": "2025-02-02"
+        },
+        {
+          "code": "DEADLINE_MISSED",
+          "teamId": "team-beta",
+          "projectId": "project-cobalt",
+          "date": "2025-03-15"
+        },
+        {
+          "code": "PROJECT_REMAINS_UNPLANNED_AT_HORIZON",
+          "teamId": "team-alpha",
+          "projectId": "project-atlas",
+          "date": null
+        },
+        {
+          "code": "PROJECT_REMAINS_UNPLANNED_AT_HORIZON",
+          "teamId": "team-alpha",
+          "projectId": "project-delta",
+          "date": null
+        },
+        {
+          "code": "PROJECT_REMAINS_UNPLANNED_AT_HORIZON",
+          "teamId": "team-beta",
+          "projectId": "project-atlas",
+          "date": null
+        },
+        {
+          "code": "PROJECT_REMAINS_UNPLANNED_AT_HORIZON",
+          "teamId": "team-beta",
+          "projectId": "project-cobalt",
+          "date": null
+        },
+        {
+          "code": "PROJECT_REMAINS_UNPLANNED_AT_HORIZON",
+          "teamId": "team-beta",
+          "projectId": "project-delta",
+          "date": null
+        },
+        {
+          "code": "PROJECT_REMAINS_UNPLANNED_AT_HORIZON",
+          "teamId": "team-gamma",
+          "projectId": "project-delta",
+          "date": null
+        }
+      ],
+      "actualContributions": 0
+    },
+    {
+      "name": "zero-capacity-impossible",
+      "inputsSchemaVersion": 2,
+      "parity": true,
+      "repetitions": 10,
+      "canonicalDigest": "89b1b07995b6ed9da414cd8af8f73361ac0c35439139fe216b4fafa1d40e1585",
+      "resolvedDigest": "bdbc8c61b810ef80ba77b691979c865f110c2b51ff01a4010004198933d04e6d",
+      "projects": [
+        {
+          "projectId": "project-atlas",
+          "name": "Project Atlas",
+          "priorityPosition": 1,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "3/1",
+          "eac": "3/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "incomplete-within-horizon",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-boreal",
+          "name": "Project Boreal",
+          "priorityPosition": 2,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "69/1",
+          "eac": "69/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "inactive",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-cobalt",
+          "name": "Project Cobalt",
+          "priorityPosition": 3,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "38/1",
+          "eac": "38/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "incomplete-within-horizon",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-delta",
+          "name": "Project Delta",
+          "priorityPosition": 4,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "74/1",
+          "eac": "74/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "incomplete-within-horizon",
+            "complete": false
+          }
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "DEADLINE_MISSED",
+          "teamId": "team-alpha",
+          "projectId": "project-atlas",
+          "date": "2025-02-02"
+        },
+        {
+          "code": "DEADLINE_MISSED",
+          "teamId": "team-beta",
+          "projectId": "project-atlas",
+          "date": "2025-02-02"
+        },
+        {
+          "code": "DEADLINE_MISSED",
+          "teamId": "team-beta",
+          "projectId": "project-cobalt",
+          "date": "2025-03-15"
+        },
+        {
+          "code": "PROJECT_REMAINS_UNPLANNED_AT_HORIZON",
+          "teamId": "team-alpha",
+          "projectId": "project-atlas",
+          "date": null
+        },
+        {
+          "code": "PROJECT_REMAINS_UNPLANNED_AT_HORIZON",
+          "teamId": "team-alpha",
+          "projectId": "project-delta",
+          "date": null
+        },
+        {
+          "code": "PROJECT_REMAINS_UNPLANNED_AT_HORIZON",
+          "teamId": "team-beta",
+          "projectId": "project-atlas",
+          "date": null
+        },
+        {
+          "code": "PROJECT_REMAINS_UNPLANNED_AT_HORIZON",
+          "teamId": "team-beta",
+          "projectId": "project-cobalt",
+          "date": null
+        },
+        {
+          "code": "PROJECT_REMAINS_UNPLANNED_AT_HORIZON",
+          "teamId": "team-beta",
+          "projectId": "project-delta",
+          "date": null
+        },
+        {
+          "code": "PROJECT_REMAINS_UNPLANNED_AT_HORIZON",
+          "teamId": "team-gamma",
+          "projectId": "project-delta",
+          "date": null
+        }
+      ],
+      "actualContributions": 0
+    },
+    {
+      "name": "future-v4",
+      "inputsSchemaVersion": 1,
+      "parity": true,
+      "repetitions": 10,
+      "canonicalDigest": "d4f53954e6282e1d069d59519658dfebe6384c85adaca595ec83364e3698619c",
+      "resolvedDigest": "b2f988725416046d636e6356ec6100be4a5178d28e9698fc882ee0b2896b40b8",
+      "projects": [
+        {
+          "projectId": "project-atlas",
+          "name": "Project Atlas",
+          "priorityPosition": 1,
+          "actuals": "8/3",
+          "actualsKnowledge": "legacy-v4",
+          "raf": "3/1",
+          "eac": "17/3",
+          "start": "2024-12-01",
+          "end": {
+            "date": null,
+            "reason": "incomplete-within-horizon",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-boreal",
+          "name": "Project Boreal",
+          "priorityPosition": 2,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "69/1",
+          "eac": "69/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "inactive",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-cobalt",
+          "name": "Project Cobalt",
+          "priorityPosition": 3,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "38/1",
+          "eac": "38/1",
+          "start": "2025-01-02",
+          "end": {
+            "date": "2025-03-14",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-delta",
+          "name": "Project Delta",
+          "priorityPosition": 4,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "74/1",
+          "eac": "74/1",
+          "start": "2025-01-01",
+          "end": {
+            "date": "2025-02-20",
+            "reason": null,
+            "complete": true
+          }
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "DEADLINE_MISSED",
+          "teamId": "team-alpha",
+          "projectId": "project-atlas",
+          "date": "2025-02-02"
+        },
+        {
+          "code": "DEADLINE_MISSED",
+          "teamId": "team-beta",
+          "projectId": "project-atlas",
+          "date": "2025-02-02"
+        },
+        {
+          "code": "PROJECT_REMAINS_UNPLANNED_AT_HORIZON",
+          "teamId": "team-alpha",
+          "projectId": "project-atlas",
+          "date": null
+        },
+        {
+          "code": "PROJECT_REMAINS_UNPLANNED_AT_HORIZON",
+          "teamId": "team-beta",
+          "projectId": "project-atlas",
+          "date": null
+        }
+      ],
+      "actualContributions": 765
+    },
+    {
+      "name": "future-v4",
+      "inputsSchemaVersion": 2,
+      "parity": true,
+      "repetitions": 10,
+      "canonicalDigest": "d4f53954e6282e1d069d59519658dfebe6384c85adaca595ec83364e3698619c",
+      "resolvedDigest": "b2f988725416046d636e6356ec6100be4a5178d28e9698fc882ee0b2896b40b8",
+      "projects": [
+        {
+          "projectId": "project-atlas",
+          "name": "Project Atlas",
+          "priorityPosition": 1,
+          "actuals": "8/3",
+          "actualsKnowledge": "legacy-v4",
+          "raf": "3/1",
+          "eac": "17/3",
+          "start": "2024-12-01",
+          "end": {
+            "date": null,
+            "reason": "incomplete-within-horizon",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-boreal",
+          "name": "Project Boreal",
+          "priorityPosition": 2,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "69/1",
+          "eac": "69/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "inactive",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-cobalt",
+          "name": "Project Cobalt",
+          "priorityPosition": 3,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "38/1",
+          "eac": "38/1",
+          "start": "2025-01-02",
+          "end": {
+            "date": "2025-03-14",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-delta",
+          "name": "Project Delta",
+          "priorityPosition": 4,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "74/1",
+          "eac": "74/1",
+          "start": "2025-01-01",
+          "end": {
+            "date": "2025-02-20",
+            "reason": null,
+            "complete": true
+          }
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "DEADLINE_MISSED",
+          "teamId": "team-alpha",
+          "projectId": "project-atlas",
+          "date": "2025-02-02"
+        },
+        {
+          "code": "DEADLINE_MISSED",
+          "teamId": "team-beta",
+          "projectId": "project-atlas",
+          "date": "2025-02-02"
+        },
+        {
+          "code": "PROJECT_REMAINS_UNPLANNED_AT_HORIZON",
+          "teamId": "team-alpha",
+          "projectId": "project-atlas",
+          "date": null
+        },
+        {
+          "code": "PROJECT_REMAINS_UNPLANNED_AT_HORIZON",
+          "teamId": "team-beta",
+          "projectId": "project-atlas",
+          "date": null
+        }
+      ],
+      "actualContributions": 765
+    },
+    {
+      "name": "complex-rationals-overload",
+      "inputsSchemaVersion": 2,
+      "parity": true,
+      "repetitions": 10,
+      "canonicalDigest": "a02ee3383ba5543103723b41150cbf534e3e65940ddb2bd5621c1c85ac5e2889",
+      "resolvedDigest": "5126d17c9c956b980707156e9c296ea77778687bcb07720ffdf682aaedc48d71",
+      "projects": [
+        {
+          "projectId": "project-atlas",
+          "name": "Project Atlas",
+          "priorityPosition": 1,
+          "actuals": "24691357802469135780246/100000000000000000003",
+          "actualsKnowledge": "covered",
+          "raf": "229629629632962962969/300000000000000000009",
+          "eac": "74303703037040370303707/300000000000000000009",
+          "start": "2025-01-02",
+          "end": {
+            "date": "2025-01-21",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-boreal",
+          "name": "Project Boreal",
+          "priorityPosition": 2,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "69/1",
+          "eac": "69/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "inactive",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-cobalt",
+          "name": "Project Cobalt",
+          "priorityPosition": 3,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "38/1",
+          "eac": "38/1",
+          "start": "2025-01-03",
+          "end": {
+            "date": "2025-03-14",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-delta",
+          "name": "Project Delta",
+          "priorityPosition": 4,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "74/1",
+          "eac": "74/1",
+          "start": "2025-01-01",
+          "end": {
+            "date": "2025-03-11",
+            "reason": null,
+            "complete": true
+          }
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "TEAM_ACTUALS_OVER_CAPACITY",
+          "teamId": "team-alpha",
+          "projectId": null,
+          "date": "2025-01-02"
+        },
+        {
+          "code": "TEAM_ACTUALS_OVER_CAPACITY",
+          "teamId": "team-beta",
+          "projectId": null,
+          "date": "2025-01-02"
+        },
+        {
+          "code": "TEAM_OVER_RESERVED",
+          "teamId": "team-alpha",
+          "projectId": null,
+          "date": "2025-01-02"
+        },
+        {
+          "code": "TEAM_OVER_RESERVED",
+          "teamId": "team-beta",
+          "projectId": null,
+          "date": "2025-01-02"
+        }
+      ],
+      "actualContributions": 4
+    },
+    {
+      "name": "daily-cap-zero",
+      "inputsSchemaVersion": 1,
+      "parity": true,
+      "repetitions": 10,
+      "canonicalDigest": "a497cec057195c620ce9db479db4b25ace1e64cf8f4abb9b6fbb2e9082dc56b9",
+      "resolvedDigest": "aadf0315e532485ed495b1cb37ab93c50482c79729ea1f79c04d6e97c07a5d92",
+      "projects": [
+        {
+          "projectId": "project-atlas",
+          "name": "Project Atlas",
+          "priorityPosition": 1,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "3/1",
+          "eac": "3/1",
+          "start": "2025-01-10",
+          "end": {
+            "date": null,
+            "reason": "incomplete-within-horizon",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-boreal",
+          "name": "Project Boreal",
+          "priorityPosition": 2,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "69/1",
+          "eac": "69/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "inactive",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-cobalt",
+          "name": "Project Cobalt",
+          "priorityPosition": 3,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "38/1",
+          "eac": "38/1",
+          "start": "2025-01-02",
+          "end": {
+            "date": "2025-03-14",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-delta",
+          "name": "Project Delta",
+          "priorityPosition": 4,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "74/1",
+          "eac": "74/1",
+          "start": "2025-01-01",
+          "end": {
+            "date": "2025-02-20",
+            "reason": null,
+            "complete": true
+          }
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "DEADLINE_MISSED",
+          "teamId": "team-alpha",
+          "projectId": "project-atlas",
+          "date": "2025-02-02"
+        },
+        {
+          "code": "PROJECT_REMAINS_UNPLANNED_AT_HORIZON",
+          "teamId": "team-alpha",
+          "projectId": "project-atlas",
+          "date": null
+        }
+      ],
+      "actualContributions": 0
+    },
+    {
+      "name": "daily-cap-zero",
+      "inputsSchemaVersion": 2,
+      "parity": true,
+      "repetitions": 10,
+      "canonicalDigest": "a497cec057195c620ce9db479db4b25ace1e64cf8f4abb9b6fbb2e9082dc56b9",
+      "resolvedDigest": "aadf0315e532485ed495b1cb37ab93c50482c79729ea1f79c04d6e97c07a5d92",
+      "projects": [
+        {
+          "projectId": "project-atlas",
+          "name": "Project Atlas",
+          "priorityPosition": 1,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "3/1",
+          "eac": "3/1",
+          "start": "2025-01-10",
+          "end": {
+            "date": null,
+            "reason": "incomplete-within-horizon",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-boreal",
+          "name": "Project Boreal",
+          "priorityPosition": 2,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "69/1",
+          "eac": "69/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "inactive",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-cobalt",
+          "name": "Project Cobalt",
+          "priorityPosition": 3,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "38/1",
+          "eac": "38/1",
+          "start": "2025-01-02",
+          "end": {
+            "date": "2025-03-14",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-delta",
+          "name": "Project Delta",
+          "priorityPosition": 4,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "74/1",
+          "eac": "74/1",
+          "start": "2025-01-01",
+          "end": {
+            "date": "2025-02-20",
+            "reason": null,
+            "complete": true
+          }
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "DEADLINE_MISSED",
+          "teamId": "team-alpha",
+          "projectId": "project-atlas",
+          "date": "2025-02-02"
+        },
+        {
+          "code": "PROJECT_REMAINS_UNPLANNED_AT_HORIZON",
+          "teamId": "team-alpha",
+          "projectId": "project-atlas",
+          "date": null
+        }
+      ],
+      "actualContributions": 0
+    },
+    {
+      "name": "inactive-actuals",
+      "inputsSchemaVersion": 1,
+      "parity": true,
+      "repetitions": 10,
+      "canonicalDigest": "62c7a6ef021adad6be5430d6b963c73bdbf5499bbb6f529d2754fd42a4156169",
+      "resolvedDigest": "cbdea3eca644711502835f0ccc44a5f119ffbc9bb4eb49dd185867a4abf4c5ab",
+      "projects": [
+        {
+          "projectId": "project-atlas",
+          "name": "Project Atlas",
+          "priorityPosition": 1,
+          "actuals": "2/3",
+          "actualsKnowledge": "covered",
+          "raf": "3/1",
+          "eac": "11/3",
+          "start": "2024-12-01",
+          "end": {
+            "date": null,
+            "reason": "inactive",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-boreal",
+          "name": "Project Boreal",
+          "priorityPosition": 2,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "69/1",
+          "eac": "69/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "inactive",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-cobalt",
+          "name": "Project Cobalt",
+          "priorityPosition": 3,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "38/1",
+          "eac": "38/1",
+          "start": "2025-01-02",
+          "end": {
+            "date": "2025-03-14",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-delta",
+          "name": "Project Delta",
+          "priorityPosition": 4,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "74/1",
+          "eac": "74/1",
+          "start": "2025-01-01",
+          "end": {
+            "date": "2025-02-20",
+            "reason": null,
+            "complete": true
+          }
+        }
+      ],
+      "diagnostics": [],
+      "actualContributions": 6
+    },
+    {
+      "name": "inactive-actuals",
+      "inputsSchemaVersion": 2,
+      "parity": true,
+      "repetitions": 10,
+      "canonicalDigest": "62c7a6ef021adad6be5430d6b963c73bdbf5499bbb6f529d2754fd42a4156169",
+      "resolvedDigest": "cbdea3eca644711502835f0ccc44a5f119ffbc9bb4eb49dd185867a4abf4c5ab",
+      "projects": [
+        {
+          "projectId": "project-atlas",
+          "name": "Project Atlas",
+          "priorityPosition": 1,
+          "actuals": "2/3",
+          "actualsKnowledge": "covered",
+          "raf": "3/1",
+          "eac": "11/3",
+          "start": "2024-12-01",
+          "end": {
+            "date": null,
+            "reason": "inactive",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-boreal",
+          "name": "Project Boreal",
+          "priorityPosition": 2,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "69/1",
+          "eac": "69/1",
+          "start": null,
+          "end": {
+            "date": null,
+            "reason": "inactive",
+            "complete": false
+          }
+        },
+        {
+          "projectId": "project-cobalt",
+          "name": "Project Cobalt",
+          "priorityPosition": 3,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "38/1",
+          "eac": "38/1",
+          "start": "2025-01-02",
+          "end": {
+            "date": "2025-03-14",
+            "reason": null,
+            "complete": true
+          }
+        },
+        {
+          "projectId": "project-delta",
+          "name": "Project Delta",
+          "priorityPosition": 4,
+          "actuals": "0/1",
+          "actualsKnowledge": "none",
+          "raf": "74/1",
+          "eac": "74/1",
+          "start": "2025-01-01",
+          "end": {
+            "date": "2025-02-20",
+            "reason": null,
+            "complete": true
+          }
+        }
+      ],
+      "diagnostics": [],
+      "actualContributions": 6
+    }
+  ],
+  "freshProcessProof": [
+    {
+      "TZ": "UTC",
+      "digest": "9844c9583a8e456314affa4a6e394347eec9d346f353cde0c7841f55b60926c2"
+    },
+    {
+      "TZ": "Europe/Paris",
+      "digest": "9844c9583a8e456314affa4a6e394347eec9d346f353cde0c7841f55b60926c2"
+    },
+    {
+      "TZ": "Pacific/Honolulu",
+      "digest": "9844c9583a8e456314affa4a6e394347eec9d346f353cde0c7841f55b60926c2"
+    }
+  ],
+  "notExecutedValidArtifact": {
+    "kind": "RESOURCE_RISK_NOT_EXECUTED",
+    "scope": "laboratory",
+    "contributionRows": 2912842,
+    "maxPeriodDays": 2912837,
+    "reason": "Millions of date/weight/quantity objects would coexist; outside the measured envelope. No engine incompatibility is asserted."
+  }
+}

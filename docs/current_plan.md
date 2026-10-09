@@ -51,7 +51,8 @@ plus Lot 11A.2 exact daily profiles and V7 persistence.
 - 11C Actuals / Forecast separation (DONE — explicit user closure).
 - 11D.0 Storage Architecture & Scalability (DONE — favorable independent audit and explicit user closure).
 
-Current trajectory: **11D.1 RAF Model — DONE; 11D.1 UX — DONE**;
+Current trajectory: **11D.2 — IN REVIEW (G1 proof only)**;
+**11D.1 RAF Model — DONE; 11D.1 UX — DONE**;
 **11D.0 — Storage Architecture & Scalability remains DONE**;
 **11B — Project History view is DONE**, following validated DONE
 11A.2. See the
@@ -68,7 +69,7 @@ Current trajectory: **11D.1 RAF Model — DONE; 11D.1 UX — DONE**;
 11D.0: DONE — Storage Architecture & Scalability
 11D.1 RAF Model: DONE — favorable independent audit and final V1/V2 verification
 11D.1 UX: DONE — favorable independent audit, final Cancel S1–S6 gates pass
-11D.2: PLANNED / NOT STARTED — hardened inputs-only plan; final independent review required
+11D.2: IN REVIEW — G1 historical replay proof and direct CPU/RAM characterization
 11D.3 / 11D.4 / 11D.5: ENVISAGED — NOT STARTED; independent audit and authorization required
 11A.1: DEFERRED / not adopted as product work; no dependency for 11B
 10D: superseded by 11A (not DONE)
@@ -83,8 +84,8 @@ was then IN REVIEW; explicit user closure subsequently marked 11B DONE.
 
 ## 11D.2 — Inputs-only historical architecture and replay contract
 
-**Status: 11D.2 — PLANNED / NOT STARTED — documentation only.**
-Hardening baseline `e37b8d0a6e183bb05aac5cb1e84f15eaa2b16ff4`, branch
+**Status: 11D.2 — IN REVIEW — G1 proof only.**
+Implementation baseline `633dfc9459c7398f800abfb47439e1251e7bd7aa`, branch
 `codex/lot11a-portfolio-snapshots`, clean and origin 0/0 after fetch.
 The [dedicated architectural plan](./steps/STORAGE/lot11d2_plan.md) confronts
 existing contracts with the new user-validated trajectory. 11D.0 and both
@@ -104,13 +105,16 @@ show “Recalcul indisponible” with diagnostics, without captured-result fallb
 automatic repair or snapshot rewrite. Old inputs/results/profiles/versions/IDs
 and references remain preserved; explicit conversion is outside scope.
 
-11D.2 will prove completeness for the current engine, Actuals dependency closure,
-exact historical reconstruction, representative determinism and replay feasibility,
-with initial direct CPU/RAM characterization and documented limits. It does not
+The [11D.2 feasibility report](./steps/STORAGE/lot11d2_feasibility.md) records
+Current/historical exact parity, dependency closure, reconstruction conservation,
+representative determinism, independent historical inputs and measured direct
+CPU/RAM costs. Coverage is bounded by the fixtures; extreme valid legacy input
+is diagnosed and left unexecuted for resource risk. It does not
 certify future worker, cache, concurrency or UI performance; those and definitive
 budgets belong to their implementation lots. An exploratory budget overrun
 requires analysis and possible architectural adjustment, not automatic rejection
-of inputs-only. No proof, benchmark, code, test or format is changed here.
+of inputs-only. Only proof tests/fixtures, laboratory scripts and tracking documents are added.
+No production code, format, engine, repository or UI is changed.
 
 The future Application pipeline supports Current and historical snapshots,
 independent of UI/ViewModels/geometries. Four stages distinguish indexed snapshot
@@ -130,8 +134,8 @@ No initial persistent cache or systematic full-history calculation on opening.
 The global exact cap at cold opening conflicts with progressive loading; scope
 arbitration is deferred to History/Trends integration, without blocking 11D.2
 feasibility or designing a new interaction. Functional Trends evolution remains
-outside scope. The amended plan awaits a final independent review before any
-implementation authorization.
+outside scope. G1 awaits independent ChatGPT audit and explicit closure authorization.
+11D.2 is not DONE; 11D.3, 11D.4 and 11D.5 remain unstarted.
 
 Envisaged lots: 11D.3 Inputs-Only Capture & Persistence; 11D.4 Historical
 Simulation Service; 11D.5 Historical Views Integration. Recommended delivery

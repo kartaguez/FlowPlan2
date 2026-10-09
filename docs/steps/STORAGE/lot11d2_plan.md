@@ -1,18 +1,21 @@
 # Lot 11D.2 — Historical Inputs Contract & Replay Feasibility
 
-**Statut : 11D.2 — PLANNED / NOT STARTED — dernière revue indépendante requise.**
-2026-10-09. Livraison exclusivement documentaire. Ni 11D.2 ni ses suites ne
-sont implémentés ou autorisés par ce document. 11D.0, 11D.1 RAF Model et UX
-restent DONE. Les preuves de faisabilité et mesures décrites ici sont **à
-exécuter après autorisation distincte** ; aucun résultat nouveau n'est annoncé.
+**Statut : 11D.2 — IN REVIEW — G1 uniquement.**
+2026-10-09. Implémentation de preuve autorisée depuis la baseline obligatoire
+`633dfc9459c7398f800abfb47439e1251e7bd7aa`. Les tests et le harness isolés,
+les résultats exacts et les mesures sont décrits dans le
+[rapport de faisabilité](./lot11d2_feasibility.md). Aucun contrat de production
+n'a été modifié. Ni 11D.3, ni 11D.4, ni 11D.5 ne sont commencés.
+La clôture reste soumise à l'audit indépendant de ChatGPT et à l'autorisation
+explicite de l'utilisateur ; ce statut n'est pas DONE.
 
 ## 1. Baseline, références et frontière de mission
 
 Dépôt `kartaguez/FlowPlan2`, branche `codex/lot11a-portfolio-snapshots`.
-Baseline attendue et SHA initial du durcissement :
+Baseline du durcissement documentaire antérieur :
 `e37b8d0a6e183bb05aac5cb1e84f15eaa2b16ff4`. Le cadrage documentaire initial
-partait de `8103f2e63c9df81621f0806ec711fa9b71c96194` ; ce SHA n’est plus
-la baseline de cette mission. Aucune divergence avec la baseline attendue.
+partait de `8103f2e63c9df81621f0806ec711fa9b71c96194` ; ce SHA était alors remplacé par la baseline documentaire ci-dessus.
+La baseline de la preuve G1 est désormais `633dfc9459c7398f800abfb47439e1251e7bd7aa`. Aucune divergence avec la baseline attendue.
 Avant toute modification documentaire : `git fetch origin` réussi,
 `git status --short` vide, branche attendue, `git rev-parse HEAD` identique à
 la référence, `git rev-list --left-right --count
@@ -37,9 +40,10 @@ Les statuts intermédiaires des anciens comptes rendus ne remplacent pas les
 clôtures explicites. Les canons décrivent l'implémentation existante ; ce plan
 n'en modifie pas les règles comme si la cible était déjà livrée.
 
-Cette mission modifie seulement ce document et `docs/current_plan.md`.
-Pas de production, test, fixture, script, dépendance, migration ou persistance
-modifiés ; pas de simulation exécutée, ni de nouveau benchmark. Les références
+La mission documentaire antérieure modifiait seulement ce document et `docs/current_plan.md`.
+Elle ne modifiait ni production, tests, fixtures, scripts, dépendances, migrations
+ou persistance et n’exécutait aucune simulation ni nouveau benchmark.
+La preuve G1 autorisée ajoute uniquement les artefacts isolés listés dans le rapport. Les références
 au code ci-dessous désignent la baseline et les futures frontières de travail.
 
 ## 2. Décisions fonctionnelles acquises et propositions techniques
@@ -104,7 +108,8 @@ métier Application commun ; union explicite de captures legacy et inputs-only ;
 clé de cache sur inputs résolus + identité de chaîne ; scheduler borné ;
 découpage en contrats, service, persistance, intégration et activation.
 La suffisance des inputs existants est plausible pour **le moteur courant**,
-pas certifiée par une preuve exécutée ni pour toute fonctionnalité future.
+désormais éprouvée sur les cas G1 du rapport, sans certification universelle ni
+engagement pour toute fonctionnalité future.
 Les limites de métadonnées et de cap graphique (§8) sont des gaps réels.
 
 La trajectoire ancienne de 11D.0 §5.4 proposait de persister des contributions
@@ -728,12 +733,13 @@ Unknown commit ou commit confirmé non réconcilié latch recovery ; consultatio
 ne le contourne pas. Versionchange/import/recovery invalident requêtes obsolètes,
 pas les données. Aucune purge ni migration destructive ni conversion implicite.
 
-## 10. Axe H — Preuve de faisabilité et caractérisation future
+## 10. Axe H — Preuve G1 et caractérisation intégrée future
 
 ### 10.1 Preuve minimale après audit et autorisation
 
 Construire un harness isolé de la production et des fixtures existantes, selon
-l'autorisation alors accordée ; cette mission n'en écrit/exécute aucun.
+l'autorisation alors accordée. La preuve G1 est exécutée ; voir le rapport lié
+en tête du document. Les propositions de service restent futures.
 Utiliser captures valides existantes, inputs riches et schémas mixtes. Résoudre
 par fonctions actuelles, séparer noyau du builder dans le harness, comparer au
 Current du même état et canoniser via quantities exactes. Un sample non simulable
@@ -813,7 +819,9 @@ métier n’est modifiée pour faire passer une mesure.
 
 ## 11. Matrice de validation et gates de livraison
 
-Tous les tests ci-dessous sont **futurs**, après autorisation du lot concerné.
+Les preuves directes G1 ci-dessous ont été exécutées pour 11D.2 ; le rapport
+indique leur couverture exacte et leurs limites. Les tests de service,
+persistance, worker, cache et UI restent **futurs**, après autorisation du lot concerné.
 Pas de modification des tests/fixtures historiques pour convertir les résultats
 capturés en oracles du moteur courant. Ajouter assertions replay séparées ;
 conservation anciennes données et nouvelle consultation doivent coexister.
@@ -915,7 +923,8 @@ confirmation nécessaire pour préparer/committer ce plan :
 2. Après caractérisation G1 puis mesures intégrées, fixer les budgets et seuils
    de refus dans les lots service/intégration ; dépassement exploratoire analysé,
    sans remise en cause automatique d’inputs-only ni changement des règles moteur.
-3. Cas historiques valides non resimulables : registre diagnostiqué à produire,
+3. Cas historiques valides non resimulables : registre G1 dans le rapport ;
+   aucune incompatibilité sémantique naturelle observée, cas extrême non exécuté ;
    politique déjà acquise « Recalcul indisponible », aucun fallback ni repair.
    Documenter les limites ne nécessite pas de rouvrir cette politique ; toute
    extension de sémantique serait un autre arbitrage explicitement autorisé.
@@ -934,7 +943,7 @@ la mission, mais **ne pas confondre numérotation et ordre d'activation**.
 
 | Lot envisagé | Travaux détaillés / livrables | Dépendances et sortie |
 | --- | --- | --- |
-| 11D.2 — Historical Inputs Contract & Replay Feasibility | A inventaire/champ-parité et contrats ; B audit closure V4/V5 et conservation ; C preuve isolée replay courant/canonicalisation/déterminisme direct ; D première caractérisation CPU/temp/retained/résolution ; E rapport limites/estimations/contrats cibles et audit, sans certification worker/cache/UI | Actuellement plan documentaire seulement ; preuve requiert autorisation distincte. G1 sans modifications de production/persistance/règles. |
+| 11D.2 — Historical Inputs Contract & Replay Feasibility | A inventaire/champ-parité et contrats ; B audit closure V4/V5 et conservation ; C preuve isolée replay courant/canonicalisation/déterminisme direct ; D première caractérisation CPU/temp/retained/résolution ; E rapport limites/estimations/contrats cibles et audit, sans certification worker/cache/UI | G1 exécuté après autorisation, IN REVIEW ; rapport de preuve et limites lié en tête. Sans modifications de production/persistance/règles. |
 | 11D.4 — Historical Simulation Service | A port sources Current/Snapshot résolues ; B extraire noyau commun en préservant Current publication ; C facts/reconstruction/engine/projecteurs exacts ; D worker/scheduler/cache/diagnostics ; E suite exactitude/concurrency/performance | Recommandé **avant activation 11D.3**, après G1 ; peut être livré sur captures legacy uniquement, sans nouvelle capture ni UI sélection. G2. |
 | 11D.3 — Inputs-Only Capture & Persistence | A fixer nouveau variant/versions ; B validation/capture dirty/run/revision guards ; C repository metadata/refs/CAS/receipts ; D worker/import/export mixed/staging/recovery ; E tests preservation/atomicité/portable | Contrats G1 ; travail possible en parallèle conceptuel du service, mais activation Save inputs-only bloquée jusqu'à G2 et G4. Pas production inaccessible. G3. |
 | 11D.5 — Historical Views Integration | A metadata/facts progressive et row states ; B simulations Project/compares courants ; C arbitrage portée graphique reporté à ce lot puis critères cap/geometries ; D focus/loading/unavailable/cancellation ; E drafts isolation et UI/performance audit | Service G2 ; ancien History intégrable avant Save nouveau. Structure existante ; pas Trends. G4. |
@@ -947,13 +956,15 @@ future ; le fond est la dépendance lecteur avant auteur, pas le numéro.
 Ne pas ajouter un lot fonctionnel Planning/Trends à cette trajectoire.
 Pas de conversion d'anciennes captures ni archive merge 11A.1 réactivée.
 
-## 14. Contrôles et livraison documentaire
+## 14. Contrôles et livraison G1
 
-Contrôles de cette mission : baseline Git ci-dessus, confrontation documents/code,
-revue des liens/fonctions et du diff, `git diff --check`, inventaire limité aux
-deux Markdown. Aucun test applicatif/benchmark revendiqué. Commit documentaire
-et push normal sur la branche demandée, puis vérifier origin 0/0 et working tree
-propre. SHA final fourni dans le compte rendu Git, pas auto-inséré dans ce commit.
+Les contrôles Git préalables de la preuve et les nouvelles exécutions
+`typecheck`, `npm test`, `build`, `test:portable`, `test:storage`, suite G1 et
+harness sont consignés dans le [rapport de faisabilité](./lot11d2_feasibility.md),
+avec les résultats bruts, limites environnementales et inventaire des fichiers.
+`git diff --check` et contrôle du périmètre avant commit, push normal sur la
+branche autorisée, puis origin 0/0 et working tree propre. SHA final fourni
+dans le compte rendu Git, pas auto-inséré dans ce commit.
 
-**Fin de mission : 11D.2 — PLANNED / NOT STARTED ; plan amendé soumis à
-dernière revue indépendante avant autorisation ; aucune implémentation.**
+**Fin de mission : 11D.2 — IN REVIEW, preuve G1 seulement ; audit indépendant
+ChatGPT et autorisation explicite de clôture requis. Aucun lot suivant commencé.**
