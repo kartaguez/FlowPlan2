@@ -81,6 +81,13 @@ was then IN REVIEW; explicit user closure subsequently marked 11B DONE.
 
 ## 11D.1 — UX Actuals & RAF
 
+Separate impact study for independent audit (2026-10-09):
+[Current RAF and Portfolio Snapshot replay](./arch/RAF_CURRENT_AND_PORTFOLIO_REPLAY_IMPACT_AUDIT.md),
+examined at `cdb022e91889749de7139a375998fe61edd12041`. It studies RAF authority
+separation, replay with the current engine and inputs-only tradeoffs beyond
+the UX scope below. Proposals are not adopted; no implementation or migration
+is authorized by this documentary publication, and no future lot is opened.
+
 **Status: PLANNED / NOT STARTED.** Documentation-only planning authorized on
 2026-10-09, branch `codex/lot11a-portfolio-snapshots`, verified starting HEAD
 `05115e4df6ec59c1a045801389e310529634bb9c`, clean and origin 0/0 after fetch.
