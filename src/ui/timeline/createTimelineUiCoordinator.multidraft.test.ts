@@ -287,7 +287,7 @@ describe("coordinator multi-draft rerender", () => {
         app.scenario.portfolio.reservations[0]!.teamAllocations)[0]!.teamId} consumed`, "0");
       assert.equal(app.cardStateFor(kind, id)?.dirty, true);
       assert.equal(app.coordinator.hasUnappliedChanges(), true);
-      all(host()).find((item) => item.textContent === "Cancel Actuals")!.emit("click");
+      all(host()).find((item) => item.textContent === "Cancel modal")!.emit("click");
       assert.equal(app.cardStateFor(kind, id)?.dirty, false);
       assert.equal(app.coordinator.hasUnappliedChanges(), false);
       all(host()).find((item) => item.textContent === "Update actuals")!.emit("click");
@@ -369,7 +369,7 @@ describe("coordinator multi-draft rerender", () => {
     assert.equal(forecast.isDirty(id), true);
     let host = app.projectCardHost(id)!;
     assert.equal(all(host).find((item) => item.className === "card-actuals-modal")?.hidden, false);
-    all(host).find((item) => item.textContent === "Cancel Actuals")!.emit("click");
+    all(host).find((item) => item.textContent === "Cancel modal")!.emit("click");
     assert.equal(forecast.isDirty(id), true);
     assert.equal(app.session.getState().portfolio.projects[0]!.snapshots!.length, 1);
     assert.equal(synchronous(app.projectHandles.get(id)!.onApply(command)).ok, false);
@@ -981,3 +981,71 @@ function synchronous<T>(value: T | Promise<T>): T {
   if (value instanceof Promise) throw new Error("Expected synchronous characterization adapter.");
   return value;
 }
+
+for (const order of ["RAF then Forecast", "Forecast then RAF"] as const) it(`11D.1 R1/R3 ${order}: sequencing refusal preserves both owners across modal Cancel/remount`, () => {
+  const app = fixture(false, false, true);
+  const [project, other] = app.session.getState().portfolio.projects;
+  assert.ok(project && other);
+  app.openProject(project.id); app.openProject(other.id);
+  const nodes = (root: FakeElement): FakeElement[] => [root, ...root.children.flatMap(nodes)];
+  const host = () => app.projectCardHost(project.id)!;
+  const raf = () => nodes(host()).find(node => node.attributes.has("data-raf-team"))!;
+  const handle = () => app.projectHandles.get(project.id)!;
+  const changeRaf = () => { raf().value = "0,00001"; raf().emit("input"); };
+  const changeForecast = () => { const store = handle().draftStore!; const draft = store.get(project.id)!;
+    store.update(project.id, { ...draft.values, name: "Local Forecast" }); handle().onDraftChange?.(); };
+  if (order.startsWith("RAF")) { changeRaf(); changeForecast(); } else { changeForecast(); changeRaf(); }
+  const otherField = nodes(app.projectCardHost(other.id)!).find(node => node.attributes.has("data-raf-team"))!;
+  otherField.value = "1/"; otherField.emit("input");
+  const before = app.session.getState(), projection = app.coordinator.getProjection();
+  const submit = () => synchronous(handle().onApply({ kind: "update-project", projectId: project.id,
+    name: "Local Forecast", teamRequirements: project.requirements.map(row => ({ teamId: row.teamId,
+      remainingWorkload: row.remainingWorkload, ...(row.dailyCap ? { dailyCap: row.dailyCap } : {}) })) }));
+  const refused = submit(); assert.equal(refused.ok, false);
+  if (!refused.ok) assert.equal(refused.errors[0]?.code, "ACTUALS_FORECAST_SEPARATION");
+  assert.strictEqual(app.session.getState(), before); assert.strictEqual(app.coordinator.getProjection(), projection);
+  nodes(host()).find(node => node.textContent === "Update actuals")!.emit("click");
+  nodes(host()).find(node => node.textContent === "Cancel modal")!.emit("click");
+  assert.equal(raf().value, "0,00001"); assert.equal(handle().draftStore!.get(project.id)!.values.name, "Local Forecast");
+  app.coordinator.renderProjection(app.coordinator.getProjection());
+  assert.equal(raf().value, "0,00001"); assert.equal(handle().draftStore!.get(project.id)!.values.name, "Local Forecast");
+  assert.equal(submit().ok, false); assert.strictEqual(app.session.getState(), before);
+  assert.equal(nodes(app.projectCardHost(other.id)!).find(node => node.attributes.has("data-raf-team"))!.value, "1/");
+  // Real controller cancels its own Forecast draft before notifying coordinator.
+  handle().draftStore!.cancel(project.id); handle().draftStore!.initialize(project.id, buildProjectEditViewModel(before, project.id)!);
+  handle().onCancel?.();
+  assert.equal(raf().value, project.requirements[0]!.remainingWorkload === undefined ? "" : buildProjectEditViewModel(before, project.id)!.requirements[0]!.remainingWorkload);
+  assert.equal(nodes(app.projectCardHost(other.id)!).find(node => node.attributes.has("data-raf-team"))!.value, "1/");
+  assert.equal(app.coordinator.hasUnappliedChanges(), true); assert.strictEqual(app.session.getState(), before);
+  app.coordinator.destroy();
+});
+
+it("11D.1 repeated clean card Apply validates RAF via A no-op, with no Forecast publication", () => {
+  const app = fixture(false, false, true);
+  const project = app.session.getState().portfolio.projects[0]!;
+  app.openProject(project.id);
+  const nodes = (root: FakeElement): FakeElement[] => [root, ...root.children.flatMap(nodes)];
+  const raf = nodes(app.projectCardHost(project.id)!).find(node => node.attributes.has("data-raf-team"))!;
+  raf.value = "0,00001"; raf.emit("input");
+  const submit = () => {
+    const published = app.session.getState().portfolio.projects[0]!;
+    return synchronous(app.projectHandles.get(project.id)!.onApply({ kind: "update-project", projectId: project.id,
+      name: published.name,
+      ...(published.programId ? { programId: published.programId } : {}),
+      ...(published.priorityFamilyId ? { priorityFamilyId: published.priorityFamilyId } : {}),
+      ...(published.earliestStartDate ? { earliestStartDate: published.earliestStartDate } : {}),
+      ...(published.objectiveEndDate ? { objectiveEndDate: published.objectiveEndDate } : {}),
+      ...(published.mandatoryDeadline ? { mandatoryDeadline: published.mandatoryDeadline } : {}),
+      teamRequirements: published.requirements.map(row => ({ teamId: row.teamId,
+        remainingWorkload: row.remainingWorkload, ...(row.dailyCap ? { dailyCap: row.dailyCap } : {}) })) }));
+  };
+  assert.equal(submit().ok, true);
+  const state = app.session.getState(), projection = app.coordinator.getProjection();
+  assert.equal(serializeQuantity(state.portfolio.projects[0]!.requirements[0]!.remainingWorkload), "1/100000");
+  for (let index = 0; index < 3; index++) {
+    assert.equal(submit().ok, true); assert.strictEqual(app.session.getState(), state);
+    assert.strictEqual(app.coordinator.getProjection(), projection);
+    assert.equal(state.portfolio.projects[0]!.snapshots?.length ?? 0, 0);
+  }
+  app.coordinator.destroy();
+});

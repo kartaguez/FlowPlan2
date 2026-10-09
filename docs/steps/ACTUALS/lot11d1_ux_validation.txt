@@ -1,0 +1,1658 @@
+11D.1 UX — IN REVIEW. Initial HEAD 075b2a6c18175eabdcbdb401556a81591f32635f.
+All listed gates exit 0. Native assertions are separate from Node counts.
+
+===== typecheck =====
+
+> flowplan@0.1.0 typecheck
+> tsc -p tsconfig.app.json --noEmit
+
+
+===== npm test =====
+
+> flowplan@0.1.0 test
+> node scripts/test.mjs
+
+▶ History exact geometry and common visual cap
+  ✔ deterministic strategy 1/1 for 0 positive samples (33.593916ms)
+  ✔ deterministic strategy 9/1 for 1 positive samples (16.674791ms)
+  ✔ deterministic strategy 3/1 for 3 positive samples (24.21325ms)
+  ✔ deterministic strategy 2/3 for 8 positive samples (28.442292ms)
+  ✔ deterministic strategy 7/2 for 8 positive samples (11.933292ms)
+  ✔ converts bounded ratios of enormous exact values at the pixel boundary (0.110125ms)
+  ✔ stacks overlapping components and reduces both proportionally above a shared cap (14.0805ms)
+  ✔ clips day cells strictly and omits border-only cap samples (14.491542ms)
+  ✔ retains a covered-zero knowledge marker at the inclusive final day without a fabricated next date (13.8895ms)
+  ✔ keeps old horizons out of the reference axis and absent rows free of business hits (27.988084ms)
+✔ History exact geometry and common visual cap (186.304125ms)
+✔ external cap matches exact ranks for 0 samples with bounded buffers (1.246375ms)
+✔ external cap matches exact ranks for 1 samples with bounded buffers (0.512458ms)
+✔ external cap matches exact ranks for 7 samples with bounded buffers (0.386125ms)
+✔ external cap matches exact ranks for 8 samples with bounded buffers (0.37675ms)
+✔ external cap matches exact ranks for 4097 samples with bounded buffers (26.729083ms)
+✔ external cap matches exact ranks for 40000 samples with bounded buffers (163.798709ms)
+✔ weighted equal values preserve their exact sample multiplicities (0.194459ms)
+▶ 10B cursor capacity components
+  ✔ sums the two daily overload causes before global aggregation (1.910125ms)
+✔ 10B cursor capacity components (2.4965ms)
+▶ calculateCursorMetrics
+  ✔ includes the start date and selected date, then the entire run at the end (0.662792ms)
+  ✔ aggregates exact occupied and daily over-reservation before global ratios (0.2935ms)
+  ✔ rejects dates outside either horizon bound (0.242209ms)
+  ✔ keeps over-reservation above 100% and zero-effective utilization undefined (0.200958ms)
+  ✔ keeps an exact fractional daily excess even when effective capacity is zero (0.16725ms)
+  ✔ sums daily over-reservation without compensation from unused days (0.240917ms)
+  ✔ preserves non-terminating fractions and reaches exact completion (0.205209ms)
+  ✔ is deterministic and leaves its inputs unchanged (0.204125ms)
+  ✔ fails fast on missing or ambiguous Project/Team plans (0.264625ms)
+✔ calculateCursorMetrics (2.727666ms)
+▶ Reservation forecast progress quantities
+  ✔ excludes demand beyond the inclusive planning horizon from the denominator (1.645375ms)
+✔ Reservation forecast progress quantities (2.018666ms)
+✔ weights a grouped Reservation with its Project and leaves Project progress unchanged (0.558334ms)
+▶ Reservation navigation order
+  ✔ uses start, end, full inclusive exact request, name, and ID in that order (5.75325ms)
+✔ Reservation navigation order (6.135292ms)
+▶ buildTimelineViewModel
+  ✔ projects the Project's latest Team completion as its global estimated end (2.063833ms)
+  ✔ uses the single Team end and does not fabricate a date for zero RAF (0.293ms)
+  ✔ projects the supplied planning horizon exactly (0.178834ms)
+  ✔ orders projects by portfolio priority rather than physical project order (0.414041ms)
+  ✔ orders teams by the portfolio rather than planning result order (0.463083ms)
+  ✔ joins project and team labels from the portfolio (0.433875ms)
+  ✔ preserves exact capacity objects without numeric conversion (0.408917ms)
+  ✔ keeps daily allocations distinct and orders projects by priority (0.343084ms)
+  ✔ projects independent states for the same project on multiple teams (0.46225ms)
+  ✔ projects current deadline state without its daily history (0.422542ms)
+  ✔ joins diagnostic labels while preserving existing identity and date (0.129333ms)
+  ✔ does not invent a date for a diagnostic that has none (0.091208ms)
+  ✔ preserves the source diagnostic order (0.086958ms)
+  ✔ is deterministic for the same input (0.13075ms)
+  ✔ does not mutate portfolio, horizon, or planning result inputs (0.074917ms)
+  ✔ freezes the complete view model tree owned by the adapter (0.118209ms)
+  ✔ composes end to end with an externally computed planning result (1.152042ms)
+  ✔ keeps production imports inside domain and semantic timeline contracts (11.545417ms)
+✔ buildTimelineViewModel (23.7345ms)
+▶ TimelineGeometry daily project allocation stacking
+  ✔ stacks two projects bottom-up and fills the project region (3.29525ms)
+  ✔ stacks workloads 1, 0.5 and 0.5 in priority order (0.704625ms)
+  ✔ leaves unused project capacity empty above a bottom-anchored stack (0.170917ms)
+  ✔ preserves an exact one-third workload while deriving its pixel height (0.185916ms)
+  ✔ sorts source allocations by project priority before stacking (0.196625ms)
+  ✔ keeps allocations on adjacent days as distinct rectangles (0.15275ms)
+  ✔ does not bridge a day without an allocation (0.174959ms)
+  ✔ projects the same project independently for multiple teams (0.121333ms)
+  ✔ rejects an allocation whose team differs from its containing team (0.236916ms)
+  ✔ rejects an allocation for an unknown project (0.124958ms)
+  ✔ rejects an allocation outside the horizon (0.086833ms)
+  ✔ rejects a zero-workload allocation (0.073167ms)
+  ✔ rejects allocations that exceed the exact daily project capacity (0.077667ms)
+  ✔ rejects a positive allocation when project capacity is zero (0.07725ms)
+  ✔ rejects duplicate project allocations and ambiguous priorities (0.090208ms)
+  ✔ is deterministic and does not mutate source collections (0.191125ms)
+  ✔ freezes daily allocation collections and geometries (0.092708ms)
+  ✔ keeps rectangle area proportional to workload at fixed day width (0.104208ms)
+  ✔ uses the same allocation scale on every team (0.078125ms)
+  ✔ keeps project allocations inside projectRegion below reservations (0.071875ms)
+  ✔ produces no allocation geometry for an over-reserved empty day (0.059375ms)
+  ✔ declares no continuous surfaces, paths, polygons, or renderer fields (14.641917ms)
+✔ TimelineGeometry daily project allocation stacking (22.789542ms)
+▶ buildTimelineGeometry
+  ✔ reserves aligned projection bands above the axis and each Team lane (1.705083ms)
+  ✔ maps an inclusive three-day horizon to three equal columns (0.182583ms)
+  ✔ uses the complete viewport width for a one-day horizon (0.117208ms)
+  ✔ allows fractional pixel columns to end at the viewport edge (0.190583ms)
+  ✔ builds one complete month segment inside a single-month horizon (1.627875ms)
+  ✔ clips month segments to a partial horizon (0.791542ms)
+  ✔ builds independent month and year segments across a year boundary (0.410791ms)
+  ✔ places team lanes below the explicit time header (0.136166ms)
+  ✔ stacks team lanes vertically and computes their total height (0.153084ms)
+  ✔ reserves one geometry-owned header immediately before every team lane (0.142375ms)
+  ✔ reserves a global metrics row without changing any temporal X coordinate (0.227833ms)
+  ✔ reserves a separate Team collection action row before the first Team (0.137959ms)
+  ✔ preserves the TimelineViewModel team order (0.081291ms)
+  ✔ preserves exact capacity objects without converting them to numbers (2.488375ms)
+  ✔ projects over-reservation without transformation (0.129417ms)
+  ✔ rejects non-positive and non-finite viewport dimensions (0.268792ms)
+  ✔ rejects missing capacity days and dates outside the expected sequence (0.160667ms)
+  ✔ is deterministic for the same input (0.174417ms)
+  ✔ does not mutate the TimelineViewModel or its collections (0.06675ms)
+  ✔ freezes the complete geometry tree (1.251792ms)
+  ✔ does not expose root-level allocation or project-surface geometry (0.061416ms)
+  ✔ uses only CivilDate helpers and allowed adapter dependencies (11.018416ms)
+✔ buildTimelineGeometry (22.613542ms)
+▶ TimelineGeometry capacity tubes
+  ✔ keeps overloaded source-aware Actuals fully visible with exact daily amounts (1.629417ms)
+  ✔ renders aggregate Actuals at zero capacity when source contributions are unavailable (0.173584ms)
+  ✔ subdivides only the visible reserved region for named over-reservations (0.186792ms)
+  ✔ uses the maximum effective capacity across every team and day (0.201208ms)
+  ✔ makes capacities comparable across teams with one global scale (0.13275ms)
+  ✔ anchors every effective-capacity tube on the lane bottom (0.140084ms)
+  ✔ places the project region below the visible reservation region (0.099791ms)
+  ✔ derives pixel heights while preserving exact fractional capacities (0.087958ms)
+  ✔ renders the full over-reservation above the capacity reference (0.128292ms)
+  ✔ handles an all-zero timeline without dividing by zero (0.179333ms)
+  ✔ keeps a zero-capacity gap at its true horizontal date (0.141416ms)
+  ✔ rejects an exact capacity that cannot produce finite geometry (0.194042ms)
+  ✔ is deterministic and does not mutate semantic capacity inputs (0.263167ms)
+  ✔ freezes tubes and both capacity regions (0.086625ms)
+  ✔ produces only finite, non-negative geometry numbers (0.233334ms)
+  ✔ still exposes no continuous project-surface geometry (0.091375ms)
+✔ TimelineGeometry capacity tubes (4.617542ms)
+▶ geometry numerical policy
+  ✔ uses one fixed epsilon only for ulp-scale boundary comparisons (0.259666ms)
+✔ geometry numerical policy (0.643708ms)
+▶ TimelineGeometry project markers
+  ✔ centers each project date in its daily column and preserves marker kinds (1.893875ms)
+  ✔ bounds markers to their team lane (0.361792ms)
+  ✔ repeats project markers only on teams containing its project state (0.3525ms)
+  ✔ omits dates outside the horizon instead of clamping them (0.268125ms)
+  ✔ preserves deadline status only on mandatory deadline markers (0.258333ms)
+  ✔ rejects unknown and duplicate project states (7.271292ms)
+  ✔ freezes marker collections and marker objects (0.67425ms)
+✔ TimelineGeometry project markers (11.847375ms)
+▶ TimelineCursorGeometry
+  ✔ centers the cursor on the first, middle, and last daily columns (0.444417ms)
+  ✔ crosses the global axis and ends at geometry height (0.092958ms)
+  ✔ rejects a selected date outside the geometry (0.160125ms)
+  ✔ maps timeline x using half-open day ranges (0.078625ms)
+  ✔ clamps pointer positions outside the visible timeline (0.052375ms)
+✔ TimelineCursorGeometry (1.293875ms)
+▶ TimelineViewModel contract
+  ✔ can represent projects, teams, capacities, daily allocations, states and diagnostics (0.5825ms)
+  ✔ preserves exact domain quantities without converting them to numbers (0.118917ms)
+  ✔ represents all temporal project metadata with a presentation priority index (0.083792ms)
+  ✔ allows independent project-team states for the same project (0.063667ms)
+  ✔ keeps diagnostics semantic, with joined identities but no UI message (0.074666ms)
+  ✔ imports only domain types and declares no geometric or DOM fields (6.2315ms)
+✔ TimelineViewModel contract (7.717958ms)
+▶ FlowPlan backup V1
+  ✔ round trips the complete business state and stable data independently of exportedAt (4.552458ms)
+  ✔ rejects malformed containers and invalid business data (2.233083ms)
+✔ FlowPlan backup V1 (7.517666ms)
+▶ FlowPlan backup V3
+  ✔ round trips canonical colors and migrates V2 (6.269ms)
+  ✔ repairs colors and orphans and discards hidden own colors, while rejecting unknown references (0.859416ms)
+  ✔ restores V3 Program members without residual own colors for either entity kind (0.403584ms)
+✔ FlowPlan backup V3 (8.004208ms)
+✔ V5 snapshot history round-trips exactly and rejects forged partitions (11.575834ms)
+✔ V4 imports as lossless pending legacy and stays separate after first V5 snapshot (18.18175ms)
+✔ V1 through V5 backups all preflight into a stable V5 state (2.123584ms)
+✔ V5 refuses future Actuals, dangling historical Teams and forged version gaps (0.929958ms)
+✔ V5 refuses a future knowledgeDate itself for Project and Reservation snapshots (1.62675ms)
+✔ retained V4 evidence alone protects Project and Team identities (0.356459ms)
+✔ future-through V4 history remains lossless but cannot reconcile before its coverage date (0.41025ms)
+✔ portable header keeps snapshots out of Current and yields exact documents with escaped strings/nesting (42.13175ms)
+✔ rejects malformed historical array [} (0.875208ms)
+✔ rejects malformed historical array [,] (0.612041ms)
+✔ rejects malformed historical array [{},] (1.06075ms)
+✔ rejects malformed historical array [{"a":]} (0.305042ms)
+✔ rejects malformed historical array ["unfinished] (0.298083ms)
+✔ rejects malformed historical array [{] (0.38325ms)
+✔ duplicate historical fields are rejected explicitly instead of silently losing a branch (0.433333ms)
+▶ Project History pure projection
+  ✔ has no substituted horizon or projects for an empty collection (0.612084ms)
+  ✔ orders equal timestamps by ID, uses historical labels, skips absent predecessors and remains immutable (71.328334ms)
+  ✔ distinguishes legacy unavailable and available sparse empty without replaying an unknown engine (27.155167ms)
+  ✔ preserves exact EAC deltas and daily sums instead of substituting allocated Forecast for RAF (17.660459ms)
+  ✔ orders disappeared Projects after reference members and uses the reference horizon even for schema 1 (55.968875ms)
+  ✔ compares civil days across leap days and DST without local Date arithmetic (0.097333ms)
+✔ Project History pure projection (173.422833ms)
+✔ compares Programme and Pas IDs/labels including renames, None and date deltas (50.669875ms)
+✔ qualifies exact captured Forecast as fully allocated (20.760792ms)
+✔ qualifies exact captured Forecast as partially allocated (14.232708ms)
+✔ qualifies exact captured Forecast as no allocation within horizon (9.306917ms)
+✔ qualifies exact captured Forecast as no remaining workload (13.841333ms)
+✔ qualifies exact captured Forecast as inactive (15.153416ms)
+✔ qualifies exact captured Forecast as daily allocations unavailable (15.427292ms)
+✔ distinguishes a partial allocation from RAF beyond floating-point precision (1.087834ms)
+✔ Save always creates schema 2 and mixed V7 History preserves exact profiles and legacy metrics (55.361333ms)
+✔ lazy History preserves metrics/comparisons, loads only requested rows and releases retained profiles/models (95.636125ms)
+✔ concurrent disjoint ensureRows requests each load their own eligible rows (109.647625ms)
+✔ overlapping concurrent requests reuse rows without duplicate reads (101.285708ms)
+✔ successive concurrent requests are served in order and deduplicate shared rows (113.32325ms)
+✔ release invalidates running and queued requests and allows new work before old IO finishes (66.850041ms)
+✔ refresh invalidates pending requests without publishing old revision profiles (110.71175ms)
+✔ token change alone invalidates a profile response before publication (89.441041ms)
+✔ concurrent requests evict LRU rows within the budget (138.285ms)
+✔ a profile read error rejects that request and does not block the next request (96.973792ms)
+✔ oversized visible requests fail with a bounded cache and later requests remain usable (86.52025ms)
+✔ a generation switch invalidates running and queued requests without reviving old captures (103.296ms)
+✔ an obsolete read error cannot clear profiles loaded by a newer view (78.446375ms)
+✔ concurrent pinned rows that exceed budget reject explicitly and the next request can recover (110.725125ms)
+✔ releasing History between totals invalidates the remaining samples of that capture (72.874666ms)
+▶ Storage repository / ownership and async CAS
+  ✔ Current reads and writes never touch historical contents; session owns no collection (55.623667ms)
+  ✔ Save/Delete change History only and preserve exact unrelated captures and Current (43.229625ms)
+  ✔ CAS permits one winner; stale Current run and duplicate operation IDs are rejected (33.090041ms)
+  ✔ failed writes leave committed Current, history, revisions and identity references intact (26.559167ms)
+  ✔ staging is invisible; activation changes generation and both revisions; active data cannot be discarded (43.114667ms)
+  ✔ async dispatcher publishes after commit, preserves drafts on failure, and never replans Save/Delete (49.330875ms)
+✔ Storage repository / ownership and async CAS (252.043917ms)
+✔ migration fingerprint tracks only the original legacy source, not evolving Current (116.675417ms)
+✔ a bad middle capture never activates partial staged history and retry is idempotent (61.691334ms)
+✔ interrupted staging resumes by source fingerprint and never publishes partial data (104.768083ms)
+✔ valid legacy certified snapshot is fully validated and returned unchanged (44.869416ms)
+✔ structurally invalid certified snapshot with correct digest is rejected (25.25675ms)
+✔ business-invalid certified snapshot with correct digest is rejected (23.889958ms)
+✔ absent or unknown validationVersion (undefined) always executes full validation (18.709041ms)
+✔ absent or unknown validationVersion (999) always executes full validation (17.713875ms)
+✔ Current changes do not substitute historical inputs on reading a valid capture (12.106541ms)
+✔ corruption after certification is rejected by integrity verification (12.445084ms)
+✔ partially written staging resumes, revalidates and activates only after sealing (34.578209ms)
+✔ invalid capture among valid imports cannot seal or activate a partially validated generation (59.932875ms)
+▶ RecomputePlanning
+  ✔ delegates the request unchanged to the Planning Engine V1 (4.086ms)
+  ✔ preserves domain diagnostics without filtering or transformation (0.3205ms)
+  ✔ preserves deadline statuses and exact allocations (0.47975ms)
+  ✔ preserves independent multi-team planning results (0.219666ms)
+  ✔ is deterministic for the same request (0.326333ms)
+  ✔ does not mutate request or domain input references (0.114542ms)
+  ✔ keeps production application imports inside the domain boundary (14.575833ms)
+✔ RecomputePlanning (21.038583ms)
+▶ 11A.2 exact published daily capture
+  ✔ captures none, conserving exact totals and source ranges without mutating inputs (35.253792ms)
+  ✔ captures raf-only, conserving exact totals and source ranges without mutating inputs (20.911375ms)
+  ✔ captures zero, conserving exact totals and source ranges without mutating inputs (18.51375ms)
+  ✔ captures v5, conserving exact totals and source ranges without mutating inputs (15.541667ms)
+  ✔ captures legacy, conserving exact totals and source ranges without mutating inputs (27.941625ms)
+  ✔ Forecast inactive respects positioned workload rather than inventing RAF (39.308ms)
+  ✔ Forecast zero-raf respects positioned workload rather than inventing RAF (9.670583ms)
+  ✔ Forecast no-allocation respects positioned workload rather than inventing RAF (12.241917ms)
+  ✔ Forecast incomplete respects positioned workload rather than inventing RAF (1.537334ms)
+  ✔ Forecast complete respects positioned workload rather than inventing RAF (9.101167ms)
+  ✔ rejects no-team before publishing a Project run (0.428416ms)
+  ✔ rejects unknown-team before publishing a Project run (0.169375ms)
+  ✔ rejects missing-priority before publishing a Project run (0.142708ms)
+  ✔ publishes incomplete plans and saves positive unallocated RAF: empty-capacity (17.964333ms)
+  ✔ publishes incomplete plans and saves positive unallocated RAF: zero-daily-cap (27.344292ms)
+  ✔ publishes incomplete plans and saves positive unallocated RAF: future-start (14.709583ms)
+  ✔ publishes incomplete plans and saves positive unallocated RAF: non-working-horizon (7.064708ms)
+  ✔ publishes incomplete plans and saves positive unallocated RAF: priority-blocked (14.1055ms)
+  ✔ keeps every Team plan when one completes and another cannot allocate (22.757458ms)
+  ✔ keeps Actuals after the planning horizon (13.709208ms)
+  ✔ aggregates multiple contributions and allocations on the same Project/date with exact fractions and no alias (19.848375ms)
+  ✔ omits explicit zero allocations and Forecast weekends/gaps (27.7075ms)
+  ✔ allows Actuals/Forecast overlap on one civil day without shifting either component (1.499375ms)
+  ✔ rejects a purported fully allocated run when its daily Forecast does not conserve RAF (10.91525ms)
+  ✔ copies every mutable profile DTO member before freezing (10.932ms)
+  ✔ V5 uses only the published current version, never sums retained versions (12.3725ms)
+✔ 11A.2 exact published daily capture (395.024417ms)
+▶ 11A.2 V7 and unavailable schema 1
+  ✔ round trips mixed schemas and equal timestamps; refuses V6 downgrade and never enriches V6 at startup (22.17825ms)
+  ✔ loads V6 without rewriting storage or generating profiles (9.005292ms)
+  ✔ decodes captured daily shapes without redistributing historical Actuals or recomputing Forecast (13.528625ms)
+  ✔ distinguishes no source, uncovered RAF-only, covered zero, legacy schema1 and empty schema2 (43.471834ms)
+  ✔ rejects whole V7 document: missing profile (15.910167ms)
+  ✔ rejects whole V7 document: unknown schema (17.950875ms)
+  ✔ rejects whole V7 document: schema1 extra profile (24.757833ms)
+  ✔ rejects whole V7 document: missing days (13.958083ms)
+  ✔ rejects whole V7 document: extra field (63.440833ms)
+  ✔ rejects whole V7 document: invalid date (40.059334ms)
+  ✔ rejects whole V7 document: duplicate day (27.238167ms)
+  ✔ rejects whole V7 document: unordered days (26.870792ms)
+  ✔ rejects whole V7 document: noncanonical (31.688166ms)
+  ✔ rejects whole V7 document: noncanonical Forecast (26.081375ms)
+  ✔ rejects whole V7 document: negative Forecast (25.828791ms)
+  ✔ rejects whole V7 document: missing component (16.052125ms)
+  ✔ rejects whole V7 document: negative (13.079791ms)
+  ✔ rejects whole V7 document: double zero (15.051291ms)
+  ✔ rejects whole V7 document: reversed range (44.348375ms)
+  ✔ rejects whole V7 document: missing coverage (19.884208ms)
+  ✔ rejects whole V7 document: wrong horizon (9.782458ms)
+  ✔ rejects whole V7 document: Actuals outside coverage (11.626917ms)
+  ✔ rejects whole V7 document: Forecast outside horizon (9.969833ms)
+  ✔ rejects whole V7 document: Actuals sum (19.366291ms)
+  ✔ rejects whole V7 document: Forecast exceeds RAF (11.562708ms)
+  ✔ rejects whole V7 document: start mismatch (20.030084ms)
+  ✔ rejects whole V7 document: end mismatch (23.823417ms)
+  ✔ rejects whole V7 document: EAC mismatch (15.937791ms)
+  ✔ rejects whole V7 document: broken reference (18.898833ms)
+  ✔ rejects Forecast for inactive historical Project (20.834625ms)
+  ✔ schema2 Save write failure publishes nothing and preserves prior history without engine call (33.947625ms)
+  ✔ schema2 Save quota failure publishes nothing and preserves prior history without engine call (32.278459ms)
+  ✔ Save codec error leaves state, prior document and published run intact without recompute (12.781458ms)
+✔ 11A.2 V7 and unavailable schema 1 (752.2295ms)
+▶ 11A Portfolio capture and V6
+  ✔ creates only by explicit Save, repeats identical inputs, accepts same timestamps and clock rollback (32.341375ms)
+  ✔ guards actual-time dirty including direct calls and missing precondition (29.176208ms)
+  ✔ refuses a state/projection mismatch without changing either (10.315167ms)
+  ✔ rejects duplicate IDs but never timestamps (10.209875ms)
+  ✔ Save persistence failure publishes no partial artifact, projection or inputs (10.90925ms)
+  ✔ Delete is atomic, validates IDs, preserves all Actuals and does no recompute (11.59075ms)
+  ✔ losslessly captures rich inputs and exclusive none Actuals with exact minimal forecast (10.067625ms)
+  ✔ losslessly captures rich inputs and exclusive raf-only Actuals with exact minimal forecast (11.207417ms)
+  ✔ losslessly captures rich inputs and exclusive zero Actuals with exact minimal forecast (16.053875ms)
+  ✔ losslessly captures rich inputs and exclusive v5 Actuals with exact minimal forecast (15.793ms)
+  ✔ losslessly captures rich inputs and exclusive legacy Actuals with exact minimal forecast (10.955958ms)
+  ✔ losslessly captures rich inputs and exclusive reconciled Actuals with exact minimal forecast (11.378166ms)
+  ✔ retains an old V5 reference after later versions and membership evolution using a prefix (9.705791ms)
+  ✔ pending legacy remains frozen after reconciliation without double counting or invented IDs (22.740458ms)
+  ✔ supports future-through legacy without synthesizing knowledge dates (45.202625ms)
+  ✔ deep freezes copied inputs and forecasts without retaining caller arrays (35.062083ms)
+  ✔ ordinary settings, activation, priority and Team edits preserve captures (73.751042ms)
+  ✔ imports multi captures into a fresh store without rewriting historical engine/metrics (10.909416ms)
+  ✔ all V1–V5 readers migrate to empty history and all encoders refuse downgrade (58.743208ms)
+  ✔ rejects the entire V6 for duplicate capture IDs, preserves startup/import document (14.063834ms)
+  ✔ rejects the entire V6 for noncanonical timestamp, preserves startup/import document (28.2155ms)
+  ✔ rejects the entire V6 for unknown inputs schema, preserves startup/import document (8.63525ms)
+  ✔ rejects the entire V6 for unknown forecast schema, preserves startup/import document (8.769833ms)
+  ✔ rejects the entire V6 for missing V5 owner, preserves startup/import document (9.953125ms)
+  ✔ rejects the entire V6 for wrong kind, preserves startup/import document (23.76475ms)
+  ✔ rejects the entire V6 for wrong reference/version, preserves startup/import document (33.0715ms)
+  ✔ rejects the entire V6 for missing reference, preserves startup/import document (48.593042ms)
+  ✔ rejects the entire V6 for wrong historical RAF, preserves startup/import document (31.267541ms)
+  ✔ rejects the entire V6 for wrong historical membership, preserves startup/import document (8.902292ms)
+  ✔ rejects the entire V6 for unknown Team, preserves startup/import document (15.980291ms)
+  ✔ rejects the entire V6 for priority mismatch, preserves startup/import document (21.419958ms)
+  ✔ rejects the entire V6 for noncanonical rational, preserves startup/import document (21.315084ms)
+  ✔ rejects the entire V6 for EAC mismatch, preserves startup/import document (44.643583ms)
+  ✔ rejects the entire V6 for wrong Actuals knowledge, preserves startup/import document (7.634958ms)
+  ✔ rejects the entire V6 for missing start reason, preserves startup/import document (15.28925ms)
+  ✔ rejects the entire V6 for invalid end reason, preserves startup/import document (21.634875ms)
+  ✔ rejects the entire V6 for invalid date, preserves startup/import document (25.211ms)
+  ✔ rejects the entire V6 for hidden full result, preserves startup/import document (11.047167ms)
+  ✔ rejects the entire V6 for recursive inputs, preserves startup/import document (9.852834ms)
+  ✔ rejects the entire V6 for duplicated Actuals history, preserves startup/import document (8.979166ms)
+  ✔ rejects the entire V6 for invalid historical color, preserves startup/import document (12.385208ms)
+  ✔ rejects the entire V6 for orphan catalog, preserves startup/import document (17.7165ms)
+  ✔ rejects the entire V6 for invalid priorityOrder, preserves startup/import document (17.495709ms)
+✔ 11A Portfolio capture and V6 (903.631ms)
+▶ 11A dates, identities and independence
+  ✔ capture uses Timeline's exact end dates and inactive reasons, includes inactive positive Actuals (13.104ms)
+  ✔ start uses actual activity rather than actualsFrom or earliestStartDate (15.6045ms)
+  ✔ zero RAF gives no end allocation but positive Actuals can still give a start (13.549625ms)
+  ✔ keeps all principal inputs frozen after later independent edits and another engine result (15.120709ms)
+  ✔ reserves historical projects IDs across deletion/reload, releases after last capture removal (42.20625ms)
+  ✔ reserves historical reservations IDs across deletion/reload, releases after last capture removal (10.77275ms)
+  ✔ reserves historical teams IDs across deletion/reload, releases after last capture removal (22.6545ms)
+  ✔ reserves historical programs IDs across deletion/reload, releases after last capture removal (22.0835ms)
+  ✔ reserves historical priorityFamilies IDs across deletion/reload, releases after last capture removal (34.016791ms)
+✔ 11A dates, identities and independence (189.462792ms)
+✔ an invalid middle capture rejects all three without partial import or repair (12.398583ms)
+✔ copies mutable snapshot DTO evidence before freezing without aliasing nested arrays (10.721792ms)
+✔ captures an empty Portfolio explicitly without inventing any inputs or forecasts (0.311625ms)
+✔ history initialization deep freezes artifacts while the live session owns no collection (10.187333ms)
+▶ editable quantity presentation
+  ✔ shows finite quantities as decimals and periodic quantities at UI precision (0.475208ms)
+  ✔ shows exact ratios as decimal percentages without fraction notation (0.078584ms)
+  ✔ parses finite decimals and rational fractions directly to canonical exact values (0.439ms)
+  ✔ rejects zero denominators and malformed exact quantity syntax (0.057542ms)
+  ✔ interprets rational percentage input as a percentage before creating the exact ratio (0.278916ms)
+✔ editable quantity presentation (1.8895ms)
+✔ 11D.1 exact input/display round-trip 0 (0.730208ms)
+✔ 11D.1 exact input/display round-trip -0 (0.08825ms)
+✔ 11D.1 exact input/display round-trip 1,25 (0.061ms)
+✔ 11D.1 exact input/display round-trip 1.2500 (0.048833ms)
+✔ 11D.1 exact input/display round-trip 5/4 (0.073416ms)
+✔ 11D.1 exact input/display round-trip 2/6 (0.059083ms)
+✔ 11D.1 exact input/display round-trip 1/10000 (0.055333ms)
+✔ 11D.1 exact input/display round-trip 1,234 (0.038542ms)
+✔ 11D.1 exact input/display round-trip  12,5  (0.052708ms)
+✔ 11D.1 incomplete/malformed preserved but non-applicable "" (0.085042ms)
+✔ 11D.1 incomplete/malformed preserved but non-applicable "1," (0.037ms)
+✔ 11D.1 incomplete/malformed preserved but non-applicable "1." (0.033375ms)
+✔ 11D.1 incomplete/malformed preserved but non-applicable "1/" (0.0215ms)
+✔ 11D.1 incomplete/malformed preserved but non-applicable "-" (0.02075ms)
+✔ 11D.1 incomplete/malformed preserved but non-applicable "1,234.5" (0.034083ms)
+✔ 11D.1 incomplete/malformed preserved but non-applicable "1.234,5" (0.020542ms)
+✔ 11D.1 incomplete/malformed preserved but non-applicable "1 234" (0.024458ms)
+✔ 11D.1 incomplete/malformed preserved but non-applicable "1 234" (0.021333ms)
+✔ 11D.1 incomplete/malformed preserved but non-applicable "1'234" (0.018166ms)
+✔ 11D.1 incomplete/malformed preserved but non-applicable "1,,2" (0.019084ms)
+✔ 11D.1 incomplete/malformed preserved but non-applicable "1..2" (0.016875ms)
+✔ 11D.1 incomplete/malformed preserved but non-applicable "1e3" (0.017667ms)
+✔ 11D.1 incomplete/malformed preserved but non-applicable "+1" (0.016542ms)
+✔ 11D.1 incomplete/malformed preserved but non-applicable "1/0" (0.02675ms)
+✔ 11D.1 incomplete/malformed preserved but non-applicable "1/2,5" (0.016375ms)
+✔ 11D.1 incomplete/malformed preserved but non-applicable "01" (0.016834ms)
+✔ 11D.1 incomplete/malformed preserved but non-applicable ".5" (0.017083ms)
+✔ 11D.1 incomplete/malformed preserved but non-applicable ",5" (0.015416ms)
+✔ 11D.1 exact formatter agrees with unbounded Domain oracle across prime powers and non-finite fractions (14.529541ms)
+✔ 11D.1 complete 16-digit decimal and compact finite fraction (0.076583ms)
+✔ 11D.1 complete 100-digit decimal and compact finite fraction (0.035709ms)
+✔ 11D.1 complete 1000-digit decimal and compact finite fraction (0.131917ms)
+✔ 11D.1 complete 10000-digit decimal and compact finite fraction (1.901375ms)
+✔ 11D.1 multi-Team sums retain all exact denominator factors (0.134917ms)
+✔ D1/D2/A1/F2 independent RAF: none, inactive=false (33.85175ms)
+✔ D1/D2/A1/F2 independent RAF: none, inactive=true (1.134834ms)
+✔ D1/D2/A1/F2 independent RAF: covered, inactive=false (3.341167ms)
+✔ D1/D2/A1/F2 independent RAF: covered, inactive=true (1.32175ms)
+✔ D1/D2/A1/F2 independent RAF: uncovered, inactive=false (1.161333ms)
+✔ D1/D2/A1/F2 independent RAF: uncovered, inactive=true (0.793709ms)
+✔ D1/D2/A1/F2 independent RAF: legacy, inactive=false (4.242291ms)
+✔ D1/D2/A1/F2 independent RAF: legacy, inactive=true (3.273833ms)
+✔ D1/D2/A1/F2 independent RAF: reconciled, inactive=false (1.670167ms)
+✔ D1/D2/A1/F2 independent RAF: reconciled, inactive=true (1.092042ms)
+✔ A2 exact quantities and unchanged identity: 2/6 (0.628542ms)
+✔ A2 exact quantities and unchanged identity: 0/1 (0.314667ms)
+✔ A2 exact quantities and unchanged identity: 9007199254740993000000000000001/7 (0.251583ms)
+✔ A2 invalid patch/base rejected atomically: missing (0.277542ms)
+✔ A2 invalid patch/base rejected atomically: duplicate (0.219417ms)
+✔ A2 invalid patch/base rejected atomically: unknown (0.190542ms)
+✔ A2 invalid patch/base rejected atomically: stale-raf (0.206292ms)
+✔ A2 invalid patch/base rejected atomically: stale-source (0.217875ms)
+✔ A2 invalid patch/base rejected atomically: stale-membership (0.204833ms)
+✔ A2 invalid patch/base rejected atomically: negative (2.785667ms)
+✔ R2a/R1a/T1/S1 direct Application transaction Actuals=false RAF=false (40.098042ms)
+✔ R2a/R1a/T1/S1 direct Application transaction Actuals=false RAF=true (35.442583ms)
+✔ R2a/R1a/T1/S1 direct Application transaction Actuals=true RAF=false (27.663625ms)
+✔ R2a/R1a/T1/S1 direct Application transaction Actuals=true RAF=true (29.691334ms)
+✔ R1a/R2b consumption-only requires A confirmation, accepts unchanged RAF, leaves B unconfirmed (2.173ms)
+✔ R1b/D5 partition change confirms all participants: split (1.456625ms)
+✔ R1b/D5 partition change confirms all participants: from (0.385584ms)
+✔ R1b/D5 partition change confirms all participants: through (0.375666ms)
+✔ R1b/D5 partition change confirms all participants: erosion-total (0.344833ms)
+✔ A3/R1c no historical RAF restoration after several revisions (0.374625ms)
+✔ C2/R2b stale full RAF base blocks routing even target=current, Actuals changed=false (0.717792ms)
+✔ C2/R2b stale full RAF base blocks routing even target=current, Actuals changed=true (0.23375ms)
+✔ R2b equivalent rationals and confirmations are no-op; technical identity substitution refuses (0.255458ms)
+✔ A6 old Forecast draft preserves untouched RAF and refuses hidden numeric revision (0.559833ms)
+✔ C1/C2 drafts detect independent RAF at same Actuals version, preserve invalid text, modal=false (1.057292ms)
+✔ C1/C2 drafts detect independent RAF at same Actuals version, preserve invalid text, modal=true (0.430083ms)
+✔ T1/T2/T3 RAF transaction failure projection preserves RAM and requires appropriate recovery (23.816417ms)
+✔ T1/T2/T3 RAF transaction failure abort preserves RAM and requires appropriate recovery (21.374709ms)
+✔ T1/T2/T3 RAF transaction failure uncertain preserves RAM and requires appropriate recovery (42.827458ms)
+✔ T1/T2/T3 RAF transaction failure publish preserves RAM and requires appropriate recovery (41.181167ms)
+✔ T1/T2/T3 RAF transaction failure CAS preserves RAM and requires appropriate recovery (23.637125ms)
+✔ K3/K5/K6 mixed repository round trip, old Current=false, mixed captures=false (34.460542ms)
+✔ K3/K5/K6 mixed repository round trip, old Current=false, mixed captures=true (95.24525ms)
+✔ K3/K5/K6 mixed repository round trip, old Current=true, mixed captures=false (69.177875ms)
+✔ K3/K5/K6 mixed repository round trip, old Current=true, mixed captures=true (75.784875ms)
+✔ D3 new model keeps membership and historical Team restrictions (0.512125ms)
+✔ K1/K2 schema discrimination rejects unknown model and historical numeric divergence (0.488917ms)
+✔ D4 retirement requires confirmation with divergent RAF, historicalZero=false (0.575125ms)
+✔ D4 retirement requires confirmation with divergent RAF, historicalZero=true (0.374292ms)
+✔ C2/R1c remote consumption invalidates its RAF proof without losing a disjoint RAF draft (0.388958ms)
+✔ C3/R2b full base checks membership before no-op (0.202125ms)
+✔ C3/R2b full base checks source before no-op (0.180708ms)
+✔ C3/R2b full base checks caps before no-op (0.174875ms)
+✔ A5 explicit first zero coverage after RAF revision switches pending legacy only on B (0.427708ms)
+✔ K2/K4 captured divergent RAF preserves exact historical source after B: uncovered (56.607791ms)
+✔ K2/K4 captured divergent RAF preserves exact historical source after B: legacy (31.834834ms)
+✔ K2/K4 captured divergent RAF preserves exact historical source after B: reconciled (30.527208ms)
+✔ C1 safe rebase keeps an equivalent entered RAF text on a remotely unchanged Team (0.612834ms)
+✔ A1 preserves every non-RAF field and optional provenance absence on native requirements (0.164ms)
+✔ V1 editor restored knowledge is a repository no-op: open (24.956292ms)
+✔ V1 editor restored knowledge is a repository no-op: period-restored (27.1995ms)
+✔ V1 editor restored knowledge is a repository no-op: consumption-restored (10.522583ms)
+✔ V1 editor restored knowledge is a repository no-op: split-undone (10.999834ms)
+✔ V1 editor restored knowledge is a repository no-op: merge-undone (16.112417ms)
+✔ V1 editor restored knowledge is a repository no-op: equivalent (7.845917ms)
+✔ V2 modal consumption A reviews concurrent RAF Team A and renews dependent proof (0.858542ms)
+✔ V2 modal consumption A reviews concurrent RAF Team B and renews dependent proof (8.562166ms)
+✔ V2 conflicting modal refuses review, retains draft and cancels locally: coverage (1.293083ms)
+✔ V2 conflicting modal refuses review, retains draft and cancels locally: membership (0.824833ms)
+✔ V2 conflicting modal refuses review, retains draft and cancels locally: same-raf-conflict (1.467541ms)
+✔ V2 equivalent concurrent RAF preserves modal proof and a second dirty card (0.534667ms)
+✔ V2 local coverage edit survives RAF-only review and still requires every RAF confirmation (0.448292ms)
+▶ usage-driven grouping and colors
+  ✔ normalizes, deduplicates across Projects and Reservations, and prunes last users (2.482292ms)
+  ✔ keeps inactive references but excludes their forecast, and applies only explicit color edits (0.440542ms)
+  ✔ recreates a vanished draft selection with a new ID, then deduplicates a late Apply (0.342667ms)
+✔ usage-driven grouping and colors (3.706541ms)
+✔ Project membership, current RAF zero on retirement, reintroduction and rollback are atomic (11.072292ms)
+✔ Reservation membership and zero retirement share one snapshot transaction (0.801708ms)
+▶ Lot 9G application lifecycle
+  ✔ reprojects once per accepted lifecycle or period Apply and never on refusal (71.586083ms)
+  ✔ creates a Reservation without Team allocations, including in an empty Portfolio (0.548542ms)
+  ✔ skips occupied IDs and rejects invalid names and Team references atomically (0.363292ms)
+  ✔ replaces periods structurally, sorts them and retains exact quantities and exceptions (0.303583ms)
+✔ Lot 9G application lifecycle (73.29675ms)
+▶ PlanningSession Project lifecycle
+  ✔ creates at the last global priority with exact RAF and both optional associations (5.055042ms)
+  ✔ rejects invalid creation and unknown deletion without changing the state (0.501291ms)
+  ✔ skips occupied IDs and creates in an initially empty Project portfolio (0.334667ms)
+  ✔ reprojects once per accepted mutation and never on refusal (55.208542ms)
+✔ PlanningSession Project lifecycle (61.701541ms)
+▶ PlanningSession global reservation editing
+  ✔ atomically replaces one reservation and preserves all other state (2.211ms)
+  ✔ rejects duplicate/unknown teams, unknown reservations, and reversed dates without changing state (0.395375ms)
+✔ PlanningSession global reservation editing (3.0425ms)
+▶ PlanningSession planning and team editing
+  ✔ stores working weekdays and max parallel projects only on Planning (1.655958ms)
+  ✔ atomically updates the global planning settings (0.418ms)
+  ✔ rejects an invalid horizon, empty week, or invalid parallel limit without mutation (0.237792ms)
+  ✔ renames a team without changing its ID, periods, reservations, or project references (0.261417ms)
+  ✔ updates only one team's capacity periods (0.35475ms)
+✔ PlanningSession planning and team editing (3.412833ms)
+▶ Team structural commands
+  ✔ creates one or several exact capacity periods as a sorted atomic schedule (1.993834ms)
+  ✔ rejects zero, overlapping and reversed periods without mutation or ID consumption (0.29825ms)
+  ✔ skips IDs already present and never asks the user for an ID (0.234833ms)
+  ✔ removes an unreferenced Team without changing other Portfolio data (0.330167ms)
+  ✔ rejects unknown and all persisted reference combinations atomically (0.704792ms)
+✔ Team structural commands (4.055833ms)
+▶ PlanningSession project editing
+  ✔ updates memberships and preserves them on unrelated Project Apply (3.311334ms)
+  ✔ clears either membership and rejects unknown references atomically (1.200958ms)
+  ✔ owns the initial immutable domain/application state (0.423041ms)
+  ✔ sequences current RAF and global Forecast fields without changing priority (1.012ms)
+  ✔ rejects every invalid reorder position atomically (0.442083ms)
+  ✔ moves first to last, last to first, and accepts a middle no-op (0.470458ms)
+  ✔ rejects empty, duplicate, and unknown team requirements (0.52ms)
+  ✔ atomically changes Project Team membership and never revives a removed daily cap (0.941333ms)
+  ✔ rejects a typed zero daily cap at the application boundary (0.3995ms)
+  ✔ rejects an unknown project without replacing state (0.377292ms)
+  ✔ is DOM-free and defines no per-requirement project dates (5.821583ms)
+✔ PlanningSession project editing (16.240917ms)
+▶ PlanningSession project reorder
+  ✔ moves in both directions and preserves every other Portfolio value (0.677458ms)
+  ✔ rejects an unknown Project and leaves a same-position command as the same state (0.29775ms)
+  ✔ keeps the reordered priority when a Project draft is later applied (0.36025ms)
+✔ PlanningSession project reorder (1.485583ms)
+▶ ProjectEditViewModel
+  ✔ separates global dates and exposes decimal RAF with exact hidden values (3.483166ms)
+  ✔ returns undefined for an unknown project (0.20675ms)
+✔ ProjectEditViewModel (4.309333ms)
+▶ ReservationIdGenerator
+  ✔ generates deterministic session IDs and skips existing collisions (0.318625ms)
+✔ ReservationIdGenerator (0.69475ms)
+▶ TeamEditViewModel
+  ✔ projects the team name and position-identified existing periods (1.844ms)
+  ✔ returns undefined for an unknown team (0.176ms)
+✔ TeamEditViewModel (2.436042ms)
+▶ ReservationEditViewModel
+  ✔ projects one global reservation and every team in portfolio order (1.868541ms)
+  ✔ returns undefined for an unknown reservation (0.178666ms)
+✔ ReservationEditViewModel (2.464208ms)
+✔ aggregates concurrent exact source contributions without passing chronology to planning (1.524ms)
+✔ absence, RAF-only zero and covered explicit zero remain distinct (1.769916ms)
+✔ partition, quantities, future date, history order and immutability (0.589292ms)
+✔ same day version, no-op, stale base, changed value and explicit RAF (1.268166ms)
+✔ new Team values need evidence, retirement carries explicit zero (5.396958ms)
+✔ first Reservation snapshot needs coverage (0.555417ms)
+✔ split requires every nonzero result, while an all-zero zone propagates exactly (0.330375ms)
+✔ reordering unchanged period rows and Team cells is a no-op (0.124083ms)
+✔ extension, changed-through RAF validation, edge erosion and total erosion (0.200333ms)
+✔ nonzero Project consumption blocks Team retirement even with explicit retirement confirmation (0.122208ms)
+✔ tail append, whole-head erosion and whole-tail erosion preserve exact remaining periods (0.219583ms)
+✔ history preflight refuses a reused period ID with changed facts (0.073375ms)
+▶ global multi-team reservations
+  ✔ owns global dates/name and rejects duplicate team allocations (0.552292ms)
+  ✔ mixes exact ratio and fixed daily requests (0.534792ms)
+  ✔ keeps fixed daily demand at 100% unavailability and reports over-reservation (0.756208ms)
+  ✔ does not apply fixed daily without a capacity period or on a global non-working day (0.086541ms)
+  ✔ makes ratio demand zero at zero effective capacity (0.069666ms)
+  ✔ does not clamp mixed requested capacity and bases diagnostics on the actual request (0.108375ms)
+✔ global multi-team reservations (2.608541ms)
+▶ team capacity schedule
+  ✔ uses working days, inclusive period bounds, and zero in gaps (0.7315ms)
+  ✔ gives absolute priority to exceptions (0.09525ms)
+  ✔ keeps Actual occupation on normal, exception, non-working and schedule-gap dates (0.214792ms)
+  ✔ applies exact period unavailability without changing exceptions (0.120625ms)
+  ✔ rejects overlapping periods and duplicate exception dates (0.337917ms)
+  ✔ sorts only periods and exceptions in defensive copies (0.067292ms)
+✔ team capacity schedule (2.057417ms)
+▶ CivilDate
+  ✔ validates leap years and impossible dates (1.231375ms)
+  ✔ adds days across month and year boundaries without timezone state (0.268167ms)
+  ✔ compares and traverses inclusive intervals (0.174958ms)
+✔ CivilDate (2.570417ms)
+▶ projects and teams
+  ✔ keeps zero workload and zero daily cap explicitly (0.557917ms)
+  ✔ rejects invalid workload, parallelism, and duplicate team requirements (0.372666ms)
+  ✔ represents project dates without interpreting feasibility (0.147042ms)
+✔ projects and teams (1.503333ms)
+▶ Portfolio invariants
+  ✔ supports independent optional Program and PAS membership with immutable catalogs (0.564833ms)
+  ✔ rejects duplicate catalog IDs and unknown Project memberships (0.120583ms)
+  ✔ preserves all meaningful input orders and copies collections (0.083167ms)
+  ✔ rejects duplicate identities (0.272333ms)
+  ✔ rejects unknown team references (0.126291ms)
+  ✔ rejects unknown, missing, and duplicate priority projects (0.082417ms)
+✔ Portfolio invariants (1.403583ms)
+▶ exact rational representation
+  ✔ parses decimal 0 exactly as 0/1 (1.115792ms)
+  ✔ parses decimal 3.2 exactly as 16/5 (0.280667ms)
+  ✔ parses decimal 0.20 exactly as 1/5 (0.102833ms)
+  ✔ parses decimal 12.75 exactly as 51/4 (0.084334ms)
+  ✔ parses decimal 0.125 exactly as 1/8 (0.085125ms)
+  ✔ parses decimal -1.25 exactly as -5/4 (0.09025ms)
+  ✔ rejects unsupported decimal syntax  (0.163125ms)
+  ✔ rejects unsupported decimal syntax .5 (0.071084ms)
+  ✔ rejects unsupported decimal syntax 1. (0.106958ms)
+  ✔ rejects unsupported decimal syntax +1.2 (0.135458ms)
+  ✔ rejects unsupported decimal syntax 01 (0.078625ms)
+  ✔ rejects unsupported decimal syntax 1e-3 (0.086667ms)
+  ✔ rejects unsupported decimal syntax NaN (0.049625ms)
+  ✔ rejects unsupported decimal syntax Infinity (0.057833ms)
+  ✔ rejects unsupported decimal syntax 0x10 (0.073583ms)
+  ✔ canonicalizes signs, common factors, and zero (0.186542ms)
+  ✔ rejects a zero denominator and division by zero explicitly (0.157333ms)
+  ✔ performs exact arithmetic without numeric tolerances (0.267667ms)
+  ✔ keeps large signed rational operations canonical after factor cancellation (0.667041ms)
+  ✔ compares, bounds, and classifies rational values (0.119584ms)
+  ✔ renders finite decimals exactly and periodic decimals only with precision (0.271083ms)
+  ✔ round-trips the canonical exact serialization (0.158083ms)
+✔ exact rational representation (6.715959ms)
+▶ opaque rational domain quantities
+  ✔ creates distinct Program and PriorityFamily IDs and rejects blank values (0.879958ms)
+  ✔ rejects invalid capacities created from internal rationals (0.663333ms)
+  ✔ rejects invalid capacity ratios created from internal rationals (0.152208ms)
+  ✔ rejects invalid remaining workloads created from internal rationals (0.373084ms)
+  ✔ creates capacity 0 exactly as 0/1 (0.200375ms)
+  ✔ creates capacity 3.2 exactly as 16/5 (0.094125ms)
+  ✔ creates capacity 0.20 exactly as 1/5 (0.041917ms)
+  ✔ creates capacity 12.75 exactly as 51/4 (0.055167ms)
+  ✔ creates capacity 0.125 exactly as 1/8 (0.04825ms)
+  ✔ preserves non-negative business invariants and accepts zero (0.119083ms)
+  ✔ rejects unsupported decimal input at the public factory boundary (0.062584ms)
+  ✔ keeps individual reservation ratios in the exact zero-to-one range (0.082208ms)
+  ✔ keeps period unavailability in its own exact zero-to-one type (0.069958ms)
+  ✔ serializes exactly and renders periodic values only with explicit precision (0.158375ms)
+✔ opaque rational domain quantities (4.157834ms)
+▶ Planning Engine termination under mandatory deadlines
+  ✔ feasible mandatory Project (1.793208ms)
+  ✔ impossible mandatory deadline (0.223875ms)
+  ✔ no capacity (0.125792ms)
+  ✔ partial zero-capacity period (0.150083ms)
+  ✔ Reservation consumes capacity (0.324666ms)
+  ✔ Reservation over-reserves (0.108166ms)
+  ✔ concurrent Projects (0.157ms)
+  ✔ earliest start after objective (0.11725ms)
+  ✔ horizon ends with RAF (0.146917ms)
+  ✔ dailyCap with one parallel Project (0.166834ms)
+  ✔ batches a valid billion-unit fair allocation after mandatory admission (0.1125ms)
+✔ Planning Engine termination under mandatory deadlines (3.997459ms)
+▶ Phase 2A planning engine
+  ✔ ignores Program/PAS membership while priorityOrder still controls admission (3.118584ms)
+  ✔ plans a simple workload over an inclusive horizon (0.333ms)
+  ✔ applies an exact daily cap without quantization (0.227416ms)
+  ✔ skips a zero daily cap and considers the next priority (0.150667ms)
+  ✔ respects earliest start, ignores objective date, and handles a passed deadline (0.201625ms)
+  ✔ shares capacity equally and aggregates each daily allocation (0.173917ms)
+  ✔ retains unplanned workload at the strict horizon boundary (0.125417ms)
+  ✔ allocates only project capacity after firm reservations (0.355458ms)
+  ✔ reports over-reservation and performs no project allocation (0.137666ms)
+  ✔ keeps an initially completed contribution complete without an end date (0.13875ms)
+  ✔ simulates the same project independently for each team (0.12275ms)
+  ✔ is deterministic and does not mutate portfolio inputs (1.747625ms)
+✔ Phase 2A planning engine (7.660333ms)
+▶ Phase 2B daily admission
+  ✔ admits one project until it completes when max parallel is one (0.171791ms)
+  ✔ admits at most two projects and leaves the third outside (0.089334ms)
+  ✔ freezes admission before consumption and never backfills (0.076625ms)
+  ✔ recomputes admission daily without continuity rights (0.096791ms)
+  ✔ does not admit a project whose daily cap is zero (0.06125ms)
+  ✔ does not admit a project whose remaining workload is zero (0.0465ms)
+  ✔ admits no project when project capacity is zero (0.064583ms)
+  ✔ keeps an admitted project inactive without admitting a replacement (0.061625ms)
+  ✔ uses portfolio priority order for admission (0.060208ms)
+  ✔ applies one global admission limit independently to every team (0.088916ms)
+✔ Phase 2B daily admission (0.94825ms)
+▶ Phase 2C normal fair sharing
+  ✔ uses priority to assign an indivisible exact half-day quantum (0.082583ms)
+  ✔ shares rounds among three admitted projects in priority order (0.06725ms)
+  ✔ allocates an exact final RAF remainder but not the unusable capacity (0.061459ms)
+  ✔ leaves a sub-quantum capacity unused when it cannot finish a RAF (0.045709ms)
+  ✔ uses a sub-quantum capacity to finish an exact RAF remainder (0.047833ms)
+  ✔ tracks daily caps cumulatively while redistributing within admission (0.053042ms)
+✔ Phase 2C normal fair sharing (0.417916ms)
+▶ Phase 2D mandatory deadlines
+  ✔ keeps a never-admitted project pending and tests feasibility only on admission (0.175209ms)
+  ✔ does not reserve future capacity for a higher-priority unfeasible deadline (0.136208ms)
+  ✔ does not reserve future capacity for a higher-priority missed deadline (0.0815ms)
+  ✔ still applies a higher-priority feasible trajectory to future accessibility (0.094417ms)
+  ✔ uses an exact one-half ratio and constrains lower-priority deadlines (0.081292ms)
+  ✔ keeps an exact one-third deadline allocation outside normal quantization (0.080958ms)
+  ✔ lets a lower-priority deadline consume before normal fair sharing (1.124ms)
+  ✔ lets an unfeasible deadline consume the maximum without backfill (0.136792ms)
+  ✔ changes feasible to unfeasible after interruption and never reverses it (0.114958ms)
+  ✔ changes a pending project to missed without ever admitting it (0.071834ms)
+  ✔ changes a feasible interrupted project to missed (0.070416ms)
+  ✔ changes unfeasible to missed and still consumes the maximum (0.056416ms)
+  ✔ shares one daily cap across exact deadline and normal allocations (0.065ms)
+  ✔ can finish a feasible project before its deadline (0.060625ms)
+  ✔ simulates deadline status independently for each team (0.075625ms)
+✔ Phase 2D mandatory deadlines (2.600958ms)
+▶ Planning Engine V1 diagnostics
+  ✔ reports over-reservation once per team and date (0.106458ms)
+  ✔ reports a partial horizon independently from deadlines (0.067292ms)
+  ✔ emits each deadline transition once and keeps distinct horizon diagnostics (0.060583ms)
+  ✔ freezes the complete result tree owned by the planner (0.064833ms)
+✔ Planning Engine V1 diagnostics (0.346875ms)
+▶ Planning Engine V1 exact invariants
+  ✔ preserves workloads, capacities, daily caps, admission, and slot limits (0.251458ms)
+  ✔ is strongly deterministic on a complex multi-team scenario (0.22725ms)
+✔ Planning Engine V1 exact invariants (0.509083ms)
+▶ Planning Engine V1 canonical scenarios
+  ✔ A. shares normal capacity equally over the complete horizon (0.13075ms)
+  ✔ B. finishes a short RAF without backfilling the frozen admission (0.080792ms)
+  ✔ C. lets a newly eligible higher priority interrupt the current project (0.057917ms)
+  ✔ D. subtracts an exact firm reservation before project capacity (0.065875ms)
+  ✔ E. reports over-reservation while keeping project capacity at zero (0.091583ms)
+  ✔ F. follows an exact one-half feasible deadline trajectory (0.064792ms)
+  ✔ G. preserves an exact one-third deadline allocation (0.060667ms)
+  ✔ H. marks an impossible deadline unfeasible and consumes today's maximum (0.0445ms)
+  ✔ I. marks a positive RAF missed after its deadline (0.040042ms)
+  ✔ J. lets a lower-priority deadline consume before a normal project (0.049625ms)
+  ✔ K. never exceeds a project daily cap (0.047542ms)
+  ✔ L. preserves partial work and reports it at the horizon (0.046667ms)
+  ✔ M. simulates the same project independently on multiple teams (0.05225ms)
+  ✔ N. never predicts feasibility before the first admission (0.759833ms)
+  ✔ O. can downgrade feasible after losing and regaining admission (0.346334ms)
+  ✔ P. keeps a normal admitted project inactive after deadline consumption (0.211958ms)
+  ✔ Q. applies feasible deadline trajectories sequentially by priority (0.175875ms)
+  ✔ R. never reserves future capacity for unfeasible or missed deadlines (0.233458ms)
+  ✔ 10B partitions exact Actuals and marginal Reservation overload in all four audited cases (0.881792ms)
+  ✔ 10B keeps thirds exact across Project Actual, Reservation Actual and ratio forecast (0.471958ms)
+  ✔ 10B keeps zero-capacity Actuals and fixed-daily forecast without clamping either (0.188375ms)
+  ✔ 10B uses current RAF once and validates unique known occupation rows (0.559458ms)
+  ✔ 10B deadline lookahead sees Actual occupation beyond the materialized horizon (0.241125ms)
+✔ Planning Engine V1 canonical scenarios (5.402417ms)
+✔ characterizes occupation without Project knowledge: spare covered-day capacity allows Forecast (0.513917ms)
+▶ 11C Project temporal knowledge
+  ✔ exhaustively checks all Teams, boundary null, cap undefined (1.728834ms)
+  ✔ exhaustively checks all Teams, boundary null, cap 0 (1.37675ms)
+  ✔ exhaustively checks all Teams, boundary null, cap 1/3 (1.068209ms)
+  ✔ exhaustively checks all Teams, boundary null, cap 1 (0.585375ms)
+  ✔ exhaustively checks all Teams, boundary 2025-08-31, cap undefined (0.473834ms)
+  ✔ exhaustively checks all Teams, boundary 2025-08-31, cap 0 (3.244542ms)
+  ✔ exhaustively checks all Teams, boundary 2025-08-31, cap 1/3 (0.353792ms)
+  ✔ exhaustively checks all Teams, boundary 2025-08-31, cap 1 (0.304708ms)
+  ✔ exhaustively checks all Teams, boundary 2025-09-01, cap undefined (0.382875ms)
+  ✔ exhaustively checks all Teams, boundary 2025-09-01, cap 0 (0.609541ms)
+  ✔ exhaustively checks all Teams, boundary 2025-09-01, cap 1/3 (0.366166ms)
+  ✔ exhaustively checks all Teams, boundary 2025-09-01, cap 1 (0.330875ms)
+  ✔ exhaustively checks all Teams, boundary 2025-09-30, cap undefined (1.390541ms)
+  ✔ exhaustively checks all Teams, boundary 2025-09-30, cap 0 (0.567333ms)
+  ✔ exhaustively checks all Teams, boundary 2025-09-30, cap 1/3 (0.302583ms)
+  ✔ exhaustively checks all Teams, boundary 2025-09-30, cap 1 (0.269125ms)
+  ✔ exhaustively checks all Teams, boundary 2025-10-31, cap undefined (0.327958ms)
+  ✔ exhaustively checks all Teams, boundary 2025-10-31, cap 0 (0.301ms)
+  ✔ exhaustively checks all Teams, boundary 2025-10-31, cap 1/3 (0.873541ms)
+  ✔ exhaustively checks all Teams, boundary 2025-10-31, cap 1 (0.37275ms)
+  ✔ exhaustively checks all Teams, boundary 2025-12-31, cap undefined (1.566125ms)
+  ✔ exhaustively checks all Teams, boundary 2025-12-31, cap 0 (0.296417ms)
+  ✔ exhaustively checks all Teams, boundary 2025-12-31, cap 1/3 (0.476083ms)
+  ✔ exhaustively checks all Teams, boundary 2025-12-31, cap 1 (1.009125ms)
+  ✔ exhaustively checks all Teams, boundary 9999-12-31, cap undefined (0.323209ms)
+  ✔ exhaustively checks all Teams, boundary 9999-12-31, cap 0 (0.26975ms)
+  ✔ exhaustively checks all Teams, boundary 9999-12-31, cap 1/3 (0.283375ms)
+  ✔ exhaustively checks all Teams, boundary 9999-12-31, cap 1 (0.593167ms)
+  ✔ combines earliest 2025-09-29 with exclusive Actuals end (0.21225ms)
+  ✔ combines earliest 2025-09-30 with exclusive Actuals end (0.043ms)
+  ✔ combines earliest 2025-10-01 with exclusive Actuals end (0.035417ms)
+  ✔ combines earliest 2025-10-02 with exclusive Actuals end (0.033834ms)
+  ✔ combines earliest 2025-11-01 with exclusive Actuals end (0.032542ms)
+  ✔ Mandatory 2025-08-31, later reader false: blocked Project leaves capacity (0.15525ms)
+  ✔ Mandatory 2025-08-31, later reader true: blocked Project leaves capacity (0.101791ms)
+  ✔ Mandatory 2025-09-29, later reader false: blocked Project leaves capacity (0.078333ms)
+  ✔ Mandatory 2025-09-29, later reader true: blocked Project leaves capacity (0.090875ms)
+  ✔ Mandatory 2025-09-30, later reader false: blocked Project leaves capacity (0.070958ms)
+  ✔ Mandatory 2025-09-30, later reader true: blocked Project leaves capacity (0.086ms)
+  ✔ Mandatory 2025-10-01, later reader false: blocked Project leaves capacity (0.063833ms)
+  ✔ Mandatory 2025-10-01, later reader true: blocked Project leaves capacity (0.091584ms)
+  ✔ Mandatory 2025-10-03, later reader false: blocked Project leaves capacity (0.0775ms)
+  ✔ Mandatory 2025-10-03, later reader true: blocked Project leaves capacity (0.1ms)
+  ✔ Mandatory 2025-11-01, later reader false: blocked Project leaves capacity (0.144541ms)
+  ✔ Mandatory 2025-11-01, later reader true: blocked Project leaves capacity (0.19ms)
+  ✔ civil boundary 2025-12-31 does not add a day (0.076167ms)
+  ✔ civil boundary 2024-02-29 does not add a day (0.0665ms)
+  ✔ civil boundary 9999-12-31 does not add a day (0.038083ms)
+  ✔ validates total, unique, known IDs and canonical dates including inactive Projects (0.312834ms)
+✔ 11C Project temporal knowledge (22.89675ms)
+▶ shared Project estimated date semantics
+  ✔ starts via Actuals outside horizon and ignores other kinds, Projects, Teams and zero amounts (0.508917ms)
+  ✔ starts via first positive Forecast, ignores zero allocations (0.083709ms)
+  ✔ takes the minimum of Actuals and Forecast in either order (0.078708ms)
+  ✔ has no activity when all sources are absent or zero (0.053625ms)
+  ✔ ends at the latest completed Team end (0.334042ms)
+  ✔ has explicit inactive, incomplete and no-allocation absences (0.060875ms)
+✔ shared Project estimated date semantics (1.596875ms)
+▶ demo planning bootstrap
+  ✔ provides a deterministic multi-team, multi-project domain scenario (3.162541ms)
+  ✔ runs through the real application, view-model, and geometry pipeline (17.510542ms)
+  ✔ projects actual demo completion dates into Project tooltips (5.817542ms)
+✔ demo planning bootstrap (27.498667ms)
+▶ buildPlanningSessionProjection
+  ✔ recomputes and persists the split occupation after sequential Actuals appends (59.677959ms)
+  ✔ projects inactive historical Project and Reservation Actuals on a zero-capacity day (13.8985ms)
+  ✔ builds planning, semantic view model, and full geometry deterministically (23.674209ms)
+  ✔ is a deterministic DOM-free composition boundary (9.491875ms)
+✔ buildPlanningSessionProjection (107.715708ms)
+▶ PlanningProjectionDispatcher reorder
+  ✔ rebuilds once for a move and never for same-position or rejected commands (31.771125ms)
+✔ PlanningProjectionDispatcher reorder (32.218208ms)
+▶ PlanningProjectionDispatcher Team lifecycle
+  ✔ projects each accepted structural change once and never projects a refusal (55.187833ms)
+✔ PlanningProjectionDispatcher Team lifecycle (55.26825ms)
+▶ PlanningProjectionDispatcher
+  ✔ reuses one run for cursor dates without dispatch and replaces all run references after an edit (21.177459ms)
+  ✔ recomputes once for a grouping edit and never for an unknown catalog reference (19.890167ms)
+  ✔ rebuilds exactly once after success and never after invalid commands (17.923ms)
+  ✔ keeps objective date descriptive while moving only its marker (24.524334ms)
+  ✔ does not let a mandatory deadline change global priority (33.312292ms)
+  ✔ recomputes the complete projection when Apply makes an objective date mandatory (22.19375ms)
+  ✔ removes only the targeted team allocations when its RAF becomes zero (38.671917ms)
+  ✔ applies an exact per-team daily cap to the recomputed allocations (13.866208ms)
+  ✔ applies one global earliest start to every team requirement (26.32225ms)
+  ✔ accepts an impossible global deadline as planning input and reports it (17.703041ms)
+  ✔ keeps planning semantics identical for a team name-only update (24.9045ms)
+  ✔ rebuilds once for valid team edits and never for invalid ones (12.557291ms)
+  ✔ lets max parallel change the existing planner admission (11.7685ms)
+  ✔ removes capacity and allocations when a weekday is disabled (19.948959ms)
+  ✔ recomputes exact effective capacity from capacity and unavailability (26.717ms)
+  ✔ accepts overlapping over-reservations and rebuilds their diagnostics once (14.429208ms)
+  ✔ does not rebuild for an invalid reservation replacement (9.452ms)
+✔ PlanningProjectionDispatcher (355.948958ms)
+✔ Save committed then readCurrent failure blocks all mutations and reports uncertainty to UI (43.029334ms)
+✔ Delete committed then readCurrent failure blocks all mutations and reports uncertainty to UI (32.747708ms)
+✔ Save followed by a foreign Current commit requires recovery instead of publishing a foreign projection (24.781291ms)
+✔ Current committed but local publication impossible requires recovery with the old projection unpublished (26.829125ms)
+✔ confirmed rollback keeps local state usable and retries the same operationId (47.428375ms)
+✔ lost acknowledgment after commit is uncertain and cannot double Save (22.660583ms)
+✔ unknown storage rejection cannot be treated as rollback (21.919875ms)
+✔ explicit recovery reads authority and builds a new coherent session while old drafts remain until user disposal (46.2315ms)
+✔ Save retry after a confirmed rollback keeps capture, operationId and timestamp stable (30.662ms)
+✔ V4 legacy chronology alone retains cumulative validation and ambiguous missing-Team records (8.028209ms)
+✔ V4 Reservation can omit Teams; only the legacy adapter computes exact later deltas (1.308875ms)
+✔ all V4 append business commands are refused without changing the candidate (0.88575ms)
+✔ only the current V5 snapshot contributes when legacy and older snapshots are retained (23.179375ms)
+▶ 11C source to projection, capture and History
+  ✔ projects v5 across both Teams with immutable RAF and zero-tail knowledge (44.125291ms)
+  ✔ projects zero across both Teams with immutable RAF and zero-tail knowledge (29.302292ms)
+  ✔ projects raf-only across both Teams with immutable RAF and zero-tail knowledge (20.429417ms)
+  ✔ projects none across both Teams with immutable RAF and zero-tail knowledge (14.6005ms)
+  ✔ projects legacy across both Teams with immutable RAF and zero-tail knowledge (16.656166ms)
+  ✔ current rectification/erosion/extension 2025-08-31 replaces older knowledge (12.977375ms)
+  ✔ current rectification/erosion/extension 2025-09-15 replaces older knowledge (10.082083ms)
+  ✔ current rectification/erosion/extension 2025-10-08 replaces older knowledge (8.658417ms)
+  ✔ current rectification/erosion/extension null replaces older knowledge (6.658916ms)
+  ✔ V5 RAF-only supersedes retained future legacy evidence (3.274584ms)
+  ✔ retains accepted future V4 through without clock clipping (7.251917ms)
+  ✔ activation false uses current bound and preserves Actuals (4.749125ms)
+  ✔ activation true uses current bound and preserves Actuals (8.859334ms)
+  ✔ removed and reintroduced zero Team keeps one global current boundary (7.574542ms)
+  ✔ preserves planning and source contracts for zero-raf (7.887875ms)
+  ✔ preserves planning and source contracts for partial (7.088958ms)
+  ✔ preserves planning and source contracts for no-capacity (13.08075ms)
+  ✔ preserves planning and source contracts for daily-cap (3.957583ms)
+  ✔ preserves planning and source contracts for new-team (5.212292ms)
+  ✔ preserves planning and source contracts for removed-team (4.389042ms)
+  ✔ Reservation ratio Actuals and Forecast remain additive on covered days (8.473875ms)
+  ✔ Reservation fixed-daily Actuals and Forecast remain additive on covered days (14.2285ms)
+  ✔ old overlapping /1 and new separated /2 profiles survive mixed V8 and History exactly (17.09575ms)
+✔ 11C source to projection, capture and History (278.095333ms)
+✔ 11C accepted erosion/RAF-only commands derive bounds once, failures stay atomic, Save/Delete reuse projection (30.57125ms)
+▶ 9I forecast activation
+  ✔ defaults both entities active, preserves priority, and frees capacity across all four activity combinations (7.135042ms)
+  ✔ removes a multi-Team Reservation from every Team while retaining its exact configuration and sort position (48.646375ms)
+  ✔ retains an aggregate Team over-reservation while other active Reservations still exceed capacity (0.668042ms)
+  ✔ allows all Projects and Reservations to be inactive without hiding Portfolio entities (72.010583ms)
+  ✔ retains the derived #N badges when a middle Project is excluded (26.55975ms)
+  ✔ rejects a stale reserved-capacity result for an inactive Reservation (0.399917ms)
+  ✔ does not allow inactive entities to bypass Portfolio structure (0.165083ms)
+  ✔ uses the same state and projection for both no-op commands, without writing (4.817333ms)
+  ✔ round trips strict V2 and migrates strict V1 to active entities (2.094792ms)
+✔ 9I forecast activation (163.589166ms)
+▶ planning backup operations
+  ✔ uses demo without writing when the key is missing or invalid (1.834625ms)
+  ✔ validates before confirmation and preserves the prior document for every refusal (6.224209ms)
+  ✔ migrates a successful V1 import to V8 and reloads exactly once (2.951792ms)
+  ✔ preserves inactive Projects and Reservations when importing V2 (2.801667ms)
+✔ planning backup operations (14.805ms)
+▶ planning persistence transaction
+  ✔ does not consume Team or Project IDs while a candidate fails to commit (2.213375ms)
+  ✔ writes a complete candidate before publishing session and projection (45.721041ms)
+  ✔ keeps session, projection and next generated ID unchanged on a failed write (41.161542ms)
+✔ planning persistence transaction (89.629791ms)
+Real backup Mandatory phases: planning=346.7ms, viewModel=0.8ms, geometry=39.9ms, full=700.0ms
+✔ rebuilds the real 12178 - SDD projection when its objective becomes Mandatory (1106.554ms)
+✔ Project matrix draft applies one exact V5 snapshot and Cancel stays local (45.424917ms)
+✔ Reservation matrix keeps Forecast allocation and exact thirds (0.992083ms)
+✔ a concurrent snapshot with the same RAF edit rebases safely (0.670458ms)
+✔ draft rebases disjoint RAF edits with exact values (0.408375ms)
+✔ an open RAF modal waits for explicit review before a safe three-way rebase (0.452084ms)
+✔ zero-only Project zone repartitions without re-entering zero in each new cell (5.286916ms)
+✔ Team retirement and tail erosion submit one atomic replacement (0.851959ms)
+✔ projection and V5 persistence failure roll back the whole draft candidate (37.868083ms)
+✔ projection failure leaves both snapshot version and published projection unchanged (10.384875ms)
+✔ independent Forecast text remains separate, while Team and RAF changes need sequencing (0.575083ms)
+✔ first Project RAF revises requirements, then exact no-op keeps Actuals absent (0.2415ms)
+✔ changed nonzero cells need their own evidence and are never prorated by a split (0.587583ms)
+✔ current editor shows legacy and snapshot histories read-only, then applies only a confirmed whole draft (5.330458ms)
+✔ Cancel restores an invalid card RAF exactly and the draft survives remount (1.108458ms)
+✔ a differently written exact RAF stays a quick no-op (1.805459ms)
+✔ card RAF is dirty until global Cancel, and global Apply revises current RAF without a snapshot (0.930416ms)
+✔ first Actuals opens at periods, date typing waits for a complete change, split date starts hidden (2.623208ms)
+✔ one-click contiguous selection renders only chosen rows with fixed external boundaries (15.666792ms)
+✔ card RAF Apply uses command A after a snapshot and keeps the draft after failure (1.3745ms)
+✔ V2 RAF typing cannot mint R1 confirmation: 2/2 (1.929042ms)
+✔ V2 RAF typing cannot mint R1 confirmation: 2/1 (0.776625ms)
+✔ 11D.1 R3 initialization, focus, blur, modal Cancel and remount cannot confirm RAF (0.904166ms)
+✔ 11D.1 compact project columns and empty membership have no fictitious consumption (0.446667ms)
+✔ 11D.1 compact reservation columns and empty membership have no fictitious consumption (0.368208ms)
+✔ mode shell rejects modals, hides the entire Planning surface, and restores focus without rebuilding (0.624291ms)
+▶ History cache identities and viewport/cap lifecycle
+  ✔ ignores array/capture copies from ordinary commands and restores viewport/cap unchanged (52.837291ms)
+  ✔ keeps cap stable through pan, same-width range/reset and clamped no-op zoom (21.879167ms)
+  ✔ invalidates backward-clock Save and non-reference Delete while preserving viewport; resets on new/reference Delete/empty (58.808416ms)
+✔ History cache identities and viewport/cap lifecycle (134.228625ms)
+▶ History read-only DOM interactions
+  ✔ shows the empty state without a current horizon or enabled temporal controls (1.276667ms)
+  ✔ keeps all present rows accessible, including schema 1, with focus, daily keyboard and Escape (75.805458ms)
+  ✔ supports hover and touch release, keeps zero/gap lines hit-testable, and hides tooltip during range/pan (34.986458ms)
+  ✔ preserves DOM/cache/viewport on copies and repeated mode returns; dataset changes rebuild explicitly (29.775667ms)
+  ✔ has no rendering dependency on commands, backup decoding, engine or historical hydration (7.228959ms)
+✔ History read-only DOM interactions (149.936958ms)
+✔ shares range/pan with the global axis and cancels pending hover on Escape (32.943208ms)
+✔ uses the complete profile when an active row is unmounted by vertical scrolling (29.514375ms)
+✔ checks inclusive civil-day window bounds and updates the message after zoom, pan and Reset (71.656333ms)
+✔ reports captured activity clipped by a changed reference horizon even with a legacy reference (91.22875ms)
+✔ never labels absent, legacy or empty schema 2 rows as activity outside the window (68.454333ms)
+✔ renders positive Actuals and Forecast in mixed schema generations without a schema 2 unavailable label (22.543166ms)
+✔ keeps snapshot colors ID-stable, in sRGB gamut and readable as saturated loads in both themes (2.396458ms)
+✔ uses multiple perceptual dimensions while allowing arbitrary-ID proximity without recoloring peers (3.639125ms)
+✔ uses sparse paths, accessible excess indicators and inclusive knowledge markers without legacy daily shapes (68.0975ms)
+✔ reports exact totals, noncomparable dates, full timestamp/zone/ID and uncovered sparse zero (69.874041ms)
+▶ PlanningSettingsController
+  ✔ opens the native file input and reports a failed import without submitting planning settings (1.428333ms)
+  ✔ renders seven compact weekday inputs and keeps all edits local until Apply (0.632875ms)
+  ✔ Cancel discards local values and reopens from the current session model (0.113958ms)
+  ✔ rejects invalid local values without dispatch and removes listeners on destroy (0.150708ms)
+✔ PlanningSettingsController (2.80125ms)
+✔ exposes invalid Planning Settings dirty and preserves it across model publication (0.13075ms)
+▶ parsePlanningSettingsCommand
+  ✔ builds one typed global planning command (0.744083ms)
+  ✔ rejects an inverted horizon, an empty week, and invalid parallel limits (0.116291ms)
+  ✔ uses CivilDate parsing without JavaScript Date coercion (2.963291ms)
+✔ parsePlanningSettingsCommand (4.510042ms)
+▶ 11A snapshot UI
+  ✔ shows a deterministic list with precise local dates and snapshot identity (10.806583ms)
+  ✔ explains disabled Save and rechecks dirty at click before calling the service (0.485875ms)
+  ✔ keeps the existing list on Save failure and reports the error (0.188208ms)
+  ✔ confirms only the chosen Delete, keeps failure intact and returns focus to the summary (0.256625ms)
+  ✔ removes the Save listener on destroy (0.126083ms)
+✔ 11A snapshot UI (12.410916ms)
+▶ shared grouping controls
+  ✔ previews selection, new names and color intent locally (2.144167ms)
+  ✔ project shows new-name fields only for New and keeps the Program color while typing (0.254709ms)
+  ✔ reservation shows new-name fields only for New and keeps the Program color while typing (0.0945ms)
+  ✔ preserves None to None and suggests a new own color only when leaving a Program (0.378875ms)
+  ✔ keeps hidden new-name labels hidden under edit-form CSS (0.239375ms)
+✔ shared grouping controls (4.072292ms)
+▶ Project reorder controller
+  ✔ previews using card rectangles, then commits only once across release and lost capture (0.958208ms)
+  ✔ cancels on escape, pointercancel, lost capture, outside drop and destruction (0.166917ms)
+  ✔ uses arrows, Home and End with no dispatch at limits or same position (0.1295ms)
+  ✔ does not commit a tap, an original-position drop or a visibility cancellation (0.097ms)
+  ✔ uses the actual midpoint of expanded cards rather than fixed row heights (0.080666ms)
+✔ Project reorder controller (1.917375ms)
+▶ Team subcard draft controls
+  ✔ keeps enabled separate from expansion and restores local values after OFF then ON (0.4505ms)
+✔ Team subcard draft controls (0.818458ms)
+▶ Create Project form
+  ✔ never enables a Team implicitly and sends one exact command only after explicit activation (2.744875ms)
+  ✔ explains a missing Team and blocks Create (0.313916ms)
+  ✔ parses optional grouping, Mandatory and multiple exact requirements without numeric conversion (1.318208ms)
+  ✔ keeps invalid exact RAF in the form without dispatch (0.3305ms)
+  ✔ preserves an open draft across Portfolio changes and guards its active Team (0.336584ms)
+  ✔ keeps a dirty form when discard is declined (0.21975ms)
+✔ Create Project form (5.781ms)
+✔ exposes invalid unapplied Create Project changes and cleans on cancel (0.219ms)
+▶ ProjectEditController
+  ✔ shows RAF provenance without a numeric editing lock (1.493417ms)
+  ✔ edits latest-Actuals RAF in the Project card while keeping Forecast command unchanged (0.704792ms)
+  ✔ uses Team deletion's dirty-discard and inline confirmation pattern (0.311458ms)
+  ✔ retains a dirty draft when discard is refused and shows application deletion errors (0.284375ms)
+  ✔ renders global dates and decimal RAF while hiding daily caps (2.95625ms)
+  ✔ disables and clears the form without a selected project (0.282917ms)
+  ✔ Cancel restores every field without dispatching (1.962042ms)
+  ✔ keeps user values and shows errors when one field is invalid (1.757667ms)
+  ✔ emits one typed atomic command and clears errors after success (0.582542ms)
+  ✔ keeps select changes local until Apply and emits empty associations (0.61775ms)
+✔ ProjectEditController (12.023833ms)
+▶ parseProjectEditCommand
+  ✔ maps Mandatory to Objective end and requires explicit legacy resolution (0.715125ms)
+  ✔ ignores disabled Team rows and requires RAF for a newly enabled row (0.471625ms)
+  ✔ parses catalog identities and an explicit empty choice (0.104916ms)
+  ✔ maps all strings to one typed update-project command with exact quantities (0.063208ms)
+  ✔ accepts empty optional global dates and keeps them off requirements (0.073166ms)
+  ✔ accepts finite decimal or rational RAF edits and rejects invalid input (0.17025ms)
+  ✔ preserves hidden daily cap and untouched non-terminating exact RAF (0.051833ms)
+  ✔ turns an edited decimal into a new exact rational (0.053375ms)
+  ✔ rejects invalid global dates independently without cross-field policy (0.093666ms)
+  ✔ aggregates field errors and uses no JavaScript Date or silent coercion (4.048833ms)
+✔ parseProjectEditCommand (6.732709ms)
+▶ ProjectDraftStore
+  ✔ adopts the exact committed RAF after Actuals and flags an incompatible local RAF (1.123375ms)
+  ✔ computes reversible global and Team dirty independently (0.138709ms)
+  ✔ rebases local changes, adopts untouched fields, and preserves exact RAF anchors (0.1115ms)
+  ✔ keeps an unrelated local draft dirty after a reorder rebase (0.071167ms)
+  ✔ retains a local vanished Program choice and rebases an untouched shared color (0.111667ms)
+  ✔ blocks a structurally vanished active Team without dropping its local draft (0.063167ms)
+  ✔ keeps a divergent historical deadline unresolved until an explicit choice (0.054375ms)
+  ✔ drops an unchanged missing Team option and preserves unrelated local edits (0.077125ms)
+  ✔ keeps a changed missing Team row across repeated rebases (0.11175ms)
+✔ ProjectDraftStore (2.409833ms)
+▶ renderApp
+  ✔ keeps the projection control out of the planning layout and makes the timeline focusable (1.796292ms)
+  ✔ uses one full-width timeline stage with stacked team panels (1.390375ms)
+  ✔ returns a frozen, strictly typed set of application elements (0.15875ms)
+✔ renderApp (4.226333ms)
+▶ Create Reservation form
+  ✔ starts as a local empty draft at the horizon and creates with no Teams (2.280167ms)
+  ✔ tracks a Team enabled before creation and parses its exact amount (1.91725ms)
+✔ Create Reservation form (4.93725ms)
+✔ exposes invalid unapplied Create Reservation dates and cleans on cancel (0.53ms)
+▶ ReservationEditController
+  ✔ retains a Team value across OFF then ON within one draft (1.127792ms)
+  ✔ hydrates global fields once and one accessible allocation row per team (0.13675ms)
+  ✔ applies one global command, preserves untouched exact input, and Cancel does not dispatch (0.445542ms)
+  ✔ clears value when allocation mode changes instead of converting it (0.154791ms)
+  ✔ shows a local error and does not dispatch reversed dates (1.281167ms)
+  ✔ follows Project deletion: dirty warning, inline confirmation, cancel focus, then delete (1.441667ms)
+✔ ReservationEditController (5.123167ms)
+▶ parseReservationEditCommand
+  ✔ parses exact percentage and fixed daily fractions (1.56425ms)
+  ✔ preserves untouched exact values but treats explicit decimals exactly (0.349708ms)
+  ✔ keeps absent teams distinct and rejects invalid values or intervals atomically (0.962208ms)
+✔ parseReservationEditCommand (3.900416ms)
+▶ ReservationDraftStore
+  ✔ tracks reversible dirty and isolates Cancel (0.478709ms)
+  ✔ rebases mode/value as a pair and adopts untouched global fields (0.440208ms)
+  ✔ adopts a new exact value when the local pair was unchanged (0.069708ms)
+  ✔ drops an unchanged missing Team option while retaining independent edits (0.090625ms)
+  ✔ retains a changed missing Team option across repeated rebases (0.100459ms)
+✔ ReservationDraftStore (1.676667ms)
+▶ Create Team form
+  ✔ starts blank, adds/removes periods, and sends one exact atomic command (1.049709ms)
+  ✔ keeps a dirty create form when discard is declined (0.101541ms)
+  ✔ shows field errors without dispatching (0.240166ms)
+✔ Create Team form (1.868333ms)
+✔ exposes invalid unapplied Create Team periods and cleans on cancel (0.108958ms)
+▶ TeamEditController
+  ✔ opens a team modal with name and capacity only (0.822583ms)
+  ✔ dispatches name and capacity as independent transactions (0.414708ms)
+  ✔ Cancel changes rehydrates local periods without dispatch (0.0945ms)
+  ✔ tracks a deleted first period by reference and Applies the untouched following exact values (0.314959ms)
+  ✔ Cancel restores every persisted period and clears deletion dirty-state without dispatch (0.126ms)
+  ✔ Add is dirty and deleting only that new row restores a clean draft (0.123208ms)
+  ✔ keeps added and deleted rows local, then Cancel restores the persisted schedule (0.100334ms)
+  ✔ can Apply deletion of the last period as an empty schedule (0.333916ms)
+  ✔ parses an added period without rounding an untouched existing quantity (0.262583ms)
+  ✔ retains invalid added rows after parsing refusal (0.710875ms)
+  ✔ preserves unapplied fields on a same-Team refresh and guards context changes (0.338417ms)
+  ✔ requires explicit deletion confirmation and distinguishes a local draft warning (0.490208ms)
+✔ TeamEditController (4.835417ms)
+▶ parseTeamEditCommand
+  ✔ builds only the team capacity-period command (3.725792ms)
+  ✔ accepts an exact rational capacity and percentage (0.584375ms)
+  ✔ preserves untouched exact thirds behind decimal display (0.569833ms)
+  ✔ distinguishes an explicit decimal edit from an explicit fraction edit (1.077459ms)
+  ✔ rejects malformed rational syntax atomically (0.506791ms)
+✔ parseTeamEditCommand (8.883166ms)
+▶ PlanningDiagnosticsController
+  ✔ counts every UI category and filters the dialog without changing diagnostic order (2.296417ms)
+  ✔ disables zero counters and refuses to open above another modal (0.103458ms)
+  ✔ closes with Escape, confines focus, restores the trigger, and removes listeners (0.174083ms)
+✔ PlanningDiagnosticsController (3.030667ms)
+▶ createTimelineCursorController
+  ✔ keeps the Team collection segment aligned through date and viewport changes without adding a label (1.017625ms)
+  ✔ starts at the supplied horizon start and renders the projection date (0.157417ms)
+  ✔ keeps the date fixed through a range drag and releases capture (3.345667ms)
+  ✔ treats no movement and movement below four pixels as clicks (0.191708ms)
+  ✔ commits reversed ranges after crossing four pixels, even if the pointer returns (0.155959ms)
+  ✔ honors the active pointer and checks the threshold at pointerup (0.117041ms)
+  ✔ clamps a captured drag outside the SVG and clears on cancel and destroy (0.130584ms)
+  ✔ uses the same x-to-date conversion for axis rows, Team bands, and segments (0.181625ms)
+  ✔ supports arrows, Home, and End without wrapping (0.13525ms)
+  ✔ moves globally with Ctrl+arrows, including when the control has focus, without duplicate callbacks (0.212042ms)
+  ✔ ignores global shortcuts during editing or a modal (2.415541ms)
+  ✔ notifies once per effective date change and never for the same day (0.812958ms)
+  ✔ maps client coordinates through the current rendered SVG bounds (0.074083ms)
+  ✔ uses the current viewport for pointer date selection (0.097625ms)
+  ✔ releases capture and ends dragging on pointercancel (1.276625ms)
+  ✔ falls back safely when pointer capture APIs are unavailable (0.107167ms)
+  ✔ removes every listener and active capture on destroy (0.098791ms)
+  ✔ has no planning, persistence, or JavaScript Date dependency (20.037333ms)
+✔ createTimelineCursorController (31.44725ms)
+✔ neutralizes global shortcuts and gestures across repeated suspend/resume without losing the date (0.202375ms)
+▶ createTimelineInteractionController
+  ✔ opens an Actual tooltip on hover without adding click selection (1.057667ms)
+  ✔ hides tooltips only during a range drag and restores the current hit (0.221667ms)
+  ✔ refreshes a visible Project tooltip when exact cursor progress changes (0.160375ms)
+  ✔ never creates selection or changes editing context on pointer click (0.093375ms)
+✔ createTimelineInteractionController (1.99275ms)
+▶ coordinator multi-draft rerender
+  ✔ keeps Project and Reservation cards pristine on Actuals open/collapse and resets on Cancel (80.037959ms)
+  ✔ keeps independent Actuals and Forecast drafts across a Project Actuals Apply (23.367083ms)
+  ✔ hands a Project membership addition to one Actuals transaction and preserves Forecast on Cancel (24.133459ms)
+  ✔ hands a Reservation membership addition to the two-step Actuals dialog (19.226833ms)
+  ✔ applies autonomous Forecast membership without creating an Actuals snapshot (17.696667ms)
+  ✔ blocks a handoff while unrelated Forecast fields are dirty (7.6125ms)
+  ✔ refuses to drop a card RAF draft when Forecast removes its Team (6.441709ms)
+  ✔ routes the global Project Apply through command A and global Cancel restores card RAF (12.533709ms)
+  ✔ keeps RAF and unrelated Forecast drafts when global Apply cannot publish them atomically (6.697709ms)
+  ✔ preserves state, projection, drafts and focus on failed activation commands (6.462584ms)
+  ✔ keeps independent drafts and activation outside Apply for both entity types (68.242625ms)
+  ✔ creates and deletes a Reservation while retaining independent dirty drafts and focus (19.641834ms)
+  ✔ protects a Team enabled in Create Reservation and its persisted allocation (16.531916ms)
+  ✔ creates, reorders and deletes a Project while preserving independent dirty drafts and focus (26.9055ms)
+  ✔ guards a Create Project draft Team, then uses persisted references after creation (28.275417ms)
+  ✔ deletes an unused Team while independent Project and Reservation drafts stay dirty (12.491833ms)
+  ✔ protects a local Project Team activation without dispatching deletion (6.931333ms)
+  ✔ protects a local Reservation Team value change even when inactive (7.583ms)
+  ✔ returns persisted-reference errors from Application without a rerender (5.480042ms)
+  ✔ preserves several dirty Project and Reservation drafts, open cards and focus across reorder (11.7565ms)
+  ✔ keeps another Project and Reservation dirty and expanded after one Project Apply (10.926625ms)
+✔ coordinator multi-draft rerender (419.951834ms)
+✔ global dirty covers each controller owner and service rechecks it (10.666375ms)
+✔ global dirty covers hidden Forecast drafts in both stores across tabs and remount (11.376708ms)
+✔ characterizes ownership: UI snapshots never serialize or normalize hidden invalid drafts (5.502541ms)
+✔ suspend/resume preserves all draft owners and projection with no remount or command (6.719291ms)
+✔ retains an invalid quick RAF and collapsed Actuals card through suspend/resume (5.754375ms)
+✔ 11D.1 R1/R3 RAF then Forecast: sequencing refusal preserves both owners across modal Cancel/remount (6.096459ms)
+✔ 11D.1 R1/R3 Forecast then RAF: sequencing refusal preserves both owners across modal Cancel/remount (6.946875ms)
+✔ 11D.1 repeated clean card Apply validates RAF via A no-op, with no Forecast publication (11.693042ms)
+▶ Timeline UI coordinator
+  ✔ preserves projection date and viewport through a rerender without selected state (22.130083ms)
+  ✔ routes selected ranges to the sole viewport controller and exposes the current anchor date (15.783083ms)
+✔ Timeline UI coordinator (38.384209ms)
+▶ createTimelineViewportController
+  ✔ refreshes the shared cursor after zoom, pan, and reset (1.136542ms)
+  ✔ starts with the complete immutable geometry view (0.3665ms)
+  ✔ restores and clamps an injected viewport state (0.111417ms)
+  ✔ zooms in and out around the Projection date without changing it (0.126041ms)
+  ✔ preserves a non-centered visible Projection date through both zoom directions (0.166291ms)
+  ✔ anchors at the nearest viewport edge when the Projection date is outside (0.107625ms)
+  ✔ expands short inclusive ranges to seven days and clamps at horizon edges (0.10725ms)
+  ✔ stops zooming at seven visible days (0.385459ms)
+  ✔ resets exactly after a long floating-point interaction sequence (0.286042ms)
+  ✔ uses only Shift plus pointer drag for captured horizontal pan (0.123542ms)
+  ✔ releases pan capture on pointercancel (0.084125ms)
+  ✔ releases active capture and every listener on destroy (0.082959ms)
+  ✔ has no planning, persistence, selection, or JavaScript Date dependency (19.264125ms)
+✔ createTimelineViewportController (30.087625ms)
+✔ suspends pan and zoom idempotently without resetting viewport or duplicating listeners (0.131375ms)
+✔ reports viewport causes and effective clamped widths without changing the legacy anchor (0.093792ms)
+▶ cursor metrics UI
+  ✔ keeps inactive Projects visible without forecast metrics and excludes them from Program/PAS (66.828041ms)
+  ✔ formats exact Rational values with deterministic half-up rounding (0.073042ms)
+  ✔ joins one card per Project, uses catalog order, and keeps negative remaining exact (15.782ms)
+  ✔ renders four matching Team and global values plus an exclusive progress view (8.8405ms)
+✔ cursor metrics UI (92.024042ms)
+▶ projectVisualIdentity
+  ✔ returns the same palette index for repeated calls with the same id (0.316916ms)
+  ✔ is independent from the order in which projects are evaluated (0.32025ms)
+  ✔ always returns an index inside the fixed palette (0.087541ms)
+✔ projectVisualIdentity (1.219084ms)
+▶ renderPlanningDiagnostics
+  ✔ preserves source order and maps every public code to its UI message (0.827541ms)
+  ✔ renders raw diagnostic codes as inspectable metadata (0.095166ms)
+  ✔ renders an empty list for an empty category (0.077583ms)
+  ✔ uses safe DOM construction without interaction handlers (3.718958ms)
+✔ renderPlanningDiagnostics (5.447667ms)
+▶ renderTimelineCursor
+  ✔ repeats the date in every Team band at the same cursor x (0.776708ms)
+  ✔ replaces only the cursor layer with supplied line geometry (0.134417ms)
+  ✔ is deterministic and never duplicates cursor lines (0.064917ms)
+  ✔ rejects an SVG without the static cursor layer (0.153959ms)
+✔ renderTimelineCursor (1.580292ms)
+▶ timeline interaction details
+  ✔ shows source-aware daily Project and Reservation Actuals through the normal tooltip (0.752584ms)
+  ✔ renders an exact allocation tooltip near the pointer (0.11625ms)
+  ✔ uses global Project end and exact cursor progress for any Team allocation (0.168042ms)
+  ✔ shows only real Reservation fields (0.2125ms)
+  ✔ renders marker status and hides a tooltip when hover clears (0.0635ms)
+✔ timeline interaction details (1.984875ms)
+▶ renderTimelineShellNavigation
+  ✔ renders team sections and accessible settings actions for one shared geometry (1.428417ms)
+✔ renderTimelineShellNavigation (1.793333ms)
+▶ renderTimelineSvg
+  ✔ shows a normalized range and both dates only while selection is active (4.070833ms)
+  ✔ uses exact effective fills while keeping a distinct Reservation outline (4.298666ms)
+  ✔ renders named Reservation segments inside the aggregate region (0.693584ms)
+  ✔ renders source-aware Actual segments without a separate native tooltip (2.876625ms)
+  ✔ uses the effective Project, Program and Reservation colors for Actual and forecast (2.179375ms)
+  ✔ clears existing SVG children before rebuilding (0.502833ms)
+  ✔ sets viewBox directly from geometry dimensions (0.296209ms)
+  ✔ creates one empty cursor layer above all static teams (0.313542ms)
+  ✔ renders supplied year and month axis segments before teams (1.064875ms)
+  ✔ renders one semantic group per team with its domain identifier (0.432042ms)
+  ✔ renders project markers above days with supplied line coordinates (0.310833ms)
+  ✔ maps marker kinds and deadline status to semantic classes and data (0.149833ms)
+  ✔ renders daily cells and their exact date metadata (0.129583ms)
+  ✔ copies rectangle coordinates without layout calculation (0.095292ms)
+  ✔ renders capacity tube geometry exactly (0.079708ms)
+  ✔ renders the reserved region from its supplied rectangle (0.067292ms)
+  ✔ renders the project region from its supplied rectangle (0.065208ms)
+  ✔ renders allocation rectangles with semantic data attributes (0.083375ms)
+  ✔ preserves the supplied allocation order in the SVG tree (0.075125ms)
+  ✔ maps over-reservation metadata to a dedicated semantic class (0.648792ms)
+  ✔ keeps one project color stable across different days (0.313667ms)
+  ✔ keeps one project color stable across different teams (0.235125ms)
+  ✔ creates axis text but no allocation text, path, or polygon (0.307916ms)
+  ✔ renders an empty-team geometry as a valid empty SVG (0.096417ms)
+  ✔ is idempotent through complete reconstruction (6.270292ms)
+  ✔ contains no geometry builders, business calls, or event listeners (2.178125ms)
+✔ renderTimelineSvg (29.55225ms)
+▶ hitTestTimelineGeometry
+  ✔ keeps distinct Actual sources and exact amounts on the same Team and day (0.8545ms)
+  ✔ hits an identifiable Reservation segment without replacing Team hits (0.100208ms)
+  ✔ hits an allocation at its center (0.071792ms)
+  ✔ gives reverse-rendered markers priority over allocations (0.065833ms)
+  ✔ returns a team hit for an otherwise empty lane point (0.059917ms)
+  ✔ returns no hit in the time axis or outside full geometry (0.0715ms)
+  ✔ snaps ulp-scale boundary noise to the right half-open rectangle (0.064916ms)
+  ✔ does not snap a real difference larger than epsilon (0.055458ms)
+✔ hitTestTimelineGeometry (1.863209ms)
+▶ TimelineViewport
+  ✔ shows a complete horizon when it contains fewer than seven days (0.648792ms)
+  ✔ creates an immutable full-horizon initial viewport (0.066041ms)
+  ✔ zooms in around the center while preserving its anchor (0.07125ms)
+  ✔ zooms out without exceeding the complete geometry (0.052917ms)
+  ✔ clamps zoom anchors near both horizon edges (0.053292ms)
+  ✔ never zooms below the configured minimum width (0.0485ms)
+  ✔ pans and clamps at both geometry boundaries (0.078292ms)
+  ✔ maps displayed pointer coordinates through the current viewport (0.094875ms)
+  ✔ clamps arbitrary viewport state to its invariants (0.063917ms)
+  ✔ remains finite and bounded through long zoom and pan sequences (0.313208ms)
+  ✔ applies only the visible horizontal window to the SVG viewBox (0.208709ms)
+  ✔ accepts ulp-scale viewBox overflow but rejects a real overflow (0.064792ms)
+  ✔ moves the temporal projection while inversely compensating year/month glyph scaling (0.091917ms)
+  ✔ derives typography compensation from each horizon projection without a magic zoom factor (0.074875ms)
+✔ TimelineViewport (2.54475ms)
+ℹ tests 1049
+ℹ suites 96
+ℹ pass 1049
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2403.963292
+
+===== build =====
+
+> flowplan@0.1.0 build
+> node scripts/build.mjs
+
+
+===== test:portable =====
+
+> flowplan@0.1.0 test:portable
+> node --test scripts/portable-server.test.cjs
+
+✔ serves embedded web assets with correct headers (0.574125ms)
+✔ HEAD omits the body and keeps the asset length (0.139584ms)
+✔ rejects other hosts, methods, and unknown assets (0.074333ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 53.543584
+
+===== test:storage =====
+
+> flowplan@0.1.0 test:storage
+> npm run build && node scripts/browser-storage-test.mjs
+
+
+> flowplan@0.1.0 build
+> node scripts/build.mjs
+
+Quota override: {"usage":144889,"quota":1024,"overrideActive":true,"usageBreakdown":[{"storageType":"file_systems","usage":0},{"storageType":"indexeddb","usage":144889},{"storageType":"cache_storage","usage":0},{"storageType":"service_workers","usage":0}]}
+{
+  "browser": "Edg/154.0.4258.53",
+  "result": {
+    "assertions": 15,
+    "exportBytes": 21182,
+    "token": {
+      "generation": "stage-import",
+      "revision": 6,
+      "currentRevision": 3,
+      "historyRevision": 5
+    }
+  },
+  "quota": {
+    "overrideAccepted": true,
+    "physicalQuotaEnforced": false,
+    "nativeInjectedQuotaAtomic": true,
+    "nativeCode": "QUOTA"
+  },
+  "ui": {
+    "migrated": true,
+    "save": true,
+    "history": true,
+    "details": true,
+    "cycles": 3,
+    "legacyPreserved": true,
+    "closedHistoryRows": 0
+  },
+  "blockedUpgrade": {
+    "blocked": true,
+    "code": "BLOCKED"
+  },
+  "layout": [
+    {
+      "width": 1440,
+      "scrollWidth": 1440
+    },
+    {
+      "width": 390,
+      "scrollWidth": 390
+    }
+  ],
+  "historyLayouts": [
+    {
+      "theme": "light",
+      "width": 1440,
+      "scrollWidth": 1440
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "scrollWidth": 1440
+    },
+    {
+      "theme": "light",
+      "width": 390,
+      "scrollWidth": 390
+    },
+    {
+      "theme": "dark",
+      "width": 390,
+      "scrollWidth": 390
+    }
+  ],
+  "originIsolated": true
+}
+
+===== native storage audit =====
+{"review":{"multipleDirtyCardsPreserved":true,"currentRAF":"2/3","historicalRAF":"1/3","snapshots":1},"layouts":[{"width":1440,"scrollWidth":1440},{"width":390,"scrollWidth":390}]}
+{
+  "browser": "Edg/154.0.4258.53",
+  "tests": 22,
+  "passed": 22,
+  "failed": 0,
+  "skipped": 0,
+  "cases": [
+    "valid legacy certificate: worker read and History",
+    "structural forgery with valid digest rejected by both worker paths",
+    "business forgery with valid digest rejected by both worker paths",
+    "corruption after certification rejected",
+    "native abort proves rollback and preserves persisted authority",
+    "post-complete notification failure rejects as uncertain and receipt retry is idempotent",
+    "invalid mid-import cannot activate and incomplete native staging resumes",
+    "native save commit with failed local reconciliation blocks subsequent UI-facing mutations",
+    "native delete commit with failed local reconciliation blocks subsequent UI-facing mutations",
+    "native current commit with failed local reconciliation blocks subsequent UI-facing mutations",
+    "11D.1 native R2 false/false",
+    "11D.1 native R2 false/true",
+    "11D.1 native R2 true/false",
+    "11D.1 native R2 true/true",
+    "11D.1 native mixed inputs1/2, old Current startup, CAS lost, export/import/reopen",
+    "11D.1 native Update Actuals modal R2 false/false",
+    "11D.1 native Update Actuals modal R2 false/true",
+    "11D.1 native Update Actuals modal R2 true/false",
+    "11D.1 native Update Actuals modal R2 true/true",
+    "11D.1 native RAF abort / explicit retry",
+    "11D.1 native RAF ack lost / recovery",
+    "mounted UI retains drafts and blocks Save/Delete/Apply after a lost native acknowledgment; recovery rereads authority"
+  ]
+}
+
+===== native RAF / UX / performance =====
+{
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Edg/154.0.4258.53",
+    "revision": "@5af6e80f702cffe10645c6d6433668f011b739be",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36 Edg/154.0.0.0",
+    "jsVersion": "15.4.11.7"
+  },
+  "scenarios": [
+    {
+      "scenario": "open",
+      "pass": true,
+      "projections": 0,
+      "writes": 0
+    },
+    {
+      "scenario": "period-restored",
+      "pass": true,
+      "projections": 0,
+      "writes": 0
+    },
+    {
+      "scenario": "consumption-restored",
+      "pass": true,
+      "projections": 0,
+      "writes": 0
+    },
+    {
+      "scenario": "split-undone",
+      "pass": true,
+      "projections": 0,
+      "writes": 0
+    },
+    {
+      "scenario": "merge-undone",
+      "pass": true,
+      "projections": 0,
+      "writes": 0
+    },
+    {
+      "scenario": "equivalent",
+      "pass": true,
+      "projections": 0,
+      "writes": 0
+    },
+    {
+      "scenario": "consumption-real",
+      "pass": true,
+      "projections": 1,
+      "writes": 1
+    },
+    {
+      "scenario": "concurrent-A",
+      "pass": true,
+      "projections": 1,
+      "writes": 1
+    },
+    {
+      "scenario": "concurrent-B",
+      "pass": true,
+      "projections": 1,
+      "writes": 1
+    },
+    {
+      "scenario": "equivalent-raf-proof",
+      "pass": true,
+      "projections": 1,
+      "writes": 1
+    },
+    {
+      "scenario": "numeric-raf-proof",
+      "pass": true,
+      "projections": 1,
+      "writes": 1
+    }
+  ]
+}
+{
+  "gate": "11D.1 exact numeric performance",
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Edg/154.0.4258.53",
+    "revision": "@5af6e80f702cffe10645c6d6433668f011b739be",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36 Edg/154.0.0.0",
+    "jsVersion": "15.4.11.7"
+  },
+  "iterations": 7,
+  "median": true,
+  "rows": [
+    {
+      "n": 16,
+      "parseMs": 0,
+      "domainRenderMs": 0,
+      "exactRenderMs": 0,
+      "warmRenderMs": 0,
+      "finiteFractionMs": 0,
+      "nonfiniteFractionMs": 0,
+      "multiTeamSumMs": 0,
+      "distinctDenominatorSumMs": 0,
+      "render40InputsColdMs": 0,
+      "render40InputsMs": 0,
+      "dirtyMs": 0,
+      "unchangedRebaseMs": 0,
+      "rebaseMs": 0.10000002384185791,
+      "typingMs": 0,
+      "frameDelayMs": 0.10000002384185791,
+      "outputLength": 18
+    },
+    {
+      "n": 100,
+      "parseMs": 0,
+      "domainRenderMs": 0,
+      "exactRenderMs": 0,
+      "warmRenderMs": 0,
+      "finiteFractionMs": 0,
+      "nonfiniteFractionMs": 0,
+      "multiTeamSumMs": 0,
+      "distinctDenominatorSumMs": 0,
+      "render40InputsColdMs": 0.09999990463256836,
+      "render40InputsMs": 0,
+      "dirtyMs": 0,
+      "unchangedRebaseMs": 0,
+      "rebaseMs": 0.10000002384185791,
+      "typingMs": 0,
+      "frameDelayMs": 15.300000071525574,
+      "outputLength": 102
+    },
+    {
+      "n": 1000,
+      "parseMs": 0.09999990463256836,
+      "domainRenderMs": 1.100000023841858,
+      "exactRenderMs": 0,
+      "warmRenderMs": 0,
+      "finiteFractionMs": 0,
+      "nonfiniteFractionMs": 0,
+      "multiTeamSumMs": 0,
+      "distinctDenominatorSumMs": 0,
+      "render40InputsColdMs": 1.600000023841858,
+      "render40InputsMs": 0,
+      "dirtyMs": 0,
+      "unchangedRebaseMs": 0,
+      "rebaseMs": 1.899999976158142,
+      "typingMs": 0.10000002384185791,
+      "frameDelayMs": 0.6000000238418579,
+      "outputLength": 1002
+    },
+    {
+      "n": 10000,
+      "parseMs": 0.3999999761581421,
+      "domainRenderMs": 360.5,
+      "exactRenderMs": 0.7000000476837158,
+      "warmRenderMs": 0,
+      "finiteFractionMs": 0.19999992847442627,
+      "nonfiniteFractionMs": 0.10000002384185791,
+      "multiTeamSumMs": 0.30000007152557373,
+      "distinctDenominatorSumMs": 0.5,
+      "render40InputsColdMs": 29,
+      "render40InputsMs": 0.10000002384185791,
+      "dirtyMs": 0.2999999523162842,
+      "unchangedRebaseMs": 0.3999999761581421,
+      "rebaseMs": 14.100000023841858,
+      "typingMs": 0.2999999523162842,
+      "frameDelayMs": 1.100000023841858,
+      "outputLength": 10002
+    }
+  ],
+  "heap": {
+    "before": {
+      "usedSize": 471876,
+      "totalSize": 1048576,
+      "embedderHeapUsedSize": 1387032,
+      "backingStorageSize": 6
+    },
+    "after": {
+      "usedSize": 37427316,
+      "totalSize": 58638336,
+      "embedderHeapUsedSize": 2118744,
+      "backingStorageSize": 215892
+    },
+    "deltaUsed": 36955440
+  }
+}
+{
+  "gate": "11D.1 mounted UX",
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Edg/154.0.4258.53",
+    "revision": "@5af6e80f702cffe10645c6d6433668f011b739be",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36 Edg/154.0.0.0",
+    "jsVersion": "15.4.11.7"
+  },
+  "scenarios": [
+    {
+      "scenario": "RAF-Forecast",
+      "pass": true,
+      "commits": 2,
+      "modalCancelPreservesCard": true,
+      "cardCancelScoped": true,
+      "repeatNoOp": true,
+      "focusContained": true
+    },
+    {
+      "scenario": "Forecast-RAF",
+      "pass": true,
+      "commits": 2,
+      "modalCancelPreservesCard": true,
+      "cardCancelScoped": true,
+      "repeatNoOp": true,
+      "focusContained": true
+    },
+    {
+      "scenario": "new-Team",
+      "pass": true,
+      "commits": 1
+    },
+    {
+      "scenario": "long-decimal",
+      "pass": true,
+      "inputMs": 1,
+      "frameDelayMs": 9.600000023841858,
+      "applyMs": 39.10000002384186,
+      "length": 10002,
+      "commits": 1
+    }
+  ],
+  "layouts": [
+    {
+      "surface": "long-card",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "valueLength": 10002
+    },
+    {
+      "surface": "modal",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "formsInCard": false
+    },
+    {
+      "surface": "long-card",
+      "width": 390,
+      "scrollWidth": 390,
+      "valueLength": 10002
+    },
+    {
+      "surface": "modal",
+      "width": 390,
+      "scrollWidth": 390,
+      "formsInCard": false
+    }
+  ],
+  "nativeKeyboard": {
+    "tabContained": true,
+    "escapeRestoresFocusAndRaw": true
+  }
+}
+
+===== git diff --check =====
+Exit 0, no output.

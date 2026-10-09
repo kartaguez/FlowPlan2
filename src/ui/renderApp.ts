@@ -39,6 +39,7 @@ export interface DiagnosticsControls {
 }
 
 export interface ProjectEditControls {
+  readonly actualsHost?: HTMLElement;
   readonly container: HTMLElement;
   readonly form: HTMLFormElement;
   readonly fields: HTMLElement;
@@ -105,6 +106,7 @@ export interface PlanningSettingsControls {
 }
 
 export interface ReservationEditControls {
+  readonly actualsHost?: HTMLElement;
   readonly container: HTMLElement;
   readonly title: HTMLElement;
   readonly form: HTMLFormElement;

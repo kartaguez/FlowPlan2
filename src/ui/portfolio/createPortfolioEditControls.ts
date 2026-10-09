@@ -20,10 +20,12 @@ export function createProjectCardControls(document: Document, id: string): {
   form.setAttribute("aria-describedby", error.id);
   const cancel = document.createElement("button");
   cancel.type = "button";
-  cancel.textContent = "Cancel";
+  cancel.textContent = "Cancel card";
+  cancel.setAttribute("aria-label", "Cancel drafts of this card only");
   const apply = document.createElement("button");
   apply.type = "submit";
-  apply.textContent = "Apply";
+  apply.textContent = "Apply card";
+  apply.setAttribute("aria-label", "Apply admissible changes of this card");
   const actions = document.createElement("div");
   actions.className = "timeline-project-edit-actions";
   actions.append(cancel, apply);
@@ -43,9 +45,11 @@ export function createProjectCardControls(document: Document, id: string): {
   deleteCancel.type = "button";
   deleteCancel.textContent = "Cancel deletion";
   deleteConfirmation.append(message, deleteCancel, deleteConfirm);
-  form.append(fields, error, actions, deleteButton, deleteConfirmation);
+  const actualsHost = document.createElement("div");
+  actualsHost.className = "card-actuals-host";
+  form.append(fields, actualsHost, error, actions, deleteButton, deleteConfirmation);
   container.append(form);
-  return { controls: { container, form, fields, status, apply, cancel,
+  return { controls: { container, form, fields, actualsHost, status, apply, cancel,
     deleteButton, deleteConfirmation, deleteConfirm, deleteCancel }, error };
 }
 
@@ -71,10 +75,12 @@ export function createReservationCardControls(document: Document, id: string): {
   form.setAttribute("aria-describedby", error.id);
   const cancel = document.createElement("button");
   cancel.type = "button";
-  cancel.textContent = "Cancel";
+  cancel.textContent = "Cancel card";
+  cancel.setAttribute("aria-label", "Cancel drafts of this card only");
   const apply = document.createElement("button");
   apply.type = "submit";
-  apply.textContent = "Apply";
+  apply.textContent = "Apply card";
+  apply.setAttribute("aria-label", "Apply admissible changes of this card");
   const actions = document.createElement("div");
   actions.className = "timeline-reservation-edit-actions";
   actions.append(cancel, apply);
@@ -94,8 +100,10 @@ export function createReservationCardControls(document: Document, id: string): {
   deleteCancel.type = "button";
   deleteCancel.textContent = "Cancel deletion";
   deleteConfirmation.append(message, deleteCancel, deleteConfirm);
-  form.append(fields, error, actions, deleteButton, deleteConfirmation);
+  const actualsHost = document.createElement("div");
+  actualsHost.className = "card-actuals-host";
+  form.append(fields, actualsHost, error, actions, deleteButton, deleteConfirmation);
   container.append(form);
-  return { controls: { container, title, form, fields, status, apply, cancel,
+  return { controls: { container, title, form, fields, actualsHost, status, apply, cancel,
     deleteButton, deleteConfirmation, deleteConfirm, deleteCancel }, error };
 }

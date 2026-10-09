@@ -196,6 +196,17 @@ normal Current edits are never conflicts with unchanged legacy.
 
 Typing changes local form state only. It must not recompute planning.
 
+Each published Project Team has one editable current RAF point in Actuals & RAF;
+Forecast retains published requirements/caps independently of input presence.
+New, unpublished Teams retain explicit initial RAF in Forecast. Card and modal
+have separate scopes: Apply card submits admissible card edits under sequencing
+guards, Apply modal submits its branch with required evidence, Cancel modal
+abandons that branch only, and Cancel card abandons that card's drafts. Typing,
+initialization, focus, navigation and closing never create Actuals/RAF proof.
+Actuals/RAF presentation uses complete exact finite decimals or reduced fractions,
+accepts point/comma/fractions at the Application boundary, and retains raw drafts.
+No precision ceiling, rounding or floating quantity conversion is implied.
+
 ## Portfolio Snapshot historical artifact
 
 A Portfolio Snapshot is created only by explicit user Save, is deeply immutable,

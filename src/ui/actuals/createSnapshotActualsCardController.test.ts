@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { buildProjectSnapshotActualsViewModel, createPlanningSession } from "../../application/index.js";
+import { buildProjectSnapshotActualsViewModel, buildReservationSnapshotActualsViewModel, createPlanningSession } from "../../application/index.js";
 import { createCivilDate, createConsumedWorkload, createProject, createPortfolio, type DomainResult } from "../../domain/index.js";
 import { createDemoPlanningScenario } from "../../main/demo/createDemoPlanningScenario.js";
 import { createSnapshotActualsDraftStore } from "./snapshotActualsDraftStore.js";
@@ -72,7 +72,7 @@ test("current editor shows legacy and snapshot histories read-only, then applies
   form.emit("submit");
   assert.equal(applies, 1);
   assert.equal(session.getState().portfolio.projects[0]?.snapshots?.length, 1);
-  all(host).find((node) => node.textContent === "Cancel Actuals")!.emit("click");
+  all(host).find((node) => node.textContent === "Cancel modal")!.emit("click");
   assert.equal(store.get(project.id)?.modal, undefined);
   controller.destroy();
 });
@@ -93,7 +93,7 @@ test("Cancel restores an invalid card RAF exactly and the draft survives remount
   assert.equal(store.get(id)!.teams.find((row) => row.teamId === teamId)?.raf, "not a number");
   all(host).find((node) => node.textContent === "Update actuals")!.emit("click");
   assert.equal(store.get(id)!.modal?.teams.find((row) => row.teamId === teamId)?.raf, "not a number");
-  all(host).find((node) => node.textContent === "Cancel Actuals")!.emit("click");
+  all(host).find((node) => node.textContent === "Cancel modal")!.emit("click");
   assert.equal(store.get(id)!.modal, undefined);
   assert.equal(store.get(id)!.teams.find((row) => row.teamId === teamId)?.raf, "not a number");
   first.destroy();
@@ -304,5 +304,45 @@ for (const text of ["2/2", "2/1"]) test(`V2 RAF typing cannot mint R1 confirmati
   assert.equal(store.get(id)!.modal!.teams.find(row => row.teamId === teams.find(row => row.enabled)!.teamId)!.rafConfirmed, false);
   const parsed = parseSnapshotActualsCommand(model, { ...store.get(id)!, ...store.get(id)!.modal! }); assert.ok(parsed.ok);
   if (parsed.ok) assert.equal(session.dispatch(parsed.command).ok, false);
+  controller.destroy();
+});
+
+test("11D.1 R3 initialization, focus, blur, modal Cancel and remount cannot confirm RAF", () => {
+  const session = createPlanningSession(createDemoPlanningScenario(), { today: () => d("2025-01-06") });
+  const id = session.getState().portfolio.projects[0]!.id;
+  const model = buildProjectSnapshotActualsViewModel(session.getState(), id)!;
+  const store = createSnapshotActualsDraftStore(); const document = new FakeDocument();
+  const host = document.createElement("div"); let dispatches = 0;
+  const mount = () => createSnapshotActualsCardController({ host: host as unknown as HTMLElement, model, store,
+    onDraftChange() {}, conflict: () => undefined, onApply(command) { dispatches++; return session.dispatch(command); } });
+  let controller = mount();
+  const before = session.getState();
+  const raf = all(host).find(node => node.attributes.has("data-raf-team"))!;
+  raf.focus(); raf.emit("blur"); raf.value = "1,25"; raf.emit("input");
+  assert.equal(store.get(id)!.teams.find(row => row.teamId === raf.attributes.get("data-raf-team"))!.rafConfirmed, false);
+  all(host).find(node => node.textContent === "Update actuals")!.emit("click");
+  assert.equal(store.get(id)!.modal!.teams.some(row => row.rafConfirmed), false);
+  all(host).find(node => node.tag === "div" && node.attributes.get("role") === "dialog")!.emit("keydown", { key: "Escape" });
+  assert.equal(store.get(id)!.modal, undefined); assert.equal(raf.value, "1,25");
+  controller.destroy(); host.replaceChildren(); controller = mount();
+  assert.equal(all(host).find(node => node.attributes.has("data-raf-team"))!.value, "1,25");
+  assert.equal(store.get(id)!.teams.some(row => row.rafConfirmed), false);
+  assert.equal(dispatches, 0); assert.strictEqual(session.getState(), before);
+  controller.destroy();
+});
+
+for (const kind of ["project", "reservation"] as const) test(`11D.1 compact ${kind} columns and empty membership have no fictitious consumption`, () => {
+  const state = createDemoPlanningScenario();
+  const model = kind === "project" ? buildProjectSnapshotActualsViewModel(state, state.portfolio.projects[0]!.id)!
+    : buildReservationSnapshotActualsViewModel(state, state.portfolio.reservations[0]!.id)!;
+  const document = new FakeDocument(), host = document.createElement("div");
+  const controller = createSnapshotActualsCardController({ host: host as unknown as HTMLElement,
+    model: { ...model, teams: model.teams.map(row => ({ ...row, participating: false })) },
+    store: createSnapshotActualsDraftStore(), onDraftChange() {}, conflict: () => undefined,
+    onApply() { throw Error("Rendering cannot submit"); } });
+  assert.equal(all(host).filter(node => node.tag === "th").length, kind === "project" ? 3 : 2);
+  assert.equal(all(host).filter(node => node.tag === "td").length, 0);
+  assert.ok(all(host).some(node => node.textContent === "No participating Teams."));
+  assert.equal(all(host).filter(node => node.attributes.has("data-raf-team")).length, 0);
   controller.destroy();
 });

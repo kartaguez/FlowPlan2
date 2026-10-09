@@ -1171,3 +1171,14 @@ h1 { margin-bottom: 0; font-size: 2rem; letter-spacing: -0.04em; }
 }
 .storage-status [role="status"]:empty { display: none; }
 .history-storage-status { min-height: 1.25rem; }
+
+/* 11D.1: compact published summary and exact, unabridged draft quantities. */
+.card-actuals-host { min-width: 0; max-width: 100%; }
+.card-actuals-period { margin: 0.35rem 0; font-size: 0.78rem; overflow-wrap: anywhere; }
+.card-actuals--snapshots > .card-actuals-matrix-scroll table { width: 100%; table-layout: fixed; }
+.card-actuals--snapshots > .card-actuals-matrix-scroll td { overflow-wrap: anywhere; }
+.card-actuals--snapshots > .card-actuals-matrix-scroll input { box-sizing: border-box; width: 100%; min-width: 0; }
+.card-actuals--snapshots > details { margin-top: 0.5rem; font-size: 0.78rem; }
+.card-actuals--snapshots > details summary { cursor: pointer; }
+.card-actuals--snapshots > button { margin-top: 0.5rem; }
+.card-actuals-modal .application-error { overflow-wrap: anywhere; }

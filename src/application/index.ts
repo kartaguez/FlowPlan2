@@ -60,3 +60,5 @@ export {
   type PlanningSettingsViewModel,
 } from "./session/planningSettingsViewModel.js";
 export { projectCurrentBase, type ProjectCurrentBase } from "./session/projectCurrentRaf.js";
+
+export { formatActualsQuantity, formatActualsRational } from "./session/formatActualsQuantity.js";

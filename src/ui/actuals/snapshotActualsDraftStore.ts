@@ -1,4 +1,4 @@
-import { parseExactQuantityInput, type SnapshotActualsViewModel, type UpdateProjectCommand,
+import { formatActualsQuantity, parseExactQuantityInput, type SnapshotActualsViewModel, type UpdateProjectCommand,
   type UpdateReservationCommand } from "../../application/index.js";
 import { serializeQuantity, type TeamId } from "../../domain/index.js";
 
@@ -43,31 +43,75 @@ export interface SnapshotActualsDraft {
   }>;
 }
 
-function values(draft: Pick<SnapshotActualsDraft, "periods" | "teams">): string {
-  const exact = (text: string) => parseExactQuantityInput(text) ?? text;
-  return JSON.stringify({ periods: draft.periods.map((row) => ({ from: row.from, through: row.through,
-    values: row.values.map((cell) => ({ teamId: cell.teamId, value: exact(cell.text) })) })),
-    teams: draft.teams.map((row) => ({ teamId: row.teamId, enabled: row.enabled, raf: exact(row.raf),
-      allocationKind: row.allocationKind, allocationValue: exact(row.allocationValue) })) });
+// Cache is weakly owned by immutable draft cells/rows. It holds at most one
+// reading per field of a live row; old text is not retained after replacement.
+const quantityReadings = new WeakMap<object, Map<string, { text: string; exact: string }>>();
+function readDraftQuantity(owner: object, field: string, text: string): string {
+  const readings = quantityReadings.get(owner) ?? new Map();
+  const previous = readings.get(field);
+  if (previous?.text === text) return previous.exact;
+  const exact = parseExactQuantityInput(text) ?? text;
+  readings.set(field, { text, exact }); quantityReadings.set(owner, readings);
+  return exact;
 }
 
+function values(draft: Pick<SnapshotActualsDraft, "periods" | "teams">): string {
+  return JSON.stringify({ periods: draft.periods.map((row) => ({ from: row.from, through: row.through,
+    values: row.values.map((cell) => ({ teamId: cell.teamId, value: readDraftQuantity(cell, "text", cell.text) })) })),
+    teams: draft.teams.map((row) => ({ teamId: row.teamId, enabled: row.enabled, raf: readDraftQuantity(row, "raf", row.raf),
+      allocationKind: row.allocationKind, allocationValue: readDraftQuantity(row, "allocation", row.allocationValue) })) });
+}
+
+const modelDrafts = new WeakMap<SnapshotActualsViewModel, SnapshotActualsDraft>();
+function rememberQuantity(owner: object, field: string, text: string, exact: string): void {
+  const readings = quantityReadings.get(owner) ?? new Map();
+  readings.set(field, { text, exact }); quantityReadings.set(owner, readings);
+}
 function fromModel(model: SnapshotActualsViewModel): SnapshotActualsDraft {
+  const cached = modelDrafts.get(model);
+  if (cached) return cached;
   const current = model.snapshots.at(-1);
   const periods = current?.coverage?.periods.map((period) => ({ originalPeriodId: period.periodId,
     from: period.from, through: period.through,
-    values: period.consumed.map((row) => ({ teamId: row.teamId, text: serializeQuantity(row.amount), provenance: "copied" as const })) })) ?? [];
+    values: period.consumed.map((row) => {
+      const cell = { teamId: row.teamId, text: formatActualsQuantity(row.amount), provenance: "copied" as const };
+      rememberQuantity(cell, "text", cell.text, serializeQuantity(row.amount));
+      return cell;
+    }) })) ?? [];
   const teams = model.teams.map((team) => {
     const amount = team.reservationAmount;
-    return { teamId: team.teamId, enabled: team.participating,
-      raf: team.forecastRaf ? serializeQuantity(team.forecastRaf) : "",
+    const row = { teamId: team.teamId, enabled: team.participating,
+      raf: team.forecastRaf ? formatActualsQuantity(team.forecastRaf) : "",
       rafConfirmed: false,
       allocationKind: amount?.kind ?? "ratio" as const,
       allocationValue: amount ? serializeQuantity(amount.kind === "ratio" ? amount.ratio : amount.dailyCapacity) : "",
     };
+    if (team.forecastRaf) rememberQuantity(row, "raf", row.raf, serializeQuantity(team.forecastRaf));
+    return row;
   });
-  return { model, baseModel: model, open: false, baseVersion: current?.version ?? 0,
+  const draft: SnapshotActualsDraft = { model, baseModel: model, open: false, baseVersion: current?.version ?? 0,
     ...(current ? { baseSnapshotId: current.snapshotId } : {}), periods, teams,
     baseline: values({ periods, teams }), stale: false, confirmed: false, retirementConfirmed: false, errors: [] };
+  modelDrafts.set(model, draft);
+  return draft;
+}
+
+// Operation-local cache: no global text history, budget or persistent authority.
+// Validated opening/recent cells seed exact readings; local text is still parsed.
+function draftReader(...drafts: readonly SnapshotActualsDraft[]): (text: string) => string | undefined {
+  const readings = new Map<string, string | undefined>();
+  for (const draft of drafts) {
+    for (const row of draft.teams) {
+      if (row.raf !== "") readings.set(row.raf, readDraftQuantity(row, "raf", row.raf));
+    }
+    for (const period of draft.periods) for (const cell of period.values) {
+      if (cell.text !== "") readings.set(cell.text, readDraftQuantity(cell, "text", cell.text));
+    }
+  }
+  return text => {
+    if (!readings.has(text)) readings.set(text, parseExactQuantityInput(text));
+    return readings.get(text);
+  };
 }
 
 export interface SnapshotActualsDraftStore {
@@ -117,6 +161,7 @@ export function createSnapshotActualsDraftStore(): SnapshotActualsDraftStore {
         else {
           const base = fromModel(old.baseModel);
           const fresh = fromModel(model);
+          const parseExact = draftReader(base, fresh);
           const partition = (draft: SnapshotActualsDraft) => JSON.stringify(draft.periods.map((row) =>
             [row.from, row.through]));
           const localPartitionChanged = partition(old) !== partition(base);
@@ -133,7 +178,7 @@ export function createSnapshotActualsDraftStore(): SnapshotActualsDraftStore {
             return local !== before ? local : remote;
           };
           const mergeExact = (before: string, local: string, remote: string): string => {
-            const canonical = (value: string) => parseExactQuantityInput(value) ?? value;
+            const canonical = (value: string) => parseExact(value) ?? value;
             if (canonical(local) !== canonical(before) && canonical(remote) !== canonical(before) &&
               canonical(local) !== canonical(remote)) conflict = true;
             return canonical(local) !== canonical(before) || canonical(remote) === canonical(before) ? local : remote;
@@ -144,8 +189,8 @@ export function createSnapshotActualsDraftStore(): SnapshotActualsDraftStore {
             if (row.teamId !== before.teamId || local.teamId !== before.teamId) conflict = true;
             return { ...row, enabled: merge(before.enabled, local.enabled, row.enabled) as boolean,
               raf: mergeExact(before.raf, local.raf, row.raf),
-              rafConfirmed: parseExactQuantityInput(before.raf) === parseExactQuantityInput(row.raf) &&
-                base.periods.every((period, i) => parseExactQuantityInput(period.values.find(cell => cell.teamId === row.teamId)?.text ?? "") === parseExactQuantityInput(fresh.periods[i]?.values.find(cell => cell.teamId === row.teamId)?.text ?? "")) ? local.rafConfirmed ?? false : false,
+              rafConfirmed: parseExact(before.raf) === parseExact(row.raf) &&
+                base.periods.every((period, i) => parseExact(period.values.find(cell => cell.teamId === row.teamId)?.text ?? "") === parseExact(fresh.periods[i]?.values.find(cell => cell.teamId === row.teamId)?.text ?? "")) ? local.rafConfirmed ?? false : false,
               allocationKind: merge(before.allocationKind, local.allocationKind, row.allocationKind) as typeof row.allocationKind,
               allocationValue: merge(before.allocationValue, local.allocationValue, row.allocationValue) as string };
           }) : old.teams;
@@ -154,11 +199,19 @@ export function createSnapshotActualsDraftStore(): SnapshotActualsDraftStore {
               const before = base.periods[index]?.values.find((item) => item.teamId === cell.teamId);
               const local = old.periods[index]?.values.find((item) => item.teamId === cell.teamId);
               if (!before || !local) { conflict = true; return cell; }
-              return { ...local, text: mergeExact(before.text, local.text, cell.text), provenance: parseExactQuantityInput(before.text) === parseExactQuantityInput(cell.text) ? local.provenance ?? "copied" as const : "copied" as const };
+              return { ...local, text: mergeExact(before.text, local.text, cell.text), provenance: parseExact(before.text) === parseExact(cell.text) ? local.provenance ?? "copied" as const : "copied" as const };
             }),
           })) : old.periods;
+          for (const row of teams) {
+            const exact = parseExact(row.raf);
+            if (exact !== undefined) rememberQuantity(row, "raf", row.raf, exact);
+          }
+          for (const period of periods) for (const cell of period.values) {
+            const exact = parseExact(cell.text);
+            if (exact !== undefined) rememberQuantity(cell, "text", cell.text, exact);
+          }
           entries.set(model.id, conflict || old.modal ? { ...old, model, stale: true,
-            errors: ["Actuals changed in the same field or partition. Cancel and review the current snapshot before applying."] }
+            errors: ["Current Actuals or RAF changed concurrently. Review explicitly or Cancel and reopen; your draft is preserved."] }
             : { ...fresh, open: old.open, periods, teams, confirmed: false, retirementConfirmed: false });
         }
       } else entries.set(model.id, { ...old, model });
@@ -168,6 +221,7 @@ export function createSnapshotActualsDraftStore(): SnapshotActualsDraftStore {
       if (!old?.stale || !old.modal) return false;
       const base = fromModel(old.baseModel);
       const fresh = fromModel(old.model);
+      const parseExact = draftReader(base, fresh);
       if (old.baseModel.currentBase?.source !== old.model.currentBase?.source &&
           !(old.baseModel.currentBase?.source.startsWith('["snapshot",') && old.model.currentBase?.source.startsWith('["snapshot",'))) return false;
       if (JSON.stringify(old.baseModel.currentBase?.requirements.map(row => [row.teamId, row.dailyCap])) !== JSON.stringify(old.model.currentBase?.requirements.map(row => [row.teamId, row.dailyCap]))) return false;
@@ -179,7 +233,7 @@ export function createSnapshotActualsDraftStore(): SnapshotActualsDraftStore {
             row.enabled !== base.teams[index]?.enabled || row.enabled !== fresh.teams[index]?.enabled)) return false;
       let conflict = false;
       const mergeRaf = (before: string, local: string, remote: string): string => {
-        const canonical = (text: string) => parseExactQuantityInput(text) ?? text;
+        const canonical = (text: string) => parseExact(text) ?? text;
         const localChanged = canonical(local) !== canonical(before);
         const remoteChanged = canonical(remote) !== canonical(before);
         if (localChanged && remoteChanged && canonical(local) !== canonical(remote)) conflict = true;
@@ -187,10 +241,10 @@ export function createSnapshotActualsDraftStore(): SnapshotActualsDraftStore {
       };
       const teams = fresh.teams.map((row, index) => ({ ...row,
         raf: mergeRaf(base.teams[index]!.raf, old.teams[index]!.raf, row.raf),
-        rafConfirmed: parseExactQuantityInput(base.teams[index]!.raf) === parseExactQuantityInput(row.raf) && parseExactQuantityInput(old.teams[index]!.raf) !== undefined && (old.teams[index]!.rafConfirmed ?? false) }));
+        rafConfirmed: parseExact(base.teams[index]!.raf) === parseExact(row.raf) && parseExact(old.teams[index]!.raf) !== undefined && (old.teams[index]!.rafConfirmed ?? false) }));
       const modalTeams = fresh.teams.map((row, index) => ({ ...row,
         raf: mergeRaf(base.teams[index]!.raf, old.modal!.teams[index]!.raf, row.raf),
-        rafConfirmed: parseExactQuantityInput(base.teams[index]!.raf) === parseExactQuantityInput(row.raf) && parseExactQuantityInput(old.modal!.teams[index]!.raf) !== undefined && (old.modal!.teams[index]!.rafConfirmed ?? false) }));
+        rafConfirmed: parseExact(base.teams[index]!.raf) === parseExact(row.raf) && parseExact(old.modal!.teams[index]!.raf) !== undefined && (old.modal!.teams[index]!.rafConfirmed ?? false) }));
       if (conflict) return false;
       entries.set(id, { ...fresh, teams, modal: { ...old.modal, periods: old.modal.periods,
         teams: modalTeams, confirmed: false, retirementConfirmed: false }, stale: false });

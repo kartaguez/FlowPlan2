@@ -51,7 +51,7 @@ plus Lot 11A.2 exact daily profiles and V7 persistence.
 - 11C Actuals / Forecast separation (DONE — explicit user closure).
 - 11D.0 Storage Architecture & Scalability (DONE — favorable independent audit and explicit user closure).
 
-Current trajectory: **11D.1 RAF Model — DONE; 11D.1 UX — AUTHORIZED / IN PROGRESS**;
+Current trajectory: **11D.1 RAF Model — DONE; 11D.1 UX — IN REVIEW**;
 **11D.0 — Storage Architecture & Scalability remains DONE**;
 **11B — Project History view is DONE**, following validated DONE
 11A.2. See the
@@ -67,7 +67,7 @@ Current trajectory: **11D.1 RAF Model — DONE; 11D.1 UX — AUTHORIZED / IN PRO
 11C: DONE — Actuals / Forecast temporal separation
 11D.0: DONE — Storage Architecture & Scalability
 11D.1 RAF Model: DONE — favorable independent audit and final V1/V2 verification
-11D.1 UX: AUTHORIZED / IN PROGRESS — amended R1/R2/R3, delivery IN REVIEW
+11D.1 UX: IN REVIEW — A–E implemented, independent implementation audit pending
 11D.2 / 11D.3: NOT STARTED — outside this planning mission
 11A.1: DEFERRED / not adopted as product work; no dependency for 11B
 10D: superseded by 11A (not DONE)
@@ -101,14 +101,16 @@ physical schema/stores/keys/CAS are unchanged. Historical documents and captures
 retain their original contracts and values; old/new Current and mixed captures
 are validated at the codecs, repository and worker boundaries.
 
-The [amended UX plan](./steps/ACTUALS/lot11d1_plan.md) received a favorable
-independent audit with three minor reservations. User authorization at
-`075b2a6c18175eabdcbdb401556a81591f32635f`, clean expected branch and origin 0/0:
-commit/push R1 single editable RAF owner, R2 explicit native-browser performance
-gate, R3 explicit card/modal Apply/Cancel, then implement A → E and all gates.
-Final V1/V2/R1 corrections remain normative. Delivery is **IN REVIEW**, never
-automatic DONE. No composite transaction, Domain/engine/storage redesign,
-replay, inputs-only or 11D.2/11D.3. Stop for independent ChatGPT audit after push.
+The [amended UX plan](./steps/ACTUALS/lot11d1_plan.md) received favorable
+independent audit with R1/R2/R3 reservations. Amendment committed/pushed before
+implementation from `075b2a6c18175eabdcbdb401556a81591f32635f`.
+**11D.1 UX — IN REVIEW**: A–E implemented and complete gates pass; 1049 Node +
+3 portable tests, 22 native audit + 11 V1/V2/R1 + 4 mounted UX scenarios,
+native storage, exact browser performance and desktop/390 px review.
+[Delivery, changed files, evidence and limits](./steps/ACTUALS/lot11d1_ux_review.md).
+Requirements RAF, proofs/R2, final V1/V2/R1 and all historical/persistence/11C
+invariants remain normative. Await independent ChatGPT implementation audit.
+No automatic DONE, replay, inputs-only or 11D.2/11D.3; mission stops after push.
 
 ## 11D.0 — Storage Architecture & Scalability
 

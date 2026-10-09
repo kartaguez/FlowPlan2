@@ -7,6 +7,30 @@ For durable invariants and architecture, see [canon](./canon.md).
 active implementation and trajectory. The remaining work is in the
 [current plan](./current_plan.md).
 
+## 11D.1 UX — IN REVIEW
+
+Authorized implementation from `075b2a6c18175eabdcbdb401556a81591f32635f`, after
+favorable independent plan audit and separate R1/R2/R3 documentary commit/push.
+[Delivery for independent audit](./steps/ACTUALS/lot11d1_ux_review.md),
+[performance gate](./steps/ACTUALS/lot11d1_ux_performance.md).
+A–E implement exact point/comma/fraction parsing and complete finite rendering,
+compact three/two-column cards, one common period, folded readonly History,
+one published-member RAF editor, preserved initial RAF for new Teams, scoped
+Apply/Cancel and stable form composition with the modal outside the card form.
+Weak quantity/model/cell caches and operation-local readings protect measured
+long decimal/rebase costs without changing precision, proof or authority.
+A pristine Project Apply uses existing A base validation/no-op, avoiding a
+redundant Forecast write; any Forecast change retains its existing command path.
+
+Gates: typecheck/build/diff check, 1049/1049 Node tests (96 suites), 3/3 portable,
+native storage (15 repository assertions plus UI/upgrade/layout/injected quota),
+22/22 storage audit, 11/11 V1/V2/R1 and 4/4 mounted UX scenarios. No skip/failure.
+Screenshots and native keyboard reviewed at 1440/390 px. Requirements authority,
+A/B/R2 and R1 proofs, V1/V2, RAM bases, confirmed publication, immutable snapshots,
+V1–V8 mixed captures and 11C remain intact. Domain, commands, engine and storage
+formats/CAS unchanged. This supersedes the unimplemented exact UX statements in
+historical prerequisite deliveries below. No DONE closure or following lot.
+
 ## 11D.1 RAF Model — DONE
 
 Implemented from `6ce922e55621423c4e00e21e374ae53a6deb1efa` on the required
@@ -38,7 +62,7 @@ explicit conditional closure: restored split/merge IDs, safe modal RAF-only
 review with retained consumption and selective proof invalidation, and explicit
 R1 confirmation separate from text entry. Final gates: 1009/1009 Node tests,
 3/3 portable, typecheck/build/storage, 22 existing and 11 new native browser
-scenarios, diff check. RAF Model is DONE; 11D.1 UX remains NOT STARTED.
+scenarios, diff check. RAF Model is DONE; UX was not started at that prerequisite closure.
 [Final evidence and limits](./steps/ACTUALS/lot11d1_raf_model_canon.md#final-v1v2-verification-and-conditional-closure--2026-10-09).
 
 ## Validated implementation baseline

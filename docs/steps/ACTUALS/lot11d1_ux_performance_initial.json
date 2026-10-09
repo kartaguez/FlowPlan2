@@ -1,0 +1,88 @@
+{
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Edg/154.0.4258.53",
+    "revision": "@5af6e80f702cffe10645c6d6433668f011b739be",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36 Edg/154.0.0.0",
+    "jsVersion": "15.4.11.7"
+  },
+  "iterations": 7,
+  "median": true,
+  "rows": [
+    {
+      "n": 16,
+      "parseMs": 0,
+      "domainRenderMs": 0,
+      "exactRenderMs": 0,
+      "finiteFractionMs": 0,
+      "nonfiniteFractionMs": 0,
+      "multiTeamSumMs": 0,
+      "render40InputsMs": 0,
+      "dirtyMs": 0.09999990463256836,
+      "rebaseMs": 0,
+      "typingMs": 0.10000002384185791,
+      "frameDelayMs": 1.5999999046325684,
+      "outputLength": 18
+    },
+    {
+      "n": 100,
+      "parseMs": 0,
+      "domainRenderMs": 0,
+      "exactRenderMs": 0,
+      "finiteFractionMs": 0,
+      "nonfiniteFractionMs": 0,
+      "multiTeamSumMs": 0,
+      "render40InputsMs": 0.10000002384185791,
+      "dirtyMs": 0,
+      "rebaseMs": 0,
+      "typingMs": 0.10000002384185791,
+      "frameDelayMs": 16.200000047683716,
+      "outputLength": 102
+    },
+    {
+      "n": 1000,
+      "parseMs": 0,
+      "domainRenderMs": 1.100000023841858,
+      "exactRenderMs": 0,
+      "finiteFractionMs": 0,
+      "nonfiniteFractionMs": 0,
+      "multiTeamSumMs": 0,
+      "render40InputsMs": 1.7000000476837158,
+      "dirtyMs": 2.1999999284744263,
+      "rebaseMs": 0,
+      "typingMs": 2.100000023841858,
+      "frameDelayMs": 0.7000000476837158,
+      "outputLength": 1002
+    },
+    {
+      "n": 10000,
+      "parseMs": 0.5,
+      "domainRenderMs": 368.60000002384186,
+      "exactRenderMs": 0.7000000476837158,
+      "finiteFractionMs": 0.20000004768371582,
+      "nonfiniteFractionMs": 0.10000002384185791,
+      "multiTeamSumMs": 0.30000007152557373,
+      "render40InputsMs": 29.600000023841858,
+      "dirtyMs": 18.800000071525574,
+      "rebaseMs": 0.2999999523162842,
+      "typingMs": 19.100000023841858,
+      "frameDelayMs": 2,
+      "outputLength": 10002
+    }
+  ],
+  "heap": {
+    "before": {
+      "usedSize": 472716,
+      "totalSize": 1048576,
+      "embedderHeapUsedSize": 1382440,
+      "backingStorageSize": 6
+    },
+    "after": {
+      "usedSize": 10031424,
+      "totalSize": 25214976,
+      "embedderHeapUsedSize": 2118472,
+      "backingStorageSize": 201620
+    },
+    "deltaUsed": 9558708
+  }
+}

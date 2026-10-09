@@ -438,7 +438,8 @@ export function createTimelineUiCoordinator(
     });
     controller.setProject(model);
     projectControllers.set(id, controller);
-    ensureActualsController("project", id, card.host);
+    const actualsHost = controls.actualsHost ?? card.host;
+    ensureActualsController("project", id, actualsHost);
   };
   const ensureReservationController = (id: ReservationId): void => {
     if (reservationControllers.has(id)) return;
@@ -473,7 +474,8 @@ export function createTimelineUiCoordinator(
     });
     controller.setReservation(model);
     reservationControllers.set(id, controller);
-    ensureActualsController("reservation", id, card.host);
+    const actualsHost = controls.actualsHost ?? card.host;
+    ensureActualsController("reservation", id, actualsHost);
   };
   const toggleProject = (id: ProjectId): void => {
     const model = input.getProjectEditViewModel(id);
@@ -747,6 +749,31 @@ export function createTimelineUiCoordinator(
         ok: false as const,
         errors: [{ code: "ACTUALS_CARD_UNAVAILABLE", path: "raf", message: "Actuals card is unavailable." }]
       };
+    }
+    // A pristine Project card has no Forecast intention to submit. Validate its
+    // RAF opening base through A's existing no-op instead of dispatching an
+    // unrelated update-project (which would perform a needless Current write).
+    const published = projection.portfolio.projects.find(row => row.id === command.projectId);
+    const unchangedForecast = published !== undefined && !membershipChanged &&
+      command.name === published.name && command.programId === published.programId &&
+      command.priorityFamilyId === published.priorityFamilyId &&
+      command.earliestStartDate === published.earliestStartDate &&
+      command.objectiveEndDate === published.objectiveEndDate &&
+      command.mandatoryDeadline === published.mandatoryDeadline && !command.colorChanged &&
+      (!command.color || command.color === effectiveColor(projection.portfolio, published)) &&
+      (!command.programName || command.programName === projection.portfolio.programs.find(row => row.id === published.programId)?.name) &&
+      (!command.priorityFamilyName || command.priorityFamilyName === projection.portfolio.priorityFamilies.find(row => row.id === published.priorityFamilyId)?.name) &&
+      command.teamRequirements.length === published.requirements.length &&
+      command.teamRequirements.every(row => {
+        const previous = published.requirements.find(before => before.teamId === row.teamId);
+        return previous !== undefined &&
+          (row.remainingWorkload === undefined || serializeQuantity(row.remainingWorkload) === serializeQuantity(previous.remainingWorkload)) &&
+          (row.dailyCap === undefined ? undefined : serializeQuantity(row.dailyCap)) ===
+          (previous.dailyCap === undefined ? undefined : serializeQuantity(previous.dailyCap));
+      });
+    if (actualsModel && unchangedForecast && !projectDrafts.isDirty(command.projectId) &&
+        projectActualsControllers.has(command.projectId)) {
+      return projectActualsControllers.get(command.projectId)!.applyCardRaf();
     }
     return mapResult(input.dispatch(command), (result) => {
       if (!result.ok) return result;

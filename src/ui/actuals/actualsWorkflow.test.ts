@@ -107,7 +107,7 @@ test("draft rebases disjoint RAF edits with exact values", () => {
   assert.equal(rebased.stale, false);
   assert.equal(rebased.baseVersion, 0);
   assert.equal(rebased.teams.find((row) => row.teamId === enabled[0]!.teamId)?.raf, "2");
-  assert.equal(rebased.teams.find((row) => row.teamId === enabled[1]!.teamId)?.raf, "3/1");
+  assert.equal(rebased.teams.find((row) => row.teamId === enabled[1]!.teamId)?.raf, "3");
   assert.equal(rebased.confirmed, false);
 });
 
@@ -142,7 +142,7 @@ test("an open RAF modal waits for explicit review before a safe three-way rebase
   assert.equal(store.get(id)?.stale, false);
   assert.equal(store.get(id)?.baseVersion, 0);
   assert.equal(store.get(id)?.modal?.teams.find((row) => row.teamId === enabled[0]!.teamId)?.raf, "2");
-  assert.equal(store.get(id)?.modal?.teams.find((row) => row.teamId === enabled[1]!.teamId)?.raf, "3/1");
+  assert.equal(store.get(id)?.modal?.teams.find((row) => row.teamId === enabled[1]!.teamId)?.raf, "3");
 });
 
 test("zero-only Project zone repartitions without re-entering zero in each new cell", () => {

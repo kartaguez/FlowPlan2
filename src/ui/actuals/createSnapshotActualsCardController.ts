@@ -6,10 +6,10 @@ import type {
 } from "../../application/index.js";
 import {
   addDays, addRationals, createCivilDate, parseSerializedRational, rationalFromInteger, rationalOf,
-  rationalToCanonicalString, serializeQuantity, type DomainError, type TeamId
+  serializeQuantity, type DomainError, type TeamId, type RemainingWorkload
 } from "../../domain/index.js";
 import { remainingWorkloadFromSerialized } from "../../domain/index.js";
-import { parseExactQuantityInput } from "../../application/index.js";
+import { formatActualsQuantity, formatActualsRational, parseExactQuantityInput } from "../../application/index.js";
 import { parseSnapshotActualsCommand } from "./parseSnapshotActualsCommand.js";
 import type { SnapshotActualsDraftStore, SnapshotPeriodDraft } from "./snapshotActualsDraftStore.js";
 
@@ -39,20 +39,20 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
   section.className = "card-actuals card-actuals--snapshots";
   section.setAttribute("aria-label", `${model.kind === "project" ? "Project" : "Reservation"} Actuals`);
   const heading = document.createElement("h3");
-  heading.textContent = "Actuals knowledge";
+  heading.textContent = model.kind === "project" ? "Actuals & RAF" : "Actuals";
   section.append(heading);
   const current = model.snapshots.at(-1);
   const status = document.createElement("p");
-  status.textContent = current ? `Current snapshot v${current.version}, known ${current.knowledgeDate}${current.coverage ? `, coverage ${current.coverage.actualsFrom} to ${current.coverage.actualsThrough}` : ", no Actuals coverage"}.`
-    : model.legacyV4Actuals ? "Legacy V4 Actuals await explicit reconciliation." +
-      (model.kind === "project" ? " Current RAF remains independently editable." : "") :
-      "No Actuals snapshot yet." + (model.kind === "project" ?
-        " Current RAF remains independently editable." : "");
+  status.className = "card-actuals-period";
+  status.textContent = current?.coverage
+    ? `Published Actuals period: ${current.coverage.actualsFrom} → ${current.coverage.actualsThrough}`
+    : model.legacyV4Actuals && !current ? "Legacy V4 Actuals await explicit reconciliation. Published period: —"
+      : "No Actuals recorded. Published period: —";
   section.append(status);
   const summaryHint = document.createElement("p");
   summaryHint.className = "card-actuals-matrix-hint";
-  summaryHint.textContent = model.kind === "project" ? "Scroll this table sideways to edit RAF." :
-    "Scroll this table sideways to review every column.";
+  summaryHint.textContent = model.kind === "project" ? "Consumed is published; RAF edits are drafts until Apply card. Exact j.h: decimal point/comma or fraction; no thousands separators." :
+    "Consumed is published in j.h. Update actuals opens a separate draft branch.";
   section.append(summaryHint);
   const summary = document.createElement("div");
   summary.className = "card-actuals-matrix-scroll";
@@ -61,7 +61,7 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
   const summaryTable = document.createElement("table");
   const quickFields: { field: HTMLInputElement; teamId: string }[] = [];
   const summaryHead = document.createElement("tr");
-  for (const label of ["Team", "Actuals from", "Consumed", "Actuals through", ...(model.kind === "project" ? ["RAF"] : [])]) {
+  for (const label of ["Team", "Consumed (j.h)", ...(model.kind === "project" ? ["RAF (j.h)"] : [])]) {
     const th = document.createElement("th"); th.textContent = label; summaryHead.append(th);
   }
   summaryTable.append(summaryHead);
@@ -71,7 +71,7 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
       const amount = period.consumed.find((row) => row.teamId === team.teamId)?.amount;
       return amount ? addRationals(total, rationalOf(amount)) : total;
     }, rationalFromInteger(0n)) ?? rationalFromInteger(0n);
-    for (const value of [team.label, current?.coverage?.actualsFrom ?? "—", current?.coverage ? rationalToCanonicalString(consumed) : "—", current?.coverage?.actualsThrough ?? "—"]) {
+    for (const value of [team.label, current?.coverage ? formatActualsRational(consumed) : "—"]) {
       const td = document.createElement("td"); td.textContent = value; tr.append(td);
     }
     if (model.kind === "project") {
@@ -79,13 +79,18 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
       const label = document.createElement("label"); label.textContent = team.label + " RAF";
       const field = document.createElement("input"); field.type = "text"; field.setAttribute("data-raf-team", team.teamId);
       quickFields.push({ field, teamId: team.teamId });
-      field.setAttribute("aria-label", team.label + " RAF (exact)");
+      field.setAttribute("aria-label", team.label + " RAF (j.h, exact draft)");
+      field.setAttribute("inputmode", "decimal");
       field.addEventListener("input", () => setCardRaf(team.teamId, field.value));
       label.append(field); td.append(label); tr.append(td);
     }
     summaryTable.append(tr);
   }
   summary.append(summaryTable); section.append(summary);
+  if (!model.teams.some(row => row.participating)) {
+    const empty = document.createElement("p"); empty.textContent = "No participating Teams.";
+    section.append(empty);
+  }
   const quickError = document.createElement("p"); quickError.className = "application-error"; quickError.setAttribute("role", "alert");
   if (model.kind === "project") section.append(quickError);
   const historyPanels: HTMLElement[] = [];
@@ -94,11 +99,17 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
     const title = document.createElement("summary");
     title.textContent = "Legacy V4 history (read only)";
     legacy.append(title);
+    if (model.legacyRafProvenance) {
+      const provenance = document.createElement("p");
+      provenance.textContent = "Historical V4 RAF provenance (never Current authority): " +
+        model.legacyRafProvenance.map(row => `${row.teamId}: ${row.authority}`).join("; ");
+      legacy.append(provenance);
+    }
     const list = document.createElement("ol");
     model.legacyV4Actuals.records.forEach((record) => {
       const item = document.createElement("li");
-      item.textContent = `Through ${record.actualsThroughDate}: ${record.teams.map((row) =>
-        `${model.teams.find((team) => team.teamId === row.teamId)?.label ?? row.teamId} cumulative ${serializeQuantity(row.cumulativeConsumed)}`)
+      item.textContent = `From ${model.legacyV4Actuals!.actualsFromDate}; through ${record.actualsThroughDate}: ${record.teams.map((row) =>
+        `${model.teams.find((team) => team.teamId === row.teamId)?.label ?? row.teamId} cumulative ${formatActualsQuantity(row.cumulativeConsumed)}${"remainingWorkload" in row ? `; historical RAF ${formatActualsQuantity(row.remainingWorkload as RemainingWorkload)}` : ""}`)
         .join("; ") || "no Teams"}`;
       list.append(item);
     });
@@ -114,9 +125,9 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
     model.snapshots.forEach((snapshot) => {
       const item = document.createElement("li");
       const periodText = snapshot.coverage?.periods.map((period) => `${period.periodId} [${period.from}, ${period.through}]: ${period.consumed.map((row) =>
-        `${row.teamId} ${serializeQuantity(row.amount)}`).join(", ")}`).join("; ") ?? "no coverage";
-      const rafText = "raf" in snapshot ? `; RAF ${snapshot.raf.map((row) => `${row.teamId} ${serializeQuantity(row.amount)}`).join(", ")}` : "";
-      item.textContent = `v${snapshot.version} ${snapshot.knowledgeDate} — ${periodText}${rafText}`;
+        `${row.teamId} ${formatActualsQuantity(row.amount)}`).join(", ")}`).join("; ") ?? "no coverage";
+      const rafText = "raf" in snapshot ? `; RAF ${snapshot.raf.map((row) => `${row.teamId} ${formatActualsQuantity(row.amount)}`).join(", ")}` : "";
+      item.textContent = `v${snapshot.version}, known ${snapshot.knowledgeDate}; snapshotId ${snapshot.snapshotId}; participants ${snapshot.participation.join(", ")}; retired zero Teams ${snapshot.retiredZeroTeams.join(", ") || "none"} — ${periodText}${rafText}`;
       list.append(item);
     });
     list.className = "card-actuals-history";
@@ -135,24 +146,32 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
   error.className = "application-error";
   error.setAttribute("role", "alert");
   const apply = document.createElement("button");
-  apply.type = "submit"; apply.textContent = "Apply Actuals snapshot";
+  apply.type = "submit"; apply.textContent = "Apply modal";
+  apply.setAttribute("aria-label", "Apply modal Actuals/RAF branch with required confirmations");
   const next = document.createElement("button"); next.type = "button"; next.textContent = "Next";
   const back = document.createElement("button"); back.type = "button"; back.textContent = "Back";
-  const review = document.createElement("button"); review.type = "button"; review.textContent = "Review new snapshot";
+  const review = document.createElement("button"); review.type = "button"; review.textContent = "Review current Actuals / RAF";
   const cancel = document.createElement("button");
-  cancel.type = "button"; cancel.textContent = "Cancel Actuals";
+  cancel.type = "button"; cancel.textContent = "Cancel modal";
+  cancel.setAttribute("aria-label", "Cancel modal branch only; keep card drafts");
   form.append(modalTitle, fields, error, review, back, next, apply, cancel);
   const modal = document.createElement("div");
   modal.className = "card-actuals-modal";
   modal.setAttribute("role", "dialog"); modal.setAttribute("aria-modal", "true");
   modal.setAttribute("aria-label", model.kind === "project" ? "Update Project actuals" : "Update Reservation actuals");
   modal.append(form);
-  section.append(toggle, ...historyPanels);
+  section.append(toggle);
+  if (historyPanels.length) {
+    const history = document.createElement("details");
+    const title = document.createElement("summary"); title.textContent = "History";
+    history.append(title, ...historyPanels); section.append(history);
+  }
   if (document.body) document.body.append(modal);
   else section.append(modal);
   input.host.append(section);
   input.store.initialize(model);
 
+  const quickReadings = new Map<string, { text: string; valid: boolean }>();
   const renderQuick = (): void => {
     if (model.kind !== "project") return;
     const draft = input.store.get(model.id)!;
@@ -161,18 +180,23 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
       const row = draft.teams.find((item) => item.teamId === teamId)!;
       if (document.activeElement !== field) field.value = row.raf;
       field.disabled = draft.modal !== undefined;
-      const exact = parseExactQuantityInput(row.raf);
-      if (exact === undefined || exact.startsWith("-")) valid = false;
+      let reading = quickReadings.get(teamId);
+      if (reading?.text !== row.raf) {
+        const exact = parseExactQuantityInput(row.raf);
+        reading = { text: row.raf, valid: exact !== undefined && !exact.startsWith("-") };
+        quickReadings.set(teamId, reading);
+      }
+      if (!reading.valid) valid = false;
     }
-    quickError.textContent = draft.stale ? "The Actuals snapshot changed. Cancel the card or review current knowledge." :
-      !valid ? "Enter an exact nonnegative RAF for each participating Team." : draft.errors.join(" ");
+    quickError.textContent = draft.stale ? "Current Actuals or RAF changed. Your draft is preserved; review explicitly or Cancel card." :
+      !valid ? "Enter an exact nonnegative RAF for each participating Team (point/comma or fraction). Invalid or unavailable quantities remain drafts." : draft.errors.join(" ");
     quickError.hidden = valid && !draft.stale && !draft.errors.length;
   };
   const setCardRaf = (teamId: TeamId, value: string): void => {
     const draft = input.store.get(model.id)!;
     input.store.update(model.id, {
       ...draft, errors: [], teams: draft.teams.map((row) => row.teamId === teamId ?
-        { ...row, raf: value, rafConfirmed: true } : row)
+        { ...row, raf: value, rafConfirmed: false } : row)
     });
     input.onDraftChange(); renderQuick(); input.onCardRafChange?.(teamId, value);
   };
@@ -252,6 +276,10 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
     type = "text"): HTMLInputElement => {
     const label = document.createElement("label"); label.textContent = labelText;
     const field = document.createElement("input"); field.type = type; field.value = value;
+    if (type === "text") {
+      field.setAttribute("inputmode", "decimal");
+      field.setAttribute("aria-label", labelText + " (j.h, exact)");
+    }
     field.addEventListener(type === "date" ? "blur" : "input", () => onInput(field.value));
     label.append(field); parent.append(label); return field;
   };
@@ -282,7 +310,7 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
         sum = addRationals(sum, amount.value);
       }
       return (model.teams.find((row) => row.teamId === team.teamId)?.label ?? team.teamId) + ": " +
-        (valid ? rationalToCanonicalString(sum) : "incomplete");
+        (valid ? formatActualsRational(sum) : "incomplete");
     }).join("; ");
   const render = (): void => {
     const base = input.store.get(model.id)!;
@@ -363,9 +391,9 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
     intro.textContent = "Edit inclusive dates and exact consumed amounts. Confirm suggested values after changing a period.";
     fields.append(intro);
     if (model.kind === "project" && branch.step === 3) {
-      const title = document.createElement("h4"); title.textContent = "RAF and review"; fields.append(title);
+      const title = document.createElement("h4"); title.textContent = "RAF draft and required confirmations"; fields.append(title);
       const coverage = document.createElement("p");
-      coverage.textContent = "Coverage: " + (draft.periods[0]?.from ?? "—") + " to " + (draft.periods.at(-1)?.through ?? "—") +
+      coverage.textContent = "Modal branch preview — coverage: " + (draft.periods[0]?.from ?? "—") + " to " + (draft.periods.at(-1)?.through ?? "—") +
         "; periods: " + draft.periods.length + "; consumed: " + totals(draft.periods, draft.teams);
       fields.append(coverage);
       for (const team of draft.teams.filter((row) => row.enabled)) {
@@ -409,7 +437,7 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
     matrixHint.className = "card-actuals-matrix-hint";
     matrixHint.textContent = "Scroll the matrix sideways to review every Team value and period action.";
     fields.append(matrixHint);
-    const caption = document.createElement("caption"); caption.textContent = "Current common Actuals partition"; table.append(caption);
+    const caption = document.createElement("caption"); caption.textContent = "Modal branch Actuals partition (j.h)"; table.append(caption);
     const header = document.createElement("tr");
     for (const title of ["From", "Through", ...draft.teams.filter((row) => row.enabled).map((row) => model.teams.find((team) => team.teamId === row.teamId)!.label), "Action"]) {
       const cell = document.createElement("th"); cell.textContent = title; header.append(cell);
@@ -493,6 +521,7 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
               }]
             } : item), confirmed: false
           })));
+        control.setAttribute("aria-label", `${model.teams.find(row => row.teamId === team.teamId)?.label ?? team.teamId} consumed (j.h), ${period.from || "From"} to ${period.through || "Through"}`);
         control.disabled = !editable;
         if (draftCell?.provenance === "needs-confirmation") check(cell, "Confirm suggested value", false,
           (confirmed) => update((old) => ({
@@ -589,7 +618,7 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
       check(fields, "I confirm retired Teams have current Actuals 0 and Project RAF 0", draft.retirementConfirmed,
         (retirementConfirmed) => update((old) => ({ ...old, retirementConfirmed })));
     }
-    if (draft.stale) { error.textContent = "The base snapshot changed. Cancel and review the new current knowledge."; error.hidden = false; }
+    if (draft.stale) { error.textContent = "Current Actuals or RAF changed. Review explicitly; no confirmation is automatic."; error.hidden = false; }
   };
   const onOpen = (handoff?: UpdateProjectCommand | UpdateReservationCommand) => {
     const old = input.store.get(model.id)!;
@@ -602,7 +631,7 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
       const quickDirty = priorRaf && parseExactQuantityInput(row.raf) !== serializeQuantity(priorRaf);
       return {
         ...row, enabled: target ? target.has(row.teamId) : row.enabled,
-        raf: requirement && (!priorRaf || !quickDirty) ? serializeQuantity(requirement.remainingWorkload) : row.raf,
+        raf: requirement && (!priorRaf || !quickDirty) ? formatActualsQuantity(requirement.remainingWorkload) : row.raf,
         rafConfirmed: false
       };
     });

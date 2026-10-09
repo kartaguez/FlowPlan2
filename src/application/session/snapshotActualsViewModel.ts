@@ -20,6 +20,7 @@ export type SnapshotActualsViewModel = Readonly<{
   currentBase?: ProjectCurrentBase;
   snapshots: readonly (ProjectActualsSnapshot | ReservationActualsSnapshot)[];
   legacyV4Actuals?: ProjectActualsChronology | ReservationActualsChronology;
+  legacyRafProvenance?: readonly Readonly<{ teamId: TeamId; authority: "latest-actuals" | "current-configuration" }>[];
 }>;
 
 export function buildProjectSnapshotActualsViewModel(state: PlanningSessionState, id: ProjectId): SnapshotActualsViewModel | undefined {
@@ -28,6 +29,9 @@ export function buildProjectSnapshotActualsViewModel(state: PlanningSessionState
   const requirements = new Map(project.requirements.map((row) => [row.teamId, row]));
   return Object.freeze({ kind: "project" as const, id, currentBase: projectCurrentBase(project), snapshots: project.snapshots ?? [],
     ...(project.legacyV4Actuals ?? project.actuals ? { legacyV4Actuals: (project.legacyV4Actuals ?? project.actuals)! } : {}),
+    ...((project.legacyV4Actuals ?? project.actuals) ? { legacyRafProvenance: project.legacyV4RafAuthority ??
+      Object.freeze(project.requirements.map(row => Object.freeze({ teamId: row.teamId,
+        authority: row.rafAuthority ?? "current-configuration" as const }))) } : {}),
     teams: Object.freeze(state.portfolio.teams.map((team) => Object.freeze({ teamId: team.id, label: team.name,
       participating: requirements.has(team.id),
       ...(requirements.get(team.id) === undefined ? {} : { forecastRaf: requirements.get(team.id)!.remainingWorkload }),

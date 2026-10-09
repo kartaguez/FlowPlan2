@@ -58,10 +58,19 @@ export function formatPercentageForEditing(serializedRatio: string): string {
 /** Parses either a finite decimal or a canonical-style rational fraction. */
 export function parseExactQuantityInput(value: string): string | undefined {
   const trimmed = value.trim();
-  const parsed = trimmed.includes("/")
-    ? parseSerializedRational(trimmed, "quantity")
-    : parseDecimalRational(trimmed, "quantity");
-  return parsed.ok ? rationalToCanonicalString(parsed.value) : undefined;
+  // Lexical validation precedes BigInt allocation. Keep raw draft text untouched.
+  const decimal = /^-?(?:0|[1-9]\d*)(?:[.,]\d+)?$/;
+  const fraction = /^-?(?:0|[1-9]\d*)\/[1-9]\d*$/;
+  if (!(trimmed.includes("/") ? fraction : decimal).test(trimmed)) return undefined;
+  try {
+    const parsed = trimmed.includes("/")
+      ? parseSerializedRational(trimmed, "quantity")
+      : parseDecimalRational(trimmed.replace(",", "."), "quantity");
+    return parsed.ok ? rationalToCanonicalString(parsed.value) : undefined;
+  } catch {
+    // Resource failures are non-applicable, never zero; UI retains the raw text.
+    return undefined;
+  }
 }
 
 /** Parses a percentage value, then divides it exactly by one hundred. */

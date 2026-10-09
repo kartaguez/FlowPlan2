@@ -6,7 +6,7 @@ import {
   type PriorityFamilyId,
   type TeamId,
 } from "../../domain/index.js";
-import { formatQuantityForEditing } from "./editableQuantity.js";
+import { formatActualsQuantity } from "./formatActualsQuantity.js";
 import type { PlanningSessionState } from "./planningSession.js";
 
 export interface ProjectEditViewModel {
@@ -58,7 +58,7 @@ export function buildProjectEditViewModel(
         teamId: team.id,
         teamLabel: team.name,
         enabled: true,
-        remainingWorkload: formatQuantityForEditing(requirement.remainingWorkload),
+        remainingWorkload: formatActualsQuantity(requirement.remainingWorkload),
         remainingWorkloadExact: serializeQuantity(requirement.remainingWorkload),
         currentRafEditable: true,
         rafAuthority: requirement.rafAuthority ?? "current-configuration",

@@ -50,7 +50,7 @@ interface GlobalInputs {
 interface RequirementInputs {
   readonly teamId: TeamId;
   readonly enabled: HTMLInputElement;
-  readonly remainingWorkload: HTMLInputElement;
+  readonly remainingWorkload?: HTMLInputElement;
   readonly isExpanded: () => boolean;
   readonly card: HTMLElement;
   readonly originalDisplay: string;
@@ -181,22 +181,20 @@ export function createProjectEditController(
         const fieldset = document.createElement("fieldset");
         fieldset.className = "timeline-project-edit-requirement";
         fieldset.dataset.teamId = requirement.teamId;
-        const remainingWorkload = createLabeledInput(
-          document,
-          fieldset,
-          "Remaining workload",
-          "text",
+        const actualsControlled = requirement.currentRafEditable === true && requirement.enabled &&
+          input.getActualsRaf?.(requirement.teamId) !== undefined;
+        // Published members have one RAF editor, in Actuals/RAF. Forecast keeps
+        // the published requirement and untouched caps independently of the DOM.
+        const remainingWorkload = actualsControlled ? undefined : createLabeledInput(
+          document, fieldset, "Initial RAF (j.h, exact)", "text",
           `requirements.${requirement.teamId}.remainingWorkload`,
         );
-        const actualsControlled = requirement.currentRafEditable === true && requirement.enabled &&
-          input.getActualsRaf !== undefined && input.onActualsRafInput !== undefined;
-        remainingWorkload.value = actualsControlled ? input.getActualsRaf!(requirement.teamId) ?? requirement.remainingWorkloadExact :
+        if (remainingWorkload) remainingWorkload.value =
           requirement.rafAuthority === "latest-actuals" && !draft?.invalidRafTeamIds?.includes(requirement.teamId)
             ? requirement.remainingWorkloadExact : saved?.remainingWorkload ?? requirement.remainingWorkload;
         if (actualsControlled) {
-          remainingWorkload.addEventListener("input", () => input.onActualsRafInput?.(requirement.teamId, remainingWorkload.value));
           const authority = document.createElement("p");
-          authority.textContent = "Current RAF. Apply this Project card to revise it.";
+          authority.textContent = "Current RAF is edited in Actuals & RAF below. Team membership belongs to Forecast.";
           fieldset.append(authority);
         }
         const subcard = createTeamSubcard(input.controls.fields, "Project", requirement.teamId,
@@ -207,7 +205,7 @@ export function createProjectEditController(
         return Object.freeze({
           teamId: requirement.teamId,
           enabled: subcard.enabled,
-          remainingWorkload,
+          ...(remainingWorkload ? { remainingWorkload } : {}),
           actualsControlled,
           isExpanded: subcard.isExpanded,
           card: subcard.card,
@@ -242,7 +240,7 @@ export function createProjectEditController(
       objectiveEndDate: globalInputs.objectiveEndDate.value, mandatory: globalInputs.mandatory.checked,
       resolution, teams: requirementInputs.map((row) => ({
         teamId: row.teamId, enabled: row.enabled.checked,
-        remainingWorkload: row.actualsControlled ? previous.teams.find((team) => team.teamId === row.teamId)?.remainingWorkload ?? row.originalDisplay : row.remainingWorkload.value,
+        remainingWorkload: row.actualsControlled ? previous.teams.find((team) => team.teamId === row.teamId)?.remainingWorkload ?? row.originalDisplay : row.remainingWorkload!.value,
         remainingWorkloadExact: row.remainingWorkloadExact,
         ...(row.dailyCapExact === undefined ? {} : { dailyCapExact: row.dailyCapExact }),
         expanded: row.isExpanded(),
@@ -276,10 +274,10 @@ export function createProjectEditController(
           Object.freeze({
             teamId: requirement.teamId,
             enabled: requirement.enabled.checked,
-            remainingWorkload: requirement.actualsControlled ? requirement.originalDisplay : requirement.remainingWorkload.value,
+            remainingWorkload: requirement.actualsControlled ? requirement.originalDisplay : requirement.remainingWorkload!.value,
             remainingWorkloadExact: requirement.remainingWorkloadExact,
             remainingWorkloadDirty: !requirement.actualsControlled &&
-              requirement.remainingWorkload.value !== requirement.originalDisplay,
+              requirement.remainingWorkload!.value !== requirement.originalDisplay,
             ...(requirement.dailyCapExact === undefined
               ? {}
               : { dailyCapExact: requirement.dailyCapExact }),

@@ -204,9 +204,11 @@ describe("ProjectEditController", () => {
       { ...model().requirements[1]!, rafAuthority: "current-configuration" as const },
     ] };
     input.controller.setProject(governed);
-    const raf = field(input.fields, `requirements.${alphaId}.remainingWorkload`) as FakeElement & { readOnly?: boolean };
-    assert.equal(raf.readOnly, undefined);
-    raf.value = "7/3"; raf.dispatch("input"); input.form.dispatch("input");
+    assert.equal(descendants(input.fields).some((node) => node.name === `requirements.${alphaId}.remainingWorkload`), false);
+    // The sole Actuals/RAF owner is edited externally; this form cannot echo or
+    // silently submit that RAF. It still submits every published requirement.
+    actualsRaf = "7/3";
+    input.form.dispatch("input");
     assert.equal(actualsRaf, "7/3");
     assert.equal(input.draftStore?.isDirty(projectId), false);
     input.form.dispatch("submit", { preventDefault() {} });
@@ -214,7 +216,7 @@ describe("ProjectEditController", () => {
     assert.equal(serializeQuantity(applied.teamRequirements[0]!.remainingWorkload), "1/3");
     input.cancel.dispatch("click");
     assert.equal(actualsRaf, "1/3");
-    assert.equal(field(input.fields, `requirements.${alphaId}.remainingWorkload`).value, "1/3");
+    assert.equal(descendants(input.fields).some((node) => node.name === `requirements.${alphaId}.remainingWorkload`), false);
   });
   it("uses Team deletion's dirty-discard and inline confirmation pattern", () => {
     let deleted = 0;

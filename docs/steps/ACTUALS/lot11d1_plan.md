@@ -1,10 +1,12 @@
 # Lot 11D.1 — UX Actuals & RAF
 
-**Statut : 11D.1 UX — AUTHORIZED / IN PROGRESS.**
+**Statut : 11D.1 UX — IN REVIEW.**
 Audit indépendant favorable avec trois réserves mineures, intégrées ci-dessous
 le 2026-10-09. Autorisation utilisateur : amendement committé/poussé avant A → E,
 implémentation et validations complètes, livraison **IN REVIEW** sans clôture.
 **11D.0 DONE ; 11D.1 RAF Model DONE**, corrections V1/V2/R1 normatives.
+A → E implémentées et validées : [livraison pour audit](./lot11d1_ux_review.md).
+Aucune clôture DONE ; arrêt pour audit indépendant ChatGPT.
 
 ## 1. Baseline Git vérifiée
 
