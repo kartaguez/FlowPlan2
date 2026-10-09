@@ -51,7 +51,7 @@ plus Lot 11A.2 exact daily profiles and V7 persistence.
 - 11C Actuals / Forecast separation (DONE — explicit user closure).
 - 11D.0 Storage Architecture & Scalability (DONE — favorable independent audit and explicit user closure).
 
-Current trajectory: **11D.1 RAF Model — DONE; 11D.1 UX — READY FOR INDEPENDENT PLAN AUDIT / NOT STARTED**;
+Current trajectory: **11D.1 RAF Model — DONE; 11D.1 UX — AUTHORIZED / IN PROGRESS**;
 **11D.0 — Storage Architecture & Scalability remains DONE**;
 **11B — Project History view is DONE**, following validated DONE
 11A.2. See the
@@ -67,7 +67,7 @@ Current trajectory: **11D.1 RAF Model — DONE; 11D.1 UX — READY FOR INDEPENDE
 11C: DONE — Actuals / Forecast temporal separation
 11D.0: DONE — Storage Architecture & Scalability
 11D.1 RAF Model: DONE — favorable independent audit and final V1/V2 verification
-11D.1 UX: READY FOR INDEPENDENT PLAN AUDIT — PLANNED / NOT STARTED; future authorization required
+11D.1 UX: AUTHORIZED / IN PROGRESS — amended R1/R2/R3, delivery IN REVIEW
 11D.2 / 11D.3: NOT STARTED — outside this planning mission
 11A.1: DEFERRED / not adopted as product work; no dependency for 11B
 10D: superseded by 11A (not DONE)
@@ -101,22 +101,14 @@ physical schema/stores/keys/CAS are unchanged. Historical documents and captures
 retain their original contracts and values; old/new Current and mixed captures
 are validated at the codecs, repository and worker boundaries.
 
-The [revised UX plan](./steps/ACTUALS/lot11d1_plan.md) is **11D.1 UX — READY FOR
-INDEPENDENT PLAN AUDIT**, implementation **PLANNED / NOT STARTED**. Documentary
-revision on 2026-10-09 starts at `294963f8da077e37471e84dc3d639eb64630989e`,
-required branch, clean tree and origin 0/0 after fetch. It replaces the former
-snapshot-authority/RAF-only publication assumptions with the delivered A/B,
-Application R2 and conditional R1 contracts; retains final restored-ID V1,
-local-consumption concurrent-review V2 and explicit-confirmation R1 corrections.
-A–E now detail exact numeric presentation, compact cards/history, current RAF
-wiring and drafts, modal/focus/responsive, and complete validation including
-V1–V8/mixed inputs1/2, native concurrency/CAS/recovery. Exploratory BigInt timings
-are recorded in the plan; no precision ceiling is introduced. Only this roadmap
-and the existing UX plan change. No implementation or new closure canon.
-Compact table and exact-decimal UX remain unimplemented; replay, inputs-only
-and 11D.2/11D.3 remain not started. Stop after documentary commit/push for
-independent ChatGPT plan audit; subsequent development needs new explicit
-authorization. RAF Model and 11D.0 remain DONE.
+The [amended UX plan](./steps/ACTUALS/lot11d1_plan.md) received a favorable
+independent audit with three minor reservations. User authorization at
+`075b2a6c18175eabdcbdb401556a81591f32635f`, clean expected branch and origin 0/0:
+commit/push R1 single editable RAF owner, R2 explicit native-browser performance
+gate, R3 explicit card/modal Apply/Cancel, then implement A → E and all gates.
+Final V1/V2/R1 corrections remain normative. Delivery is **IN REVIEW**, never
+automatic DONE. No composite transaction, Domain/engine/storage redesign,
+replay, inputs-only or 11D.2/11D.3. Stop for independent ChatGPT audit after push.
 
 ## 11D.0 — Storage Architecture & Scalability
 

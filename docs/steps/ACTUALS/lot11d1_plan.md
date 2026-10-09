@@ -1,10 +1,10 @@
 # Lot 11D.1 — UX Actuals & RAF
 
-**Statut : 11D.1 UX — READY FOR INDEPENDENT PLAN AUDIT.**
-Révision documentaire du 2026-10-09 ; implémentation **PLANNED / NOT STARTED**.
-**11D.0 DONE ; 11D.1 RAF Model DONE.** Audit indépendant ChatGPT puis
-nouvelle autorisation explicite requis avant développement. Ce document est
-l'unique plan UX 11D.1 ; aucun second plan, code, test ou canon de clôture ajouté.
+**Statut : 11D.1 UX — AUTHORIZED / IN PROGRESS.**
+Audit indépendant favorable avec trois réserves mineures, intégrées ci-dessous
+le 2026-10-09. Autorisation utilisateur : amendement committé/poussé avant A → E,
+implémentation et validations complètes, livraison **IN REVIEW** sans clôture.
+**11D.0 DONE ; 11D.1 RAF Model DONE**, corrections V1/V2/R1 normatives.
 
 ## 1. Baseline Git vérifiée
 
@@ -15,7 +15,7 @@ branche, du HEAD, de `git status --short` et de la divergence.
 | --- | --- |
 | Dépôt | `/Users/Kartaguez/FlowPlan2`, `kartaguez/FlowPlan2` |
 | Branche active/cible | `codex/lot11a-portfolio-snapshots` |
-| HEAD attendu et réel | `294963f8da077e37471e84dc3d639eb64630989e` |
+| HEAD attendu et réel | `075b2a6c18175eabdcbdb401556a81591f32635f` |
 | Status initial | Vide, arbre propre |
 | Origin après fetch | Même SHA ; avance/retard `0/0` |
 | Écart baseline | Aucun |
@@ -239,7 +239,7 @@ longueurs croissantes (16, 100, 1 000, 10 000 chiffres comme échantillons, **pa
 comme limites**), fractions à grand dénominateur et matrice multi-Team.
 Comparer parsing, dirty, rendu et Apply, avec moteur/navigateur et tailles notés.
 
-**Point de vérification A** : si ces mesures exigent une protection de budget
+**Gate bloquant A — R2 performance en navigateur réel** : si ces mesures exigent une protection de budget
 CPU/mémoire ou un déport de calcul Application, documenter le cas, le coût, la
 valeur exacte conservée, l'erreur visible et la stratégie avant adoption. Ne
 pas introduire maxlength, slice, precision=3 ou refus silencieux de longues
@@ -474,7 +474,7 @@ ne pas modifier le métier pour contourner le blocage.
 
 ## 10. Plan d'exécution A → B → C → D → E
 
-Toutes les étapes sont futures ; audit indépendant et autorisation préalables.
+Les étapes A → E sont autorisées après commit et push du présent amendement.
 Les fichiers tests cités au §11 sont les tests voisins réellement présents.
 Chaque étape conserve ses critères même si B/C sont livrées ensemble pour
 éviter une composition temporairement incohérente.
@@ -711,14 +711,60 @@ des merges structurels incompatibles restent les limites existantes 11D.0/RAF Mo
 Toute protection de ressources refusant des valeurs doit fournir mesures,
 comportement visible, texte exact gardé et alternatives pour audit avant adoption.
 
-## 13. Livraison documentaire et arrêt
+## 13. Amendement post-audit obligatoire — R1 / R2 / R3
 
-Seuls `docs/steps/ACTUALS/lot11d1_plan.md` et `docs/current_plan.md` peuvent changer
-ici. `git diff --check`, inspection paths/stat/diff avant commit, commit
-documentaire puis push normal sur `codex/lot11a-portfolio-snapshots` ; contrôler
-origin synchronisé `0/0` et arbre propre. Aucun code/test/script/dépendance/canon
-modifié ; aucune implémentation engagée ou lot déclaré DONE par cette mission.
+### R1 — Propriétaire éditable unique
 
-**11D.1 UX — READY FOR INDEPENDENT PLAN AUDIT ; PLANNED / NOT STARTED.**
-Arrêt après commit/push. Prochaine étape : audit indépendant ChatGPT du plan,
-puis seulement autorisation explicite de développement. 11D.2/11D.3 non commencés.
+« Pour chaque Team membre publiée d'un Project, le RAF courant possède un seul
+point de saisie éditable. Une intention RAF ne peut être perdue, écrasée
+silencieusement, appliquée deux fois ni implicitement confirmée par une autre
+opération Forecast. » Le store Actuals existant reste son propriétaire ; le
+Forecast lit les requirements publiés pour les membres existants et conserve
+le RAF initial explicite des nouveaux membres. Aucun owner supplémentaire.
+
+Tests bloquants C/E : RAF puis autre champ Forecast, ordre inverse, Apply/Cancel
+carte et modal dans différents ordres, plusieurs cartes dirty, remount, onglet,
+suspend/resume et rebase, ajout Team avec RAF initial explicite. Les gardes de
+séquencement restent actives : refus explicite avec les deux intentions conservées,
+sans transaction composite, nettoyage ciblé après commit confirmé seulement.
+
+### R2 — Gate performance explicite A puis UI finale E
+
+Mesurer dans le navigateur natif réel : parsing/rendu de décimales longues,
+fractions finies/non finies, cumuls multi-Team, dirty/rebase, frappe et réactivité
+(animation frame / durée des interactions), mémoire lorsque disponible. Consigner
+moteur, échantillons, répétitions, coûts et limites dans la livraison. Les tailles
+16/100/1000/10000 sont des sondes, jamais des limites acceptées.
+
+Appliquer les protections §5 restant UX/Application (lexical, exceptions visibles,
+texte préservé, cache borné au draft, coalescence, absence de reformatage à la
+frappe, défilement). Si un risque de blocage reste non maîtrisé, documenter mesures,
+alternatives et impact architectural puis **arrêter ce sous-travail pour arbitrage**.
+Aucun plafond arbitraire, arrondi, troncature, conversion Number ou nouveau worker.
+Une optimisation exacte Application devra être comparée au rendu Domain et testée
+par round-trip, sans modifier Domain ni les commandes.
+
+### R3 — Apply/Cancel explicites
+
+- **Apply carte** : soumission des modifications admissibles de cette carte,
+  selon gardes existantes ; ne confirme jamais la branche modale.
+- **Apply modal** : soumission de la branche Actuals/RAF avec ses preuves et
+  confirmations obligatoires ; Application seule décide no-op/A/B (R2 métier).
+- **Cancel modal** : abandon de la branche modale uniquement ; restaure les
+  drafts préalables raw sans publication.
+- **Cancel carte** : abandon des drafts de la carte concernée uniquement.
+
+Tests UX bloquants : fermeture/Escape, navigation, initialisation, frappe,
+focus/blur et remount ne confirment aucun Actuals/RAF. Open/Back/Review ne créent
+pas de preuve ; conserver V1/V2/R1 et les tests de focus/Cancel existants.
+Labels/aide rendent la portée visible, sans bouton RAF dédié supplémentaire.
+
+## 14. Livraison et arrêt
+
+Amendement documentaire distinct committé et poussé avant tout code. Puis A → E,
+gates complets §10/11, livraison avec SHA initial/final, commits distincts,
+fichiers, counts exacts, scénarios natifs, mesures et limites, invariants,
+réserves audit, status Git/origin. Commit et push normaux sur la branche existante.
+
+**Statut attendu : 11D.1 UX — IN REVIEW**, arrêt pour audit indépendant ChatGPT.
+Aucun DONE automatique, aucun autre lot commencé.
