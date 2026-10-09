@@ -1,3 +1,6 @@
+import { validateProjectCurrentBase, type ProjectCurrentBase } from "./projectCurrentRaf.js";
+import { canonicalActualsKnowledge, validateProjectSnapshotIdentities } from "../../domain/actuals/transition.js";
+import { createProjectActualsSnapshot, snapshotId } from "../../domain/actuals/snapshots.js";
 import { emptyHistoricalIdentities, type HistoricalIdentities } from "../persistence/historicalIdentities.js";
 import {
   capacityFromSerialized,
@@ -70,6 +73,8 @@ export interface UpdatePlanningSettingsCommand {
 export interface UpdateProjectTeamRequirement {
   readonly teamId: TeamId;
   readonly remainingWorkload: RemainingWorkload;
+  /** False means carry the published RAF, even when this whole-object draft is old. */
+  readonly remainingWorkloadChanged?: boolean;
   readonly dailyCap?: DailyCap;
 }
 
@@ -177,8 +182,16 @@ export interface RemoveReservationCommand {
   readonly reservationId: ReservationId;
 }
 
+export interface UpdateProjectCurrentRafCommand {
+  readonly kind: "update-project-current-raf";
+  readonly projectId: ProjectId;
+  readonly base: ProjectCurrentBase;
+  readonly patch: readonly Readonly<{ teamId: TeamId; remainingWorkload: RemainingWorkload }>[];
+}
+
 export interface ReplaceProjectActualsCommand {
   readonly kind: "replace-project-actuals";
+  readonly base: ProjectCurrentBase;
   readonly projectId: ProjectId;
   readonly baseVersion: number;
   readonly current: Omit<ProjectActualsSnapshot, "snapshotId" | "version" | "knowledgeDate">;
@@ -201,6 +214,7 @@ export interface ReplaceReservationActualsCommand {
 export type PlanningCommand =
   | UpdatePlanningSettingsCommand
   | UpdateProjectCommand
+  | UpdateProjectCurrentRafCommand
   | CreateProjectCommand
   | RemoveProjectCommand
   | ReorderProjectCommand
@@ -248,6 +262,7 @@ export function createPlanningSession(
   const prepare = (command: PlanningCommand): PlanningCommandResult => {
     try { return applyCommand(state, command, teamIds, projectIds, reservationIds, historicalProgramIds, historicalFamilyIds, clock); }
     catch (cause) {
+      if (cause instanceof TypeError) return failure([applicationError("MALFORMED_COMMAND", "command", cause.message)]);
       if (!(cause instanceof GroupingResolutionError)) throw cause;
       return failure([applicationError("INVALID_GROUPING", "grouping", cause.message)]);
     }
@@ -317,6 +332,8 @@ function applyCommand(
       return addReservation(state, command, reservationIds, historicalProgramIds, historicalFamilyIds);
     case "remove-reservation":
       return removeReservation(state, command);
+    case "update-project-current-raf":
+      return updateProjectCurrentRaf(state, command);
     case "replace-project-actuals":
       return replaceProjectActuals(state, command, clock);
     case "replace-reservation-actuals":
@@ -324,13 +341,48 @@ function applyCommand(
   }
 }
 
+function updateProjectCurrentRaf(state: PlanningSessionState, command: UpdateProjectCurrentRafCommand): PlanningCommandResult {
+  const project = state.portfolio.projects.find(item => item.id === command.projectId);
+  if (!project) return failure([applicationError("UNKNOWN_PROJECT", "projectId", "Project does not exist.")]);
+  if (!Array.isArray(command.patch) || !command.patch.length) return failure([applicationError("INVALID_RAF_PATCH", "patch", "Provide an explicit nonempty RAF patch.")]);
+  const ids = command.patch.map(row => row.teamId);
+  if (new Set(ids).size !== ids.length || ids.some(id => !project.requirements.some(row => row.teamId === id)))
+    return failure([applicationError("INVALID_RAF_MEMBERSHIP", "patch", "Patch Teams must be unique current members.")]);
+  const errors = validateProjectCurrentBase(project, command.base, ids);
+  if (errors.length) return failure(errors);
+  const results = command.patch.map(row => createProjectTeamRequirement(row));
+  const invalid = results.flatMap(result => result.ok ? [] : result.errors);
+  if (invalid.length) return failure(invalid);
+  const patch = new Map(command.patch.map(row => [row.teamId, row.remainingWorkload]));
+  if (project.requirements.every(row => !patch.has(row.teamId) || serializeQuantity(row.remainingWorkload) === serializeQuantity(patch.get(row.teamId)!))) return Object.freeze({ ok: true, state });
+  // Preserve optional provenance exactly, including its absence on native inputs.
+  const requirements = project.requirements.map(row => {
+    if (!patch.has(row.teamId)) return row;
+    const result = createProjectTeamRequirement({ ...row, remainingWorkload: patch.get(row.teamId)! });
+    if (!result.ok) throw new TypeError("Validated RAF requirement failed.");
+    return result.value;
+  });
+  const updated = createProject({ ...project, requirements });
+  if (!updated.ok) return failure(updated.errors);
+  const portfolio = createPortfolio({ ...state.portfolio, projects: state.portfolio.projects.map(item => item.id === project.id ? updated.value : item) });
+  if (!portfolio.ok) return failure(portfolio.errors);
+  return Object.freeze({ ok: true, state: freezeState({ ...state, portfolio: portfolio.value }) });
+}
+
 function replaceProjectActuals(
   state: PlanningSessionState, command: ReplaceProjectActualsCommand,
   clock?: Readonly<{ today: () => CivilDate }>,
 ): PlanningCommandResult {
-  if (!clock) return failure([applicationError("MISSING_APPLICATION_CLOCK", "actuals", "Actuals knowledge needs an application clock.")]);
   const project = state.portfolio.projects.find((item) => item.id === command.projectId);
   if (!project) return failure([applicationError("UNKNOWN_PROJECT", "projectId", "Project does not exist.")]);
+  const baseErrors = validateProjectCurrentBase(project, command.base);
+  if (baseErrors.length) return failure(baseErrors);
+  const priorHistory = project.snapshots ?? [];
+  if (command.baseVersion !== (priorHistory.at(-1)?.version ?? 0)) return failure([applicationError("STALE_SNAPSHOT_VERSION", "baseVersion", "Actuals draft is stale.")]);
+  // Structural factories and identity rules apply before R2, including apparent no-ops.
+  const validated = createProjectActualsSnapshot({ ...command.current, snapshotId: snapshotId("project", project.id, command.baseVersion + 1), version: command.baseVersion + 1,
+    knowledgeDate: command.current.coverage?.actualsThrough && command.current.coverage.actualsThrough > (priorHistory.at(-1)?.knowledgeDate ?? state.planning.endDate) ? command.current.coverage.actualsThrough : priorHistory.at(-1)?.knowledgeDate ?? state.planning.endDate }, project.id);
+  if (!validated.ok) return failure(validated.errors);
   const expected = state.portfolio.teams.map((team) => team.id).filter((id) => command.teamRequirements.some((row) => row.teamId === id));
   if (command.teamRequirements.length !== expected.length ||
       command.teamRequirements.some((row, index) => row.teamId !== expected[index]) ||
@@ -338,14 +390,34 @@ function replaceProjectActuals(
       command.current.participation.some((id, index) => id !== expected[index])) {
     return failure([applicationError("ACTUALS_MEMBERSHIP_MISMATCH", "participation", "Snapshot and Forecast Teams must match Portfolio order.")]);
   }
-  const priorHistory = project.snapshots ?? [];
+  const previous = priorHistory.at(-1);
+  if (previous) {
+    const identityErrors = validateProjectSnapshotIdentities(previous, validated.value);
+    if (identityErrors.length) return failure(identityErrors);
+  }
+  const unchangedActuals = previous ? canonicalActualsKnowledge(previous) === canonicalActualsKnowledge(validated.value) :
+    !command.current.coverage && command.current.retiredZeroTeams.length === 0 &&
+    command.current.participation.join("\u0000") === project.requirements.map(row => row.teamId).join("\u0000");
+  if (unchangedActuals) {
+    if (command.teamRequirements.some(row => (row.dailyCap === undefined ? null : serializeQuantity(row.dailyCap)) !== (project.requirements.find(r => r.teamId === row.teamId)?.dailyCap === undefined ? null : serializeQuantity(project.requirements.find(r => r.teamId === row.teamId)!.dailyCap!)))) {
+      return failure([applicationError("FORECAST_FIELDS_REQUIRE_SEQUENCING", "dailyCap", "Apply Forecast parameters separately.")]);
+    }
+    const patch = validated.value.raf.filter(row => serializeQuantity(row.amount) !== serializeQuantity(project.requirements.find(r => r.teamId === row.teamId)!.remainingWorkload));
+    if (!patch.length) return Object.freeze({ ok: true, state });
+    if (patch.some(row => !command.evidence.rafTeams?.includes(row.teamId))) return failure([applicationError("RAF_UNCONFIRMED", "raf", "Confirm each modified RAF.")]);
+    return updateProjectCurrentRaf(state, { kind: "update-project-current-raf", projectId: project.id, base: command.base,
+      patch: patch.map(row => ({ teamId: row.teamId, remainingWorkload: row.amount })) });
+  }
+  if (!clock) return failure([applicationError("MISSING_APPLICATION_CLOCK", "actuals", "Actuals knowledge needs an application clock.")]);
+  if (!previous && !command.current.coverage) return failure([applicationError("PROJECT_FIRST_COVERAGE", "coverage", "First Actuals publication needs explicit coverage.")]);
+  if (command.intent.kind === "raf-only") return failure([applicationError("ACTUALS_INTENT_MISMATCH", "intent", "RAF-only does not publish new Actuals.")]);
   const history = replaceProjectSnapshot(project.id, priorHistory, {
     baseVersion: command.baseVersion, knowledgeDate: clock.today(), current: command.current, evidence: command.evidence,
     intent: command.intent,
-  });
+  }, project.requirements.map(row => ({ teamId: row.teamId, amount: row.remainingWorkload })));
   if (!history.ok) return failure(history.errors);
   if (history.value === priorHistory) return Object.freeze({ ok: true, state });
-  const raf = new Map(command.current.raf.map((row) => [row.teamId, row.amount]));
+  const raf = new Map(history.value.at(-1)!.raf.map((row) => [row.teamId, row.amount]));
   const requirementResults = command.teamRequirements.map((row) => createProjectTeamRequirement({
     teamId: row.teamId, remainingWorkload: raf.get(row.teamId)!,
     ...(row.dailyCap === undefined ? {} : { dailyCap: row.dailyCap }),
@@ -885,6 +957,8 @@ function updateProject(
   if (errors.length > 0 || projectIndex < 0) return failure(errors);
 
   const project = state.portfolio.projects[projectIndex]!;
+  if ((project.snapshots?.length || project.legacyV4Actuals || project.actuals) && command.teamRequirements.map(row => row.teamId).join("\u0000") !== project.requirements.map(row => row.teamId).join("\u0000"))
+    return failure([applicationError("ACTUALS_MEMBERSHIP_COMMAND_REQUIRED", "teamRequirements", "Dependent membership requires explicit Actuals publication.")]);
   const grouping = resolveGrouping(state.portfolio, command, project.id, project, historicalProgramIds, historicalFamilyIds);
   const validTeamIds = new Set(state.portfolio.teams.map((team) => team.id));
   const currentRequirementsByTeam = new Map(
@@ -893,7 +967,10 @@ function updateProject(
   const replacements = new Map<TeamId, UpdateProjectTeamRequirement>();
   command.teamRequirements.forEach((requirement, index) => {
     const path = `requirements.${requirement.teamId}`;
-    const currentDailyCap = currentRequirementsByTeam.get(requirement.teamId)?.dailyCap;
+    const existing = currentRequirementsByTeam.get(requirement.teamId);
+    if (existing && requirement.remainingWorkloadChanged !== false && serializeQuantity(existing.remainingWorkload) !== serializeQuantity(requirement.remainingWorkload))
+      errors.push(applicationError("CURRENT_RAF_COMMAND_REQUIRED", path, "Revise existing RAF with update-project-current-raf."));
+    const currentDailyCap = existing?.dailyCap;
     if (replacements.has(requirement.teamId)) {
       errors.push(
         applicationError(
@@ -934,7 +1011,7 @@ function updateProject(
     const dailyCap = replacement.dailyCap ?? currentRequirementsByTeam.get(team.id)?.dailyCap;
     return [createProjectTeamRequirement({
       teamId: team.id,
-      remainingWorkload: replacement.remainingWorkload,
+      remainingWorkload: replacement.remainingWorkloadChanged === false ? currentRequirementsByTeam.get(team.id)?.remainingWorkload ?? replacement.remainingWorkload : replacement.remainingWorkload,
       ...(dailyCap === undefined ? {} : { dailyCap }),
     })];
   });

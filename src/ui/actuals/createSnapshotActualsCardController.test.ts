@@ -125,7 +125,7 @@ test("a differently written exact RAF stays a quick no-op", () => {
   controller.destroy();
 });
 
-test("card RAF is dirty until global Cancel, and global Apply creates an initial snapshot", () => {
+test("card RAF is dirty until global Cancel, and global Apply revises current RAF without a snapshot", () => {
   const session = createPlanningSession(createDemoPlanningScenario(), { today: () => d("2025-01-06") });
   const id = session.getState().portfolio.projects[0]!.id;
   const model = buildProjectSnapshotActualsViewModel(session.getState(), id)!;
@@ -134,7 +134,7 @@ test("card RAF is dirty until global Cancel, and global Apply creates an initial
   let intent = "";
   const controller = createSnapshotActualsCardController({ host: host as unknown as HTMLElement, model, store,
     onDraftChange() {}, conflict: () => undefined, onApply(command) {
-      intent = command.intent.kind;
+      intent = ("intent" in command ? command.intent.kind : command.kind);
       return session.dispatch(command);
     } });
   const field = all(host).find((node) => node.attributes.has("data-raf-team"))!;
@@ -145,8 +145,8 @@ test("card RAF is dirty until global Cancel, and global Apply creates an initial
   assert.equal(store.isDirty(id), false);
   field.value = "7/3"; field.emit("input");
   assert.equal(synchronous(controller.applyCardRaf()).ok, true);
-  assert.equal(intent, "initial");
-  assert.equal(session.getState().portfolio.projects[0]?.snapshots?.length, 1);
+  assert.equal(intent, "update-project-current-raf");
+  assert.equal(session.getState().portfolio.projects[0]?.snapshots, undefined);
   controller.destroy();
 });
 
@@ -250,12 +250,13 @@ test("one-click contiguous selection renders only chosen rows with fixed externa
   for (const selection of ["before", "after", "single", "multi"] as const) check(selection);
 });
 
-test("card RAF Apply uses raf-only after a snapshot and keeps the draft after failure", () => {
+test("card RAF Apply uses command A after a snapshot and keeps the draft after failure", () => {
   const session = createPlanningSession(createDemoPlanningScenario(), { today: () => d("2025-01-06") });
   const id = session.getState().portfolio.projects[0]!.id;
   const firstModel = buildProjectSnapshotActualsViewModel(session.getState(), id)!;
   const first = createSnapshotActualsDraftStore().initialize(firstModel);
   const initial = parseSnapshotActualsCommand(firstModel, { ...first,
+    periods: [{ from: "2025-01-04", through: "2025-01-04", values: first.teams.filter(row => row.enabled).map(row => ({ teamId: row.teamId, text: "0", provenance: "user-entered" as const })) }],
     teams: first.teams.map((row) => row.enabled ? { ...row, raf: "1", rafConfirmed: true } : row) });
   assert.equal(initial.ok, true);
   if (!initial.ok) return;
@@ -267,19 +268,19 @@ test("card RAF Apply uses raf-only after a snapshot and keeps the draft after fa
   let intent = "";
   const controller = createSnapshotActualsCardController({ host: host as unknown as HTMLElement, model, store,
     onDraftChange() {}, conflict: () => undefined, onApply(command) {
-      intent = command.intent.kind;
+      intent = ("intent" in command ? command.intent.kind : command.kind);
       return reject ? { ok: false, errors: [{ code: "TEST_FAILURE", path: "raf", message: "Retry" }] }
         : session.dispatch(command);
     } });
   const field = all(host).find((node) => node.attributes.has("data-raf-team"))!;
   field.value = "7/3"; field.emit("input");
   assert.equal(synchronous(controller.applyCardRaf()).ok, false);
-  assert.equal(intent, "raf-only");
+  assert.equal(intent, "update-project-current-raf");
   assert.equal(store.get(id)?.teams.some((row) => row.raf === "7/3"), true);
   assert.equal(session.getState().portfolio.projects[0]!.snapshots?.length, 1);
   reject = false;
   assert.equal(synchronous(controller.applyCardRaf()).ok, true);
-  assert.equal(session.getState().portfolio.projects[0]!.snapshots?.length, 2);
+  assert.equal(session.getState().portfolio.projects[0]!.snapshots?.length, 1);
   controller.destroy();
 });
 

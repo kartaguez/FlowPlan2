@@ -176,17 +176,17 @@ function field(root: FakeElement, name: string): FakeElement {
 }
 
 describe("ProjectEditController", () => {
-  it("shows latest-Actuals RAF exactly as read-only while current-configuration RAF remains editable", () => {
+  it("shows RAF provenance without a numeric editing lock", () => {
     const input = fixture(undefined, { draftStore: true });
     const governed = { ...model(), requirements: [
-      { ...model().requirements[0]!, remainingWorkload: "0.333", remainingWorkloadExact: "1/3", rafAuthority: "latest-actuals" as const },
+      { ...model().requirements[0]!, remainingWorkload: "0.333", remainingWorkloadExact: "1/3", currentRafEditable: true, rafAuthority: "latest-actuals" as const },
       { ...model().requirements[1]!, rafAuthority: "current-configuration" as const },
     ] };
     input.controller.setProject(governed);
     const exact = field(input.fields, `requirements.${alphaId}.remainingWorkload`) as FakeElement & { readOnly?: boolean };
     const editable = field(input.fields, `requirements.${betaId}.remainingWorkload`) as FakeElement & { readOnly?: boolean };
     assert.equal(exact.value, "1/3");
-    assert.equal(exact.readOnly, true);
+    assert.equal(exact.readOnly, undefined);
     assert.equal(editable.readOnly, undefined);
     assert.equal(input.draftStore?.isDirty(projectId), false);
   });
@@ -200,7 +200,7 @@ describe("ProjectEditController", () => {
       onCancel: () => { actualsRaf = "1/3"; },
     });
     const governed = { ...model(), requirements: [
-      { ...model().requirements[0]!, remainingWorkload: "0.333", remainingWorkloadExact: "1/3", rafAuthority: "latest-actuals" as const },
+      { ...model().requirements[0]!, remainingWorkload: "0.333", remainingWorkloadExact: "1/3", currentRafEditable: true, rafAuthority: "latest-actuals" as const },
       { ...model().requirements[1]!, rafAuthority: "current-configuration" as const },
     ] };
     input.controller.setProject(governed);

@@ -1,4 +1,4 @@
-import { encodePlanningInputs } from "../../application/backup/planningInputCodec.js";
+import { encodeCurrentPlanningInputs } from "../../application/backup/planningInputCodec.js";
 import type { PlanningSession, PlanningCommand } from "../../application/session/planningSession.js";
 import { capturePortfolioSnapshot } from "../../application/portfolioSnapshots/capturePortfolioSnapshot.js";
 import { PersistenceError, sameToken, type PlanningRepository, type CurrentRecord } from "../../application/persistence/planningRepository.js";
@@ -60,9 +60,9 @@ export function createRepositoryPlanningDispatcher(input: {
       if (!candidate.ok) return candidate;
       if (candidate.state === previous) return { ok: true, projection } as const;
       const nextProjection = build({ state: candidate.state, geometryViewport: input.geometryViewport });
-      const operationId = operation(JSON.stringify(["current", record.token, encodePlanningInputs(candidate.state)]));
+      const operationId = operation(JSON.stringify(["current", record.token, encodeCurrentPlanningInputs(candidate.state)]));
       attempted = true;
-      const nextToken = await input.repository.writeCurrent(encodePlanningInputs(candidate.state), record.token, operationId);
+      const nextToken = await input.repository.writeCurrent(encodeCurrentPlanningInputs(candidate.state), record.token, operationId);
       committed = true;
       const result = input.session.publish(previous, candidate.state, command);
       if (!result.ok) throw new PersistenceError("CONFLICT", "Committed planning requires reload; the local session changed unexpectedly.");

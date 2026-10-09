@@ -12,6 +12,7 @@ export {
   type PlanningSettings,
   type UpdatePlanningSettingsCommand,
   type UpdateProjectCommand,
+  type UpdateProjectCurrentRafCommand,
   type CreateProjectCommand,
   type RemoveProjectCommand,
   type ReorderProjectCommand,
@@ -58,3 +59,4 @@ export {
   buildPlanningSettingsViewModel,
   type PlanningSettingsViewModel,
 } from "./session/planningSettingsViewModel.js";
+export { projectCurrentBase, type ProjectCurrentBase } from "./session/projectCurrentRaf.js";

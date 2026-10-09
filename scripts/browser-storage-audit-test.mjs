@@ -1,6 +1,7 @@
 // Audit regressions against native IndexedDB, the real worker and the mounted UI.
+import { mkdir, writeFile } from 'node:fs/promises';
 import { withStorageBrowser } from './storageBrowserHarness.mjs';
-await withStorageBrowser(async ({ evaluate, browser }) => {
+await withStorageBrowser(async ({ evaluate, browser, call }) => {
   const result = await evaluate(`(async () => {
     const {openIndexedDbPlanningRepository,openIndexedDbRepositoryStorage}=await import('/js/infrastructure/persistence/indexedDbRepositoryStorage.js');
     const {createPlanningRepository}=await import('/js/application/persistence/createPlanningRepository.js');
@@ -41,6 +42,71 @@ await withStorageBrowser(async ({ evaluate, browser }) => {
       const result=kind==='save'?await dispatcher.savePortfolioSnapshot():kind==='delete'?await dispatcher.deletePortfolioSnapshot('resumed'):await dispatcher.dispatch(command);
       assert(!result.ok&&dispatcher.isReloadRequired()&&messages[0].includes('operation committed'),'missing recovery');const committed=await repo.readInfo();assert(!(await dispatcher.dispatch(command)).ok,'new mutation accepted');assert(JSON.stringify(await repo.readInfo())===JSON.stringify(committed),'blocked mutation wrote');token=committed.token;
     });
+    const {decodePlanningInputs,encodeCurrentPlanningInputs}=await import('/js/application/backup/planningInputCodec.js');
+    const {projectCurrentBase}=await import('/js/application/session/projectCurrentRaf.js');
+    const {remainingWorkloadFromSerialized,consumedWorkloadFromSerialized,createCivilDate,serializeQuantity,snapshotId}=await import('/js/domain/index.js');
+    const {exportRepositoryBackup}=await import('/js/application/persistence/repositoryTransfer.js');
+    const {decodeFlowplanBackup}=await import('/js/application/backup/flowplanBackupV8.js');
+    const valid=result=>{assert(result.ok,JSON.stringify(result));return result.value};
+    const makeRafState=()=>{const dto=encodePlanningInputs(state),p=dto.portfolio.projects[0];p.migrationStatus='native';p.requirements.forEach(row=>row.remainingWorkload='1/3');
+      p.snapshots=[{snapshotId:snapshotId('project',p.id,1),version:1,knowledgeDate:'2025-01-06',participation:p.requirements.map(row=>row.teamId),retiredZeroTeams:[],raf:p.requirements.map(row=>({teamId:row.teamId,amount:row.remainingWorkload})),coverage:{actualsFrom:'2025-01-01',actualsThrough:'2025-01-02',periods:[{periodId:'original',from:'2025-01-01',through:'2025-01-02',consumed:p.requirements.map(row=>({teamId:row.teamId,amount:'0/1'}))}]}}];return decodePlanningInputs(dto,5,undefined,true)};
+    for(const actualsChanged of [false,true])for(const rafChanged of [false,true])await test('11D.1 native R2 '+actualsChanged+'/'+rafChanged,async()=>{
+      const name='raf-'+actualsChanged+'-'+rafChanged,rafRepo=await openIndexedDbPlanningRepository({factory:indexedDB,name}),rafState=makeRafState();
+      const stage=await rafRepo.stageImport(rafState,'seed');await rafRepo.activateImport(stage,null,'activate');const current=await rafRepo.readCurrent(),session=createPlanningSession(current.state,{today:()=>valid(createCivilDate('2025-01-06'))});let projections=0;
+      const dispatcher=createRepositoryPlanningDispatcher({repository:rafRepo,current,session,geometryViewport:viewport,hasUnappliedChanges:()=>false,buildProjection:input=>{projections++;return buildPlanningSessionProjection(input)}});
+      const p=session.getState().portfolio.projects[0],old=p.snapshots[0],period=old.coverage.periods[0],command={kind:'replace-project-actuals',projectId:p.id,base:projectCurrentBase(p),baseVersion:1,
+        teamRequirements:p.requirements.map(row=>({teamId:row.teamId,...(row.dailyCap?{dailyCap:row.dailyCap}:{})})),current:{participation:old.participation,retiredZeroTeams:[],raf:p.requirements.map((row,i)=>({teamId:row.teamId,amount:rafChanged&&i===0?valid(remainingWorkloadFromSerialized('2/3')):row.remainingWorkload})),coverage:{...old.coverage,periods:[{...period,periodId:actualsChanged?'changed':'original',consumed:period.consumed.map((row,i)=>({...row,amount:actualsChanged&&i===0?valid(consumedWorkloadFromSerialized('1/3')):row.amount}))}]}},
+        intent:actualsChanged?{kind:'replace',editedZone:{from:period.from,through:period.through}}:{kind:'raf-only'},evidence:{consumedCells:actualsChanged?[{periodId:'changed',teamId:p.requirements[0].teamId}]:[],rafTeams:[p.requirements[0].teamId]}};
+      const before=session.getState(),count=projections;assert((await dispatcher.dispatch(command)).ok,'R2 rejected');const next=await rafRepo.readCurrent();
+      assert(projections-count===(actualsChanged||rafChanged?1:0),'projection count');assert(next.token.currentRevision-current.token.currentRevision===(actualsChanged||rafChanged?1:0),'commit count');
+      assert(next.state.portfolio.projects[0].snapshots.length===(actualsChanged?2:1),'snapshot count');assert(JSON.stringify(encodePlanningInputs(before).portfolio.projects[0].snapshots[0])===JSON.stringify(encodeCurrentPlanningInputs(next.state).portfolio.projects[0].snapshots[0]),'prefix changed');
+      if(!actualsChanged&&rafChanged){const stale=await dispatcher.dispatch({...command,current:{...command.current,raf:next.state.portfolio.projects[0].requirements.map(row=>({teamId:row.teamId,amount:row.remainingWorkload}))}});assert(!stale.ok,'stale RAF base accepted');}
+      rafRepo.close();const reopen=await openIndexedDbPlanningRepository({factory:indexedDB,name});assert(JSON.stringify(encodeCurrentPlanningInputs((await reopen.readCurrent()).state))===JSON.stringify(encodeCurrentPlanningInputs(next.state)),'reopen changed');reopen.close();
+    });
+    await test('11D.1 native mixed inputs1/2, old Current startup, CAS lost, export/import/reopen',async()=>{
+      const name='raf-mixed',rafState=makeRafState(),r=await openIndexedDbPlanningRepository({factory:indexedDB,name}),stage=await r.stageImport(rafState,'seed');let t=await r.activateImport(stage,null,'activate');
+      const store=await openIndexedDbRepositoryStorage({factory:indexedDB,name}),text=JSON.stringify(encodePlanningInputs(rafState));
+      const digest=await sha256(text);await store.transaction(['current'],'readwrite',tx=>tx.put('current',[t.generation],{text,digest}));
+      const oldRaw=await store.transaction(['current'],'readonly',tx=>tx.get('current',[t.generation]));await r.readCurrent();assert(JSON.stringify(oldRaw)===JSON.stringify(await store.transaction(['current'],'readonly',tx=>tx.get('current',[t.generation]))),'startup rewrite');
+      const run=buildPlanningSessionProjection({state:rafState,geometryViewport:viewport}),modern=capturePortfolioSnapshot(rafState,run.planningResult,run.actualsReconstruction,'modern','2026-10-09T12:00:00.000Z'),legacy=structuredClone(modern);legacy.snapshotId='legacy';legacy.inputsSchemaVersion=1;delete legacy.inputs.rafModelVersion;
+      t=await r.createSnapshot(legacy,t.currentRevision,t,'old');t=await r.createSnapshot(modern,t.currentRevision,t,'new');assert(JSON.stringify(oldRaw)===JSON.stringify(await store.transaction(['current'],'readonly',tx=>tx.get('current',[t.generation]))),'Save rewrote old Current');
+      const current=await r.readCurrent(),p=current.state.portfolio.projects[0],command={kind:'update-project-current-raf',projectId:p.id,base:projectCurrentBase(p),patch:[{teamId:p.requirements[0].teamId,remainingWorkload:valid(remainingWorkloadFromSerialized('2/3'))}]};
+      const a=createRepositoryPlanningDispatcher({repository:r,current,session:createPlanningSession(current.state),geometryViewport:viewport,hasUnappliedChanges:()=>false});
+      const second=await openIndexedDbPlanningRepository({factory:indexedDB,name}),b=createRepositoryPlanningDispatcher({repository:second,current,session:createPlanningSession(current.state),geometryViewport:viewport,hasUnappliedChanges:()=>false});
+      assert((await a.dispatch(command)).ok,'A failed');assert(!(await b.dispatch(command)).ok&&b.isReloadRequired(),'CAS loser published');
+      const latest=await r.readCurrent();assert(JSON.stringify(await r.readSnapshot('legacy',latest.token))===JSON.stringify(legacy),'old capture changed');
+      const exported=(await exportRepositoryBackup(r)).join(''),dataset=decodeFlowplanBackup(exported);assert(dataset.portfolioSnapshots.map(s=>s.inputsSchemaVersion).sort().join()==='1,2','mixed export');
+      const imported=await openIndexedDbPlanningRepository({factory:indexedDB,name:'raf-reimport'}),job=await imported.stagePortableDocument(exported,'import');await imported.activateImport(job,null,'activate');const reopened=await imported.readCurrent();assert(serializeQuantity(reopened.state.portfolio.projects[0].requirements[0].remainingWorkload)==='2/3','RAF lost');assert(JSON.stringify(await imported.readSnapshot('legacy',reopened.token))===JSON.stringify(legacy),'legacy input normalized');
+      second.close();r.close();store.close();imported.close();
+    });
+    const {buildProjectSnapshotActualsViewModel}=await import('/js/application/session/snapshotActualsViewModel.js');
+    const {createSnapshotActualsDraftStore}=await import('/js/ui/actuals/snapshotActualsDraftStore.js');
+    const {createSnapshotActualsCardController}=await import('/js/ui/actuals/createSnapshotActualsCardController.js');
+    for(const actualsChanged of [false,true])for(const rafChanged of [false,true])await test('11D.1 native Update Actuals modal R2 '+actualsChanged+'/'+rafChanged,async()=>{
+      const r=await openIndexedDbPlanningRepository({factory:indexedDB,name:'modal-'+actualsChanged+'-'+rafChanged}),s=makeRafState(),job=await r.stageImport(s,'seed');await r.activateImport(job,null,'activate');
+      const current=await r.readCurrent(),session=createPlanningSession(current.state,{today:()=>valid(createCivilDate('2025-01-06'))}),dispatcher=createRepositoryPlanningDispatcher({repository:r,current,session,geometryViewport:viewport,hasUnappliedChanges:()=>false});
+      const p=session.getState().portfolio.projects[0],model=buildProjectSnapshotActualsViewModel(session.getState(),p.id),store=createSnapshotActualsDraftStore(),base=store.initialize(model);
+      const teams=base.teams.map((row,i)=>({...row,raf:rafChanged&&i===0?'2/3':row.raf,rafConfirmed:i===0}));
+      const periods=base.periods.map(row=>({...row,values:row.values.map((cell,i)=>({...cell,text:actualsChanged&&i===0?'1/3':cell.text,provenance:actualsChanged&&i===0?'user-entered':cell.provenance}))}));
+      store.update(p.id,{...base,modal:{step:3,selection:{from:0,through:0},periods,teams,confirmed:true,retirementConfirmed:false,anchor:0}});
+      const host=document.createElement('div');document.body.append(host);let result;const controller=createSnapshotActualsCardController({host,model,store,onDraftChange:()=>{},conflict:()=>undefined,onApply:async command=>{result=await dispatcher.dispatch(command);return result}});
+      const modal=document.querySelector('.card-actuals-modal:not([hidden])');assert(modal,'modal absent');modal.querySelector('form').requestSubmit();
+      for(let i=0;i<300&&!result;i++)await new Promise(resolve=>setTimeout(resolve,10));assert(result&&result.ok,'modal failed');
+      const next=await r.readCurrent();assert(next.state.portfolio.projects[0].snapshots.length===(actualsChanged?2:1),'modal created wrong versions');assert(next.token.currentRevision-current.token.currentRevision===(actualsChanged||rafChanged?1:0),'modal commits');
+      controller.destroy();host.remove();r.close();
+    });
+    for(const uncertain of [false,true])await test('11D.1 native RAF '+(uncertain?'ack lost / recovery':'abort / explicit retry'),async()=>{
+      const name='raf-outcome-'+uncertain,r=await openIndexedDbPlanningRepository({factory:indexedDB,name}),job=await r.stageImport(makeRafState(),'seed');await r.activateImport(job,null,'activate');
+      const current=await r.readCurrent(),session=createPlanningSession(current.state),p=current.state.portfolio.projects[0],command={kind:'update-project-current-raf',projectId:p.id,base:projectCurrentBase(p),patch:[{teamId:p.requirements[0].teamId,remainingWorkload:valid(remainingWorkloadFromSerialized('2/3'))}]};let fail=true;
+      const native=await openIndexedDbRepositoryStorage({factory:indexedDB,name,onCommit:()=>{if(uncertain&&fail)throw Error('ack lost')}});
+      const port=createPlanningRepository({close:()=>native.close(),transaction:(stores,mode,body)=>native.transaction(stores,mode,async tx=>{const result=await body(tx);if(!uncertain&&fail&&mode==='readwrite')throw Error('native abort');return result})},sha256);
+      const dispatcher=createRepositoryPlanningDispatcher({repository:port,current,session,geometryViewport:viewport,hasUnappliedChanges:()=>false}),before=session.getState(),projection=dispatcher.getProjection();
+      assert(!(await dispatcher.dispatch(command)).ok,'failure absent');assert(session.getState()===before&&dispatcher.getProjection()===projection,'failed publish');assert(dispatcher.isReloadRequired()===uncertain,'wrong recovery');
+      const persisted=await r.readCurrent();assert(persisted.token.currentRevision-current.token.currentRevision===(uncertain?1:0),'wrong outcome');fail=false;
+      if(uncertain){assert(!(await dispatcher.dispatch(command)).ok,'uncertain retried');const recovered=createPlanningSession(persisted.state);assert(serializeQuantity(recovered.getState().portfolio.projects[0].requirements[0].remainingWorkload)==='2/3','recovery lost RAF')}
+      else assert((await dispatcher.dispatch(command)).ok,'explicit retry rejected');native.close();r.close();
+    });
+    window.rafReviewState=makeRafState();
     repo.close();backend.close();
     await test('mounted UI retains drafts and blocks Save/Delete/Apply after a lost native acknowledgment; recovery rereads authority',async()=>{
       const {createPersistentPlanningApplication}=await import('/js/main/createPersistentPlanningApplication.js');
@@ -56,5 +122,30 @@ await withStorageBrowser(async ({ evaluate, browser }) => {
     });
     return {tests:tests.length,passed:tests.length,failed:0,skipped:0,cases:tests};
   })()`);
+  const review = await evaluate(`(async()=>{
+    const {openIndexedDbPlanningRepository}=await import('/js/infrastructure/persistence/indexedDbRepositoryStorage.js');
+    const {createPersistentPlanningApplication}=await import('/js/main/createPersistentPlanningApplication.js');
+    const r=await openIndexedDbPlanningRepository({factory:indexedDB,name:'raf-review'}),job=await r.stageImport(window.rafReviewState,'seed');await r.activateImport(job,null,'activate');
+    const viewportMeta=document.createElement('meta');viewportMeta.name='viewport';viewportMeta.content='width=device-width, initial-scale=1';document.head.append(viewportMeta);
+    const style=document.createElement('link');style.rel='stylesheet';style.href='/styles.css';document.head.append(style);await new Promise((resolve,reject)=>{style.onload=resolve;style.onerror=reject});
+    document.body.innerHTML='<div id="raf-review-app"></div>';const root=document.getElementById('raf-review-app'),app=await createPersistentPlanningApplication(root,{databaseName:'raf-review'});
+    const wait=async test=>{for(let i=0;i<300;i++){if(test())return;await new Promise(resolve=>setTimeout(resolve,10))}throw Error('review timeout')};
+    const buttons=[...root.querySelectorAll('button[aria-label^="Toggle project "]')];buttons[0].click();buttons[1].click();
+    const cards=[...root.querySelectorAll('.portfolio-card-content')].filter(card=>card.querySelector('[data-raf-team]'));if(cards.length<2)throw Error('cards missing');
+    const a=cards[0].querySelector('[data-raf-team]'),b=cards[1].querySelector('[data-raf-team]');a.value='2/3';a.dispatchEvent(new Event('input',{bubbles:true}));b.value='1/';b.dispatchEvent(new Event('input',{bubbles:true}));
+    const before=await r.readCurrent();cards[0].querySelector('form').requestSubmit();await wait(()=>!root.inert);
+    await wait(()=>root.querySelector('[data-raf-team]')?.value==='2/3');const after=await r.readCurrent();
+    if(after.token.currentRevision!==before.token.currentRevision+1||after.state.portfolio.projects[0].snapshots.length!==1)throw Error('quick RAF created Actuals');
+    if(![...root.querySelectorAll('[data-raf-team]')].some(field=>field.value==='1/')||!app.hasUnappliedChanges())throw Error('other card draft lost');
+    const history=after.state.portfolio.projects[0].snapshots[0].raf[0].amount;const {serializeQuantity}=await import('/js/domain/index.js');if(serializeQuantity(history)!=='1/3')throw Error('historic RAF changed');
+    r.close();return {multipleDirtyCardsPreserved:true,currentRAF:'2/3',historicalRAF:'1/3',snapshots:1};
+  })()`);
+  const layouts=[];await mkdir('/private/tmp/flowplan11d1-review',{recursive:true});
+  for(const width of [1440,390]){await call('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:1,mobile:width===390});
+    await evaluate(`new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>{const field=document.querySelector('#raf-review-app [data-raf-team]');const history=field.closest('.card-actuals').querySelector('details');if(history)history.open=true;field.scrollIntoView({block:'center'});resolve()})))`);
+    layouts.push(await evaluate('({width:innerWidth,scrollWidth:document.documentElement.scrollWidth})'));
+    const shot=await call('Page.captureScreenshot',{format:'png'});await writeFile('/private/tmp/flowplan11d1-review/planning-'+width+'.png',Buffer.from(shot.data,'base64'));
+  }
+  console.log(JSON.stringify({review,layouts}));
   console.log(JSON.stringify({browser:browser.product,...result},null,2));
 });

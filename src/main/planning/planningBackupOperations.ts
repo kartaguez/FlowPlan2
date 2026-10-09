@@ -1,5 +1,5 @@
 import type { PlanningBackupDataset } from "../../application/backup/planningBackupDataset.js";
-import { decodeFlowplanBackup, encodeFlowplanBackupV7 } from "../../application/backup/flowplanBackupV1.js";
+import { decodeFlowplanBackup, encodeFlowplanBackupV8 } from "../../application/backup/flowplanBackupV1.js";
 import type { PlanningBackupStore } from "../../infrastructure/backup/localPlanningBackup.js";
 
 export function loadPlanningBackup(
@@ -29,7 +29,7 @@ export function importPlanningBackup(input: {
     const state = decodeFlowplanBackup(input.document);
     input.preflight(state);
     if (!input.confirm()) return "cancelled";
-    input.store.write(encodeFlowplanBackupV7(state));
+    input.store.write(encodeFlowplanBackupV8(state));
   } catch {
     return "failed";
   }

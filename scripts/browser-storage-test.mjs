@@ -9,7 +9,7 @@ await withStorageBrowser(async ({ call, evaluate, browser, origin }) => {
     const {buildPlanningSessionProjection} = await import('/js/main/planning/buildPlanningSessionProjection.js');
     const {capturePortfolioSnapshot} = await import('/js/application/portfolioSnapshots/capturePortfolioSnapshot.js');
     const {encodePlanningInputs} = await import('/js/application/backup/planningInputCodec.js');
-    const {decodeFlowplanBackup} = await import('/js/application/backup/flowplanBackupV7.js');
+    const {decodeFlowplanBackup} = await import('/js/application/backup/flowplanBackupV8.js');
     const {exportRepositoryBackup,assertLegacyUnchanged} = await import('/js/application/persistence/repositoryTransfer.js');
     const assert=(value,message)=>{if(!value)throw Error(message)};
     const repo=await openIndexedDbPlanningRepository({factory:indexedDB,name:'gate'}), state=createDemoPlanningScenario();
@@ -26,7 +26,7 @@ await withStorageBrowser(async ({ call, evaluate, browser, origin }) => {
     let stale=false;try{await repo.createSnapshot(capture('stale'),base.currentRevision,now,'stale')}catch(e){stale=e.code==='CONFLICT'}assert(stale,'stale run accepted');
     const b=await repo.createSnapshot(capture('b'),now.currentRevision,now,'b'); const gone=await repo.deleteSnapshot('a',b,'delete');
     assert(gone.currentRevision===now.currentRevision,'Delete rewrote Current');assert((await repo.listSnapshotMetadata(gone)).items.length===1,'target Delete failed');
-    const exported=(await exportRepositoryBackup(repo)).join(''); assert(decodeFlowplanBackup(exported).portfolioSnapshots.length===1,'V7 export incomplete');
+    const exported=(await exportRepositoryBackup(repo)).join(''); assert(decodeFlowplanBackup(exported).portfolioSnapshots.length===1,'V8 export incomplete');
     const afterImport=await repo.stageImport(decodeFlowplanBackup(exported),'import');assert((await repo.readInfo()).token.generation===gone.generation,'stage published early');
     const imported=await repo.activateImport(afterImport,gone,'import');assert(imported.generation!==gone.generation,'activation did not switch generation');
     other.close();repo.close();const restart=await openIndexedDbPlanningRepository({factory:indexedDB,name:'gate'});assert((await restart.readInfo()).token.revision===imported.revision,'restart lost commit');
@@ -66,12 +66,12 @@ await withStorageBrowser(async ({ call, evaluate, browser, origin }) => {
   const ui = await evaluate(`(async()=>{
     const assert=(value,message)=>{if(!value)throw Error(message)};
     const {createDemoPlanningScenario}=await import('/js/main/demo/createDemoPlanningScenario.js');
-    const {encodeFlowplanBackupV7}=await import('/js/application/backup/flowplanBackupV7.js');
+    const {encodeFlowplanBackupV8}=await import('/js/application/backup/flowplanBackupV8.js');
     const {capturePortfolioSnapshot}=await import('/js/application/portfolioSnapshots/capturePortfolioSnapshot.js');
     const {buildPlanningSessionProjection}=await import('/js/main/planning/buildPlanningSessionProjection.js');
     const state=createDemoPlanningScenario(), run=buildPlanningSessionProjection({state,geometryViewport:{width:1000,teamLaneHeight:100,timeAxisHeight:76}});
     const captured=capturePortfolioSnapshot(state,run.planningResult,run.actualsReconstruction,'seed','2026-10-08T10:00:00.000Z');
-    const raw=encodeFlowplanBackupV7({...state,portfolioSnapshots:[captured]});localStorage.setItem('flowplan.backup.v1',raw);
+    const raw=encodeFlowplanBackupV8({...state,portfolioSnapshots:[captured]});localStorage.setItem('flowplan.backup.v1',raw);
     const style=document.createElement('link');style.rel='stylesheet';style.href='/styles.css';document.head.append(style);
     document.body.innerHTML='<div id="app"></div>';
     const {createPersistentPlanningApplication}=await import('/js/main/createPersistentPlanningApplication.js');

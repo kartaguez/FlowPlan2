@@ -51,7 +51,7 @@ plus Lot 11A.2 exact daily profiles and V7 persistence.
 - 11C Actuals / Forecast separation (DONE — explicit user closure).
 - 11D.0 Storage Architecture & Scalability (DONE — favorable independent audit and explicit user closure).
 
-Current trajectory: **11D.1 — RAF model separation prerequisite, then UX Actuals & RAF (PLANNED / NOT STARTED)**;
+Current trajectory: **11D.1 RAF Model — IN REVIEW; UX Actuals & RAF remains NOT STARTED**;
 **11D.0 — Storage Architecture & Scalability remains DONE**;
 **11B — Project History view is DONE**, following validated DONE
 11A.2. See the
@@ -66,7 +66,8 @@ Current trajectory: **11D.1 — RAF model separation prerequisite, then UX Actua
 11A (DONE) → 11A.2 (DONE) → 11B (DONE)
 11C: DONE — Actuals / Forecast temporal separation
 11D.0: DONE — Storage Architecture & Scalability
-11D.1: PLANNED / NOT STARTED — RAF model separation prerequisite, then UX; documentation only
+11D.1 RAF Model: IN REVIEW — implementation delivered for independent audit
+11D.1 UX: NOT STARTED — separate future authorization required
 11D.2 / 11D.3: NOT STARTED — outside this planning mission
 11A.1: DEFERRED / not adopted as product work; no dependency for 11B
 10D: superseded by 11A (not DONE)
@@ -79,42 +80,28 @@ with origin (0/0) after fetch. The 11A.2 canon records the completed capture and
 755-test validation. That review was documentation-only. The subsequent authorized implementation
 was then IN REVIEW; explicit user closure subsequently marked 11B DONE.
 
-## 11D.1 — RAF model prerequisite, then UX Actuals & RAF
+## 11D.1 — RAF Model
 
-**Status: PLANNED / NOT STARTED.** No implementation has started.
-**11D.0 remains DONE.** 11D.2/11D.3 remain NOT STARTED.
+**Status: IN REVIEW.** Explicit user authorization follows independent audit of
+[the amended plan](./steps/ACTUALS/lot11d1_raf_model_plan.md) at
+`6ce922e55621423c4e00e21e374ae53a6deb1efa`. The required branch was clean,
+at that exact HEAD and origin 0/0 after fetch. P1–P6 implementation separates
+current requirement RAF from immutable snapshot RAF, introduces command A,
+Application R2 routing, conditional R1 evidence, immutable RAM bases, safe draft
+rebase, V8/inputs2 compatibility and minimal existing UI wiring.
+[Delivery, matrix and executed gates](./steps/ACTUALS/lot11d1_raf_model_canon.md).
 
-New documentary prerequisite (2026-10-09):
-[Current RAF / Actuals snapshot RAF separation plan](./steps/ACTUALS/lot11d1_raf_model_plan.md).
-Verified branch `codex/lot11a-portfolio-snapshots`, starting HEAD
-`4bfc8842cf0aeda30e7f72b19594d1db262df035`, clean and origin 0/0 after fetch.
-The plan is submitted for independent ChatGPT audit; it is not READY FOR
-IMPLEMENTATION. Audit and explicit implementation authorization are required.
+11D.0 remains DONE; 11C and its engine version remain unchanged. IndexedDB
+physical schema/stores/keys/CAS are unchanged. Historical documents and captures
+retain their original contracts and values; old/new Current and mixed captures
+are validated at the codecs, repository and worker boundaries.
 
-The prerequisite proposes requirements as the sole current RAF authority,
-immutable historical snapshot RAF, an explicit independent RAF command, atomic
-Actuals + RAF publication, canonical draft bases and unchanged repository
-prepare → private projection → CAS commit → publish / recovery guarantees.
-Necessary Domain and logical codec changes are planned, including an explicit
-V8 / inputs schema 2 compatibility strategy; no physical IndexedDB format
-change is proposed. Existing Actuals and Portfolio Snapshots are retained.
-No implementation, migration or tests are delivered by this documentation.
-
-The [impact study](./arch/RAF_CURRENT_AND_PORTFOLIO_REPLAY_IMPACT_AUDIT.md),
-examined at `cdb022e91889749de7139a375998fe61edd12041`, remains an analysis
-source, not implementation authorization. The new model plan resolves its RAF
-prerequisite only; no replay service, inputs-only capture or future lot is opened.
-
-The earlier [UX plan](./steps/ACTUALS/lot11d1_plan.md), documented at
-`05115e4df6ec59c1a045801389e310529634bb9c`, remains a future presentation
-proposal. Its assumptions of permanent RAF equality, quick RAF creating an
-Actuals version, and no Domain/format changes do not govern this new prerequisite.
-After model audit, the UX plan must be reconciled before any UX implementation.
-The compact table, new exact numeric rendering and modal redesign remain outside
-this model mission, as do History cache and IndexedDB optimizations.
-
-Only the new model plan and this roadmap are modified. Stop after documentary
-commit/push; no implementation is authorized by this publication.
+The [earlier UX plan](./steps/ACTUALS/lot11d1_plan.md) remains future work.
+Its old permanent-equality/RAF-only-snapshot assumptions are superseded by this
+model delivery. Compact table, exact decimal presentation, visual modal redesign,
+replay, inputs-only and 11D.2/11D.3 are not started. Stop after commit/push;
+independent implementation audit and new authorization govern subsequent work.
+No DONE closure is inferred from tests.
 
 ## 11D.0 — Storage Architecture & Scalability
 

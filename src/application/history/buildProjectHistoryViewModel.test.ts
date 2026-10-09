@@ -4,7 +4,7 @@ import { buildProjectHistoryViewModel, historyDayIndex } from "./buildProjectHis
 import { addHistoryActuals, historyFixture } from "./historyTestFixture.js";
 import { addRationals, compareRationals, rationalFromInteger, rationalToCanonicalString } from "../../domain/model/rational.js";
 import { civilDayDifference, createCivilDate } from "../../domain/model/date.js";
-import { decodeFlowplanBackup, encodeFlowplanBackupV7 } from "../backup/flowplanBackupV1.js";
+import { decodeFlowplanBackup, encodeFlowplanBackupV8 } from "../backup/flowplanBackupV1.js";
 import { createDemoPlanningScenario } from "../../main/demo/createDemoPlanningScenario.js";
 import { projectHistoryTooltipLines } from "../../ui/history/renderProjectHistoryTooltip.js";
 import { decodePlanningInputs, encodePlanningInputs } from "../backup/planningInputCodec.js";
@@ -41,7 +41,7 @@ describe("Project History pure projection", () => {
     const legacy = historyFixture("a", () => {}, 1);
     const empty = historyFixture("b", (dto) => { dto.portfolio.projects[0]!.earliestStartDate = "2027-01-01" as any; });
     const source = createDemoPlanningScenario();
-    const loaded = decodeFlowplanBackup(encodeFlowplanBackupV7({ ...source, portfolioSnapshots: [legacy, empty] }));
+    const loaded = decodeFlowplanBackup(encodeFlowplanBackupV8({ ...source, portfolioSnapshots: [legacy, empty] }));
     const vm = buildProjectHistoryViewModel(loaded.portfolioSnapshots!);
     const rows = vm.projects.find((p) => p.metadata.id === legacy.forecast.projects[0]!.projectId)!.rows;
     assert.equal(rows[0]!.kind, "present"); assert.equal(rows[1]!.kind, "present");
@@ -157,7 +157,7 @@ it("Save always creates schema 2 and mixed V7 History preserves exact profiles a
   assert.deepEqual(captures.map((s) => s.forecast.forecastSchemaVersion), [1, 2, 2]);
   const loaded = decodeFlowplanBackup(text);
   assert.deepEqual(loaded.portfolioSnapshots, captures);
-  assert.deepEqual(decodeFlowplanBackup(encodeFlowplanBackupV7(loaded)).portfolioSnapshots, captures);
+  assert.deepEqual(decodeFlowplanBackup(encodeFlowplanBackupV8(loaded)).portfolioSnapshots, captures);
   const vm = buildProjectHistoryViewModel(loaded.portfolioSnapshots!);
   const rows = vm.projects.find((p) => p.metadata.id === old.forecast.projects[0]!.projectId)!.rows;
   const legacy = rows[0]!; if (legacy.kind !== "present") throw new Error();

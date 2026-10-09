@@ -1,3 +1,4 @@
+import { projectCurrentBase, type ProjectCurrentBase } from "./projectCurrentRaf.js";
 import type { ProjectActualsChronology, ReservationActualsChronology, ProjectActualsSnapshot,
   ReservationActualsSnapshot, DailyCap, RemainingWorkload, ReservationRatio, Capacity, TeamId, ProjectId, ReservationId } from "../../domain/index.js";
 import type { PlanningSessionState } from "./planningSession.js";
@@ -16,6 +17,7 @@ export type SnapshotActualsViewModel = Readonly<{
   kind: "project" | "reservation";
   id: ProjectId | ReservationId;
   teams: readonly SnapshotActualsTeamModel[];
+  currentBase?: ProjectCurrentBase;
   snapshots: readonly (ProjectActualsSnapshot | ReservationActualsSnapshot)[];
   legacyV4Actuals?: ProjectActualsChronology | ReservationActualsChronology;
 }>;
@@ -24,7 +26,7 @@ export function buildProjectSnapshotActualsViewModel(state: PlanningSessionState
   const project = state.portfolio.projects.find((item) => item.id === id);
   if (!project) return undefined;
   const requirements = new Map(project.requirements.map((row) => [row.teamId, row]));
-  return Object.freeze({ kind: "project" as const, id, snapshots: project.snapshots ?? [],
+  return Object.freeze({ kind: "project" as const, id, currentBase: projectCurrentBase(project), snapshots: project.snapshots ?? [],
     ...(project.legacyV4Actuals ?? project.actuals ? { legacyV4Actuals: (project.legacyV4Actuals ?? project.actuals)! } : {}),
     teams: Object.freeze(state.portfolio.teams.map((team) => Object.freeze({ teamId: team.id, label: team.name,
       participating: requirements.has(team.id),

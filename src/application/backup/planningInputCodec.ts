@@ -177,8 +177,10 @@ function encodeFlowplanBackupVersion(state: PlanningBackupDataset, version: 1 | 
 }
 
 /** Shared, non-recursive input boundary for backups and historical capture. */
-export function encodePlanningInputs(state: Pick<PlanningSessionState, "portfolio" | "planning">, version: 1 | 2 | 3 | 4 | 5 = 5) {
+export function encodePlanningInputs(state: Pick<PlanningSessionState, "portfolio" | "planning">, version: 1 | 2 | 3 | 4 | 5 | 8 = 5) {
+  if (version < 8) assertLegacyRafContract(state.portfolio);
   return {
+    ...(version === 8 ? { rafModelVersion: 2 as const } : {}),
     planning: {
       startDate: state.planning.startDate, endDate: state.planning.endDate,
       workingWeekdays: [...state.planning.workingPattern.workingWeekdays],
@@ -210,7 +212,7 @@ export function encodePlanningInputs(state: Pick<PlanningSessionState, "portfoli
             teams: record.teams.map((entry) => ({ teamId: entry.teamId,
               cumulativeConsumed: serializeQuantity(entry.cumulativeConsumed), remainingWorkload: serializeQuantity(entry.remainingWorkload) })) })),
         } } : {}),
-        ...(version === 5 ? {
+        ...(version >= 5 ? {
           migrationStatus: project.snapshots?.length ? project.legacyV4Actuals || project.actuals ? "reconciled" : "native"
             : project.legacyV4Actuals || project.actuals ? "legacy-pending" : "none",
           ...(project.legacyV4Actuals || project.actuals ? { legacyV4Actuals: encodeProjectLegacy(
@@ -239,7 +241,7 @@ export function encodePlanningInputs(state: Pick<PlanningSessionState, "portfoli
             teams: record.teams.map((entry) => ({ teamId: entry.teamId,
               cumulativeConsumed: serializeQuantity(entry.cumulativeConsumed) })) })),
         } } : {}),
-        ...(version === 5 ? {
+        ...(version >= 5 ? {
           migrationStatus: r.snapshots?.length ? r.legacyV4Actuals || r.actuals ? "reconciled" : "native"
             : r.legacyV4Actuals || r.actuals ? "legacy-pending" : "none",
           ...(r.legacyV4Actuals || r.actuals ? { legacyV4Actuals: encodeReservationLegacy((r.legacyV4Actuals ?? r.actuals)!) } : {}),
@@ -290,13 +292,14 @@ function decodeFlowplanBackupVersion(text: string, version: 1 | 2 | 3 | 4 | 5): 
   if (envelope.version !== version) throw new InvalidFlowplanBackup("Unsupported version.");
   const exportedAt = string(envelope.exportedAt, "exportedAt");
   if (Number.isNaN(Date.parse(exportedAt)) || new Date(exportedAt).toISOString() !== exportedAt) throw new InvalidFlowplanBackup("Invalid exportedAt.");
-  const exportedOn = version === 5 ? date(exportedAt.slice(0, 10), "exportedAt") : undefined;
+  const exportedOn = version >= 5 ? date(exportedAt.slice(0, 10), "exportedAt") : undefined;
   return decodePlanningInputs(envelope.data, version, exportedOn);
 }
 
 /** Strict mode rejects any data that legacy readers would repair or prune. */
-export function decodePlanningInputs(value: unknown, version: 1 | 2 | 3 | 4 | 5 = 5, exportedOn?: CivilDate, strict = false): PlanningBackupDataset {
-  const data = object(value, "data", ["planning", "portfolio"]);
+export function decodePlanningInputs(value: unknown, version: 1 | 2 | 3 | 4 | 5 | 8 = 5, exportedOn?: CivilDate, strict = false): PlanningBackupDataset {
+  const data = object(value, "data", ["planning", "portfolio", ...(version === 8 ? ["rafModelVersion"] : [])]);
+  if (version === 8 && data.rafModelVersion !== 2) throw new InvalidFlowplanBackup("Unknown RAF model.");
   const planning = object(data.planning, "planning", ["startDate", "endDate", "workingWeekdays", "maxParallelProjects"]);
   const horizon = valid(createPlanningHorizon({ start: date(planning.startDate, "planning.startDate"), end: date(planning.endDate, "planning.endDate") }));
   const weekdays = array(planning.workingWeekdays, "planning.workingWeekdays").map((v, i) => integer(v, `planning.workingWeekdays[${i}]`));
@@ -339,7 +342,7 @@ export function decodePlanningInputs(value: unknown, version: 1 | 2 | 3 | 4 | 5 
     return color;
   };
   const projects = array(source.projects, "projects").map((v) => {
-    const p = object(v, "project", ["id", "name", "requirements", ...(version >= 2 ? ["isActive"] : []), ...(version === 5 ? ["migrationStatus"] : [])], ["programId", "priorityFamilyId", "earliestStartDate", "objectiveEndDate", "mandatoryDeadline", ...(version >= 3 ? ["ownColor"] : []), ...(version === 4 ? ["actuals"] : []), ...(version === 5 ? ["legacyV4Actuals", "snapshots"] : [])]);
+    const p = object(v, "project", ["id", "name", "requirements", ...(version >= 2 ? ["isActive"] : []), ...(version >= 5 ? ["migrationStatus"] : [])], ["programId", "priorityFamilyId", "earliestStartDate", "objectiveEndDate", "mandatoryDeadline", ...(version >= 3 ? ["ownColor"] : []), ...(version === 4 ? ["actuals"] : []), ...(version >= 5 ? ["legacyV4Actuals", "snapshots"] : [])]);
     const requirements = array(p.requirements, "requirements").map((v) => {
       const r = object(v, "requirement", ["teamId", "remainingWorkload", ...(version === 4 ? ["rafAuthority"] : [])], ["dailyCap"]);
       const rafAuthority = version === 4 ? string(r.rafAuthority, "requirement.rafAuthority") : undefined;
@@ -350,14 +353,14 @@ export function decodePlanningInputs(value: unknown, version: 1 | 2 | 3 | 4 | 5 
         rafAuthority: rafAuthority ?? "current-configuration" }));
     });
     const actuals = version === 4 && p.actuals !== undefined ? decodeActuals(p.actuals, true) : undefined;
-    const legacy = version === 5 && p.legacyV4Actuals !== undefined ? decodeProjectLegacy(p.legacyV4Actuals) : undefined;
-    const snapshots = version === 5 && p.snapshots !== undefined ? array(p.snapshots, "project.snapshots").map((item, index) =>
+    const legacy = version >= 5 && p.legacyV4Actuals !== undefined ? decodeProjectLegacy(p.legacyV4Actuals) : undefined;
+    const snapshots = version >= 5 && p.snapshots !== undefined ? array(p.snapshots, "project.snapshots").map((item, index) =>
       decodeSnapshot(item, true, `project.snapshots[${index}]`, exportedOn!) as ProjectActualsSnapshot) : undefined;
-    if (version === 5) {
+    if (version >= 5) {
       const expected = snapshots?.length ? legacy ? "reconciled" : "native" : legacy ? "legacy-pending" : "none";
       if (p.migrationStatus !== expected || (snapshots && snapshots.length === 0)) throw new InvalidFlowplanBackup("Invalid Project migration status.");
     }
-    const resolvedRequirements = version === 5 && legacy && !snapshots?.length ? requirements.map((row) => ({ ...row,
+    const resolvedRequirements = version >= 5 && legacy && !snapshots?.length ? requirements.map((row) => ({ ...row,
       rafAuthority: legacy.authority.find((item) => item.teamId === row.teamId)?.authority ?? "current-configuration" as const })) : requirements;
     return valid(createProject({ id: valid(createProjectId(string(p.id, "project.id"))), name: name(p.name, "project.name"), requirements: resolvedRequirements,
       ...(actuals === undefined ? {} : { actuals, legacyV4Actuals: actuals,
@@ -372,7 +375,7 @@ export function decodePlanningInputs(value: unknown, version: 1 | 2 | 3 | 4 | 5 
       ...(p.mandatoryDeadline === undefined ? {} : { mandatoryDeadline: date(p.mandatoryDeadline, "project.mandatoryDeadline") }) }));
   });
   const reservations = array(source.reservations, "reservations").map((v) => {
-    const r = object(v, "reservation", ["id", "name", "startDate", "endDate", "teamAllocations", ...(version >= 2 ? ["isActive"] : []), ...(version === 5 ? ["migrationStatus"] : [])], version >= 3 ? ["programId", "priorityFamilyId", "ownColor", ...(version === 4 ? ["actuals"] : []), ...(version === 5 ? ["legacyV4Actuals", "snapshots"] : [])] : []);
+    const r = object(v, "reservation", ["id", "name", "startDate", "endDate", "teamAllocations", ...(version >= 2 ? ["isActive"] : []), ...(version >= 5 ? ["migrationStatus"] : [])], version >= 3 ? ["programId", "priorityFamilyId", "ownColor", ...(version === 4 ? ["actuals"] : []), ...(version >= 5 ? ["legacyV4Actuals", "snapshots"] : [])] : []);
     const teamAllocations = array(r.teamAllocations, "teamAllocations").map((v) => {
       const a = object(v, "allocation", ["teamId", "amount"]);
       const rawAmount = object(a.amount, "amount", ["kind"], ["ratio", "dailyCapacity"]);
@@ -387,10 +390,10 @@ export function decodePlanningInputs(value: unknown, version: 1 | 2 | 3 | 4 | 5 
       return valid(createReservationTeamAllocation({ teamId: valid(createTeamId(string(a.teamId, "allocation.teamId"))), amount }));
     });
     const actuals = version === 4 && r.actuals !== undefined ? decodeActuals(r.actuals, false) : undefined;
-    const legacy = version === 5 && r.legacyV4Actuals !== undefined ? decodeActuals(r.legacyV4Actuals, false) : undefined;
-    const snapshots = version === 5 && r.snapshots !== undefined ? array(r.snapshots, "reservation.snapshots").map((item, index) =>
+    const legacy = version >= 5 && r.legacyV4Actuals !== undefined ? decodeActuals(r.legacyV4Actuals, false) : undefined;
+    const snapshots = version >= 5 && r.snapshots !== undefined ? array(r.snapshots, "reservation.snapshots").map((item, index) =>
       decodeSnapshot(item, false, `reservation.snapshots[${index}]`, exportedOn!) as ReservationActualsSnapshot) : undefined;
-    if (version === 5) {
+    if (version >= 5) {
       const expected = snapshots?.length ? legacy ? "reconciled" : "native" : legacy ? "legacy-pending" : "none";
       if (r.migrationStatus !== expected || (snapshots && snapshots.length === 0)) throw new InvalidFlowplanBackup("Invalid Reservation migration status.");
     }
@@ -409,8 +412,9 @@ export function decodePlanningInputs(value: unknown, version: 1 | 2 | 3 | 4 | 5 
   if (strict && (programs.some((p) => !usedPrograms.has(p.id)) || priorityFamilies.some((p) => !usedFamilies.has(p.id)))) throw new InvalidFlowplanBackup("Orphan historical catalog entry.");
   const portfolio = valid(createPortfolio({ teams, projects, programs: programs.filter((p) => usedPrograms.has(p.id)),
     priorityFamilies: priorityFamilies.filter((p) => usedFamilies.has(p.id)), priorityOrder, reservations }));
+  if (version < 8) assertLegacyRafContract(portfolio);
   const state = Object.freeze({ portfolio, portfolioSnapshots: Object.freeze([]), planning: Object.freeze({ startDate: horizon.start, endDate: horizon.end, workingPattern, maxParallelProjects }) });
-  if (strict && stableJson(value) !== stableJson(encodePlanningInputs(state))) throw new InvalidFlowplanBackup("Inputs are not losslessly canonical.");
+  if (strict && stableJson(value) !== stableJson(encodePlanningInputs(state, version))) throw new InvalidFlowplanBackup("Inputs are not losslessly canonical.");
   return state;
 }
 
@@ -430,4 +434,22 @@ function stableJson(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(stableJson).join(",")}]`;
   if (value !== null && typeof value === "object") return `{${Object.entries(value).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0).map(([k,v]) => `${JSON.stringify(k)}:${stableJson(v)}`).join(",")}}`;
   return JSON.stringify(value);
+}
+
+/** Historical numeric contract, applied before conversion and on downgrade. */
+export function assertLegacyRafContract(portfolio: PlanningSessionState["portfolio"]): void {
+  for (const project of portfolio.projects) for (const requirement of project.requirements) {
+    const snapshot = project.snapshots?.at(-1);
+    const legacy = project.legacyV4Actuals ?? project.actuals;
+    const authority = project.legacyV4RafAuthority?.find(row => row.teamId === requirement.teamId)?.authority ?? requirement.rafAuthority;
+    const amount = snapshot ? snapshot.raf.find(row => row.teamId === requirement.teamId)?.amount
+      : authority === "latest-actuals" ? legacy?.records.at(-1)?.teams.find(row => row.teamId === requirement.teamId)?.remainingWorkload : undefined;
+    if ((snapshot || authority === "latest-actuals") && (!amount || serializeQuantity(amount) !== serializeQuantity(requirement.remainingWorkload)))
+      throw new InvalidFlowplanBackup("ACTUALS_RAF_MISMATCH: historical RAF contract violated.");
+  }
+}
+export const encodeCurrentPlanningInputs = (state: Pick<PlanningSessionState, "portfolio" | "planning">) => encodePlanningInputs(state, 8);
+export function decodeCurrentPlanningInputs(value: unknown): PlanningBackupDataset {
+  const modern = value !== null && typeof value === "object" && Object.hasOwn(value, "rafModelVersion");
+  return decodePlanningInputs(value, modern ? 8 : 5, undefined, true);
 }

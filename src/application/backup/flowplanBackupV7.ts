@@ -19,6 +19,7 @@ export function decodeFlowplanBackup(text: string): PlanningBackupDataset {
     const portfolioSnapshots = data.portfolioSnapshots.map((item: unknown, index: number) => {
       try {
         const snapshot = validateHistoricalSnapshot(item, current);
+        if (snapshot.inputsSchemaVersion !== 1) throw new TypeError("Legacy envelope requires inputs schema 1.");
         if (seen.has(snapshot.snapshotId)) throw new TypeError("Duplicate snapshotId.");
         seen.add(snapshot.snapshotId);
         return snapshot;

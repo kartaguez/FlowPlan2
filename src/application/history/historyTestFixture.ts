@@ -21,7 +21,9 @@ export function historyFixture(id = "a", change: (dto: PlanningInputsDto) => voi
   const dto = encodePlanningInputs(createDemoPlanningScenario()); change(dto);
   const state = decodePlanningInputs(dto, 5, undefined, true);
   const run = buildPlanningSessionProjection({ state, geometryViewport: { width: 1000, teamLaneHeight: 100, timeAxisHeight: 76 } });
-  const snapshot = capturePortfolioSnapshot(state, run.planningResult, run.actualsReconstruction, id, instant);
+  const modern = capturePortfolioSnapshot(state, run.planningResult, run.actualsReconstruction, id, instant);
+  const inputs = structuredClone(modern.inputs) as { rafModelVersion?: number }; delete inputs.rafModelVersion;
+  const snapshot = validateHistoricalSnapshot({ ...modern, inputs, inputsSchemaVersion: 1 }, state);
   if (schema === 2) return snapshot;
   const legacy = structuredClone(snapshot) as any;
   legacy.forecast.forecastSchemaVersion = 1;

@@ -1,3 +1,4 @@
+import { projectCurrentBase } from "./projectCurrentRaf.js";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
@@ -119,14 +120,13 @@ describe("PlanningSession project editing", () => {
     assert.equal(Object.isFrozen(session.getState()), true);
   });
 
-  it("atomically updates global project fields, RAF, and daily caps without changing priority", () => {
+  it("sequences current RAF and global Forecast fields without changing priority", () => {
     const initial = createDemoPlanningScenario();
     const previousState = initial;
     const previousProject = initial.portfolio.projects[0]!;
     const previousRequirements = previousProject.requirements;
     const session = createPlanningSession(initial);
-    const result = session.dispatch(
-      commandFor(initial, previousProject.id, {
+    const command = commandFor(initial, previousProject.id, {
         name: "  Atlas Updated  ",
         earliestStartDate: must(createCivilDate("2025-01-10")),
         objectiveEndDate: must(createCivilDate("2025-02-10")),
@@ -142,8 +142,11 @@ describe("PlanningSession project editing", () => {
             remainingWorkload: must(createRemainingWorkload("12.5")),
           },
         ],
-      }),
-    );
+      });
+    assert.equal(session.dispatch(command).ok, false);
+    assert.strictEqual(session.getState().portfolio, initial.portfolio);
+    assert.ok(session.dispatch({ kind: "update-project-current-raf", projectId: previousProject.id, base: projectCurrentBase(previousProject), patch: command.teamRequirements }).ok);
+    const result = session.dispatch({ ...command, teamRequirements: command.teamRequirements.map(row => ({ ...row, remainingWorkloadChanged: false })) });
 
     assert.equal(result.ok, true);
     if (!result.ok) return;

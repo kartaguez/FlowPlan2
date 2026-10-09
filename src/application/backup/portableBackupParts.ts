@@ -1,4 +1,4 @@
-import { decodeFlowplanBackup } from "./flowplanBackupV7.js";
+import { decodeFlowplanBackup } from "./flowplanBackupV8.js";
 import { InvalidFlowplanBackup } from "./planningInputCodec.js";
 /** Retains the source text, but never parses all Portfolio payloads into one object graph. */
 export function portableBackupParts(text: string) {

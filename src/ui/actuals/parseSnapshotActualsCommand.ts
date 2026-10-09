@@ -93,16 +93,11 @@ export function parseSnapshotActualsCommand(model: SnapshotActualsViewModel, dra
       const exact = parseExactQuantityInput(row.raf);
       const amount = exact === undefined ? undefined : remainingWorkloadFromSerialized(exact);
       if (!amount?.ok) errors.push(error(`raf.${row.teamId}`, "Enter an exact nonnegative RAF."));
-      const previous = old && "raf" in old ? old.raf.find((item) => item.teamId === row.teamId) : undefined;
-      if (amount?.ok && (!previous || old?.coverage?.actualsThrough !== coverage?.actualsThrough ||
-          serializeQuantity(previous.amount) !== exact) && !row.rafConfirmed) {
-        errors.push(error(`raf.${row.teamId}`, "Confirm this RAF explicitly before Apply."));
-      }
       return amount?.ok ? { teamId: row.teamId, amount: amount.value } : undefined;
     }).filter((item): item is NonNullable<typeof item> => item !== undefined);
     if (errors.length) return { ok: false, errors };
     return { ok: true, command: { kind: "replace-project-actuals", projectId: model.id as ReplaceProjectActualsCommand["projectId"],
-      baseVersion: draft.baseVersion, teamRequirements: draft.handoff?.kind === "update-project" ?
+      baseVersion: draft.baseVersion, base: draft.baseModel.currentBase!, teamRequirements: draft.handoff?.kind === "update-project" ?
         draft.handoff.teamRequirements : enabled.map((row) => {
         const source = model.teams.find((team) => team.teamId === row.teamId)!;
         return { teamId: row.teamId, ...(source.dailyCap === undefined ? {} : { dailyCap: source.dailyCap }) };

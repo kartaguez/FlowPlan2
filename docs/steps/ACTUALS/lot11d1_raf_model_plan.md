@@ -1,5 +1,13 @@
 # Lot 11D.1 — Plan de séparation RAF courant / RAF des snapshots Actuals
 
+> Implementation amendment, 2026-10-09: the user reports the independent audit
+> READY FOR IMPLEMENTATION and explicitly authorizes implementation from
+> `6ce922e55621423c4e00e21e374ae53a6deb1efa`. The amended R1/R2 plan below is
+> retained as the audited planning record. Implementation is **IN REVIEW**;
+> [executed delivery and gates](./lot11d1_raf_model_canon.md) supersede its
+> earlier NOT STARTED/authorization statements. UX and following lots remain
+> NOT STARTED.
+
 **Statut : PLAN POUR AUDIT INDÉPENDANT CHATGPT / PLANNED / NOT STARTED.**
 Date : 2026-10-09. Aucune implémentation autorisée ou commencée.
 **11D.0 reste DONE ; 11D.2 et 11D.3 restent NOT STARTED.**

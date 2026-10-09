@@ -7,6 +7,34 @@ For durable invariants and architecture, see [canon](./canon.md).
 active implementation and trajectory. The remaining work is in the
 [current plan](./current_plan.md).
 
+## 11D.1 RAF Model — IN REVIEW
+
+Implemented from `6ce922e55621423c4e00e21e374ae53a6deb1efa` on the required
+branch, following the independently audited amended R1/R2 plan and explicit
+user authorization. [Delivery and verification](./steps/ACTUALS/lot11d1_raf_model_canon.md).
+Requirements own current RAF; snapshots keep immutable historical RAF.
+`update-project-current-raf` applies a validated patch without any snapshot or
+legacy reconciliation. `replace-project-actuals` validates a full immutable RAM
+base, then routes no-op / independent RAF / one Actuals publication in Application.
+Only publication of changed Actuals aligns requirements with the new snapshot.
+R1 confirms all Teams for coverage/partition changes, affected Teams for
+consumption-only changes, plus numerical RAF and membership obligations.
+Drafts initialize from requirements, detect RAF concurrency at unchanged
+Actuals version, preserve texts/modal branches and invalidate dependent proofs.
+The existing card Apply/Cancel, modal and membership handoff remain usable.
+
+Current codecs, workers, repository, portable import/export and captures use
+V8 / inputs2 / RAF model2 together. Forecast schema2 and engine `/2` are unchanged.
+V1–V7 and inputs1 captures remain readable under their historical numeric
+validation; mixed collections and old Current with new captures are supported.
+Reads/Save/no-ops do not rewrite old Current; Current mutations never read History
+payloads. Physical IndexedDB/CAS/recovery are unchanged. 11C remains enforced.
+This supersedes the permanent numerical equality and quick RAF-only publication
+rules described in the historical lot sections below. New UX, exact decimal
+presentation, replay and inputs-only remain outside this delivery.
+11D.0 remains DONE; no subsequent lot is started. Independent implementation
+audit is required before closure.
+
 ## Validated implementation baseline
 
 Validated prerequisite baseline: `eb38a3df8fceab30d82253cac6bc5cd325625444`.
@@ -38,7 +66,7 @@ from the demo. The following capabilities are complete and active:
 - global multi-Team Reservations with ratio and fixed-daily modes, created,
   edited, and deleted in inline Portfolio cards;
 - immutable Project and Reservation Actuals snapshot histories, exact daily
-  reconstruction, Actuals-aware planning projection, and transactional V7 persistence;
+  reconstruction, Actuals-aware planning projection, and transactional V8 persistence;
 - whole-object Actuals partition/RAF editing and read-only V4/snapshot history in Portfolio cards;
 - immediate Project and Reservation activation controls; inactive entities
   remain in the Portfolio and do not participate in the forecast;
@@ -63,7 +91,7 @@ Snapshot collection. Owned Actuals histories remain in Current. Domain/engine
 remain storage-free. Current changes persist only Current before RAM publication;
 Save/Delete atomically affect History only and keep the published run.
 
-V1–V7 remain readable through their existing contracts; compact autonomous V7
+V1–V8 remain readable through their versioned contracts; compact autonomous V8
 export/import is independent of physical stores. Complete imports validate each
 capture, Current projection and read-back/index counts in private staging before
 confirmation and atomic activation. Unknown/bad captures reject the whole import.
@@ -74,7 +102,7 @@ Invalid startup data is preserved and editing blocked behind recovery actions,
 not silently replaced by a writable demo. An empty new depot starts from the demo.
 
 The physical DB schema is version 2 and logical storage data version 1, separate
-from V7. SHA-256 proves byte integrity only. Every snapshot read runs complete
+from the portable envelope. SHA-256 proves byte integrity only. Every snapshot read runs complete
 business validation against the persisted Current, including historical Actuals
 prefix resolution. Legacy validationVersion metadata is ignored; new content is
 not certified. No historical engine replay.
@@ -221,8 +249,8 @@ initial period. There is no manual period reorder or Domain period ID.
 
 10A through 10C.2 are validated **DONE** lots (10C.2 closed by the user
 for the 11A pass). 10D is **superseded by 11A**, not DONE. 10E is
-**largely superseded by 11B**, with advanced replay/navigation/comparison deferred. The current business contract is the
-[10C.1 snapshot canon](./steps/ACTUALS/lot10c1_canon.md);
+**largely superseded by 11B**, with advanced replay/navigation/comparison deferred. The current RAF amendment is [11D.1 RAF Model](./steps/ACTUALS/lot11d1_raf_model_canon.md),
+complementing the historical [10C.1 snapshot canon](./steps/ACTUALS/lot10c1_canon.md);
 the 10A–10C documents describe their historical releases.
 
 ### Current object knowledge
@@ -233,25 +261,29 @@ date. A snapshot lists current Team participants and a separate set of
 retired zero Teams. Its optional Actuals coverage is a common inclusive range
 partitioned into contiguous periods, each with exact nonnegative consumed
 values for every participating Team. Project snapshots additionally contain
-exact RAF for every current Team, mirrored into its forecast requirement. A
+exact historical RAF for every current Team. Current requirements may diverge
+after an independent RAF revision. A
 snapshot without coverage can still carry Project RAF. Absent knowledge is
 distinct from explicitly zero values. The end of coverage cannot exceed the
 snapshot knowledge date, but Actuals may lie outside Forecast and planning
 bounds.
 
 The full-object transaction can add, replace, split, merge, extend or erode
-coverage, edit RAF alone, or change Team membership. Changed nonzero cells
+coverage or change Team membership. RAF alone revises requirements without
+a snapshot. Changed nonzero cells
 need explicit values; an all-zero prior zone can propagate zero through a
-repartition. A changed Actuals end date requires explicit validation of all
-current Project RAF. Removing a Team requires zero current consumed values
+repartition. A coverage or partition change requires explicit validation of all current
+Project RAF; consumption-only changes require the affected Teams, united with
+RAF numeric changes and membership obligations. Removing a Team requires zero current consumed values
 and confirms current RAF zero; historical snapshots retain prior values.
-Reintroduction requires explicit current values and RAF. An effective Apply
-increments the object's version. No-op, invalid, stale and failed projection
+Reintroduction requires explicit current values and RAF. An effective publication
+of changed Actuals increments the object's version; independent RAF revisions
+leave it unchanged. No-op, invalid, stale and failed projection
 or persistence actions publish nothing.
 
 ### Legacy V4 and V5 persistence
 
-V5 remains the object Actuals schema; V7 is the live backup and export envelope. V1–V3 import without Actuals
+V5 remains the object Actuals structure; V8 is the live portable export envelope. V1–V3 import without Actuals
 snapshots. Imported V4 cumulative records remain lossless, read-only
 `legacyV4Actuals` migration evidence. Until an object is explicitly
 reconciled, only the legacy adapter reconstructs its Actuals. Reconciliation
@@ -478,8 +510,13 @@ The editable session currently accepts:
 
 - `update-planning-settings`: replaces horizon, global working pattern, and
   global parallelism setting;
+- `update-project-current-raf`: revises explicit current member RAF patches
+  against an immutable RAM base, without snapshot creation;
+- `replace-project-actuals`: validates full bases and routes R2 to no-op, RAF
+  revision or atomic publication of changed Actuals plus RAF;
 - `update-project`: replaces editable fields and the final set of Team
-  requirements, including optional Program/Pas associations, without changing
+  requirements, preserving explicitly untouched existing RAF and refusing hidden
+  numeric revisions, including optional Program/Pas associations, without changing
   Project priority;
 - `create-project`: creates one Project with explicitly supplied Team
   requirements and appends it to global priority;

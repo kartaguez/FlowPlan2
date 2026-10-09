@@ -12,8 +12,7 @@ export function actualsForecastConflict(draft: ProjectDraft | ReservationDraft |
     const project = draft as ProjectDraft;
     const changedRaf = project.values.teams.some((team) => {
       const original = project.reference.teams.find((item) => item.teamId === team.teamId);
-      const authority = project.model.requirements.find((item) => item.teamId === team.teamId)?.rafAuthority;
-      return team.enabled && authority !== "latest-actuals" && original !== undefined &&
+      return team.enabled && original !== undefined &&
         team.remainingWorkload !== original.remainingWorkload &&
         parseExactQuantityInput(team.remainingWorkload) !== original.remainingWorkloadExact;
     });

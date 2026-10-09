@@ -473,7 +473,7 @@ describe("coordinator multi-draft rerender", () => {
     assert.equal(app.session.getState().portfolio.projects[0]!.snapshots!.length, 1);
     app.coordinator.destroy();
   });
-  it("routes the global Project Apply through raf-only and global Cancel restores card RAF", () => {
+  it("routes the global Project Apply through command A and global Cancel restores card RAF", () => {
     const app = fixture(false, false, true, true);
     const project = app.session.getState().portfolio.projects[0]!;
     app.openProject(project.id);
@@ -490,7 +490,7 @@ describe("coordinator multi-draft rerender", () => {
       teamRequirements: project.requirements.map((row) => ({ teamId: row.teamId,
         remainingWorkload: row.remainingWorkload, ...(row.dailyCap ? { dailyCap: row.dailyCap } : {}) })) };
     assert.equal(synchronous(app.projectHandles.get(project.id)!.onApply(command)).ok, true);
-    assert.equal(app.session.getState().portfolio.projects[0]!.snapshots?.length, 2);
+    assert.equal(app.session.getState().portfolio.projects[0]!.snapshots?.length, 1);
     assert.equal(app.session.getState().portfolio.projects[0]!.snapshots?.at(-1)?.coverage?.actualsThrough,
       project.snapshots?.at(-1)?.coverage?.actualsThrough);
     app.coordinator.destroy();

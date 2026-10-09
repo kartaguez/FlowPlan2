@@ -6,7 +6,7 @@ import { assertSnapshotId, type PortfolioSnapshot } from "../../domain/portfolio
 import type { PlanningCommand, PlanningSession } from "../../application/index.js";
 import type { TimelineGeometryViewport } from "../../adapters/index.js";
 import type { PlanningBackupStore } from "../../infrastructure/backup/localPlanningBackup.js";
-import { encodeFlowplanBackupV7 } from "../../application/backup/flowplanBackupV1.js";
+import { encodeFlowplanBackupV8 } from "../../application/backup/flowplanBackupV1.js";
 import {
   buildPlanningSessionProjection,
   type BuildPlanningSessionProjectionInput,
@@ -51,7 +51,7 @@ export function createPlanningProjectionDispatcher(
 
   const historyError = (cause: unknown): PlanningProjectionDispatchResult => ({ ok: false, errors: [{ code: "PORTFOLIO_SNAPSHOT_FAILED", path: "portfolioSnapshots", message: cause instanceof Error ? cause.message : "Portfolio snapshot failed." }] });
   const commitHistory = (next: readonly PortfolioSnapshot[]): PlanningProjectionDispatchResult => {
-    try { input.backupStore?.write(encodeFlowplanBackupV7({ ...input.session.getState(), portfolioSnapshots: next })); }
+    try { input.backupStore?.write(encodeFlowplanBackupV8({ ...input.session.getState(), portfolioSnapshots: next })); }
     catch { return { ok: false, errors: [{ code: "COMMIT_FAILED", path: "portfolioSnapshots", message: "Portfolio history could not be saved." }] }; }
     snapshots = next;
     input.session.setHistoricalIdentities(historicalIdentities(next));
@@ -84,7 +84,7 @@ export function createPlanningProjectionDispatcher(
       let candidateProjection: PlanningSessionProjection | undefined;
       const result = input.session.dispatch(command, (candidate) => {
         candidateProjection = buildProjection({ state: candidate, geometryViewport: input.geometryViewport });
-        input.backupStore?.write(encodeFlowplanBackupV7({ ...candidate, portfolioSnapshots: snapshots }));
+        input.backupStore?.write(encodeFlowplanBackupV8({ ...candidate, portfolioSnapshots: snapshots }));
       });
       if (!result.ok) return result;
       if (result.state === previousState) return Object.freeze({ ok: true, projection });

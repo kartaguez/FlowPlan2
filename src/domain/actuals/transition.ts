@@ -34,7 +34,7 @@ const same = (left: { readonly amount: Parameters<typeof rationalOf>[0] } | unde
   right: { readonly amount: Parameters<typeof rationalOf>[0] } | undefined) =>
   left !== undefined && right !== undefined && compareRationals(rationalOf(left.amount), rationalOf(right.amount)) === 0;
 
-function canonicalBusiness(snapshot: ProjectActualsSnapshot | ReservationActualsSnapshot): string {
+export function canonicalActualsKnowledge(snapshot: Pick<ReservationActualsSnapshot, "participation" | "retiredZeroTeams" | "coverage"> & { readonly raf?: ProjectActualsSnapshot["raf"] }, includeRaf = false): string {
   const cover = snapshot.coverage;
   return JSON.stringify({
     participation: [...snapshot.participation].sort(), retired: [...snapshot.retiredZeroTeams].sort(),
@@ -43,13 +43,14 @@ function canonicalBusiness(snapshot: ProjectActualsSnapshot | ReservationActuals
         values: period.consumed.map((row) => [row.teamId, rationalOf(row.amount)] as const)
           .sort(([a], [b]) => a.localeCompare(b)).map(([id, value]) => [id, `${value.numerator}/${value.denominator}`]),
       })) } : null,
-    raf: "raf" in snapshot ? snapshot.raf.map((row) => [row.teamId, rationalOf(row.amount)] as const)
+    raf: includeRaf && "raf" in snapshot ? snapshot.raf!.map((row) => [row.teamId, rationalOf(row.amount)] as const)
       .sort(([a], [b]) => a.localeCompare(b)).map(([id, value]) => [id, `${value.numerator}/${value.denominator}`]) : null,
   });
 }
 
 function validateTransition<T extends ProjectActualsSnapshot | ReservationActualsSnapshot>(
   previous: T | undefined, candidate: T, evidence: SnapshotEvidence, project: boolean,
+  currentRaf?: ProjectActualsSnapshot["raf"],
 ): DomainError[] {
   const errors: DomainError[] = [];
   const oldPeriods = new Map(previous?.coverage?.periods.map((period) => [period.periodId, period]) ?? []);
@@ -103,10 +104,16 @@ function validateTransition<T extends ProjectActualsSnapshot | ReservationActual
     }
   }
   if (project) {
-    const priorRaf = new Map((previous as ProjectActualsSnapshot | undefined)?.raf.map((row) => [row.teamId, row.amount]));
+    const priorRaf = new Map((currentRaf ?? (previous as ProjectActualsSnapshot | undefined)?.raf)?.map((row) => [row.teamId, row.amount]));
     for (const row of (candidate as ProjectActualsSnapshot).raf) {
       const old = priorRaf.get(row.teamId);
-      if ((throughChanged || !old || compareRationals(rationalOf(old), rationalOf(row.amount)) !== 0) &&
+      const partitionChanged = JSON.stringify(oldCoverage ? [oldCoverage.actualsFrom, oldCoverage.actualsThrough, oldCoverage.periods.map(p => [p.from, p.through])] : null) !==
+        JSON.stringify(newCoverage ? [newCoverage.actualsFrom, newCoverage.actualsThrough, newCoverage.periods.map(p => [p.from, p.through])] : null);
+      const consumedChanged = (newCoverage?.periods ?? []).some(period => {
+        const prior = oldByBounds.get(`${period.from}/${period.through}`);
+        return !same(period.consumed.find(item => item.teamId === row.teamId), prior?.consumed.find(item => item.teamId === row.teamId));
+      });
+      if (((currentRaf ? partitionChanged || consumedChanged || !oldParticipants.has(row.teamId) : throughChanged) || !old || compareRationals(rationalOf(old), rationalOf(row.amount)) !== 0) &&
           !evidence.rafTeams?.includes(row.teamId)) {
         errors.push(error("RAF_UNCONFIRMED", `raf.${row.teamId}`, "RAF needs explicit validation."));
       }
@@ -128,7 +135,7 @@ function validateIntent<T extends ProjectActualsSnapshot | ReservationActualsSna
   if (intent.kind === "raf-only") {
     if (!("raf" in candidate)) return invalid("RAF-only applies only to Projects.");
     const oldState = { ...previous, raf: (candidate as ProjectActualsSnapshot).raf } as T;
-    return canonicalBusiness(oldState) === canonicalBusiness(candidate) ? [] : invalid("RAF-only cannot change coverage or membership.");
+    return canonicalActualsKnowledge(oldState, true) === canonicalActualsKnowledge(candidate, true) ? [] : invalid("RAF-only cannot change coverage or membership.");
   }
   if (intent.kind === "membership") {
     const membershipChanged = previous.participation.join("\u0000") !== candidate.participation.join("\u0000");
@@ -189,7 +196,7 @@ function validateIntent<T extends ProjectActualsSnapshot | ReservationActualsSna
 
 function replace<T extends ProjectActualsSnapshot | ReservationActualsSnapshot>(
   kind: "project" | "reservation", objectId: ProjectId | ReservationId,
-  history: readonly T[], input: SnapshotReplacement<T>,
+  history: readonly T[], input: SnapshotReplacement<T>, currentRaf?: ProjectActualsSnapshot["raf"],
 ): DomainResult<readonly T[]> {
   const previous = history.at(-1);
   if (input.baseVersion !== (previous?.version ?? 0)) return failure([error("STALE_SNAPSHOT_VERSION", "baseVersion", "Actuals draft is stale.")]);
@@ -217,21 +224,28 @@ function replace<T extends ProjectActualsSnapshot | ReservationActualsSnapshot>(
   if (kind === "reservation" && !previous && !next.coverage) {
     return failure([error("RESERVATION_FIRST_COVERAGE", "coverage", "First Reservation snapshot needs explicit coverage.")]);
   }
-  if (previous && canonicalBusiness(previous) === canonicalBusiness(next)) return success(history);
+  if (previous && canonicalActualsKnowledge(previous, true) === canonicalActualsKnowledge(next, true)) {
+    const identities = validateTransition(previous, next, input.evidence, kind === "project", currentRaf).filter(e => e.code === "UNCHANGED_PERIOD_ID" || e.code === "PERIOD_ID_REUSED");
+    return identities.length ? failure(identities) : success(history);
+  }
   const errors = [...validateIntent(previous, next, input.intent),
-    ...validateTransition(previous, next, input.evidence, kind === "project")];
+    ...validateTransition(previous, next, input.evidence, kind === "project", currentRaf)];
   if (errors.length) return failure(errors);
   return success(Object.freeze([...history, validated.value as T]));
 }
 
 export function replaceProjectSnapshot(
-  objectId: ProjectId, history: readonly ProjectActualsSnapshot[], input: SnapshotReplacement<ProjectActualsSnapshot>,
+  objectId: ProjectId, history: readonly ProjectActualsSnapshot[], input: SnapshotReplacement<ProjectActualsSnapshot>, currentRaf?: ProjectActualsSnapshot["raf"],
 ): DomainResult<readonly ProjectActualsSnapshot[]> {
-  return replace("project", objectId, history, input);
+  return replace("project", objectId, history, input, currentRaf);
 }
 
 export function replaceReservationSnapshot(
   objectId: ReservationId, history: readonly ReservationActualsSnapshot[], input: SnapshotReplacement<ReservationActualsSnapshot>,
 ): DomainResult<readonly ReservationActualsSnapshot[]> {
   return replace("reservation", objectId, history, input);
+}
+
+export function validateProjectSnapshotIdentities(previous: ProjectActualsSnapshot, candidate: ProjectActualsSnapshot): readonly DomainError[] {
+  return validateTransition(previous, candidate, { consumedCells: [] }, false).filter(e => e.code === "UNCHANGED_PERIOD_ID" || e.code === "PERIOD_ID_REUSED");
 }

@@ -60,9 +60,13 @@ Snapshot histories and retained legacy records remain upstream. Each object
 has exactly one active Actuals source: its current V5 snapshot, or pending V4
 legacy before reconciliation. The engine receives exact, non-negative calculated daily occupation by Team/date
 and a mandatory total Project knowledge array; an absent occupation row means zero. It never
-owns records, partitions, reconstruction weights, or snapshots. A Project's
-current snapshot RAF is mirrored into its forecast requirements and is never
-reduced again by the engine. V5 preserves immutable history; V4 records remain
+owns records, partitions, reconstruction weights, or snapshots. The sole current
+Project RAF authority is each requirement's `remainingWorkload`, exact and
+nonnegative. An independent RAF revision creates no Actuals snapshot. Snapshot
+RAF remains immutable historical knowledge. Publishing changed Actuals atomically
+aligns requirements with the new snapshot RAF; equality is a publication
+postcondition, not a permanent Portfolio invariant. RAF is never reduced again
+by the engine. V5 preserves immutable history; V4 records remain
 read-only migration evidence after explicit reconciliation.
 
 For each Project, the inclusive current Actuals end T comes from current V5
@@ -185,7 +189,7 @@ Revision CAS and operation receipts protect concurrent tabs and uncertain replie
 A failed write leaves the applied state and projection unchanged. Domain and
 session know no browser storage API. Complete portable imports are staged,
 fully validated and projected before confirmed atomic generation activation;
-a rejected import never publishes a partial dataset. V7 remains the independent
+a rejected import never publishes a partial dataset. V8 is the independent
 portable artifact, while IndexedDB is the primary browser backend. The legacy
 localStorage document is preserved and tracked by its migration fingerprint;
 normal Current edits are never conflicts with unchanged legacy.
@@ -241,18 +245,39 @@ publishes nothing and leaves inputs, drafts, history and projection intact.
 Delete removes only the requested capture, with no Actuals purge or garbage
 collection. Ordinary commands retain history.
 
-V7 is self-contained: current-owned full Actuals histories are stored once;
+V8 is self-contained: current-owned full Actuals histories are stored once;
 historical inputs use references plus required frozen migration evidence.
 V1–V5 readers migrate with empty Portfolio history and their encoders refuse
 history-bearing downgrade. V6 retains schema 1 only; V7 accepts historical
 schema 1 and mandatory-profile schema 2. V6→V7 preserves captures unchanged,
 without daily enrichment or startup rewrite; V6 encoding refuses schema 2.
 V7 uses compact portable JSON. The old storage key is a preserved legacy source,
-not the primary writer; physical IndexedDB schema versions are independent. V6/V7 reject any invalid
+not the primary writer; physical IndexedDB schema versions are independent. V6/V7/V8 reject any invalid
 capture/reference/input or metric as a whole, without repair or recalculating historical metrics with a
 current engine. Invalid startup documents remain preserved and reported.
 Historical IDs for Project, Reservation, Team, Program and Pas remain reserved
 while retained captures reference them, without an eternal identity registry.
+
+Current payloads and new captures explicitly use `rafModelVersion: 2`; new
+captures have `inputsSchemaVersion: 2`, forecast schema 2 and the unchanged
+engine version. V8 accepts mixed inputs schemas 1/2 and forecast schemas 1/2.
+V1–V7 inputs validate their historical numerical RAF contract before lossless
+conversion in RAM. Old captures retain their inputs, selected source, results,
+identity and bytes; their totals use captured requirements. Old Current reads
+and no-ops do not rewrite storage. Downgrade refuses unrepresentable divergence
+or inputs2 captures. No physical store, index, key or CAS change is implied.
+
+Update Actuals validates the published source, membership, RAF map and carried
+parameters before comparing exact business knowledge. Unchanged Actuals/RAF
+is a no-op; unchanged Actuals with changed RAF is an independent RAF revision;
+changed Actuals publishes one snapshot with its validated RAF. A temporal
+coverage/partition change confirms all participant RAF; consumption-only changes
+confirm affected Teams only, united with numeric RAF and membership obligations.
+Equivalent text never creates business change or confirmation. Immutable RAM
+opening bases and three-way reconciliation detect RAF concurrency independently
+of the Actuals version; stale proofs must be renewed. One effective operation
+prepares one session candidate, one private projection and one CAS commit before
+publication; no-op performs no projection/write.
 
 New captures from the temporal-separation engine identify
 `planning-engine-v1/actuals-aware/2`. Older engine versions and profiles retain

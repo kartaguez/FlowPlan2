@@ -178,6 +178,7 @@ function parseRequirement(
   return Object.freeze({
     teamId: values.teamId,
     remainingWorkload,
+    remainingWorkloadChanged: values.remainingWorkloadDirty,
     ...(dailyCap === undefined ? {} : { dailyCap }),
   });
 }

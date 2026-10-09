@@ -3,7 +3,7 @@ import { assertCanonicalTimestamp, assertSnapshotId } from "../../domain/portfol
 import { createCivilDate } from "../../domain/model/date.js";
 import { legacyRepairs } from "./repositoryTransfer.js";
 import { portableBackupParts } from "../backup/portableBackupParts.js";
-import { decodePlanningInputs, encodePlanningInputs, type PlanningInputsDto } from "../backup/planningInputCodec.js";
+import { decodeCurrentPlanningInputs, encodeCurrentPlanningInputs, type PlanningInputsDto } from "../backup/planningInputCodec.js";
 import { validateHistoricalSnapshot } from "../portfolioSnapshots/capturePortfolioSnapshot.js";
 import { IDENTITY_KINDS, snapshotIdentities, type HistoricalIdentities } from "./historicalIdentities.js";
 import { PersistenceError, sameToken, type PlanningRepository, type RepositoryToken, type SnapshotMetadata, type StagedImport } from "./planningRepository.js";
@@ -114,6 +114,7 @@ export function createPlanningRepository(storage: RepositoryStorage, digest: (te
           try {
             if (parts.version === 6 && (raw as PortfolioSnapshot)?.forecast?.forecastSchemaVersion !== 1) throw new TypeError("V6 requires forecast schema 1.");
             const value = validateHistoricalSnapshot(raw, validated);
+            if (parts.version < 8 && value.inputsSchemaVersion !== 1) throw new TypeError("Legacy envelope requires inputs schema 1.");
             if (seen.has(value.snapshotId)) throw new TypeError("Duplicate snapshotId.");
             seen.add(value.snapshotId); yield value; index++;
           } catch (cause) { throw new PersistenceError("INVALID", `portfolioSnapshots[${index}]: ${cause instanceof Error ? cause.message : cause}`); }
@@ -122,7 +123,7 @@ export function createPlanningRepository(storage: RepositoryStorage, digest: (te
       const existing = await storage.transaction(["jobs"], "readonly", tx => tx.get<Job>("jobs", generation));
       if (existing && existing.digest !== stageDigest) throw new PersistenceError("INVALID", "Stage ID reused with different data.");
       if (existing?.complete) return { generation, digest: stageDigest };
-      const saved = await content(encodePlanningInputs(validated));
+      const saved = await content(encodeCurrentPlanningInputs(validated));
       const sealed = await storage.transaction(["jobs", "current"], "readwrite", async tx => {
         const job = await tx.get<Job>("jobs", generation);
         if (job && job.digest !== stageDigest) throw new PersistenceError("INVALID", "Stage source changed.");
@@ -142,8 +143,8 @@ export function createPlanningRepository(storage: RepositoryStorage, digest: (te
       }
       // Read-back each stored artifact and Current before sealing the generation.
       const storedCurrent = await storage.transaction(["current"], "readonly", tx => tx.get<Content>("current", [generation]));
-      const readback = decodePlanningInputs(await verified(required(storedCurrent, "Stage Current missing.")), 5, undefined, true);
-      if (JSON.stringify(encodePlanningInputs(readback)) !== JSON.stringify(encodePlanningInputs(validated))) throw new PersistenceError("CORRUPT", "Stage Current changed.");
+      const readback = decodeCurrentPlanningInputs(await verified(required(storedCurrent, "Stage Current missing.")));
+      if (JSON.stringify(encodeCurrentPlanningInputs(readback)) !== JSON.stringify(encodeCurrentPlanningInputs(validated))) throw new PersistenceError("CORRUPT", "Stage Current changed.");
       for (const snapshot of captured()) {
         const stored = await storage.transaction(["snapshotContent"], "readonly", tx => tx.get<Content>("snapshotContent", [generation, snapshot.snapshotId]));
         const readbackSnapshot = validateHistoricalSnapshot(await verified(required(stored, "Stage snapshot missing.")), readback);
@@ -191,11 +192,11 @@ export function createPlanningRepository(storage: RepositoryStorage, digest: (te
         const identities = Object.fromEntries(IDENTITY_KINDS.map(kind => [kind, Object.freeze(rows.filter(row => (row.key as string[])[1] === kind).map(row => (row.key as string[])[2]!))])) as unknown as HistoricalIdentities;
         return { saved, token: token(control), identities: Object.freeze(identities), snapshotCount: control.snapshotCount };
       });
-      const state = decodePlanningInputs(await verified(result.saved), 5, undefined, true);
+      const state = decodeCurrentPlanningInputs(await verified(result.saved));
       return { state: Object.freeze({ portfolio: state.portfolio, planning: state.planning }), token: result.token, identities: result.identities, snapshotCount: result.snapshotCount };
     },
     writeCurrent: async (candidate, expected, id) => {
-      const state = decodePlanningInputs(candidate, 5, undefined, true), normalized = encodePlanningInputs(state), saved = await content(normalized);
+      const state = decodeCurrentPlanningInputs(candidate), normalized = encodeCurrentPlanningInputs(state), saved = await content(normalized);
       const signature = await digest(JSON.stringify(["current", expected, saved.digest]));
       const receipt = await storage.transaction(["receipts"], "readonly", tx => tx.get<Receipt>("receipts", id));
       if (receipt) {
@@ -209,7 +210,7 @@ export function createPlanningRepository(storage: RepositoryStorage, digest: (te
         const replacement = normalized.portfolio[kind].find(item => item.id === owner.id);
         if ((owner.snapshots?.length || owner.legacyV4Actuals) && !replacement) throw new PersistenceError("INVALID", "Cannot remove an owned Actuals history through writeCurrent.");
         if (owner.snapshots?.some((snapshot, i) => JSON.stringify(snapshot) !== JSON.stringify(replacement?.snapshots?.[i]))) throw new PersistenceError("INVALID", "Owned Actuals history is immutable.");
-        if (owner.legacyV4Actuals && (!replacement?.legacyV4Actuals || owner.legacyV4Actuals.actualsFromDate !== replacement.legacyV4Actuals.actualsFromDate || JSON.stringify(owner.legacyV4Actuals.records) !== JSON.stringify(replacement.legacyV4Actuals.records))) throw new PersistenceError("INVALID", "Legacy Actuals evidence cannot be changed or removed.");
+        if (owner.legacyV4Actuals && (!replacement?.legacyV4Actuals || owner.legacyV4Actuals.actualsFromDate !== replacement.legacyV4Actuals.actualsFromDate || JSON.stringify(owner.legacyV4Actuals) !== JSON.stringify(replacement.legacyV4Actuals))) throw new PersistenceError("INVALID", "Legacy Actuals evidence cannot be changed or removed.");
       }
       return mutate(CURRENT_STORES, expected, id, signature, async (tx, original) => {
         const next = advance(required(original, "Current unavailable."), "current");
@@ -223,7 +224,7 @@ export function createPlanningRepository(storage: RepositoryStorage, digest: (te
         const rows = await tx.scan<SnapshotMetadata>("snapshotMetadata", [expected.generation], after ? [expected.generation, after.createdAt, after.snapshotId] : undefined, limit + 1);
         const items = rows.slice(0, limit).map(row => {
           const meta = row.value; assertSnapshotId(meta.snapshotId); assertCanonicalTimestamp(meta.createdAt);
-          if (!Array.isArray(row.key) || row.key[1] !== meta.createdAt || row.key[2] !== meta.snapshotId || meta.inputsSchemaVersion !== 1 || ![1, 2].includes(meta.forecastSchemaVersion)
+          if (!Array.isArray(row.key) || row.key[1] !== meta.createdAt || row.key[2] !== meta.snapshotId || ![1, 2].includes(meta.inputsSchemaVersion) || ![1, 2].includes(meta.forecastSchemaVersion)
             || !Number.isSafeInteger(meta.bytes) || meta.bytes <= 0 || !/^[a-f0-9]{64}$/.test(meta.digest)
             || !createCivilDate(meta.horizon.from).ok || !createCivilDate(meta.horizon.through).ok || meta.horizon.from > meta.horizon.through) throw new PersistenceError("CORRUPT", "Snapshot metadata is invalid; data was preserved.");
           return meta;
@@ -241,7 +242,7 @@ export function createPlanningRepository(storage: RepositoryStorage, digest: (te
         return previous.token;
       }
       // Read only Current for validation; never an existing historical content payload.
-      const current = decodePlanningInputs(await verified(await readContent("current", [expected.generation], expected)), 5, undefined, true);
+      const current = decodeCurrentPlanningInputs(await verified(await readContent("current", [expected.generation], expected)));
       validateHistoricalSnapshot(snapshot, current);
       return mutate(HISTORY_STORES, expected, id, signature, async (tx, original) => {
         const control = required(original, "Current unavailable.");
@@ -264,8 +265,8 @@ export function createPlanningRepository(storage: RepositoryStorage, digest: (te
     },
     inspectPortableDocument: async document => { const current = portableBackupParts(document).current; return { current, repairs: legacyRepairs(document, current) }; },
     stagePortableDocument,
-    stageImport: async (dataset, stageId) => stagePortableDocument(JSON.stringify({ format: "flowplan", version: 7,
-      exportedAt: "2000-01-01T00:00:00.000Z", data: { ...encodePlanningInputs(dataset), portfolioSnapshots: dataset.portfolioSnapshots ?? [] } }), stageId),
+    stageImport: async (dataset, stageId) => stagePortableDocument(JSON.stringify({ format: "flowplan", version: 8,
+      exportedAt: "2000-01-01T00:00:00.000Z", data: { ...encodeCurrentPlanningInputs(dataset), portfolioSnapshots: dataset.portfolioSnapshots ?? [] } }), stageId),
     activateImport: async (stage, expected, id, legacy) => {
       if (legacy && await hash(legacy.document) !== legacy.fingerprint) throw new PersistenceError("INVALID", "Legacy source fingerprint mismatch.");
       const signature = await digest(JSON.stringify(["activate", stage, expected, legacy?.fingerprint]));

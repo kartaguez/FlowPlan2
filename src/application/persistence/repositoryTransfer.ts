@@ -1,6 +1,6 @@
 import { portableBackupParts } from "../backup/portableBackupParts.js";
 import { assertCanonicalTimestamp } from "../../domain/portfolioSnapshots/portfolioSnapshot.js";
-import { encodePlanningInputs } from "../backup/planningInputCodec.js";
+import { encodeCurrentPlanningInputs } from "../backup/planningInputCodec.js";
 import type { PlanningSessionState } from "../session/planningSession.js";
 import { PersistenceError, sameToken, type PlanningRepository, type RepositoryToken } from "./planningRepository.js";
 
@@ -15,7 +15,7 @@ export function legacyRepairs(document: string, current: PlanningSessionState): 
   if (portableBackupParts(document).version >= 6) return [];
   const raw = JSON.parse(document) as { version: number; data: { portfolio: Record<string, Record<string, unknown>[]> } };
   if (raw.version >= 6) return [];
-  const normalized = encodePlanningInputs(current).portfolio, notes: string[] = [];
+  const normalized = encodeCurrentPlanningInputs(current).portfolio, notes: string[] = [];
   for (const kind of ["programs", "priorityFamilies", "projects", "reservations"] as const) {
     for (const before of raw.data.portfolio[kind] ?? []) {
       const after = normalized[kind].find(row => row.id === before.id) as unknown as Record<string, unknown> | undefined;
@@ -45,11 +45,11 @@ export async function openPlanningRepository(input: {
   await repository.activateImport(stage, null, `migration-${fingerprint}`, { fingerprint, document });
   return repository.readCurrent();
 }
-/** Complete logical V7; physical keys/generations/chunks never enter the file. */
+/** Complete logical V8; physical keys/generations/chunks never enter the file. */
 export async function exportRepositoryBackup(repository: PlanningRepository, exportedAt = new Date().toISOString()): Promise<readonly string[]> {
   assertCanonicalTimestamp(exportedAt);
   const current = await repository.readCurrent(), expected = current.token;
-  const head = JSON.stringify({ format: "flowplan", version: 7, exportedAt, data: encodePlanningInputs(current.state) });
+  const head = JSON.stringify({ format: "flowplan", version: 8, exportedAt, data: encodeCurrentPlanningInputs(current.state) });
   const chunks: string[] = [head.slice(0, -2), ',"portfolioSnapshots":['];
   let after: Readonly<{ createdAt: string; snapshotId: string }> | null = null, first = true;
   do {

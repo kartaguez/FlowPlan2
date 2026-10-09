@@ -1,5 +1,5 @@
 import { projectHistoryCapture, type HistoryProjectionReader } from "../../application/history/historyCaptureProjection.js";
-import { decodePlanningInputs } from "../../application/backup/planningInputCodec.js";
+import { decodeCurrentPlanningInputs } from "../../application/backup/planningInputCodec.js";
 import { createSnapshotValidationWorker } from "./snapshotValidationWorker.js";
 import { REPOSITORY_STORES, type RepositoryStorage, type RepositoryTransaction, type RepositoryKey, type StorageRow } from "../../application/persistence/repositoryStorage.js";
 import { createPlanningRepository } from "../../application/persistence/createPlanningRepository.js";
@@ -90,9 +90,9 @@ export async function openIndexedDbPlanningRepository(input: Parameters<typeof o
     : repository.readSnapshot(id, token).then(snapshot => projectHistoryCapture(snapshot, view));
   return { ...repository, readHistoryProjection: historyProjection,
     inspectPortableFile: async (file: Blob) => { if (!validator) return repository.inspectPortableDocument(await file.text());
-      const header = await validator.inspect(file); return { current: decodePlanningInputs(header.current, 5, undefined, true), repairs: header.repairs }; },
+      const header = await validator.inspect(file); return { current: decodeCurrentPlanningInputs(header.current), repairs: header.repairs }; },
     stagePortableFile: (file: Blob, stageId: string) => validator ? validator.stage(file, stageId, input.name ?? PLANNING_DATABASE) : file.text().then(text => repository.stagePortableDocument(text, stageId)),
-    inspectPortableDocument: validator ? async (document: string) => { const header = await validator!.inspect(document); return { current: decodePlanningInputs(header.current, 5, undefined, true), repairs: header.repairs }; } : repository.inspectPortableDocument,
+    inspectPortableDocument: validator ? async (document: string) => { const header = await validator!.inspect(document); return { current: decodeCurrentPlanningInputs(header.current), repairs: header.repairs }; } : repository.inspectPortableDocument,
     stagePortableDocument: validator ? (document: string, stageId: string) => validator!.stage(document, stageId, input.name ?? PLANNING_DATABASE) : repository.stagePortableDocument,
     close: () => { validator?.close(); storage.close(); } };
 }

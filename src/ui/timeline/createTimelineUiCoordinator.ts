@@ -702,9 +702,8 @@ export function createTimelineUiCoordinator(
       const snapshot = projectSnapshotDrafts.initialize(actualsModel);
       const removed = snapshot.teams.filter((row) => row.enabled && !target.includes(row.teamId));
       const dirtyRemoved = removed.some((row) => {
-        const before = actualsModel.snapshots.at(-1);
-        const raf = before && "raf" in before ? before.raf.find((item) => item.teamId === row.teamId) : undefined;
-        return raf && parseExactQuantityInput(row.raf) !== serializeQuantity(raf.amount);
+        const raf = actualsModel.teams.find(team => team.teamId === row.teamId)?.forecastRaf;
+        return raf !== undefined && parseExactQuantityInput(row.raf) !== serializeQuantity(raf);
       });
       if (dirtyRemoved) return {
         ok: false as const,
@@ -713,12 +712,11 @@ export function createTimelineUiCoordinator(
           message: "A Team being removed has a card RAF draft. Revert or resolve it before continuing."
         }]
       };
-      const oldRaf = actualsModel.snapshots.at(-1);
-      if (oldRaf && "raf" in oldRaf && command.teamRequirements.some((requirement) => {
-        const prior = oldRaf.raf.find((row) => row.teamId === requirement.teamId);
+      if (command.teamRequirements.some((requirement) => {
+        const prior = actualsModel.teams.find(row => row.teamId === requirement.teamId)?.forecastRaf;
         const quick = snapshot.teams.find((row) => row.teamId === requirement.teamId);
         if (!prior || !quick) return false;
-        const before = serializeQuantity(prior.amount);
+        const before = serializeQuantity(prior);
         const card = parseExactQuantityInput(quick.raf);
         const forecastRaf = serializeQuantity(requirement.remainingWorkload);
         return card !== before && forecastRaf !== before && card !== forecastRaf;

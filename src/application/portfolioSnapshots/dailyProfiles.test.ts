@@ -1,3 +1,4 @@
+import { captureLegacyInputs as capturePortfolioSnapshot } from "./legacyCapture.fixture.js";
 import { loadPlanningBackup } from "../../main/planning/planningBackupOperations.js";
 import { readFileSync } from "node:fs";
 import assert from "node:assert/strict";
@@ -8,7 +9,7 @@ import { createPlanningProjectionDispatcher } from "../../main/planning/synchron
 import { createPlanningSession } from "../session/planningSession.js";
 import { decodePlanningInputs, encodePlanningInputs } from "../backup/planningInputCodec.js";
 import { decodeFlowplanBackup, encodeFlowplanBackupV6, encodeFlowplanBackupV7 } from "../backup/flowplanBackupV1.js";
-import { capturePortfolioSnapshot, validateHistoricalSnapshot } from "./capturePortfolioSnapshot.js";
+import { validateHistoricalSnapshot } from "./capturePortfolioSnapshot.js";
 import { addRationals, compareRationals, rationalToCanonicalString } from "../../domain/model/rational.js";
 import { capacityFromSerialized, consumedWorkloadFromSerialized, rationalOf } from "../../domain/model/scalars.js";
 import { ZERO } from "../../domain/portfolioSnapshots/historicalDailyProfile.js";

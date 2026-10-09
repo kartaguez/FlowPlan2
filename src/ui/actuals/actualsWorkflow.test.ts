@@ -76,7 +76,7 @@ test("a concurrent snapshot with the same RAF edit rebases safely", () => {
   assert.equal(result.ok, true, JSON.stringify(result));
   store.rebase(buildProjectSnapshotActualsViewModel(session.getState(), project.id)!);
   assert.equal(store.get(project.id)?.stale, false);
-  assert.equal(store.get(project.id)?.baseVersion, 1);
+  assert.equal(store.get(project.id)?.baseVersion, 0);
 });
 
 test("draft rebases disjoint RAF edits with exact values", () => {
@@ -105,7 +105,7 @@ test("draft rebases disjoint RAF edits with exact values", () => {
   store.rebase(buildProjectSnapshotActualsViewModel(session.getState(), project.id)!);
   const rebased = store.get(project.id)!;
   assert.equal(rebased.stale, false);
-  assert.equal(rebased.baseVersion, 2);
+  assert.equal(rebased.baseVersion, 0);
   assert.equal(rebased.teams.find((row) => row.teamId === enabled[0]!.teamId)?.raf, "2");
   assert.equal(rebased.teams.find((row) => row.teamId === enabled[1]!.teamId)?.raf, "3/1");
   assert.equal(rebased.confirmed, false);
@@ -140,7 +140,7 @@ test("an open RAF modal waits for explicit review before a safe three-way rebase
   assert.equal(store.get(id)?.modal?.teams.find((row) => row.teamId === enabled[0]!.teamId)?.raf, "2");
   assert.equal(store.review(id), true);
   assert.equal(store.get(id)?.stale, false);
-  assert.equal(store.get(id)?.baseVersion, 2);
+  assert.equal(store.get(id)?.baseVersion, 0);
   assert.equal(store.get(id)?.modal?.teams.find((row) => row.teamId === enabled[0]!.teamId)?.raf, "2");
   assert.equal(store.get(id)?.modal?.teams.find((row) => row.teamId === enabled[1]!.teamId)?.raf, "3/1");
 });
@@ -161,6 +161,7 @@ test("zero-only Project zone repartitions without re-entering zero in each new c
   const nextModel = buildProjectSnapshotActualsViewModel(session.getState(), project.id)!;
   const nextBase = createSnapshotActualsDraftStore().initialize(nextModel);
   const changed = parseSnapshotActualsCommand(nextModel, { ...nextBase, confirmed: true,
+    teams: nextBase.teams.map(row => ({ ...row, rafConfirmed: true })),
     periods: ["2025-01-04", "2025-01-05"].map((date) => ({ from: date, through: date,
       values: nextBase.teams.map((row) => ({ teamId: row.teamId, text: "" })) })) });
   assert.equal(changed.ok, true);
@@ -254,7 +255,7 @@ test("independent Forecast text remains separate, while Team and RAF changes nee
   assert.match(actualsForecastConflict(store.get(id))!, /Forecast RAF/);
 });
 
-test("first Project RAF is initial knowledge, then exact RAF-only no-op keeps its version", () => {
+test("first Project RAF revises requirements, then exact no-op keeps Actuals absent", () => {
   const session = createPlanningSession(createDemoPlanningScenario(), { today: () => d("2025-01-06") });
   const id = session.getState().portfolio.projects[0]!.id;
   const model = buildProjectSnapshotActualsViewModel(session.getState(), id)!;
@@ -272,13 +273,13 @@ test("first Project RAF is initial knowledge, then exact RAF-only no-op keeps it
   const fresh = createSnapshotActualsDraftStore().initialize(nextModel);
   const equivalent = { ...fresh, teams: fresh.teams.map((row) => row.enabled ?
     { ...row, raf: "2/2", rafConfirmed: true } : row) };
-  assert.equal(createSnapshotActualsDraftStore().initialize(nextModel).baseVersion, 1);
+  assert.equal(createSnapshotActualsDraftStore().initialize(nextModel).baseVersion, 0);
   const parsed = parseSnapshotActualsCommand(nextModel, equivalent);
   assert.equal(parsed.ok, true);
   if (!parsed.ok) return;
-  assert.equal(parsed.command.intent.kind, "raf-only");
+  assert.equal(parsed.command.intent.kind, "initial");
   assert.equal(session.dispatch(parsed.command).ok, true);
-  assert.equal(session.getState().portfolio.projects[0]!.snapshots!.length, 1);
+  assert.equal(session.getState().portfolio.projects[0]!.snapshots, undefined);
 });
 
 test("changed nonzero cells need their own evidence and are never prorated by a split", () => {
@@ -306,7 +307,7 @@ test("changed nonzero cells need their own evidence and are never prorated by a 
   assert.equal(refusal.ok, false);
   if (!refusal.ok) assert.ok(refusal.errors.some((error) => error.code === "ACTUALS_VALUE_UNCONFIRMED"));
   assert.equal(session.getState().portfolio.projects[0]!.snapshots!.length, 1);
-  const confirmed = parseSnapshotActualsCommand(nextModel, { ...next, periods: split.map((period) => ({ ...period,
+  const confirmed = parseSnapshotActualsCommand(nextModel, { ...next, teams: next.teams.map(row => ({ ...row, rafConfirmed: true })), periods: split.map((period) => ({ ...period,
     values: period.values.map((row) => ({ ...row, text: "1/2", provenance: "user-entered" as const })) })) });
   assert.equal(confirmed.ok, true);
   if (!confirmed.ok) return;

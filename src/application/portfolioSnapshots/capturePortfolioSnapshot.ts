@@ -2,7 +2,7 @@ import { captureDailyProfiles } from "./captureDailyProfiles.js";
 import { addRationals, rationalFromInteger, rationalToCanonicalString } from "../../domain/model/rational.js";
 import { capacityFromSerialized, rationalOf } from "../../domain/model/scalars.js";
 import type { PlanningSessionState } from "../session/planningSession.js";
-import { encodePlanningInputs, decodePlanningInputs, type PlanningInputsDto } from "../backup/planningInputCodec.js";
+import { encodeCurrentPlanningInputs, decodePlanningInputs, type PlanningInputsDto } from "../backup/planningInputCodec.js";
 import { createPortfolioSnapshot, type PortfolioSnapshot, type ActualsSource } from "../../domain/portfolioSnapshots/portfolioSnapshot.js";
 import { projectExactTotals } from "../../domain/portfolioSnapshots/portfolioSnapshot.js";
 import { projectEstimatedStartDate, projectEstimatedEndDate } from "../../domain/planning/projectEstimatedDates.js";
@@ -11,7 +11,7 @@ import type { ActualsReconstruction, PlanningResult } from "../../domain/index.j
 export const PLANNING_ENGINE_VERSION = "planning-engine-v1/actuals-aware/2";
 
 export function captureHistoricalInputs(state: PlanningSessionState) {
-  const inputs = encodePlanningInputs(state);
+  const inputs = encodeCurrentPlanningInputs(state);
   const actualsSources: ActualsSource[] = [];
   for (const kind of ["project", "reservation"] as const) {
     const objects = kind === "project" ? inputs.portfolio.projects : inputs.portfolio.reservations;
@@ -25,7 +25,7 @@ export function captureHistoricalInputs(state: PlanningSessionState) {
 }
 
 /** Resolve exact IDs using the consecutive prefix; no current-membership substitution. */
-export function hydrateHistoricalInputs(inputs: unknown, sources: readonly ActualsSource[], current: PlanningSessionState): PlanningSessionState {
+export function hydrateHistoricalInputs(inputs: unknown, sources: readonly ActualsSource[], current: PlanningSessionState, inputsSchemaVersion: 1 | 2 = 1): PlanningSessionState {
   const data = structuredClone(inputs) as PlanningInputsDto;
   if (!data?.portfolio || !Array.isArray(sources)) throw new TypeError("Invalid historical inputs.");
   let encodedCurrent: PlanningInputsDto | undefined;
@@ -41,19 +41,20 @@ export function hydrateHistoricalInputs(inputs: unknown, sources: readonly Actua
         const owner = owners.find((o) => o.id === object.id);
         const index = owner?.snapshots?.findIndex((s) => s.snapshotId === source.snapshotId) ?? -1;
         if (index < 0) throw new TypeError(`Broken Actuals reference ${kind}:${object.id}:${source.snapshotId}.`);
-        const encoded = encodedCurrent ??= encodePlanningInputs(current);
+        const encoded = encodedCurrent ??= encodeCurrentPlanningInputs(current);
         const encodedOwners = kind === "project" ? encoded.portfolio.projects : encoded.portfolio.reservations;
         // Codec owns the DTO; assigning the prefix preserves Project/Reservation-specific fields.
         Object.assign(object, { snapshots: encodedOwners.find((o) => o.id === object.id)!.snapshots!.slice(0, index + 1) });
       } else if (source.source !== "none" && source.source !== "legacy-v4") throw new TypeError("Unknown Actuals source.");
     }
   }
-  return decodePlanningInputs(data, 5, undefined, true);
+  return decodePlanningInputs(data, inputsSchemaVersion === 2 ? 8 : 5, undefined, true);
 }
 
 export function validateHistoricalSnapshot(value: unknown, current: PlanningSessionState): PortfolioSnapshot {
   const item = value as PortfolioSnapshot;
-  const historical = hydrateHistoricalInputs(item?.inputs, item?.actualsSources, current);
+  if (item?.inputsSchemaVersion !== 1 && item?.inputsSchemaVersion !== 2) throw new TypeError("Unknown inputs schema.");
+  const historical = hydrateHistoricalInputs(item?.inputs, item?.actualsSources, current, item.inputsSchemaVersion);
   return createPortfolioSnapshot(value, historical.portfolio, { from: historical.planning.startDate, through: historical.planning.endDate });
 }
 
@@ -78,6 +79,6 @@ export function capturePortfolioSnapshot(state: PlanningSessionState, result: Pl
       estimatedStartDate: start, startAbsenceReason: start === null ? "no-activity" as const : null,
       estimatedEndDate: end.date, endAbsenceReason: end.reason };
   });
-  return validateHistoricalSnapshot({ snapshotId, createdAt, inputsSchemaVersion: 1, ...captured,
+  return validateHistoricalSnapshot({ snapshotId, createdAt, inputsSchemaVersion: 2, ...captured,
     forecast: { forecastSchemaVersion: 2, engineVersion: PLANNING_ENGINE_VERSION, projects } }, state);
 }

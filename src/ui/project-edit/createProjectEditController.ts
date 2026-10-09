@@ -188,21 +188,15 @@ export function createProjectEditController(
           "text",
           `requirements.${requirement.teamId}.remainingWorkload`,
         );
-        const actualsControlled = requirement.rafAuthority === "latest-actuals" &&
+        const actualsControlled = requirement.currentRafEditable === true && requirement.enabled &&
           input.getActualsRaf !== undefined && input.onActualsRafInput !== undefined;
         remainingWorkload.value = actualsControlled ? input.getActualsRaf!(requirement.teamId) ?? requirement.remainingWorkloadExact :
           requirement.rafAuthority === "latest-actuals" && !draft?.invalidRafTeamIds?.includes(requirement.teamId)
             ? requirement.remainingWorkloadExact : saved?.remainingWorkload ?? requirement.remainingWorkload;
-        if (requirement.rafAuthority === "latest-actuals") {
-          if (actualsControlled) remainingWorkload.addEventListener("input", () =>
-            input.onActualsRafInput?.(requirement.teamId, remainingWorkload.value));
-          else {
-            remainingWorkload.readOnly = true;
-            remainingWorkload.setAttribute("aria-readonly", "true");
-          }
+        if (actualsControlled) {
+          remainingWorkload.addEventListener("input", () => input.onActualsRafInput?.(requirement.teamId, remainingWorkload.value));
           const authority = document.createElement("p");
-          authority.textContent = actualsControlled ? "RAF from current Actuals. Apply this Project card to record a new RAF." :
-            "RAF set by latest Actuals. Add a new Actuals photo to change it.";
+          authority.textContent = "Current RAF. Apply this Project card to revise it.";
           fieldset.append(authority);
         }
         const subcard = createTeamSubcard(input.controls.fields, "Project", requirement.teamId,
@@ -217,7 +211,7 @@ export function createProjectEditController(
           actualsControlled,
           isExpanded: subcard.isExpanded,
           card: subcard.card,
-          originalDisplay: requirement.rafAuthority === "latest-actuals" ? requirement.remainingWorkloadExact :
+          originalDisplay: actualsControlled || requirement.rafAuthority === "latest-actuals" ? requirement.remainingWorkloadExact :
             draft?.reference.teams.find((team) => team.teamId === requirement.teamId)?.remainingWorkload ?? requirement.remainingWorkload,
           remainingWorkloadExact: draft?.reference.teams.find((team) => team.teamId === requirement.teamId)?.remainingWorkloadExact
             ?? requirement.remainingWorkloadExact,
@@ -233,7 +227,7 @@ export function createProjectEditController(
       input.errorContainer.hidden = false;
     }
     if (draft?.invalidRafTeamIds?.length) {
-      input.errorContainer.textContent = "A locally edited RAF is now governed by latest Actuals. Cancel this Forecast edit before applying.";
+      input.errorContainer.textContent = "Current RAF changed concurrently. Resolve this draft before applying.";
       input.errorContainer.hidden = false;
       input.controls.apply.disabled = true;
     }
@@ -304,7 +298,7 @@ export function createProjectEditController(
       return;
     }
     if (input.draftStore?.get(model.projectId)?.invalidRafTeamIds?.length) {
-      showErrors([{ code: "ACTUALS_RAF_IMMUTABLE", path: "requirements", message: "A locally edited RAF is now governed by latest Actuals." }]);
+      showErrors([{ code: "STALE_CURRENT_RAF", path: "requirements", message: "Current RAF changed concurrently." }]);
       return;
     }
     const parsed = parseProjectEditCommand(formValues());

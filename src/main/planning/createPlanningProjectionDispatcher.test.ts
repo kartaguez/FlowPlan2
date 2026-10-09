@@ -1,3 +1,4 @@
+import { projectCurrentBase } from "../../application/session/projectCurrentRaf.js";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
@@ -169,11 +170,8 @@ describe("PlanningProjectionDispatcher", () => {
     assert.equal(buildCount, 1);
     assert.strictEqual(dispatcher.getProjection(), before);
 
-    const changed = dispatcher.dispatch(commandFor(initial, initial.portfolio.projects[0]!.id, {
-      teamRequirements: initial.portfolio.projects[0]!.requirements.map((requirement) => ({
-        ...requirement, remainingWorkload: must(createRemainingWorkload("7")),
-      })),
-    }));
+    const changed = dispatcher.dispatch({ kind: "update-project-current-raf", projectId: initial.portfolio.projects[0]!.id, base: projectCurrentBase(initial.portfolio.projects[0]!),
+      patch: initial.portfolio.projects[0]!.requirements.map(row => ({ teamId: row.teamId, remainingWorkload: must(createRemainingWorkload("7")) })) });
     assert.equal(changed.ok, true);
     assert.equal(buildCount, 2);
     const after = dispatcher.getProjection();
@@ -339,21 +337,8 @@ describe("PlanningProjectionDispatcher", () => {
       ),
     );
 
-    const result = dispatcher.dispatch(
-      commandFor(initial, project.id, {
-        teamRequirements: project.requirements.map((requirement) =>
-          requirement.teamId === alphaRequirement.teamId
-            ? {
-                teamId: requirement.teamId,
-                remainingWorkload: must(createRemainingWorkload("0")),
-                ...(requirement.dailyCap === undefined
-                  ? {}
-                  : { dailyCap: requirement.dailyCap }),
-              }
-            : requirement,
-        ),
-      }),
-    );
+    const result = dispatcher.dispatch({ kind: "update-project-current-raf", projectId: project.id, base: projectCurrentBase(project),
+      patch: [{ teamId: alphaRequirement.teamId, remainingWorkload: must(createRemainingWorkload("0")) }] });
 
     assert.equal(result.ok, true);
     const after = dispatcher

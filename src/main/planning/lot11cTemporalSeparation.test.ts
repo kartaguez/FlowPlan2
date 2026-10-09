@@ -1,10 +1,11 @@
+import { projectCurrentBase } from "../../application/session/projectCurrentRaf.js";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import { createDemoPlanningScenario } from "../demo/createDemoPlanningScenario.js";
 import { buildPlanningSessionProjection } from "./buildPlanningSessionProjection.js";
 import { decodePlanningInputs, encodePlanningInputs } from "../../application/backup/planningInputCodec.js";
-import { decodeFlowplanBackup, encodeFlowplanBackupV7 } from "../../application/backup/flowplanBackupV1.js";
+import { decodeFlowplanBackup, encodeFlowplanBackupV8 } from "../../application/backup/flowplanBackupV1.js";
 import { capturePortfolioSnapshot, validateHistoricalSnapshot } from "../../application/portfolioSnapshots/capturePortfolioSnapshot.js";
 import { buildProjectHistoryViewModel } from "../../application/history/buildProjectHistoryViewModel.js";
 import { calculateCursorMetrics } from "../../adapters/metrics/cursorMetrics.js";
@@ -78,7 +79,7 @@ describe("11C source to projection, capture and History",()=>{
     const pm=metrics.projects.find(r=>r.projectId===p.id)!;assert.equal(pm.baselineRAF.numerator,1n);assert.equal(pm.baselineRAF.denominator,1n);
     if(covered) assert.equal(pm.allocatedWorkload.numerator,0n);
     assert.ok(run.planningResult.teamPlans.every(t=>t.dayAdmissions[0]!.admittedProjectIds[0]!==p.id)||!covered);
-    const restored=decodeFlowplanBackup(encodeFlowplanBackupV7({...state,portfolioSnapshots:[capturePortfolioSnapshot(state,run.planningResult,run.actualsReconstruction,"11c-roundtrip",instant)]},instant));
+    const restored=decodeFlowplanBackup(encodeFlowplanBackupV8({...state,portfolioSnapshots:[capturePortfolioSnapshot(state,run.planningResult,run.actualsReconstruction,"11c-roundtrip",instant)]},instant));
     assert.deepEqual(encodePlanningInputs(restored),encodePlanningInputs(state));
     const again=check(restored);assert.deepEqual(again.run.planningResult,run.planningResult);
   });
@@ -137,7 +138,7 @@ describe("11C source to projection, capture and History",()=>{
     assert.equal(serializeQuantity(day.reservedCapacity),"1/1");assert.equal(serializeQuantity(day.reservationActualCapacity),"3/1");
     assert.equal(serializeQuantity(day.actualOverCapacity),"1/1");assert.equal(serializeQuantity(day.reservationOverCapacity),"1/1");assert.equal(serializeQuantity(day.projectCapacity),"0/1");
   });
-  it("old overlapping /1 and new separated /2 profiles survive mixed V7 and History exactly",()=>{
+  it("old overlapping /1 and new separated /2 profiles survive mixed V8 and History exactly",()=>{
     const raw=JSON.parse(readFileSync("src/main/planning/fixtures/lot11c-baseline-overlap.json","utf8"));
     // Captured inputs select V5 IDs; restore the known baseline source explicitly.
     const baselineDto:any=encodePlanningInputs(createDemoPlanningScenario());const p=baselineDto.portfolio.projects[0];p.requirements.forEach((r:any)=>r.remainingWorkload="2/3");p.migrationStatus="native";
@@ -145,7 +146,7 @@ describe("11C source to projection, capture and History",()=>{
     const baselineState=decodePlanningInputs(baselineDto,5,undefined,true);const old=validateHistoricalSnapshot(raw,baselineState);
     assert.ok((old.forecast.projects[0] as HistoricalProjectForecastV2).dailyProfile.days.some(d=>d.actualsWorkload!=="0/1"&&d.forecastWorkload!=="0/1"));
     const {snap:newer}=check(baselineState);const collection=[old,newer];
-    const loaded=decodeFlowplanBackup(encodeFlowplanBackupV7({...baselineState,portfolioSnapshots:collection},instant));assert.deepEqual(loaded.portfolioSnapshots,collection);
+    const loaded=decodeFlowplanBackup(encodeFlowplanBackupV8({...baselineState,portfolioSnapshots:collection},instant));assert.deepEqual(loaded.portfolioSnapshots,collection);
     const vm=buildProjectHistoryViewModel(loaded.portfolioSnapshots!);assert.equal(vm.snapshots.length,2);
     assert.deepEqual(loaded.portfolioSnapshots![0],raw);assert.equal(newer.forecast.engineVersion,"planning-engine-v1/actuals-aware/2");
 
@@ -160,7 +161,7 @@ it("11C accepted erosion/RAF-only commands derive bounds once, failures stay ato
   const session=createPlanningSession(state,{today:()=>today.value});let builds=0,writes=0,failWrite=false,failProjection=false,stored="prior";
   const dispatcher=createPlanningProjectionDispatcher({session,geometryViewport:viewport,hasUnappliedChanges:()=>false,now:()=>instant,snapshotId:()=>"transaction11c",
     buildProjection:input=>{builds++;if(failProjection)throw Error("projection");return buildPlanningSessionProjection(input);},backupStore:{read:()=>stored,write:text=>{if(failWrite)throw Error("quota");writes++;stored=text;}}});
-  const command={kind:"replace-project-actuals" as const,projectId:p.id,baseVersion:1,intent:{kind:"erosion" as const},teamRequirements:p.requirements.map(r=>({teamId:r.teamId})),
+  const command={kind:"replace-project-actuals" as const,base:projectCurrentBase(p),projectId:p.id,baseVersion:1,intent:{kind:"erosion" as const},teamRequirements:p.requirements.map(r=>({teamId:r.teamId})),
     current:{participation:current.participation,retiredZeroTeams:current.retiredZeroTeams,raf:current.raf,coverage:{...current.coverage!,actualsThrough:current.coverage!.periods[0]!.through,periods:[current.coverage!.periods[0]!]}},evidence:{consumedCells:[],rafTeams:current.participation}};
   const previousState=session.getState(),previousProjection=dispatcher.getProjection();
   for(const failure of ["projection","write"]) {
@@ -171,7 +172,7 @@ it("11C accepted erosion/RAF-only commands derive bounds once, failures stay ato
   assert.equal(projectActualsKnowledgeFromPortfolio(session.getState().portfolio)[0]!.actualsThrough,"2025-08-31");
   assert.ok(dispatcher.getProjection().planningResult.teamPlans.flatMap(t=>t.projectPlans.filter(r=>r.projectId===p.id)).every(r=>r.allocations[0]!.date==="2025-09-01"));
   const next=session.getState().portfolio.projects[0]!.snapshots!.at(-1)!;
-  const rafOnly={...command,baseVersion:2,intent:{kind:"raf-only" as const},current:{participation:next.participation,retiredZeroTeams:next.retiredZeroTeams,coverage:next.coverage!,raf:next.raf},evidence:{consumedCells:[],rafTeams:next.participation}};
+  const rafOnly={...command,base:projectCurrentBase(session.getState().portfolio.projects[0]!),baseVersion:2,intent:{kind:"raf-only" as const},current:{participation:next.participation,retiredZeroTeams:next.retiredZeroTeams,coverage:next.coverage!,raf:next.raf},evidence:{consumedCells:[],rafTeams:next.participation}};
   const stable=session.getState();const count=builds;assert.equal(dispatcher.dispatch(rafOnly).ok,true);assert.equal(session.getState(),stable);assert.equal(builds,count);
   assert.equal(dispatcher.dispatch({...command,baseVersion:1}).ok,false);assert.equal(builds,count);
   const projection=dispatcher.getProjection();assert.equal(dispatcher.savePortfolioSnapshot().ok,true);assert.equal(builds,count);assert.equal(dispatcher.getProjection(),projection);

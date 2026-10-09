@@ -1,3 +1,4 @@
+import { projectCurrentBase } from "./projectCurrentRaf.js";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { createCivilDate, createConsumedWorkload, createRemainingWorkload, serializeQuantity, type DomainResult } from "../../domain/index.js";
@@ -20,7 +21,7 @@ test("Project membership, current RAF zero on retirement, reintroduction and rol
   const gamma = state.portfolio.teams[2]!;
   assert.ok(alpha && beta);
   const session = createPlanningSession(state, { today: () => d("2025-01-06") });
-  const initial: ReplaceProjectActualsCommand = { kind: "replace-project-actuals", projectId: project.id, baseVersion: 0,
+  const initial: ReplaceProjectActualsCommand = { kind: "replace-project-actuals", base: projectCurrentBase(project), projectId: project.id, baseVersion: 0,
     intent: { kind: "initial" },
     teamRequirements: project.requirements.map((row) => ({ teamId: row.teamId, ...(row.dailyCap ? { dailyCap: row.dailyCap } : {}) })),
     current: { participation: [alpha.teamId, beta.teamId], retiredZeroTeams: [],
@@ -35,10 +36,10 @@ test("Project membership, current RAF zero on retirement, reintroduction and rol
   assert.equal(session.dispatch(initial).ok, true);
   assert.equal(session.getState().portfolio.projects[0]?.snapshots?.length, 1);
   const before = session.getState();
-  const noOp = session.dispatch({ ...initial, baseVersion: 1 });
+  const noOp = session.dispatch({ ...initial, base: projectCurrentBase(session.getState().portfolio.projects[0]!), baseVersion: 1 });
   assert.equal(noOp.ok, true);
   assert.equal(session.getState(), before);
-  const add: ReplaceProjectActualsCommand = { ...initial, baseVersion: 1,
+  const add: ReplaceProjectActualsCommand = { ...initial, base: projectCurrentBase(session.getState().portfolio.projects[0]!), baseVersion: 1,
     intent: { kind: "membership" },
     teamRequirements: [...initial.teamRequirements, { teamId: gamma.id }],
     current: { participation: [alpha.teamId, beta.teamId, gamma.id], retiredZeroTeams: [],
@@ -50,7 +51,7 @@ test("Project membership, current RAF zero on retirement, reintroduction and rol
   assert.equal(session.dispatch(add, () => { throw new Error("write failed"); }).ok, false);
   assert.equal(session.getState(), before);
   assert.equal(session.dispatch(add).ok, true);
-  const remove: ReplaceProjectActualsCommand = { ...add, baseVersion: 2,
+  const remove: ReplaceProjectActualsCommand = { ...add, base: projectCurrentBase(session.getState().portfolio.projects[0]!), baseVersion: 2,
     teamRequirements: add.teamRequirements.filter((row) => row.teamId !== alpha.teamId),
     current: { participation: [beta.teamId, gamma.id], retiredZeroTeams: [alpha.teamId],
       raf: add.current.raf.filter((row) => row.teamId !== alpha.teamId),
@@ -63,7 +64,7 @@ test("Project membership, current RAF zero on retirement, reintroduction and rol
   assert.equal(retired.snapshots?.at(-1)?.retiredZeroTeams[0], alpha.teamId);
   assert.equal(retired.requirements.some((row) => row.teamId === alpha.teamId), false);
   assert.equal(serializeQuantity(retired.snapshots![0]!.raf[0]!.amount), "7/1");
-  const reintroduce: ReplaceProjectActualsCommand = { ...initial, baseVersion: 3,
+  const reintroduce: ReplaceProjectActualsCommand = { ...initial, base: projectCurrentBase(session.getState().portfolio.projects[0]!), baseVersion: 3,
     intent: { kind: "membership" },
     teamRequirements: add.teamRequirements,
     current: { participation: [alpha.teamId, beta.teamId, gamma.id], retiredZeroTeams: [],

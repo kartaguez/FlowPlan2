@@ -28,7 +28,7 @@ export type HistoricalForecast =
 export interface PortfolioSnapshot {
   readonly snapshotId: string;
   readonly createdAt: string;
-  readonly inputsSchemaVersion: 1;
+  readonly inputsSchemaVersion: 1 | 2;
   readonly inputs: JsonValue;
   readonly actualsSources: readonly ActualsSource[];
   readonly forecast: HistoricalForecast;
@@ -73,7 +73,7 @@ function civil(value: unknown) {
 export function createPortfolioSnapshot(value: unknown, historicalPortfolio: Portfolio, horizon?: HistoricalDateRange): PortfolioSnapshot {
   fields(value, ["snapshotId", "createdAt", "inputsSchemaVersion", "inputs", "actualsSources", "forecast"]);
   assertSnapshotId(value.snapshotId); assertCanonicalTimestamp(value.createdAt);
-  if (value.inputsSchemaVersion !== 1) throw new TypeError("Unknown inputs schema.");
+  if (value.inputsSchemaVersion !== 1 && value.inputsSchemaVersion !== 2) throw new TypeError("Unknown inputs schema.");
   if (!Array.isArray(value.actualsSources)) throw new TypeError("Invalid Actuals sources.");
   const owners = [...historicalPortfolio.projects.map((p) => ({ kind: "project", object: p })), ...historicalPortfolio.reservations.map((r) => ({ kind: "reservation", object: r }))];
   if (owners.length !== value.actualsSources.length) throw new TypeError("Missing Actuals source.");

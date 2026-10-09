@@ -18,6 +18,7 @@ export interface SnapshotTeamDraft {
 }
 export interface SnapshotActualsDraft {
   readonly model: SnapshotActualsViewModel;
+  readonly baseModel: SnapshotActualsViewModel;
   readonly open: boolean;
   readonly baseVersion: number;
   readonly baseSnapshotId?: string;
@@ -55,18 +56,16 @@ function fromModel(model: SnapshotActualsViewModel): SnapshotActualsDraft {
   const periods = current?.coverage?.periods.map((period) => ({ originalPeriodId: period.periodId,
     from: period.from, through: period.through,
     values: period.consumed.map((row) => ({ teamId: row.teamId, text: serializeQuantity(row.amount), provenance: "copied" as const })) })) ?? [];
-  const raf = "raf" in (current ?? {}) ? new Map((current as Extract<typeof current, { raf: unknown }>).raf.map((row) => [row.teamId, row.amount])) : new Map();
   const teams = model.teams.map((team) => {
     const amount = team.reservationAmount;
     return { teamId: team.teamId, enabled: team.participating,
-      raf: raf.has(team.teamId) ? serializeQuantity(raf.get(team.teamId)!) :
-        team.forecastRaf ? serializeQuantity(team.forecastRaf) : "",
+      raf: team.forecastRaf ? serializeQuantity(team.forecastRaf) : "",
       rafConfirmed: false,
       allocationKind: amount?.kind ?? "ratio" as const,
       allocationValue: amount ? serializeQuantity(amount.kind === "ratio" ? amount.ratio : amount.dailyCapacity) : "",
     };
   });
-  return { model, open: false, baseVersion: current?.version ?? 0,
+  return { model, baseModel: model, open: false, baseVersion: current?.version ?? 0,
     ...(current ? { baseSnapshotId: current.snapshotId } : {}), periods, teams,
     baseline: values({ periods, teams }), stale: false, confirmed: false, retirementConfirmed: false, errors: [] };
 }
@@ -109,18 +108,24 @@ export function createSnapshotActualsDraftStore(): SnapshotActualsDraftStore {
       const old = entries.get(model.id);
       if (!old) return;
       const version = model.snapshots.at(-1)?.version ?? 0;
-      const membershipChanged = old.model.teams.some((team, index) => team.participating !== model.teams[index]?.participating || team.teamId !== model.teams[index]?.teamId);
-      if (version !== old.baseVersion || membershipChanged) {
-        if (values(old) === old.baseline && !old.modal) entries.set(model.id, { ...fromModel(model), open: old.open });
+      const membershipChanged = old.model.teams.length !== model.teams.length || old.model.teams.some((team, index) => team.participating !== model.teams[index]?.participating || team.teamId !== model.teams[index]?.teamId);
+      if (version !== old.baseVersion || membershipChanged || JSON.stringify(model.currentBase) !== JSON.stringify(old.baseModel.currentBase) || JSON.stringify(model.teams.map(t => t.reservationAmount && [t.teamId, t.reservationAmount.kind, serializeQuantity(t.reservationAmount.kind === "ratio" ? t.reservationAmount.ratio : t.reservationAmount.dailyCapacity)])) !== JSON.stringify(old.baseModel.teams.map(t => t.reservationAmount && [t.teamId, t.reservationAmount.kind, serializeQuantity(t.reservationAmount.kind === "ratio" ? t.reservationAmount.ratio : t.reservationAmount.dailyCapacity)]))) {
+        const opening = fromModel(old.baseModel);
+        const localTextChanged = old.teams.some((row, i) => row.raf !== opening.teams[i]?.raf || row.allocationValue !== opening.teams[i]?.allocationValue) ||
+          old.periods.some((period, i) => period.values.some(cell => cell.text !== opening.periods[i]?.values.find(row => row.teamId === cell.teamId)?.text));
+        if (values(old) === old.baseline && !localTextChanged && !old.modal) entries.set(model.id, { ...fromModel(model), open: old.open });
         else {
-          const base = fromModel(old.model);
+          const base = fromModel(old.baseModel);
           const fresh = fromModel(model);
           const partition = (draft: SnapshotActualsDraft) => JSON.stringify(draft.periods.map((row) =>
             [row.from, row.through]));
           const localPartitionChanged = partition(old) !== partition(base);
           const remotePartitionChanged = partition(fresh) !== partition(base);
           const localMembershipChanged = old.teams.some((row, index) => row.enabled !== base.teams[index]?.enabled);
-          const canRebase = !membershipChanged && !localMembershipChanged && !localPartitionChanged && !remotePartitionChanged &&
+          const sourceCompatible = old.baseModel.currentBase?.source === model.currentBase?.source ||
+            old.baseModel.currentBase?.source.startsWith('["snapshot",') && model.currentBase?.source.startsWith('["snapshot",');
+          const parametersCompatible = JSON.stringify(old.baseModel.currentBase?.requirements.map(row => [row.teamId, row.dailyCap])) === JSON.stringify(model.currentBase?.requirements.map(row => [row.teamId, row.dailyCap]));
+          const canRebase = sourceCompatible && parametersCompatible && !membershipChanged && !localMembershipChanged && !localPartitionChanged && !remotePartitionChanged &&
             old.periods.length === fresh.periods.length && old.teams.length === fresh.teams.length;
           let conflict = !canRebase;
           const merge = (before: string | boolean, local: typeof before, remote: typeof before) => {
@@ -131,7 +136,7 @@ export function createSnapshotActualsDraftStore(): SnapshotActualsDraftStore {
             const canonical = (value: string) => parseExactQuantityInput(value) ?? value;
             if (canonical(local) !== canonical(before) && canonical(remote) !== canonical(before) &&
               canonical(local) !== canonical(remote)) conflict = true;
-            return canonical(local) !== canonical(before) ? local : remote;
+            return canonical(local) !== canonical(before) || canonical(remote) === canonical(before) ? local : remote;
           };
           const teams = canRebase ? fresh.teams.map((row, index) => {
             const before = base.teams[index]!;
@@ -139,6 +144,8 @@ export function createSnapshotActualsDraftStore(): SnapshotActualsDraftStore {
             if (row.teamId !== before.teamId || local.teamId !== before.teamId) conflict = true;
             return { ...row, enabled: merge(before.enabled, local.enabled, row.enabled) as boolean,
               raf: mergeExact(before.raf, local.raf, row.raf),
+              rafConfirmed: parseExactQuantityInput(before.raf) === parseExactQuantityInput(row.raf) &&
+                base.periods.every((period, i) => parseExactQuantityInput(period.values.find(cell => cell.teamId === row.teamId)?.text ?? "") === parseExactQuantityInput(fresh.periods[i]?.values.find(cell => cell.teamId === row.teamId)?.text ?? "")) ? local.rafConfirmed ?? false : false,
               allocationKind: merge(before.allocationKind, local.allocationKind, row.allocationKind) as typeof row.allocationKind,
               allocationValue: merge(before.allocationValue, local.allocationValue, row.allocationValue) as string };
           }) : old.teams;
@@ -147,7 +154,7 @@ export function createSnapshotActualsDraftStore(): SnapshotActualsDraftStore {
               const before = base.periods[index]?.values.find((item) => item.teamId === cell.teamId);
               const local = old.periods[index]?.values.find((item) => item.teamId === cell.teamId);
               if (!before || !local) { conflict = true; return cell; }
-              return { ...cell, text: mergeExact(before.text, local.text, cell.text) };
+              return { ...local, text: mergeExact(before.text, local.text, cell.text), provenance: parseExactQuantityInput(before.text) === parseExactQuantityInput(cell.text) ? local.provenance ?? "copied" as const : "copied" as const };
             }),
           })) : old.periods;
           entries.set(model.id, conflict || old.modal ? { ...old, model, stale: true,
@@ -159,10 +166,11 @@ export function createSnapshotActualsDraftStore(): SnapshotActualsDraftStore {
     review: (id: string) => {
       const old = entries.get(id);
       if (!old?.stale || !old.modal) return false;
-      const priorSnapshots = old.model.snapshots.filter((snapshot) => snapshot.version <= old.baseVersion);
-      const priorModel = { ...old.model, snapshots: priorSnapshots };
-      const base = fromModel(priorModel);
+      const base = fromModel(old.baseModel);
       const fresh = fromModel(old.model);
+      if (old.baseModel.currentBase?.source !== old.model.currentBase?.source &&
+          !(old.baseModel.currentBase?.source.startsWith('["snapshot",') && old.model.currentBase?.source.startsWith('["snapshot",'))) return false;
+      if (JSON.stringify(old.baseModel.currentBase?.requirements.map(row => [row.teamId, row.dailyCap])) !== JSON.stringify(old.model.currentBase?.requirements.map(row => [row.teamId, row.dailyCap]))) return false;
       const periodValues = (periods: readonly SnapshotPeriodDraft[]) => values({ periods, teams: [] });
       if (periodValues(old.modal.periods) !== periodValues(base.periods) ||
           periodValues(fresh.periods) !== periodValues(base.periods) ||
@@ -174,7 +182,7 @@ export function createSnapshotActualsDraftStore(): SnapshotActualsDraftStore {
         const localChanged = canonical(local) !== canonical(before);
         const remoteChanged = canonical(remote) !== canonical(before);
         if (localChanged && remoteChanged && canonical(local) !== canonical(remote)) conflict = true;
-        return localChanged ? local : remote;
+        return localChanged || !remoteChanged ? local : remote;
       };
       const teams = fresh.teams.map((row, index) => ({ ...row,
         raf: mergeRaf(base.teams[index]!.raf, old.teams[index]!.raf, row.raf), rafConfirmed: false }));

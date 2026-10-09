@@ -19,6 +19,7 @@ export function decodeFlowplanBackup(text: string): PlanningBackupDataset {
       try {
         if ((item as { forecast?: { forecastSchemaVersion?: unknown } })?.forecast?.forecastSchemaVersion !== 1) throw new TypeError("V6 requires forecast schema 1.");
         const snapshot = validateHistoricalSnapshot(item, current);
+        if (snapshot.inputsSchemaVersion !== 1) throw new TypeError("Legacy envelope requires inputs schema 1.");
         if (seen.has(snapshot.snapshotId)) throw new TypeError("Duplicate snapshotId.");
         seen.add(snapshot.snapshotId);
         return snapshot;

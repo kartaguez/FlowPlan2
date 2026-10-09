@@ -1,3 +1,4 @@
+import { projectCurrentBase } from "../../application/session/projectCurrentRaf.js";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
@@ -23,7 +24,7 @@ const dayValue = (value: string) => {
 };
 const projectCommand = (project: ReturnType<typeof createDemoPlanningScenario>["portfolio"]["projects"][number], day: ReturnType<typeof dayValue>, value: ConsumedWorkload,
   remaining: RemainingWorkload) => ({
-  kind: "replace-project-actuals" as const, projectId: project.id, baseVersion: 0,
+  kind: "replace-project-actuals" as const, base: projectCurrentBase(project), projectId: project.id, baseVersion: 0,
   intent: { kind: "initial" as const },
   teamRequirements: project.requirements.map((row) => ({ teamId: row.teamId, ...(row.dailyCap ? { dailyCap: row.dailyCap } : {}) })),
   current: { participation: project.requirements.map((row) => row.teamId), retiredZeroTeams: [],

@@ -1,0 +1,51 @@
+{
+  "review": {
+    "review": {
+      "multipleDirtyCardsPreserved": true,
+      "currentRAF": "2/3",
+      "historicalRAF": "1/3",
+      "snapshots": 1
+    },
+    "layouts": [
+      {
+        "width": 1440,
+        "scrollWidth": 1440
+      },
+      {
+        "width": 390,
+        "scrollWidth": 390
+      }
+    ]
+  },
+  "nativeSuite": {
+    "browser": "Edg/154.0.4258.53",
+    "tests": 22,
+    "passed": 22,
+    "failed": 0,
+    "skipped": 0,
+    "cases": [
+      "valid legacy certificate: worker read and History",
+      "structural forgery with valid digest rejected by both worker paths",
+      "business forgery with valid digest rejected by both worker paths",
+      "corruption after certification rejected",
+      "native abort proves rollback and preserves persisted authority",
+      "post-complete notification failure rejects as uncertain and receipt retry is idempotent",
+      "invalid mid-import cannot activate and incomplete native staging resumes",
+      "native save commit with failed local reconciliation blocks subsequent UI-facing mutations",
+      "native delete commit with failed local reconciliation blocks subsequent UI-facing mutations",
+      "native current commit with failed local reconciliation blocks subsequent UI-facing mutations",
+      "11D.1 native R2 false/false",
+      "11D.1 native R2 false/true",
+      "11D.1 native R2 true/false",
+      "11D.1 native R2 true/true",
+      "11D.1 native mixed inputs1/2, old Current startup, CAS lost, export/import/reopen",
+      "11D.1 native Update Actuals modal R2 false/false",
+      "11D.1 native Update Actuals modal R2 false/true",
+      "11D.1 native Update Actuals modal R2 true/false",
+      "11D.1 native Update Actuals modal R2 true/true",
+      "11D.1 native RAF abort / explicit retry",
+      "11D.1 native RAF ack lost / recovery",
+      "mounted UI retains drafts and blocks Save/Delete/Apply after a lost native acknowledgment; recovery rereads authority"
+    ]
+  }
+}

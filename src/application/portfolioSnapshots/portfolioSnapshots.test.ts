@@ -1,3 +1,4 @@
+import { captureLegacyInputs as capturePortfolioSnapshot } from "./legacyCapture.fixture.js";
 import type { PlanningBackupDataset } from "../backup/planningBackupDataset.js";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
@@ -7,7 +8,7 @@ import { createPlanningProjectionDispatcher } from "../../main/planning/synchron
 import { buildPlanningSessionProjection } from "../../main/planning/buildPlanningSessionProjection.js";
 import { decodePlanningInputs, encodePlanningInputs } from "../backup/planningInputCodec.js";
 import { decodeFlowplanBackup, encodeFlowplanBackupV1, encodeFlowplanBackupV2, encodeFlowplanBackupV3, encodeFlowplanBackupV4, encodeFlowplanBackupV5, encodeFlowplanBackupV6 } from "../backup/flowplanBackupV1.js";
-import { capturePortfolioSnapshot, hydrateHistoricalInputs } from "./capturePortfolioSnapshot.js";
+import { hydrateHistoricalInputs } from "./capturePortfolioSnapshot.js";
 import { createPortfolioSnapshot, comparePortfolioSnapshots } from "../../domain/portfolioSnapshots/portfolioSnapshot.js";
 import { createCivilDate, snapshotId, unavailabilityRatioFromSerialized, type DomainResult } from "../../domain/index.js";
 import { loadPlanningBackup, importPlanningBackup } from "../../main/planning/planningBackupOperations.js";

@@ -2,12 +2,13 @@ import { mapResult, type MaybePromise } from "../asyncResult.js";
 import { createInteractionLifecycle } from "../interactionLifecycle.js";
 import type {
   SnapshotActualsViewModel, ReplaceProjectActualsCommand, ReplaceReservationActualsCommand,
-  UpdateProjectCommand, UpdateReservationCommand
+  UpdateProjectCommand, UpdateReservationCommand, UpdateProjectCurrentRafCommand
 } from "../../application/index.js";
 import {
   addDays, addRationals, createCivilDate, parseSerializedRational, rationalFromInteger, rationalOf,
   rationalToCanonicalString, serializeQuantity, type DomainError, type TeamId
 } from "../../domain/index.js";
+import { remainingWorkloadFromSerialized } from "../../domain/index.js";
 import { parseExactQuantityInput } from "../../application/index.js";
 import { parseSnapshotActualsCommand } from "./parseSnapshotActualsCommand.js";
 import type { SnapshotActualsDraftStore, SnapshotPeriodDraft } from "./snapshotActualsDraftStore.js";
@@ -19,7 +20,7 @@ export interface SnapshotActualsCardControllerInput {
   readonly onDraftChange: () => void;
   readonly onCardRafChange?: (teamId: TeamId, value: string) => void;
   readonly conflict: () => string | undefined;
-  readonly onApply: (command: ReplaceProjectActualsCommand | ReplaceReservationActualsCommand) =>
+  readonly onApply: (command: ReplaceProjectActualsCommand | ReplaceReservationActualsCommand | UpdateProjectCurrentRafCommand) =>
     MaybePromise<{ readonly ok: true } | { readonly ok: false; readonly errors: readonly DomainError[] }>;
 }
 
@@ -44,9 +45,9 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
   const status = document.createElement("p");
   status.textContent = current ? `Current snapshot v${current.version}, known ${current.knowledgeDate}${current.coverage ? `, coverage ${current.coverage.actualsFrom} to ${current.coverage.actualsThrough}` : ", no Actuals coverage"}.`
     : model.legacyV4Actuals ? "Legacy V4 Actuals await explicit reconciliation." +
-      (model.kind === "project" ? " RAF values are Forecast suggestions." : "") :
+      (model.kind === "project" ? " Current RAF remains independently editable." : "") :
       "No Actuals snapshot yet." + (model.kind === "project" ?
-        " RAF values are Forecast suggestions, not recorded knowledge." : "");
+        " Current RAF remains independently editable." : "");
   section.append(status);
   const summaryHint = document.createElement("p");
   summaryHint.className = "card-actuals-matrix-hint";
@@ -183,18 +184,17 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
         message: "Review the open Actuals dialog or Cancel the card before Apply."
       }]
     };
-    const parsed = parseSnapshotActualsCommand(model, {
-      ...draft,
-      teams: draft.teams.map((row) => ({
-        ...row, rafConfirmed: row.enabled &&
-          (!current || (parseExactQuantityInput(row.raf) !== serializeQuantity((current as Extract<NonNullable<typeof current>, { raf: unknown }>).raf.find((item) => item.teamId === row.teamId)!.amount)))
-      }))
+    const patch = draft.teams.filter(row => row.enabled).map(row => {
+      const exact = parseExactQuantityInput(row.raf);
+      const amount = exact === undefined ? undefined : remainingWorkloadFromSerialized(exact);
+      return amount?.ok ? { teamId: row.teamId, remainingWorkload: amount.value } : undefined;
     });
-    if (!parsed.ok) {
-      quickError.textContent = parsed.errors.map((item) => item.message).join(" "); quickError.hidden = false;
-      input.store.update(model.id, { ...draft, errors: [quickError.textContent] }); return parsed;
-    }
-    return mapResult(input.onApply(parsed.command), (result) => {
+    if (patch.some(row => !row) || !draft.baseModel.currentBase) return { ok: false, errors: [{ code: "INVALID_RAF_DRAFT", path: "raf", message: "Enter exact nonnegative RAF values against a valid Project base." }] };
+    let command: UpdateProjectCurrentRafCommand = { kind: "update-project-current-raf", projectId: model.id as UpdateProjectCurrentRafCommand["projectId"], base: draft.baseModel.currentBase,
+      patch: patch.filter((row): row is NonNullable<typeof row> => row !== undefined).filter(row => serializeQuantity(row.remainingWorkload) !== draft.baseModel.currentBase!.requirements.find(before => before.teamId === row.teamId)?.raf) };
+    // An unchanged card Apply is a complete no-op, checked against the immutable base by Application.
+    if (!command.patch.length) command = { ...command, patch: patch.filter((row): row is NonNullable<typeof row> => row !== undefined) };
+    return mapResult(input.onApply(command), (result) => {
       if (!result.ok) {
         quickError.textContent = result.errors.map((item) => item.message).join(" "); quickError.hidden = false;
         input.store.update(model.id, { ...draft, errors: [quickError.textContent] });
@@ -216,8 +216,9 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
     const working = old.modal ? { ...old, ...old.modal } : old;
     const changed = change(working);
     const errors = changed.errors === old.errors ? [] : changed.errors;
-    const teams = working.periods.at(-1)?.through !== changed.periods.at(-1)?.through ?
-      changed.teams.map((row) => ({ ...row, rafConfirmed: false })) : changed.teams;
+    const partition = (periods: readonly SnapshotPeriodDraft[]) => JSON.stringify(periods.map(row => [row.from, row.through]));
+    const consumed = (periods: readonly SnapshotPeriodDraft[], teamId: TeamId) => JSON.stringify(periods.map(row => parseExactQuantityInput(row.values.find(cell => cell.teamId === teamId)?.text ?? "")));
+    const teams = changed.teams.map(row => partition(working.periods) !== partition(changed.periods) || consumed(working.periods, row.teamId) !== consumed(changed.periods, row.teamId) ? { ...row, rafConfirmed: false } : row);
     let selection = old.modal?.selection;
     if (selection && typeof selection === "object" && changed.periods.length !== working.periods.length) {
       const delta = changed.periods.length - working.periods.length;
@@ -369,11 +370,13 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
       fields.append(coverage);
       for (const team of draft.teams.filter((row) => row.enabled)) {
         const label = model.teams.find((row) => row.teamId === team.teamId)?.label ?? team.teamId;
-        const previous = current && "raf" in current ? current.raf.find((row) => row.teamId === team.teamId) : undefined;
-        const required = !previous || current?.coverage?.actualsThrough !== draft.periods.at(-1)?.through ||
-          parseExactQuantityInput(team.raf) !== serializeQuantity(previous.amount);
+        const previous = model.teams.find(row => row.teamId === team.teamId)?.forecastRaf;
+        const partitionChanged = JSON.stringify(current?.coverage?.periods.map(p => [p.from, p.through]) ?? []) !== JSON.stringify(draft.periods.map(p => [p.from, p.through]));
+        const consumedChanged = draft.periods.some((period, index) => parseExactQuantityInput(period.values.find(row => row.teamId === team.teamId)?.text ?? "") !==
+          (current?.coverage?.periods[index]?.consumed.find(row => row.teamId === team.teamId)?.amount === undefined ? undefined : serializeQuantity(current.coverage.periods[index]!.consumed.find(row => row.teamId === team.teamId)!.amount)));
+        const required = !previous || !current?.participation.includes(team.teamId) || partitionChanged || consumedChanged || parseExactQuantityInput(team.raf) !== serializeQuantity(previous);
         const quick = base.teams.find((row) => row.teamId === team.teamId);
-        if (quick && previous && parseExactQuantityInput(quick.raf) !== serializeQuantity(previous.amount)) {
+        if (quick && previous && parseExactQuantityInput(quick.raf) !== serializeQuantity(previous)) {
           const provenance = document.createElement("p"); provenance.textContent = label + ": RAF from card draft.";
           fields.append(provenance);
         }
@@ -593,8 +596,8 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
     const teams = old.teams.map((row) => {
       const requirement = handoff?.kind === "update-project" ?
         handoff.teamRequirements.find((item) => item.teamId === row.teamId) : undefined;
-      const priorRaf = current && "raf" in current ? current.raf.find((item) => item.teamId === row.teamId) : undefined;
-      const quickDirty = priorRaf && parseExactQuantityInput(row.raf) !== serializeQuantity(priorRaf.amount);
+      const priorRaf = model.teams.find(team => team.teamId === row.teamId)?.forecastRaf;
+      const quickDirty = priorRaf && parseExactQuantityInput(row.raf) !== serializeQuantity(priorRaf);
       return {
         ...row, enabled: target ? target.has(row.teamId) : row.enabled,
         raf: requirement && (!priorRaf || !quickDirty) ? serializeQuantity(requirement.remainingWorkload) : row.raf,

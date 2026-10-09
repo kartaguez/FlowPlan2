@@ -1,6 +1,6 @@
 import { projectHistoryCapture, type HistoryReadRequest } from "../../application/history/historyCaptureProjection.js";
 import type { RepositoryToken } from "../../application/persistence/planningRepository.js";
-import { encodePlanningInputs } from "../../application/backup/planningInputCodec.js";
+import { encodeCurrentPlanningInputs } from "../../application/backup/planningInputCodec.js";
 import { portableBackupParts } from "../../application/backup/portableBackupParts.js";
 import { legacyRepairs } from "../../application/persistence/repositoryTransfer.js";
 import { createPlanningRepository } from "../../application/persistence/createPlanningRepository.js";
@@ -25,7 +25,7 @@ scope.onmessage = event => {
       } else if (request.type === "header") {
         const text = typeof request.document === "string" ? request.document : await request.document.text();
         const current = portableBackupParts(text).current;
-        value = { current: encodePlanningInputs(current), repairs: legacyRepairs(text, current) };
+        value = { current: encodeCurrentPlanningInputs(current), repairs: legacyRepairs(text, current) };
       } else {
         const backend = await openIndexedDbRepositoryStorage({ factory: indexedDB, name: request.database });
         try { const repository = createPlanningRepository(backend, sha256, (snapshot, current) => validateStoredSnapshotContent(snapshot, current, sha256));

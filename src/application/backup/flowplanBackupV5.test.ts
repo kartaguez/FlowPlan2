@@ -1,3 +1,4 @@
+import { projectCurrentBase } from "../session/projectCurrentRaf.js";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { createCivilDate, createConsumedWorkload, consumedWorkloadFromSerialized, createPortfolio, createProject, createReservation, serializeQuantity, snapshotId,
@@ -75,7 +76,7 @@ test("V4 imports as lossless pending legacy and stays separate after first V5 sn
   const before = reconstructActuals(pending.portfolio, pending.planning.workingPattern).contributions
     .filter((item) => item.sourceId === pendingProject.id);
   assert.equal(before.some((item) => item.recordIndex === 0), true);
-  assert.equal(session.dispatch({ kind: "replace-project-actuals", projectId: pendingProject.id, baseVersion: 0,
+  assert.equal(session.dispatch({ kind: "replace-project-actuals", base: projectCurrentBase(session.getState().portfolio.projects[0]!), projectId: pendingProject.id, baseVersion: 0,
     intent: { kind: "reconcile" },
     teamRequirements: pendingProject.requirements.map((row) => ({ teamId: row.teamId,
       ...(row.dailyCap ? { dailyCap: row.dailyCap } : {}) })),
@@ -213,7 +214,7 @@ test("future-through V4 history remains lossless but cannot reconcile before its
   const session = createPlanningSession(pending, { today: () => d("2025-01-06") });
   const before = session.getState();
   const teamIds = project.requirements.map((row) => row.teamId);
-  const result = session.dispatch({ kind: "replace-project-actuals", projectId: project.id, baseVersion: 0,
+  const result = session.dispatch({ kind: "replace-project-actuals", base: projectCurrentBase(session.getState().portfolio.projects[0]!), projectId: project.id, baseVersion: 0,
     intent: { kind: "reconcile" }, teamRequirements: project.requirements.map((row) => ({ teamId: row.teamId })),
     current: { participation: teamIds, retiredZeroTeams: [], raf: project.requirements.map((row) => ({
       teamId: row.teamId, amount: row.remainingWorkload })),

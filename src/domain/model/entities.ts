@@ -3,8 +3,6 @@ import type { Reservation } from "../capacity/reservation.js";
 import { createProjectActualsChronology, type ProjectActualsChronology } from "../actuals/records.js";
 import { createSnapshotHistory, type ProjectActualsSnapshot } from "../actuals/snapshots.js";
 import type { CivilDate } from "./date.js";
-import { compareRationals } from "./rational.js";
-import { rationalOf } from "./scalars.js";
 import { catalogNameKey, createColor, normalizeCatalogName, suggestColor, type Color } from "./color.js";
 import type {
   DailyCap,
@@ -284,19 +282,9 @@ export function createPortfolio(input: {
           ),
         );
       }
-      if (project.snapshots?.length) {
-        const current = project.snapshots.at(-1)!;
-        const snapshotRaf = current.raf.find((row) => row.teamId === requirement.teamId);
-        if (!snapshotRaf || compareRationals(rationalOf(snapshotRaf.amount), rationalOf(requirement.remainingWorkload)) !== 0) {
-          errors.push(error("ACTUALS_RAF_MISMATCH", `projects[${projectIndex}].requirements[${requirementIndex}].remainingWorkload`, "Current RAF must match the current Project snapshot."));
-        }
-      } else if (requirement.rafAuthority === "latest-actuals") {
-        // A later object record without this Team proves a membership break.
-        // A remove/reintroduce cycle between records still requires persisted provenance.
-        const latest = project.actuals?.records.at(-1)?.teams.find((entry) => entry.teamId === requirement.teamId);
-        if (!latest || compareRationals(rationalOf(latest.remainingWorkload), rationalOf(requirement.remainingWorkload)) !== 0) {
-          errors.push(error("ACTUALS_RAF_MISMATCH", `projects[${projectIndex}].requirements[${requirementIndex}].remainingWorkload`, "Current RAF must match its latest authoritative Actuals entry."));
-        }
+      if (!project.snapshots?.length && requirement.rafAuthority === "latest-actuals" &&
+          !(project.legacyV4Actuals ?? project.actuals)?.records.at(-1)?.teams.some(entry => entry.teamId === requirement.teamId)) {
+        errors.push(error("MISSING_AUTHORITATIVE_ACTUALS", `projects[${projectIndex}].requirements[${requirementIndex}]`, "Legacy provenance requires its referenced entry."));
       }
     });
     (project.legacyV4Actuals ?? project.actuals)?.records.forEach((record, recordIndex) => record.teams.forEach((entry, entryIndex) => {

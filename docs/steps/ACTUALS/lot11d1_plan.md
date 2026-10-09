@@ -590,3 +590,14 @@ pas par auto-référence dans ce fichier.
 Arrêt après commit/push documentaire. Prochaine étape : audit indépendant du
 plan par ChatGPT ; seule une autorisation explicite après cet audit peut ouvrir
 l'implémentation. 11D.2 et 11D.3 restent hors périmètre et non commencés.
+
+## Downstream RAF model amendment — 11D.1 (IN REVIEW)
+
+The historical release described above is preserved. The separately authorized
+[11D.1 RAF Model delivery](./lot11d1_raf_model_canon.md) supersedes permanent
+RAF equality and quick RAF-only snapshot publication in the current application.
+Requirements own current RAF; snapshot RAF is immutable historical knowledge.
+Actuals publication aligns them atomically, with Application R2 and conditional
+R1 confirmations. V8/inputs2 version this semantics while V1–V7/inputs1 retain
+historical validation. No presentation redesign, replay or inputs-only work is
+included. The future UX plan must use this model before any implementation.

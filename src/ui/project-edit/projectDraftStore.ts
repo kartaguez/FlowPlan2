@@ -1,4 +1,4 @@
-import type { ProjectEditViewModel } from "../../application/index.js";
+import { parseExactQuantityInput, type ProjectEditViewModel } from "../../application/index.js";
 import type { ProjectId, TeamId } from "../../domain/index.js";
 
 export interface ProjectTeamDraft {
@@ -66,7 +66,7 @@ export function projectValuesFromModel(model: ProjectEditViewModel): ProjectDraf
     resolution: divergent ? "unresolved" : "remove",
     teams: model.requirements.map((team) => ({
       teamId: team.teamId, enabled: team.enabled,
-      remainingWorkload: team.rafAuthority === "latest-actuals" ? team.remainingWorkloadExact : team.remainingWorkload,
+      remainingWorkload: (team.currentRafEditable || team.rafAuthority === "latest-actuals") ? team.remainingWorkloadExact : team.remainingWorkload,
       remainingWorkloadExact: team.remainingWorkloadExact,
       ...(team.dailyCapExact === undefined ? {} : { dailyCapExact: team.dailyCapExact }),
       expanded: false,
@@ -75,8 +75,9 @@ export function projectValuesFromModel(model: ProjectEditViewModel): ProjectDraf
 }
 
 const choose = <T>(local: T, old: T, next: T): T => local === old ? next : local;
+const sameRaf = (a: string, b: string) => (parseExactQuantityInput(a) ?? a) === (parseExactQuantityInput(b) ?? b);
 const teamDirty = (a: ProjectTeamDraft, b: ProjectTeamDraft): boolean =>
-  a.enabled !== b.enabled || a.remainingWorkload !== b.remainingWorkload;
+  a.enabled !== b.enabled || !sameRaf(a.remainingWorkload, b.remainingWorkload);
 const retainMissingTeam = (team: ProjectTeamDraft, reference?: ProjectTeamDraft): boolean =>
   reference === undefined || team.enabled || teamDirty(team, reference);
 const globalDirty = (a: ProjectDraftValues, b: ProjectDraftValues): boolean =>
@@ -120,7 +121,7 @@ export function createProjectDraftStore(): ProjectDraftStore {
         const previous = oldTeams.get(team.teamId);
         const local = localTeams.get(team.teamId);
         if (!previous || !local) return team;
-        const remainingWorkload = choose(local.remainingWorkload, previous.remainingWorkload, team.remainingWorkload);
+        const remainingWorkload = sameRaf(local.remainingWorkload, previous.remainingWorkload) ? team.remainingWorkload : local.remainingWorkload;
         return { ...team,
           enabled: choose(local.enabled, previous.enabled, team.enabled),
           remainingWorkload,
@@ -156,9 +157,9 @@ export function createProjectDraftStore(): ProjectDraftStore {
       const invalidRafTeamIds = values.teams.filter((team) => {
         const prior = oldTeams.get(team.teamId);
         const current = model.requirements.find((requirement) => requirement.teamId === team.teamId);
-        return prior !== undefined && current?.rafAuthority === "latest-actuals" &&
-          team.remainingWorkload !== prior.remainingWorkload &&
-          team.remainingWorkload !== next.teams.find((item) => item.teamId === team.teamId)?.remainingWorkload;
+        return prior !== undefined && (current?.currentRafEditable || current?.rafAuthority === "latest-actuals") &&
+          !sameRaf(team.remainingWorkload, prior.remainingWorkload) &&
+          !sameRaf(team.remainingWorkload, next.teams.find((item) => item.teamId === team.teamId)?.remainingWorkload ?? "");
       }).map((team) => team.teamId);
       entries.set(id, { ...old, reference: next, values, model, invalidReference, invalidRafTeamIds });
     },
