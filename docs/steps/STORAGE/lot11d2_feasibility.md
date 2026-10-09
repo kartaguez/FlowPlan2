@@ -1,12 +1,13 @@
 # 11D.2 — Historical Inputs Contract & Replay Feasibility
 
-**11D.2 — IN REVIEW — G1 uniquement, 2026-10-09.**
+**11D.2 — DONE — G1 uniquement, clôture documentaire du 2026-10-09.**
 La reconstruction des inputs historiques et leur simulation par la chaîne
 courante sont faisables sur les cas exécutés. Aucun input moteur manquant ni
 substitution de configuration Current n'a été observé. Cette conclusion reste
 limitée aux fixtures et dimensions ci-dessous ; elle ne certifie pas tous les
-états historiques imaginables. L'audit indépendant de ChatGPT et l'autorisation
-explicite de clôture restent requis. Les lots 11D.3/4/5 ne sont pas commencés.
+états historiques imaginables. L'audit indépendant est favorable et l'utilisateur
+a explicitement autorisé la clôture DONE. Les lots 11D.3, 11D.4 et 11D.5
+restent **NOT STARTED**. L'architecture inputs-only de production n'est pas déployée.
 
 ## Baseline et frontières
 
@@ -26,6 +27,21 @@ Save, service définitif, worker ou cache. Aucun canon modifié.
 
 Le [plan normatif](./lot11d2_plan.md) reste la référence. Les futurs variants
 inputs-only et les axes service/persistance/intégration ne sont pas livrés ici.
+
+## Clôture après audit indépendant
+
+L'implémentation de preuve livrée est
+`ee66a72cb6073c753681af95acae5122f93f13d3` ; ce SHA est la baseline vérifiée
+de la présente clôture, sur la branche attendue, arbre propre et origin **0/0**
+après fetch. La baseline `633dfc9459c7398f800abfb47439e1251e7bd7aa` ci-dessus
+est celle de l'exécution G1 avant son commit.
+
+L'audit favorable et l'autorisation explicite de l'utilisateur acceptent G1
+avec les limites consignées dans ce rapport. La clôture ne modifie que les
+trois documents Markdown de suivi ; aucun code, test, fixture, script, résultat
+JSON, format ou dépendance n'est modifié. Les gates et mesures ci-dessous sont
+les résultats de la livraison auditée, sans nouvelle exécution lors de la clôture.
+Le diff documentaire et `git diff --check` sont vérifiés avant commit/push normal.
 
 ## Contrat exécuté et représentation exacte
 
@@ -331,7 +347,7 @@ Aucun validateur ou moteur n'a été modifié pour faire passer ces cas.
 
 ## Risques et contrats transmis aux lots suivants
 
-**11D.4, après autorisation** : extraire le pipeline commun sans VM, maintenir
+**11D.4 — NOT STARTED, transfert des limites résiduelles, après autorisation** : extraire le pipeline commun sans VM, maintenir
 occupation et knowledge historiques totales, résultat canonique complet et
 identité de chaîne sémantique. Resolver ciblé sur contexte/génération cohérente,
 préfixe exact et manifest contenu ; éviter encode-all Current quand possible.
@@ -341,24 +357,26 @@ hors horizon/préfixes/lookahead avant allocation. Réduire extraction dense et
 structures coexistantes ; aucune admission chiffrée définitive déduite de ce
 seul laboratoire. Distinguer résultat incomplet et recalcul indisponible.
 
-**11D.3, après autorisation** : union legacy/inputs-only fermée, anciens bytes
+**11D.3 — NOT STARTED, après autorisation** : union legacy/inputs-only fermée, anciens bytes
 préservés, sources V5 exactes et evidence V4 authority conservées ; pas de
 « latest », downgrade lossless ou refus. Consolider fermeture dans génération,
 CAS/receipts/import-export/readback et diagnostics étape/cause ; ne pas supprimer
 les protections owned ou introduire GC sans contrat. Un nouveau format n'est
 ni numéroté ni activé par ce rapport.
 
-**11D.5, après autorisation** : Planning présentera un seul planning Current ou
+**11D.5 — NOT STARTED, après autorisation** : Planning présentera un seul planning Current ou
 historique ; Trends comparera des états, Current inclus. Les résultats métier
 sont indépendants de l'interface. Découverte/facts/runs progressive et états
 indisponibles explicites ; arbitrer le cap global avant intégration. Mesurer UI,
 réactivité Current et 100 cycles release ; aucune sélection Planning, renommage
 History, comparaison avancée ou ViewModel historique n'est livrée ici.
 
-G1 est proposé à l'audit avec ses limites explicites : compatibilité universelle,
+G1 est accepté après audit favorable et autorisation explicite avec ses limites : compatibilité universelle,
 pic absolu, ressources extrêmes, performance intégrée et taxonomy production
 restent non certifiés. Aucun gap d'input moteur bloquant n'est observé sur les
-cas exécutés. **Statut final : IN REVIEW, jamais DONE.**
+cas exécutés. **Statut final : 11D.2 DONE, G1 seulement.**
+G2–G5 restent à démontrer ; ce transfert ne commence pas 11D.4 ni les autres
+lots suivants. Les limites ne sont pas levées par la clôture documentaire.
 
 
 ## Inventaire de livraison

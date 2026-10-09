@@ -1,13 +1,15 @@
 # Lot 11D.2 — Historical Inputs Contract & Replay Feasibility
 
-**Statut : 11D.2 — IN REVIEW — G1 uniquement.**
+**Statut : 11D.2 — DONE — G1 uniquement, clôture documentaire du 2026-10-09.**
 2026-10-09. Implémentation de preuve autorisée depuis la baseline obligatoire
 `633dfc9459c7398f800abfb47439e1251e7bd7aa`. Les tests et le harness isolés,
 les résultats exacts et les mesures sont décrits dans le
 [rapport de faisabilité](./lot11d2_feasibility.md). Aucun contrat de production
 n'a été modifié. Ni 11D.3, ni 11D.4, ni 11D.5 ne sont commencés.
-La clôture reste soumise à l'audit indépendant de ChatGPT et à l'autorisation
-explicite de l'utilisateur ; ce statut n'est pas DONE.
+L'audit indépendant est favorable et l'utilisateur a explicitement autorisé
+la clôture DONE depuis l'implémentation `ee66a72cb6073c753681af95acae5122f93f13d3`.
+11D.3, 11D.4 et 11D.5 restent **NOT STARTED**. L'architecture inputs-only
+de production n'est pas déployée.
 
 ## 1. Baseline, références et frontière de mission
 
@@ -894,8 +896,10 @@ Gates ordonnées :
 La future campagne utilise `npm run typecheck`, `npm test`, `npm run build`,
 `npm run test:portable`, `npm run test:storage` et scénarios audit natifs
 appropriés ; nouveaux tests ciblés sont inclus dans total, pas comptés deux fois.
-Ces commandes applicatives n'ont **pas** été exécutées pour cette livraison
-sans code. Les anciennes preuves citées ne deviennent pas des résultats 11D.2.
+Ces commandes n'avaient pas été exécutées lors du cadrage documentaire initial.
+Elles ont depuis été exécutées pour la preuve G1 et leurs résultats sont
+consignés dans le rapport ; aucune gate applicative n'est relancée pour la clôture
+documentaire. Les anciennes preuves des autres lots restent distinctes.
 
 ## 12. Risques, blockers et arbitrages restants
 
@@ -943,10 +947,10 @@ la mission, mais **ne pas confondre numérotation et ordre d'activation**.
 
 | Lot envisagé | Travaux détaillés / livrables | Dépendances et sortie |
 | --- | --- | --- |
-| 11D.2 — Historical Inputs Contract & Replay Feasibility | A inventaire/champ-parité et contrats ; B audit closure V4/V5 et conservation ; C preuve isolée replay courant/canonicalisation/déterminisme direct ; D première caractérisation CPU/temp/retained/résolution ; E rapport limites/estimations/contrats cibles et audit, sans certification worker/cache/UI | G1 exécuté après autorisation, IN REVIEW ; rapport de preuve et limites lié en tête. Sans modifications de production/persistance/règles. |
-| 11D.4 — Historical Simulation Service | A port sources Current/Snapshot résolues ; B extraire noyau commun en préservant Current publication ; C facts/reconstruction/engine/projecteurs exacts ; D worker/scheduler/cache/diagnostics ; E suite exactitude/concurrency/performance | Recommandé **avant activation 11D.3**, après G1 ; peut être livré sur captures legacy uniquement, sans nouvelle capture ni UI sélection. G2. |
-| 11D.3 — Inputs-Only Capture & Persistence | A fixer nouveau variant/versions ; B validation/capture dirty/run/revision guards ; C repository metadata/refs/CAS/receipts ; D worker/import/export mixed/staging/recovery ; E tests preservation/atomicité/portable | Contrats G1 ; travail possible en parallèle conceptuel du service, mais activation Save inputs-only bloquée jusqu'à G2 et G4. Pas production inaccessible. G3. |
-| 11D.5 — Historical Views Integration | A metadata/facts progressive et row states ; B simulations Project/compares courants ; C arbitrage portée graphique reporté à ce lot puis critères cap/geometries ; D focus/loading/unavailable/cancellation ; E drafts isolation et UI/performance audit | Service G2 ; ancien History intégrable avant Save nouveau. Structure existante ; pas Trends. G4. |
+| 11D.2 — Historical Inputs Contract & Replay Feasibility | A inventaire/champ-parité et contrats ; B audit closure V4/V5 et conservation ; C preuve isolée replay courant/canonicalisation/déterminisme direct ; D première caractérisation CPU/temp/retained/résolution ; E rapport limites/estimations/contrats cibles et audit, sans certification worker/cache/UI | G1 exécuté et accepté après audit favorable, DONE ; rapport de preuve et limites lié en tête. Sans modifications de production/persistance/règles. |
+| 11D.4 — Historical Simulation Service | A port sources Current/Snapshot résolues ; B extraire noyau commun en préservant Current publication ; C facts/reconstruction/engine/projecteurs exacts ; D worker/scheduler/cache/diagnostics ; E suite exactitude/concurrency/performance | **NOT STARTED**. Recommandé **avant activation 11D.3**, après G1 ; peut être livré sur captures legacy uniquement, sans nouvelle capture ni UI sélection. G2. |
+| 11D.3 — Inputs-Only Capture & Persistence | A fixer nouveau variant/versions ; B validation/capture dirty/run/revision guards ; C repository metadata/refs/CAS/receipts ; D worker/import/export mixed/staging/recovery ; E tests preservation/atomicité/portable | **NOT STARTED**. Contrats G1 ; travail possible en parallèle conceptuel du service, mais activation Save inputs-only bloquée jusqu'à G2 et G4. Pas production inaccessible. G3. |
+| 11D.5 — Historical Views Integration | A metadata/facts progressive et row states ; B simulations Project/compares courants ; C arbitrage portée graphique reporté à ce lot puis critères cap/geometries ; D focus/loading/unavailable/cancellation ; E drafts isolation et UI/performance audit | **NOT STARTED**. Service G2 ; ancien History intégrable avant Save nouveau. Structure existante ; pas Trends. G4. |
 | Activation finale (gate de livraison, pas forcément nouveau lot) | E2E Save inputs-only → export/import/recovery → consultation ; vérifier versions clients et autorisation après audit | G1–G4 ; G5 avant tout accès utilisateur au nouveau Save. Si déploiements indépendants impossibles, livrer 11D.3/4/5 ensemble derrière gate. |
 
 Ordre recommandé : **11D.2 → 11D.4 → 11D.5 legacy → 11D.3 activation intégrée**,
@@ -966,5 +970,37 @@ avec les résultats bruts, limites environnementales et inventaire des fichiers.
 branche autorisée, puis origin 0/0 et working tree propre. SHA final fourni
 dans le compte rendu Git, pas auto-inséré dans ce commit.
 
-**Fin de mission : 11D.2 — IN REVIEW, preuve G1 seulement ; audit indépendant
-ChatGPT et autorisation explicite de clôture requis. Aucun lot suivant commencé.**
+### Clôture documentaire après audit favorable
+
+Baseline vérifiée : `ee66a72cb6073c753681af95acae5122f93f13d3`, branche
+`codex/lot11a-portfolio-snapshots`, arbre propre et origin **0/0** après fetch.
+L'audit indépendant favorable et l'autorisation explicite de l'utilisateur
+permettent la clôture **DONE de 11D.2 / G1 seulement**.
+
+Preuves : [suite des 49 nouveaux tests](../../../src/proof/lot11d2/replay.test.ts),
+[26 couples / 260 répétitions / trois processus](./lot11d2_proof_results.json),
+[sept cas CPU/RAM](./lot11d2_measurements.json) et
+[rapport détaillé](./lot11d2_feasibility.md). Les 1 104 tests globaux passent
+(96 suites, aucun skip) ; typecheck, build, portable (3/3), storage natif après
+relance autorisée, suite G1, runner et harness passent. Quota physique non
+certifié. Les tables du rapport conservent les CPU process par étape, wall et
+RAM : stress 2164,56/2270,21 ms wall médiane/max, croissance heap maximale
+observée 1136,61 MiB et RSS maximal observé 2102,73 MiB. Aucun pic absolu
+ni budget de production n'est certifié.
+
+Le registre §12 et le transfert du rapport restent ouverts pour **11D.4 —
+NOT STARTED** : resolver ciblé, fermeture des préfixes/générations, DTO rationnels
+exacts, copies worker et structures coexistantes, extraction dense, estimation
+Actuals hors horizon/lookahead, admission, scheduler/cache/concurrence/release
+et diagnostics étape/cause. Cas extrême valide non simulé, compatibilité
+universelle et mesures intégrées restent non prouvés. Cap/UI restent à 11D.5,
+formats/persistance à 11D.3. G2–G5 restent à démontrer.
+
+Cette mission modifie seulement `docs/current_plan.md`, ce plan et le rapport
+de faisabilité ; résultats JSON et artefacts d'implémentation sont conservés.
+Vérification du diff documentaire et `git diff --check` avant commit et push
+normal ; aucune nouvelle exécution applicative ou CPU/RAM.
+
+**Fin de mission : 11D.2 — DONE, G1 seulement. 11D.3, 11D.4 et 11D.5 restent
+NOT STARTED. Aucun service de production inputs-only déployé et aucun travail
+11D.4 commencé.**

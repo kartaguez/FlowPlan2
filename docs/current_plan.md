@@ -1,8 +1,8 @@
 # FlowPlan2 current plan
 
 Current validated baseline:
-`8d95f7406ff40a6d2d041b41784a3915173989c8` (11D.0 corrective implementation validated by
-favorable independent audit; explicitly closed by the user on 2026-10-09)
+`ee66a72cb6073c753681af95acae5122f93f13d3` (11D.2 G1 proof implementation validated by
+favorable independent audit; documentary DONE closure authorized by the user on 2026-10-09)
 
 This is the operational roadmap for the active trajectory. Durable product and
 architecture rules live in [canon](./canon.md); current implementation facts
@@ -50,8 +50,9 @@ plus Lot 11A.2 exact daily profiles and V7 persistence.
 - 11B Project History (DONE — explicit user closure).
 - 11C Actuals / Forecast separation (DONE — explicit user closure).
 - 11D.0 Storage Architecture & Scalability (DONE — favorable independent audit and explicit user closure).
+- 11D.2 Historical Inputs Contract & Replay Feasibility (DONE — G1 only, favorable independent audit and explicit user closure).
 
-Current trajectory: **11D.2 — IN REVIEW (G1 proof only)**;
+Current trajectory: **11D.2 — DONE (G1 proof only)**;
 **11D.1 RAF Model — DONE; 11D.1 UX — DONE**;
 **11D.0 — Storage Architecture & Scalability remains DONE**;
 **11B — Project History view is DONE**, following validated DONE
@@ -69,7 +70,7 @@ Current trajectory: **11D.2 — IN REVIEW (G1 proof only)**;
 11D.0: DONE — Storage Architecture & Scalability
 11D.1 RAF Model: DONE — favorable independent audit and final V1/V2 verification
 11D.1 UX: DONE — favorable independent audit, final Cancel S1–S6 gates pass
-11D.2: IN REVIEW — G1 historical replay proof and direct CPU/RAM characterization
+11D.2: DONE — G1 historical replay proof and direct CPU/RAM characterization
 11D.3 / 11D.4 / 11D.5: ENVISAGED — NOT STARTED; independent audit and authorization required
 11A.1: DEFERRED / not adopted as product work; no dependency for 11B
 10D: superseded by 11A (not DONE)
@@ -84,8 +85,10 @@ was then IN REVIEW; explicit user closure subsequently marked 11B DONE.
 
 ## 11D.2 — Inputs-only historical architecture and replay contract
 
-**Status: 11D.2 — IN REVIEW — G1 proof only.**
-Implementation baseline `633dfc9459c7398f800abfb47439e1251e7bd7aa`, branch
+**Status: 11D.2 — DONE — G1 proof only, 2026-10-09.**
+Favorable independent audit and explicit user closure authorization received.
+Audited implementation / documentary closure baseline
+`ee66a72cb6073c753681af95acae5122f93f13d3`, branch
 `codex/lot11a-portfolio-snapshots`, clean and origin 0/0 after fetch.
 The [dedicated architectural plan](./steps/STORAGE/lot11d2_plan.md) confronts
 existing contracts with the new user-validated trajectory. 11D.0 and both
@@ -113,7 +116,8 @@ is diagnosed and left unexecuted for resource risk. It does not
 certify future worker, cache, concurrency or UI performance; those and definitive
 budgets belong to their implementation lots. An exploratory budget overrun
 requires analysis and possible architectural adjustment, not automatic rejection
-of inputs-only. Only proof tests/fixtures, laboratory scripts and tracking documents are added.
+of inputs-only. The audited G1 implementation added only proof tests/fixtures, laboratory scripts
+and tracking documents. This closure changes only three Markdown tracking documents.
 No production code, format, engine, repository or UI is changed.
 
 The future Application pipeline supports Current and historical snapshots,
@@ -134,8 +138,36 @@ No initial persistent cache or systematic full-history calculation on opening.
 The global exact cap at cold opening conflicts with progressive loading; scope
 arbitration is deferred to History/Trends integration, without blocking 11D.2
 feasibility or designing a new interaction. Functional Trends evolution remains
-outside scope. G1 awaits independent ChatGPT audit and explicit closure authorization.
-11D.2 is not DONE; 11D.3, 11D.4 and 11D.5 remain unstarted.
+outside scope. G1 is accepted following the favorable independent audit and
+explicit user authorization. 11D.2 is DONE; 11D.3, 11D.4 and 11D.5 remain
+**NOT STARTED**. The inputs-only production architecture is not deployed.
+
+Closure evidence: [49 new tests](../src/proof/lot11d2/replay.test.ts),
+1,104/1,104 global tests in 96 suites with no skips; typecheck/build PASS,
+portable 3/3 PASS, native storage PASS after the sandbox listen restriction
+was resolved. Physical quota enforcement remains uncertified.
+[Exact proof results](./steps/STORAGE/lot11d2_proof_results.json) record
+26 Current/historical pairs, 260 repetitions and three fresh processes.
+[CPU/RAM measurements](./steps/STORAGE/lot11d2_measurements.json) cover seven
+cases, two warmups and ten samples per case; the
+[feasibility report](./steps/STORAGE/lot11d2_feasibility.md) retains all gate
+results, stage CPU process times and measurement qualifications. Total wall
+median/max: target 363.06/370.20 ms, stress 2164.56/2270.21 ms, adverse
+4598.46/4639.46 ms. Observed maximum heap growth / process RSS: target
+152.43/442.72 MiB, stress 1136.61/2102.73 MiB, adverse 779.98/1750.42 MiB.
+These observations are not absolute peaks or production budgets. No application
+gate or benchmark is rerun for this documentary closure.
+
+Residual limits are explicitly handed to **11D.4 (NOT STARTED)**: targeted
+Actuals resolution instead of whole-Current encoding; exact rational DTO
+transport; worker copies, scheduling, concurrency, cancellation and cache
+release; estimation of off-horizon contributions, prefixes and lookahead before
+admission; reduced dense extraction and simultaneous structures; stage/cause
+diagnostics distinguishing incomplete results from unavailable replay. Universal
+compatibility, the valid extreme legacy case left unexecuted, absolute memory
+peaks and integrated CPU/RAM budgets remain unproven. UI cycles, cold global-cap
+arbitration and integration remain for 11D.5; format/persistence closure remains
+for 11D.3. This handoff starts none of these lots.
 
 Envisaged lots: 11D.3 Inputs-Only Capture & Persistence; 11D.4 Historical
 Simulation Service; 11D.5 Historical Views Integration. Recommended delivery
