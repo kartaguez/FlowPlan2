@@ -7,7 +7,7 @@ For durable invariants and architecture, see [canon](./canon.md).
 active implementation and trajectory. The remaining work is in the
 [current plan](./current_plan.md).
 
-## 11D.1 RAF Model — IN REVIEW
+## 11D.1 RAF Model — DONE
 
 Implemented from `6ce922e55621423c4e00e21e374ae53a6deb1efa` on the required
 branch, following the independently audited amended R1/R2 plan and explicit
@@ -32,8 +32,14 @@ payloads. Physical IndexedDB/CAS/recovery are unchanged. 11C remains enforced.
 This supersedes the permanent numerical equality and quick RAF-only publication
 rules described in the historical lot sections below. New UX, exact decimal
 presentation, replay and inputs-only remain outside this delivery.
-11D.0 remains DONE; no subsequent lot is started. Independent implementation
-audit is required before closure.
+11D.0 remains DONE; no subsequent lot is started. Following the favorable
+independent audit reported by the user, final V1/V2 verification satisfies the
+explicit conditional closure: restored split/merge IDs, safe modal RAF-only
+review with retained consumption and selective proof invalidation, and explicit
+R1 confirmation separate from text entry. Final gates: 1009/1009 Node tests,
+3/3 portable, typecheck/build/storage, 22 existing and 11 new native browser
+scenarios, diff check. RAF Model is DONE; 11D.1 UX remains NOT STARTED.
+[Final evidence and limits](./steps/ACTUALS/lot11d1_raf_model_canon.md#final-v1v2-verification-and-conditional-closure--2026-10-09).
 
 ## Validated implementation baseline
 

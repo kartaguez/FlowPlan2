@@ -1,8 +1,9 @@
 # Lot 11D.1 — RAF Model delivery
 
-**Status: IN REVIEW.** 2026-10-09. Independent ChatGPT implementation audit is
-required. 11D.0 remains DONE; UX redesign, replay, inputs-only and following
-lots remain NOT STARTED. No DONE closure is inferred from this delivery.
+**Status: DONE — RAF Model only.** 2026-10-09. The user reports a favorable
+independent ChatGPT audit and authorizes conditional closure after V1/V2.
+The final verification below satisfies that condition. 11D.0 remains DONE;
+UX redesign, replay, inputs-only and following lots remain NOT STARTED.
 
 Initial SHA: `6ce922e55621423c4e00e21e374ae53a6deb1efa`.
 Branch: `codex/lot11a-portfolio-snapshots`. Before any modification: fetch
@@ -160,7 +161,8 @@ at both sizes; the existing matrix uses its own horizontal scroll.
 
 ## Residual limits and stopping point
 
-The independent implementation audit is outstanding. This is an isolated
+The original delivery awaited independent implementation audit; the user has
+since reported it favorable, subject to V1/V2 verified below. This is an isolated
 headless Edge 154 review, not a physical mobile/assistive-reader audit or an
 inventory of user IndexedDB. Two connections exercise native concurrency; a
 manual multi-browser/multi-device audit is not claimed. Physical quota exhaustion
@@ -172,7 +174,7 @@ Unapplied RAM drafts are lost after explicitly confirmed recovery reload.
 No independent RAF change journal is added. No precision-rendering redesign,
 UX refactor, replay service, inputs-only capture, new storage format or future
 lot is started. Commit/push is the authorized stopping point. **11D.1 RAF Model
-— IN REVIEW**, pending independent ChatGPT audit.
+— DONE** following the conditional V1/V2 closure below.
 
 ## Changed files
 
@@ -241,3 +243,157 @@ lot is started. Commit/push is the authorized stopping point. **11D.1 RAF Model
 - `src/ui/project-edit/projectDraftStore.ts`
 - `src/ui/timeline/createTimelineUiCoordinator.multidraft.test.ts`
 - `src/ui/timeline/createTimelineUiCoordinator.ts`
+
+## Final V1/V2 verification and conditional closure — 2026-10-09
+
+Baseline `cc81b9901e1a617c5eddc2051ee9946aa70fb5af`, exact expected branch,
+clean tree and origin 0/0 after successful fetch. The user reports the independent
+ChatGPT audit favorable and requests closure if the supplementary checks pass.
+This section supersedes the original IN REVIEW delivery status; the original
+994-test report above remains a historical delivery record.
+
+### Demonstrated defects and minimal corrections
+
+1. **V1, split/merge undone**: the real editor drops `originalPeriodId` while
+   rebuilding rows. The parser formerly generated v+1 period IDs even when
+   dates and all exact consumed amounts returned to published values. Application
+   correctly refused `UNCHANGED_PERIOD_ID`. The parser now resolves the old ID
+   by complete exact period knowledge, retaining IDs for restored and unchanged
+   periods. Direct identity substitution remains rejected by Application/Domain.
+2. **V2, modal consumption A + concurrent current RAF A/B**: `review` formerly
+   required local modal consumption to equal opening consumption, blocking this
+   safe review. It now retains local periods and their provenance when remote
+   Actuals remain unchanged, merges RAF in three ways, updates the immutable RAM
+   base after explicit review, and invalidates only confirmations whose RAF base
+   changed. An invalid local RAF cannot retain a confirmation. Remote Actuals,
+   membership, parameter or contradictory RAF changes still refuse modal review.
+3. **R1, RAF text entry**: typing, including an equivalent rational, formerly
+   set `rafConfirmed=true`. Text entry now never creates a confirmation; a numeric
+   change invalidates the previous proof, while equivalent text retains only an
+   existing proof. The existing confirmation checkbox supplies deliberate evidence.
+   The multidraft test helper now performs that explicit checkbox action; all
+   existing assertions and tests remain active, with none weakened or removed.
+
+All three defects have red-before/green-after regression evidence. No change to
+Domain, R2 routing, Current base validation, repository/CAS, V8/inputs formats,
+planning engine or 11D.0 contracts was necessary.
+
+### V1 results
+
+| Requested case | Executed evidence and result |
+| --- | --- |
+| Open / Apply unchanged | Direct Application R2 false/false and native editor `open`: same state/projection, zero writes/snapshots |
+| Period changed then restored | Store and real date controls restore the exact initial partition; `period-restored`: zero writes/projections |
+| Consumption changed then restored | Store and real consumed input restored; `consumption-restored`: zero writes/projections |
+| Split then undo | Real Split/Confirm split/Merge controls; `split-undone`: old ID restored, no write/projection |
+| Merge then undo | Two original periods, real Merge/Split controls; `merge-undone`: both original IDs restored, no write/projection |
+| Equivalent rationals | Exact canonical quantity comparison (`2/6`, `0/7`); no false knowledge change and no minted confirmation |
+| Technical ID substitution | Direct Application test refuses artificial period ID; state unchanged |
+| Real consumption, same partition | Direct Application and native `consumption-real`: R1 A required, B optional; one new snapshot/projection/write |
+
+`canonicalActualsKnowledge` excludes IDs and RAF from Actuals knowledge;
+`validateProjectSnapshotIdentities` runs before R2 no-op selection. Domain
+`replaceProjectSnapshot` retains its identity and R1 rules. The parser restores
+IDs only for a period whose full knowledge is equal, and creates new IDs for
+changed consumption. There is no identity-validation bypass.
+
+### V2 results
+
+The real modal sequence was executed for consumption A with concurrent RAF A
+and RAF B: open, enter consumed A, confirm A, apply another RAF operation,
+remount with the latest model, explicit Review, Apply and read persisted Current.
+For concurrent A, Apply without renewed confirmation refuses, preserves the
+modal and published state; explicit checkbox renewal permits one transaction.
+For concurrent B, A's unaffected confirmation survives review; B's confirmation
+is invalidated but is not required by R1 at unchanged partition/consumption B.
+The published consumption is `1/3` and the revised RAF is `2/3`, with the original
+snapshot untouched. Neither path silently restores historical RAF.
+
+Further executed regressions cover local coverage change (all RAF proofs still
+required after review), remote coverage and membership changes (review refused,
+draft intact), contradictory same-Team RAF (review refused), exact equivalent
+RAF (no artificial conflict), two dirty cards (other invalid text remains), and
+Cancel after conflict (only RAM draft removed; Current unchanged). Existing
+coordinator/controller tests cover owner cleanup, handoff, suspend/remount and
+Cancel restoring the card. Full Application base checks reject stale commands
+before routing even if target equals Current. Native CAS/recovery regressions
+remain green.
+
+### Exact existing test names retained
+
+From `src/application/session/lot11d1RafModel.test.ts`:
+
+- `R2a/R1a/T1/S1 direct Application transaction Actuals=false RAF=false`
+  (also false/true, true/false and true/true).
+- `R1a/R2b consumption-only requires A confirmation, accepts unchanged RAF, leaves B unconfirmed`.
+- `R1b/D5 partition change confirms all participants: split`
+  (also from, through and erosion-total).
+- `R2b equivalent rationals and confirmations are no-op; technical identity substitution refuses`.
+- `C2/R2b stale full RAF base blocks routing even target=current, Actuals changed=false`
+  (also true).
+- `C2/R1c remote consumption invalidates its RAF proof without losing a disjoint RAF draft`.
+- `C1/C2 drafts detect independent RAF at same Actuals version, preserve invalid text, modal=true`
+  (also false).
+- `C1 safe rebase keeps an equivalent entered RAF text on a remotely unchanged Team`.
+
+From `src/ui/actuals/actualsWorkflow.test.ts`:
+
+- `an open RAF modal waits for explicit review before a safe three-way rebase`.
+- `draft rebases disjoint RAF edits with exact values`.
+- `changed nonzero cells need their own evidence and are never prorated by a split`.
+
+From `src/domain/actuals/snapshots.test.ts`:
+
+- `same day version, no-op, stale base, changed value and explicit RAF`.
+- `reordering unchanged period rows and Team cells is a no-op`.
+- `history preflight refuses a reused period ID with changed facts`.
+
+The 15 added Node regressions cover six restored/no-op final candidates, A/B
+modal RAF review, three refusal/Cancel variants, equivalent RAF/two cards, local
+coverage review, and two RAF-entry confirmation cases. Eleven additional native
+browser scenarios execute real editor controls and persisted results; they are
+not counted in the Node test total.
+
+### Final executed gates and residual limits
+
+[Final gate report](./lot11d1_raf_model_final_validation.txt),
+[11 native V1/V2 results](./lot11d1_raf_model_final_browser.json),
+reproducible via `node scripts/browser-raf-final-test.mjs` after build.
+
+| Command | Result |
+| --- | --- |
+| `npm run typecheck` | Exit 0 |
+| `npm test` | Exit 0; 1009/1009, 96 suites, zero failure/cancel/skip/todo |
+| `npm run build` | Exit 0 |
+| `npm run test:storage` | Exit 0; Edge 154, 15 repository assertions plus UI/upgrade/layout/injected quota checks |
+| `npm run test:portable` | Exit 0; 3/3, zero failure/cancel/skip/todo |
+| `node scripts/browser-storage-audit-test.mjs` | Exit 0; 22/22, zero failure/skip; mounted multidraft review and widths 1440/390 |
+| `node scripts/browser-raf-final-test.mjs` | Exit 0; 11/11; no-op 0/0 projection/write, effective Actuals 1/1 |
+| `git diff --check` | Exit 0; no output |
+
+**1012 unique Node tests**, browser results reported separately. No physical
+quota exhaustion, physical mobile/accessibility audit or multi-device audit is
+claimed. Incompatible remote partition/membership/Actuals changes require
+explicit Cancel/reopening rather than automatic modal merge; the refused draft
+is preserved until that choice. Cross-tab CAS recovery retains the documented
+11D.0 explicit-reload behavior and RAM-draft loss after confirmed reload.
+These are conservative existing limits, not silent publication or data loss.
+
+**Decision: 11D.1 RAF Model DONE; 11D.0 DONE; 11D.1 UX NOT STARTED.**
+No UX redesign, replay, inputs-only, format change or following lot was started.
+Final SHA is the closure commit in Git, not self-referenced inside that commit.
+
+### Files changed by this final verification mission
+
+- `docs/current_plan.md`
+- `docs/current_canon.md`
+- `docs/steps/ACTUALS/lot11d1_raf_model_canon.md`
+- `docs/steps/ACTUALS/lot11d1_raf_model_final_validation.txt`
+- `docs/steps/ACTUALS/lot11d1_raf_model_final_browser.json`
+- `scripts/browser-raf-final-test.mjs`
+- `src/application/session/lot11d1RafModel.test.ts`
+- `src/ui/actuals/createSnapshotActualsCardController.ts`
+- `src/ui/actuals/createSnapshotActualsCardController.test.ts`
+- `src/ui/actuals/parseSnapshotActualsCommand.ts`
+- `src/ui/actuals/snapshotActualsDraftStore.ts`
+- `src/ui/timeline/createTimelineUiCoordinator.multidraft.test.ts`

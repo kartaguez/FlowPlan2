@@ -1,0 +1,77 @@
+{
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Edg/154.0.4258.53",
+    "revision": "@5af6e80f702cffe10645c6d6433668f011b739be",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36 Edg/154.0.0.0",
+    "jsVersion": "15.4.11.7"
+  },
+  "scenarios": [
+    {
+      "scenario": "open",
+      "pass": true,
+      "projections": 0,
+      "writes": 0
+    },
+    {
+      "scenario": "period-restored",
+      "pass": true,
+      "projections": 0,
+      "writes": 0
+    },
+    {
+      "scenario": "consumption-restored",
+      "pass": true,
+      "projections": 0,
+      "writes": 0
+    },
+    {
+      "scenario": "split-undone",
+      "pass": true,
+      "projections": 0,
+      "writes": 0
+    },
+    {
+      "scenario": "merge-undone",
+      "pass": true,
+      "projections": 0,
+      "writes": 0
+    },
+    {
+      "scenario": "equivalent",
+      "pass": true,
+      "projections": 0,
+      "writes": 0
+    },
+    {
+      "scenario": "consumption-real",
+      "pass": true,
+      "projections": 1,
+      "writes": 1
+    },
+    {
+      "scenario": "concurrent-A",
+      "pass": true,
+      "projections": 1,
+      "writes": 1
+    },
+    {
+      "scenario": "concurrent-B",
+      "pass": true,
+      "projections": 1,
+      "writes": 1
+    },
+    {
+      "scenario": "equivalent-raf-proof",
+      "pass": true,
+      "projections": 1,
+      "writes": 1
+    },
+    {
+      "scenario": "numeric-raf-proof",
+      "pass": true,
+      "projections": 1,
+      "writes": 1
+    }
+  ]
+}

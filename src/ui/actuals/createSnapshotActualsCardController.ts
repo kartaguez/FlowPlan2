@@ -382,7 +382,9 @@ export function createSnapshotActualsCardController(input: SnapshotActualsCardCo
         }
         textInput(fields, label + " RAF (exact)", team.raf, (value) => update((old) => ({
           ...old,
-          teams: old.teams.map((row) => row.teamId === team.teamId ? { ...row, raf: value, rafConfirmed: true } : row)
+          teams: old.teams.map((row) => row.teamId === team.teamId ? { ...row, raf: value,
+            rafConfirmed: parseExactQuantityInput(value) !== undefined &&
+              parseExactQuantityInput(value) === parseExactQuantityInput(row.raf) && Boolean(row.rafConfirmed) } : row)
         })));
         check(fields, "Confirm " + label + " RAF" + (required ? " (required)" : ""), Boolean(team.rafConfirmed), (rafConfirmed) => update((old) => ({
           ...old,

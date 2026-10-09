@@ -289,3 +289,20 @@ function synchronous<T>(value: T | Promise<T>): T {
   if (value instanceof Promise) throw new Error("Expected synchronous characterization adapter.");
   return value;
 }
+
+for (const text of ["2/2", "2/1"]) test(`V2 RAF typing cannot mint R1 confirmation: ${text}`, () => {
+  const session = createPlanningSession(createDemoPlanningScenario(), { today: () => d("2025-01-06") });
+  const id = session.getState().portfolio.projects[0]!.id, model = buildProjectSnapshotActualsViewModel(session.getState(), id)!;
+  const store = createSnapshotActualsDraftStore(), base = store.initialize(model);
+  const teams = base.teams.map(row => ({ ...row, raf: "1", rafConfirmed: false }));
+  const periods = [{ from: "2025-01-04", through: "2025-01-04", values: teams.filter(row => row.enabled).map(row => ({ teamId: row.teamId, text: "1/3", provenance: "user-entered" as const })) }];
+  store.update(id, { ...base, modal: { step: 3, selection: "initial", periods, teams, confirmed: false, retirementConfirmed: false, anchor: 0 } });
+  const host = new FakeDocument().createElement("div");
+  const controller = createSnapshotActualsCardController({ host: host as unknown as HTMLElement, model, store, onDraftChange() {}, conflict: () => undefined, onApply: command => session.dispatch(command) });
+  const label = all(host).find(node => node.tag === "label" && node.textContent.endsWith(" RAF (exact)"))!;
+  label.children[0]!.value = text; label.children[0]!.emit("input");
+  assert.equal(store.get(id)!.modal!.teams.find(row => row.teamId === teams.find(row => row.enabled)!.teamId)!.rafConfirmed, false);
+  const parsed = parseSnapshotActualsCommand(model, { ...store.get(id)!, ...store.get(id)!.modal! }); assert.ok(parsed.ok);
+  if (parsed.ok) assert.equal(session.dispatch(parsed.command).ok, false);
+  controller.destroy();
+});

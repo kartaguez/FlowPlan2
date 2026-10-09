@@ -257,6 +257,10 @@ describe("coordinator multi-draft rerender", () => {
       for (const label of all(host).filter((item) => item.tagName === "label" && item.textContent.includes(" RAF (exact)"))) {
         label.children[0]!.value = "1"; label.children[0]!.emit("input");
       }
+      // R1 confirmation is an explicit action, separate from RAF text entry.
+      for (const label of all(host).filter((item) => item.tagName === "label" && item.children.some(child => child.textContent.startsWith("Confirm ") && child.textContent.includes(" RAF")))) {
+        label.children[0]!.checked = true; label.children[0]!.emit("change");
+      }
     }
   };
   it("keeps Project and Reservation cards pristine on Actuals open/collapse and resets on Cancel", () => {

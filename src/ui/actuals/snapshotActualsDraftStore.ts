@@ -172,8 +172,9 @@ export function createSnapshotActualsDraftStore(): SnapshotActualsDraftStore {
           !(old.baseModel.currentBase?.source.startsWith('["snapshot",') && old.model.currentBase?.source.startsWith('["snapshot",'))) return false;
       if (JSON.stringify(old.baseModel.currentBase?.requirements.map(row => [row.teamId, row.dailyCap])) !== JSON.stringify(old.model.currentBase?.requirements.map(row => [row.teamId, row.dailyCap]))) return false;
       const periodValues = (periods: readonly SnapshotPeriodDraft[]) => values({ periods, teams: [] });
-      if (periodValues(old.modal.periods) !== periodValues(base.periods) ||
-          periodValues(fresh.periods) !== periodValues(base.periods) ||
+      // Local Actuals edits survive an explicit RAF-only review. A remote
+      // Actuals/partition edit still requires Cancel and a new draft.
+      if (periodValues(fresh.periods) !== periodValues(base.periods) ||
           old.modal.teams.some((row, index) => row.teamId !== base.teams[index]?.teamId ||
             row.enabled !== base.teams[index]?.enabled || row.enabled !== fresh.teams[index]?.enabled)) return false;
       let conflict = false;
@@ -185,11 +186,13 @@ export function createSnapshotActualsDraftStore(): SnapshotActualsDraftStore {
         return localChanged || !remoteChanged ? local : remote;
       };
       const teams = fresh.teams.map((row, index) => ({ ...row,
-        raf: mergeRaf(base.teams[index]!.raf, old.teams[index]!.raf, row.raf), rafConfirmed: false }));
+        raf: mergeRaf(base.teams[index]!.raf, old.teams[index]!.raf, row.raf),
+        rafConfirmed: parseExactQuantityInput(base.teams[index]!.raf) === parseExactQuantityInput(row.raf) && parseExactQuantityInput(old.teams[index]!.raf) !== undefined && (old.teams[index]!.rafConfirmed ?? false) }));
       const modalTeams = fresh.teams.map((row, index) => ({ ...row,
-        raf: mergeRaf(base.teams[index]!.raf, old.modal!.teams[index]!.raf, row.raf), rafConfirmed: false }));
+        raf: mergeRaf(base.teams[index]!.raf, old.modal!.teams[index]!.raf, row.raf),
+        rafConfirmed: parseExactQuantityInput(base.teams[index]!.raf) === parseExactQuantityInput(row.raf) && parseExactQuantityInput(old.modal!.teams[index]!.raf) !== undefined && (old.modal!.teams[index]!.rafConfirmed ?? false) }));
       if (conflict) return false;
-      entries.set(id, { ...fresh, teams, modal: { ...old.modal, periods: fresh.periods,
+      entries.set(id, { ...fresh, teams, modal: { ...old.modal, periods: old.modal.periods,
         teams: modalTeams, confirmed: false, retirementConfirmed: false }, stale: false });
       return true;
     },

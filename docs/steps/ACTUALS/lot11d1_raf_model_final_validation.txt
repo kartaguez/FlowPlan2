@@ -1,0 +1,171 @@
+Final V1/V2 verification — 2026-10-09
+Initial SHA cc81b9901e1a617c5eddc2051ee9946aa70fb5af
+Branch codex/lot11a-portfolio-snapshots
+Initial fetch exit 0; status empty; origin divergence 0/0.
+
+Executed final gates (all exit 0):
+
+$ npm run typecheck
+
+> flowplan@0.1.0 typecheck
+> tsc -p tsconfig.app.json --noEmit
+
+
+$ npm test
+✔ TimelineViewport (6.258083ms)
+ℹ tests 1009
+ℹ suites 96
+ℹ pass 1009
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3198.912333
+
+$ npm run build
+
+> flowplan@0.1.0 build
+> node scripts/build.mjs
+
+
+$ npm run test:storage
+
+> flowplan@0.1.0 test:storage
+> npm run build && node scripts/browser-storage-test.mjs
+
+
+> flowplan@0.1.0 build
+> node scripts/build.mjs
+
+Quota override: {"usage":144889,"quota":1024,"overrideActive":true,"usageBreakdown":[{"storageType":"file_systems","usage":0},{"storageType":"indexeddb","usage":144889},{"storageType":"cache_storage","usage":0},{"storageType":"service_workers","usage":0}]}
+{
+  "browser": "Edg/154.0.4258.53",
+  "result": {
+    "assertions": 15,
+    "exportBytes": 21182,
+    "token": {
+      "generation": "stage-import",
+      "revision": 6,
+      "currentRevision": 3,
+      "historyRevision": 5
+    }
+  },
+  "quota": {
+    "overrideAccepted": true,
+    "physicalQuotaEnforced": false,
+    "nativeInjectedQuotaAtomic": true,
+    "nativeCode": "QUOTA"
+  },
+  "ui": {
+    "migrated": true,
+    "save": true,
+    "history": true,
+    "details": true,
+    "cycles": 3,
+    "legacyPreserved": true,
+    "closedHistoryRows": 0
+  },
+  "blockedUpgrade": {
+    "blocked": true,
+    "code": "BLOCKED"
+  },
+  "layout": [
+    {
+      "width": 1440,
+      "scrollWidth": 1440
+    },
+    {
+      "width": 390,
+      "scrollWidth": 390
+    }
+  ],
+  "historyLayouts": [
+    {
+      "theme": "light",
+      "width": 1440,
+      "scrollWidth": 1440
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "scrollWidth": 1440
+    },
+    {
+      "theme": "light",
+      "width": 390,
+      "scrollWidth": 390
+    },
+    {
+      "theme": "dark",
+      "width": 390,
+      "scrollWidth": 390
+    }
+  ],
+  "originIsolated": true
+}
+
+$ npm run test:portable
+
+> flowplan@0.1.0 test:portable
+> node --test scripts/portable-server.test.cjs
+
+✔ serves embedded web assets with correct headers (0.483708ms)
+✔ HEAD omits the body and keeps the asset length (0.065583ms)
+✔ rejects other hosts, methods, and unknown assets (0.060375ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 55.528958
+
+$ node scripts/browser-storage-audit-test.mjs
+{"review":{"multipleDirtyCardsPreserved":true,"currentRAF":"2/3","historicalRAF":"1/3","snapshots":1},"layouts":[{"width":1440,"scrollWidth":1440},{"width":390,"scrollWidth":390}]}
+{
+  "browser": "Edg/154.0.4258.53",
+  "tests": 22,
+  "passed": 22,
+  "failed": 0,
+  "skipped": 0,
+  "cases": [
+    "valid legacy certificate: worker read and History",
+    "structural forgery with valid digest rejected by both worker paths",
+    "business forgery with valid digest rejected by both worker paths",
+    "corruption after certification rejected",
+    "native abort proves rollback and preserves persisted authority",
+    "post-complete notification failure rejects as uncertain and receipt retry is idempotent",
+    "invalid mid-import cannot activate and incomplete native staging resumes",
+    "native save commit with failed local reconciliation blocks subsequent UI-facing mutations",
+    "native delete commit with failed local reconciliation blocks subsequent UI-facing mutations",
+    "native current commit with failed local reconciliation blocks subsequent UI-facing mutations",
+    "11D.1 native R2 false/false",
+    "11D.1 native R2 false/true",
+    "11D.1 native R2 true/false",
+    "11D.1 native R2 true/true",
+    "11D.1 native mixed inputs1/2, old Current startup, CAS lost, export/import/reopen",
+    "11D.1 native Update Actuals modal R2 false/false",
+    "11D.1 native Update Actuals modal R2 false/true",
+    "11D.1 native Update Actuals modal R2 true/false",
+    "11D.1 native Update Actuals modal R2 true/true",
+    "11D.1 native RAF abort / explicit retry",
+    "11D.1 native RAF ack lost / recovery",
+    "mounted UI retains drafts and blocks Save/Delete/Apply after a lost native acknowledgment; recovery rereads authority"
+  ]
+}
+
+$ node scripts/browser-raf-final-test.mjs
+Exit 0; 11/11 scenarios; full output in lot11d1_raf_model_final_browser.json.
+$ git diff --check
+Exit 0; no output (checked before documentation and again before commit).
+
+Red evidence before corrections:
+- V1 split-undone and merge-undone: assert(dispatcher.dispatch(parsed.command).ok)
+  failed; Application rejects synthetic replacement ID (UNCHANGED_PERIOD_ID).
+- V2 concurrent RAF Team A and Team B with local consumption: review(id)
+  returned false; the local consumption blocked safe RAF-only review.
+- V2 RAF typing cannot mint R1 confirmation: 2/2 and 2/1:
+  actual rafConfirmed=true, expected false.
+All six regressions pass after the minimal fixes. No production Domain,
+Application transaction, persistence, codec, V8, engine or 11D.0 change.

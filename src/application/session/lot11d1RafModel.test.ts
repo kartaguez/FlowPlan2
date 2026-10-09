@@ -284,3 +284,113 @@ it("A1 preserves every non-RAF field and optional provenance absence on native r
   const { requirements: _before, ...oldFields } = project, { requirements: _after, ...newFields } = updated; void _before; void _after;
   assert.deepEqual(newFields, oldFields);
 });
+
+// Final independent Application/editor regressions (V1/V2).
+import { parseSnapshotActualsCommand } from "../../ui/actuals/parseSnapshotActualsCommand.js";
+for (const variant of ["open", "period-restored", "consumption-restored", "split-undone", "merge-undone", "equivalent"] as const) it(`V1 editor restored knowledge is a repository no-op: ${variant}`, async () => {
+  const state = fixture(), repository = createMemoryPlanningRepository(), stage = await repository.stageImport(state, "seed");
+  await repository.activateImport(stage, null, "activate");
+  const current = await repository.readCurrent(), session = createPlanningSession(current.state);
+  let builds = 0, writes = 0;
+  const observed: PlanningRepository = { ...repository, writeCurrent: async (...args) => { writes++; return repository.writeCurrent(...args); } };
+  const dispatcher = createRepositoryPlanningDispatcher({ repository: observed, current, session, geometryViewport: viewport, hasUnappliedChanges: () => false,
+    buildProjection: input => { builds++; return buildPlanningSessionProjection(input); } });
+  const project = first(session.getState()), model = buildProjectSnapshotActualsViewModel(session.getState(), project.id)!;
+  const store = createSnapshotActualsDraftStore(), base = store.initialize(model);
+  // Split/merge rebuild rows without originalPeriodId in the real editor.
+  if (variant === "period-restored") store.update(project.id, { ...base, periods: base.periods.map(row => ({ ...row, through: "2025-01-03" })) });
+  if (variant === "consumption-restored") store.update(project.id, { ...base, periods: base.periods.map(row => ({ ...row, values: row.values.map(cell => ({ ...cell, text: "2/7" })) })) });
+  const periods = base.periods.map(row => {
+    if (variant === "split-undone" || variant === "merge-undone") { const { originalPeriodId: _id, ...rest } = row; void _id; return rest; }
+    return { ...row, values: row.values.map(cell => ({ ...cell, text: variant === "equivalent" ? "0/7" : cell.text })) };
+  });
+  store.update(project.id, { ...base, periods });
+  assert.equal(store.isDirty(project.id), false);
+  const parsed = parseSnapshotActualsCommand(model, store.get(project.id)!); assert.ok(parsed.ok);
+  if (!parsed.ok) return;
+  const before = session.getState(), projection = dispatcher.getProjection(), count = builds;
+  assert.ok((await dispatcher.dispatch(parsed.command)).ok);
+  assert.strictEqual(session.getState(), before); assert.strictEqual(dispatcher.getProjection(), projection);
+  assert.equal(builds, count); assert.equal(writes, 0);
+  assert.equal(parsed.command.current.coverage!.periods[0]!.periodId, "original");
+});
+for (const remoteTeam of [0, 1]) it(`V2 modal consumption A reviews concurrent RAF Team ${remoteTeam === 0 ? "A" : "B"} and renews dependent proof`, () => {
+  const session = createPlanningSession(fixture(), { today: () => date("2025-01-06") }), project = first(session.getState());
+  const model = buildProjectSnapshotActualsViewModel(session.getState(), project.id)!, store = createSnapshotActualsDraftStore(), base = store.initialize(model);
+  const periods = base.periods.map(row => ({ ...row, values: row.values.map((cell, i) => i === 0 ? { ...cell, text: "1/3", provenance: "user-entered" as const } : cell) }));
+  store.update(project.id, { ...base, modal: { step: 3, selection: { from: 0, through: 0 }, periods,
+    teams: base.teams.map(row => ({ ...row, rafConfirmed: true })), confirmed: true, retirementConfirmed: false, anchor: 0 } });
+  const opening = parseSnapshotActualsCommand(model, { ...base, ...store.get(project.id)!.modal! }); assert.ok(opening.ok);
+  assert.ok(session.dispatch(commandA(project, "2/3", remoteTeam)).ok);
+  const before = session.getState(); if (opening.ok) assert.equal(session.dispatch(opening.command).ok, false);
+  const latest = buildProjectSnapshotActualsViewModel(before, project.id)!; store.rebase(latest);
+  assert.equal(store.get(project.id)!.stale, true); assert.equal(store.review(project.id), true);
+  const reviewed = store.get(project.id)!, modal = reviewed.modal!;
+  assert.equal(modal.periods[0]!.values[0]!.text, "1/3");
+  assert.equal(modal.teams[remoteTeam]!.raf, "2/3"); assert.equal(modal.teams[remoteTeam]!.rafConfirmed, false);
+  assert.equal(modal.teams[1 - remoteTeam]!.rafConfirmed, true);
+  const parsed = parseSnapshotActualsCommand(latest, { ...reviewed, ...modal }); assert.ok(parsed.ok);
+  if (parsed.ok) {
+    const result = session.dispatch(parsed.command);
+    assert.equal(result.ok, remoteTeam === 1); // Only consumption A requires R1 after B changes.
+    if (remoteTeam === 0) {
+      assert.strictEqual(session.getState(), before); assert.ok(store.get(project.id)!.modal);
+      const renewed = parseSnapshotActualsCommand(latest, { ...reviewed, ...modal, teams: modal.teams.map(row => ({ ...row, rafConfirmed: true })) });
+      assert.ok(renewed.ok); if (renewed.ok) assert.ok(session.dispatch(renewed.command).ok);
+    }
+  }
+  const published = first(session.getState()); assert.equal(published.snapshots!.length, 2);
+  assert.equal(serializeQuantity(published.snapshots!.at(-1)!.coverage!.periods[0]!.consumed[0]!.amount), "1/3");
+  assert.equal(serializeQuantity(published.requirements[remoteTeam]!.remainingWorkload), "2/3");
+});
+
+for (const remote of ["coverage", "membership", "same-raf-conflict"] as const) it(`V2 conflicting modal refuses review, retains draft and cancels locally: ${remote}`, () => {
+  const session = createPlanningSession(fixture(), { today: () => date("2025-01-06") }), project = first(session.getState());
+  const store = createSnapshotActualsDraftStore(), base = store.initialize(buildProjectSnapshotActualsViewModel(session.getState(), project.id)!);
+  const modal = { step: 3 as const, selection: { from: 0, through: 0 }, periods: base.periods.map(row => ({ ...row, values: row.values.map((cell, i) => i === 0 ? { ...cell, text: "1/3", provenance: "user-entered" as const } : cell) })),
+    teams: base.teams.map((row, i) => ({ ...row, raf: remote === "same-raf-conflict" && i === 0 ? "5/7" : row.raf, rafConfirmed: true })), confirmed: true, retirementConfirmed: false, anchor: 0 };
+  store.update(project.id, { ...base, modal });
+  const command = commandB(project), coverage = command.current.coverage!;
+  if (remote === "same-raf-conflict") assert.ok(session.dispatch(commandA(project)).ok);
+  else if (remote === "coverage") assert.ok(session.dispatch({ ...command, intent: { kind: "erosion" },
+    current: { ...command.current, coverage: { ...coverage, actualsThrough: date("2025-01-01"), periods: coverage.periods.map(row => ({ ...row, periodId: "trim", through: date("2025-01-01") })) } },
+    evidence: { consumedCells: [], rafTeams: command.current.participation } }).ok);
+  else assert.ok(session.dispatch({ ...command, intent: { kind: "membership" }, teamRequirements: command.teamRequirements.slice(1),
+    current: { ...command.current, participation: command.current.participation.slice(1), retiredZeroTeams: [command.current.participation[0]!], raf: command.current.raf.slice(1),
+      coverage: { ...coverage, periods: coverage.periods.map(row => ({ ...row, periodId: "retire", consumed: row.consumed.slice(1) })) } },
+    evidence: { consumedCells: [], retiredTeams: [command.current.participation[0]!] } }).ok);
+  const before = session.getState(), latest = buildProjectSnapshotActualsViewModel(before, project.id)!;
+  store.rebase(latest); assert.equal(store.review(project.id), false); assert.equal(store.get(project.id)!.stale, true);
+  assert.deepEqual(store.get(project.id)!.modal, modal);
+  assert.equal(parseSnapshotActualsCommand(latest, { ...store.get(project.id)!, ...modal }).ok, false);
+  store.cancel(project.id); assert.equal(store.get(project.id), undefined); assert.strictEqual(session.getState(), before);
+});
+it("V2 equivalent concurrent RAF preserves modal proof and a second dirty card", () => {
+  const session = createPlanningSession(fixture(), { today: () => date("2025-01-06") }), project = first(session.getState()), other = session.getState().portfolio.projects[1]!;
+  const store = createSnapshotActualsDraftStore(), base = store.initialize(buildProjectSnapshotActualsViewModel(session.getState(), project.id)!);
+  const second = store.initialize(buildProjectSnapshotActualsViewModel(session.getState(), other.id)!);
+  store.update(other.id, { ...second, teams: second.teams.map((row, i) => i === 0 ? { ...row, raf: "1/" } : row) });
+  const otherDraft = store.get(other.id);
+  const modal = { step: 3 as const, selection: { from: 0, through: 0 }, periods: base.periods.map(row => ({ ...row, values: row.values.map((cell, i) => i === 0 ? { ...cell, text: "1/3", provenance: "user-entered" as const } : cell) })), teams: base.teams.map(row => ({ ...row, raf: "2/6", rafConfirmed: true })), confirmed: true, retirementConfirmed: false, anchor: 0 };
+  store.update(project.id, { ...base, modal }); const before = session.getState();
+  assert.ok(session.dispatch(commandA(project, "2/6")).ok); assert.strictEqual(session.getState(), before);
+  const latest = buildProjectSnapshotActualsViewModel(before, project.id)!; store.rebase(latest);
+  assert.equal(store.get(project.id)!.stale, false); assert.deepEqual(store.get(project.id)!.modal, modal);
+  const parsed = parseSnapshotActualsCommand(latest, { ...store.get(project.id)!, ...modal }); assert.ok(parsed.ok);
+  if (parsed.ok) assert.ok(session.dispatch(parsed.command).ok);
+  store.cancel(project.id); assert.strictEqual(store.get(other.id), otherDraft); assert.equal(store.isDirty(other.id), true);
+});
+it("V2 local coverage edit survives RAF-only review and still requires every RAF confirmation", () => {
+  const session = createPlanningSession(fixture(), { today: () => date("2025-01-06") }), project = first(session.getState()), store = createSnapshotActualsDraftStore();
+  const base = store.initialize(buildProjectSnapshotActualsViewModel(session.getState(), project.id)!);
+  const modal = { step: 3 as const, selection: { from: 0, through: 0 }, periods: base.periods.map(row => ({ ...row, from: "2025-01-02" })),
+    teams: base.teams.map(row => ({ ...row, rafConfirmed: true })), confirmed: true, retirementConfirmed: false, anchor: 0 };
+  store.update(project.id, { ...base, modal }); assert.ok(session.dispatch(commandA(project, "2/3", 1)).ok);
+  const latest = buildProjectSnapshotActualsViewModel(session.getState(), project.id)!; store.rebase(latest); assert.ok(store.review(project.id));
+  const reviewed = store.get(project.id)!; assert.deepEqual(reviewed.modal!.periods, modal.periods);
+  const parsed = parseSnapshotActualsCommand(latest, { ...reviewed, ...reviewed.modal! }); assert.ok(parsed.ok);
+  if (parsed.ok) assert.equal(session.dispatch(parsed.command).ok, false);
+  const renewed = parseSnapshotActualsCommand(latest, { ...reviewed, ...reviewed.modal!, teams: reviewed.modal!.teams.map(row => ({ ...row, rafConfirmed: true })) });
+  assert.ok(renewed.ok); if (renewed.ok) assert.ok(session.dispatch(renewed.command).ok);
+  assert.equal(first(session.getState()).snapshots!.at(-1)!.coverage!.actualsFrom, "2025-01-02");
+});

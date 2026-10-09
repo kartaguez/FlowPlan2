@@ -46,11 +46,13 @@ export function parseSnapshotActualsCommand(model: SnapshotActualsViewModel, dra
       if (!value?.ok) errors.push(error(`periods[${index}].${team.teamId}`, "Enter an exact nonnegative consumed value."));
       return value?.ok ? { teamId: team.teamId, amount: value.value } : undefined;
     }).filter((item): item is NonNullable<typeof item> => item !== undefined);
-    const prior = old?.coverage?.periods.find((period) => period.periodId === row.originalPeriodId);
-    const unchanged = prior && from.ok && through.ok && prior.from === from.value && prior.through === through.value &&
-      prior.consumed.length === consumed.length && consumed.every((item) =>
-        prior.consumed.some((before) => before.teamId === item.teamId && serializeQuantity(before.amount) === serializeQuantity(item.amount)));
-    const periodId = unchanged ? prior.periodId : `${model.kind}:${model.id}:v${draft.baseVersion + 1}:p${index + 1}`;
+    // Split/merge can discard draft IDs. Restore the published identity when
+    // the complete period knowledge returns exactly to its original value.
+    const prior = old?.coverage?.periods.find((period) => from.ok && through.ok &&
+      period.from === from.value && period.through === through.value &&
+      period.consumed.length === consumed.length && consumed.every((item) =>
+        period.consumed.some((before) => before.teamId === item.teamId && serializeQuantity(before.amount) === serializeQuantity(item.amount))));
+    const periodId = prior ? prior.periodId : `${model.kind}:${model.id}:v${draft.baseVersion + 1}:p${index + 1}`;
     return from.ok && through.ok ? { periodId, from: from.value, through: through.value, consumed } : undefined;
   }).filter((item): item is NonNullable<typeof item> => item !== undefined);
   const coverage = periods.length ? { actualsFrom: periods[0]!.from, actualsThrough: periods.at(-1)!.through, periods } : undefined;

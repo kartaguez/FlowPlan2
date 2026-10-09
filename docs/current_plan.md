@@ -51,7 +51,7 @@ plus Lot 11A.2 exact daily profiles and V7 persistence.
 - 11C Actuals / Forecast separation (DONE — explicit user closure).
 - 11D.0 Storage Architecture & Scalability (DONE — favorable independent audit and explicit user closure).
 
-Current trajectory: **11D.1 RAF Model — IN REVIEW; UX Actuals & RAF remains NOT STARTED**;
+Current trajectory: **11D.1 RAF Model — DONE; UX Actuals & RAF remains NOT STARTED**;
 **11D.0 — Storage Architecture & Scalability remains DONE**;
 **11B — Project History view is DONE**, following validated DONE
 11A.2. See the
@@ -66,7 +66,7 @@ Current trajectory: **11D.1 RAF Model — IN REVIEW; UX Actuals & RAF remains NO
 11A (DONE) → 11A.2 (DONE) → 11B (DONE)
 11C: DONE — Actuals / Forecast temporal separation
 11D.0: DONE — Storage Architecture & Scalability
-11D.1 RAF Model: IN REVIEW — implementation delivered for independent audit
+11D.1 RAF Model: DONE — favorable independent audit and final V1/V2 verification
 11D.1 UX: NOT STARTED — separate future authorization required
 11D.2 / 11D.3: NOT STARTED — outside this planning mission
 11A.1: DEFERRED / not adopted as product work; no dependency for 11B
@@ -82,7 +82,12 @@ was then IN REVIEW; explicit user closure subsequently marked 11B DONE.
 
 ## 11D.1 — RAF Model
 
-**Status: IN REVIEW.** Explicit user authorization follows independent audit of
+**Status: DONE — RAF Model only.** Conditional user closure follows the favorable
+independent implementation audit and final V1/V2 checks from
+`cc81b9901e1a617c5eddc2051ee9946aa70fb5af`: three demonstrated editor/draft
+anomalies corrected, 1009 Node tests plus 3 portable tests, storage gate and
+22 existing + 11 new native browser scenarios pass. See the final verification
+section in the delivery canon. Original implementation authorization followed independent audit of
 [the amended plan](./steps/ACTUALS/lot11d1_raf_model_plan.md) at
 `6ce922e55621423c4e00e21e374ae53a6deb1efa`. The required branch was clean,
 at that exact HEAD and origin 0/0 after fetch. P1–P6 implementation separates
@@ -100,8 +105,8 @@ The [earlier UX plan](./steps/ACTUALS/lot11d1_plan.md) remains future work.
 Its old permanent-equality/RAF-only-snapshot assumptions are superseded by this
 model delivery. Compact table, exact decimal presentation, visual modal redesign,
 replay, inputs-only and 11D.2/11D.3 are not started. Stop after commit/push;
-independent implementation audit and new authorization govern subsequent work.
-No DONE closure is inferred from tests.
+new authorization is required for subsequent work. This explicit conditional
+closure covers RAF Model only; UX remains NOT STARTED.
 
 ## 11D.0 — Storage Architecture & Scalability
 
