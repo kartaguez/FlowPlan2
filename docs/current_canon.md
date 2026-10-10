@@ -36,17 +36,26 @@ périphérique au socle/runtime/browser validé. Aucune compatibilité ou dispon
 Windows n’est attestée. Levée : validation sur Windows x64 compatible (Node 26
 pour construction) avant qualification ou distribution Windows, preuves archivées.
 Les résultats partiels G15/G16 restent inchangés ; hors SEA n’est pas PASS SEA.
-**R1 — CADRAGE VALIDÉ ; R1.1 — IN REVIEW — IMPLÉMENTATION À AUDITER**.
-GO utilisateur limité à R1.1 reçu après approbation du PLAN corrigé à
-`5950ed079ffa8132742301922765e955d1af9274` ; préflight exact, arbre propre et origin 0/0.
-[Livraison R1.1](./steps/PORTFOLIO_VERSIONED/rewrite_r11_canon.md) : Rational BigInt,
+**R1 — CADRAGE VALIDÉ ; R1.1 — DONE** le 2026-10-10, après audit
+indépendant final favorable et autorisation explicite de clôture documentaire.
+PLAN approuvé : `5950ed079ffa8132742301922765e955d1af9274`.
+Baseline d'implémentation validée : `168d9658621aa235bd3fe314cc74cfeebdfb28d0`,
+distincte du SHA documentaire de clôture.
+[Canon R1.1](./steps/PORTFOLIO_VERSIONED/rewrite_r11_canon.md) : Rational BigInt,
 quantités contraintes, CivilDate/intervalle, IDs et owners typés, refs exactes,
 enveloppes profondément copiées/gelées, filiation ramifiée et contexte pur.
-18 gates PASS, 58/58 tests V2 sans skip/todo, dates réellement testées sous UTC,
-Europe/Paris, America/New_York ; quatre commandes V2 exactes PASS.
+18 gates satisfaites ; livraison Codex : 68/68 tests distincts et 12 exécutions
+supplémentaires multi-TZ, frontières/typecheck/build PASS, examinés dans l'audit
+indépendant. Aucun test ni build réexécuté par ChatGPT pour cette clôture.
+Preuves initiales `proofs/r11/` et complémentaires `proofs/r11-audit/` inchangées
+sous `docs/steps/PORTFOLIO_VERSIONED/`. Cohérence owner/prédécesseur validée,
+aucun défaut de production reproduit. `createTypedVersionEnvelope` contrôle la
+structure, sans validation du schéma métier (R1.2). BigInt, mémoire/pile,
+Windows DEFERRED / NOT EXECUTED et rollback conservent leurs limites documentées.
 Shell R0.1 et garde inchangés, aucun registre/Current/métier complet/storage.
-R1.2–R1.4 et R2–R6 NOT STARTED. Prochain événement : audit indépendant ChatGPT
-du SHA R1.1 effectivement poussé ; aucune clôture ou reprise automatique.
+R1.2–R1.4 et R2–R6 NOT STARTED. Prochaine étape : cadrage indépendant R1.2
+avec ChatGPT ; aucun travail R1.2 dans cette session.
+
 Décisions globales dans le registre ; amendements normatifs nouveaux A-R1-01/02
 explicités à [R0 §13](./steps/PORTFOLIO_VERSIONED/rewrite_r0_plan.md#13-addendum-normatif-r1-du-2026-10-10) :
 Snapshot borné aussi par connaissance AP déclarée ; AP vide peut la déclarer,
@@ -60,7 +69,7 @@ graphe versionné, AP/SubPeriod/TA/PT/RT/PTEC, ETC/status, Settings/Order, CAS e
 robustesse durable sont des cibles R1+ ; aucune de ces primitives n'est livrée
 par le DTO shell R0.1. Migration T12 historique inapplicable ; aucun bridge ou
 format hybride. [Registre de reprise](./steps/PORTFOLIO_VERSIONED/rewrite_reuse_registry.md)
-actualisé pour les reprises bornées R1.1 ; audit de ces extractions encore attendu.
+actualisé pour les reprises bornées R1.1, validées dans l’audit indépendant final.
 Arbitrage Reservation ratio + exception sans période reste ouvert pour R3.
 
 Patrimoine historique : Portfolio/RAF inline, Actuals V4/V5, formats V1–V8,

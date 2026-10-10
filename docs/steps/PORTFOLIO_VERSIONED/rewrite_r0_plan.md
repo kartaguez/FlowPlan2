@@ -673,7 +673,16 @@ Les conditions GO ci-dessus restent obligatoires ; aucune implémentation acquis
 
 ## 13. Addendum normatif R1 du 2026-10-10
 
-**Cadrage R1 validé par l'utilisateur ; implémentation non autorisée.**
+État courant de suivi, sans changement des décisions normatives :
+**R0 — DONE ; R0.1 — DONE ; R1 — CADRAGE VALIDÉ ; R1.1 — DONE**.
+R1.2–R1.4 et R2–R6 NOT STARTED. Clôture documentaire autorisée après audit
+indépendant final favorable de `168d9658621aa235bd3fe314cc74cfeebdfb28d0`,
+baseline d'implémentation distincte du commit documentaire de clôture.
+[Canon R1.1](./rewrite_r11_canon.md). Prochaine étape : cadrage indépendant R1.2
+avec ChatGPT ; aucun travail R1.2 dans cette session.
+Les statuts de préparation ci-dessous sont historiques ; les contrats restent inchangés.
+
+**Cadrage R1 validé par l'utilisateur ; implémentation non autorisée à la préparation.**
 Baseline de préparation `8926b1f1b73650c17114914a168c368d0331d87b`.
 [Registre R1](./rewrite_decisions.md#cadrage-r1-validé--préparation-r11-uniquement)
 et [PLAN R1.1](./rewrite_r11_plan.md). R0/R0.1 restent DONE ; R1.1 PLANNED /

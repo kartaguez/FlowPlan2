@@ -1,6 +1,6 @@
 # FlowPlan2 V2 — registre vivant des extractions
 
-Matrice patrimoniale issue de R0 ; **reprises de primitives R1.1 IN REVIEW**.
+Matrice patrimoniale issue de R0 ; **reprises de primitives R1.1 validées, DONE**.
 Entités métier complètes et extractions R1.2+ NOT STARTED.
 R0.1 DONE après audit indépendant favorable et clôture utilisateur à
 `d5bb1a89c847604f2f80aaaa3270e4125f4a3fef`, report Windows I-R01-C ; adaptations
@@ -176,13 +176,16 @@ SHA source réel, symboles réellement repris, destination réelle, transitifs
 vérifiés/retirés, contrats, preuves exécutées et audit. Ne pas remplir un champ
 réalisé ni transformer NOT STARTED en DONE au stade de ce PLAN.
 
-## Opérations effectives R1.1 — IN REVIEW, audit indépendant attendu
+## Opérations effectives R1.1 — DONE, audit indépendant validé
 
 Source de toutes les opérations ci-dessous : `5950ed079ffa8132742301922765e955d1af9274`,
 lecture des fichiers legacy conservés à l'identique. Ce SHA effectif contient
 les sources inspectées ; aucune dépendance legacy importée. Les intentions
 ci-dessus restent la trace historique du PLAN, pas le statut de livraison.
-Aucun avis favorable d'audit de code/extraction anticipé.
+Audit indépendant final favorable au SHA `168d9658621aa235bd3fe314cc74cfeebdfb28d0` ;
+clôture documentaire explicitement autorisée. Les résultats des tests ci-dessous
+sont ceux de la livraison Codex examinés dans cet audit, sans nouvelle exécution
+par ChatGPT. Aucun changement des classes, sources ou contrats de reprise.
 
 | Source legacy / symboles | Classe effective | Destination V2 | Dépendances supprimées / modifications | Tests indépendants exécutés |
 | --- | --- | --- | --- | --- |
@@ -198,4 +201,4 @@ Aucun avis favorable d'audit de code/extraction anticipé.
 Contrats, modules/interfaces, commandes, résultats bruts et limites dans le
 [canon R1.1](./rewrite_r11_canon.md). Couleurs/capacités/moteur/persistence/UI/G1
 ne sont pas repris ; aucune ligne R1.2+ marquée réalisée. Audit extraction :
-**À EFFECTUER**, jamais DONE par les seules gates.
+**VALIDÉ** dans l’audit indépendant final ; R1.1 DONE après autorisation utilisateur.

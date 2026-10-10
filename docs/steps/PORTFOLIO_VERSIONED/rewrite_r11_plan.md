@@ -1,5 +1,19 @@
 # FlowPlan2 V2 — PLAN R1.1 : Primitives, identités et versionnement natif
 
+État courant au 2026-10-10 : **R1 — CADRAGE VALIDÉ ; R1.1 — DONE**.
+R0 et R0.1 DONE ; R1.2–R1.4 et R2–R6 NOT STARTED.
+PLAN approuvé au SHA `5950ed079ffa8132742301922765e955d1af9274` ; implémentation
+validée au SHA `168d9658621aa235bd3fe314cc74cfeebdfb28d0` après audit
+indépendant final favorable, puis autorisation utilisateur de clôture documentaire.
+[Canon de clôture, interfaces, gates, preuves et limites](./rewrite_r11_canon.md).
+Prochaine étape : cadrage indépendant R1.2 avec ChatGPT ; aucun travail R1.2
+pendant cette session. Les contrats du PLAN restent inchangés.
+
+## Historique de préparation du PLAN approuvé
+
+Les statuts, baselines et autorisations de préparation ci-dessous décrivent la
+session historique de préparation, pas l'état courant indiqué ci-dessus.
+
 Date : 2026-10-10. **R1 — CADRAGE VALIDÉ** par l'utilisateur.
 **R1.1 — PLANNED / NOT STARTED — PLAN CORRIGÉ À RÉAUDITER**.
 R0 et R0.1 DONE ; R1.2–R1.4 et R2–R6 NOT STARTED.

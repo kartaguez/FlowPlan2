@@ -1,8 +1,8 @@
 # FlowPlan2 V2 — livraison R1.1 : primitives et versionnement natif
 
 Date : 2026-10-10. **R1 — CADRAGE VALIDÉ**.
-**R1.1 — IN REVIEW — CORRECTIONS À AUDITER**.
-R1.2–R1.4 et R2–R6 NOT STARTED. Aucun DONE, aucune clôture automatique.
+**R1.1 — DONE**, clôture documentaire autorisée le 2026-10-10.
+R0 et R0.1 DONE ; R1.2–R1.4 et R2–R6 NOT STARTED.
 Point d'entrée : [current_plan](../../current_plan.md).
 Autorité : [PLAN R1.1 approuvé](./rewrite_r11_plan.md), R0 §3/§13 et décisions.
 
@@ -15,8 +15,25 @@ HEAD = origin = baseline, divergence 0/0. Commit initial :
 `docs(v2): correct R1.1 plan after independent audit`. Aucune évolution concurrente
 constatée avant modification. Les mentions de GO non accordé dans les dossiers de
 préparation sont historiques ; ni les décisions normatives ni le PLAN ne sont réécrits.
-Le SHA exact de livraison est le commit Git contenant ce canon et ses preuves,
-communiqué après push et vérification du SHA distant ; pas d'auto-référence circulaire.
+SHA d'implémentation final audité et validé : `168d9658621aa235bd3fe314cc74cfeebdfb28d0`.
+Il est distinct du SHA du nouveau commit documentaire de clôture, rapporté après
+push et vérification distante, sans auto-référence circulaire.
+
+Audit différentiel indépendant final : **GO CLÔTURE R1.1 — AUCUNE CORRECTION
+DE CODE REQUISE**. Les deux réserves sont levées : sept tests contradictoires
+établissent la cohérence owner/prédécesseur, sans défaut de production reproduit ;
+trois tests explicitent le contrat de `createTypedVersionEnvelope`, dont la
+validation du schéma métier du payload reste R1.2. Filiation ramifiée et
+cohérence des owners validées. Les 18 gates sont satisfaites.
+Résultats finaux de la livraison Codex, examinés dans l'audit indépendant :
+68/68 tests distincts, 12 exécutions supplémentaires multi-TZ (80 exécutions),
+contrôle des frontières, typecheck et build PASS. Aucun test applicatif ni build
+relancé par ChatGPT lors de la présente clôture. Les sections de livraison
+initiale et de complément ci-dessous conservent leurs résultats et limites ;
+les preuves historiques sous `proofs/r11/` et `proofs/r11-audit/` sont inchangées.
+Préflight de clôture : fetch réussi, branche attendue, HEAD = origin = SHA
+validé, arbre propre et synchronisation 0/0. Aucune modification concurrente.
+La clôture modifie exclusivement des documents de suivi.
 
 P1 Rational/résultats, P2 quantités, P3 civil, P4 identités/owners/refs, P5 enveloppes
 et P6 intégration/preuves sont réalisés. Aucun montage Domain dans le shell.
@@ -194,7 +211,7 @@ exécutés. Ces échecs de développement ne sont pas des résultats PASS.
 
 ## Provenance, non-régression et rollback
 
-[Registre des reprises effectives](./rewrite_reuse_registry.md#opérations-effectives-r11--in-review-audit-indépendant-attendu)
+[Registre des reprises effectives](./rewrite_reuse_registry.md#opérations-effectives-r11--done-audit-indépendant-validé)
 conserve source legacy/SHA/symboles/destination/classe/dépendances supprimées et
 preuves indépendantes. Source inspectée pour chaque extraction : baseline
 `5950ed079ffa8132742301922765e955d1af9274`, fichiers legacy inchangés.
@@ -202,7 +219,7 @@ REUSE : PGCD/normalisation/cancellations/comparaison exactes, conversions civile
 et weekday/différence. ADAPT : parsing, résultats validants/copiés, quantités natives,
 bornes sûres/intervalle inversé. REFERENCE : modèles/IDs/snapshots numériques et
 editableQuantity ; aucune copie de ces modèles ni import legacy.
-Audit indépendant de ces reprises encore attendu ; aucun avis inventé.
+Reprises validées dans l’audit indépendant final au SHA d’implémentation ci-dessus.
 
 Non-régression R0.1 : tests shell/canaris/serveurs PASS ; native browser ci-dessus ;
 aucune modification de src/public/scripts historiques, des fichiers shell V2,
@@ -243,11 +260,11 @@ performance universelle revendiquée. La validation des records ne valide pas le
 schémas métier ; une erreur de contexte absent ne doit pas être transformée en
 preuve de fermeture par un caller futur.
 
-Contrôle final : diff complet et absence de hors périmètre, `git diff --check`,
-gates revérifiées, commit/push normal, SHA distant exact, arbre propre et origin
-0/0 sont rapportés à l'issue de la livraison Git. Audit indépendant ChatGPT du code
-sur ce SHA poussé est le prochain événement ; audit puis autorisation utilisateur
-nécessaires pour toute clôture ou suite.
+Contrôle de clôture : diff complet exclusivement documentaire, cohérence des
+statuts/SHA/preuves et `git diff --check` ; aucun test ou build relancé.
+Commit/push normal, SHA distant exact, arbre propre et origin 0/0 sont rapportés
+à l'issue de la livraison Git. Prochaine étape : cadrage indépendant R1.2 avec
+ChatGPT ; aucun travail R1.2 ne commence dans cette session.
 
 ## Compléments ciblés après audit du code — 2026-10-10
 
@@ -351,13 +368,13 @@ changement de production ; leurs preuves initiales ne sont pas réattribuées.
 Défaut reproduit puis corrigé : aucun. Garantie existante démontrée : point A
 et immutabilité/type statique du point B. Limite contractuelle documentée :
 absence de validation automatique du schéma métier. Limites runtime et report
-Windows précédents inchangés. R1.1 reste IN REVIEW, aucune clôture automatique.
-Le prochain événement est exclusivement l'audit différentiel par ChatGPT
-du SHA poussé ; aucun démarrage de R1.2.
+Windows précédents inchangés. Ce complément avait été livré IN REVIEW pour
+audit différentiel ; cet audit final est désormais favorable et la clôture
+utilisateur autorisée. R1.1 — DONE ; aucun démarrage de R1.2.
 
 R1 — CADRAGE VALIDÉ
 
-R1.1 — IN REVIEW — CORRECTIONS À AUDITER
+R1.1 — DONE
 
 R1.2–R1.4 — NOT STARTED
 

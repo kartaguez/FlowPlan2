@@ -3,7 +3,7 @@
 Statut : décisions R0 validées par audit indépendant favorable à
 `62bfdb9f36b406a0196ba7ceee45884217c68365`. GO R0.1 reçu après audit du plan
 à `1c2b08c727af9fb8002b7678bd7403fcc0d39c27` ; R0.1 DONE après audit indépendant favorable et clôture utilisateur au SHA
-`d5bb1a89c847604f2f80aaaa3270e4125f4a3fef`, avec amendement I-R01-C ; cadrage R1 validé, R1.1 IN REVIEW après GO limité au PLAN approuvé ;
+`d5bb1a89c847604f2f80aaaa3270e4125f4a3fef`, avec amendement I-R01-C ; R1 — CADRAGE VALIDÉ, R1.1 — DONE après audit final favorable et clôture utilisateur ;
 R1.2–R1.4 et R2–R6 non autorisés.
 Point d'entrée : [current_plan](../../current_plan.md).
 Option B extraction sélective, verticales R1 mémoire/R2 durable, architecture à
@@ -88,6 +88,7 @@ R1 prochain lot NOT STARTED ; R2 NOT STARTED, aucun GO implicite.
 
 ## Cadrage R1 validé — préparation R1.1 uniquement
 
+Historique du cadrage (statuts de préparation, remplacés par l’état de clôture ci-dessous).
 Décisions reçues de l'utilisateur le 2026-10-10 ; enregistrées depuis
 `8926b1f1b73650c17114914a168c368d0331d87b`. **R1 — CADRAGE VALIDÉ** ;
 [R1.1 PLAN](./rewrite_r11_plan.md) **PLANNED / NOT STARTED — PLAN À AUDITER**.
@@ -137,10 +138,13 @@ Ce n'est pas une ancienne règle R0 ; aucune décision D-R1-01–06/A-R1-01/02
 rouverte. Le prochain événement est exclusivement l'audit différentiel ChatGPT
 du nouveau SHA. Aucune implémentation ne commence après le push.
 
-## État de livraison R1.1 — autorisation limitée et audit attendu
+## État de livraison R1.1 — DONE, clôture autorisée
 
 PLAN corrigé approuvé à `5950ed079ffa8132742301922765e955d1af9274` ; GO utilisateur explicite
-reçu pour P0–P6 uniquement. **R1.1 — IN REVIEW — IMPLÉMENTATION À AUDITER**.
+reçu pour P0–P6 uniquement. **R1.1 — DONE** après audit indépendant final
+favorable et autorisation utilisateur de clôture documentaire le 2026-10-10.
+Baseline d'implémentation validée : `168d9658621aa235bd3fe314cc74cfeebdfb28d0`,
+distincte du commit documentaire de clôture. Aucun changement normatif.
 [Canon de livraison](./rewrite_r11_canon.md) : interfaces techniques adoptées,
 18 gates exécutées, preuves et limites. D-R1-01/02 et D-R11-01 sont implémentés
 au niveau des primitives ; aucune décision normative approuvée n'est amendée.
@@ -148,6 +152,6 @@ Kinds et matrice d'owners du PLAN conservés, IDs munis de discriminants runtime
 payloads data records/listes/primitives copiés et gelés ; compteurs civils sûrs.
 Le contexte ne certifie que filiation/collisions/owners locaux, sans fermeture
 métier ni résolution ; provenance multiple distincte. Aucun registre/Current.
-R1 reste CADRAGE VALIDÉ ; R1.2–R1.4/R2–R6 NOT STARTED. Prochain événement :
-audit indépendant ChatGPT sur le SHA poussé, puis décision distincte utilisateur.
+R1 reste CADRAGE VALIDÉ ; R1.2–R1.4/R2–R6 NOT STARTED. Prochaine étape :
+cadrage indépendant R1.2 avec ChatGPT ; aucun travail R1.2 dans cette session.
 Les indications de GO non accordé des sections de préparation restent historiques.

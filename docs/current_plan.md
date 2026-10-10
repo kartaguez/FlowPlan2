@@ -1,6 +1,6 @@
 # FlowPlan2 current plan — point d'entrée unique
 
-## Trajectoire active — FlowPlan2 V2 / R1 cadrage validé, R1.1 IN REVIEW
+## Trajectoire active — FlowPlan2 V2 / R1 cadrage validé, R1.1 DONE
 
 **R0 clôturé. R0.1 — Rewrite Initialization : DONE**, clôture utilisateur
 autorisée le 2026-10-10 après audit indépendant favorable de l’architecture,
@@ -32,26 +32,32 @@ ne bloquent plus la clôture R0.1. Ils restent obligatoires avant toute qualific
 ou distribution Windows. Aucun résultat non exécuté n’est PASS ; aucune autre
 gate n’est amendée. Détails et condition de levée dans le canon R0.1.
 
-**R1 — CADRAGE VALIDÉ**. **R1.1 — IN REVIEW — IMPLÉMENTATION À AUDITER**.
-PLAN corrigé approuvé et GO utilisateur explicite reçus pour P0–P6 de ce seul
-sous-lot, sur baseline documentaire `5950ed079ffa8132742301922765e955d1af9274`.
-Préflight : fetch réussi, branche attendue, HEAD = origin = baseline, arbre propre,
-0/0 ; aucune modification concurrente inexpliquée. Primitives natives sous
-src-v2/domain, sans montage métier ni changement du shell ou du garde R0.1.
-[Canon R1.1, interfaces, matrice et preuves](./steps/PORTFOLIO_VERSIONED/rewrite_r11_canon.md).
-18 gates PASS ; 58/58 tests V2 sans skip/todo, trois processus TZ indépendants,
-commandes exactes boundaries/typecheck/test/build PASS. Aucun DONE ni GO suivant.
-**R1.2–R1.4 — NOT STARTED ; R2–R6 — NOT STARTED**.
-Complément ciblé après audit de `c8e707637df1ca60d5740a6d2a8246771f53c380` :
-**R1.1 — IN REVIEW — CORRECTIONS À AUDITER**. Garantie owner/prédécesseur
-démontrée par sept tests contradictoires ; contrat payload typé clarifié avec
-trois tests. Aucun défaut reproduit ni changement de production/API/norme.
-68/68 tests V2 PASS ; les quatre commandes V2 PASS, 18 gates conservées.
-Preuves initiales 58/58 ci-dessus conservées ; résultats nouveaux et limites
-dans le [complément du canon](./steps/PORTFOLIO_VERSIONED/rewrite_r11_canon.md#compléments-ciblés-après-audit-du-code--2026-10-10).
-Prochain événement exclusivement : audit différentiel du code R1.1 par ChatGPT
-sur le SHA effectivement poussé (rapport Git final). La réussite des gates ne
-clôture pas le lot ; audit puis décision utilisateur distincte nécessaires.
+**R1 — CADRAGE VALIDÉ**. **R1.1 — DONE**, clôture documentaire autorisée
+par l'utilisateur le 2026-10-10 après audit indépendant et audit différentiel
+final : **GO CLÔTURE R1.1 — AUCUNE CORRECTION DE CODE REQUISE**.
+PLAN approuvé : `5950ed079ffa8132742301922765e955d1af9274`.
+Baseline d'implémentation finale validée : `168d9658621aa235bd3fe314cc74cfeebdfb28d0` ;
+elle est distincte du commit documentaire de clôture. Préflight de clôture :
+fetch réussi, branche attendue, HEAD = origin = baseline validée, arbre propre, 0/0.
+[Canon R1.1, interfaces, 18 gates satisfaites et preuves](./steps/PORTFOLIO_VERSIONED/rewrite_r11_canon.md).
+Résultats de la livraison Codex examinés dans l'audit indépendant : 68/68 tests
+distincts, 12 exécutions supplémentaires multi-TZ, frontières/typecheck/build PASS.
+Aucun test ou build relancé par ChatGPT pour cette clôture documentaire.
+Preuves initiales `proofs/r11/` et complémentaires `proofs/r11-audit/` conservées
+sous `docs/steps/PORTFOLIO_VERSIONED/`. Filiation ramifiée et cohérence des owners
+validées ; sept tests contradictoires owner/prédécesseur et trois tests du contrat
+payload typé lèvent les deux réserves, sans défaut de production reproduit.
+`createTypedVersionEnvelope` valide la structure et les données admissibles,
+sans valider le schéma métier du payload (R1.2). Limites physiques BigInt,
+mémoire/pile, report Windows et procédure de rollback conservés dans le canon.
+**R0 — DONE ; R0.1 — DONE ; R1.2–R1.4 — NOT STARTED ; R2–R6 — NOT STARTED**.
+Prochaine étape : cadrage indépendant R1.2 avec ChatGPT. Aucun travail R1.2
+ne commence dans cette session ; aucune implémentation supplémentaire autorisée.
+R1.2 conserve entités et schémas/validations métier, manifestes, registre passif,
+résolution et fermeture du graphe ; R1.3 conserve transitions, confirmations,
+protections historiques et publication atomique logique ; R1.4 conserve la
+simulation native minimale en mémoire ; R2–R6 conservent persistance et autres
+capacités de la feuille de route.
 
 Décisions globales enregistrées D-R1-01–06 ; amendements **nouveaux**
 A-R1-01 (T09/I23 : borne Snapshot sur connaissances AP explicites) et A-R1-02
@@ -66,7 +72,7 @@ restent respectivement R1.2/R1.3/R1.4. Gates R1.1 exécutées et tracées dans s
 1. Cette section : état, prochaine étape et interdictions.
 2. [Registre durable des décisions](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md) : T01–T11/T12-R/T13–T15, statuts et portée.
 3. [Dossier normatif R0 autonome](./steps/PORTFOLIO_VERSIONED/rewrite_r0_plan.md) : contrats §2–§3, architecture §5, stockage/Git/lots §6–§8, invariants I01–I21/I22-R/I23 §9, clôture/reprise §11 et GO §12.
-4. [Registre vivant des extractions](./steps/PORTFOLIO_VERSIONED/rewrite_reuse_registry.md) : opérations techniques R0.1 réalisées, exclusions et provenance ; reprises de primitives R1.1 IN REVIEW, opérations effectives documentées ; entités R1.2+ NOT STARTED.
+4. [Registre vivant des extractions](./steps/PORTFOLIO_VERSIONED/rewrite_reuse_registry.md) : opérations techniques R0.1 réalisées, exclusions et provenance ; reprises de primitives R1.1 validées, DONE, opérations effectives documentées ; entités R1.2+ NOT STARTED.
 5. [Plan R0.1 audité](./steps/PORTFOLIO_VERSIONED/rewrite_r01_plan.md) puis [canon R0.1](./steps/PORTFOLIO_VERSIONED/rewrite_r01_canon.md) : contrat et résultats G01–G16, limites, suite et rollback.
 6. [PLAN R1.1 approuvé](./steps/PORTFOLIO_VERSIONED/rewrite_r11_plan.md) et addendum R0 §13 : fondations, décisions globales, amendements et contrats de gates ; résultats au canon R1.1.
 7. [Current canon, section active](./current_canon.md) : cible distinguée du patrimoine livré.
