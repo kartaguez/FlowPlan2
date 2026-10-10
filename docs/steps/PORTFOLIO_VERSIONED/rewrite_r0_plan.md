@@ -1,9 +1,13 @@
 # FlowPlan2 V2 — R0 : plan normatif de reconstruction
 
-Date : 2026-10-10. **PLAN ONLY livré pour audit ; aucune implémentation autorisée.**
+Date : 2026-10-10. **R0 — Architecture & Reconstruction Plan : clôture
+documentaire après audit indépendant favorable ; aucune implémentation autorisée.**
+Correctif de clôture depuis la baseline auditée
+`62bfdb9f36b406a0196ba7ceee45884217c68365` ; le SHA ci-dessous reste la baseline
+de l'inventaire initial. Aucun contrat architectural n'est reconçu.
 Point d'entrée unique : [docs/current_plan.md](../../current_plan.md).
 Dépôt `kartaguez/FlowPlan2` ; branche de livraison documentaire
-`codex/lot11a-portfolio-snapshots` ; baseline auditée
+`codex/lot11a-portfolio-snapshots` ; baseline de l’inventaire initial
 `98737b1521e2877031b7cb0dd2624c268823d51e`.
 Branche future proposée : `rewrite/portfolio-versioned`, **non créée par R0 PLAN**.
 
@@ -15,27 +19,53 @@ encore attendues. Un plan ne certifie pas une implémentation.
 
 Ordre de lecture obligatoire depuis le point d'entrée :
 
-1. [current_plan](../../current_plan.md), section active : état, prochaine action et arrêt.
-2. Le présent plan, intégralement : cible normative V2 et dossier de reprise.
-3. [current_canon](../../current_canon.md), section active puis acquis : état du code livré.
-4. [architecture_plan](./architecture_plan.md), §3–§6 pour approfondir les contrats et contre-exemples ; appliquer les remplacements ci-dessous.
-5. [canon livré](../../canon.md), puis les sources spécialisées §2, uniquement comme patrimoine fonctionnel/visuel et preuve des anciens contrats.
+1. [current_plan](../../current_plan.md), section active : état, prochaine action et interdictions.
+2. [Registre des décisions V2](./rewrite_decisions.md) : statut/portée T et renvois aux contrats détaillés.
+3. Le présent plan, intégralement : contrats V2 §2–§3, architecture §5, invariants §9, gates et reprise §11–§12.
+4. [Registre vivant des extractions](./rewrite_reuse_registry.md), puis matrice §4 : patrimoine et preuves futures.
+5. [current_canon](../../current_canon.md), section active : cible distinguée du code livré ancien.
+6. Facultativement, [architecture_plan antérieur](./architecture_plan.md), [canon livré](../../canon.md) et sources §2 : justifications, preuves et comportements patrimoniaux.
 
-Précédence pour **V2** : décisions définitives du présent plan → contrats conservés
-T01–T11/T13–T15 et I01–I23 applicables du plan précédent → acquis livrés compatibles.
-Les mentions T12, I22 migration, V1–V7, switch legacy et M01–M04 bloqueurs dans les
-archives sont **supplantées pour V2**. Les canons DONE demeurent vrais pour
-l'ancienne application ; ils ne sont pas rétroactivement des canons V2.
-Toute contradiction nouvelle doit être consignée et auditée avant le lot concerné.
+**Autonomie normative V2.** Les documents patrimoniaux servent de justification,
+de source de preuves, de description du comportement existant et de référence
+pour l'extraction sélective. Aucune règle nécessaire à l'implémentation V2 ne doit
+exister exclusivement dans ces documents. Toute règle ancienne retenue doit être
+reprise explicitement dans le dossier normatif ou le canon V2 **avant son
+implémentation** ; un renvoi au patrimoine n'est pas une incorporation normative.
+Les contrats conservés T/I sont explicités ici, pas délégués au plan antérieur.
+
+Hiérarchie V2 : décisions validées inscrites au registre → contrats détaillés du
+présent dossier → futurs plans/canons V2 conformes. Le registre est un index
+stable des décisions, pas une seconde architecture ; il ne modifie pas les
+contrats détaillés. Le registre de reprise suit les opérations, pas le métier.
+Toute contradiction interne doit être corrigée avant le lot concerné ; face au
+patrimoine, cette hiérarchie V2 prévaut. T12/I22 migration, V1–V7/switch et
+M01–M04 bloqueurs sont supplantés pour V2. Les canons DONE restent vrais pour
+l'ancienne application, sans devenir rétroactivement des canons V2.
+
+**Invariant documentaire stateless.** Une conversation antérieure ChatGPT ou
+Codex n'est jamais une source normative. Toute décision nécessaire à la poursuite
+doit figurer dans le dépôt avant clôture du lot qui l'introduit. Une nouvelle
+conversation reprend depuis current_plan et les documents normatifs référencés.
+
+Audit indépendant favorable reçu à la baseline `62bfdb9` : complétude, pertinence
+architecturale et statelessness immédiate ; Option B, R1 vertical mémoire → R2
+vertical durable, architecture à six modules, T12-R, stockage neuf isolé et matrice
+de reprise validés. Ces conclusions ne sont pas rouvertes par le correctif.
+La divergence Reservation ratio + exception sans période reste volontairement
+ouverte jusqu'à arbitrage normatif avant reprise complète R3.
 
 État réel : 11A/11A.2/11B/11C, 11D.0, 11D.1 RAF et UX, 11D.2 **G1 seulement**
 sont livrés selon le suivi courant. G1 est une preuve isolée sur fixtures, pas un
 service historique de production. V1–V7 ne sont pas commencés ; leur trajectoire
-est remplacée par R0–R6. 11D.3–11D.5 ne commencent pas. R1–R6 sont NOT STARTED.
-R0 PLAN livre la documentation ; le futur R0 d'initialisation désigne la création
-et le squelette après audit/autorisation, et n'est pas réalisé ici.
-Prochaine étape : **audit indépendant de ce plan et de sa reprise stateless**,
-puis autorisation explicite désignant le SHA et le périmètre à lancer.
+est remplacée par R0 → R0.1 → R1–R6. 11D.3–11D.5 ne commencent pas. R1–R6 sont NOT STARTED.
+R0 — Architecture & Reconstruction Plan est exclusivement documentaire.
+R0.1 — Rewrite Initialization est un futur lot d'implémentation/infrastructure
+(branche, squelette, isolation runtime/storage et environnement V2), NOT STARTED,
+soumis à **son propre plan, audit et autorisation** ; aucun périmètre fonctionnel
+ne change avec ce renommage. R1 reste non autorisé.
+Prochaine étape : audit de cette clôture, puis, si favorable, autorisation de
+préparer/lancer R0.1 selon ses gates. Aucune autorisation de R0.1 n'est acquise ici.
 
 Contrôles initiaux effectués avant rédaction : branche exacte, fetch origin
 réussi, HEAD identique à la baseline, arbre propre, upstream origin 0/0.
@@ -60,7 +90,7 @@ historiques, workflows de réconciliation legacy, captures legacy, résultats de
 simulation persistés dans les PortfolioSnapshots, mode hybride ou autorité
 ancienne parallèle. M01–M04 sortent du chemin critique. Ancien Portfolio sauvegardé
 séparément, reconstruction manuelle possible. Un outil ponctuel de récupération
-éventuel est hors produit et hors dépendances R0–R6, à étudier séparément.
+éventuel est hors produit et hors dépendances R0, R0.1 et R1–R6, à étudier séparément.
 CAS, atomicité, recovery, sauvegarde et import/export natifs restent obligatoires.
 L'abandon de migration ne justifie aucune réduction de règles métier.
 
@@ -141,6 +171,20 @@ zéro compris ; PTEC/AP alignés ; catalogues existing des propriétaires existi
 ordre complet ; fermeture de toutes dimensions du calcul, Teams masquées incluses.
 La provenance cite d'autres versions sans les substituer à la sélection.
 Les indexes (fermeture, usage, ever-nonzero) sont dérivés et reconstructibles.
+
+Contrôles Domain indispensables R1, explicités sans renvoi normatif au patrimoine :
+AP couvert = union exacte ordonnée de sous-périodes contiguës disjointes, mêmes
+bornes de couverture, une cellule TA par association requise et sous-période,
+zéro compris. Aucun partage de SubPeriod entre propriétaires. Les refs de
+provenance ne remplacent jamais les refs sélectionnées. PT/RT admettent 0..N
+associations par propriétaire ; leur couple reste unique à vie. Noms Projects
+non imposés uniques. dailyCap, capacité, consommation et ETC non négatifs,
+indisponibilité/ratio dans [0,1]. Horizon/dates civiles inclusives valides,
+maxParallelProjects entier sûr strictement positif, weekdays globaux validés.
+earliest est borne dure ; objective descriptive ; mandatory contraint le run par
+Team sans priorité accrue. Pas de contrainte artificielle objective ≥ earliest ;
+échéance impossible mais structurellement valide acceptée puis diagnostiquée.
+Ces synthèses reprennent les contrats déjà retenus ; elles ne créent aucune décision.
 
 ### 3.2 Transitions et preuves
 
@@ -240,7 +284,12 @@ projection, un horizon/viewport/zoom/pan/curseur commun aux Teams. Position
 temporelle ≠ taille des glyphes écran. Résultats → ViewModel → Geometry → SVG.
 Curseur/zoom/hover ne simulent pas. Tooltip métier et métriques cumulées exactes ;
 aucune sélection métier persistée par clic timeline. Zoom ancré à date (ou bord
-visible), drag range inclusif, Shift-pan ; respecter le comportement livré.
+visible), drag range inclusif, Shift-pan. Règles retenues explicites : clic confirmé
+au pointer release déplace seulement la Projection date ; drag horizontal ≥4 CSS
+pixels sélectionne la plage inclusive, minimum sept jours puis clamp horizon.
+Flèches/Home/End sur timeline, Ctrl+flèches hors champs éditables/modales ; zoom/pan
+ne changent pas la date. Les captures et tests anciens justifient ces règles,
+sans ajouter par renvoi un comportement normatif non écrit ici.
 Draft local par owner, multi-cartes conservées entre modes ; saisie ne dispatch
 pas ; Apply ne publie que candidat validé/confirmé ; Cancel son seul owner ;
 modal guard et rebase compatible/stale. Refus garde drafts ; reload confirmé
@@ -267,7 +316,7 @@ pas chaque ligne de code. Les absences de preuve sont indiquées.
 | `src/domain/planning/projectEstimatedDates.ts` : dates agrégées | ancien Project/result | `projectEstimatedDates.test.ts` | **ADAPT** garder règle de complétion de toutes Teams, distincte statut PTEC ; R3. |
 | `src/domain/actuals/reconstruction.ts`, `projectActualsKnowledge.ts` : distribution/borne | sources V4/V5 via Portfolio, snapshot/recordIndex | `occupation.test.ts`, `snapshots.test.ts`, `src/main/planning/lot11cTemporalSeparation.test.ts` | **ADAPT** extraire distribution exacte ; refaire resolver/provenance TA et bornes Project+Reservation ; risque capacité Current implicite ; R3. |
 | `src/domain/actuals/snapshots.ts`, `transition.ts`, `records.ts`, `requirements.ts` : histoires/confirmations | versions consécutives object-scoped, RAF inline, retiredZeroTeams | `snapshots.test.ts`, tests session Actuals et `src/ui/actuals/actualsWorkflow.test.ts` | **REFERENCE** reconstruire AP/SubPeriod/TA/PTEC et preuves par refs ; protection toute histoire et pas zéro automatique ; R1/R4. |
-| `src/adapters/metrics/cursorMetrics.ts`, `reservationProgress.ts` : agrégations | Portfolio/result inline, anciennes demandes sur intervalle | `cursorMetrics.test.ts`, `reservationProgress.test.ts` | **ADAPT** sommes/rations exacts, nouveau graph/result et cutoff RT ; cacher Team ne retire pas global ; R3/R5. |
+| `src/adapters/metrics/cursorMetrics.ts` (dont progression Reservation) : agrégations | Portfolio/result inline, anciennes demandes sur intervalle | `cursorMetrics.test.ts`, `reservationProgress.test.ts` | **ADAPT** sommes/rations exacts, nouveau graph/result et cutoff RT ; cacher Team ne retire pas global ; R3/R5. |
 | `src/application/session/planningSession.ts`, `projectCurrentRaf.ts`, `resolveGrouping.ts` : commandes/validations/catalogues | session inline, RAF requirements, générateurs locaux, base RAM | `planningSession*.test.ts`, `lot11d1RafModel.test.ts`, `src/main/planning/realBackupMandatory.test.ts` | **REFERENCE** nouvelles commandes/write sets atomiques, PTEC seule autorité ; préserver no-op/R1/R2 sémantiques ; R4. |
 | `src/application/session/editableQuantity.ts`, `formatActualsQuantity.ts`, `exactPercentage.ts` : saisie/formatage | rational/scalars, caches locaux de quantité | `editableQuantity.test.ts`, `formatActualsQuantity.test.ts`, viewmodel tests | **REUSE** logique exacte autonome après vérification imports ; strings arrondies jamais autorité ; R5. |
 | `src/application/session/*ViewModel.ts` : éditeurs | DTO du modèle/session ancien | `projectEditViewModel.test.ts`, `teamEditViewModel.test.ts`, `teamReservationsEditViewModel.test.ts` | **ADAPT** DTO natifs refs/bases, aucune reconstruction métier dans UI ; R4/R5. |
@@ -279,7 +328,7 @@ pas chaque ligne de code. Les absences de preuve sont indiquées.
 | `src/application/history/repositoryHistoryReader.ts`, `historyCaptureProjection.ts`, `src/ui/history/createProjectHistoryCoordinator.ts` : lecture historique | résultats/profile capturés, Current pour sources ancien replay | tests homonymes, canon 11B/11D.0 | **REFERENCE** nouveau service graphe fermé inputs-only ; réutiliser pagination/epochs après extraction ; R6 minimum antérieur. |
 | `src/ui/history/createProjectHistoryCache.ts`, `src/infrastructure/persistence/indexedDbHistoryScratch.ts`, `src/ui/interactionLifecycle.ts` : cache/release/listeners | modèles/keys/scratch anciens ; lifecycle générique sans métier | `createProjectHistoryCache.test.ts`, native storage/history, controller tests ; pas suite dédiée lifecycle | Cache/scratch **ADAPT**, lifecycle **REUSE** sous tests intégrés ; budget borne copies/peaks séparément, namespace scratch neuf ; R5/R6. |
 | `src/application/backup/portableBackupParts.ts`, `repositoryTransfer.ts`, `src/main/planning/planningBackupOperations.ts` : import/export/recovery | formats V1–V8, legacyRepairs, staging ancien | `portableBackupParts.test.ts`, `repositoryTransfer.test.ts`, backup operations tests, native storage | **REFERENCE** pour protocole autonome streaming/staging/read-back, nouveau codec strict à écrire ; **DROP** convertisseurs/repair legacy ; R2. |
-| `src/application/backup/flowplanBackupV*.ts`, `planningInputCodec.ts`, `src/adapters/flowplan1/`, `src/infrastructure/flowplan1/`, `src/infrastructure/backup/localPlanningBackup.ts` | anciens formats/clefs/imports | suites backups V1–V8 et session imports | **DROP** du produit V2 ; restent branche référence, pas de lecture/écriture automatique ; R0 initialisation/R2. |
+| `src/application/backup/flowplanBackupV*.ts`, `planningInputCodec.ts`, `src/adapters/flowplan1/`, `src/infrastructure/flowplan1/`, `src/infrastructure/backup/localPlanningBackup.ts` | anciens formats/clefs/imports | suites backups V1–V8 et session imports | **DROP** du produit V2 ; restent branche référence, pas de lecture/écriture automatique ; R0.1/R2. |
 | `src/domain/portfolioSnapshots/`, `src/application/portfolioSnapshots/` : captures/profils calculés | copies inputs, résultats Forecast, préfixes via Current | `portfolioSnapshots.test.ts`, `dailyProfiles.test.ts`, `snapshots.test.ts` | **REFERENCE** Save/identités/validation, **DROP** profils/résultats persistés et dépendance Current historique ; R2/R4. |
 | `src/proof/lot11d2/` : oracles replay/conservation/déterminisme | fixtures V4/V5 et anciennes projections | `replay.test.ts`, mesures/faisabilité 11D.2 | **ADAPT** oracles indépendants et dimensions, fixtures natives neuves, pas import production depuis proof ; R1/R3/R6. |
 | `src/ui/renderApp.ts`, `src/ui/portfolio/`, `public/styles.css` : Portfolio/cartes responsive | shell DOM et controllers anciens, IDs/data attributs | `renderApp.test.ts`, grouping/subcard/reorder tests, captures 1440/390 des canons | **ADAPT** langue visuelle/cartes/styles ; shell/coordinator structurels **REFERENCE** ; pas copier demo/startup ; R5. |
@@ -287,9 +336,12 @@ pas chaque ligne de code. Les absences de preuve sont indiquées.
 | `src/adapters/timeline/buildTimelineViewModel.ts`, `buildReservationNavigationItems.ts`, `geometry/buildTimelineGeometry.ts` : frises/segments | Portfolio/result/VM anciens | tests homonymes, `allocationGeometry.test.ts`, `capacityTubeGeometry.test.ts`, `markerGeometry.test.ts` | **ADAPT** projection du résultat natif, conserver axe unique et glyphes écran ; R5. |
 | `src/ui/timeline/` : SVG, zoom/pan, range/cursor, tooltips/métriques/diagnostics | controllers/VM/geometry/session coordinateur, identities Program/Pas | render/viewport/controller/hitTesting/visualIdentity/cursorMetricsUi tests | **ADAPT** contrôleurs autonomes/renderer ; coordinator géant **REFERENCE** ; revalider dates/tooltips/axes masqués ; R5. |
 | `src/ui/renderApp.ts` modales/ARIA, `createWorkspaceModeController.ts`, CSS responsive | DOM/focus/dialog/drafts/modes | renderApp/workspace/controller tests + captures canons ; pas audit accessibilité complet certifié | **ADAPT** focus/keyboard/labels/gates ; navigation clavier/mobile, focus retour et lisibilité nouveaux états à prouver ; R5/R6. |
-| `src/main/createPersistentPlanningApplication.ts`, demo, bootstrap | démarre legacy/demo, ancien BroadcastChannel/recovery | tests demo/main/storage natifs | **REFERENCE** composition root neuve vide ; **DROP** auto-import/demo initial/ack legacy ; R0 initialisation/R2/R5. |
-| scripts build/test/portable, tsconfig/package | TypeScript strict, Node 24+, DOM/SVG, modules natifs | `scripts/portable-server.test.cjs`, gates anciens | **ADAPT** périmètre sources/artefacts et origine de lancement distincte ; garder outils sans framework ajouté ; R0 initialisation. |
+| `src/main/createPersistentPlanningApplication.ts`, demo, bootstrap | démarre legacy/demo, ancien BroadcastChannel/recovery | tests demo/main/storage natifs | **REFERENCE** composition root neuve vide ; **DROP** auto-import/demo initial/ack legacy ; R0.1/R2/R5. |
+| scripts build/test/portable, tsconfig/package | TypeScript strict, Node 24+, DOM/SVG, modules natifs | `scripts/portable-server.test.cjs`, gates anciens | **ADAPT** périmètre sources/artefacts et origine de lancement distincte ; garder outils sans framework ajouté ; R0.1 — Rewrite Initialization. |
 
+Le [registre vivant des extractions](./rewrite_reuse_registry.md) reprend les
+classifications de cette matrice sans ses détails justificatifs. Toutes ses
+opérations restent NOT STARTED. REUSE n'atteste aucune extraction réalisée.
 Une reprise future enregistre : fichier/symboles, SHA source, dépendances retirées,
 contrat cible, tests adaptés/indépendants et décision de reviewer. Pas de reprise
 massive de répertoire ni de cherry-pick de lot mélangeant code et anciens contrats.
@@ -339,7 +391,7 @@ mesurer CPU/RAM et libération, Current reste disponible pendant History.
 **Proposition normative de sécurité : origine V2 dédiée et namespace réservé.**
 Une branche Git ne sépare pas les données browser. Même `localhost`/port/URL peut
 rouvrir l'ancien dépôt. Préférer origine stable différente (port local/host dédié,
-à fixer en R0 initialisation), ancien environnement sur son origine de référence.
+à fixer en R0.1 — Rewrite Initialization), ancien environnement sur son origine de référence.
 Même si origine distincte, les noms V2 restent distincts. Ne pas rendre configurable
 un nom de DB pouvant désigner le legacy dans le produit normal.
 
@@ -401,7 +453,7 @@ Rollback V2 n'importe pas ses données dans l'ancien format.
    absence locale/remote de `rewrite/portfolio-versioned`. Création future :
    `git switch -c rewrite/portfolio-versioned <SHA_AUDITE>` ; push normal avec
    upstream après commit autorisé. Aucun orphan, reset, force-push ou rewrite.
-3. Futur R0 initialisation : remplacer progressivement points d'entrée/build par
+3. Futur R0.1 — Rewrite Initialization : remplacer progressivement points d'entrée/build par
    squelette V2 ; désactiver entièrement bootstrap legacy avant exécution browser.
    Une étape intermédiaire peut garder des fichiers anciens pour extraction,
    mais aucun ancien runtime/authority chargé dans V2. Retirer les anciens fichiers
@@ -422,15 +474,16 @@ l'historique et commence avec tout l'ancien code. Git ne fournit ni nouvelle DB,
 ni séparation builds/origines, ni backup des données browser. Avantages : provenance,
 bisect/comparaison, rollback de code ; risques : imports accidentels, confusion
 canons/build, outil déployant encore ancien bootstrap, données persistantes partagées,
-anciens assets/caches, merges ultérieurs. Les gates R0/R2 contrôlent ces points.
+anciens assets/caches, merges ultérieurs. Les gates R0.1/R2 contrôlent ces points.
 La branche de référence est préservée ; chaque changement ultérieur y reste autonome.
 Rollback Git par revert de commits V2 reviewés, jamais reset partagé ; rollback
 produit par build V2 compatible et export natif, ancien environnement inchangé.
 
 ## 8. Séquencement recommandé et validations verticales
 
-Les numéros restent R0–R6, mais le contenu est fractionné pour éviter les silos :
-**R0 PLAN → audit/autorisation → R0 initialisation → R1 tranche verticale mémoire
+Séquence formelle : **R0 → R0.1 → R1 → R2 → R3 → R4 → R5 → R6**.
+Le contenu fonctionnel des lots reste inchangé ; validations verticales précoces :
+**R0 → R0.1 — Rewrite Initialization (plan/audit/autorisation propres) → R1 tranche verticale mémoire
 → R2 tranche native durable → R3 moteur complet → R4 commandes complètes →
 R5 UI complète → R6 History/comparaisons**. R1 n'est pas un Domain exhaustif
 attendant tout Storage : petit run réel sur graphe natif avec sélection Snapshot
@@ -442,9 +495,9 @@ puis R4 les généralise ; pas des implementations provisoires jetables.
 
 | Lot | Objectif, périmètre et dépendances | Reprises/livrables/tests | GO/NO-GO, risques et rollback |
 | --- | --- | --- | --- |
-| R0 PLAN (présent) | Cadrage, inventaire, contrats, Git/stockage, reprise stateless ; baseline §1 | Ce document + deux trackers, contrôles documentaires et exercice §11 ; aucun test applicatif | Livrable pour audit, aucun GO implicite d'implémentation. Rollback revert documentaire ; canons anciens intacts. |
-| R0 initialisation (futur) | Après GO §12, créer branche/squelette/build et entrée sûre sans legacy ; préserver normes/provenance | ADAPT build, REUSE primitives si périmètre autorisé ; graphe imports et namespace/origine documentés ; smoke squelette et interdiction bootstrap legacy | GO arbre/build séparés, aucune ouverture legacy. NO-GO runtime ancien accessible par défaut. Risque ancienne app au tip/cache ; revert squelette sur branche V2, référence intacte. |
-| R1 Domain versionné + vertical mémoire | Après R0 initialisation : types/refs/lifecycle/validators/proofs minimaux mais modèle complet spécifié ; AP/PT/RT/PTEC, Settings/Order ; port read et memory ; un run + une capture sélectionnée natifs | REUSE rational/date ; extraction minimum capacity/allocation ; fixture indépendante une Team, Project, Reservation ratio/fixed, AP vide/couvert, ETC ; contrat entrée moteur natif, registre + Current/Snapshot mémoire, test fin-à-fin exact | GO graphe fermé sans Current implicite, oracle 1/3 Actual + 2/3 ETC = 1 EAC, cutoffs, références immuables, I01–I20/I23 formalisés, I21 pré/postconditions. NO-GO ancienne entité autorité ou suspension incohérente. Risque trop construire Domain ; rollback commits dormants sans donnée utilisateur. |
+| R0 — Architecture & Reconstruction Plan (présent) | Cadrage, inventaire, contrats, Git/stockage, reprise stateless ; baseline §1 | Ce document + deux registres + deux trackers, contrôles documentaires et exercice §11 ; aucun test applicatif | Plan accepté, clôture à auditer, aucun GO implicite d'implémentation. Rollback revert documentaire ; canons anciens intacts. |
+| R0.1 — Rewrite Initialization (futur) | Après GO §12, créer branche/squelette/build et entrée sûre sans legacy ; préserver normes/provenance | ADAPT build, REUSE primitives si périmètre autorisé ; graphe imports et namespace/origine documentés ; smoke squelette et interdiction bootstrap legacy | GO arbre/build séparés, aucune ouverture legacy. NO-GO runtime ancien accessible par défaut. Risque ancienne app au tip/cache ; revert squelette sur branche V2, référence intacte. |
+| R1 Domain versionné + vertical mémoire | Après R0.1 : types/refs/lifecycle/validators/proofs minimaux mais modèle complet spécifié ; AP/PT/RT/PTEC, Settings/Order ; port read et memory ; un run + une capture sélectionnée natifs | REUSE rational/date ; extraction minimum capacity/allocation ; fixture indépendante une Team, Project, Reservation ratio/fixed, AP vide/couvert, ETC ; contrat entrée moteur natif, registre + Current/Snapshot mémoire, test fin-à-fin exact | GO graphe fermé sans Current implicite, oracle 1/3 Actual + 2/3 ETC = 1 EAC, cutoffs, références immuables, I01–I20/I23 formalisés, I21 pré/postconditions. NO-GO ancienne entité autorité ou suspension incohérente. Risque trop construire Domain ; rollback commits dormants sans donnée utilisateur. |
 | R2 Storage natif + vertical durable | R1 ; schémas natifs/codec/IDB/CAS/receipt/staging/recovery/import-export ; commande minimale et Save/lecture service de la petite fixture, pas toute UI | ADAPT transaction/hash/memory/transport ; nouveaux ports/stores/indexes ; run→publish→reload→run→export→import isolated→run ; preuve fermeture/versions archivées, namespaces, two tabs, abort/quota/ack perdu/receipt expiré | GO exactitude et atomicité native, export autonome sans legacy, ancien stockage sentinelle intact, I21/I22-R ; pas PASS hérité memory. NO-GO corruption masquée/unknown traité rollback. Risque quota/copies ; discard staging, garder génération active, recovery/export avant revert compatible. |
 | R3 Engine complet + simulation courante/historique minimale | R1/R2, généralisation algorithmique à multi-Team/projets, Mandatory, contraintes, RT cutoff, facts/agrégats, service sélectionné et worker si coût le justifie | ADAPT engine/calendriers/distribution/diagnostics et oracles G1 ; corpus natif exact, fin-à-fin avant/après reload, termination, lookahead/overload, Current getter qui lève pour Snapshot, déterminisme/TZ/process, CPU/RAM/admission/cancellation/release | GO mêmes règles exactes et amendements V2, budgets mesurés fixés avant usage large, résultats complets ou diagnostic qualifié. NO-GO fallback Current/stockage résultats. Risque pics hors horizon ; revert service/engine compatible, repo natif exportable, jamais réécrire captures. |
 | R4 Application/commandes atomiques complètes | R1–R3 ; CRUD versionné, dates/partition/Actuals/ETC/complete/reopen, associations/protection, catalogues/ordre/hide/delete/restore, no-op, drafts/confirms/rebase | REFERENCE session/dispatcher, ADAPT éditeurs/bases ; catalogue commandes/read/write sets, preuves typées, tests tous I/transitions, conflits de partage, multi-owner et S1–S6 adaptés, failed commit/RAM | GO tous changements publiés atomiques avec preuves revalidées, aucune charge restore implicite ; NO-GO cascade PT protégé ou hidden numeric edit. Risque périmètre dense ; sous-lots auditables commandes, revert UI/commande en conservant versions écrites et lecture/export. |
@@ -506,76 +559,97 @@ refusée ; import ne peut inventer preuves/dates/lignées.
 | Risque | Mitigation / gate propriétaire |
 | --- | --- |
 | Confusion cible/livré, canons archives contradictoires | Point d'entrée et précédence §1 ; trackers anciens explicitement archives ; audit stateless §11. |
-| Copie ancienne autorité via barrel/DTO/worker | Registre extraction/import graph R0/R1 ; pas facade legacy, fonctions isolées et tests V2. |
+| Copie ancienne autorité via barrel/DTO/worker | Registre extraction/import graph R0.1/R1 ; pas facade legacy, fonctions isolées et tests V2. |
 | Protection toute histoire coûteuse | Index ever-nonzero reconstructible, jamais autorité alternative, vérifié import/recovery R2 ; coût validation mesuré. |
 | Restore protégé vs réactivation implicite | R1 fixe encoding actif/suspendu avec I03/T05 ; R4 prouve pas cascade et confirmations ciblées. |
 | Applicabilité ratio avec exception sans période : code/canon divergent | Audit normatif avant extraction R3, oracle explicite §3.3 ; pas de règle inférée du code. |
 | Divergence engine/metrics Reservation cutoff | Entrée propriétaire commune, oracle quotidien R1/R3 et agrégations exactes R5. |
 | CAS résultat inconnu / UI désynchronisée | Receipts/read-back/recovery, RAM publication après confirmé, refus garde drafts R2/R4. |
 | CPU/RAM/quotas, archives conservées | Admission avant dense/lookahead, copies mesurées, pagination/cache borné/release R3/R6 ; quota physique/eviction restent à caractériser, export obligatoire. |
-| Démarrage branch partageant code et stockage browser | Bootstrap natif seul, origine/namespace distincts, sentinelles legacy et build audit R0/R2. |
+| Démarrage branch partageant code et stockage browser | Bootstrap natif seul, origine/namespace distincts, sentinelles legacy et build audit R0.1/R2. |
 | Perte ancien Portfolio à bascule | Export original + restoration vérifiée indépendant, profil/origine ancien conservés §6 ; aucune sauvegarde prétendue faite ici. |
 | Snapshot créé avant service consultable | Service minimum R2/R3, gate Save UI R5 ; R6 avancé seulement ensuite. |
 | Continuité visuelle sans accessibilité | Captures anciennes référence, tests clavier/focus/mobile et drafts nouveaux R5, pas framework requis. |
 | Travail Domain/Storage trop long sans feedback | Vertical exacte mémoire R1, durable R2 ; sous-lots courts avec contrats stables, aucune autorité provisoire parallèle. |
 
-## 11. Exercice de reprise à froid et contrôles documentaires
+## 11. Contrat de clôture et exercice final de reprise à froid
 
-Prompt minimal à donner à un agent sans conversation :
+Avant de déclarer tout futur lot DONE, vérifier dans le dépôt :
 
-> Dans le dépôt kartaguez/FlowPlan2, lis docs/current_plan.md et suis son ordre de lecture pour reprendre FlowPlan2 V2. Vérifie l'état Git ; rapporte la cible, les invariants, le patrimoine, les gates et la prochaine étape. PLAN ONLY : aucun code ni branche sans autorisation explicite ultérieure.
+1. Le comportement effectivement livré et ses limites sont documentés.
+2. Les décisions nouvelles figurent dans [rewrite_decisions](./rewrite_decisions.md), avec statut, portée et contrat détaillé.
+3. current_plan indique l'état réel, la prochaine étape et les autorisations/interdictions.
+4. [rewrite_reuse_registry](./rewrite_reuse_registry.md) est mis à jour pour toute extraction, avec SHA source, destination, contrats, tests/preuves et décision d'audit.
+5. Aucune information indispensable ne subsiste uniquement dans une conversation ; aucune norme V2 uniquement dans le patrimoine.
+6. Un prompt minimal de reprise à froid suffit pour identifier et préparer le lot suivant dans les limites de son autorisation.
 
-Exercice réalisé comme **revue documentaire sans contexte conversationnel** :
-le prompt ci-dessus est la seule entrée supposée, chaque réponse nécessaire a
-été recherchée depuis current_plan dans les fichiers liés. Ce n'est ni une
-exécution par un agent indépendant ni une preuve d'implémentation. L'audit externe
-doit reproduire l'exercice ; aucun sous-agent n'a été sollicité dans cette mission.
+Prompt minimal de l'exercice final :
 
-| Question de reprise | Réponse trouvable dans le dépôt / contrôle |
+> Dans kartaguez/FlowPlan2, commence par docs/current_plan.md. Reprends FlowPlan2 V2 sans utiliser de contexte conversationnel antérieur. Rapporte la trajectoire active, les décisions normatives, l’architecture, le patrimoine réutilisable, le prochain lot autorisable et les actions actuellement interdites.
+
+Exercice refait comme revue documentaire : seule entrée supposée = ce prompt,
+puis lecture du point d'entrée et de ses liens. Pas d'exécution indépendante par
+un nouvel agent ni de preuve d'implémentation. L'audit externe peut le reproduire.
+
+| Information nécessaire à l'agent froid | Source normative / réponse trouvée |
 | --- | --- |
-| Où commencer et quoi lire ensuite ? | current_plan section active → §1 ordre de lecture et hiérarchie ; tous chemins relatifs vérifiés. |
-| Quel repo/SHA/branche/état ; puis-je coder ? | §1 et trackers actifs ; baseline exacte, référence préservée, PLAN livré pour audit, R1–R6 NOT STARTED, aucune autorisation. |
-| Quelle décision remplace migration et pourquoi ? | §2 T12-R définitif ; §6 nouveau format, M01–M04 hors gates ; archives conservées. |
-| Quel modèle, autorités, dates et transitions ? | §2 table T, §3 schéma/manifestes/proofs/lifecycle/calculs ; aucune obligation de retrouver une conversation. |
-| T14/I22 sont-ils oubliés ou changés implicitement ? | §2 T14 portée migrée inapplicable/non-inférence native ; §9 I22→I22-R explicite par T12-R. |
-| Que reprendre, adapter, refaire, retirer ; sur quelles preuves ? | §4 matrice chemins/dépendances/contrats/tests/risques/lots ; SHA source §1 ; résultats anciens non réexécutés. |
-| Quels imports/frontières autorisés et simulation historique ? | §5 ports/flux ; graph sélectionné sans Current, worker/cache exacts ; §9 I19/I20. |
-| Comment protéger anciennes données et recovery ? | §6 noms constatés/proposés, origine distincte, interdictions, export vérifié préalable et protocole natif. |
-| Comment créer branche et extraire sans merge ? | §7 procédure conditionnelle, SHA audité, diff/show/restore explicites ; pas branche orphan ni bascule DB par Git. |
-| Quand démontrer la simulation ; quels tests/gates/rollback ? | §8 vertical R1/R2 et matrice R0–R6 ; §9 tests par invariant, §10 risques. |
-| Quelles décisions techniques restent à prendre et qui les prend ? | Fin §8 : encoding/defaults R1, physique/portable R2, budgets R3, cap R6 ; pas arbitrage métier implicite. |
-| Quelle prochaine action et arrêt ? | trackers actifs et §12 : audit indépendant, autorisation explicite par SHA ; aucun lancement dans R0 PLAN. |
-| Comment retrouver livraison sans SHA auto-référent ? | Git log du présent fichier depuis baseline §1 ; SHA final transmis après push, commit contient état autonome. |
+| Reconstruction V2 et Option B | current_plan actif ; §2 ; registre décisions préambule : extraction sélective validée. |
+| Abandon migration V4–V8 / remplacement T12 | §2, §6 ; registre lignes T12 historique remplacée et T12-R validée ; pas modèle hybride. |
+| Décisions normatives, portée T14 et hiérarchie | Registre décisions ; §1–§3 ; T14 migration inapplicable/natif open explicite ; patrimoine non normatif par renvoi. |
+| Architecture cible et frontières | §5 : Domain/Application/Planning Engine/Persistence/Historical Simulation/UI ; graph Snapshot sans Current. |
+| Patrimoine et fonctionnement de la reprise | §4 + registre extractions : classes validées, provenance/contrats/preuves requis, toutes opérations NOT STARTED ; aucune copie massive/merge. |
+| Branche actuelle et future | current_plan + §1/§7 : codex/lot11a-portfolio-snapshots ; rewrite/portfolio-versioned prévue, non créée. |
+| R0 documentaire, état audité et portée de clôture | current_plan + §1/§8 : R0 Architecture & Reconstruction Plan, audit favorable, correctif de clôture seul. |
+| Prochain lot potentiel et R1 non autorisé | current_plan + §8/§12 : R0.1 Rewrite Initialization, plan/audit/autorisation propres ; R1–R6 NOT STARTED/non autorisés. |
+| Interdictions présentes | current_plan + §12 : aucun code, branche, squelette, runtime/storage, extraction, Domain, R0.1 ou R1. |
+| Invariants et leurs propriétaires/tests | §9 : I01–I21/I22-R/I23, migration I22 hors portée explicite. |
+| Registre des décisions et registre vivant des extractions | Liens obligatoires current_plan et §1 ; rewrite_decisions.md et rewrite_reuse_registry.md présents. |
+| Points volontairement ouverts | §3.3/fin §8/§10 : ratio+exception sans période avant R3 ; encoding/defaults R1, physique/portable R2, budgets R3, cap R6. |
+| Stockage/Git, gates et rollback | §6–§8/§12 : origine/namespaces neufs, backup ancien vérifié avant bascule ; SHA audité, pas merge ; verticales mémoire/durable. |
+| Conversation et patrimoine peuvent-ils ajouter une norme ? | §1 et checklist ci-dessus : jamais ; reprise explicite dans documentation V2 avant implémentation. |
 
-L'exercice a fait compléter ici la portée T14/I22, les defaults natifs encore
-ouverts, la garantie Save/consultation avant R6, la différence branche/origine,
-l'ordre de lecture et la précédence sur les archives. Ces informations ne restent
-pas dans une conversation. Réponse attendue de l'agent froid : audit suivant,
-**pas création immédiate de branche**.
+Résultat : chaque réponse est présente dans les documents du dépôt. La revue a
+explicité les validations Domain R1 et les interactions UI auparavant abrégées
+par « comportement livré », sans reproduire fixtures/exemples patrimoniaux.
+Les contrats §2–§3 et invariants §9 suffisent à cadrer R0.1/R1 ; les détails
+techniques volontairement ouverts ont leur lot/gate écrit. Aucune réponse ne
+requiert une conversation. La clarification ratio reste une question documentée,
+pas un choix caché. Prochaine réponse attendue : audit de clôture, puis éventuelle
+autorisation de préparer/lancer R0.1 ; aucune création immédiate de branche.
 
-Contrôles de livraison : diff limité au présent plan et aux sections actives des
-deux trackers ; archives et canons DONE inchangés ; chemins sources/tests et liens
-locaux vérifiés ; couverture T01–T11/T12-R/T13–T15, I01–I21/I22-R/I23, R0–R6,
-principaux modules et exercice stateless ; revue sémantique et `git diff --check`.
-Contrôles exécutés : 27 liens locaux actifs et 45 références de chemins/globs
-sans manquant ; matrices T/I/R présentes ; sections archivées des deux trackers
-identiques à la baseline ; `git diff --check` sans erreur. Les matrices sont
-relues sémantiquement (dont T14/I22-R et dépendance Save/consultation).
-Aucun test applicatif, build, benchmark ou scénario browser exécuté en R0 PLAN.
-Vérification finale Git propre et origin 0/0 après commit/push consignée dans le
-compte rendu de livraison. Couverture documentaire ≠ preuve de validité du code.
+Nettoyage documentaire futur non bloquant : déplacer éventuellement les longues
+archives des trackers dans un fichier dédié, avec inventaire des ancres/liens et
+renvois. Ce correctif conserve leurs contenus pour éviter déplacement massif et
+liens cassés ; leur statut patrimonial est renforcé au point d'entrée.
+
+Validation de clôture : cinq Markdown autorisés uniquement, revue du diff complet,
+liens relatifs/ancres, cohérence R0/R0.1/R1–R6 et des deux registres, couverture
+T01–T11/T12-R/T13–T15, I01–I21/I22-R/I23, exercice ci-dessus et
+`git diff --check`. Aucun test applicatif, build, benchmark ou scénario browser.
+Les archives des trackers et canons historiques sont conservées à l'identique.
+Contrôles exécutés : 99 liens locaux, dont 23 ancres, et 84 chemins/globs sans
+manquant ; 37 opérations du registre NOT STARTED ; tables T/I et archives des
+trackers identiques à la baseline auditée ; terminologie R0/R0.1/R1–R6 vérifiée.
+Correction de chemin dans la matrice et le registre : la progression Reservation
+est dans `src/adapters/metrics/cursorMetrics.ts`, pas dans un module
+reservationProgress.ts ; sa suite reservationProgress.test.ts reste référencée.
+Revue sémantique des registres et de l'exercice stateless effectuée ;
+`git diff --check` sans erreur. Ces vérifications ne certifient aucun code V2.
+État Git final et synchronisation origin sont vérifiés après commit/push et
+rapportés avec SHA initial/final ; pas de SHA auto-référent dans le commit.
 
 ## 12. Conditions du GO et arrêt obligatoire
 
-GO futur de création branche/R0 initialisation uniquement après :
+GO futur de R0.1 — Rewrite Initialization uniquement après :
 
-- audit indépendant favorable de ce dossier, invariants, séparation legacy et reprise à froid ; réserves bloquantes traitées dans le dépôt ;
+- audit de cette clôture favorable, puis propre plan R0.1 audité ; l’audit architectural R0 favorable à `62bfdb9` est acquis et non rouvert ;
 - SHA de départ audité exact et état Git propre/origin 0/0 revérifiés ;
-- autorisation explicite de l'utilisateur de créer `rewrite/portfolio-versioned` et lancer le périmètre R0 initialisation ou R1 désigné ;
+- autorisation explicite de l'utilisateur de créer `rewrite/portfolio-versioned` et préparer/lancer le périmètre R0.1 désigné ; R1 exigera ensuite sa propre autorisation ;
 - plan d'initialisation borné : entrée V2 sûre, build/imports, namespace/origine et registre reprises ; aucune ouverture legacy automatique ;
 - export/restauration vérifié ancien Portfolio **avant bascule opérationnelle** (pas prérequis aux seuls contrats mémoire sans données réelles) ;
 - gates du lot suivant satisfaites, détails techniques nécessaires fixés dans son plan ; aucune exemption métier pour réutilisation.
 
-À la livraison présente : **arrêt obligatoire après commit/push du PLAN**.
+À la livraison présente : **R0 clôturé documentairement ; arrêt obligatoire après commit/push du correctif**.
 Ne pas créer la branche, coder, migrer/importer, basculer l'application ou lancer
-R0 initialisation/R1. Attendre audit indépendant et autorisation explicite.
+R0.1/R1. Aucun squelette, runtime/stockage, extraction ou Domain modifié.
+Attendre audit de clôture puis autorisation explicite de préparer/lancer R0.1.

@@ -4,12 +4,17 @@
 
 Point d'entrée unique et ordre de lecture : [current_plan](./current_plan.md).
 Le [plan normatif R0](./steps/PORTFOLIO_VERSIONED/rewrite_r0_plan.md) est l'autorité
-pour la reconstruction V2. Baseline R0 :
-`98737b1521e2877031b7cb0dd2624c268823d51e`, branche
+pour la reconstruction V2. Baseline auditée du plan et initiale du correctif de clôture :
+`62bfdb9f36b406a0196ba7ceee45884217c68365`, branche
 `codex/lot11a-portfolio-snapshots`, contrôlée propre et origin 0/0 après fetch.
-**PLAN livré pour audit ; R0 initialisation et R1–R6 non commencés/non autorisés.**
+**R0 — Architecture & Reconstruction Plan : plan accepté après audit indépendant
+favorable, clôture documentaire livrée. R0.1 — Rewrite Initialization et R1–R6
+NOT STARTED/non autorisés.** L'audit favorable porte sur complétude, pertinence
+architecturale et statelessness immédiate ; aucune implémentation n'est autorisée.
 Branche proposée `rewrite/portfolio-versioned` non créée ; aucun code ou format
-actif modifié. Prochaine action : audit indépendant puis autorisation explicite.
+actif modifié. Prochaine action : audit de clôture puis éventuelle autorisation de préparer/lancer
+R0.1, soumis à son propre plan/audit/autorisation. Aucun code, branche, squelette,
+runtime/storage, extraction ou Domain ; ne pas commencer R0.1/R1.
 
 Décisions cibles définitives : Option B extraction sélective, identité/version
 séparées, graphes de refs exactes autonomes, Current seul sélecteur courant,
@@ -26,7 +31,7 @@ T01–T11/T13–T15 conservés selon portée détaillée R0 §2 ; T14 migration 
 non-inférence de completed native conservée. I01–I21/I23 maintenus, I22 migration
 hors portée remplacé par I22-R natif robuste. M01–M04 références négatives,
 plus bloqueurs. Architecture précédente conservée comme trace, séquence V1–V7
-supplantée par R0–R6 et verticales précoces R1/R2.
+supplantée par R0 → R0.1 → R1–R6 et verticales précoces R1/R2.
 
 **Faits du code livré à cette baseline** : Portfolio/requirements/RAF inline,
 Actuals object-scoped V4/V5, formats V1–V8, captures avec résultats persistés,
@@ -39,6 +44,21 @@ Inventaire/module/tests et décisions REUSE/ADAPT/REFERENCE/DROP : R0 §4.
 Invariants→propriétaires→tests : R0 §9. Reprise stateless : R0 §1 et §11 ; aucun
 choix nécessaire au lancement n'est réservé à une conversation. Les détails
 techniques ouverts sont nommés et affectés à un lot dans R0 §8.
+
+Registres V2 : [décisions](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md)
+et [extractions](./steps/PORTFOLIO_VERSIONED/rewrite_reuse_registry.md).
+Ils indexent les décisions et suivent les opérations sans créer une seconde
+architecture ; toutes extractions NOT STARTED. Option B, matrice, architecture,
+verticales R1/R2, T12-R et stockage neuf isolé restent validés. Le cas ratio avec
+exception sans période reste volontairement ouvert avant reprise complète R3.
+
+Autonomie normative : patrimoine = justification/preuves/comportement/extraction ;
+aucune norme V2 exclusivement patrimoniale. Reprendre explicitement toute règle
+retenue dans le dossier/canon V2 avant implémentation ; hiérarchie V2 prévaut.
+Une conversation n'est jamais normative. Avant DONE : documenter le livré,
+inscrire nouvelles décisions, actualiser prochaine étape et extractions,
+vérifier absence de contexte indispensable exclusif et reprise par prompt minimal
+([R0 §11](./steps/PORTFOLIO_VERSIONED/rewrite_r0_plan.md#11-contrat-de-clôture-et-exercice-final-de-reprise-à-froid)).
 
 ## Archives de canon — application de référence
 

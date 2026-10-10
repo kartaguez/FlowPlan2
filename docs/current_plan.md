@@ -1,51 +1,73 @@
 # FlowPlan2 current plan — point d'entrée unique
 
-## Trajectoire active — FlowPlan2 V2 / R0 PLAN
+## Trajectoire active — FlowPlan2 V2 / R0 clôture documentaire
 
-**Statut : PLAN documentaire livré pour audit indépendant ; aucune implémentation
-ni création de branche autorisée.** R0 initialisation et R1–R6 NOT STARTED.
-Dépôt `kartaguez/FlowPlan2`, branche de référence/livraison
-`codex/lot11a-portfolio-snapshots`, baseline R0 vérifiée le 2026-10-10 :
-`98737b1521e2877031b7cb0dd2624c268823d51e`. Fetch réussi, arbre initial propre,
-origin 0/0. Aucun nouveau runtime/format ni accès aux données utilisateur en R0.
+**R0 — Architecture & Reconstruction Plan : plan accepté après audit indépendant
+favorable ; correctif documentaire de clôture livré.** Complétude, pertinence
+architecturale et statelessness immédiate favorables. Baseline auditée et initiale
+du correctif : `62bfdb9f36b406a0196ba7ceee45884217c68365`, le 2026-10-10.
+Dépôt `kartaguez/FlowPlan2` ; branche actuelle de référence/livraison :
+`codex/lot11a-portfolio-snapshots`. Fetch réussi, arbre initial propre, origin 0/0.
+Branche future prévue `rewrite/portfolio-versioned` **non créée**.
 
-**Lire dans cet ordre pour reprendre sans conversation :**
+**Prochaine étape : audit de cette clôture puis, si favorable, autorisation de
+préparer/lancer R0.1 — Rewrite Initialization.** Ce futur lot infrastructure
+(branche/squelette/isolation runtime et stockage/environnement V2) exige son
+propre plan, audit et autorisation. R0.1 et R1–R6 sont NOT STARTED/non autorisés.
+R0 est uniquement documentaire ; son audit favorable n'autorise aucune implémentation.
 
-1. Cette section : état et prochaine action.
-2. [Plan normatif R0 autonome](./steps/PORTFOLIO_VERSIONED/rewrite_r0_plan.md), intégralement : décisions, modèle, inventaire, architecture, Git/stockage, lots, invariants, exercice de reprise et GO.
-3. [Current canon](./current_canon.md) : cible distinguée des acquis réellement livrés.
-4. [Plan architectural antérieur](./steps/PORTFOLIO_VERSIONED/architecture_plan.md), §3–§6, sous les remplacements R0 ; puis canons et plans patrimoniaux référencés dans R0 §2.
+**Actions actuellement interdites :** création de branche, squelette, code,
+modification runtime/storage, extraction de code ancien, implémentation Domain,
+lancement R0.1 ou R1. Arrêt après commit/push de cette clôture.
 
-Décisions définitives : **Option B, reconstruction avec extraction sélective**,
-branche future `rewrite/portfolio-versioned` partageant l'historique, référence
-préservée et reprises auditées sans merge automatique. Modèle Portfolio versionné,
-identités stables/versions immuables/refs exactes, Current/Snapshots inputs-only,
-AP/SubPeriod/TeamActual/PT/RT/PTEC, Settings/Order versionnés, CAS/atomicité/recovery.
-T01–T11 et T13–T15 maintenus selon portée R0 ; **T12 remplacée par T12-R** :
-nouveau dépôt initial vide, format exclusivement natif, aucune migration V4–V8,
-aucun import automatique/hybride/autorité legacy. T14 migrée inapplicable mais
-non-inférence de completed maintenue en natif ; I22 migration remplacé dans le
-chemin V2 par I22-R import natif robuste. I01–I21/I23 maintenus. M01–M04 ne
-bloquent plus V2. Ancien Portfolio sauvegardé indépendamment avant bascule.
+**Documents normatifs V2 — ordre de lecture :**
 
-Trajectoire recommandée : R0 PLAN → audit/autorisation → R0 initialisation
-(branche/squelette sûrs) → **R1 Domain et simulation verticale mémoire** →
-**R2 Storage natif et verticale durable** → R3 moteur/service complet →
-R4 commandes atomiques → R5 UI/consultation minimale → R6 History/comparaisons.
-Service Snapshot minimum en R2/R3, consultation minimale avant Save UI R5.
-Les gates/tests/risques/rollback de chaque lot sont dans R0 §8–§10.
+1. Cette section : état, prochaine étape et interdictions.
+2. [Registre durable des décisions](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md) : T01–T11/T12-R/T13–T15, statuts et portée.
+3. [Dossier normatif R0 autonome](./steps/PORTFOLIO_VERSIONED/rewrite_r0_plan.md) : contrats §2–§3, architecture §5, stockage/Git/lots §6–§8, invariants I01–I21/I22-R/I23 §9, clôture/reprise §11 et GO §12.
+4. [Registre vivant des extractions](./steps/PORTFOLIO_VERSIONED/rewrite_reuse_registry.md) et matrice R0 §4 : toutes opérations NOT STARTED, provenance et preuves requises.
+5. [Current canon, section active](./current_canon.md) : cible distinguée du patrimoine livré.
 
-**Prochaine étape : audit indépendant de R0 et exercice de reprise à froid
-(R0 §11), puis autorisation explicite par SHA avant création de branche ou code.**
-Le prompt minimal de reprise et les sources de chaque réponse sont dans R0.
-Arrêt obligatoire après livraison Git du PLAN. Aucun lot nouveau commencé ici.
+**Documents patrimoniaux — consultation facultative :**
+[plan architectural antérieur](./steps/PORTFOLIO_VERSIONED/architecture_plan.md),
+[canon de référence](./canon.md), anciens plans/canons et archives ci-dessous.
+Ils justifient les choix, décrivent le comportement existant et fournissent
+preuves/références d'extraction ; aucune norme V2 ne peut exister exclusivement
+dans ces documents. Une règle retenue doit être explicitée dans la documentation
+normative V2 avant implémentation. La hiérarchie V2 (R0 §1) prévaut.
 
-R0 fait autorité pour la cible V2. Le plan précédent reste consultable comme trace,
-mais T12/migration/V1–V7/switch et ses bloqueurs ne sont plus la trajectoire active.
-11D.0/11D.1/11D.2 G1 et tous canons DONE restent les acquis de l'ancienne app,
-avec leurs limites ; ils ne certifient pas V2. Les sections suivantes sont des
-**archives de suivi de l'application de référence** : leurs « current », gates
-et statuts intermédiaires ne remplacent pas cette section ni le plan R0.
+Conclusions validées conservées : **Option B extraction sélective**, architecture
+Domain / Application / Planning Engine / Persistence / Historical Simulation / UI,
+matrice REUSE/ADAPT/REFERENCE/DROP, verticales R1 mémoire → R2 durable.
+Portfolio versionné : identités stables, versions immuables, refs exactes,
+Current/Snapshots inputs-only, AP/SubPeriod/TeamActual/PT/RT/PTEC, Settings/Order,
+ETC/status explicites, CAS/atomicité/recovery. **T12-R remplace T12 historique** :
+aucune migration V4–V8, dépôt neuf vide et stockage isolé, format natif exclusif,
+pas auto-import/hybride/autorité parallèle. T14 migration inapplicable ; natif
+open/ETC explicite, zéro n'implique jamais completed. I22 migration hors portée →
+I22-R import natif robuste ; I01–I21/I23 conservés. M01–M04 ne bloquent plus V2.
+REUSE n'atteste aucune extraction et n'autorise aucun merge/copie massive.
+
+Séquence validée : **R0 → R0.1 → R1 → R2 → R3 → R4 → R5 → R6**.
+R1 simulation verticale mémoire ; R2 publication/relecture native durable ;
+R3 moteur/service, R4 commandes, R5 UI/consultation minimale, R6 comparaisons.
+Service Snapshot minimum R2/R3, consultation avant Save UI R5. Gates/rollback R0 §8.
+Point métier volontairement ouvert : Reservation ratio + exception sans période,
+arbitrage avant reprise complète R3. Détails techniques ouverts affectés par lot
+au dossier R0 §8 ; aucune décision métier nouvelle dans ce correctif.
+
+**Invariant documentaire stateless :** une conversation ChatGPT/Codex n'est
+jamais normative ; toutes décisions nécessaires sont dans le dépôt avant clôture
+du lot introducteur. La checklist DONE et le prompt minimal/exercice final de
+reprise se trouvent en R0 §11. Les deux registres doivent rester à jour.
+
+## Limite explicite des archives
+
+Tout ce qui suit est **patrimonial, hors trajectoire active V2**. Les anciens
+« current », statuts, gates V1–V7 ou 11D.3–11D.5 ne constituent aucune instruction
+de lancement. Les canons DONE restent les acquis de l'ancienne application.
+Déplacement éventuel vers un fichier d'archive : tâche documentaire future
+non bloquante, avec contrôle des liens/ancres ; aucun déplacement risqué ici.
 
 ## Archives de suivi — application de référence
 
