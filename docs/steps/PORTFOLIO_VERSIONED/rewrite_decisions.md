@@ -117,3 +117,22 @@ représentations de son PLAN restent proposés à audit. D-R1-03–06 et A-R1-01
 sont enregistrés comme cadre global, aucune implémentation anticipée par R1.1.
 Prochain événement : audit indépendant ChatGPT du PLAN, puis décision explicite
 d'autorisation ou de correction. Aucun GO n'est déduit du cadrage validé.
+
+## Corrections documentaires R1.1 après audit indépendant
+
+Audit ChatGPT du SHA `06d98971bf5e3ddb717e6ee87d7c295631fd6331`, reçu le
+2026-10-10 : cadrage, architecture, frontières, A-R1-01/02 et stratégie de reprise
+validés ; quatre corrections bornées demandées. [PLAN corrigé](./rewrite_r11_plan.md)
+PLANNED / NOT STARTED — PLAN CORRIGÉ À RÉAUDITER ; GO NON ACCORDÉ.
+Parsing exact distinct de canonicalisation (zéros initiaux admis), exactitude
+BigInt dans les limites physiques du runtime sans garantie de capture d'exhaustion,
+validation contextuelle sur seules versions fournies sans résolution des absentes.
+
+**D-R11-01 — décision technique explicite R1.1, fixée par correction utilisateur :**
+CivilDate grégorien proleptique, plage 0000-01-01 à 9999-12-31 inclusive,
+année 0000 admise ; aucune portée métier particulière, aucun clamp silencieux,
+aucune horloge/timezone/DST/Date JavaScript ; extension par évolution contractuelle
+explicite uniquement. [Contrat §4.2](./rewrite_r11_plan.md#42-civildate-et-intervalles).
+Ce n'est pas une ancienne règle R0 ; aucune décision D-R1-01–06/A-R1-01/02
+rouverte. Le prochain événement est exclusivement l'audit différentiel ChatGPT
+du nouveau SHA. Aucune implémentation ne commence après le push.

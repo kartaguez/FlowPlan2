@@ -36,11 +36,12 @@ périphérique au socle/runtime/browser validé. Aucune compatibilité ou dispon
 Windows n’est attestée. Levée : validation sur Windows x64 compatible (Node 26
 pour construction) avant qualification ou distribution Windows, preuves archivées.
 Les résultats partiels G15/G16 restent inchangés ; hors SEA n’est pas PASS SEA.
-**R1 — CADRAGE VALIDÉ ; R1.1 — PLANNED / NOT STARTED — PLAN À AUDITER**.
+**R1 — CADRAGE VALIDÉ ; R1.1 — PLANNED / NOT STARTED — PLAN CORRIGÉ À RÉAUDITER**.
 [PLAN R1.1](./steps/PORTFOLIO_VERSIONED/rewrite_r11_plan.md), aucune primitive,
 extraction ou implémentation nouvelle. R1.2–R1.4 et R2–R6 NOT STARTED.
-Prochain événement : audit indépendant ChatGPT du PLAN puis décision explicite
-d'autorisation ou de correction ; aucun GO implicite ni lancement après livraison.
+Audit du SHA `06d98971bf5e3ddb717e6ee87d7c295631fd6331` : quatre corrections
+documentaires appliquées au PLAN, aucune implémentation. GO NON ACCORDÉ ;
+prochain événement exclusivement : audit différentiel ChatGPT du nouveau SHA.
 Décisions globales dans le registre ; amendements normatifs nouveaux A-R1-01/02
 explicités à [R0 §13](./steps/PORTFOLIO_VERSIONED/rewrite_r0_plan.md#13-addendum-normatif-r1-du-2026-10-10) :
 Snapshot borné aussi par connaissance AP déclarée ; AP vide peut la déclarer,

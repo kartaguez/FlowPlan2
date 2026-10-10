@@ -1,12 +1,12 @@
 # FlowPlan2 V2 — PLAN R1.1 : Primitives, identités et versionnement natif
 
 Date : 2026-10-10. **R1 — CADRAGE VALIDÉ** par l'utilisateur.
-**R1.1 — PLANNED / NOT STARTED — PLAN À AUDITER**.
+**R1.1 — PLANNED / NOT STARTED — PLAN CORRIGÉ À RÉAUDITER**.
 R0 et R0.1 DONE ; R1.2–R1.4 et R2–R6 NOT STARTED.
 Cette préparation est exclusivement documentaire. Aucun type, fonction, classe,
 test ou dépendance ajouté ; aucune extraction effectuée. Le prochain événement
-est l'audit indépendant de ce PLAN par ChatGPT, puis une décision explicite
-d'autorisation ou de correction. Aucun lancement à l'issue de cette session.
+est exclusivement l'audit différentiel du nouveau SHA par ChatGPT.
+GO d'implémentation R1.1 : NON ACCORDÉ. Aucun lancement à l'issue de cette session.
 
 Autorités : [current_plan](../../current_plan.md), [décisions](./rewrite_decisions.md),
 [R0](./rewrite_r0_plan.md), [registre de reprise](./rewrite_reuse_registry.md),
@@ -15,7 +15,17 @@ Autorités : [current_plan](../../current_plan.md), [décisions](./rewrite_decis
 R0 §13 priment uniquement sur les clauses qu'ils désignent. Le patrimoine
 n'ajoute aucune norme par renvoi. Tous noms de fichiers, types et fonctions
 proposés ci-dessous restent des choix de PLAN soumis à audit, pas des décisions
-d'implémentation déjà adoptées.
+d'implémentation déjà adoptées. La plage CivilDate §4.2 est désormais une
+décision technique explicite R1.1, distincte des propositions d'API.
+
+Correction après audit indépendant du SHA `06d98971bf5e3ddb717e6ee87d7c295631fd6331`
+le 2026-10-10 : cadrage, architecture, frontières, amendements et stratégie de
+reprise validés ; quatre corrections documentaires demandées, sans GO.
+Elles distinguent parsing/canonicalisation, bornent la garantie BigInt aux
+limites physiques du runtime, fixent CivilDate et explicitent la validation
+contextuelle locale. D-R1-01–06/A-R1-01/02 et les reports R1.3/R3/Windows
+restent inchangés. Préflight : SHA audité = HEAD = origin, arbre propre, 0/0
+après fetch sur la branche attendue ; aucun code/test/build exécuté ou modifié.
 
 ## 1. Objectif et périmètre
 
@@ -84,15 +94,26 @@ PGCD des magnitudes égal à 1, zéro unique 0/1, signe au numérateur. Créatio
 normalisation refusent dénominateur nul ; dénominateur négatif fourni comme paire
 est normalisé. Opérations +, −, ×, ÷ et comparaison exactes ; division par zéro
 refusée. Pas de Number, parseFloat, arrondi, tolérance epsilon ou conversion
-flottante pour une quantité métier, même transitoirement. BigInt arbitraire,
-pas de limite silencieuse ni troncature ; échec de ressource explicite.
+flottante pour une quantité métier, même transitoirement. Arithmétique rationnelle
+exacte en BigInt dans les limites physiques du runtime : aucune limite métier
+numérique arbitraire, saturation, overflow silencieux par conversion numérique
+limitée, troncature ou approximation. Une exhaustion réelle des ressources du
+runtime n'est pas nécessairement interceptable ; R1.1 ne garantit pas sa
+traduction en erreur Domain contrôlée et ne fixe aucune taille maximale arbitraire.
 
-Grammaire proposée pour l'API Domain : entier/décimal avec signe moins facultatif,
-chiffres ASCII, pas de plus/exposant/séparateurs/espaces/zéros initiaux superflus ;
-point décimal avec au moins un chiffre de chaque côté. Fraction : entier signé /
-entier strictement positif, sans espaces. `2/4` est accepté puis normalisé ;
-`-0` et `0.00` deviennent 0/1. Les paires BigInt acceptent les deux signes ; la
-grammaire textuelle refuse un dénominateur négatif. Virgule et trim éventuels
+Parsing exact et représentation interne canonique sont deux contrats distincts.
+Grammaire Domain retenue : entier/décimal avec signe moins facultatif et chiffres
+ASCII, zéros initiaux admis ; point décimal avec au moins un chiffre de chaque
+côté. Fraction : entier signé / entier strictement positif, sans espaces, zéros
+initiaux admis aussi au dénominateur. `01` représente 1/1,
+`001.250` représente 5/4, `2/4` représente 1/2, `-0` et `0.00` représentent 0/1.
+La canonicalité du texte n'est pas une condition de parsing. Les paires BigInt
+acceptent les deux signes ; la grammaire textuelle conserve le dénominateur
+positif. Chaîne vide, syntaxe ambiguë/mal formée, NaN/Infinity et dénominateur
+nul sont refusés.
+Exposant, signe plus et espaces restent hors de cette grammaire délibérément
+bornée aux trois notations entier/décimal/fraction ; aucune approximation ou
+conversion limitée n'est utilisée pour les interpréter. Virgule et trim éventuels
 appartiennent à une future frontière de saisie explicite R5, sans autorité Domain.
 Le texte canonique `n/d` sert comparaison/diagnostic ; il ne fixe aucun codec R2.
 
@@ -105,10 +126,14 @@ pas le nom ni l'autorité de l'ETC natif. Statut PTEC et complétion restent mé
 
 ### 4.2 CivilDate et intervalles
 
-Proposition auditable : Gregorian proleptique, forme ISO stricte YYYY-MM-DD,
-années 0000–9999 comme le legacy inspecté ; aucun Date JS/UTC/localTime/timestamp
-dans Domain. Cette plage, dont année 0000 bissextile, est un choix technique
-proposé, pas une règle déjà fixée par R0. Rejet explicite de la sortie de plage.
+Décision technique R1.1 fixée après audit : calendrier grégorien proleptique,
+forme ISO stricte YYYY-MM-DD, plage 0000-01-01 à 9999-12-31, bornes incluses.
+Cette contrainte technique de la primitive V2 n'a pas de signification métier
+particulière ; elle n'était pas une règle fixée par R0. L'année 0000 est admise
+(et bissextile) dans le modèle proleptique retenu. Aucune date hors plage n'est
+clampée silencieusement : elle est refusée. Une extension future de la plage
+exige une évolution contractuelle explicite. Aucune horloge, timezone, DST ou
+Date JavaScript ne participe à la sémantique de CivilDate.
 Comparaison civile, ajout/retrait d'un nombre entier sûr de jours, différence
 signée en jours et weekday ISO. Calcul intermédiaire entier sûr vérifié avant
 conversion retour ; ne pas recopier l'addition legacy d'un offset extrême sans
@@ -169,18 +194,25 @@ freeze superficiel ni alias externe restant modifiable. Chaque version archivée
 reste intacte ; aucune API update/delete physique. Cette préparation ne fixe
 pas le format de sérialisation ni des hashes.
 
-Validation locale distingue données à vérifier et contexte nécessaire. Un
-contrôle pur sur des enveloppes explicitement fournies vérifie owner/filiation,
-références présentes dans le contexte demandé, cycles de filiation (self et longs)
-et collision de même ref. Collision divergente si owner, payload, predecessor
+La validation contextuelle R1.1 répond uniquement : « Les versions explicitement
+fournies sont-elles localement cohérentes entre elles ? » Un contrôle pur sur
+ces enveloppes vérifie, lorsque les éléments nécessaires sont fournis,
+identité du predecessor, compatibilité owner, cohérence locale filiation/provenance,
+cycles de filiation (self et longs) dans ce contexte et collisions de refs.
+Collision divergente si owner, payload, predecessor
 ou provenance diffère : rejet ; même ref et même contenu validé peut être reconnu
 idempotent sans créer/sélectionner une nouvelle version. Égalité structurée sur
 valeurs validées et BigInt, aucun JSON.stringify/hachage physique comme autorité.
-Une ref de predecessor non fournie est « vérification contextuelle impossible »,
-jamais acceptée comme racine. Pas d'exigence de parents chronologiquement créés.
+Si un predecessor nécessaire manque, le résultat exprime « vérification
+contextuelle non établie avec les éléments fournis », jamais une racine ni une
+cohérence démontrée. Pas d'exigence de parents chronologiquement créés.
 
-Ce contrôle reçoit un contexte fini fourni par appelant, sans registre/index
-persistant ou resolver. Les cycles de dépendances/provenance métier et fermeture
+Le contrôle ne cherche, ne charge et ne résout aucune ref absente. Il reçoit
+uniquement un contexte fini fourni par l'appelant : aucun registre, Current,
+latest, parcours de manifeste, stockage, sélection par date ou reconstruction
+de fermeture. Résolution des références, fermeture du graphe, registre passif,
+manifestes et GraphResolver restent exclusivement R1.2. Les cycles de
+dépendances/provenance métier et fermeture
 complète exigent les politiques R1.2/R1.3 ; aucune prétention de les valider ici.
 La primitive refuse l'auto-source ; les suites de contexte R1.1 ne certifient
 que filiation et collisions, pas un graphe métier complet.
@@ -210,8 +242,9 @@ avec refs opaques/filiation ramifiée V2. Le code legacy ne prévaut pas sur R0.
 
 ## 6. Tableau REUSE / ADAPT / REFERENCE
 
-Toutes lignes : intentions **PLANNED / NOT STARTED**, audit non obtenu, tests non
-exécutés. Détails source/commit/symboles/transitifs/destination au
+Toutes lignes : intentions **PLANNED / NOT STARTED**, stratégie validée par
+l’audit du PLAN initial ; aucun audit d’extraction ni test exécuté.
+Détails source/commit/symboles/transitifs/destination au
 [registre R1.1](./rewrite_reuse_registry.md#intentions-r11--aucune-extraction).
 
 | Candidat | Classe retenue pour le périmètre | Autonomie et preuve future |
@@ -248,10 +281,10 @@ confirmation. Le contexte fourni n'est pas un registre métier caché.
 
 | Étape future | Travail borné | Preuve de passage |
 | --- | --- | --- |
-| P0 | Audit du SHA PLAN, GO R1.1, préflight Git, confirmer choix §4 | Aucun écart non expliqué, scope autorisé |
+| P0 | Audit différentiel du SHA PLAN, GO R1.1 distinct, préflight Git, vérifier contrats §4 ; plage CivilDate fixée, aucun choix laissé à l’implémenteur | Aucun écart non expliqué, scope autorisé |
 | P1 | Résultat/erreurs natifs, Rational et parsing | Q01–Q03/Q05 ; aucune ancienne importation |
 | P2 | Quantités contraintes et optionnalité | Q04 ; absence ≠ zéro, unités non substituables |
-| P3 | CivilDate/intervalle/arithmetic | D01–D04 ; choix plage explicite confirmé |
+| P3 | CivilDate/intervalle/arithmetic | D01–D04 ; respect de la plage CivilDate fixée §4.2 |
 | P4 | IDs/kinds/refs exactes et owners | V01/V02 ; tests de type et runtime |
 | P5 | Enveloppe immutable, predecessor/provenance, contrôles contextuels purs | V03–V06 ; aucun registre/manifest/service |
 | P6 | Vérifier isolation/build/tests et rollback ; documenter livraison et provenance | A01–A03, matrice contrat→code→test, audit indépendant |
@@ -270,23 +303,23 @@ oracles mathématiques/civils indépendants et tests runtime d'entrées inconnue
 
 | Gate | Cas positifs | Cas négatifs / preuves |
 | --- | --- | --- |
-| Q01 parsing exact | 42, -7, 0.1=1/10, 1.25=5/4, 1/3, 2/4=1/2, très grands entiers et longue décimale | vide, espaces, plus, exponent, NaN/Infinity, 01, .5, 1., virgule Domain, fraction mal formée/0 ; aucun fallback zéro |
+| Q01 parsing exact / canonicalisation | 42, -7, 0.1=1/10, 01=1/1, 001.250=5/4, 1/3, 2/4 et 02/04=1/2, -0 et 0.00=0/1 ; textes acceptés non canoniques équivalents, grands entiers et longue décimale | vide, espaces, plus, exposant non supporté, NaN/Infinity, .5, 1., virgule Domain, syntaxe ambiguë/mal formée, dénominateur nul ; aucun fallback zéro ni perte de précision |
 | Q02 canonicalisation/signes | 2/-4=-1/2 en paire, -2/-4=1/2, tous zéros=0/1 ; normalisation idempotente | dénominateur nul ; rationnel forgé/non canonique refusé aux frontières |
 | Q03 arithmetic sans float | 1/3+2/3=1, 0.1+0.2=3/10, ×/÷ avec annulation, comparaison grands produits, inverses et conservation | ÷0 ; revue absence Number/float dans chaîne des quantités ; résultat immuable |
 | Q04 absence/unités | absent distinct de 0 ; borne ratio 0 et 1 ; capacité/ETC/TA/dailyCap nuls valides | négatifs et ratio >1 ; familles substituées compile/runtime ; open zéro n'est pas inféré completed (aucun statut dans primitive) |
-| Q05 erreurs | résultat/code/path stables, entrée invalide identifiée | mauvais type runtime, exception de ressource explicite ; aucune troncature ou défaut |
-| D01 validation | 2000-02-29, 2024-02-29, proposition 0000-02-29 | 1900/2100-02-29, 2023-02-29, mois/jours invalides, format court, timestamp/TZ |
+| Q05 erreurs | résultat/code/path stables, entrée invalide identifiée | mauvais type runtime ; aucune saturation, troncature, approximation ou fallback ; aucune garantie d’interception d’exhaustion runtime |
+| D01 validation | 2000-02-29, 2024-02-29, 0000-02-29 ; bornes 0000-01-01 et 9999-12-31 admises | 1900/2100-02-29, 2023-02-29, mois/jours invalides, format court, timestamp/TZ, -0001-12-31 et 10000-01-01 hors plage sans clamp |
 | D02 inclusivité | intervalle même jour cardinal 1, deux bornes comprises, adjacent et passage année/mois | intervalle inversé refusé ; AP vide jamais encodé par date fictive |
 | D03 arithmetic | ±jour, différence/weekday ISO, frontière bissextile, aller-retour dans plage | offset fractionnaire/unsafe, calcul intermédiaire non sûr, sortie 0000–9999 refusés |
 | D04 TZ/DST | mêmes vecteurs en processus TZ UTC, Europe/Paris et America/New_York, passages DST mars/octobre/novembre | revue aucun Date/horloge ; preuves séparées processus, pas timezone simulée par commentaire |
 | V01 identités/refs | même entityId dans plusieurs versions, même texte différents kinds distinct, ref exacte stable | ID/VersionId intervertis, unknown kind, vide, ref incomplète, aucune sélection automatique après ajout de branche/ordre inversé/timestamp |
 | V02 owners | owner stable et typé conforme famille, refs attendues | Project ↔ Reservation, PT ↔ RT, famille différente, changement d'owner entre versions, ref AP autre owner ; pas fallback |
 | V03 immutabilité | ref/payload/nested lists/owner/provenance gelés et détachés de l'entrée | mutation entrée et sortie ne change pas archive ; Map/Set/Date/payload cyclique refusés |
-| V04 filiation | racine, chaîne, deux enfants du même parent, ordre fourni non chronologique | self-cycle, cycle long, parent autre identité/kind/owner, plusieurs predecessors, parent manquant ; aucune fusion auto |
+| V04 filiation | racine, chaîne, deux enfants du même parent, ordre fourni non chronologique | self-cycle, cycle long, parent autre identité/kind/owner, plusieurs predecessors ; parent manquant ⇒ vérification non établie, sans recherche/chargement/résolution ; aucune fusion auto |
 | V05 collision | même ref/contenu reconnu identique, versions différentes coexistantes | même ref et payload/owner/predecessor/provenance divergents refusés, archives intactes ; aucune overwrite |
 | V06 provenance | plusieurs sources exactes distinctes du predecessor, nouveau ID pour sources métier | provenance utilisée comme sélection/filiation refusée ; auto-source ; pas de merge générique ; aucune certification split/merge métier |
 | A01 autonomie | graphe sources/types/transitifs/realpath exclusivement V2 | tout import src, barrel, fixture legacy, runtime/stockage V1, autorité parallèle refusés |
-| A02 Domain pur durable | API primitives seules, aucun modèle provisoire, aucun couplage Engine/UI/storage | appel Current/latest/clock ou création registre/manifest/transition hors scope → NO-GO |
+| A02 Domain pur durable | API primitives seules, aucun modèle provisoire, aucun couplage Engine/UI/storage | appel Current/latest/clock, consultation registre/stockage, parcours manifeste, résolution ref absente ou reconstruction fermeture, création registre/manifest/transition hors scope → NO-GO |
 | A03 outils isolés | check:boundaries:v2, typecheck:v2, test:v2, build:v2 futurs PASS, sans skip ; sources/artefacts/découverte vérifiés | garde affaibli ou ancien src compilé → NO-GO ; aucune ancienne suite comme preuve V2 |
 
 Ces tests ne valident pas graphe complet, grille TA, transitions, ever-nonzero,
@@ -296,8 +329,9 @@ est arithmetic seulement ; la preuve métier end-to-end appartient à R1.4.
 ## 10. Critères GO / NO-GO
 
 GO d'implémentation uniquement après audit indépendant favorable du PLAN au SHA
-exact puis autorisation utilisateur explicite. Confirmer les propositions de
-plage/date, lexique, owners et payloads ; amender/réauditer en cas de correction.
+exact puis autorisation utilisateur explicite. Respecter la plage CivilDate
+fixée §4.2 ; les propositions restantes de lexique, owners et payloads relèvent
+de l'audit du PLAN, pas d'une modification discrétionnaire à P0.
 Toutes gates du périmètre doivent être vérifiables sans anticiper R1.2.
 NO-GO : contradiction normative non résolue, APIs insuffisamment précisées,
 prérequis Git incorrects, besoin de registre/moteur/storage ou adaptation non
@@ -312,14 +346,14 @@ distinctes avant DONE ; aucun GO R1.2 implicite.
 
 | Risque | Mesure |
 | --- | --- |
-| BigInt volumineux, grandes plages | Pas de troncature ; refus explicite si ressource indisponible, pas énumération pour valider ; budgets moteur reportés |
+| BigInt volumineux, grandes plages | Exactitude BigInt dans les limites physiques du runtime, aucune taille métier arbitraire ni promesse d’interception d’exhaustion ; pas énumération pour valider ; budgets moteur reportés |
 | Faux brands et freeze superficiel | Validation runtime, copies profondes, tests d'alias et familles |
 | R0 « sans dates » masque amendement | Addendum normatif A-R1-01/02 et index des décisions, avant modèle AP |
 | Histoire legacy consécutive copiée | REFERENCE seulement ; branches et opacité testées |
 | Collision basée sur JSON/hash | Égalité structurée des valeurs validées ; codec/hash physique R2 |
 | Primitive devenue registre/resolver | Contexte pur fourni, aucune conservation interne/sélection ; revue de scope |
 | Garde shell incompatible avec algorithmes | Inspection et solution compatible, sinon delta séparé audité avant changement |
-| Année 0000 et lexique perçus comme règles R0 | Propositions §4 explicitement soumises à audit ; aucun choix caché |
+| Année 0000 et lexique perçus comme règles R0 | Plage technique fixée en R1.1 §4.2, aucune portée métier ni ancienne règle R0 ; lexique restant soumis à audit |
 
 Question métier préexistante Reservation ratio + exception sans période : reste
 ouverte pour R3, aucun arbitrage ni extraction de requestedReservationCapacity.
@@ -365,10 +399,10 @@ legacy façade, latest, sélection par date, fusion concurrente ou approximation
 Préparation : contrôle diff documentaire, git diff --check, liens/statuts/amendements,
 commit/push normal et vérification SHA distant/arbre propre/origin 0/0. Ne fournir
 que les preuves réellement obtenues. Cette clôture documentaire maintient
-R1.1 PLANNED / NOT STARTED — PLAN À AUDITER.
+R1.1 PLANNED / NOT STARTED — PLAN CORRIGÉ À RÉAUDITER.
 
-Contrôles documentaires effectivement obtenus avant commit : six Markdown
-exclusivement, 192 liens locaux dont 42 ancres vérifiés ; 14 sections et 18 gates
+Contrôles de la préparation initiale effectivement obtenus avant son commit :
+six Markdown exclusivement, 192 liens locaux dont 42 ancres vérifiés ; 14 sections et 18 gates
 futures présentes ; archives des trackers et corps historique R0 inchangés.
 `git diff --check` sans erreur. Aucun test/build/runtime applicatif exécuté.
 Ces contrôles ne sont pas des preuves d'implémentation ni un audit indépendant.
@@ -380,6 +414,6 @@ isolée, rollback, limites, audit et décision utilisateur. Canon R1.1 à créer
 seulement pour la livraison autorisée, aucune preuve fictive aujourd'hui.
 
 Reprise à froid : lire current_plan puis décisions/R0 §13 et ce PLAN ; identifier
-le SHA à auditer, les propositions et gates, attendre audit ChatGPT puis décision
-explicite. R1 — CADRAGE VALIDÉ ; R1.1 — PLANNED / NOT STARTED — PLAN À AUDITER ;
+le SHA à auditer, les propositions et gates, attendre exclusivement l’audit
+différentiel ChatGPT du nouveau SHA puis décision explicite. R1 — CADRAGE VALIDÉ ; R1.1 — PLANNED / NOT STARTED — PLAN CORRIGÉ À RÉAUDITER ;
 R1.2–R1.4 et R2–R6 — NOT STARTED. Aucune implémentation ne commence après ce PLAN.

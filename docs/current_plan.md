@@ -34,14 +34,16 @@ gate n’est amendée. Détails et condition de levée dans le canon R0.1.
 
 **R1 — CADRAGE VALIDÉ**, découpage R1.1 primitives/identités/versionnement,
 R1.2 graphe métier versionné, R1.3 transitions/preuves, R1.4 verticale mémoire.
-**R1.1 — PLANNED / NOT STARTED — PLAN À AUDITER** :
+**R1.1 — PLANNED / NOT STARTED — PLAN CORRIGÉ À RÉAUDITER** :
 [PLAN dédié](./steps/PORTFOLIO_VERSIONED/rewrite_r11_plan.md), préparé depuis
 `8926b1f1b73650c17114914a168c368d0331d87b` sur la branche attendue, arbre initial
 propre et HEAD/origin exacts après fetch (0/0). Inventaire lu, aucune extraction.
 **R1.2–R1.4 — NOT STARTED ; R2–R6 — NOT STARTED**, périmètres R2–R6 inchangés.
 
-Prochain événement : audit indépendant du PLAN R1.1 par ChatGPT au SHA de
-livraison documentaire, puis décision explicite d'autorisation ou de correction.
+Audit indépendant du SHA `06d98971bf5e3ddb717e6ee87d7c295631fd6331` reçu :
+quatre corrections documentaires appliquées (parsing, BigInt/ressources, plage
+CivilDate fixée et validation contextuelle locale). GO implémentation NON ACCORDÉ.
+Prochain événement exclusivement : audit différentiel par ChatGPT du nouveau SHA.
 Aucune implémentation ne commence à l'issue de cette session. Le cadrage global
 ne constitue aucun GO : ni code/types/tests/configs/dépendances/scripts, ni
 stockage, ni début d'un sous-lot suivant. Le socle shell R0.1 n'est pas un modèle
