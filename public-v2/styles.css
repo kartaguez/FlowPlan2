@@ -1,0 +1,8 @@
+:root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+body { margin: 0; padding: 1.5rem; }
+.v2-shell { max-width: 52rem; margin: 2rem auto; }
+h1 { font-size: 1.5rem; }
+section { border: 1px solid #888; border-radius: .5rem; padding: 1.25rem; }
+h2 { margin-top: 0; }
+dl { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .5rem 1rem; }
+dt, dd { margin: 0; }
