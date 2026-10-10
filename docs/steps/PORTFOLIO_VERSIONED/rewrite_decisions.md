@@ -2,7 +2,8 @@
 
 Statut : décisions R0 validées par audit indépendant favorable à
 `62bfdb9f36b406a0196ba7ceee45884217c68365`. GO R0.1 reçu après audit du plan
-à `1c2b08c727af9fb8002b7678bd7403fcc0d39c27` ; R0.1 IN REVIEW, R1/R2 non autorisés.
+à `1c2b08c727af9fb8002b7678bd7403fcc0d39c27` ; R0.1 DONE après audit indépendant favorable et clôture utilisateur au SHA
+`d5bb1a89c847604f2f80aaaa3270e4125f4a3fef`, avec amendement I-R01-C ; R1/R2 non autorisés.
 Point d'entrée : [current_plan](../../current_plan.md).
 Option B extraction sélective, verticales R1 mémoire/R2 durable, architecture à
 six modules, stockage neuf isolé et matrice de reprise sont validés.
@@ -45,7 +46,7 @@ Les détails techniques ouverts et leurs lots restent dans [R0 §8](./rewrite_r0
 
 ## Décisions d'infrastructure R0.1
 
-GO d’implémentation R0.1 reçu le 2026-10-10 après audit favorable ; état livré IN REVIEW.
+GO d’implémentation R0.1 reçu le 2026-10-10 après audit favorable ; état clôturé DONE le 2026-10-10 selon I-R01-C.
 Ces décisions précisent T12-R et la frontière de reprise, sans changement métier.
 Les choix techniques du [plan R0.1](./rewrite_r01_plan.md) sont adoptés par ce GO ;
 résultats et limites dans le [canon R0.1](./rewrite_r01_canon.md), aucune extraction métier.
@@ -56,7 +57,30 @@ résultats et limites dans le [canon R0.1](./rewrite_r01_canon.md), aucune extra
 | I-R01-B | VALIDÉE par cadrage utilisateur ; environnement R0.1 | Origines browser V2 dédiées et fixes, distinctes du legacy, vérifiées mécaniquement ; namespaces distincts, aucun bridge runtime. | [R0.1 §5](./rewrite_r01_plan.md#5-origines-fixes-et-frontières-browser) ; choix livré dev 127.0.0.1:4274 / portable 127.0.0.1:4275 |
 
 Source root exact, ports, outillage, DTO shell, packaging et G01–G16 sont fixés
-par le plan audité et GO utilisateur. Implémentation IN REVIEW : G01–G14 PASS,
+par le plan audité et GO utilisateur. Implémentation clôturée : G01–G14 PASS,
 G15 consultation 4174 PASS ; G15/G16 partiels uniquement pour Windows réel manquant, voir canon.
 Namespaces R0 §6 inchangés ; aucun stockage ouvert par R0.1 ; schéma/codec/
-persistence métier restent R2. Audit du code et validation utilisateur restent requis.
+persistence métier restent R2. Audit indépendant favorable de l’implémentation
+et clôture utilisateur reçus ; qualification Windows non acquise.
+
+## Amendement de clôture R0.1 — report Windows
+
+**I-R01-C — VALIDÉE par décision utilisateur le 2026-10-10.** Audit indépendant
+favorable sur architecture, frontières d’isolation et preuves disponibles à
+`d5bb1a89c847604f2f80aaaa3270e4125f4a3fef` ; clôture R0.1 explicitement autorisée.
+Remplace uniquement le critère initial « Windows SEA obligatoire avant DONE »
+du [plan R0.1 §4/§7/§8/§10](./rewrite_r01_plan.md) selon son
+[historique d’amendement §13](./rewrite_r01_plan.md#13-amendement-de-clôture-du-2026-10-10).
+
+R0.1 peut être DONE sans exécuter les véritables binaires Windows. Motif : le
+packaging est périphérique au socle technique ; il ne conditionne ni isolation
+runtime, fermeture des graphes, Portfolio vide ni démarrage browser déjà validés.
+Aucune autre gate, responsabilité R1/R2 ou décision métier n’est modifiée.
+
+Construction/exécution Windows x64 de FlowPlan2-V2.exe, portable historique
+indépendant et vérifications natives ports/assets/sentinelles/arrêt :
+**DEFERRED / NOT EXECUTED**, jamais PASS. Leur validation reste obligatoire sur
+environnement Windows compatible avant toute déclaration de compatibilité,
+disponibilité, qualification ou distribution Windows ; preuves et levée explicite
+à enregistrer dans le [canon R0.1](./rewrite_r01_canon.md#limites-windows-résiduelles).
+R1 prochain lot NOT STARTED ; R2 NOT STARTED, aucun GO implicite.

@@ -1,8 +1,11 @@
 # FlowPlan2 current plan — point d'entrée unique
 
-## Trajectoire active — FlowPlan2 V2 / R0.1 IN REVIEW
+## Trajectoire active — FlowPlan2 V2 / R0.1 DONE, R1 prochain lot
 
-**R0 clôturé. R0.1 — Rewrite Initialization : IN REVIEW.**
+**R0 clôturé. R0.1 — Rewrite Initialization : DONE**, clôture utilisateur
+autorisée le 2026-10-10 après audit indépendant favorable de l’architecture,
+des frontières d’isolation et des preuves disponibles à
+`d5bb1a89c847604f2f80aaaa3270e4125f4a3fef`.
 GO utilisateur après audit favorable du plan à
 `1c2b08c727af9fb8002b7678bd7403fcc0d39c27`. P0 validé : HEAD/origin exacts,
 arbre propre, divergence 0/0 et branche absente avant création exacte.
@@ -22,16 +25,18 @@ sans V2 chargé ni exception. Serveur utilisateur arrêté temporairement puis
 redémarré sur 4174 (PID 19550, HTTP 200). Rollback des six commits : tree baseline
 identique et sentinelles quatre origines intactes.
 
-**Preuves restantes :** véritable SEA Windows V2 4275 et ancien portable
-historique 4175 non exécutés sur macOS. G15/G16 partiels uniquement pour Windows,
-aucune clôture ni PASS SEA implicite.
-Prochaine étape : compléter ces preuves externes/environnementales, audit
-indépendant de l'implémentation, puis validation utilisateur.
+**Windows : DEFERRED / NOT EXECUTED.** Par décision utilisateur
+[I-R01-C](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md#amendement-de-clôture-r01--report-windows),
+les véritables exécutables Windows V2 et historique et leurs vérifications natives
+ne bloquent plus la clôture R0.1. Ils restent obligatoires avant toute qualification
+ou distribution Windows. Aucun résultat non exécuté n’est PASS ; aucune autre
+gate n’est amendée. Détails et condition de levée dans le canon R0.1.
 
-R1 et R2–R6 restent NOT STARTED/non autorisés. Aucune extraction métier,
-primitive Domain, repository, codec, migration/import/recovery ou moteur.
-Ne pas lancer R1/R2 ni marquer R0.1 DONE. Arrêt après R0.1 ; toute contradiction
-normative impose STOP, aucun merge automatique ni réparation Git implicite.
+**Prochain lot : R1 — NOT STARTED**, cadrage/plan et audit indépendants puis
+autorisation distincte avant lancement. **R2 — NOT STARTED** ; R2–R6 non autorisés.
+Le socle technique V2 est disponible ; la clôture n’autorise aucune primitive
+métier, extraction R1+, moteur ou repository R2. Arrêt après cette clôture
+strictement documentaire ; rendre la main pour le cadrage du lot suivant.
 
 **Documents normatifs V2 — ordre de lecture :**
 

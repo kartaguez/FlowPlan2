@@ -1,7 +1,9 @@
 # FlowPlan2 V2 — livraison R0.1 Rewrite Initialization
 
-Date : 2026-10-10. **R0.1 — IN REVIEW**. R0 reste clôturé ; R1 et R2–R6
-NOT STARTED/non autorisés. Aucun DONE auto-déclaré. Point d'entrée :
+Date : 2026-10-10. **R0.1 — DONE**. R0 reste clôturé ; R1 et R2–R6
+NOT STARTED/non autorisés. Clôture explicitement autorisée par l’utilisateur
+après audit indépendant favorable de l’architecture, des frontières d’isolation
+et des preuves disponibles au SHA `d5bb1a89c847604f2f80aaaa3270e4125f4a3fef`. Point d'entrée :
 [current_plan](../../current_plan.md). [Plan audité](./rewrite_r01_plan.md).
 
 ## Autorisation, baseline et séquence
@@ -145,13 +147,40 @@ abandon du rewrite et arrêt de ses serveurs suffisent tant que R1/R2 n'introdui
 pas de persistence. Ne relancer un checkout reverté qu'en environnement historique
 séparé ; aucun cleanup global ou conversion inverse.
 
-Restant avant audit complet/clôture :
+## Limites Windows résiduelles
 
-1. Sur Windows x64 Node 26 : npm ci, build:sea:v2, test:sea:v2 ; obtenir la preuve
-   native FlowPlan2-V2.exe sur 4275 (browser/sentinelles/arrêt/port) et celle de
-   l'ancien portable historique indépendant sur 4175 dans son checkout/profil.
-2. Auditer indépendamment l'implémentation/provenance/gates complètes, puis
-   validation utilisateur. Aucune transition DONE automatique, R1/R2 restent interdits.
+Décision utilisateur du 2026-10-10 : [I-R01-C](./rewrite_decisions.md#amendement-de-clôture-r01--report-windows),
+amendement ciblé du [plan §13](./rewrite_r01_plan.md#13-amendement-de-clôture-du-2026-10-10).
+Le packaging Windows est périphérique au socle technique ; son absence de
+validation ne bloque plus DONE R0.1. Aucune autre gate n’est modifiée et les
+résultats historiques G01–G16 ci-dessus sont conservés sans requalification.
+
+| Limite résiduelle | Statut réel | Condition de levée |
+| --- | --- | --- |
+| Construction et exécution réelles de FlowPlan2-V2.exe sur Windows x64 | DEFERRED / NOT EXECUTED | Environnement Windows x64 compatible, Node 26 pour construction ; build:sea:v2 puis test:sea:v2 sur véritable exécutable, preuves archivées |
+| Portable historique Windows indépendant | DEFERRED / NOT EXECUTED | Checkout/profil historique séparé ; construire/exécuter le vrai portable sur Windows, origine 4175 ; preuves archivées |
+| Ports, assets, sentinelles et arrêt natifs des exécutables | DEFERRED / NOT EXECUTED | Vérifier origines 4275/4175, assets attendus, sentinelles intactes, arrêt/libération des ports sur Windows compatible |
+
+Ces validations restent **obligatoires avant toute déclaration de compatibilité
+ou disponibilité, qualification ou distribution Windows**. Aucun non-exécuté
+n’est PASS. Le socle V2/browser validé est disponible ; le packaging Windows
+n’est pas qualifié. La levée doit être explicite dans ce canon et le registre de
+décision, avec résultats et preuves Windows réelles. Elle n’est pas exécutée
+pendant la clôture documentaire.
+
+## Clôture et prochaine étape
+
+Le 2026-10-10 : audit indépendant favorable sur l’implémentation/provenance et
+preuves disponibles à `d5bb1a89c847604f2f80aaaa3270e4125f4a3fef`, puis validation
+utilisateur explicite avec report Windows I-R01-C. **R0.1 DONE** sous ce critère
+amendé ; aucun DONE inféré d’un test non exécuté. Préflight documentaire : branche
+rewrite exacte, HEAD/origin au SHA audité, arbre propre et origin 0/0 après fetch.
+Cette mission conserve tous commits, journaux, captures et limites historiques ;
+aucun nouveau test ni exécution applicative. Seuls statuts/décision/limites de
+clôture documentaire sont mis à jour.
+
+**Prochain lot R1 — NOT STARTED ; R2 — NOT STARTED.** Rendre la main pour cadrage,
+plan, audit et autorisation propres de R1 ; aucun début R1/R2 ou extraction métier.
 
 Le contrôle de disponibilité Windows retourne explicitement : « Real SEA build
 requires Windows x64 with Node 26 ». Le smoke hors SEA n'en tient jamais lieu.

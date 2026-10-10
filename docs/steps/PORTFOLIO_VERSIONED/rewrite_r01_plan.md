@@ -1,5 +1,13 @@
 # FlowPlan2 V2 — PLAN R0.1 : Rewrite Initialization
 
+**État courant : R0.1 DONE**, clôture documentaire utilisateur du 2026-10-10
+après audit indépendant favorable au SHA `d5bb1a89c847604f2f80aaaa3270e4125f4a3fef`.
+Le critère initial SEA Windows est amendé exclusivement par [§13](#13-amendement-de-clôture-du-2026-10-10) :
+Windows DEFERRED / NOT EXECUTED, obligatoire avant qualification/distribution,
+non bloquant pour la clôture. Résultats conservés dans le [canon](./rewrite_r01_canon.md).
+Les états PLANNED et checklist §12 ci-dessous sont le dossier historique de
+préparation, pas l’état courant ; aucune autorisation R1/R2 n’en découle.
+
 Date : 2026-10-10. **PLANNED / NOT STARTED**. Préparation documentaire autorisée ;
 aucune implémentation, branche rewrite ou extraction réalisée. R0 reste clôturé.
 Conclusion de préparation : **READY FOR IMPLEMENTATION**, sous réserve du propre
@@ -216,10 +224,13 @@ build-sea V2 exige Windows x64 Node 26 comme l'ancien outil ; appelle uniquement
 build V2, collecte allowlist dist-v2 avant création de .sea/config.json, exclut
 .exe/.sea/tests et embarque scripts/v2/portable-server.cjs. Sortie
 `dist-v2/FlowPlan2-V2.exe` ; nom différent évite confusion avec FlowPlan2.exe.
-Smoke Windows obligatoire avant clôture de l'implémentation : lancement
---no-browser, navigation 4275, assets/graphe vide, arrêt et port libéré. Sur autre
-OS, gate déclarée non exécutée et R0.1 reste IN REVIEW jusqu'à preuve Windows ;
-aucun skip assimilé à PASS. Le browser smoke teste aussi le serveur portable hors
+Critère initial de clôture (historique, remplacé par §13) : smoke Windows
+obligatoire avant clôture, sinon R0.1 IN REVIEW jusqu’à preuve Windows.
+**Critère amendé actif :** Windows DEFERRED / NOT EXECUTED, non bloquant pour
+DONE R0.1 ; smoke natif toujours obligatoire avant qualification/distribution
+Windows : lancement --no-browser, navigation 4275, assets/graphe vide, sentinelles,
+arrêt et port libéré. Aucun skip/non-exécuté assimilé à PASS. Le browser smoke
+teste aussi le serveur portable hors
 SEA avec readAsset sur dist-v2 ; cela ne certifie pas l'exécutable Windows.
 
 ## 5. Origines fixes et frontières browser
@@ -388,7 +399,9 @@ versions Node/TS/browser/OS, commandes et résultats, sources/artefacts/graphe,
 origines, journaux API avec zéro explicite, comparaison sentinelles avant/après,
 captures shell et refus, preuve Windows et consultabilité historique, limites.
 Artefacts bruts volumineux sous chemin de preuve documenté ; aucun profil ou
-backup utilisateur committé. Toute gate absente/FAIL → IN REVIEW / non clôturable.
+backup utilisateur committé. Toute gate absente/FAIL → IN REVIEW / non clôturable,
+à la seule exception du report Windows explicitement autorisé en §13. Les
+résultats Windows non exécutés restent tels quels, sans PASS ajouté.
 
 ## 8. Séquence d'implémentation future
 
@@ -403,8 +416,8 @@ réalisées dans cette mission. Pas d'étape partiellement PASS débloquant la s
 | P2 `scripts/v2/build.mjs`, `test.mjs`, `src-v2/bootstrap/*`, `environment/*`, tests adjacents | Build/test seuls, état shell vide et namespaces fixes sans Domain | Pré-gates G01/G02/G05 : garde source, typecheck et tests unitaires ; pas de build app déclaré PASS avant P3 (HTML/composition encore absents) |
 | P3 `src-v2/main/*`, `ui/renderV2Shell.ts`, `public-v2/index.html`, styles.css | Composition root indépendante et UI minimale accessible, refus origine avant montage | G03/G04/G05/G06 structurels, test refus composition, build complet et garde artefacts PASS ; DOM/destroy natifs réservés P5 ; aucun browser legacy chargé |
 | P4 `scripts/v2/request-handler.cjs`, `dev.mjs`, `portable-server.cjs`, `servers.test.cjs`, `build-sea.mjs`, smoke-sea.ps1 ; aliases package finaux | Servir seulement V2 sur 4274/4275, watch/payload/SEA séparés | G12/G14/G16 serveur, no fallback, package aucun lanceur legacy, compilation/artefacts PASS avant smoke browser |
-| P5 `scripts/v2/browser-harness.mjs`, `browser-isolation-test.mjs`, `smoke.mjs` | Observations natives positives/négatives, contamination même origine, preuves attribuables | G01–G14/G16 sur les deux modes, canari harness ; SEA Windows séparément requis ; aucune suite substituée |
-| P6 README.md, documents actifs, `rewrite_r01_canon.md`, registres ; preuves G15 et rollback | Enregistrer comportement réel, provenance technique et limites, ancien environnement indépendant | G15/G16 et totalité gates, diff borné/revue sans R1/R2 ; IN REVIEW puis audit indépendant et clôture explicite seulement |
+| P5 `scripts/v2/browser-harness.mjs`, `browser-isolation-test.mjs`, `smoke.mjs` | Observations natives positives/négatives, contamination même origine, preuves attribuables | G01–G14/G16 sur les deux modes, canari harness ; SEA Windows séparément requis avant qualification/distribution (§13), report non bloquant pour clôture ; aucune suite substituée |
+| P6 README.md, documents actifs, `rewrite_r01_canon.md`, registres ; preuves G15 et rollback | Enregistrer comportement réel, provenance technique et limites, ancien environnement indépendant | G15/G16 et autres gates, avec seule exception Windows DEFERRED §13 ; diff borné/revue sans R1/R2 ; audit indépendant et clôture explicite requis |
 
 Ne pas créer d'interface Domain pour rendre P2 compilable : modules R0.1 ne
 consomment que DTO shell technique. Une capacité manquante ne justifie pas de
@@ -436,7 +449,8 @@ Aucun merge/cherry-pick automatique du runtime historique.
 
 Acceptation R0.1 : branche dédiée créée après GO, sources/build/tests/artefacts
 fermés, nouvelle composition root, Portfolio vide RAM sans donnée externe,
-origines fixes vérifiées, réservations sans storage actif, gates G01–G16 PASS,
+origines fixes vérifiées, réservations sans storage actif, gates G01–G16 satisfaites
+hors validations Windows reportées selon §13 (DEFERRED / NOT EXECUTED, pas PASS),
 ancien runtime indépendant, documentaire stateless et registre à jour. Audit
 indépendant + clôture utilisateur requis avant DONE. R1 ne démarre pas à la
 simple réussite de smoke:v2 ; il nécessite son plan et autorisation propres.
@@ -450,7 +464,7 @@ simple réussite de smoke:v2 ; il nécessite son plan et autorisation propres.
 | Test port aléatoire masque port legacy | Serveurs app fixes, Host/runtime check, collision fail ; CDP seulement éphémère |
 | Confusion Portfolio vide et Domain/Current provisoire | DTO shell sans IDs/Settings/Order/manifestes ; R1/R2 propriétaires explicites |
 | Shell « utile » introduit métier/persistence | Aucun formulaire métier/import/History ; diff borné au manifeste R0.1 |
-| Exécutable Windows non vérifié depuis Mac | Gate Windows obligatoire avant clôture, limite IN REVIEW explicite |
+| Exécutable Windows non vérifié depuis Mac | Critère initial remplacé §13 : Windows DEFERRED / NOT EXECUTED ; validation obligatoire avant qualification/distribution Windows |
 | Test legacy ou fixture altère données réelles | Profil/checkout jetables, aucune DB/profil utilisateur, journaux fixture séparés |
 | Watch/stale dist ou packaging réintroduit assets | Nettoyage sorties V2 seul, allowlist fermée et no-store, garde après build/watch/SEA |
 
@@ -496,6 +510,9 @@ et synchronisation origin vérifiés après commit/push et rapportés à la livr
 
 ## 12. Checklist READY FOR IMPLEMENTATION / NOT READY
 
+Checklist historique de préparation du plan, conservée ; état courant et
+amendement de clôture en §13, preuves d’implémentation au canon.
+
 - [x] Baseline exacte, arbre initial propre et origin 0/0 vérifiés après fetch.
 - [x] Reprise stateless ordonnée ; R0 clôturé, trajectoire V2 confirmée.
 - [x] Inventaire confronté à bootstrap, transitive imports, workers, storage et scripts réels.
@@ -515,3 +532,36 @@ Aucune question architecturale bloquante R0.1 subsiste. En cas de rejet des
 propositions techniques par l'audit, amender le plan puis réauditer avant GO.
 R0.1 demeure PLANNED / NOT STARTED. Arrêt après livraison documentaire ; aucun
 code, nouvelle branche, squelette, migration ou début R1/R2 dans cette mission.
+
+## 13. Amendement de clôture du 2026-10-10
+
+Historique de décision : plan initial audité à
+`1c2b08c727af9fb8002b7678bd7403fcc0d39c27`, puis implémentation et preuves à
+`d5bb1a89c847604f2f80aaaa3270e4125f4a3fef` auditées favorablement par un audit
+indépendant sur architecture, frontières d’isolation et preuves disponibles.
+L’utilisateur autorise explicitement la clôture **R0.1 DONE** malgré les preuves
+Windows non exécutées. Décision durable [I-R01-C](./rewrite_decisions.md#amendement-de-clôture-r01--report-windows).
+
+**Portée ciblée :** les critères initiaux Windows avant clôture (§4, §7, P5/P6
+§8, acceptation/risque §10) sont remplacés uniquement quant à leur effet bloquant.
+La capacité packaging Windows est périphérique : elle ne conditionne pas le
+socle technique V2, son isolation runtime, les graphes fermés, le Portfolio vide
+ou le démarrage browser dont les preuves ont été exécutées. Toutes les autres
+gates/exigences restent inchangées ; aucune réduction de preuve native browser.
+
+Demeurent **DEFERRED / NOT EXECUTED** : construction et exécution réelles de
+FlowPlan2-V2.exe sur Windows x64 ; validation du portable historique indépendant ;
+vérification native ports/assets/sentinelles/arrêt des exécutables. Les parties
+Windows de G15/G16 ne deviennent pas PASS, et les preuves brutes ne sont pas
+réécrites. Le smoke portable hors SEA ne certifie aucun exécutable Windows.
+
+**Condition de levée :** validation réelle sur Windows x64 compatible, Node 26
+pour construction, avant toute déclaration de compatibilité/disponibilité,
+qualification ou distribution Windows ; résultats et preuves archivés, limites
+explicitement levées dans le canon et registre de décision. Cette clôture ne
+prononce aucune disponibilité Windows.
+
+R0 reste clôturé. R1 prochain lot **NOT STARTED**, R2 **NOT STARTED** ; aucun
+cadrage/implémentation R1 ou R2 dans cette mission. Rendre la main pour plan,
+audit et autorisation indépendants du prochain lot. La présente clôture ne change
+que la documentation ; aucun code, test, script, configuration ou donnée browser.

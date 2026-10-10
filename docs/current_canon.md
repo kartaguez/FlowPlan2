@@ -1,6 +1,6 @@
 # FlowPlan2 current canon
 
-## Trajectoire active — V2 : R0.1 livré IN REVIEW
+## Trajectoire active — V2 : socle R0.1 disponible, DONE
 
 Point d'entrée et ordre de lecture : [current_plan](./current_plan.md).
 R0 clôturé ; contrats normatifs dans [R0](./steps/PORTFOLIO_VERSIONED/rewrite_r0_plan.md)
@@ -11,7 +11,10 @@ GO utilisateur à `1c2b08c727af9fb8002b7678bd7403fcc0d39c27` ; P0 propre,
 exact et origin 0/0, nouvelle branche `rewrite/portfolio-versioned` créée à ce SHA.
 La branche historique `codex/lot11a-portfolio-snapshots` reste inchangée.
 
-**R0.1 — IN REVIEW** : nouveau shell/DTO technique vide immutable, aucun modèle
+**R0.1 — DONE**, clôture utilisateur le 2026-10-10 après audit indépendant
+favorable de l’architecture, des frontières et preuves disponibles au SHA
+`d5bb1a89c847604f2f80aaaa3270e4125f4a3fef` : nouveau shell/DTO technique vide
+immutable, aucun modèle
 métier ni persistence, sources/tests/build physiques distincts et cinq modules
 runtime fermés. Dev 127.0.0.1:4274, portable 127.0.0.1:4275 ; Host/origine stricts,
 collision sans fallback. Namespaces neufs réservés, aucune API storage/canal active.
@@ -25,11 +28,16 @@ exact, Current (3 Teams), une capture puis History (4 lignes), aucun runtime V2
 ni exception. Serveur existant arrêté temporairement puis restauré sur 4174,
 PID 19550 / HTTP 200. Reverts des six commits : même tree baseline, mêmes
 sentinelles aux quatre origines. Typecheck/build/3 tests portable historiques PASS.
-Preuves des vrais exécutables Windows V2 sur 4275 et historique sur 4175 non
-exécutées sur macOS ; seule limite restante de G15/G16.
-G16 partiel pour SEA, aucune réussite portable hors SEA assimilée à cette preuve.
-Compléter les preuves, puis audit indépendant et validation utilisateur avant
-clôture. **R1 et R2–R6 NOT STARTED/non autorisés.** Aucun DONE auto-déclaré.
+Les véritables exécutables Windows V2 sur 4275 et historique sur 4175 ainsi que
+leurs vérifications natives restent **DEFERRED / NOT EXECUTED**. L’amendement
+utilisateur [I-R01-C](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md#amendement-de-clôture-r01--report-windows)
+retire uniquement leur caractère bloquant pour la clôture R0.1 : le packaging est
+périphérique au socle/runtime/browser validé. Aucune compatibilité ou disponibilité
+Windows n’est attestée. Levée : validation sur Windows x64 compatible (Node 26
+pour construction) avant qualification ou distribution Windows, preuves archivées.
+Les résultats partiels G15/G16 restent inchangés ; hors SEA n’est pas PASS SEA.
+**R1 prochain lot — NOT STARTED ; R2 — NOT STARTED**. Cadrage indépendant R1,
+plan/audit/autorisation propres ; aucun lancement R1/R2 dans cette clôture.
 
 Option B extraction sélective, T01–T11/T12-R/T13–T15, I01–I21/I22-R/I23 et
 architecture à six modules restent inchangés. Current/PortfolioSnapshots natifs,

@@ -1,11 +1,13 @@
 # FlowPlan2 V2 — R0 : plan normatif de reconstruction
 
-**État de reprise postérieur : R0 clôturé, R0.1 IN REVIEW après GO au SHA
-`1c2b08c727af9fb8002b7678bd7403fcc0d39c27`.** Résultats/limites et prochaines
-preuves dans [canon R0.1](./rewrite_r01_canon.md) et [current_plan](../../current_plan.md).
+**État de reprise postérieur : R0 clôturé, R0.1 DONE après audit indépendant
+favorable et clôture utilisateur au SHA `d5bb1a89c847604f2f80aaaa3270e4125f4a3fef`.
+Windows reporté I-R01-C ; R1 prochain lot NOT STARTED, R2 NOT STARTED.**
+Résultats/limites et prochaines preuves dans [canon R0.1](./rewrite_r01_canon.md) et [current_plan](../../current_plan.md).
 Les statuts de préparation et l'exercice R0 conservés ci-dessous décrivent la
 clôture documentaire R0 ; ils n'annulent pas ce GO limité à R0.1. Contrats R0
-inchangés, R1/R2 non autorisés ; toute clôture R0.1 reste externe.
+inchangés ; R1/R2 non autorisés. La clôture R0.1 externe est reçue ; les étapes
+de préparation ci-dessous restent historiques, l’état courant est dans current_plan.
 
 Date : 2026-10-10. **R0 — Architecture & Reconstruction Plan : clôture
 documentaire après audit indépendant favorable ; aucune implémentation autorisée.**
