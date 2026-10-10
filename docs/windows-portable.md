@@ -1,4 +1,10 @@
-# Exécutable portable Windows
+# Exécutable portable Windows — application historique
+
+Cette procédure décrit `FlowPlan2.exe` sur la branche historique
+`codex/lot11a-portfolio-snapshots` au SHA `1c2b08c727af9fb8002b7678bd7403fcc0d39c27`,
+origine 4175. Pour le rewrite V2, utiliser [README](../README.md) : exécutable
+`dist-v2/FlowPlan2-V2.exe`, origine 4275. Le contenu historique ci-dessous est
+conservé ; il ne constitue pas les commandes V2.
 
 ## Créer `FlowPlan2.exe` sur le PC Windows de construction
 

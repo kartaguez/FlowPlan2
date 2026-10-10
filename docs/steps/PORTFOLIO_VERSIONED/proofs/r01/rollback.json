@@ -1,0 +1,40 @@
+{
+  "codeHead": "f9a57eb66ed1ce31e819a90b47b33ec664fea051",
+  "revertedCommits": [
+    "f9a57eb66ed1ce31e819a90b47b33ec664fea051",
+    "4d2e18f2affb16f77d18e662b37a79fd8923a7da",
+    "a3825398ce7d51bb7aac6436961e32e7cfb4a31a",
+    "70a268e3bfdfc0bb1ad3871c1dc14f0f4a5c2188",
+    "55abb927bae492c6e46a5c11d2a46dea2d289f69"
+  ],
+  "baselineTree": "9ed29c9d4fc1ad0a5c927034a3eba675f14f73ab",
+  "revertedTree": "9ed29c9d4fc1ad0a5c927034a3eba675f14f73ab",
+  "workingTreeClean": true,
+  "dataConversion": false,
+  "sentinels": [
+    {
+      "origin": "http://127.0.0.1:4174",
+      "beforeSha256": "2a0de8c2b614b58d1a2dcfc8e690e6e86665fff00f594efac26e004c868508d2",
+      "afterSha256": "2a0de8c2b614b58d1a2dcfc8e690e6e86665fff00f594efac26e004c868508d2",
+      "intact": true
+    },
+    {
+      "origin": "http://127.0.0.1:4175",
+      "beforeSha256": "2a0de8c2b614b58d1a2dcfc8e690e6e86665fff00f594efac26e004c868508d2",
+      "afterSha256": "2a0de8c2b614b58d1a2dcfc8e690e6e86665fff00f594efac26e004c868508d2",
+      "intact": true
+    },
+    {
+      "origin": "http://127.0.0.1:4274",
+      "beforeSha256": "2a0de8c2b614b58d1a2dcfc8e690e6e86665fff00f594efac26e004c868508d2",
+      "afterSha256": "2a0de8c2b614b58d1a2dcfc8e690e6e86665fff00f594efac26e004c868508d2",
+      "intact": true
+    },
+    {
+      "origin": "http://127.0.0.1:4275",
+      "beforeSha256": "2a0de8c2b614b58d1a2dcfc8e690e6e86665fff00f594efac26e004c868508d2",
+      "afterSha256": "2a0de8c2b614b58d1a2dcfc8e690e6e86665fff00f594efac26e004c868508d2",
+      "intact": true
+    }
+  ]
+}

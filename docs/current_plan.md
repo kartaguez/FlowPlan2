@@ -1,34 +1,41 @@
 # FlowPlan2 current plan — point d'entrée unique
 
-## Trajectoire active — FlowPlan2 V2 / R0.1 en cours
+## Trajectoire active — FlowPlan2 V2 / R0.1 IN REVIEW
 
-**R0 clôturé. R0.1 — Rewrite Initialization : IN PROGRESS**, GO utilisateur reçu
-le 2026-10-10 après audit favorable du [plan R0.1](./steps/PORTFOLIO_VERSIONED/rewrite_r01_plan.md)
-au SHA `1c2b08c727af9fb8002b7678bd7403fcc0d39c27`.
-P0 validé : fetch, arbre propre, SHA HEAD/origin exacts, divergence 0/0,
-branche rewrite absente localement et sur origin avant création.
-Branche active `rewrite/portfolio-versioned`, créée au SHA audité exact.
-Référence indépendante `codex/lot11a-portfolio-snapshots`, aucune modification.
+**R0 clôturé. R0.1 — Rewrite Initialization : IN REVIEW.**
+GO utilisateur après audit favorable du plan à
+`1c2b08c727af9fb8002b7678bd7403fcc0d39c27`. P0 validé : HEAD/origin exacts,
+arbre propre, divergence 0/0 et branche absente avant création exacte.
+Branche active `rewrite/portfolio-versioned` ; référence indépendante
+`codex/lot11a-portfolio-snapshots` préservée.
+[Canon et preuves R0.1](./steps/PORTFOLIO_VERSIONED/rewrite_r01_canon.md).
 
-Autorisé : R0.1 seulement, P1 → P6, propres gates G01–G16, commits/push normaux.
-P1 pose configs/imports/tests mécaniques ; aucune gate runtime encore acquise.
-Source/build/tests/entrée neuves, Portfolio vide technique, ports 4274/4275,
-namespaces réservés sans stockage actif ; aucun accès legacy ni bridge.
-Prochaine étape : P2 puis séquence auditée ; si contradiction, STOP.
+P1–P5 implémentés et poussés ; P6 livre documentation, registre et rollback.
+Shell neuf src-v2/public-v2/dist-v2/tests séparés, Portfolio vide technique,
+origines fixes 4274/4275, aucun stockage ni runtime/bridge legacy. G01–G14 PASS,
+39/39 tests V2, typecheck/build PASS, six séries browser natives avec zéro
+tentative d'accès et sentinelles intactes. Rollback P1–P5 testé en clone jetable.
 
-R1 et R2–R6 restent NOT STARTED et non autorisés. Aucune extraction métier,
-primitive Domain, repository métier, codec, migration/import/recovery ou moteur.
-R0.1 restera IN REVIEW si une preuve obligatoire manque, notamment SEA Windows.
-Clôture réservée à audit indépendant puis validation utilisateur ; jamais DONE
-sur seule déclaration d'implémentation. Arrêt après R0.1.
+**Preuves restantes :** G15 consultation Current/History du checkout historique
+jetable bloquée par le serveur utilisateur déjà présent sur 4174 (accord demandé
+pour arrêt temporaire/redémarrage ; aucune interruption sans accord).
+Véritable SEA Windows V2 4275 et ancien portable historique 4175 non exécutés
+sur macOS. G15/G16 partiels, aucune clôture ni PASS SEA implicite.
+Prochaine étape : compléter ces preuves externes/environnementales, audit
+indépendant de l'implémentation, puis validation utilisateur.
+
+R1 et R2–R6 restent NOT STARTED/non autorisés. Aucune extraction métier,
+primitive Domain, repository, codec, migration/import/recovery ou moteur.
+Ne pas lancer R1/R2 ni marquer R0.1 DONE. Arrêt après R0.1 ; toute contradiction
+normative impose STOP, aucun merge automatique ni réparation Git implicite.
 
 **Documents normatifs V2 — ordre de lecture :**
 
 1. Cette section : état, prochaine étape et interdictions.
 2. [Registre durable des décisions](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md) : T01–T11/T12-R/T13–T15, statuts et portée.
 3. [Dossier normatif R0 autonome](./steps/PORTFOLIO_VERSIONED/rewrite_r0_plan.md) : contrats §2–§3, architecture §5, stockage/Git/lots §6–§8, invariants I01–I21/I22-R/I23 §9, clôture/reprise §11 et GO §12.
-4. [Registre vivant des extractions](./steps/PORTFOLIO_VERSIONED/rewrite_reuse_registry.md) et matrice R0 §4 : toutes opérations NOT STARTED, provenance et preuves requises.
-5. [Plan R0.1](./steps/PORTFOLIO_VERSIONED/rewrite_r01_plan.md) : baseline, inventaire factuel, infrastructure proposée, gates G01–G16, séquence et rollback.
+4. [Registre vivant des extractions](./steps/PORTFOLIO_VERSIONED/rewrite_reuse_registry.md) : opérations techniques R0.1 réalisées, exclusions et provenance ; extractions métier R1+ NOT STARTED.
+5. [Plan R0.1 audité](./steps/PORTFOLIO_VERSIONED/rewrite_r01_plan.md) puis [canon R0.1](./steps/PORTFOLIO_VERSIONED/rewrite_r01_canon.md) : contrat et résultats G01–G16, limites, suite et rollback.
 6. [Current canon, section active](./current_canon.md) : cible distinguée du patrimoine livré.
 
 **Documents patrimoniaux — consultation facultative :**

@@ -1,6 +1,9 @@
 # FlowPlan2 V2 — registre vivant des extractions
 
-État de clôture R0 : **toutes les opérations NOT STARTED**. Aucun code extrait.
+Matrice patrimoniale issue de R0 ; **aucune extraction métier réalisée**.
+R0.1 IN REVIEW : adaptations techniques et exclusions enregistrées ci-dessous.
+La classification initiale est conservée ; un composant livré neuf n'est pas
+une extraction du modèle ancien. Audit d'implémentation non encore reçu.
 Point d'entrée : [current_plan](../../current_plan.md).
 Classification initiale validée à `62bfdb9f36b406a0196ba7ceee45884217c68365` ;
 cette baseline d'inventaire n'est pas un SHA d'extraction effectuée.
@@ -52,7 +55,7 @@ sont **à établir**, leurs points d'appui existants sont dans la matrice R0 §4
 | Cache/scratch History | src/ui/history/createProjectHistoryCache.ts ; src/infrastructure/persistence/indexedDbHistoryScratch.ts | ADAPT | R5/R6 | NOT STARTED | — | — | Budget/release/isolation ; [R0](./rewrite_r0_plan.md) | À établir ; points d’appui R0 §4 | NON SOUMISE |
 | Lifecycle listeners | src/ui/interactionLifecycle.ts | REUSE | R5/R6 | NOT STARTED | — | — | Lifecycle sans autorité métier ; [R0](./rewrite_r0_plan.md) | À établir ; points d’appui R0 §4 | NON SOUMISE |
 | Protocole import/export/recovery | src/application/backup/portableBackupParts.ts ; src/application/persistence/repositoryTransfer.ts ; src/main/planning/planningBackupOperations.ts | REFERENCE | R2 | NOT STARTED | — | — | I21/I22-R ; format neuf ; [R0](./rewrite_r0_plan.md) | À établir ; points d’appui R0 §4 | NON SOUMISE |
-| Convertisseurs/repair legacy | src/application/backup/flowplanBackupV*.ts , src/application/backup/planningInputCodec.ts ; src/adapters/flowplan1/ ; src/infrastructure/flowplan1/ ; src/infrastructure/backup/localPlanningBackup.ts ; src/application/persistence/repositoryTransfer.ts (repair legacy) | DROP | R0.1/R2 | NOT STARTED | — | — | T12-R ; [R0](./rewrite_r0_plan.md) | À établir ; points d’appui R0 §4 | NON SOUMISE |
+| Convertisseurs/repair legacy | src/application/backup/flowplanBackupV*.ts , src/application/backup/planningInputCodec.ts ; src/adapters/flowplan1/ ; src/infrastructure/flowplan1/ ; src/infrastructure/backup/localPlanningBackup.ts ; src/application/persistence/repositoryTransfer.ts (repair legacy) | DROP | R0.1/R2 | R0.1 EXCLUS ; R2 NOT STARTED | 1c2b08c727af9fb8002b7678bd7403fcc0d39c27 (source inspectée) | aucune, hors graphes V2 | T12-R ; [R0](./rewrite_r0_plan.md) | G06–G10/G13/G14 PASS | NON SOUMISE |
 | Capture/identités/validation | src/domain/portfolioSnapshots/ ; src/application/portfolioSnapshots/ | REFERENCE | R2/R4 | NOT STARTED | — | — | T04/T09 ; I19/I23 ; [R0](./rewrite_r0_plan.md) | À établir ; points d’appui R0 §4 | NON SOUMISE |
 | Résultats/profils capturés et préfixes via Current | src/domain/portfolioSnapshots/ ; src/application/portfolioSnapshots/ | DROP | R2/R4 | NOT STARTED | — | — | T04/T12-R ; I19 ; [R0](./rewrite_r0_plan.md) | À établir ; points d’appui R0 §4 | NON SOUMISE |
 | Oracles replay G1 | src/proof/lot11d2/ | ADAPT | R1/R3/R6 | NOT STARTED | — | — | I19/I20 ; fixtures natives neuves ; [R0](./rewrite_r0_plan.md) | À établir ; points d’appui R0 §4 | NON SOUMISE |
@@ -62,9 +65,9 @@ sont **à établir**, leurs points d'appui existants sont dans la matrice R0 §4
 | VM/frises/segments | src/adapters/timeline/buildTimelineViewModel.ts , src/adapters/timeline/buildReservationNavigationItems.ts , src/adapters/timeline/geometry/buildTimelineGeometry.ts | ADAPT | R5 | NOT STARTED | — | — | Résultat → VM → geometry ; [R0](./rewrite_r0_plan.md) | À établir ; points d’appui R0 §4 | NON SOUMISE |
 | SVG/zoom/pan/tooltips/métriques | src/ui/timeline/ hors structure coordinator | ADAPT | R5 | NOT STARTED | — | — | Axe unique ; no-run cursor/zoom ; [R0](./rewrite_r0_plan.md) | À établir ; points d’appui R0 §4 | NON SOUMISE |
 | Modales/accessibilité/responsive | src/ui/renderApp.ts , src/ui/createWorkspaceModeController.ts ; public/styles.css | ADAPT | R5/R6 | NOT STARTED | — | — | Focus/clavier/mobile ; drafts ; [R0](./rewrite_r0_plan.md) | À établir ; points d’appui R0 §4 | NON SOUMISE |
-| Composition root neuve | src/main/createPersistentPlanningApplication.ts , src/main/demo/ | REFERENCE | R0.1/R2/R5 | NOT STARTED | — | — | Entrée native vide sûre ; [R0](./rewrite_r0_plan.md) | À établir ; points d’appui R0 §4 | NON SOUMISE |
-| Auto-import/demo initial/ack legacy | src/main/createPersistentPlanningApplication.ts , src/main/demo/ | DROP | R0.1/R2/R5 | NOT STARTED | — | — | T12-R ; aucune ouverture legacy ; [R0](./rewrite_r0_plan.md) | À établir ; points d’appui R0 §4 | NON SOUMISE |
-| Outillage build/test/portable | scripts/ ; tsconfig.json , tsconfig.app.json , tsconfig.test.json , package.json | ADAPT | R0.1 | NOT STARTED | — | — | Périmètre V2 sans framework neuf ; [R0](./rewrite_r0_plan.md) | À établir ; points d’appui R0 §4 | NON SOUMISE |
+| Composition root neuve | src/main/createPersistentPlanningApplication.ts , src/main/demo/ | REFERENCE | R0.1/R2/R5 | R0.1 NEUF LIVRÉ ; R2/R5 NOT STARTED | 1c2b08c727af9fb8002b7678bd7403fcc0d39c27 (source inspectée) | src-v2/main/main.ts , src-v2/main/createV2Application.ts | Entrée native vide sûre ; [R0](./rewrite_r0_plan.md) | G03/G04/G13/G14 PASS | NON SOUMISE |
+| Auto-import/demo initial/ack legacy | src/main/createPersistentPlanningApplication.ts , src/main/demo/ | DROP | R0.1/R2/R5 | R0.1 EXCLUS ; R2/R5 NOT STARTED | 1c2b08c727af9fb8002b7678bd7403fcc0d39c27 (source inspectée) | aucune reprise demo ; bootstrap V2 neuf | T12-R ; aucune ouverture legacy ; [R0](./rewrite_r0_plan.md) | G04–G06/G09–G11 PASS | NON SOUMISE |
+| Outillage build/test/portable | scripts/ ; tsconfig.json , tsconfig.app.json , tsconfig.test.json , package.json | ADAPT | R0.1 | R0.1 ADAPTÉ / IN REVIEW | 1c2b08c727af9fb8002b7678bd7403fcc0d39c27 (source inspectée) | scripts/v2/ , tsconfig.v2.* , package aliases | Périmètre V2 sans framework neuf ; [R0](./rewrite_r0_plan.md) | G01/G02/G12–G14 PASS ; G16 Windows manquant | NON SOUMISE |
 
 Clôture d'un lot : mettre ce registre à jour pour toute extraction/abandon
 réalisé, puis appliquer la [checklist stateless R0 §11](./rewrite_r0_plan.md#11-contrat-de-clôture-et-exercice-final-de-reprise-à-froid).
@@ -75,8 +78,9 @@ pour remplir un champ à la clôture documentaire R0.
 
 [PLAN R0.1](./rewrite_r01_plan.md) préparé à la baseline exacte
 `3e4b8a8e02c8cc8803d38021ea4606694495dea1`. Ce SHA est une **source inspectée**,
-pas un SHA d'extraction effectuée. Les 37 opérations ci-dessus restent NOT STARTED,
-champs effectifs inchangés ; aucune extraction métier ni technique déclarée réalisée.
+pas un SHA d'extraction effectuée. Cette section conserve les intentions au stade PLAN ; les opérations réalisées
+sont actualisées dans la matrice et la section de livraison suivante. Aucune
+extraction métier n’est déclarée réalisée.
 Table ci-dessous : décisions d'intention PLANNED, destinations et preuves futures.
 
 | Périmètre inspecté à cette baseline | Traitement prévu / classe | Destination future ou exclusion | Dépendances à couper / preuve attendue |
@@ -100,3 +104,31 @@ Bootstrap/composition neufs ne sont pas extraction métier. Le présent tableau
 ne remplit pas les champs effectifs ni n'anticipe l'audit. Futures extractions
 R1+ : même protocole source/SHA/destination/dépendances/contrats/preuves/audit.
 Aucun merge automatique de l'ancien runtime vers rewrite.
+
+## Livraison R0.1 — opérations effectives IN REVIEW
+
+[Canon R0.1 et preuves](./rewrite_r01_canon.md). Source exacte de chaque ligne :
+SHA `1c2b08c727af9fb8002b7678bd7403fcc0d39c27`, consulté par lecture ; aucun
+merge/copier-coller automatique de runtime. Les cinq commits P1–P5 figurent au
+canon ; P6 ajoute documentation et preuves de référence/rollback. L'audit du
+PLAN était favorable ; l'audit du code/extraction reste **NON SOUMIS**.
+
+| Opération et classe initiale | Source / symboles inspectés au SHA ci-dessus | Destination effective | Dépendances supprimées / contrats | Preuves exécutées / état réel |
+| --- | --- | --- | --- | --- |
+| Build — ADAPT technique | scripts/build.mjs : build/runTypeScript ; tsconfig.app.json , tsconfig.test.json , tsconfig.json ; package.json | scripts/v2/build.mjs , tsconfig.v2.app.json , tsconfig.v2.test.json , tsconfig.json , package.json | src/public/dist legacy, dossiers couches implicites ; I-R01-A/B et R0.1 §4/§6 | G01/G13/G14 PASS, sources réelles bornées et compiler ignore même ancien src invalide ; implémenté IN REVIEW |
+| Tests — ADAPT technique | scripts/test.mjs : collectTests/run/tsc | scripts/v2/test.mjs , scripts/v2/boundaries.mjs , scripts/v2/boundaries.test.mjs ; .test-dist-v2 | Découverte/compilation de toute suite/fixture ancienne ; I-R01-A, gates propres | 39/39 V2 dont 24 canaris frontière ; zéro skip/todo ; implémenté IN REVIEW |
+| Dev — ADAPT technique | scripts/dev.mjs : serveur/watch/mirror public | scripts/v2/dev.mjs , scripts/v2/request-handler.cjs | PORT libre, dist/public/config legacy ; allowlist/mémoire avant service, I-R01-B | 4274/Host/collision/refus PORT PASS ; watcher CSS garde JS, ancien index fait arrêter ; IN REVIEW |
+| Portable/SEA — ADAPT technique | scripts/portable-server.cjs : createRequestHandler/runPortableServer ; scripts/build-sea.mjs : collectAssets/buildSea ; scripts/portable-server.test.cjs ; smoke-sea.ps1 | scripts/v2/request-handler.cjs , scripts/v2/portable-server.cjs , scripts/v2/servers.test.cjs , scripts/v2/build-sea.mjs , scripts/v2/smoke-sea.ps1 | Ancien dist/HTML/entrypoint/port ; helper V2 incorporé sans require externe dans main SEA | 9 HTTP + browser hors SEA 4275 PASS ; vrai exe Windows NON EXÉCUTÉ, IN REVIEW |
+| Harness — ADAPT technique | scripts/storageBrowserHarness.mjs : withStorageBrowser/CDP/profil mkdtemp | scripts/v2/browser-harness.mjs , scripts/v2/browser-isolation-test.mjs , scripts/v2/smoke.mjs | dist hardcodé ancien et port app aléatoire, aucune fixture métier copiée ; hooks avant modules, contextes distincts | 28 hooks, 13 canaris/série, 6 séries native ; zéro API app et sentinelles intactes ; IN REVIEW |
+| Entrée/composition — REFERENCE, nouvelle construction | src/main/main.ts ; src/main/createPersistentPlanningApplication.ts ; public/index.html | src-v2/main/main.ts , src-v2/main/createV2Application.ts , public-v2/index.html | Tous Domain/Application/Engine/Persistence/History/UI/demo anciens ; T12-R/I-R01-A/B | G03–G06/G13/G14 PASS ; aucune extraction métier, IN REVIEW |
+| Bootstrap demo/import/ack — DROP du chemin V2 | src/main/demo/createDemoPlanningScenario.ts ; src/main/createPersistentPlanningApplication.ts ; src/application/persistence/repositoryTransfer.ts : openPlanningRepository/legacyRepairs/assertLegacyUnchanged | Aucune reprise ; src-v2/bootstrap/emptyPortfolioShellState.ts neuf | Fallback demo, lecture Current/backup, staging/migration/repair/recovery/listeners/channel | G04–G11 PASS ; exclus runtime, code patrimonial conservé |
+| Ancienne persistence/worker/scratch — exclusion R0.1, classes futures conservées | src/infrastructure/persistence/indexedDbRepositoryStorage.ts , src/infrastructure/persistence/indexedDbHistoryScratch.ts , src/infrastructure/persistence/snapshotValidationWorker.ts , src/infrastructure/persistence/planningStorageWorker.ts ; src/application/persistence/createPlanningRepository.ts ; src/infrastructure/backup/localPlanningBackup.ts | Aucune reprise R0.1 ; constantes réservées dans src-v2/environment/browserIsolation.ts | DB/codecs/ports/jobs legacy, Worker/URL, history chunks et Storage | G06–G11/G14 PASS ; R2+ NOT STARTED, aucun store/schema V2 |
+| UI/projection legacy — REFERENCE de frontière, adaptation R5 reportée | src/main/mountPlanningApplication.ts , src/main/planning/buildPlanningSessionProjection.ts ; src/ui/renderApp.ts , public/styles.css | src-v2/ui/renderV2Shell.ts et public-v2/styles.css neufs | Session/projection/moteur/geometry/controllers/barrels supprimés du chemin V2 | Shell accessible vide 1440/390 PASS ; aucune extraction UI métier |
+| Référence/rollback — REFERENCE/proof uniquement | Arbre complet baseline et outils Git ; scripts historiques exécutés seulement dans clone detached | scripts/v2/legacy-reference-test.mjs ; preuves r01/rollback.json et legacy-build.json | Aucun bridge, partage dist ou mutation branche de référence ; R0.1 §7/§10 | Legacy ci/typecheck/build/3 tests portable PASS ; G15 browser bloqué 4174 ; reverts P1–P5 tree baseline et 4 sentinelles égaux PASS ; Windows manquant |
+
+Les opérations initiales R1+ restent NOT STARTED (Rational/Date/IDs, Domain,
+Engine, métier mémoire/persistence, UI/History complète). Les quatre lignes
+initiales impliquant R0.1 distinguent désormais exclusion/adaptation/neuf
+livrés et les futurs lots non commencés ; aucun champ métier n'est anticipé.
+Toute extraction future garde source exacte/SHA/destination/dépendances retirées/
+contrats/preuves/décision d'audit et ajoute une ligne liée, jamais merge automatique.

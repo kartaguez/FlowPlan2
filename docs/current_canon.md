@@ -1,70 +1,50 @@
 # FlowPlan2 current canon
 
-## Trajectoire active — V2 : cible normative, aucune implémentation
+## Trajectoire active — V2 : R0.1 livré IN REVIEW
 
-Point d'entrée unique et ordre de lecture : [current_plan](./current_plan.md).
-Le [plan normatif R0](./steps/PORTFOLIO_VERSIONED/rewrite_r0_plan.md) est l'autorité
-pour la reconstruction V2. Baseline auditée du plan et initiale du correctif de clôture :
-`62bfdb9f36b406a0196ba7ceee45884217c68365`, branche
-`codex/lot11a-portfolio-snapshots`, contrôlée propre et origin 0/0 après fetch.
-**R0 — Architecture & Reconstruction Plan : clôturé après audit favorable.**
-**R0.1 — Rewrite Initialization : PLANNED / NOT STARTED**, préparation documentaire
-livrée depuis `3e4b8a8e02c8cc8803d38021ea4606694495dea1`, arbre initial propre,
-origin 0/0 après fetch. [Plan R0.1](./steps/PORTFOLIO_VERSIONED/rewrite_r01_plan.md) :
-READY FOR IMPLEMENTATION au sens préparation, audit propre et autorisation de
-lancement encore requis. R1–R6 restent NOT STARTED/non autorisés.
-Branche `rewrite/portfolio-versioned` non créée ; aucun runtime V2 livré.
-Propositions détaillées : src-v2/public-v2/dist-v2/tests indépendants, nouvelle
-composition root, Portfolio vide RAM sans modèle métier ni persistence, ports
-fixes 4274/4275, réservations browser et garde mécanique. Les décisions d'isolation
-physique forte et d'origine dédiée fixe sont validées par cadrage et enregistrées.
-Prochaine action : audit du plan puis autorisation explicite d'implémenter R0.1.
-Aucun code, branche, squelette, runtime/storage, extraction ou Domain autorisé
-par cette livraison documentaire ; ne pas commencer R0.1/R1/R2.
+Point d'entrée et ordre de lecture : [current_plan](./current_plan.md).
+R0 clôturé ; contrats normatifs dans [R0](./steps/PORTFOLIO_VERSIONED/rewrite_r0_plan.md)
+et [décisions](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md).
+[Plan R0.1 audité](./steps/PORTFOLIO_VERSIONED/rewrite_r01_plan.md) et
+[canon de livraison](./steps/PORTFOLIO_VERSIONED/rewrite_r01_canon.md).
+GO utilisateur à `1c2b08c727af9fb8002b7678bd7403fcc0d39c27` ; P0 propre,
+exact et origin 0/0, nouvelle branche `rewrite/portfolio-versioned` créée à ce SHA.
+La branche historique `codex/lot11a-portfolio-snapshots` reste inchangée.
 
-Décisions cibles définitives : Option B extraction sélective, identité/version
-séparées, graphes de refs exactes autonomes, Current seul sélecteur courant,
-PortfolioSnapshots inputs-only sans résultats, AP/SubPeriod/TeamActual/PT/RT/PTEC,
-ETC/status explicites, Settings/Order versionnés, histoire conservée et publications
-CAS atomiques. Domain/Engine indépendants UI/stockage, simulation historique
-sans lecture implicite Current. Continuité visuelle FlowPlan1/2 préservée.
+**R0.1 — IN REVIEW** : nouveau shell/DTO technique vide immutable, aucun modèle
+métier ni persistence, sources/tests/build physiques distincts et cinq modules
+runtime fermés. Dev 127.0.0.1:4274, portable 127.0.0.1:4275 ; Host/origine stricts,
+collision sans fallback. Namespaces neufs réservés, aucune API storage/canal active.
+Ancien src/public/scripts/configs app/test conservés, hors graphes V2.
+G01–G14 PASS ; 39/39 tests V2, typecheck/build PASS, six séries browser natives,
+zéro tentative API app, comparaison intégrale/hash de sentinelles égaux.
+Rollback P1–P5 en clone jetable : tree baseline identique et sentinelles intactes.
 
-**T12-R remplace migration obligatoire** : dépôt neuf vide, format natif autonome,
-aucun convertisseur V4–V8/auto-import/hybride/autorité legacy. Ancien stockage jamais
-écrit, origine et namespaces V2 distincts ; sauvegarde/restauration ancienne
-vérifiée avant bascule. Robustesse native CAS/recovery/import-export inchangée.
-T01–T11/T13–T15 conservés selon portée détaillée R0 §2 ; T14 migration inapplicable,
-non-inférence de completed native conservée. I01–I21/I23 maintenus, I22 migration
-hors portée remplacé par I22-R natif robuste. M01–M04 références négatives,
-plus bloqueurs. Architecture précédente conservée comme trace, séquence V1–V7
-supplantée par R0 → R0.1 → R1–R6 et verticales précoces R1/R2.
+G15 partiel : typecheck/build/3 tests portable historiques passent dans le clone
+exact ; consultation de ce checkout sur 4174 bloquée par serveur utilisateur
+existant, accord demandé pour interruption temporaire. Preuves des vrais
+exécutables Windows V2 sur 4275 et historique sur 4175 non exécutées sur macOS.
+G16 partiel pour SEA, aucune réussite portable hors SEA assimilée à cette preuve.
+Compléter les preuves, puis audit indépendant et validation utilisateur avant
+clôture. **R1 et R2–R6 NOT STARTED/non autorisés.** Aucun DONE auto-déclaré.
 
-**Faits du code livré à cette baseline** : Portfolio/requirements/RAF inline,
-Actuals object-scoped V4/V5, formats V1–V8, captures avec résultats persistés,
-IndexedDB `flowplan-planning`, startup legacy/demo ; ce sont des faits anciens,
-pas des composants V2 activés. 11D.0 storage/CAS/recovery, 11D.1 RAF/UX, 11D.2
-G1 seulement, 11A/11A.2/11B/11C restent acquis avec leurs limites. G1 n'est ni
-service historique production ni preuve de conformité au graphe V2.
+Option B extraction sélective, T01–T11/T12-R/T13–T15, I01–I21/I22-R/I23 et
+architecture à six modules restent inchangés. Current/PortfolioSnapshots natifs,
+graphe versionné, AP/SubPeriod/TA/PT/RT/PTEC, ETC/status, Settings/Order, CAS et
+robustesse durable sont des cibles R1+ ; aucune de ces primitives n'est livrée
+par le DTO shell R0.1. Migration T12 historique inapplicable ; aucun bridge ou
+format hybride. [Registre de reprise](./steps/PORTFOLIO_VERSIONED/rewrite_reuse_registry.md)
+actualisé pour adaptations/exclusions techniques seulement, zéro extraction métier.
+Arbitrage Reservation ratio + exception sans période reste ouvert pour R3.
 
-Inventaire/module/tests et décisions REUSE/ADAPT/REFERENCE/DROP : R0 §4.
-Invariants→propriétaires→tests : R0 §9. Reprise stateless : R0 §1 et §11 ; aucun
-choix nécessaire au lancement n'est réservé à une conversation. Les détails
-techniques ouverts sont nommés et affectés à un lot dans R0 §8.
-
-Registres V2 : [décisions](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md)
-et [extractions](./steps/PORTFOLIO_VERSIONED/rewrite_reuse_registry.md).
-Ils indexent les décisions et suivent les opérations sans créer une seconde
-architecture ; toutes extractions NOT STARTED. Option B, matrice, architecture,
-verticales R1/R2, T12-R et stockage neuf isolé restent validés. Le cas ratio avec
-exception sans période reste volontairement ouvert avant reprise complète R3.
-
-Autonomie normative : patrimoine = justification/preuves/comportement/extraction ;
-aucune norme V2 exclusivement patrimoniale. Reprendre explicitement toute règle
-retenue dans le dossier/canon V2 avant implémentation ; hiérarchie V2 prévaut.
-Une conversation n'est jamais normative. Avant DONE : documenter le livré,
-inscrire nouvelles décisions, actualiser prochaine étape et extractions,
-vérifier absence de contexte indispensable exclusif et reprise par prompt minimal
-([R0 §11](./steps/PORTFOLIO_VERSIONED/rewrite_r0_plan.md#11-contrat-de-clôture-et-exercice-final-de-reprise-à-froid)).
+Patrimoine historique : Portfolio/RAF inline, Actuals V4/V5, formats V1–V8,
+snapshots avec résultats, DB flowplan-planning et bootstrap/demo sont des faits
+anciens conservés, pas des modules V2. Canons DONE suivants restent vrais pour
+l'ancienne application ; G1 11D.2 n'est pas une preuve runtime V2.
+Stateless : aucune conversation normative, décisions nouvelles enregistrées,
+prochaine preuve/état/limites accessibles depuis current_plan et canon R0.1.
+Sauvegarde/restauration utilisateur vérifiée R0 §6 reste requise avant bascule
+opérationnelle réelle ; cette mission n'utilise que des profils de laboratoire.
 
 ## Archives de canon — application de référence
 

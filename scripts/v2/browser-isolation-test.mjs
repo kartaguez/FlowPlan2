@@ -20,7 +20,7 @@ async function exited(script,args=[],env=process.env) {
   const child=spawn(process.execPath,[script,...args],{cwd:projectRoot,env,stdio:['ignore','pipe','pipe']});let output='';child.stdout.on('data',c=>output+=c);child.stderr.on('data',c=>output+=c);
   const [code]=await once(child,'exit');return {code,output};
 }
-function fixtureStorage(seed, backup = 'valid') {
+export function fixtureStorage(seed, backup = 'valid') {
   return (async () => {
     const dbs = await indexedDB.databases();
     if (seed) {

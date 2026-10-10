@@ -1,7 +1,8 @@
 # FlowPlan2 V2 — registre durable des décisions
 
 Statut : décisions R0 validées par audit indépendant favorable à
-`62bfdb9f36b406a0196ba7ceee45884217c68365` ; aucune implémentation autorisée.
+`62bfdb9f36b406a0196ba7ceee45884217c68365`. GO R0.1 reçu après audit du plan
+à `1c2b08c727af9fb8002b7678bd7403fcc0d39c27` ; R0.1 IN REVIEW, R1/R2 non autorisés.
 Point d'entrée : [current_plan](../../current_plan.md).
 Option B extraction sélective, verticales R1 mémoire/R2 durable, architecture à
 six modules, stockage neuf isolé et matrice de reprise sont validés.
@@ -44,17 +45,18 @@ Les détails techniques ouverts et leurs lots restent dans [R0 §8](./rewrite_r0
 
 ## Décisions d'infrastructure R0.1
 
-Préparation documentaire autorisée le 2026-10-10 ; R0.1 PLANNED / NOT STARTED.
+GO d’implémentation R0.1 reçu le 2026-10-10 après audit favorable ; état livré IN REVIEW.
 Ces décisions précisent T12-R et la frontière de reprise, sans changement métier.
-Les choix techniques détaillés du [plan R0.1](./rewrite_r01_plan.md) sont proposés
-pour audit ; aucune décision ci-dessous n'atteste du code extrait ou d'un PASS V2.
+Les choix techniques du [plan R0.1](./rewrite_r01_plan.md) sont adoptés par ce GO ;
+résultats et limites dans le [canon R0.1](./rewrite_r01_canon.md), aucune extraction métier.
 
 | ID | Statut / portée | Décision | Contrat détaillé |
 | --- | --- | --- | --- |
-| I-R01-A | VALIDÉE par cadrage utilisateur ; infrastructure R0.1 | Isolation physique forte : source root V2 distinct de src ; ancien src hors compilation/tests/exécution V2 ; imports V2 → legacy interdits mécaniquement. Aucune extraction métier avant R1. | [R0.1 §3–§6](./rewrite_r01_plan.md#3-cible-et-portfolio-vide-borné-à-r01) ; proposition précise src-v2/public-v2/dist-v2/.test-dist-v2 |
-| I-R01-B | VALIDÉE par cadrage utilisateur ; environnement R0.1 | Origines browser V2 dédiées et fixes, distinctes du legacy, vérifiées mécaniquement ; namespaces distincts, aucun bridge runtime. | [R0.1 §5](./rewrite_r01_plan.md#5-origines-fixes-et-frontières-browser) ; proposition dev 127.0.0.1:4274 / portable 127.0.0.1:4275 |
+| I-R01-A | VALIDÉE par cadrage utilisateur ; infrastructure R0.1 | Isolation physique forte : source root V2 distinct de src ; ancien src hors compilation/tests/exécution V2 ; imports V2 → legacy interdits mécaniquement. Aucune extraction métier avant R1. | [R0.1 §3–§6](./rewrite_r01_plan.md#3-cible-et-portfolio-vide-borné-à-r01) ; choix livré src-v2/public-v2/dist-v2/.test-dist-v2 |
+| I-R01-B | VALIDÉE par cadrage utilisateur ; environnement R0.1 | Origines browser V2 dédiées et fixes, distinctes du legacy, vérifiées mécaniquement ; namespaces distincts, aucun bridge runtime. | [R0.1 §5](./rewrite_r01_plan.md#5-origines-fixes-et-frontières-browser) ; choix livré dev 127.0.0.1:4274 / portable 127.0.0.1:4275 |
 
-Source root exact, ports, outillage, DTO shell, packaging et gates G01–G16 sont
-fixés comme propositions explicites auditables dans ce plan ; audit propre puis
-autorisation distincte avant implémentation. Les namespaces réservés R0 §6 restent
-inchangés. R0.1 n'ouvre aucun stockage ; schéma/codec/persistence métier restent R2.
+Source root exact, ports, outillage, DTO shell, packaging et G01–G16 sont fixés
+par le plan audité et GO utilisateur. Implémentation IN REVIEW : G01–G14 PASS,
+G15/G16 partiels (port historique occupé et Windows réel manquant), voir canon.
+Namespaces R0 §6 inchangés ; aucun stockage ouvert par R0.1 ; schéma/codec/
+persistence métier restent R2. Audit du code et validation utilisateur restent requis.
