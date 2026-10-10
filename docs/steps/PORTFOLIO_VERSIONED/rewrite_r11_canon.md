@@ -1,7 +1,7 @@
 # FlowPlan2 V2 — livraison R1.1 : primitives et versionnement natif
 
 Date : 2026-10-10. **R1 — CADRAGE VALIDÉ**.
-**R1.1 — IN REVIEW — IMPLÉMENTATION À AUDITER**.
+**R1.1 — IN REVIEW — CORRECTIONS À AUDITER**.
 R1.2–R1.4 et R2–R6 NOT STARTED. Aucun DONE, aucune clôture automatique.
 Point d'entrée : [current_plan](../../current_plan.md).
 Autorité : [PLAN R1.1 approuvé](./rewrite_r11_plan.md), R0 §3/§13 et décisions.
@@ -249,9 +249,115 @@ gates revérifiées, commit/push normal, SHA distant exact, arbre propre et orig
 sur ce SHA poussé est le prochain événement ; audit puis autorisation utilisateur
 nécessaires pour toute clôture ou suite.
 
+## Compléments ciblés après audit du code — 2026-10-10
+
+Baseline de cette session : `c8e707637df1ca60d5740a6d2a8246771f53c380`.
+Préflight avant modification : `git fetch origin` réussi, branche exacte
+`rewrite/portfolio-versioned`, arbre propre, HEAD = origin = baseline, 0/0,
+SHA de référence présent dans l'histoire ; aucune modification concurrente.
+PLAN R1.1, présent canon, décisions, R0 notamment §13 et current_plan relus.
+Ce complément ne modifie aucune décision normative ni R0/R0.1.
+Les preuves initiales ci-dessus et sous `proofs/r11/` sont conservées intégralement.
+Le SHA final est celui du commit contenant ce complément, communiqué après push.
+
+### Point A : garantie existante démontrée
+
+Sept nouveaux tests `audit A1` à `audit A7` dans
+`src-v2/domain/versioning/versionEnvelope.test.ts`, tous PASS. Les fixtures
+owner/prédécesseur sont créées par la factory publique, sans remplacement
+ultérieur de l'owner. Aucun défaut fonctionnel reproduit, aucune correction
+de production ni contrôle redondant ajouté.
+
+| Test contradictoire | Résultat |
+| --- | --- |
+| A1 racine/enfant même identité, même owner | `established`, aucune référence manquante |
+| A2 racine/enfant même identité, owners différents | refus `IMMUTABLE_OWNER_MISMATCH` |
+| A3 prédécesseur exact absent | `not-established`, ref exacte signalée ; autre version, provenance et contexte d'un appel précédent ne le résolvent pas |
+| A4 prédécesseur autre identité ou kind | refus dès création ; autre entityId : `PREDECESSOR_IDENTITY_MISMATCH` |
+| A5 deux branches avec owner identique | ensemble `established` |
+| A6 une branche avec owner divergent | ensemble refusé `IMMUTABLE_OWNER_MISMATCH` |
+| A7 contextes inversés | résultats complets identiques pour acceptation, refus et parent manquant partagé |
+
+La preuve combine deux contrôles existants : la création exige le même
+kind/entityId pour le predecessor ; le contexte impose le même owner à toutes
+versions fournies de cette identité. Ainsi un parent exact fourni ne peut avoir
+un owner différent de l'enfant. Sans parent fourni, aucune compatibilité avec
+un owner inconnu n'est prétendue : la vérification reste non établie.
+Validation pure et locale conservée, aucun registre/resolver/sélection/stockage.
+
+### Point B : limite contractuelle documentée
+
+`createTypedVersionEnvelope<K,P>` conserve le type statique `P` fourni ou inféré
+par TypeScript ; sa sortie expose `DeepReadonly<P>`. Avec un appel correctement
+typé, un payload incompatible avec un `P` explicite est refusé à compilation.
+Au runtime, la fonction délègue à `createVersionEnvelope` : structure de
+l'enveloppe, refs, owner et filiation locale sont vérifiés ; le payload doit
+être une donnée admissible, copiée puis gelée récursivement. Les données publiées
+sont détachées des entrées ; les mutations des records/listes publiés sont refusées.
+
+`P` est effacé au runtime. Aucun schéma métier associé à `P` n'est automatiquement
+validé, aucune marque de validation métier n'est produite par l'assertion interne.
+Un `as`, `any`, `@ts-expect-error` ou une entrée JavaScript peut mentir sur `P` :
+un record admissible mais incompatible avec le type annoncé peut alors être
+accepté. L'assertion TypeScript n'est donc jamais une preuve de validation métier.
+Tout consommateur doit faire valider le payload par la frontière métier R1.2
+avant de considérer une enveloppe comme entité métier validée ; la seule réussite
+de cette factory R1.1 est insuffisante. Aucun schéma métier R1.2 implémenté ici.
+
+Trois nouveaux tests PASS, sur une forme synthétique sans payload métier :
+
+- B1 : champs et types inférés/explicites conservés, readonly des records et
+  collections à compilation, copie détachée et gel profond effectifs au runtime.
+- B2 : la factory typée refuse Map/Set/Date/cycle/fonction/undefined/float,
+  malgré la possibilité statique de les fournir comme `P`.
+- B3 : incompatibilité de forme refusée à compilation ; suppression volontaire
+  de l'erreur ou cast forcé démontre l'absence de validation du schéma au runtime.
+
+Décision : limite prévue par le PLAN et déjà indiquée dans le commentaire de
+l'API, désormais prouvée explicitement. Recherche des usages : aucun consommateur
+de production actuel de la factory typée, uniquement sa définition et ses tests.
+Aucun défaut concret justifiant un changement d'API ; aucune évolution normative.
+Le risque d'une interprétation erronée reste une obligation de la frontière R1.2,
+sans prétendre que R1.1 protège contre les casts mensongers de l'appelant.
+
+### Vérifications de ce complément
+
+Environnement : macOS Darwin arm64, Node v24.21.0, npm 11.19.0, TypeScript 5.9.3.
+Journaux nouveaux sous `proofs/r11-audit/`, indépendants des preuves initiales.
+
+| Commande | Résultat | Preuve |
+| --- | --- | --- |
+| `npm run check:boundaries:v2` | PASS, code 0 | [boundaries.log](./proofs/r11-audit/boundaries.log) |
+| `npm run typecheck:v2` | PASS, code 0 | [typecheck.log](./proofs/r11-audit/typecheck.log) |
+| `npm run test:v2` | PASS, 68/68, fail/cancel/skip/todo 0 | [tests.log](./proofs/r11-audit/tests.log) |
+| `npm run build:v2` | PASS, code 0, 16 modules / 18 assets V2 | [build.log](./proofs/r11-audit/build.log) |
+| CivilDate, processus `TZ=UTC` | PASS 4/4 | [tz-utc.log](./proofs/r11-audit/tz-utc.log) |
+| CivilDate, processus `TZ=Europe/Paris` | PASS 4/4 | [tz-paris.log](./proofs/r11-audit/tz-paris.log) |
+| CivilDate, processus `TZ=America/New_York` | PASS 4/4 | [tz-new-york.log](./proofs/r11-audit/tz-new-york.log) |
+| `git diff --check` | PASS, code 0 | contrôle avant commit |
+
+68 tests = 58 existants + 7 owner/prédécesseur + 3 contrat payload.
+Les trois processus TZ réexécutent 12 tests en plus : 80 exécutions de tests
+au total, 68 tests distincts, aucun échec. Les assertions `@ts-expect-error`
+sont vérifiées par la compilation de la suite dans `test:v2`.
+Les 18 gates restent PASS : Q01–Q05, D01–D04, V01–V06 et A01–A03 sont
+réexécutées, V02/V03/V04 complétées par ces preuves. Aucun test existant retiré ;
+le titre du test payload initial distingue désormais type statique et schéma.
+Inspection du diff : seulement tests, canon, entrée du plan courant et nouveaux
+journaux. Production/API, dépendances, legacy, garde, stockage, R0/R0.1 inchangés.
+Smoke browser et rollback historiques non réexécutés pour ce complément sans
+changement de production ; leurs preuves initiales ne sont pas réattribuées.
+
+Défaut reproduit puis corrigé : aucun. Garantie existante démontrée : point A
+et immutabilité/type statique du point B. Limite contractuelle documentée :
+absence de validation automatique du schéma métier. Limites runtime et report
+Windows précédents inchangés. R1.1 reste IN REVIEW, aucune clôture automatique.
+Le prochain événement est exclusivement l'audit différentiel par ChatGPT
+du SHA poussé ; aucun démarrage de R1.2.
+
 R1 — CADRAGE VALIDÉ
 
-R1.1 — IN REVIEW — IMPLÉMENTATION À AUDITER
+R1.1 — IN REVIEW — CORRECTIONS À AUDITER
 
 R1.2–R1.4 — NOT STARTED
 

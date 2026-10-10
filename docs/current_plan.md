@@ -42,7 +42,14 @@ src-v2/domain, sans montage métier ni changement du shell ou du garde R0.1.
 18 gates PASS ; 58/58 tests V2 sans skip/todo, trois processus TZ indépendants,
 commandes exactes boundaries/typecheck/test/build PASS. Aucun DONE ni GO suivant.
 **R1.2–R1.4 — NOT STARTED ; R2–R6 — NOT STARTED**.
-Prochain événement exclusivement : audit indépendant du code R1.1 par ChatGPT
+Complément ciblé après audit de `c8e707637df1ca60d5740a6d2a8246771f53c380` :
+**R1.1 — IN REVIEW — CORRECTIONS À AUDITER**. Garantie owner/prédécesseur
+démontrée par sept tests contradictoires ; contrat payload typé clarifié avec
+trois tests. Aucun défaut reproduit ni changement de production/API/norme.
+68/68 tests V2 PASS ; les quatre commandes V2 PASS, 18 gates conservées.
+Preuves initiales 58/58 ci-dessus conservées ; résultats nouveaux et limites
+dans le [complément du canon](./steps/PORTFOLIO_VERSIONED/rewrite_r11_canon.md#compléments-ciblés-après-audit-du-code--2026-10-10).
+Prochain événement exclusivement : audit différentiel du code R1.1 par ChatGPT
 sur le SHA effectivement poussé (rapport Git final). La réussite des gates ne
 clôture pas le lot ; audit puis décision utilisateur distincte nécessaires.
 

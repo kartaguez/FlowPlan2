@@ -1,0 +1,34 @@
+TAP version 13
+# Subtest: D01 strict Gregorian calendar, year zero and both inclusive bounds
+ok 1 - D01 strict Gregorian calendar, year zero and both inclusive bounds
+  ---
+  duration_ms: 0.845166
+  type: 'test'
+  ...
+# Subtest: D02 inclusive intervals, adjacency, year/month crossings and inverted refusal
+ok 2 - D02 inclusive intervals, adjacency, year/month crossings and inverted refusal
+  ---
+  duration_ms: 0.320875
+  type: 'test'
+  ...
+# Subtest: D03 exact daily arithmetic, safe intermediates and independent 400-year oracle
+ok 3 - D03 exact daily arithmetic, safe intermediates and independent 400-year oracle
+  ---
+  duration_ms: 116.251416
+  type: 'test'
+  ...
+# Subtest: D04 identical DST vectors (suite executed in separate real TZ processes)
+ok 4 - D04 identical DST vectors (suite executed in separate real TZ processes)
+  ---
+  duration_ms: 0.1395
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 156.18

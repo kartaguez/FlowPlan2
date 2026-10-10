@@ -122,7 +122,7 @@ test('V06 multiple provenance is independent of lineage; no source selection', (
   rejected(createVersionEnvelope('ProjectSettings',{...root,provenance:sources,selected: sources[0]}),'INVALID_VERSION_ENVELOPE');
 });
 
-test('typed payload assembly preserves schema and readonly collections', () => {
+test('typed payload assembly preserves static type and readonly collections', () => {
   const settingsOwner=value(createOwner('ProjectSettings',owner()));
   const payload={name:'native',amount:1n,lines:[{value:2n}]};
   const version=value(createTypedVersionEnvelope('ProjectSettings',{ref:ref('typed'),owner:settingsOwner,payload,provenance:[]}));
@@ -137,4 +137,118 @@ test('typed payload assembly preserves schema and readonly collections', () => {
   // @ts-expect-error Kind argument fixes ref/owner families; it cannot widen to accept RT.
   const wrong=createTypedVersionEnvelope('ProjectSettings',{ref:rt,owner:settingsOwner,payload:{},provenance:[]});
   rejected(wrong);
+});
+
+// Every fixture passes the public factory; no owner is replaced after creation.
+const ownedVersion = (v: string, project = 'project', predecessor?: ExactReference<'ProjectSettings'>) =>
+  value(createVersionEnvelope('ProjectSettings', {
+    ref: ref(v), owner: owner(project), payload: {}, provenance: [],
+    ...(predecessor === undefined ? {} : { predecessor })
+  }));
+
+test('audit A1 same identity and owner establish the root/child link', () => {
+  const root = ownedVersion('root'), child = ownedVersion('child', 'project', root.ref);
+  assert.deepEqual(value(validateVersionContext([root, child])), {
+    status: 'established', missingPredecessors: [], identicalRepetitions: []
+  });
+});
+test('audit A2 different owners reject a factory-created root/child pair', () => {
+  const root = ownedVersion('root'), child = ownedVersion('child', 'other', root.ref);
+  rejected(validateVersionContext([root, child]), 'IMMUTABLE_OWNER_MISMATCH');
+});
+test('audit A3 missing exact predecessor stays not-established without implicit resolution', () => {
+  const root = ownedVersion('root'), child = ownedVersion('child', 'project', root.ref);
+  const expected = { status: 'not-established', missingPredecessors: [root.ref], identicalRepetitions: [] };
+  assert.deepEqual(value(validateVersionContext([child])), expected);
+  // Neither a different version of the identity nor provenance supplies the exact parent.
+  const unrelated = ownedVersion('unrelated');
+  const sourced = value(createVersionEnvelope('ProjectSettings', { ...child, provenance: [root.ref] }));
+  assert.deepEqual(value(validateVersionContext([unrelated, sourced])), expected);
+  assert.deepEqual(value(validateVersionContext([root, child])).missingPredecessors, []);
+  // A later call cannot reuse a predecessor supplied to a previous call.
+  assert.deepEqual(value(validateVersionContext([child])), expected);
+});
+test('audit A4 another predecessor identity or kind is rejected at envelope creation', () => {
+  const child = ownedVersion('child');
+  rejected(createVersionEnvelope('ProjectSettings', { ...child, predecessor: ref('root', 'other') }),
+    'PREDECESSOR_IDENTITY_MISMATCH');
+  rejected(createVersionEnvelope('ProjectSettings', {
+    ...child, predecessor: { kind: 'RT', entityId: id('settings'), versionId: vid('root') }
+  }));
+});
+test('audit A5 branches with the same owner establish the whole context', () => {
+  const root = ownedVersion('root');
+  const left = ownedVersion('left', 'project', root.ref), right = ownedVersion('right', 'project', root.ref);
+  assert.deepEqual(value(validateVersionContext([root, left, right])), {
+    status: 'established', missingPredecessors: [], identicalRepetitions: []
+  });
+});
+test('audit A6 one divergent branch rejects the whole context', () => {
+  const root = ownedVersion('root');
+  const left = ownedVersion('left', 'project', root.ref), right = ownedVersion('right', 'other', root.ref);
+  rejected(validateVersionContext([root, left, right]), 'IMMUTABLE_OWNER_MISMATCH');
+});
+test('audit A7 reversed contexts preserve acceptance, rejection and missing-parent reports', () => {
+  const root = ownedVersion('root'), left = ownedVersion('left', 'project', root.ref);
+  const right = ownedVersion('right', 'project', root.ref), divergent = ownedVersion('divergent', 'other', root.ref);
+  for (const context of [[root, left], [root, divergent], [left, right],
+    [ownedVersion('unrelated'), left], [root, left, right], [root, left, divergent]]) {
+    assert.deepEqual(validateVersionContext(context), validateVersionContext([...context].reverse()));
+  }
+});
+
+test('audit B1 typed assembly preserves inferred/explicit fields and deep readonly output', () => {
+  type Payload = { label: string; nested: { lines: { amount: bigint }[] } };
+  const payload: Payload = { label: 'fixture', nested: { lines: [{ amount: 2n }] } };
+  const input = { ref: ref('typed-audit'), owner: value(createOwner('ProjectSettings', owner())), payload, provenance: [] };
+  const inferred = value(createTypedVersionEnvelope('ProjectSettings', input));
+  const explicit = value(createTypedVersionEnvelope<'ProjectSettings', Payload>('ProjectSettings', input));
+  const label: string = inferred.payload.label;
+  const amount: bigint | undefined = explicit.payload.nested.lines[0]?.amount;
+  assert.equal(label, 'fixture'); assert.equal(amount, 2n);
+  assert.deepEqual(inferred, explicit);
+  assert.notStrictEqual(inferred.payload.nested.lines, payload.nested.lines);
+  payload.nested.lines[0]!.amount = 9n;
+  assert.equal(inferred.payload.nested.lines[0]?.amount, 2n);
+  assert.equal(Object.isFrozen(inferred.payload.nested), true);
+  assert.equal(Object.isFrozen(inferred.payload.nested.lines[0]), true);
+  const mutate = () => {
+    // @ts-expect-error Nested record fields remain statically readonly.
+    explicit.payload.nested.lines[0]!.amount = 7n;
+  };
+  assert.throws(mutate, TypeError);
+  // Compile-time witnesses are not executed as mutations.
+  const staticChecks = () => {
+    // @ts-expect-error The preserved label type is string, not bigint.
+    const wrong: bigint = inferred.payload.label; void wrong;
+    // @ts-expect-error The whole published payload is readonly.
+    explicit.payload = payload;
+    // @ts-expect-error Nested collections are readonly.
+    inferred.payload.nested.lines.push({ amount: 3n });
+  };
+  void staticChecks;
+});
+test('audit B2 typed assembly applies admissible-data runtime checks', () => {
+  const cycle: { self?: unknown } = {}; cycle.self = cycle;
+  const settingsOwner = value(createOwner('ProjectSettings', owner()));
+  for (const payload of [new Map(), new Set(), new Date(), cycle, () => 1, { x: undefined }, { x: 0.1 }]) {
+    rejected(createTypedVersionEnvelope('ProjectSettings', {
+      ref: ref('invalid-typed'), owner: settingsOwner, payload, provenance: []
+    }));
+  }
+});
+test('audit B3 a claimed TypeScript payload type is not runtime schema validation', () => {
+  // A synthetic shape only: no R1.2 business entity/schema is implemented here.
+  type ClaimedPayload = { label: string };
+  const input = { ref: ref('unvalidated-typed'), owner: value(createOwner('ProjectSettings', owner())),
+    payload: { unrelated: true }, provenance: [] };
+  // @ts-expect-error Explicit P does not allow a mismatched payload in sound TypeScript.
+  const mismatched = createTypedVersionEnvelope<'ProjectSettings', ClaimedPayload>('ProjectSettings', input);
+  assert.equal(mismatched.ok, true); // Runtime checks data admissibility, not P's erased schema.
+  const forged = value(createTypedVersionEnvelope<'ProjectSettings', ClaimedPayload>('ProjectSettings', {
+    ...input, payload: input.payload as unknown as ClaimedPayload
+  }));
+  assert.deepEqual(forged.payload, { unrelated: true });
+  assert.equal(Object.hasOwn(forged.payload, 'label'), false);
+  assert.equal(Object.isFrozen(forged.payload), true);
 });
