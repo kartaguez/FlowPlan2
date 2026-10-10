@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.v2.app.json",
+  "compilerOptions": {
+    "rootDir": "src-v2",
+    "outDir": ".test-dist-v2",
+    "types": [
+      "node"
+    ]
+  },
+  "include": [
+    "src-v2/**/*.ts"
+  ],
+  "exclude": []
+}

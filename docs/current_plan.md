@@ -1,33 +1,26 @@
 # FlowPlan2 current plan — point d'entrée unique
 
-## Trajectoire active — FlowPlan2 V2 / R0.1 planifié
+## Trajectoire active — FlowPlan2 V2 / R0.1 en cours
 
-**R0 — Architecture & Reconstruction Plan : plan accepté après audit indépendant
-favorable ; correctif documentaire de clôture livré.** Complétude, pertinence
-architecturale et statelessness immédiate favorables. Baseline auditée et initiale
-du correctif : `62bfdb9f36b406a0196ba7ceee45884217c68365`, le 2026-10-10.
-Dépôt `kartaguez/FlowPlan2` ; branche actuelle de référence/livraison :
-`codex/lot11a-portfolio-snapshots`. Fetch réussi, arbre initial propre, origin 0/0.
-Branche future prévue `rewrite/portfolio-versioned` **non créée**.
+**R0 clôturé. R0.1 — Rewrite Initialization : IN PROGRESS**, GO utilisateur reçu
+le 2026-10-10 après audit favorable du [plan R0.1](./steps/PORTFOLIO_VERSIONED/rewrite_r01_plan.md)
+au SHA `1c2b08c727af9fb8002b7678bd7403fcc0d39c27`.
+P0 validé : fetch, arbre propre, SHA HEAD/origin exacts, divergence 0/0,
+branche rewrite absente localement et sur origin avant création.
+Branche active `rewrite/portfolio-versioned`, créée au SHA audité exact.
+Référence indépendante `codex/lot11a-portfolio-snapshots`, aucune modification.
 
-**R0.1 — Rewrite Initialization : PLANNED / NOT STARTED.** Préparation du
-[plan détaillé R0.1](./steps/PORTFOLIO_VERSIONED/rewrite_r01_plan.md) autorisée et
-livrée documentairement depuis `3e4b8a8e02c8cc8803d38021ea4606694495dea1`.
-Préflight : HEAD/origin exacts, arbre propre, fetch réussi et origin 0/0.
-R0 reste clôturé ; aucune réouverture de son architecture. Conclusion du plan :
-**READY FOR IMPLEMENTATION**, sans autorisation de lancement ni preuve V2.
+Autorisé : R0.1 seulement, P1 → P6, propres gates G01–G16, commits/push normaux.
+P1 pose configs/imports/tests mécaniques ; aucune gate runtime encore acquise.
+Source/build/tests/entrée neuves, Portfolio vide technique, ports 4274/4275,
+namespaces réservés sans stockage actif ; aucun accès legacy ni bridge.
+Prochaine étape : P2 puis séquence auditée ; si contradiction, STOP.
 
-**Prochaine étape : audit indépendant du plan R0.1 puis autorisation explicite
-pour créer `rewrite/portfolio-versioned` et implémenter R0.1.** Aucun audit de ce
-plan ni GO d'implémentation n'est présumé. R1–R6 restent NOT STARTED/non autorisés.
-Cadrage inscrit : source physique `src-v2/`, entrée neuve et Portfolio vide RAM
-sans métier/storage ; origines fixes proposées `127.0.0.1:4274` et `:4275`,
-namespaces réservés, garde imports/artefacts et propres smoke gates négatives.
-Premières extractions métier en R1, persistence métier en R2.
-
-**Actions actuellement interdites :** création de branche rewrite, squelette,
-code, modification runtime/storage, extraction de code ancien, lancement R0.1
-ou R1/R2. Cette mission s'arrête après commit/push documentaire du plan.
+R1 et R2–R6 restent NOT STARTED et non autorisés. Aucune extraction métier,
+primitive Domain, repository métier, codec, migration/import/recovery ou moteur.
+R0.1 restera IN REVIEW si une preuve obligatoire manque, notamment SEA Windows.
+Clôture réservée à audit indépendant puis validation utilisateur ; jamais DONE
+sur seule déclaration d'implémentation. Arrêt après R0.1.
 
 **Documents normatifs V2 — ordre de lecture :**
 

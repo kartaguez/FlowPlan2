@@ -7,15 +7,24 @@
     "node": ">=24"
   },
   "scripts": {
-    "dev": "node scripts/dev.mjs",
-    "build": "node scripts/build.mjs",
-    "build:sea": "node scripts/build-sea.mjs",
-    "typecheck": "tsc -p tsconfig.app.json --noEmit",
-    "test": "node scripts/test.mjs",
-    "test:storage": "npm run build && node scripts/browser-storage-test.mjs",
-    "benchmark:storage": "npm run build && node scripts/benchmark-storage.mjs",
-    "test:portable": "node --test scripts/portable-server.test.cjs",
-    "test:sea": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/smoke-sea.ps1"
+    "check:boundaries:v2": "node scripts/v2/boundaries.mjs",
+    "typecheck:v2": "node scripts/v2/boundaries.mjs && tsc -p tsconfig.v2.app.json --noEmit",
+    "build:v2": "node scripts/v2/build.mjs",
+    "test:v2": "node scripts/v2/test.mjs",
+    "dev:v2": "node scripts/v2/dev.mjs",
+    "test:browser:v2": "npm run build:v2 && node scripts/v2/browser-isolation-test.mjs",
+    "test:portable:v2": "node --test scripts/v2/servers.test.cjs",
+    "build:sea:v2": "node scripts/v2/build-sea.mjs",
+    "test:sea:v2": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/v2/smoke-sea.ps1",
+    "smoke:v2": "node scripts/v2/smoke.mjs",
+    "dev": "npm run dev:v2",
+    "build": "npm run build:v2",
+    "typecheck": "npm run typecheck:v2",
+    "test": "npm run test:v2",
+    "build:sea": "npm run build:sea:v2",
+    "test:portable": "npm run test:portable:v2",
+    "test:sea": "npm run test:sea:v2",
+    "test:storage": "npm run test:browser:v2"
   },
   "devDependencies": {
     "@types/node": "26.6.2",
