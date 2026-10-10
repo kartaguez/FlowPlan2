@@ -1,6 +1,6 @@
 # FlowPlan2 current plan — point d'entrée unique
 
-## Trajectoire active — FlowPlan2 V2 / R1 cadrage validé, PLAN R1.1 à auditer
+## Trajectoire active — FlowPlan2 V2 / R1 cadrage validé, R1.1 IN REVIEW
 
 **R0 clôturé. R0.1 — Rewrite Initialization : DONE**, clôture utilisateur
 autorisée le 2026-10-10 après audit indépendant favorable de l’architecture,
@@ -32,22 +32,19 @@ ne bloquent plus la clôture R0.1. Ils restent obligatoires avant toute qualific
 ou distribution Windows. Aucun résultat non exécuté n’est PASS ; aucune autre
 gate n’est amendée. Détails et condition de levée dans le canon R0.1.
 
-**R1 — CADRAGE VALIDÉ**, découpage R1.1 primitives/identités/versionnement,
-R1.2 graphe métier versionné, R1.3 transitions/preuves, R1.4 verticale mémoire.
-**R1.1 — PLANNED / NOT STARTED — PLAN CORRIGÉ À RÉAUDITER** :
-[PLAN dédié](./steps/PORTFOLIO_VERSIONED/rewrite_r11_plan.md), préparé depuis
-`8926b1f1b73650c17114914a168c368d0331d87b` sur la branche attendue, arbre initial
-propre et HEAD/origin exacts après fetch (0/0). Inventaire lu, aucune extraction.
-**R1.2–R1.4 — NOT STARTED ; R2–R6 — NOT STARTED**, périmètres R2–R6 inchangés.
-
-Audit indépendant du SHA `06d98971bf5e3ddb717e6ee87d7c295631fd6331` reçu :
-quatre corrections documentaires appliquées (parsing, BigInt/ressources, plage
-CivilDate fixée et validation contextuelle locale). GO implémentation NON ACCORDÉ.
-Prochain événement exclusivement : audit différentiel par ChatGPT du nouveau SHA.
-Aucune implémentation ne commence à l'issue de cette session. Le cadrage global
-ne constitue aucun GO : ni code/types/tests/configs/dépendances/scripts, ni
-stockage, ni début d'un sous-lot suivant. Le socle shell R0.1 n'est pas un modèle
-métier et aucune preuve nouvelle de code n'est produite ici.
+**R1 — CADRAGE VALIDÉ**. **R1.1 — IN REVIEW — IMPLÉMENTATION À AUDITER**.
+PLAN corrigé approuvé et GO utilisateur explicite reçus pour P0–P6 de ce seul
+sous-lot, sur baseline documentaire `5950ed079ffa8132742301922765e955d1af9274`.
+Préflight : fetch réussi, branche attendue, HEAD = origin = baseline, arbre propre,
+0/0 ; aucune modification concurrente inexpliquée. Primitives natives sous
+src-v2/domain, sans montage métier ni changement du shell ou du garde R0.1.
+[Canon R1.1, interfaces, matrice et preuves](./steps/PORTFOLIO_VERSIONED/rewrite_r11_canon.md).
+18 gates PASS ; 58/58 tests V2 sans skip/todo, trois processus TZ indépendants,
+commandes exactes boundaries/typecheck/test/build PASS. Aucun DONE ni GO suivant.
+**R1.2–R1.4 — NOT STARTED ; R2–R6 — NOT STARTED**.
+Prochain événement exclusivement : audit indépendant du code R1.1 par ChatGPT
+sur le SHA effectivement poussé (rapport Git final). La réussite des gates ne
+clôture pas le lot ; audit puis décision utilisateur distincte nécessaires.
 
 Décisions globales enregistrées D-R1-01–06 ; amendements **nouveaux**
 A-R1-01 (T09/I23 : borne Snapshot sur connaissances AP explicites) et A-R1-02
@@ -55,16 +52,16 @@ A-R1-01 (T09/I23 : borne Snapshot sur connaissances AP explicites) et A-R1-02
 [Addendum normatif R0 §13](./steps/PORTFOLIO_VERSIONED/rewrite_r0_plan.md#13-addendum-normatif-r1-du-2026-10-10)
 explicite emplacements remplacés, justification et impact ; aucun canon historique
 réécrit. CivilDate/refs/enveloppes seuls en R1.1 ; graphes/transitions/simulation
-restent respectivement R1.2/R1.3/R1.4. Gates du PLAN toutes futures/non exécutées.
+restent respectivement R1.2/R1.3/R1.4. Gates R1.1 exécutées et tracées dans son canon ; autres lots non exécutés.
 
 **Documents normatifs V2 — ordre de lecture :**
 
 1. Cette section : état, prochaine étape et interdictions.
 2. [Registre durable des décisions](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md) : T01–T11/T12-R/T13–T15, statuts et portée.
 3. [Dossier normatif R0 autonome](./steps/PORTFOLIO_VERSIONED/rewrite_r0_plan.md) : contrats §2–§3, architecture §5, stockage/Git/lots §6–§8, invariants I01–I21/I22-R/I23 §9, clôture/reprise §11 et GO §12.
-4. [Registre vivant des extractions](./steps/PORTFOLIO_VERSIONED/rewrite_reuse_registry.md) : opérations techniques R0.1 réalisées, exclusions et provenance ; extractions métier R1+ NOT STARTED, intentions R1.1 documentées.
+4. [Registre vivant des extractions](./steps/PORTFOLIO_VERSIONED/rewrite_reuse_registry.md) : opérations techniques R0.1 réalisées, exclusions et provenance ; reprises de primitives R1.1 IN REVIEW, opérations effectives documentées ; entités R1.2+ NOT STARTED.
 5. [Plan R0.1 audité](./steps/PORTFOLIO_VERSIONED/rewrite_r01_plan.md) puis [canon R0.1](./steps/PORTFOLIO_VERSIONED/rewrite_r01_canon.md) : contrat et résultats G01–G16, limites, suite et rollback.
-6. [PLAN R1.1 à auditer](./steps/PORTFOLIO_VERSIONED/rewrite_r11_plan.md) et addendum R0 §13 : fondations, décisions globales, amendements et gates futures.
+6. [PLAN R1.1 approuvé](./steps/PORTFOLIO_VERSIONED/rewrite_r11_plan.md) et addendum R0 §13 : fondations, décisions globales, amendements et contrats de gates ; résultats au canon R1.1.
 7. [Current canon, section active](./current_canon.md) : cible distinguée du patrimoine livré.
 
 **Documents patrimoniaux — consultation facultative :**

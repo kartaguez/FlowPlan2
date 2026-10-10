@@ -1,0 +1,50 @@
+file:///Users/Kartaguez/FlowPlan2/scripts/v2/build.mjs:13
+    child.once('exit', (code, signal) => code === 0 ? yes(output) : no(new Error(`${command} failed (${signal ?? code})\n${output}`)));
+                                                                       ^
+
+Error: npm failed (1)
+
+> flowplan@0.1.0 test:browser:v2
+> npm run build:v2 && node scripts/v2/browser-isolation-test.mjs
+
+
+> flowplan@0.1.0 build:v2
+> node scripts/v2/build.mjs
+
+{
+  "assets": [
+    "index.html",
+    "js/bootstrap/emptyPortfolioShellState.js",
+    "js/domain/primitives/civilDate.js",
+    "js/domain/primitives/civilInterval.js",
+    "js/domain/primitives/data.js",
+    "js/domain/primitives/exactReference.js",
+    "js/domain/primitives/identity.js",
+    "js/domain/primitives/quantity.js",
+    "js/domain/primitives/rational.js",
+    "js/domain/primitives/result.js",
+    "js/domain/versioning/immutableValue.js",
+    "js/domain/versioning/owner.js",
+    "js/domain/versioning/versionEnvelope.js",
+    "js/environment/browserIsolation.js",
+    "js/main/createV2Application.js",
+    "js/main/main.js",
+    "js/ui/renderV2Shell.js",
+    "styles.css"
+  ],
+  "entrypoint": "js/main/main.js"
+}
+Error: listen EPERM: operation not permitted 127.0.0.1:4274
+
+    at file:///private/var/folders/v2/pgt6rlc94r3007wx803x37_w0000gq/T/flowplan-v2-copy-SLMRJB/scripts/v2/browser-isolation-test.mjs:16:77
+    at eventually (file:///private/var/folders/v2/pgt6rlc94r3007wx803x37_w0000gq/T/flowplan-v2-copy-SLMRJB/scripts/v2/browser-harness.mjs:8:51)
+    at async startProcess (file:///private/var/folders/v2/pgt6rlc94r3007wx803x37_w0000gq/T/flowplan-v2-copy-SLMRJB/scripts/v2/browser-isolation-test.mjs:16:3)
+    at async browserIsolation (file:///private/var/folders/v2/pgt6rlc94r3007wx803x37_w0000gq/T/flowplan-v2-copy-SLMRJB/scripts/v2/browser-isolation-test.mjs:109:18)
+    at async file:///private/var/folders/v2/pgt6rlc94r3007wx803x37_w0000gq/T/flowplan-v2-copy-SLMRJB/scripts/v2/browser-isolation-test.mjs:140:39
+
+    at ChildProcess.<anonymous> (file:///Users/Kartaguez/FlowPlan2/scripts/v2/build.mjs:13:72)
+    at ChildProcess.wrapper (node:events:639:12)
+    at ChildProcess.emit (node:events:514:28)
+    at ChildProcess._handle.onexit (node:internal/child_process:295:12)
+
+Node.js v24.21.0

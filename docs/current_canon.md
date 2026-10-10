@@ -36,12 +36,17 @@ périphérique au socle/runtime/browser validé. Aucune compatibilité ou dispon
 Windows n’est attestée. Levée : validation sur Windows x64 compatible (Node 26
 pour construction) avant qualification ou distribution Windows, preuves archivées.
 Les résultats partiels G15/G16 restent inchangés ; hors SEA n’est pas PASS SEA.
-**R1 — CADRAGE VALIDÉ ; R1.1 — PLANNED / NOT STARTED — PLAN CORRIGÉ À RÉAUDITER**.
-[PLAN R1.1](./steps/PORTFOLIO_VERSIONED/rewrite_r11_plan.md), aucune primitive,
-extraction ou implémentation nouvelle. R1.2–R1.4 et R2–R6 NOT STARTED.
-Audit du SHA `06d98971bf5e3ddb717e6ee87d7c295631fd6331` : quatre corrections
-documentaires appliquées au PLAN, aucune implémentation. GO NON ACCORDÉ ;
-prochain événement exclusivement : audit différentiel ChatGPT du nouveau SHA.
+**R1 — CADRAGE VALIDÉ ; R1.1 — IN REVIEW — IMPLÉMENTATION À AUDITER**.
+GO utilisateur limité à R1.1 reçu après approbation du PLAN corrigé à
+`5950ed079ffa8132742301922765e955d1af9274` ; préflight exact, arbre propre et origin 0/0.
+[Livraison R1.1](./steps/PORTFOLIO_VERSIONED/rewrite_r11_canon.md) : Rational BigInt,
+quantités contraintes, CivilDate/intervalle, IDs et owners typés, refs exactes,
+enveloppes profondément copiées/gelées, filiation ramifiée et contexte pur.
+18 gates PASS, 58/58 tests V2 sans skip/todo, dates réellement testées sous UTC,
+Europe/Paris, America/New_York ; quatre commandes V2 exactes PASS.
+Shell R0.1 et garde inchangés, aucun registre/Current/métier complet/storage.
+R1.2–R1.4 et R2–R6 NOT STARTED. Prochain événement : audit indépendant ChatGPT
+du SHA R1.1 effectivement poussé ; aucune clôture ou reprise automatique.
 Décisions globales dans le registre ; amendements normatifs nouveaux A-R1-01/02
 explicités à [R0 §13](./steps/PORTFOLIO_VERSIONED/rewrite_r0_plan.md#13-addendum-normatif-r1-du-2026-10-10) :
 Snapshot borné aussi par connaissance AP déclarée ; AP vide peut la déclarer,
@@ -55,7 +60,7 @@ graphe versionné, AP/SubPeriod/TA/PT/RT/PTEC, ETC/status, Settings/Order, CAS e
 robustesse durable sont des cibles R1+ ; aucune de ces primitives n'est livrée
 par le DTO shell R0.1. Migration T12 historique inapplicable ; aucun bridge ou
 format hybride. [Registre de reprise](./steps/PORTFOLIO_VERSIONED/rewrite_reuse_registry.md)
-actualisé pour adaptations/exclusions techniques seulement, zéro extraction métier.
+actualisé pour les reprises bornées R1.1 ; audit de ces extractions encore attendu.
 Arbitrage Reservation ratio + exception sans période reste ouvert pour R3.
 
 Patrimoine historique : Portfolio/RAF inline, Actuals V4/V5, formats V1–V8,
@@ -63,7 +68,7 @@ snapshots avec résultats, DB flowplan-planning et bootstrap/demo sont des faits
 anciens conservés, pas des modules V2. Canons DONE suivants restent vrais pour
 l'ancienne application ; G1 11D.2 n'est pas une preuve runtime V2.
 Stateless : aucune conversation normative, décisions nouvelles enregistrées,
-prochaine preuve/état/limites accessibles depuis current_plan et canon R0.1.
+prochaine preuve/état/limites accessibles depuis current_plan et les canons R0.1/R1.1.
 Sauvegarde/restauration utilisateur vérifiée R0 §6 reste requise avant bascule
 opérationnelle réelle ; cette mission n'utilise que des profils de laboratoire.
 

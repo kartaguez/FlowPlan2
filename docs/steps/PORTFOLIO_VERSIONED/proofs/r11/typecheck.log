@@ -1,0 +1,76 @@
+
+> flowplan@0.1.0 typecheck:v2
+> node scripts/v2/boundaries.mjs && tsc -p tsconfig.v2.app.json --noEmit
+
+{
+  "sources": {
+    "modules": [
+      "src-v2/bootstrap/emptyPortfolioShellState.test.ts",
+      "src-v2/bootstrap/emptyPortfolioShellState.ts",
+      "src-v2/domain/primitives/civilDate.test.ts",
+      "src-v2/domain/primitives/civilDate.ts",
+      "src-v2/domain/primitives/civilInterval.ts",
+      "src-v2/domain/primitives/data.ts",
+      "src-v2/domain/primitives/exactReference.ts",
+      "src-v2/domain/primitives/identity.ts",
+      "src-v2/domain/primitives/quantity.ts",
+      "src-v2/domain/primitives/rational.test.ts",
+      "src-v2/domain/primitives/rational.ts",
+      "src-v2/domain/primitives/result.ts",
+      "src-v2/domain/versioning/immutableValue.ts",
+      "src-v2/domain/versioning/owner.ts",
+      "src-v2/domain/versioning/versionEnvelope.test.ts",
+      "src-v2/domain/versioning/versionEnvelope.ts",
+      "src-v2/environment/browserIsolation.test.ts",
+      "src-v2/environment/browserIsolation.ts",
+      "src-v2/main/createV2Application.test.ts",
+      "src-v2/main/createV2Application.ts",
+      "src-v2/main/main.ts",
+      "src-v2/ui/renderV2Shell.ts"
+    ],
+    "compilerSources": {
+      "app": [
+        "src-v2/bootstrap/emptyPortfolioShellState.ts",
+        "src-v2/domain/primitives/civilDate.ts",
+        "src-v2/domain/primitives/civilInterval.ts",
+        "src-v2/domain/primitives/data.ts",
+        "src-v2/domain/primitives/exactReference.ts",
+        "src-v2/domain/primitives/identity.ts",
+        "src-v2/domain/primitives/quantity.ts",
+        "src-v2/domain/primitives/rational.ts",
+        "src-v2/domain/primitives/result.ts",
+        "src-v2/domain/versioning/immutableValue.ts",
+        "src-v2/domain/versioning/owner.ts",
+        "src-v2/domain/versioning/versionEnvelope.ts",
+        "src-v2/environment/browserIsolation.ts",
+        "src-v2/main/createV2Application.ts",
+        "src-v2/main/main.ts",
+        "src-v2/ui/renderV2Shell.ts"
+      ],
+      "test": [
+        "src-v2/bootstrap/emptyPortfolioShellState.test.ts",
+        "src-v2/bootstrap/emptyPortfolioShellState.ts",
+        "src-v2/domain/primitives/civilDate.test.ts",
+        "src-v2/domain/primitives/civilDate.ts",
+        "src-v2/domain/primitives/civilInterval.ts",
+        "src-v2/domain/primitives/data.ts",
+        "src-v2/domain/primitives/exactReference.ts",
+        "src-v2/domain/primitives/identity.ts",
+        "src-v2/domain/primitives/quantity.ts",
+        "src-v2/domain/primitives/rational.test.ts",
+        "src-v2/domain/primitives/rational.ts",
+        "src-v2/domain/primitives/result.ts",
+        "src-v2/domain/versioning/immutableValue.ts",
+        "src-v2/domain/versioning/owner.ts",
+        "src-v2/domain/versioning/versionEnvelope.test.ts",
+        "src-v2/domain/versioning/versionEnvelope.ts",
+        "src-v2/environment/browserIsolation.test.ts",
+        "src-v2/environment/browserIsolation.ts",
+        "src-v2/main/createV2Application.test.ts",
+        "src-v2/main/createV2Application.ts",
+        "src-v2/main/main.ts",
+        "src-v2/ui/renderV2Shell.ts"
+      ]
+    }
+  }
+}

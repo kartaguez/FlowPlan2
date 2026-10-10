@@ -1,0 +1,452 @@
+$ git clone --no-hardlinks --no-checkout /Users/Kartaguez/FlowPlan2 /private/tmp/flowplan-r11-rollback-6p0a5tuj/clone
+Cloning into '/private/tmp/flowplan-r11-rollback-6p0a5tuj/clone'...
+done.
+
+$ git checkout --detach 5950ed079ffa8132742301922765e955d1af9274
+HEAD is now at 5950ed0 docs(v2): correct R1.1 plan after independent audit
+
+$ git rev-parse HEAD^{tree}
+e17cc6d625f2f444edb4aec91c0e7ab17ac49f3f
+
+$ git add -- src-v2/domain scripts/v2/r11.test.mjs docs/current_plan.md docs/current_canon.md docs/steps/PORTFOLIO_VERSIONED/rewrite_decisions.md docs/steps/PORTFOLIO_VERSIONED/rewrite_reuse_registry.md docs/steps/PORTFOLIO_VERSIONED/rewrite_r11_canon.md docs/steps/PORTFOLIO_VERSIONED/proofs/r11
+
+$ git diff --cached --check
+
+$ git -c user.name=R1.1 rollback proof -c user.email=rollback@example.invalid commit -m R1.1 candidate snapshot for disposable rollback proof
+[detached HEAD ddfae02] R1.1 candidate snapshot for disposable rollback proof
+ 34 files changed, 8464 insertions(+), 30 deletions(-)
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r11/boundaries.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r11/browser-initial-failure.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r11/browser/browser-isolation.json
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r11/browser/command.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r11/browser/dev-1440.png
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r11/browser/dev-390.png
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r11/browser/portable-1440.png
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r11/browser/portable-390.png
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r11/build.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r11/tests.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r11/typecheck.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r11/tz-new-york.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r11/tz-paris.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r11/tz-utc.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/rewrite_r11_canon.md
+ create mode 100644 scripts/v2/r11.test.mjs
+ create mode 100644 src-v2/domain/primitives/civilDate.test.ts
+ create mode 100644 src-v2/domain/primitives/civilDate.ts
+ create mode 100644 src-v2/domain/primitives/civilInterval.ts
+ create mode 100644 src-v2/domain/primitives/data.ts
+ create mode 100644 src-v2/domain/primitives/exactReference.ts
+ create mode 100644 src-v2/domain/primitives/identity.ts
+ create mode 100644 src-v2/domain/primitives/quantity.ts
+ create mode 100644 src-v2/domain/primitives/rational.test.ts
+ create mode 100644 src-v2/domain/primitives/rational.ts
+ create mode 100644 src-v2/domain/primitives/result.ts
+ create mode 100644 src-v2/domain/versioning/immutableValue.ts
+ create mode 100644 src-v2/domain/versioning/owner.ts
+ create mode 100644 src-v2/domain/versioning/versionEnvelope.test.ts
+ create mode 100644 src-v2/domain/versioning/versionEnvelope.ts
+
+$ git rev-parse HEAD
+ddfae0201e6b86738bcb6cb73ad3030c86a6256f
+
+$ git -c user.name=R1.1 rollback proof -c user.email=rollback@example.invalid revert --no-edit ddfae0201e6b86738bcb6cb73ad3030c86a6256f
+[detached HEAD 7775473] Revert "R1.1 candidate snapshot for disposable rollback proof"
+ Date: Sat Oct 10 19:10:22 2026 +0200
+ 34 files changed, 30 insertions(+), 8464 deletions(-)
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r11/boundaries.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r11/browser-initial-failure.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r11/browser/browser-isolation.json
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r11/browser/command.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r11/browser/dev-1440.png
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r11/browser/dev-390.png
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r11/browser/portable-1440.png
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r11/browser/portable-390.png
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r11/build.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r11/tests.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r11/typecheck.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r11/tz-new-york.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r11/tz-paris.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r11/tz-utc.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/rewrite_r11_canon.md
+ delete mode 100644 scripts/v2/r11.test.mjs
+ delete mode 100644 src-v2/domain/primitives/civilDate.test.ts
+ delete mode 100644 src-v2/domain/primitives/civilDate.ts
+ delete mode 100644 src-v2/domain/primitives/civilInterval.ts
+ delete mode 100644 src-v2/domain/primitives/data.ts
+ delete mode 100644 src-v2/domain/primitives/exactReference.ts
+ delete mode 100644 src-v2/domain/primitives/identity.ts
+ delete mode 100644 src-v2/domain/primitives/quantity.ts
+ delete mode 100644 src-v2/domain/primitives/rational.test.ts
+ delete mode 100644 src-v2/domain/primitives/rational.ts
+ delete mode 100644 src-v2/domain/primitives/result.ts
+ delete mode 100644 src-v2/domain/versioning/immutableValue.ts
+ delete mode 100644 src-v2/domain/versioning/owner.ts
+ delete mode 100644 src-v2/domain/versioning/versionEnvelope.test.ts
+ delete mode 100644 src-v2/domain/versioning/versionEnvelope.ts
+
+$ git rev-parse HEAD^{tree}
+e17cc6d625f2f444edb4aec91c0e7ab17ac49f3f
+
+$ git status --porcelain
+
+$ npm run check:boundaries:v2
+
+> flowplan@0.1.0 check:boundaries:v2
+> node scripts/v2/boundaries.mjs
+
+{
+  "sources": {
+    "modules": [
+      "src-v2/bootstrap/emptyPortfolioShellState.test.ts",
+      "src-v2/bootstrap/emptyPortfolioShellState.ts",
+      "src-v2/environment/browserIsolation.test.ts",
+      "src-v2/environment/browserIsolation.ts",
+      "src-v2/main/createV2Application.test.ts",
+      "src-v2/main/createV2Application.ts",
+      "src-v2/main/main.ts",
+      "src-v2/ui/renderV2Shell.ts"
+    ],
+    "compilerSources": {
+      "app": [
+        "src-v2/bootstrap/emptyPortfolioShellState.ts",
+        "src-v2/environment/browserIsolation.ts",
+        "src-v2/main/createV2Application.ts",
+        "src-v2/main/main.ts",
+        "src-v2/ui/renderV2Shell.ts"
+      ],
+      "test": [
+        "src-v2/bootstrap/emptyPortfolioShellState.test.ts",
+        "src-v2/bootstrap/emptyPortfolioShellState.ts",
+        "src-v2/environment/browserIsolation.test.ts",
+        "src-v2/environment/browserIsolation.ts",
+        "src-v2/main/createV2Application.test.ts",
+        "src-v2/main/createV2Application.ts",
+        "src-v2/main/main.ts",
+        "src-v2/ui/renderV2Shell.ts"
+      ]
+    }
+  }
+}
+
+$ npm run typecheck:v2
+
+> flowplan@0.1.0 typecheck:v2
+> node scripts/v2/boundaries.mjs && tsc -p tsconfig.v2.app.json --noEmit
+
+{
+  "sources": {
+    "modules": [
+      "src-v2/bootstrap/emptyPortfolioShellState.test.ts",
+      "src-v2/bootstrap/emptyPortfolioShellState.ts",
+      "src-v2/environment/browserIsolation.test.ts",
+      "src-v2/environment/browserIsolation.ts",
+      "src-v2/main/createV2Application.test.ts",
+      "src-v2/main/createV2Application.ts",
+      "src-v2/main/main.ts",
+      "src-v2/ui/renderV2Shell.ts"
+    ],
+    "compilerSources": {
+      "app": [
+        "src-v2/bootstrap/emptyPortfolioShellState.ts",
+        "src-v2/environment/browserIsolation.ts",
+        "src-v2/main/createV2Application.ts",
+        "src-v2/main/main.ts",
+        "src-v2/ui/renderV2Shell.ts"
+      ],
+      "test": [
+        "src-v2/bootstrap/emptyPortfolioShellState.test.ts",
+        "src-v2/bootstrap/emptyPortfolioShellState.ts",
+        "src-v2/environment/browserIsolation.test.ts",
+        "src-v2/environment/browserIsolation.ts",
+        "src-v2/main/createV2Application.test.ts",
+        "src-v2/main/createV2Application.ts",
+        "src-v2/main/main.ts",
+        "src-v2/ui/renderV2Shell.ts"
+      ]
+    }
+  }
+}
+
+$ npm run test:v2
+
+> flowplan@0.1.0 test:v2
+> node scripts/v2/test.mjs
+
+TAP version 13
+# Subtest: a fresh boot is empty without invented business configuration
+ok 1 - a fresh boot is empty without invented business configuration
+  ---
+  duration_ms: 0.550208
+  type: 'test'
+  ...
+# Subtest: published shell state and every collection resist mutation
+ok 2 - published shell state and every collection resist mutation
+  ---
+  duration_ms: 0.193833
+  type: 'test'
+  ...
+# Subtest: only the two fixed dedicated browser origins are accepted
+ok 3 - only the two fixed dedicated browser origins are accepted
+  ---
+  duration_ms: 0.694875
+  type: 'test'
+  ...
+# Subtest: reservations are immutable and distinct from all legacy namespaces
+ok 4 - reservations are immutable and distinct from all legacy namespaces
+  ---
+  duration_ms: 0.089583
+  type: 'test'
+  ...
+# Subtest: refused origin is rejected before any state is mounted or DOM created
+ok 5 - refused origin is rejected before any state is mounted or DOM created
+  ---
+  duration_ms: 0.470875
+  type: 'test'
+  ...
+# Subtest: missing browser context remains a startup error
+ok 6 - missing browser context remains a startup error
+  ---
+  duration_ms: 0.072208
+  type: 'test'
+  ...
+# Subtest: rejects direct legacy
+ok 7 - rejects direct legacy
+  ---
+  duration_ms: 6.097792
+  type: 'test'
+  ...
+# Subtest: rejects type legacy
+ok 8 - rejects type legacy
+  ---
+  duration_ms: 1.52225
+  type: 'test'
+  ...
+# Subtest: rejects barrel re-export
+ok 9 - rejects barrel re-export
+  ---
+  duration_ms: 1.361916
+  type: 'test'
+  ...
+# Subtest: rejects literal dynamic legacy
+ok 10 - rejects literal dynamic legacy
+  ---
+  duration_ms: 1.678667
+  type: 'test'
+  ...
+# Subtest: rejects computed dynamic
+ok 11 - rejects computed dynamic
+  ---
+  duration_ms: 1.525417
+  type: 'test'
+  ...
+# Subtest: rejects worker
+ok 12 - rejects worker
+  ---
+  duration_ms: 1.105459
+  type: 'test'
+  ...
+# Subtest: rejects module URL
+ok 13 - rejects module URL
+  ---
+  duration_ms: 1.299666
+  type: 'test'
+  ...
+# Subtest: rejects triple slash
+ok 14 - rejects triple slash
+  ---
+  duration_ms: 1.44875
+  type: 'test'
+  ...
+# Subtest: rejects indirect storage alias
+ok 15 - rejects indirect storage alias
+  ---
+  duration_ms: 1.333417
+  type: 'test'
+  ...
+# Subtest: rejects computed capability
+ok 16 - rejects computed capability
+  ---
+  duration_ms: 1.2915
+  type: 'test'
+  ...
+# Subtest: rejects script injection
+ok 17 - rejects script injection
+  ---
+  duration_ms: 1.067958
+  type: 'test'
+  ...
+# Subtest: rejects network loader
+ok 18 - rejects network loader
+  ---
+  duration_ms: 1.112333
+  type: 'test'
+  ...
+# Subtest: rejects runtime test import
+ok 19 - rejects runtime test import
+  ---
+  duration_ms: 1.138292
+  type: 'test'
+  ...
+# Subtest: rejects a symlink escaping the physical root
+ok 20 - rejects a symlink escaping the physical root
+  ---
+  duration_ms: 1.139084
+  type: 'test'
+  ...
+# Subtest: accepts a closed relative V2 import
+ok 21 - accepts a closed relative V2 import
+  ---
+  duration_ms: 1.425917
+  type: 'test'
+  ...
+# Subtest: rejects config legacy include
+ok 22 - rejects config legacy include
+  ---
+  duration_ms: 1.61075
+  type: 'test'
+  ...
+# Subtest: rejects config alias escape
+ok 23 - rejects config alias escape
+  ---
+  duration_ms: 0.914625
+  type: 'test'
+  ...
+# Subtest: rejects config legacy test root
+ok 24 - rejects config legacy test root
+  ---
+  duration_ms: 0.877625
+  type: 'test'
+  ...
+# Subtest: rejects assets outside compiler/HTML allowlist
+ok 25 - rejects assets outside compiler/HTML allowlist
+  ---
+  duration_ms: 3.606208
+  type: 'test'
+  ...
+# Subtest: rejects a DOM factory alias that could construct a script
+ok 26 - rejects a DOM factory alias that could construct a script
+  ---
+  duration_ms: 0.986292
+  type: 'test'
+  ...
+# Subtest: rejects a package alias that invokes the old build
+ok 27 - rejects a package alias that invokes the old build
+  ---
+  duration_ms: 281.499917
+  type: 'test'
+  ...
+# Subtest: rejects a transitive legacy re-export in an otherwise V2 tree
+ok 28 - rejects a transitive legacy re-export in an otherwise V2 tree
+  ---
+  duration_ms: 15.509459
+  type: 'test'
+  ...
+# Subtest: rejects HTML legacy entrypoint
+ok 29 - rejects HTML legacy entrypoint
+  ---
+  duration_ms: 13.49525
+  type: 'test'
+  ...
+# Subtest: rejects HTML extra inline script
+ok 30 - rejects HTML extra inline script
+  ---
+  duration_ms: 16.972958
+  type: 'test'
+  ...
+# Subtest: 4274 serves only V2 allowlist with no-store
+ok 31 - 4274 serves only V2 allowlist with no-store
+  ---
+  duration_ms: 0.513834
+  type: 'test'
+  ...
+# Subtest: 4274 rejects other hosts and methods
+ok 32 - 4274 rejects other hosts and methods
+  ---
+  duration_ms: 0.077625
+  type: 'test'
+  ...
+# Subtest: 4274 rejects encoded traversal and malformed paths
+ok 33 - 4274 rejects encoded traversal and malformed paths
+  ---
+  duration_ms: 0.085
+  type: 'test'
+  ...
+# Subtest: 4274 HEAD has length but no body
+ok 34 - 4274 HEAD has length but no body
+  ---
+  duration_ms: 0.058625
+  type: 'test'
+  ...
+# Subtest: 4275 serves only V2 allowlist with no-store
+ok 35 - 4275 serves only V2 allowlist with no-store
+  ---
+  duration_ms: 0.404
+  type: 'test'
+  ...
+# Subtest: 4275 rejects other hosts and methods
+ok 36 - 4275 rejects other hosts and methods
+  ---
+  duration_ms: 0.037625
+  type: 'test'
+  ...
+# Subtest: 4275 rejects encoded traversal and malformed paths
+ok 37 - 4275 rejects encoded traversal and malformed paths
+  ---
+  duration_ms: 0.065417
+  type: 'test'
+  ...
+# Subtest: 4275 HEAD has length but no body
+ok 38 - 4275 HEAD has length but no body
+  ---
+  duration_ms: 0.035791
+  type: 'test'
+  ...
+# Subtest: refuses a configurable or legacy application port
+ok 39 - refuses a configurable or legacy application port
+  ---
+  duration_ms: 0.185541
+  type: 'test'
+  ...
+1..39
+# tests 39
+# suites 0
+# pass 39
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 500.901542
+
+{
+  "tests": 39,
+  "compiled": [
+    "/private/tmp/flowplan-r11-rollback-6p0a5tuj/clone/.test-dist-v2/bootstrap/emptyPortfolioShellState.test.js",
+    "/private/tmp/flowplan-r11-rollback-6p0a5tuj/clone/.test-dist-v2/environment/browserIsolation.test.js",
+    "/private/tmp/flowplan-r11-rollback-6p0a5tuj/clone/.test-dist-v2/main/createV2Application.test.js"
+  ],
+  "technical": [
+    "/private/tmp/flowplan-r11-rollback-6p0a5tuj/clone/scripts/v2/boundaries.test.mjs",
+    "/private/tmp/flowplan-r11-rollback-6p0a5tuj/clone/scripts/v2/servers.test.cjs"
+  ]
+}
+
+$ npm run build:v2
+
+> flowplan@0.1.0 build:v2
+> node scripts/v2/build.mjs
+
+{
+  "assets": [
+    "index.html",
+    "js/bootstrap/emptyPortfolioShellState.js",
+    "js/environment/browserIsolation.js",
+    "js/main/createV2Application.js",
+    "js/main/main.js",
+    "js/ui/renderV2Shell.js",
+    "styles.css"
+  ],
+  "entrypoint": "js/main/main.js"
+}
+
+$ git status --porcelain
+?? node_modules

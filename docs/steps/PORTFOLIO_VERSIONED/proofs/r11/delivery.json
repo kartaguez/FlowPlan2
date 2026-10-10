@@ -1,0 +1,130 @@
+{
+  "status": "PASS",
+  "baseline": "5950ed079ffa8132742301922765e955d1af9274",
+  "node": "v24.21.0",
+  "typescript": "5.9.3",
+  "platform": "darwin arm64",
+  "gates": {
+    "Q01": "PASS",
+    "Q02": "PASS",
+    "Q03": "PASS",
+    "Q04": "PASS",
+    "Q05": "PASS",
+    "D01": "PASS",
+    "D02": "PASS",
+    "D03": "PASS",
+    "D04": "PASS",
+    "V01": "PASS",
+    "V02": "PASS",
+    "V03": "PASS",
+    "V04": "PASS",
+    "V05": "PASS",
+    "V06": "PASS",
+    "A01": "PASS",
+    "A02": "PASS",
+    "A03": "PASS"
+  },
+  "commands": {
+    "npm run check:boundaries:v2": {
+      "result": "PASS",
+      "exitCode": 0
+    },
+    "npm run typecheck:v2": {
+      "result": "PASS",
+      "exitCode": 0
+    },
+    "npm run test:v2": {
+      "result": "PASS",
+      "exitCode": 0
+    },
+    "npm run build:v2": {
+      "result": "PASS",
+      "exitCode": 0
+    }
+  },
+  "tests": {
+    "total": 58,
+    "pass": 58,
+    "fail": 0,
+    "skip": 0,
+    "todo": 0,
+    "cancel": 0
+  },
+  "timezones": [
+    "UTC",
+    "Europe/Paris",
+    "America/New_York"
+  ],
+  "dateTestsPerTimezone": 4,
+  "preservedPathsCompared": [
+    "src",
+    "public",
+    "scripts/build.mjs",
+    "scripts/dev.mjs",
+    "scripts/test.mjs",
+    "src-v2/bootstrap",
+    "src-v2/main",
+    "src-v2/environment",
+    "src-v2/ui",
+    "public-v2",
+    "scripts/v2/boundaries.mjs",
+    "scripts/v2/boundaries.test.mjs",
+    "tsconfig.v2.app.json",
+    "tsconfig.v2.test.json",
+    "tsconfig.app.json",
+    "tsconfig.test.json",
+    "package.json",
+    "package-lock.json",
+    "docs/steps/PORTFOLIO_VERSIONED/proofs/r01",
+    "docs/steps/PORTFOLIO_VERSIONED/rewrite_r0_plan.md",
+    "docs/steps/PORTFOLIO_VERSIONED/rewrite_r11_plan.md"
+  ],
+  "preservedPathsChanged": [],
+  "deliveryLinksChecked": 16,
+  "browser": {
+    "result": "PASS",
+    "series": 6,
+    "apiAttempts": 0,
+    "sentinelsIntact": true,
+    "historicalProofsUnchanged": true
+  },
+  "windows": "DEFERRED / NOT EXECUTED (I-R01-C)",
+  "independentCodeAudit": "PENDING",
+  "gitDiffCheck": "PASS",
+  "filesManifest": "files.txt",
+  "rollback": {
+    "status": "PASS",
+    "baseline": "5950ed079ffa8132742301922765e955d1af9274",
+    "candidateDisposableSha": "9797bc8aa5dbf192a65f6bc9dcc9b9edd6e553fe",
+    "baselineTree": "e17cc6d625f2f444edb4aec91c0e7ab17ac49f3f",
+    "restoredTree": "e17cc6d625f2f444edb4aec91c0e7ab17ac49f3f",
+    "treeIdentical": true,
+    "workingTreeClean": true,
+    "rollbackCommands": [
+      {
+        "command": "npm run check:boundaries:v2",
+        "exitCode": 0,
+        "result": "PASS"
+      },
+      {
+        "command": "npm run typecheck:v2",
+        "exitCode": 0,
+        "result": "PASS"
+      },
+      {
+        "command": "npm run test:v2",
+        "exitCode": 0,
+        "result": "PASS"
+      },
+      {
+        "command": "npm run build:v2",
+        "exitCode": 0,
+        "result": "PASS"
+      }
+    ],
+    "restoredTests": 39,
+    "snapshotExcludesOwnRollbackProof": true,
+    "pushed": false,
+    "storageTouched": false
+  }
+}

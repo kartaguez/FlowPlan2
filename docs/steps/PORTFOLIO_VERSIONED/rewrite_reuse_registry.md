@@ -1,6 +1,7 @@
 # FlowPlan2 V2 — registre vivant des extractions
 
-Matrice patrimoniale issue de R0 ; **aucune extraction métier réalisée**.
+Matrice patrimoniale issue de R0 ; **reprises de primitives R1.1 IN REVIEW**.
+Entités métier complètes et extractions R1.2+ NOT STARTED.
 R0.1 DONE après audit indépendant favorable et clôture utilisateur à
 `d5bb1a89c847604f2f80aaaa3270e4125f4a3fef`, report Windows I-R01-C ; adaptations
 techniques et exclusions enregistrées ci-dessous.
@@ -174,3 +175,27 @@ Après GO futur seulement : ajouter les opérations effectives liées à ces lig
 SHA source réel, symboles réellement repris, destination réelle, transitifs
 vérifiés/retirés, contrats, preuves exécutées et audit. Ne pas remplir un champ
 réalisé ni transformer NOT STARTED en DONE au stade de ce PLAN.
+
+## Opérations effectives R1.1 — IN REVIEW, audit indépendant attendu
+
+Source de toutes les opérations ci-dessous : `5950ed079ffa8132742301922765e955d1af9274`,
+lecture des fichiers legacy conservés à l'identique. Ce SHA effectif contient
+les sources inspectées ; aucune dépendance legacy importée. Les intentions
+ci-dessus restent la trace historique du PLAN, pas le statut de livraison.
+Aucun avis favorable d'audit de code/extraction anticipé.
+
+| Source legacy / symboles | Classe effective | Destination V2 | Dépendances supprimées / modifications | Tests indépendants exécutés |
+| --- | --- | --- | --- | --- |
+| src/domain/model/rational.ts : gcd, reduceRational/normalizeRational, combineRationals, multiply/divideRationals, compareRationals | REUSE logique mathématique ; ADAPT frontières/API | src-v2/domain/primitives/rational.ts | result legacy remplacé ; toutes opérations valident des entrées runtime ; PGCD/cancellation conservés ; résultat natif gelé ; pas render décimal/float | Q02/Q03 PASS ; 300 paires signées, conservation croisée/inverses et grands produits |
+| même source : parseDecimalRational, parseSerializedRational, rationalToCanonicalString | ADAPT | même destination | parseur natif unifié, zéros initiaux admis, aucun trim/virgule/exposant ; texte canonique diagnostic uniquement | Q01/Q05 PASS, 401 décimales et syntaxe négative |
+| src/domain/model/date.ts : toEpochDay/fromEpochDay, compareCivilDates, isoWeekday, civilDayDifference | REUSE algorithmes civils ; ADAPT entrée validante | src-v2/domain/primitives/civilDate.ts | result legacy retiré ; parsing par slices, plage explicite ; résultat validant ; pas Date/horloge | D01/D03/D04 PASS ; oracle indépendant 146097 jours et trois TZ réelles |
+| date.ts : addDays ; horizon.ts : createPlanningHorizon | ADAPT | civilDate.ts, civilInterval.ts | intermédiaire sûr contrôlé avant retour, bornes sans clamp, intervalle générique inversé refusé, aucune énumération à la validation | D02/D03 PASS, bornes, offsets fractionnaires/unsafe et inversions |
+| src/domain/model/scalars.ts : createNonNegativeFromRational, wrappers capacité/consommation/dailyCap/ratios/rationalOf | ADAPT concepts/validations | src-v2/domain/primitives/quantity.ts | WeakMap/serialized/RAF/barrel retirés ; familles/unités explicites, ETC natif, fixed-daily et optionalité ; ratios bornés | Q04/Q05 PASS, substitutions compile/runtime et absence ≠ zéro |
+| src/domain/model/result.ts : DomainResult/DomainError/success/failure/error | ADAPT | src-v2/domain/primitives/result.ts | copie des diagnostics et gel des objets, invalid natif ; aucun import | Q05 PASS, mutation du tableau et des erreurs sources |
+| scalars.ts IDs/entities.ts ; actuals/snapshots.ts : IDs/histoires numériques | REFERENCE seulement | identity.ts/exactReference.ts et versioning/*.ts neufs | aucune extraction de modèles ; pas version numérique, owner typé, branches, provenance multiple, contexte fini | V01–V06 PASS ; construction native, aucun algorithme d'histoire legacy copié |
+| editableQuantity.ts et suites legacy | REFERENCE seulement | nouveaux tests natifs adjacents | aucun import/barrel/fixture ; grammaire normative et oracles neufs | Q01–Q05/D01–D04 PASS ; anciens tests non exécutés comme preuve |
+
+Contrats, modules/interfaces, commandes, résultats bruts et limites dans le
+[canon R1.1](./rewrite_r11_canon.md). Couleurs/capacités/moteur/persistence/UI/G1
+ne sont pas repris ; aucune ligne R1.2+ marquée réalisée. Audit extraction :
+**À EFFECTUER**, jamais DONE par les seules gates.

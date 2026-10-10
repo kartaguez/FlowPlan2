@@ -1,0 +1,32 @@
+
+> flowplan@0.1.0 test:browser:v2
+> npm run build:v2 && node scripts/v2/browser-isolation-test.mjs
+
+
+> flowplan@0.1.0 build:v2
+> node scripts/v2/build.mjs
+
+{
+  "assets": [
+    "index.html",
+    "js/bootstrap/emptyPortfolioShellState.js",
+    "js/domain/primitives/civilDate.js",
+    "js/domain/primitives/civilInterval.js",
+    "js/domain/primitives/data.js",
+    "js/domain/primitives/exactReference.js",
+    "js/domain/primitives/identity.js",
+    "js/domain/primitives/quantity.js",
+    "js/domain/primitives/rational.js",
+    "js/domain/primitives/result.js",
+    "js/domain/versioning/immutableValue.js",
+    "js/domain/versioning/owner.js",
+    "js/domain/versioning/versionEnvelope.js",
+    "js/environment/browserIsolation.js",
+    "js/main/createV2Application.js",
+    "js/main/main.js",
+    "js/ui/renderV2Shell.js",
+    "styles.css"
+  ],
+  "entrypoint": "js/main/main.js"
+}
+Browser isolation PASS: 6 series, zero app API attempts; sentinel equality on both origins

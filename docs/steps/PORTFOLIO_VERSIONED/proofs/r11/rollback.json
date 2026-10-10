@@ -1,0 +1,35 @@
+{
+  "status": "PASS",
+  "baseline": "5950ed079ffa8132742301922765e955d1af9274",
+  "candidateDisposableSha": "9797bc8aa5dbf192a65f6bc9dcc9b9edd6e553fe",
+  "baselineTree": "e17cc6d625f2f444edb4aec91c0e7ab17ac49f3f",
+  "restoredTree": "e17cc6d625f2f444edb4aec91c0e7ab17ac49f3f",
+  "treeIdentical": true,
+  "workingTreeClean": true,
+  "rollbackCommands": [
+    {
+      "command": "npm run check:boundaries:v2",
+      "exitCode": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "npm run typecheck:v2",
+      "exitCode": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "npm run test:v2",
+      "exitCode": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "npm run build:v2",
+      "exitCode": 0,
+      "result": "PASS"
+    }
+  ],
+  "restoredTests": 39,
+  "snapshotExcludesOwnRollbackProof": true,
+  "pushed": false,
+  "storageTouched": false
+}

@@ -1,0 +1,379 @@
+
+> flowplan@0.1.0 test:v2
+> node scripts/v2/test.mjs
+
+TAP version 13
+# Subtest: a fresh boot is empty without invented business configuration
+ok 1 - a fresh boot is empty without invented business configuration
+  ---
+  duration_ms: 0.608833
+  type: 'test'
+  ...
+# Subtest: published shell state and every collection resist mutation
+ok 2 - published shell state and every collection resist mutation
+  ---
+  duration_ms: 0.21
+  type: 'test'
+  ...
+# Subtest: D01 strict Gregorian calendar, year zero and both inclusive bounds
+ok 3 - D01 strict Gregorian calendar, year zero and both inclusive bounds
+  ---
+  duration_ms: 1.850792
+  type: 'test'
+  ...
+# Subtest: D02 inclusive intervals, adjacency, year/month crossings and inverted refusal
+ok 4 - D02 inclusive intervals, adjacency, year/month crossings and inverted refusal
+  ---
+  duration_ms: 0.716166
+  type: 'test'
+  ...
+# Subtest: D03 exact daily arithmetic, safe intermediates and independent 400-year oracle
+ok 5 - D03 exact daily arithmetic, safe intermediates and independent 400-year oracle
+  ---
+  duration_ms: 124.11
+  type: 'test'
+  ...
+# Subtest: D04 identical DST vectors (suite executed in separate real TZ processes)
+ok 6 - D04 identical DST vectors (suite executed in separate real TZ processes)
+  ---
+  duration_ms: 0.098459
+  type: 'test'
+  ...
+# Subtest: Q01 exact grammar, noncanonical input and unlimited precision
+ok 7 - Q01 exact grammar, noncanonical input and unlimited precision
+  ---
+  duration_ms: 0.812667
+  type: 'test'
+  ...
+# Subtest: Q02 canonical signs, canonical zero and forged operands
+ok 8 - Q02 canonical signs, canonical zero and forged operands
+  ---
+  duration_ms: 0.286917
+  type: 'test'
+  ...
+# Subtest: Q03 exact arithmetic, comparisons, independent conservation oracle
+ok 9 - Q03 exact arithmetic, comparisons, independent conservation oracle
+  ---
+  duration_ms: 9.222625
+  type: 'test'
+  ...
+# Subtest: Q04 units, runtime families and absence distinct from exact zero
+ok 10 - Q04 units, runtime families and absence distinct from exact zero
+  ---
+  duration_ms: 0.401541
+  type: 'test'
+  ...
+# Subtest: Q05 immutable diagnostics, exact paths and invalid runtime values
+ok 11 - Q05 immutable diagnostics, exact paths and invalid runtime values
+  ---
+  duration_ms: 0.41025
+  type: 'test'
+  ...
+# Subtest: V01 opaque identities, exact references and compile/runtime family separation
+ok 12 - V01 opaque identities, exact references and compile/runtime family separation
+  ---
+  duration_ms: 5.205541
+  type: 'test'
+  ...
+# Subtest: V02 complete owner matrix and explicitly supplied AP owner checks
+ok 13 - V02 complete owner matrix and explicitly supplied AP owner checks
+  ---
+  duration_ms: 1.48725
+  type: 'test'
+  ...
+# Subtest: V03 deep copy/freeze archives, input/output mutations and exotic rejection
+ok 14 - V03 deep copy/freeze archives, input/output mutations and exotic rejection
+  ---
+  duration_ms: 0.84225
+  type: 'test'
+  ...
+# Subtest: V04 roots, chains, branching, missing exact parent, self/long cycles
+ok 15 - V04 roots, chains, branching, missing exact parent, self/long cycles
+  ---
+  duration_ms: 1.511834
+  type: 'test'
+  ...
+# Subtest: V05 identical repetition and divergent collisions in every envelope component
+ok 16 - V05 identical repetition and divergent collisions in every envelope component
+  ---
+  duration_ms: 0.923542
+  type: 'test'
+  ...
+# Subtest: V06 multiple provenance is independent of lineage; no source selection
+ok 17 - V06 multiple provenance is independent of lineage; no source selection
+  ---
+  duration_ms: 0.31625
+  type: 'test'
+  ...
+# Subtest: typed payload assembly preserves schema and readonly collections
+ok 18 - typed payload assembly preserves schema and readonly collections
+  ---
+  duration_ms: 0.128625
+  type: 'test'
+  ...
+# Subtest: only the two fixed dedicated browser origins are accepted
+ok 19 - only the two fixed dedicated browser origins are accepted
+  ---
+  duration_ms: 0.723584
+  type: 'test'
+  ...
+# Subtest: reservations are immutable and distinct from all legacy namespaces
+ok 20 - reservations are immutable and distinct from all legacy namespaces
+  ---
+  duration_ms: 0.0925
+  type: 'test'
+  ...
+# Subtest: refused origin is rejected before any state is mounted or DOM created
+ok 21 - refused origin is rejected before any state is mounted or DOM created
+  ---
+  duration_ms: 0.414416
+  type: 'test'
+  ...
+# Subtest: missing browser context remains a startup error
+ok 22 - missing browser context remains a startup error
+  ---
+  duration_ms: 0.060291
+  type: 'test'
+  ...
+# Subtest: rejects direct legacy
+ok 23 - rejects direct legacy
+  ---
+  duration_ms: 7.243334
+  type: 'test'
+  ...
+# Subtest: rejects type legacy
+ok 24 - rejects type legacy
+  ---
+  duration_ms: 2.310625
+  type: 'test'
+  ...
+# Subtest: rejects barrel re-export
+ok 25 - rejects barrel re-export
+  ---
+  duration_ms: 1.870041
+  type: 'test'
+  ...
+# Subtest: rejects literal dynamic legacy
+ok 26 - rejects literal dynamic legacy
+  ---
+  duration_ms: 2.299625
+  type: 'test'
+  ...
+# Subtest: rejects computed dynamic
+ok 27 - rejects computed dynamic
+  ---
+  duration_ms: 3.363458
+  type: 'test'
+  ...
+# Subtest: rejects worker
+ok 28 - rejects worker
+  ---
+  duration_ms: 2.345292
+  type: 'test'
+  ...
+# Subtest: rejects module URL
+ok 29 - rejects module URL
+  ---
+  duration_ms: 1.64375
+  type: 'test'
+  ...
+# Subtest: rejects triple slash
+ok 30 - rejects triple slash
+  ---
+  duration_ms: 1.790334
+  type: 'test'
+  ...
+# Subtest: rejects indirect storage alias
+ok 31 - rejects indirect storage alias
+  ---
+  duration_ms: 1.549292
+  type: 'test'
+  ...
+# Subtest: rejects computed capability
+ok 32 - rejects computed capability
+  ---
+  duration_ms: 1.910792
+  type: 'test'
+  ...
+# Subtest: rejects script injection
+ok 33 - rejects script injection
+  ---
+  duration_ms: 1.488083
+  type: 'test'
+  ...
+# Subtest: rejects network loader
+ok 34 - rejects network loader
+  ---
+  duration_ms: 1.759291
+  type: 'test'
+  ...
+# Subtest: rejects runtime test import
+ok 35 - rejects runtime test import
+  ---
+  duration_ms: 1.558708
+  type: 'test'
+  ...
+# Subtest: rejects a symlink escaping the physical root
+ok 36 - rejects a symlink escaping the physical root
+  ---
+  duration_ms: 1.532833
+  type: 'test'
+  ...
+# Subtest: accepts a closed relative V2 import
+ok 37 - accepts a closed relative V2 import
+  ---
+  duration_ms: 1.876334
+  type: 'test'
+  ...
+# Subtest: rejects config legacy include
+ok 38 - rejects config legacy include
+  ---
+  duration_ms: 1.932042
+  type: 'test'
+  ...
+# Subtest: rejects config alias escape
+ok 39 - rejects config alias escape
+  ---
+  duration_ms: 1.1005
+  type: 'test'
+  ...
+# Subtest: rejects config legacy test root
+ok 40 - rejects config legacy test root
+  ---
+  duration_ms: 1.079084
+  type: 'test'
+  ...
+# Subtest: rejects assets outside compiler/HTML allowlist
+ok 41 - rejects assets outside compiler/HTML allowlist
+  ---
+  duration_ms: 4.851583
+  type: 'test'
+  ...
+# Subtest: rejects a DOM factory alias that could construct a script
+ok 42 - rejects a DOM factory alias that could construct a script
+  ---
+  duration_ms: 2.271375
+  type: 'test'
+  ...
+# Subtest: rejects a package alias that invokes the old build
+ok 43 - rejects a package alias that invokes the old build
+  ---
+  duration_ms: 361.84325
+  type: 'test'
+  ...
+# Subtest: rejects a transitive legacy re-export in an otherwise V2 tree
+ok 44 - rejects a transitive legacy re-export in an otherwise V2 tree
+  ---
+  duration_ms: 36.813041
+  type: 'test'
+  ...
+# Subtest: rejects HTML legacy entrypoint
+ok 45 - rejects HTML legacy entrypoint
+  ---
+  duration_ms: 35.9115
+  type: 'test'
+  ...
+# Subtest: rejects HTML extra inline script
+ok 46 - rejects HTML extra inline script
+  ---
+  duration_ms: 29.539
+  type: 'test'
+  ...
+# Subtest: A01 actual V2 source/type/transitive graph is autonomous
+ok 47 - A01 actual V2 source/type/transitive graph is autonomous
+  ---
+  duration_ms: 305.064042
+  type: 'test'
+  ...
+# Subtest: A02 Domain has only internal dependencies and pure primitive APIs
+ok 48 - A02 Domain has only internal dependencies and pure primitive APIs
+  ---
+  duration_ms: 28.865458
+  type: 'test'
+  ...
+# Subtest: A03 isolated compiler/test scope and exact required V2 commands
+ok 49 - A03 isolated compiler/test scope and exact required V2 commands
+  ---
+  duration_ms: 0.85925
+  type: 'test'
+  ...
+# Subtest: 4274 serves only V2 allowlist with no-store
+ok 50 - 4274 serves only V2 allowlist with no-store
+  ---
+  duration_ms: 1.253041
+  type: 'test'
+  ...
+# Subtest: 4274 rejects other hosts and methods
+ok 51 - 4274 rejects other hosts and methods
+  ---
+  duration_ms: 0.217209
+  type: 'test'
+  ...
+# Subtest: 4274 rejects encoded traversal and malformed paths
+ok 52 - 4274 rejects encoded traversal and malformed paths
+  ---
+  duration_ms: 0.173833
+  type: 'test'
+  ...
+# Subtest: 4274 HEAD has length but no body
+ok 53 - 4274 HEAD has length but no body
+  ---
+  duration_ms: 0.13175
+  type: 'test'
+  ...
+# Subtest: 4275 serves only V2 allowlist with no-store
+ok 54 - 4275 serves only V2 allowlist with no-store
+  ---
+  duration_ms: 0.711708
+  type: 'test'
+  ...
+# Subtest: 4275 rejects other hosts and methods
+ok 55 - 4275 rejects other hosts and methods
+  ---
+  duration_ms: 0.081
+  type: 'test'
+  ...
+# Subtest: 4275 rejects encoded traversal and malformed paths
+ok 56 - 4275 rejects encoded traversal and malformed paths
+  ---
+  duration_ms: 0.453583
+  type: 'test'
+  ...
+# Subtest: 4275 HEAD has length but no body
+ok 57 - 4275 HEAD has length but no body
+  ---
+  duration_ms: 0.079667
+  type: 'test'
+  ...
+# Subtest: refuses a configurable or legacy application port
+ok 58 - refuses a configurable or legacy application port
+  ---
+  duration_ms: 0.236834
+  type: 'test'
+  ...
+1..58
+# tests 58
+# suites 0
+# pass 58
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 680.778625
+
+{
+  "tests": 58,
+  "compiled": [
+    "/Users/Kartaguez/FlowPlan2/.test-dist-v2/bootstrap/emptyPortfolioShellState.test.js",
+    "/Users/Kartaguez/FlowPlan2/.test-dist-v2/domain/primitives/civilDate.test.js",
+    "/Users/Kartaguez/FlowPlan2/.test-dist-v2/domain/primitives/rational.test.js",
+    "/Users/Kartaguez/FlowPlan2/.test-dist-v2/domain/versioning/versionEnvelope.test.js",
+    "/Users/Kartaguez/FlowPlan2/.test-dist-v2/environment/browserIsolation.test.js",
+    "/Users/Kartaguez/FlowPlan2/.test-dist-v2/main/createV2Application.test.js"
+  ],
+  "technical": [
+    "/Users/Kartaguez/FlowPlan2/scripts/v2/boundaries.test.mjs",
+    "/Users/Kartaguez/FlowPlan2/scripts/v2/r11.test.mjs",
+    "/Users/Kartaguez/FlowPlan2/scripts/v2/servers.test.cjs"
+  ]
+}
