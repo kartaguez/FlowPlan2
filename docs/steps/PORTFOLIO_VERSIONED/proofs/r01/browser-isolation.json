@@ -1,0 +1,6535 @@
+{
+  "node": "v24.21.0",
+  "platform": "darwin",
+  "artifacts": {
+    "assets": [
+      "index.html",
+      "js/bootstrap/emptyPortfolioShellState.js",
+      "js/environment/browserIsolation.js",
+      "js/main/createV2Application.js",
+      "js/main/main.js",
+      "js/ui/renderV2Shell.js",
+      "styles.css"
+    ],
+    "entrypoint": "js/main/main.js"
+  },
+  "series": [
+    {
+      "origin": "http://127.0.0.1:4274",
+      "backup": "absent",
+      "observations": [
+        {
+          "origin": "http://127.0.0.1:4274",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        },
+        {
+          "origin": "http://127.0.0.1:4274",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        },
+        {
+          "origin": "http://127.0.0.1:4274",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        },
+        {
+          "origin": "http://127.0.0.1:4274",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        },
+        {
+          "origin": "http://127.0.0.1:4274",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        },
+        {
+          "origin": "http://127.0.0.1:4274",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        }
+      ],
+      "hooksInstalled": 28,
+      "apiAttempts": [],
+      "responses": [
+        {
+          "url": "http://127.0.0.1:4274/",
+          "status": 200,
+          "type": "Document"
+        },
+        {
+          "url": "http://127.0.0.1:4274/styles.css",
+          "status": 200,
+          "type": "Stylesheet"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/main/main.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/main/createV2Application.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/bootstrap/emptyPortfolioShellState.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/environment/browserIsolation.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/ui/renderV2Shell.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/",
+          "status": 200,
+          "type": "Document"
+        },
+        {
+          "url": "http://127.0.0.1:4274/styles.css",
+          "status": 200,
+          "type": "Stylesheet"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/main/main.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/main/createV2Application.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/bootstrap/emptyPortfolioShellState.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/environment/browserIsolation.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/ui/renderV2Shell.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/favicon.ico",
+          "status": 404,
+          "type": "Other"
+        },
+        {
+          "url": "http://127.0.0.1:4274/",
+          "status": 200,
+          "type": "Document"
+        },
+        {
+          "url": "http://127.0.0.1:4274/styles.css",
+          "status": 200,
+          "type": "Stylesheet"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/main/main.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/main/createV2Application.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/bootstrap/emptyPortfolioShellState.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/environment/browserIsolation.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/ui/renderV2Shell.js",
+          "status": 200,
+          "type": "Script"
+        }
+      ],
+      "before": {
+        "data": [],
+        "storage": []
+      },
+      "after": {
+        "data": [],
+        "storage": []
+      },
+      "beforeSha256": "99ac9f48863264ff7d6eae46b04aa1289a36c348d21245c25aedff200d5f39e4",
+      "afterSha256": "99ac9f48863264ff7d6eae46b04aa1289a36c348d21245c25aedff200d5f39e4",
+      "sentinelsIntact": true
+    },
+    {
+      "origin": "http://127.0.0.1:4275",
+      "backup": "absent",
+      "observations": [
+        {
+          "origin": "http://127.0.0.1:4275",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        },
+        {
+          "origin": "http://127.0.0.1:4275",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        },
+        {
+          "origin": "http://127.0.0.1:4275",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        },
+        {
+          "origin": "http://127.0.0.1:4275",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        },
+        {
+          "origin": "http://127.0.0.1:4275",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        },
+        {
+          "origin": "http://127.0.0.1:4275",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        }
+      ],
+      "hooksInstalled": 28,
+      "apiAttempts": [],
+      "responses": [
+        {
+          "url": "http://127.0.0.1:4275/",
+          "status": 200,
+          "type": "Document"
+        },
+        {
+          "url": "http://127.0.0.1:4275/styles.css",
+          "status": 200,
+          "type": "Stylesheet"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/main/main.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/main/createV2Application.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/bootstrap/emptyPortfolioShellState.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/environment/browserIsolation.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/ui/renderV2Shell.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/",
+          "status": 200,
+          "type": "Document"
+        },
+        {
+          "url": "http://127.0.0.1:4275/styles.css",
+          "status": 200,
+          "type": "Stylesheet"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/main/main.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/main/createV2Application.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/bootstrap/emptyPortfolioShellState.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/environment/browserIsolation.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/ui/renderV2Shell.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/favicon.ico",
+          "status": 404,
+          "type": "Other"
+        },
+        {
+          "url": "http://127.0.0.1:4275/",
+          "status": 200,
+          "type": "Document"
+        },
+        {
+          "url": "http://127.0.0.1:4275/styles.css",
+          "status": 200,
+          "type": "Stylesheet"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/main/main.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/main/createV2Application.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/bootstrap/emptyPortfolioShellState.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/environment/browserIsolation.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/ui/renderV2Shell.js",
+          "status": 200,
+          "type": "Script"
+        }
+      ],
+      "before": {
+        "data": [],
+        "storage": []
+      },
+      "after": {
+        "data": [],
+        "storage": []
+      },
+      "beforeSha256": "99ac9f48863264ff7d6eae46b04aa1289a36c348d21245c25aedff200d5f39e4",
+      "afterSha256": "99ac9f48863264ff7d6eae46b04aa1289a36c348d21245c25aedff200d5f39e4",
+      "sentinelsIntact": true
+    },
+    {
+      "origin": "http://127.0.0.1:4274",
+      "backup": "valid",
+      "observations": [
+        {
+          "origin": "http://127.0.0.1:4274",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        },
+        {
+          "origin": "http://127.0.0.1:4274",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        },
+        {
+          "origin": "http://127.0.0.1:4274",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        },
+        {
+          "origin": "http://127.0.0.1:4274",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        },
+        {
+          "origin": "http://127.0.0.1:4274",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        },
+        {
+          "origin": "http://127.0.0.1:4274",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        }
+      ],
+      "hooksInstalled": 28,
+      "apiAttempts": [],
+      "responses": [
+        {
+          "url": "http://127.0.0.1:4274/",
+          "status": 200,
+          "type": "Document"
+        },
+        {
+          "url": "http://127.0.0.1:4274/styles.css",
+          "status": 200,
+          "type": "Stylesheet"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/main/main.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/main/createV2Application.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/bootstrap/emptyPortfolioShellState.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/environment/browserIsolation.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/ui/renderV2Shell.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/",
+          "status": 200,
+          "type": "Document"
+        },
+        {
+          "url": "http://127.0.0.1:4274/styles.css",
+          "status": 200,
+          "type": "Stylesheet"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/main/main.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/main/createV2Application.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/bootstrap/emptyPortfolioShellState.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/environment/browserIsolation.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/ui/renderV2Shell.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/favicon.ico",
+          "status": 404,
+          "type": "Other"
+        },
+        {
+          "url": "http://127.0.0.1:4274/",
+          "status": 200,
+          "type": "Document"
+        },
+        {
+          "url": "http://127.0.0.1:4274/styles.css",
+          "status": 200,
+          "type": "Stylesheet"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/main/main.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/main/createV2Application.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/bootstrap/emptyPortfolioShellState.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/environment/browserIsolation.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/ui/renderV2Shell.js",
+          "status": 200,
+          "type": "Script"
+        }
+      ],
+      "before": {
+        "data": [
+          {
+            "name": "flowplan-history-workspace",
+            "version": 1,
+            "stores": [
+              {
+                "name": "chunks",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-chunks",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "flowplan-planning",
+            "version": 2,
+            "stores": [
+              {
+                "name": "control",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-control",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "current",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-current",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "identityReservations",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-identityReservations",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "jobs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "migration-source"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-jobs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "receipts",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [
+                  {
+                    "name": "revision",
+                    "keyPath": "token.revision",
+                    "unique": false,
+                    "multiEntry": false
+                  }
+                ],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-receipts",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotContent",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotContent",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotIdentityRefs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotIdentityRefs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotMetadata",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotMetadata",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "r01-unrelated-witness",
+            "version": 1,
+            "stores": [
+              {
+                "name": "witness",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-witness",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "storage": [
+          [
+            "flowplan.backup.v1",
+            "{\"format\":\"flowplan\",\"version\":8,\"data\":{\"sentinel\":\"R0.1 laboratory only\"}}"
+          ],
+          [
+            "r01.unrelated",
+            "preserve-me"
+          ]
+        ]
+      },
+      "after": {
+        "data": [
+          {
+            "name": "flowplan-history-workspace",
+            "version": 1,
+            "stores": [
+              {
+                "name": "chunks",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-chunks",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "flowplan-planning",
+            "version": 2,
+            "stores": [
+              {
+                "name": "control",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-control",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "current",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-current",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "identityReservations",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-identityReservations",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "jobs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "migration-source"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-jobs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "receipts",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [
+                  {
+                    "name": "revision",
+                    "keyPath": "token.revision",
+                    "unique": false,
+                    "multiEntry": false
+                  }
+                ],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-receipts",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotContent",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotContent",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotIdentityRefs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotIdentityRefs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotMetadata",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotMetadata",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "r01-unrelated-witness",
+            "version": 1,
+            "stores": [
+              {
+                "name": "witness",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-witness",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "storage": [
+          [
+            "flowplan.backup.v1",
+            "{\"format\":\"flowplan\",\"version\":8,\"data\":{\"sentinel\":\"R0.1 laboratory only\"}}"
+          ],
+          [
+            "r01.unrelated",
+            "preserve-me"
+          ]
+        ]
+      },
+      "beforeSha256": "2a0de8c2b614b58d1a2dcfc8e690e6e86665fff00f594efac26e004c868508d2",
+      "afterSha256": "2a0de8c2b614b58d1a2dcfc8e690e6e86665fff00f594efac26e004c868508d2",
+      "sentinelsIntact": true
+    },
+    {
+      "origin": "http://127.0.0.1:4275",
+      "backup": "valid",
+      "observations": [
+        {
+          "origin": "http://127.0.0.1:4275",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        },
+        {
+          "origin": "http://127.0.0.1:4275",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        },
+        {
+          "origin": "http://127.0.0.1:4275",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        },
+        {
+          "origin": "http://127.0.0.1:4275",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        },
+        {
+          "origin": "http://127.0.0.1:4275",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        },
+        {
+          "origin": "http://127.0.0.1:4275",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        }
+      ],
+      "hooksInstalled": 28,
+      "apiAttempts": [],
+      "responses": [
+        {
+          "url": "http://127.0.0.1:4275/",
+          "status": 200,
+          "type": "Document"
+        },
+        {
+          "url": "http://127.0.0.1:4275/styles.css",
+          "status": 200,
+          "type": "Stylesheet"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/main/main.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/main/createV2Application.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/bootstrap/emptyPortfolioShellState.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/environment/browserIsolation.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/ui/renderV2Shell.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/",
+          "status": 200,
+          "type": "Document"
+        },
+        {
+          "url": "http://127.0.0.1:4275/styles.css",
+          "status": 200,
+          "type": "Stylesheet"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/main/main.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/main/createV2Application.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/bootstrap/emptyPortfolioShellState.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/environment/browserIsolation.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/ui/renderV2Shell.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/favicon.ico",
+          "status": 404,
+          "type": "Other"
+        },
+        {
+          "url": "http://127.0.0.1:4275/",
+          "status": 200,
+          "type": "Document"
+        },
+        {
+          "url": "http://127.0.0.1:4275/styles.css",
+          "status": 200,
+          "type": "Stylesheet"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/main/main.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/main/createV2Application.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/bootstrap/emptyPortfolioShellState.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/environment/browserIsolation.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/ui/renderV2Shell.js",
+          "status": 200,
+          "type": "Script"
+        }
+      ],
+      "before": {
+        "data": [
+          {
+            "name": "flowplan-history-workspace",
+            "version": 1,
+            "stores": [
+              {
+                "name": "chunks",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-chunks",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "flowplan-planning",
+            "version": 2,
+            "stores": [
+              {
+                "name": "control",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-control",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "current",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-current",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "identityReservations",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-identityReservations",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "jobs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "migration-source"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-jobs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "receipts",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [
+                  {
+                    "name": "revision",
+                    "keyPath": "token.revision",
+                    "unique": false,
+                    "multiEntry": false
+                  }
+                ],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-receipts",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotContent",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotContent",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotIdentityRefs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotIdentityRefs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotMetadata",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotMetadata",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "r01-unrelated-witness",
+            "version": 1,
+            "stores": [
+              {
+                "name": "witness",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-witness",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "storage": [
+          [
+            "flowplan.backup.v1",
+            "{\"format\":\"flowplan\",\"version\":8,\"data\":{\"sentinel\":\"R0.1 laboratory only\"}}"
+          ],
+          [
+            "r01.unrelated",
+            "preserve-me"
+          ]
+        ]
+      },
+      "after": {
+        "data": [
+          {
+            "name": "flowplan-history-workspace",
+            "version": 1,
+            "stores": [
+              {
+                "name": "chunks",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-chunks",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "flowplan-planning",
+            "version": 2,
+            "stores": [
+              {
+                "name": "control",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-control",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "current",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-current",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "identityReservations",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-identityReservations",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "jobs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "migration-source"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-jobs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "receipts",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [
+                  {
+                    "name": "revision",
+                    "keyPath": "token.revision",
+                    "unique": false,
+                    "multiEntry": false
+                  }
+                ],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-receipts",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotContent",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotContent",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotIdentityRefs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotIdentityRefs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotMetadata",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotMetadata",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "r01-unrelated-witness",
+            "version": 1,
+            "stores": [
+              {
+                "name": "witness",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-witness",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "storage": [
+          [
+            "flowplan.backup.v1",
+            "{\"format\":\"flowplan\",\"version\":8,\"data\":{\"sentinel\":\"R0.1 laboratory only\"}}"
+          ],
+          [
+            "r01.unrelated",
+            "preserve-me"
+          ]
+        ]
+      },
+      "beforeSha256": "2a0de8c2b614b58d1a2dcfc8e690e6e86665fff00f594efac26e004c868508d2",
+      "afterSha256": "2a0de8c2b614b58d1a2dcfc8e690e6e86665fff00f594efac26e004c868508d2",
+      "sentinelsIntact": true
+    },
+    {
+      "origin": "http://127.0.0.1:4274",
+      "backup": "invalid",
+      "observations": [
+        {
+          "origin": "http://127.0.0.1:4274",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        },
+        {
+          "origin": "http://127.0.0.1:4274",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        },
+        {
+          "origin": "http://127.0.0.1:4274",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        },
+        {
+          "origin": "http://127.0.0.1:4274",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        },
+        {
+          "origin": "http://127.0.0.1:4274",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        },
+        {
+          "origin": "http://127.0.0.1:4274",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        }
+      ],
+      "hooksInstalled": 28,
+      "apiAttempts": [],
+      "responses": [
+        {
+          "url": "http://127.0.0.1:4274/",
+          "status": 200,
+          "type": "Document"
+        },
+        {
+          "url": "http://127.0.0.1:4274/styles.css",
+          "status": 200,
+          "type": "Stylesheet"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/main/main.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/main/createV2Application.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/bootstrap/emptyPortfolioShellState.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/environment/browserIsolation.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/ui/renderV2Shell.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/",
+          "status": 200,
+          "type": "Document"
+        },
+        {
+          "url": "http://127.0.0.1:4274/styles.css",
+          "status": 200,
+          "type": "Stylesheet"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/main/main.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/main/createV2Application.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/bootstrap/emptyPortfolioShellState.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/environment/browserIsolation.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/ui/renderV2Shell.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/favicon.ico",
+          "status": 404,
+          "type": "Other"
+        },
+        {
+          "url": "http://127.0.0.1:4274/",
+          "status": 200,
+          "type": "Document"
+        },
+        {
+          "url": "http://127.0.0.1:4274/styles.css",
+          "status": 200,
+          "type": "Stylesheet"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/main/main.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/main/createV2Application.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/bootstrap/emptyPortfolioShellState.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/environment/browserIsolation.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4274/js/ui/renderV2Shell.js",
+          "status": 200,
+          "type": "Script"
+        }
+      ],
+      "before": {
+        "data": [
+          {
+            "name": "flowplan-history-workspace",
+            "version": 1,
+            "stores": [
+              {
+                "name": "chunks",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-chunks",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "flowplan-planning",
+            "version": 2,
+            "stores": [
+              {
+                "name": "control",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-control",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "current",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-current",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "identityReservations",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-identityReservations",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "jobs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "migration-source"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-jobs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "receipts",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [
+                  {
+                    "name": "revision",
+                    "keyPath": "token.revision",
+                    "unique": false,
+                    "multiEntry": false
+                  }
+                ],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-receipts",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotContent",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotContent",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotIdentityRefs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotIdentityRefs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotMetadata",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotMetadata",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "r01-unrelated-witness",
+            "version": 1,
+            "stores": [
+              {
+                "name": "witness",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-witness",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "storage": [
+          [
+            "flowplan.backup.v1",
+            "{invalid legacy JSON"
+          ],
+          [
+            "r01.unrelated",
+            "preserve-me"
+          ]
+        ]
+      },
+      "after": {
+        "data": [
+          {
+            "name": "flowplan-history-workspace",
+            "version": 1,
+            "stores": [
+              {
+                "name": "chunks",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-chunks",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "flowplan-planning",
+            "version": 2,
+            "stores": [
+              {
+                "name": "control",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-control",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "current",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-current",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "identityReservations",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-identityReservations",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "jobs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "migration-source"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-jobs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "receipts",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [
+                  {
+                    "name": "revision",
+                    "keyPath": "token.revision",
+                    "unique": false,
+                    "multiEntry": false
+                  }
+                ],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-receipts",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotContent",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotContent",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotIdentityRefs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotIdentityRefs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotMetadata",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotMetadata",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "r01-unrelated-witness",
+            "version": 1,
+            "stores": [
+              {
+                "name": "witness",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-witness",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "storage": [
+          [
+            "flowplan.backup.v1",
+            "{invalid legacy JSON"
+          ],
+          [
+            "r01.unrelated",
+            "preserve-me"
+          ]
+        ]
+      },
+      "beforeSha256": "adff944411c7c9a6f928345f3d78d86a9ab5ddfbe9dfd99ba34ab077b6a5d0ce",
+      "afterSha256": "adff944411c7c9a6f928345f3d78d86a9ab5ddfbe9dfd99ba34ab077b6a5d0ce",
+      "sentinelsIntact": true
+    },
+    {
+      "origin": "http://127.0.0.1:4275",
+      "backup": "invalid",
+      "observations": [
+        {
+          "origin": "http://127.0.0.1:4275",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        },
+        {
+          "origin": "http://127.0.0.1:4275",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        },
+        {
+          "origin": "http://127.0.0.1:4275",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        },
+        {
+          "origin": "http://127.0.0.1:4275",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        },
+        {
+          "origin": "http://127.0.0.1:4275",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        },
+        {
+          "origin": "http://127.0.0.1:4275",
+          "title": "FlowPlan2 V2",
+          "status": "Portfolio vide",
+          "state": "empty",
+          "counts": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "forms": 0,
+          "overflow": false
+        }
+      ],
+      "hooksInstalled": 28,
+      "apiAttempts": [],
+      "responses": [
+        {
+          "url": "http://127.0.0.1:4275/",
+          "status": 200,
+          "type": "Document"
+        },
+        {
+          "url": "http://127.0.0.1:4275/styles.css",
+          "status": 200,
+          "type": "Stylesheet"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/main/main.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/main/createV2Application.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/bootstrap/emptyPortfolioShellState.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/environment/browserIsolation.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/ui/renderV2Shell.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/",
+          "status": 200,
+          "type": "Document"
+        },
+        {
+          "url": "http://127.0.0.1:4275/styles.css",
+          "status": 200,
+          "type": "Stylesheet"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/main/main.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/main/createV2Application.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/bootstrap/emptyPortfolioShellState.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/environment/browserIsolation.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/ui/renderV2Shell.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/favicon.ico",
+          "status": 404,
+          "type": "Other"
+        },
+        {
+          "url": "http://127.0.0.1:4275/",
+          "status": 200,
+          "type": "Document"
+        },
+        {
+          "url": "http://127.0.0.1:4275/styles.css",
+          "status": 200,
+          "type": "Stylesheet"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/main/main.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/main/createV2Application.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/bootstrap/emptyPortfolioShellState.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/environment/browserIsolation.js",
+          "status": 200,
+          "type": "Script"
+        },
+        {
+          "url": "http://127.0.0.1:4275/js/ui/renderV2Shell.js",
+          "status": 200,
+          "type": "Script"
+        }
+      ],
+      "before": {
+        "data": [
+          {
+            "name": "flowplan-history-workspace",
+            "version": 1,
+            "stores": [
+              {
+                "name": "chunks",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-chunks",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "flowplan-planning",
+            "version": 2,
+            "stores": [
+              {
+                "name": "control",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-control",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "current",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-current",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "identityReservations",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-identityReservations",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "jobs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "migration-source"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-jobs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "receipts",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [
+                  {
+                    "name": "revision",
+                    "keyPath": "token.revision",
+                    "unique": false,
+                    "multiEntry": false
+                  }
+                ],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-receipts",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotContent",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotContent",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotIdentityRefs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotIdentityRefs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotMetadata",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotMetadata",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "r01-unrelated-witness",
+            "version": 1,
+            "stores": [
+              {
+                "name": "witness",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-witness",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "storage": [
+          [
+            "flowplan.backup.v1",
+            "{invalid legacy JSON"
+          ],
+          [
+            "r01.unrelated",
+            "preserve-me"
+          ]
+        ]
+      },
+      "after": {
+        "data": [
+          {
+            "name": "flowplan-history-workspace",
+            "version": 1,
+            "stores": [
+              {
+                "name": "chunks",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-chunks",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "flowplan-planning",
+            "version": 2,
+            "stores": [
+              {
+                "name": "control",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-control",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "current",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-current",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "identityReservations",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-identityReservations",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "jobs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "migration-source"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-jobs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "receipts",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [
+                  {
+                    "name": "revision",
+                    "keyPath": "token.revision",
+                    "unique": false,
+                    "multiEntry": false
+                  }
+                ],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-receipts",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotContent",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotContent",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotIdentityRefs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotIdentityRefs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotMetadata",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotMetadata",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "r01-unrelated-witness",
+            "version": 1,
+            "stores": [
+              {
+                "name": "witness",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-witness",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "storage": [
+          [
+            "flowplan.backup.v1",
+            "{invalid legacy JSON"
+          ],
+          [
+            "r01.unrelated",
+            "preserve-me"
+          ]
+        ]
+      },
+      "beforeSha256": "adff944411c7c9a6f928345f3d78d86a9ab5ddfbe9dfd99ba34ab077b6a5d0ce",
+      "afterSha256": "adff944411c7c9a6f928345f3d78d86a9ab5ddfbe9dfd99ba34ab077b6a5d0ce",
+      "sentinelsIntact": true
+    }
+  ],
+  "canaries": [
+    {
+      "origin": "http://127.0.0.1:4274",
+      "backup": null,
+      "journal": [
+        {
+          "api": "IDBFactory.open",
+          "detail": "flowplan-planning",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "IDBFactory.deleteDatabase",
+          "detail": "flowplan-planning",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "IDBFactory.databases",
+          "detail": "",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "window.localStorage",
+          "detail": "",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "window.sessionStorage",
+          "detail": "",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "Storage.getItem",
+          "detail": "flowplan.backup.v1",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "BroadcastChannel",
+          "detail": "flowplan-planning-revisions",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "Worker",
+          "detail": "/old.js",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "fetch",
+          "detail": "/old.js",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "serviceWorker.register",
+          "detail": "/old.js",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "CacheStorage.open",
+          "detail": "legacy",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "StorageManager.persist",
+          "detail": "",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "cookie.get",
+          "detail": "",
+          "origin": "http://127.0.0.1:4274"
+        }
+      ]
+    },
+    {
+      "origin": "http://127.0.0.1:4275",
+      "backup": null,
+      "journal": [
+        {
+          "api": "IDBFactory.open",
+          "detail": "flowplan-planning",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "IDBFactory.deleteDatabase",
+          "detail": "flowplan-planning",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "IDBFactory.databases",
+          "detail": "",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "window.localStorage",
+          "detail": "",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "window.sessionStorage",
+          "detail": "",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "Storage.getItem",
+          "detail": "flowplan.backup.v1",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "BroadcastChannel",
+          "detail": "flowplan-planning-revisions",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "Worker",
+          "detail": "/old.js",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "fetch",
+          "detail": "/old.js",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "serviceWorker.register",
+          "detail": "/old.js",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "CacheStorage.open",
+          "detail": "legacy",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "StorageManager.persist",
+          "detail": "",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "cookie.get",
+          "detail": "",
+          "origin": "http://127.0.0.1:4275"
+        }
+      ]
+    },
+    {
+      "origin": "http://127.0.0.1:4274",
+      "backup": "valid",
+      "journal": [
+        {
+          "api": "IDBFactory.open",
+          "detail": "flowplan-planning",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "IDBFactory.deleteDatabase",
+          "detail": "flowplan-planning",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "IDBFactory.databases",
+          "detail": "",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "window.localStorage",
+          "detail": "",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "window.sessionStorage",
+          "detail": "",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "Storage.getItem",
+          "detail": "flowplan.backup.v1",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "BroadcastChannel",
+          "detail": "flowplan-planning-revisions",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "Worker",
+          "detail": "/old.js",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "fetch",
+          "detail": "/old.js",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "serviceWorker.register",
+          "detail": "/old.js",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "CacheStorage.open",
+          "detail": "legacy",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "StorageManager.persist",
+          "detail": "",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "cookie.get",
+          "detail": "",
+          "origin": "http://127.0.0.1:4274"
+        }
+      ]
+    },
+    {
+      "origin": "http://127.0.0.1:4275",
+      "backup": "valid",
+      "journal": [
+        {
+          "api": "IDBFactory.open",
+          "detail": "flowplan-planning",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "IDBFactory.deleteDatabase",
+          "detail": "flowplan-planning",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "IDBFactory.databases",
+          "detail": "",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "window.localStorage",
+          "detail": "",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "window.sessionStorage",
+          "detail": "",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "Storage.getItem",
+          "detail": "flowplan.backup.v1",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "BroadcastChannel",
+          "detail": "flowplan-planning-revisions",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "Worker",
+          "detail": "/old.js",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "fetch",
+          "detail": "/old.js",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "serviceWorker.register",
+          "detail": "/old.js",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "CacheStorage.open",
+          "detail": "legacy",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "StorageManager.persist",
+          "detail": "",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "cookie.get",
+          "detail": "",
+          "origin": "http://127.0.0.1:4275"
+        }
+      ]
+    },
+    {
+      "origin": "http://127.0.0.1:4274",
+      "backup": "invalid",
+      "journal": [
+        {
+          "api": "IDBFactory.open",
+          "detail": "flowplan-planning",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "IDBFactory.deleteDatabase",
+          "detail": "flowplan-planning",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "IDBFactory.databases",
+          "detail": "",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "window.localStorage",
+          "detail": "",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "window.sessionStorage",
+          "detail": "",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "Storage.getItem",
+          "detail": "flowplan.backup.v1",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "BroadcastChannel",
+          "detail": "flowplan-planning-revisions",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "Worker",
+          "detail": "/old.js",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "fetch",
+          "detail": "/old.js",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "serviceWorker.register",
+          "detail": "/old.js",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "CacheStorage.open",
+          "detail": "legacy",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "StorageManager.persist",
+          "detail": "",
+          "origin": "http://127.0.0.1:4274"
+        },
+        {
+          "api": "cookie.get",
+          "detail": "",
+          "origin": "http://127.0.0.1:4274"
+        }
+      ]
+    },
+    {
+      "origin": "http://127.0.0.1:4275",
+      "backup": "invalid",
+      "journal": [
+        {
+          "api": "IDBFactory.open",
+          "detail": "flowplan-planning",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "IDBFactory.deleteDatabase",
+          "detail": "flowplan-planning",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "IDBFactory.databases",
+          "detail": "",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "window.localStorage",
+          "detail": "",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "window.sessionStorage",
+          "detail": "",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "Storage.getItem",
+          "detail": "flowplan.backup.v1",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "BroadcastChannel",
+          "detail": "flowplan-planning-revisions",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "Worker",
+          "detail": "/old.js",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "fetch",
+          "detail": "/old.js",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "serviceWorker.register",
+          "detail": "/old.js",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "CacheStorage.open",
+          "detail": "legacy",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "StorageManager.persist",
+          "detail": "",
+          "origin": "http://127.0.0.1:4275"
+        },
+        {
+          "api": "cookie.get",
+          "detail": "",
+          "origin": "http://127.0.0.1:4275"
+        }
+      ]
+    }
+  ],
+  "seaRunning": false,
+  "refusedPort": {
+    "code": 1,
+    "output": "V2 dev PORT is fixed at 4274\n"
+  },
+  "collision": {
+    "code": 1,
+    "output": "listen EADDRINUSE: address already in use 127.0.0.1:4274\n"
+  },
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Edg/154.0.4258.53",
+    "revision": "@5af6e80f702cffe10645c6d6433668f011b739be",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36 Edg/154.0.0.0",
+    "jsVersion": "15.4.11.7"
+  },
+  "legacyOriginWitnesses": [
+    {
+      "origin": "http://127.0.0.1:4174",
+      "backup": null,
+      "before": {
+        "data": [
+          {
+            "name": "flowplan-history-workspace",
+            "version": 1,
+            "stores": [
+              {
+                "name": "chunks",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-chunks",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "flowplan-planning",
+            "version": 2,
+            "stores": [
+              {
+                "name": "control",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-control",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "current",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-current",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "identityReservations",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-identityReservations",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "jobs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "migration-source"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-jobs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "receipts",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [
+                  {
+                    "name": "revision",
+                    "keyPath": "token.revision",
+                    "unique": false,
+                    "multiEntry": false
+                  }
+                ],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-receipts",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotContent",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotContent",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotIdentityRefs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotIdentityRefs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotMetadata",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotMetadata",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "r01-unrelated-witness",
+            "version": 1,
+            "stores": [
+              {
+                "name": "witness",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-witness",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "storage": [
+          [
+            "flowplan.backup.v1",
+            "{\"format\":\"flowplan\",\"version\":8,\"data\":{\"sentinel\":\"R0.1 laboratory only\"}}"
+          ],
+          [
+            "r01.unrelated",
+            "preserve-me"
+          ]
+        ]
+      },
+      "after": {
+        "data": [
+          {
+            "name": "flowplan-history-workspace",
+            "version": 1,
+            "stores": [
+              {
+                "name": "chunks",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-chunks",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "flowplan-planning",
+            "version": 2,
+            "stores": [
+              {
+                "name": "control",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-control",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "current",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-current",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "identityReservations",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-identityReservations",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "jobs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "migration-source"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-jobs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "receipts",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [
+                  {
+                    "name": "revision",
+                    "keyPath": "token.revision",
+                    "unique": false,
+                    "multiEntry": false
+                  }
+                ],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-receipts",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotContent",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotContent",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotIdentityRefs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotIdentityRefs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotMetadata",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotMetadata",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "r01-unrelated-witness",
+            "version": 1,
+            "stores": [
+              {
+                "name": "witness",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-witness",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "storage": [
+          [
+            "flowplan.backup.v1",
+            "{\"format\":\"flowplan\",\"version\":8,\"data\":{\"sentinel\":\"R0.1 laboratory only\"}}"
+          ],
+          [
+            "r01.unrelated",
+            "preserve-me"
+          ]
+        ]
+      },
+      "sentinelsIntact": true
+    },
+    {
+      "origin": "http://127.0.0.1:4175",
+      "backup": null,
+      "before": {
+        "data": [
+          {
+            "name": "flowplan-history-workspace",
+            "version": 1,
+            "stores": [
+              {
+                "name": "chunks",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-chunks",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "flowplan-planning",
+            "version": 2,
+            "stores": [
+              {
+                "name": "control",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-control",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "current",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-current",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "identityReservations",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-identityReservations",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "jobs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "migration-source"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-jobs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "receipts",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [
+                  {
+                    "name": "revision",
+                    "keyPath": "token.revision",
+                    "unique": false,
+                    "multiEntry": false
+                  }
+                ],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-receipts",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotContent",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotContent",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotIdentityRefs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotIdentityRefs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotMetadata",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotMetadata",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "r01-unrelated-witness",
+            "version": 1,
+            "stores": [
+              {
+                "name": "witness",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-witness",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "storage": [
+          [
+            "flowplan.backup.v1",
+            "{\"format\":\"flowplan\",\"version\":8,\"data\":{\"sentinel\":\"R0.1 laboratory only\"}}"
+          ],
+          [
+            "r01.unrelated",
+            "preserve-me"
+          ]
+        ]
+      },
+      "after": {
+        "data": [
+          {
+            "name": "flowplan-history-workspace",
+            "version": 1,
+            "stores": [
+              {
+                "name": "chunks",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-chunks",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "flowplan-planning",
+            "version": 2,
+            "stores": [
+              {
+                "name": "control",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-control",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "current",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-current",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "identityReservations",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-identityReservations",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "jobs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "migration-source"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-jobs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "receipts",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [
+                  {
+                    "name": "revision",
+                    "keyPath": "token.revision",
+                    "unique": false,
+                    "multiEntry": false
+                  }
+                ],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-receipts",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotContent",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotContent",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotIdentityRefs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotIdentityRefs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotMetadata",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotMetadata",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "r01-unrelated-witness",
+            "version": 1,
+            "stores": [
+              {
+                "name": "witness",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-witness",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "storage": [
+          [
+            "flowplan.backup.v1",
+            "{\"format\":\"flowplan\",\"version\":8,\"data\":{\"sentinel\":\"R0.1 laboratory only\"}}"
+          ],
+          [
+            "r01.unrelated",
+            "preserve-me"
+          ]
+        ]
+      },
+      "sentinelsIntact": true
+    },
+    {
+      "origin": "http://127.0.0.1:4174",
+      "backup": "valid",
+      "before": {
+        "data": [
+          {
+            "name": "flowplan-history-workspace",
+            "version": 1,
+            "stores": [
+              {
+                "name": "chunks",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-chunks",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "flowplan-planning",
+            "version": 2,
+            "stores": [
+              {
+                "name": "control",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-control",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "current",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-current",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "identityReservations",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-identityReservations",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "jobs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "migration-source"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-jobs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "receipts",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [
+                  {
+                    "name": "revision",
+                    "keyPath": "token.revision",
+                    "unique": false,
+                    "multiEntry": false
+                  }
+                ],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-receipts",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotContent",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotContent",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotIdentityRefs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotIdentityRefs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotMetadata",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotMetadata",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "r01-unrelated-witness",
+            "version": 1,
+            "stores": [
+              {
+                "name": "witness",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-witness",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "storage": [
+          [
+            "flowplan.backup.v1",
+            "{\"format\":\"flowplan\",\"version\":8,\"data\":{\"sentinel\":\"R0.1 laboratory only\"}}"
+          ],
+          [
+            "r01.unrelated",
+            "preserve-me"
+          ]
+        ]
+      },
+      "after": {
+        "data": [
+          {
+            "name": "flowplan-history-workspace",
+            "version": 1,
+            "stores": [
+              {
+                "name": "chunks",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-chunks",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "flowplan-planning",
+            "version": 2,
+            "stores": [
+              {
+                "name": "control",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-control",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "current",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-current",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "identityReservations",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-identityReservations",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "jobs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "migration-source"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-jobs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "receipts",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [
+                  {
+                    "name": "revision",
+                    "keyPath": "token.revision",
+                    "unique": false,
+                    "multiEntry": false
+                  }
+                ],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-receipts",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotContent",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotContent",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotIdentityRefs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotIdentityRefs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotMetadata",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotMetadata",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "r01-unrelated-witness",
+            "version": 1,
+            "stores": [
+              {
+                "name": "witness",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-witness",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "storage": [
+          [
+            "flowplan.backup.v1",
+            "{\"format\":\"flowplan\",\"version\":8,\"data\":{\"sentinel\":\"R0.1 laboratory only\"}}"
+          ],
+          [
+            "r01.unrelated",
+            "preserve-me"
+          ]
+        ]
+      },
+      "sentinelsIntact": true
+    },
+    {
+      "origin": "http://127.0.0.1:4175",
+      "backup": "valid",
+      "before": {
+        "data": [
+          {
+            "name": "flowplan-history-workspace",
+            "version": 1,
+            "stores": [
+              {
+                "name": "chunks",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-chunks",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "flowplan-planning",
+            "version": 2,
+            "stores": [
+              {
+                "name": "control",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-control",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "current",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-current",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "identityReservations",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-identityReservations",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "jobs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "migration-source"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-jobs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "receipts",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [
+                  {
+                    "name": "revision",
+                    "keyPath": "token.revision",
+                    "unique": false,
+                    "multiEntry": false
+                  }
+                ],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-receipts",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotContent",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotContent",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotIdentityRefs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotIdentityRefs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotMetadata",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotMetadata",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "r01-unrelated-witness",
+            "version": 1,
+            "stores": [
+              {
+                "name": "witness",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-witness",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "storage": [
+          [
+            "flowplan.backup.v1",
+            "{\"format\":\"flowplan\",\"version\":8,\"data\":{\"sentinel\":\"R0.1 laboratory only\"}}"
+          ],
+          [
+            "r01.unrelated",
+            "preserve-me"
+          ]
+        ]
+      },
+      "after": {
+        "data": [
+          {
+            "name": "flowplan-history-workspace",
+            "version": 1,
+            "stores": [
+              {
+                "name": "chunks",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-chunks",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "flowplan-planning",
+            "version": 2,
+            "stores": [
+              {
+                "name": "control",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-control",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "current",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-current",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "identityReservations",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-identityReservations",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "jobs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "migration-source"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-jobs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "receipts",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [
+                  {
+                    "name": "revision",
+                    "keyPath": "token.revision",
+                    "unique": false,
+                    "multiEntry": false
+                  }
+                ],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-receipts",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotContent",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotContent",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotIdentityRefs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotIdentityRefs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotMetadata",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotMetadata",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "r01-unrelated-witness",
+            "version": 1,
+            "stores": [
+              {
+                "name": "witness",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-witness",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "storage": [
+          [
+            "flowplan.backup.v1",
+            "{\"format\":\"flowplan\",\"version\":8,\"data\":{\"sentinel\":\"R0.1 laboratory only\"}}"
+          ],
+          [
+            "r01.unrelated",
+            "preserve-me"
+          ]
+        ]
+      },
+      "sentinelsIntact": true
+    },
+    {
+      "origin": "http://127.0.0.1:4174",
+      "backup": "invalid",
+      "before": {
+        "data": [
+          {
+            "name": "flowplan-history-workspace",
+            "version": 1,
+            "stores": [
+              {
+                "name": "chunks",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-chunks",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "flowplan-planning",
+            "version": 2,
+            "stores": [
+              {
+                "name": "control",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-control",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "current",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-current",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "identityReservations",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-identityReservations",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "jobs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "migration-source"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-jobs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "receipts",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [
+                  {
+                    "name": "revision",
+                    "keyPath": "token.revision",
+                    "unique": false,
+                    "multiEntry": false
+                  }
+                ],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-receipts",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotContent",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotContent",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotIdentityRefs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotIdentityRefs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotMetadata",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotMetadata",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "r01-unrelated-witness",
+            "version": 1,
+            "stores": [
+              {
+                "name": "witness",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-witness",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "storage": [
+          [
+            "flowplan.backup.v1",
+            "{\"format\":\"flowplan\",\"version\":8,\"data\":{\"sentinel\":\"R0.1 laboratory only\"}}"
+          ],
+          [
+            "r01.unrelated",
+            "preserve-me"
+          ]
+        ]
+      },
+      "after": {
+        "data": [
+          {
+            "name": "flowplan-history-workspace",
+            "version": 1,
+            "stores": [
+              {
+                "name": "chunks",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-chunks",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "flowplan-planning",
+            "version": 2,
+            "stores": [
+              {
+                "name": "control",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-control",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "current",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-current",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "identityReservations",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-identityReservations",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "jobs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "migration-source"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-jobs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "receipts",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [
+                  {
+                    "name": "revision",
+                    "keyPath": "token.revision",
+                    "unique": false,
+                    "multiEntry": false
+                  }
+                ],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-receipts",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotContent",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotContent",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotIdentityRefs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotIdentityRefs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotMetadata",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotMetadata",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "r01-unrelated-witness",
+            "version": 1,
+            "stores": [
+              {
+                "name": "witness",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-witness",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "storage": [
+          [
+            "flowplan.backup.v1",
+            "{\"format\":\"flowplan\",\"version\":8,\"data\":{\"sentinel\":\"R0.1 laboratory only\"}}"
+          ],
+          [
+            "r01.unrelated",
+            "preserve-me"
+          ]
+        ]
+      },
+      "sentinelsIntact": true
+    },
+    {
+      "origin": "http://127.0.0.1:4175",
+      "backup": "invalid",
+      "before": {
+        "data": [
+          {
+            "name": "flowplan-history-workspace",
+            "version": 1,
+            "stores": [
+              {
+                "name": "chunks",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-chunks",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "flowplan-planning",
+            "version": 2,
+            "stores": [
+              {
+                "name": "control",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-control",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "current",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-current",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "identityReservations",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-identityReservations",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "jobs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "migration-source"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-jobs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "receipts",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [
+                  {
+                    "name": "revision",
+                    "keyPath": "token.revision",
+                    "unique": false,
+                    "multiEntry": false
+                  }
+                ],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-receipts",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotContent",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotContent",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotIdentityRefs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotIdentityRefs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotMetadata",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotMetadata",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "r01-unrelated-witness",
+            "version": 1,
+            "stores": [
+              {
+                "name": "witness",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-witness",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "storage": [
+          [
+            "flowplan.backup.v1",
+            "{\"format\":\"flowplan\",\"version\":8,\"data\":{\"sentinel\":\"R0.1 laboratory only\"}}"
+          ],
+          [
+            "r01.unrelated",
+            "preserve-me"
+          ]
+        ]
+      },
+      "after": {
+        "data": [
+          {
+            "name": "flowplan-history-workspace",
+            "version": 1,
+            "stores": [
+              {
+                "name": "chunks",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-chunks",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "flowplan-planning",
+            "version": 2,
+            "stores": [
+              {
+                "name": "control",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-control",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "current",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-current",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "identityReservations",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-identityReservations",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "jobs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "migration-source"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-jobs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "receipts",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [
+                  {
+                    "name": "revision",
+                    "keyPath": "token.revision",
+                    "unique": false,
+                    "multiEntry": false
+                  }
+                ],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-receipts",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotContent",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotContent",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotIdentityRefs",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotIdentityRefs",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "snapshotMetadata",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-snapshotMetadata",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "r01-unrelated-witness",
+            "version": 1,
+            "stores": [
+              {
+                "name": "witness",
+                "keyPath": null,
+                "autoIncrement": false,
+                "indexes": [],
+                "keys": [
+                  "sentinel"
+                ],
+                "values": [
+                  {
+                    "marker": "legacy-witness",
+                    "payload": "1/3",
+                    "bytes": [
+                      0,
+                      19,
+                      255
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "storage": [
+          [
+            "flowplan.backup.v1",
+            "{\"format\":\"flowplan\",\"version\":8,\"data\":{\"sentinel\":\"R0.1 laboratory only\"}}"
+          ],
+          [
+            "r01.unrelated",
+            "preserve-me"
+          ]
+        ]
+      },
+      "sentinelsIntact": true
+    }
+  ],
+  "browserExtensionWorkers": [],
+  "refusedOrigin": "http://127.0.0.1:4276",
+  "status": "PASS"
+}

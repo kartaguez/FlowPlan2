@@ -1,0 +1,107 @@
+{
+  "status": "PASS (available platform gates)",
+  "node": "v24.21.0",
+  "platform": "darwin",
+  "sources": {
+    "modules": [
+      "src-v2/bootstrap/emptyPortfolioShellState.test.ts",
+      "src-v2/bootstrap/emptyPortfolioShellState.ts",
+      "src-v2/environment/browserIsolation.test.ts",
+      "src-v2/environment/browserIsolation.ts",
+      "src-v2/main/createV2Application.test.ts",
+      "src-v2/main/createV2Application.ts",
+      "src-v2/main/main.ts",
+      "src-v2/ui/renderV2Shell.ts"
+    ],
+    "compilerSources": {
+      "app": [
+        "src-v2/bootstrap/emptyPortfolioShellState.ts",
+        "src-v2/environment/browserIsolation.ts",
+        "src-v2/main/createV2Application.ts",
+        "src-v2/main/main.ts",
+        "src-v2/ui/renderV2Shell.ts"
+      ],
+      "test": [
+        "src-v2/bootstrap/emptyPortfolioShellState.test.ts",
+        "src-v2/bootstrap/emptyPortfolioShellState.ts",
+        "src-v2/environment/browserIsolation.test.ts",
+        "src-v2/environment/browserIsolation.ts",
+        "src-v2/main/createV2Application.test.ts",
+        "src-v2/main/createV2Application.ts",
+        "src-v2/main/main.ts",
+        "src-v2/ui/renderV2Shell.ts"
+      ]
+    }
+  },
+  "artifacts": {
+    "assets": [
+      "index.html",
+      "js/bootstrap/emptyPortfolioShellState.js",
+      "js/environment/browserIsolation.js",
+      "js/main/createV2Application.js",
+      "js/main/main.js",
+      "js/ui/renderV2Shell.js",
+      "styles.css"
+    ],
+    "entrypoint": "js/main/main.js"
+  },
+  "tests": {
+    "tests": 39,
+    "compiled": [
+      "/Users/Kartaguez/FlowPlan2/.test-dist-v2/bootstrap/emptyPortfolioShellState.test.js",
+      "/Users/Kartaguez/FlowPlan2/.test-dist-v2/environment/browserIsolation.test.js",
+      "/Users/Kartaguez/FlowPlan2/.test-dist-v2/main/createV2Application.test.js"
+    ],
+    "technical": [
+      "/Users/Kartaguez/FlowPlan2/scripts/v2/boundaries.test.mjs",
+      "/Users/Kartaguez/FlowPlan2/scripts/v2/servers.test.cjs"
+    ]
+  },
+  "compilationIsolation": [
+    {
+      "mode": "legacy-absent",
+      "command": "typecheck:v2",
+      "status": "PASS",
+      "testCount": null
+    },
+    {
+      "mode": "legacy-absent",
+      "command": "build:v2",
+      "status": "PASS",
+      "testCount": null
+    },
+    {
+      "mode": "legacy-absent",
+      "command": "test:v2",
+      "status": "PASS",
+      "testCount": 39
+    },
+    {
+      "mode": "legacy-invalid",
+      "command": "typecheck:v2",
+      "status": "PASS",
+      "testCount": null
+    },
+    {
+      "mode": "legacy-invalid",
+      "command": "build:v2",
+      "status": "PASS",
+      "testCount": null
+    },
+    {
+      "mode": "legacy-invalid",
+      "command": "test:v2",
+      "status": "PASS",
+      "testCount": 39
+    }
+  ],
+  "watch": {
+    "safeUpdate": "PASS",
+    "compiledModulesPreserved": true,
+    "legacyEntrypointRejected": true,
+    "serverStoppedOnInvalidBuild": true
+  },
+  "browser": "PASS",
+  "portsReleased": true,
+  "seaWindows": "NOT EXECUTED: requires Windows x64 Node 26 and actual executable"
+}

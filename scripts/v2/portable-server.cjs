@@ -20,6 +20,7 @@ if (isSea()) startPortable(getAssetKeys(), getAsset);
 else if (require.main === module && process.argv.includes('--test-assets')) {
   const manifest = JSON.parse(process.argv[process.argv.indexOf('--test-assets') + 1]);
   if (manifest.root !== resolve('dist-v2')) throw new Error('Portable test root must be dist-v2');
-  startPortable(manifest.assets, key => readFileSync(resolve(manifest.root, key)));
+  const contents = new Map(manifest.assets.map(key => [key, readFileSync(resolve(manifest.root, key))]));
+  startPortable(manifest.assets, key => contents.get(key));
 }
 module.exports = { startPortable };

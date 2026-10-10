@@ -114,12 +114,20 @@ export async function checkSources(root = projectRoot) {
     lists[mode] = list.map(f => relative(root, f)).sort();
   }
   const pkg = JSON.parse(await readFile(resolve(root, 'package.json'), 'utf8'));
-  for (const [name, command] of Object.entries(pkg.scripts)) {
-    if (/scripts\/(?!v2\/)|tsconfig\.(app|test)\.json|benchmark/.test(command + ' ' + name)) fail(name, 'legacy package command');
-  }
-  for (const name of ['dev','build','typecheck','test','build:sea','test:portable','test:sea']) {
-    if (pkg.scripts[name] !== `npm run ${name}:v2`) fail(name, 'default must alias V2');
-  }
+  const requiredScripts = {
+    'check:boundaries:v2': 'node scripts/v2/boundaries.mjs',
+    'typecheck:v2': 'node scripts/v2/boundaries.mjs && tsc -p tsconfig.v2.app.json --noEmit',
+    'build:v2': 'node scripts/v2/build.mjs', 'test:v2': 'node scripts/v2/test.mjs',
+    'dev:v2': 'node scripts/v2/dev.mjs',
+    'test:browser:v2': 'npm run build:v2 && node scripts/v2/browser-isolation-test.mjs',
+    'test:portable:v2': 'node --test scripts/v2/servers.test.cjs',
+    'build:sea:v2': 'node scripts/v2/build-sea.mjs',
+    'test:sea:v2': 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/v2/smoke-sea.ps1',
+    'smoke:v2': 'node scripts/v2/smoke.mjs', 'test:storage': 'npm run test:browser:v2',
+  };
+  for (const name of ['dev','build','typecheck','test','build:sea','test:portable','test:sea']) requiredScripts[name] = `npm run ${name}:v2`;
+  if (Object.keys(pkg.scripts).length !== Object.keys(requiredScripts).length) fail('package.json', 'unexpected package commands');
+  for (const [name, command] of Object.entries(requiredScripts)) if (pkg.scripts[name] !== command) fail(name, 'package command must target V2 tooling exactly');
   for (const file of (await filesUnder(resolve(root, 'scripts/v2'))).filter(f => /\.(mjs|cjs)$/.test(f))) await checkModule(file, resolve(root, 'scripts/v2'), {}, false, true);
   return { modules: modules.map(f => relative(root, f)), compilerSources: lists };
 }
