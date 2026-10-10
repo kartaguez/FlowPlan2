@@ -57,6 +57,6 @@ résultats et limites dans le [canon R0.1](./rewrite_r01_canon.md), aucune extra
 
 Source root exact, ports, outillage, DTO shell, packaging et G01–G16 sont fixés
 par le plan audité et GO utilisateur. Implémentation IN REVIEW : G01–G14 PASS,
-G15/G16 partiels (port historique occupé et Windows réel manquant), voir canon.
+G15 consultation 4174 PASS ; G15/G16 partiels uniquement pour Windows réel manquant, voir canon.
 Namespaces R0 §6 inchangés ; aucun stockage ouvert par R0.1 ; schéma/codec/
 persistence métier restent R2. Audit du code et validation utilisateur restent requis.

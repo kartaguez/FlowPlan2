@@ -14,13 +14,17 @@ P1–P5 implémentés et poussés ; P6 livre documentation, registre et rollback
 Shell neuf src-v2/public-v2/dist-v2/tests séparés, Portfolio vide technique,
 origines fixes 4274/4275, aucun stockage ni runtime/bridge legacy. G01–G14 PASS,
 39/39 tests V2, typecheck/build PASS, six séries browser natives avec zéro
-tentative d'accès et sentinelles intactes. Rollback P1–P5 testé en clone jetable.
+tentative d'accès et sentinelles intactes. Rollback P1–P6 testé en clone jetable.
 
-**Preuves restantes :** G15 consultation Current/History du checkout historique
-jetable bloquée par le serveur utilisateur déjà présent sur 4174 (accord demandé
-pour arrêt temporaire/redémarrage ; aucune interruption sans accord).
-Véritable SEA Windows V2 4275 et ancien portable historique 4175 non exécutés
-sur macOS. G15/G16 partiels, aucune clôture ni PASS SEA implicite.
+**G15 sur macOS complété après accord utilisateur** : checkout historique exact,
+Current (3 Teams), capture (1) et History (4 lignes) consultés en profil jetable,
+sans V2 chargé ni exception. Serveur utilisateur arrêté temporairement puis
+redémarré sur 4174 (PID 19550, HTTP 200). Rollback des six commits : tree baseline
+identique et sentinelles quatre origines intactes.
+
+**Preuves restantes :** véritable SEA Windows V2 4275 et ancien portable
+historique 4175 non exécutés sur macOS. G15/G16 partiels uniquement pour Windows,
+aucune clôture ni PASS SEA implicite.
 Prochaine étape : compléter ces preuves externes/environnementales, audit
 indépendant de l'implémentation, puis validation utilisateur.
 

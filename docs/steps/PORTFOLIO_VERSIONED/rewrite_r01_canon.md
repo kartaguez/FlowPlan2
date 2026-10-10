@@ -22,7 +22,7 @@ Branche historique préservée, aucun reset/rebase/merge ni force-push.
 | P3 | `a382539` | Composition/entrypoint/DOM/CSS neufs ; build fermé, typecheck + 25 tests PASS |
 | P4 | `4d2e18f` | Serveurs fixes et packaging ; build et 29 tests techniques PASS, puis 35 tests V2 au total |
 | P5 | `f9a57eb` | 39 tests V2, compilation sans ancien src et avec source invalide, watcher, six séries natives et preuves archivées PASS |
-| P6 | commit de livraison du présent canon, SHA rapporté après push | Documentation/registres/rollback livrés ; G15 browser bloqué par port occupé et preuve Windows manquante |
+| P6 | commit de livraison du présent canon, SHA rapporté après push | Documentation/registres/rollback livrés à d505de7 ; complément G15 après accord utilisateur, preuve Windows manquante |
 
 Les corrections de tests/harness pendant P1–P5 ont été vérifiées avant passage :
 normalisation /var → /private/var des chemins macOS, type assertion readonly des
@@ -91,12 +91,15 @@ Smoke indique explicitement « available platform gates », jamais PASS SEA.
 | G12 | PASS | Deux origines exactes ; Host localhost refusé, PORT=4174 refusé, collision fail, copie sur 4276 refusée sans ready |
 | G13 | PASS | AST/resolver/realpath/programmes TS + canaris types/barrels/dynamic/Worker/URL/symlink/alias/package |
 | G14 | PASS | Sept assets fermés, requêtes mêmes origines, aucun worker/iframe/SW produit ; chemins legacy 404 |
-| G15 | PARTIEL / BLOQUÉ | Checkout historique exact : npm ci/typecheck/build et 3 tests portable ont passé lors tentative ; démarrage 4174 échoue EADDRINUSE (serveur utilisateur PID 31866). Consultation Current/History du checkout jetable non obtenue. Ancien SEA Windows 4175 également non exécuté |
-| G16 | PARTIEL / WINDOWS MANQUANT | HTTP portable hors SEA PASS, ports V2 libérés ; rollback P1–P5 PASS. Véritable exe Windows V2 et ancien portable de référence non exécutés |
+| G15 | PASS sur macOS / WINDOWS MANQUANT | Checkout historique exact : npm ci/typecheck/build et 3 tests portable PASS ; Current (3 Teams), une capture et History (4 lignes) consultés sur 4174, sans V2 ni exception. Ancien SEA Windows 4175 non exécuté |
+| G16 | PARTIEL / WINDOWS MANQUANT | HTTP portable hors SEA PASS, ports V2 libérés ; rollback P1–P6 PASS. Véritable exe Windows V2 et ancien portable de référence non exécutés |
 
 Preuves brutes : [gates techniques](./proofs/r01/technical-gates.json),
 [isolation browser](./proofs/r01/browser-isolation.json),
-[rollback](./proofs/r01/rollback.json),
+[rollback initial P1–P5](./proofs/r01/rollback.json),
+[consultation historique et rollback P1–P6](./proofs/r01/legacy-and-rollback.json),
+[serveur legacy restauré](./proofs/r01/legacy-server-restored.json),
+[capture History legacy](./proofs/r01/legacy-history-4174.png),
 [build historique indépendant](./proofs/r01/legacy-build.json),
 [capture dev 390](./proofs/r01/dev-390.png),
 [capture dev 1440](./proofs/r01/dev-1440.png),
@@ -116,37 +119,43 @@ Pas de port applicatif éphémère ; seul le debugging CDP est éphémère.
 
 ## Ancienne application, rollback et preuves restantes
 
-Le processus existant `node scripts/dev.mjs`, PID 31866, cwd FlowPlan2, occupe
-4174. Il n'a pas été lancé par cette mission. Une demande d'accord pour arrêt
-temporaire/redémarrage a été envoyée ; aucune interruption sans accord.
-Aucun autre port substitué silencieusement à G15. Le test reproductible
-`scripts/v2/legacy-reference-test.mjs` crée son propre clone detached au SHA
-historique, installe/build/typecheck/portable, consulte Current puis capture et
-History via profil jetable, et vérifie le rollback. `--rollback-only` permet la
-preuve de rollback sans arrêter ce processus ni ouvrir de données utilisateur.
+Le blocage initial de 4174 a été levé après accord explicite de l'utilisateur
+pour l'arrêt temporaire du processus `node scripts/dev.mjs` PID 31866 et son
+redémarrage. Identité revérifiée avant SIGTERM ; aucun autre processus interrompu.
+Le test reproductible `scripts/v2/legacy-reference-test.mjs` a exécuté le clone
+detached au SHA historique exact, npm ci/typecheck/build/3 tests portable, puis
+Current (3 Teams), Save d'une capture et consultation History (4 lignes), dans un
+profil jetable Chromium. Aucun runtime V2 chargé et aucune exception browser.
+Capture native inspectée et preuves brutes archivées. Aucun profil réel utilisé.
 
-Rollback effectivement testé sur code P1–P5 `f9a57eb` dans un clone jetable :
-reverts des cinq commits en ordre inverse, tree identique à celui de baseline,
-arbre propre, zéro conversion ; sentinelles de laboratoire aux quatre origines
-4174/4175/4274/4275 conservées (hashes égaux). Aucun commit de preuve du clone
-n'est poussé. Les futurs commits documentaires P6 n'affectent pas le runtime ;
-revert/abandon du rewrite et arrêt de ses serveurs suffisent tant que R1/R2 n'ont
-pas introduit de persistence. Ne relancer un checkout reverté qu'en environnement
-historique séparé, pas comme V2. Aucun cleanup global ou inverse de données.
+Le serveur du clone a été arrêté avant rollback, puis le serveur utilisateur
+legacy a été restauré dans FlowPlan2 via `node scripts/dev.mjs`, PORT=4174,
+PID 19550. HTTP 200 et titre historique FlowPlan vérifiés ; journal de lancement
+`/private/tmp/flowplan-legacy-restored.log`. Le redémarrage figurait dans un finally
+pour garantir la restauration également en cas d'échec de preuve. Aucune commande
+npm dev V2 substituée à son serveur legacy. Les origines V2 restent libres.
+
+Rollback testé sur `d505de7d45e2fb1126305160eb6b551fc86ed1b3` (P1–P6) dans ce clone
+jetable : six reverts en ordre inverse, tree `9ed29c9d4fc1ad0a5c927034a3eba675f14f73ab`
+identique à la baseline, arbre propre, zéro conversion ; sentinelles laboratoire
+aux quatre origines 4174/4175/4274/4275 conservées, hashes égaux. Aucun commit de
+preuve du clone poussé. La preuve initiale P1–P5 reste conservée séparément.
+Les ajouts documentaires de ce complément n'affectent pas le runtime. Revert/
+abandon du rewrite et arrêt de ses serveurs suffisent tant que R1/R2 n'introduisent
+pas de persistence. Ne relancer un checkout reverté qu'en environnement historique
+séparé ; aucun cleanup global ou conversion inverse.
 
 Restant avant audit complet/clôture :
 
-1. Obtenir accès à 4174 pour exécuter G15 Current/History du checkout historique
-   jetable selon le protocole, puis restaurer le serveur existant si interrompu.
-2. Sur Windows x64 Node 26 : npm ci, build:sea:v2, test:sea:v2 ; obtenir la preuve
+1. Sur Windows x64 Node 26 : npm ci, build:sea:v2, test:sea:v2 ; obtenir la preuve
    native FlowPlan2-V2.exe sur 4275 (browser/sentinelles/arrêt/port) et celle de
    l'ancien portable historique indépendant sur 4175 dans son checkout/profil.
-3. Auditer indépendamment l'implémentation/provenance/gates complètes, puis
+2. Auditer indépendamment l'implémentation/provenance/gates complètes, puis
    validation utilisateur. Aucune transition DONE automatique, R1/R2 restent interdits.
 
 Le contrôle de disponibilité Windows retourne explicitement : « Real SEA build
 requires Windows x64 with Node 26 ». Le smoke hors SEA n'en tient jamais lieu.
-Le blocage du port est environnemental, pas un changement de cible architecturale.
+Le blocage initial du port a été résolu avec accord utilisateur, sans changement de cible architecturale.
 Données réelles et bascule opérationnelle non traitées ; sauvegarde/restauration
 utilisateur vérifiée de R0 §6 reste requise avant cette bascule.
 

@@ -1,0 +1,10 @@
+{
+  "originalPid": 31866,
+  "restoredPid": 19550,
+  "command": "node scripts/dev.mjs",
+  "cwd": "/Users/Kartaguez/FlowPlan2",
+  "origin": "http://127.0.0.1:4174",
+  "httpStatus": 200,
+  "legacyTitle": true,
+  "gateExit": 0
+}

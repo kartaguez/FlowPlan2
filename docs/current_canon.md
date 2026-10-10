@@ -18,12 +18,15 @@ collision sans fallback. Namespaces neufs réservés, aucune API storage/canal a
 Ancien src/public/scripts/configs app/test conservés, hors graphes V2.
 G01–G14 PASS ; 39/39 tests V2, typecheck/build PASS, six séries browser natives,
 zéro tentative API app, comparaison intégrale/hash de sentinelles égaux.
-Rollback P1–P5 en clone jetable : tree baseline identique et sentinelles intactes.
+Rollback P1–P6 en clone jetable : tree baseline identique et sentinelles intactes.
 
-G15 partiel : typecheck/build/3 tests portable historiques passent dans le clone
-exact ; consultation de ce checkout sur 4174 bloquée par serveur utilisateur
-existant, accord demandé pour interruption temporaire. Preuves des vrais
-exécutables Windows V2 sur 4275 et historique sur 4175 non exécutées sur macOS.
+G15 consultation historique sur 4174 PASS après accord utilisateur : clone
+exact, Current (3 Teams), une capture puis History (4 lignes), aucun runtime V2
+ni exception. Serveur existant arrêté temporairement puis restauré sur 4174,
+PID 19550 / HTTP 200. Reverts des six commits : même tree baseline, mêmes
+sentinelles aux quatre origines. Typecheck/build/3 tests portable historiques PASS.
+Preuves des vrais exécutables Windows V2 sur 4275 et historique sur 4175 non
+exécutées sur macOS ; seule limite restante de G15/G16.
 G16 partiel pour SEA, aucune réussite portable hors SEA assimilée à cette preuve.
 Compléter les preuves, puis audit indépendant et validation utilisateur avant
 clôture. **R1 et R2–R6 NOT STARTED/non autorisés.** Aucun DONE auto-déclaré.

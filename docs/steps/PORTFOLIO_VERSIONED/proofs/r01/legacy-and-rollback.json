@@ -1,0 +1,85 @@
+{
+  "status": "PASS (available platform evidence)",
+  "baseline": "1c2b08c727af9fb8002b7678bd7403fcc0d39c27",
+  "codeHead": "d505de7d45e2fb1126305160eb6b551fc86ed1b3",
+  "unchangedLegacyFiles": 275,
+  "commands": [
+    {
+      "command": "npm ci",
+      "status": "PASS",
+      "output": "\nadded 3 packages, and audited 4 packages in 511ms\n\nfound 0 vulnerabilities\n"
+    },
+    {
+      "command": "npm run typecheck",
+      "status": "PASS",
+      "output": "\n> flowplan@0.1.0 typecheck\n> tsc -p tsconfig.app.json --noEmit\n\n"
+    },
+    {
+      "command": "npm run build",
+      "status": "PASS",
+      "output": "\n> flowplan@0.1.0 build\n> node scripts/build.mjs\n\n"
+    },
+    {
+      "command": "npm run test:portable",
+      "status": "PASS",
+      "output": "\n> flowplan@0.1.0 test:portable\n> node --test scripts/portable-server.test.cjs\n\n✔ serves embedded web assets with correct headers (0.39375ms)\n✔ HEAD omits the body and keeps the asset length (0.057417ms)\n✔ rejects other hosts, methods, and unknown assets (0.055542ms)\nℹ tests 3\nℹ suites 0\nℹ pass 3\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 32.725792\n"
+    }
+  ],
+  "browserProof": {
+    "browser": {
+      "protocolVersion": "1.3",
+      "product": "Edg/154.0.4258.53",
+      "revision": "@5af6e80f702cffe10645c6d6433668f011b739be",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36 Edg/154.0.0.0",
+      "jsVersion": "15.4.11.7"
+    },
+    "origin": "http://127.0.0.1:4174",
+    "currentTeams": 3,
+    "snapshots": 1,
+    "historyRows": 4,
+    "v2Loaded": false,
+    "errors": []
+  },
+  "rollback": {
+    "codeHead": "d505de7d45e2fb1126305160eb6b551fc86ed1b3",
+    "revertedCommits": [
+      "d505de7d45e2fb1126305160eb6b551fc86ed1b3",
+      "f9a57eb66ed1ce31e819a90b47b33ec664fea051",
+      "4d2e18f2affb16f77d18e662b37a79fd8923a7da",
+      "a3825398ce7d51bb7aac6436961e32e7cfb4a31a",
+      "70a268e3bfdfc0bb1ad3871c1dc14f0f4a5c2188",
+      "55abb927bae492c6e46a5c11d2a46dea2d289f69"
+    ],
+    "baselineTree": "9ed29c9d4fc1ad0a5c927034a3eba675f14f73ab",
+    "revertedTree": "9ed29c9d4fc1ad0a5c927034a3eba675f14f73ab",
+    "workingTreeClean": true,
+    "dataConversion": false,
+    "sentinels": [
+      {
+        "origin": "http://127.0.0.1:4174",
+        "beforeSha256": "2a0de8c2b614b58d1a2dcfc8e690e6e86665fff00f594efac26e004c868508d2",
+        "afterSha256": "2a0de8c2b614b58d1a2dcfc8e690e6e86665fff00f594efac26e004c868508d2",
+        "intact": true
+      },
+      {
+        "origin": "http://127.0.0.1:4175",
+        "beforeSha256": "2a0de8c2b614b58d1a2dcfc8e690e6e86665fff00f594efac26e004c868508d2",
+        "afterSha256": "2a0de8c2b614b58d1a2dcfc8e690e6e86665fff00f594efac26e004c868508d2",
+        "intact": true
+      },
+      {
+        "origin": "http://127.0.0.1:4274",
+        "beforeSha256": "2a0de8c2b614b58d1a2dcfc8e690e6e86665fff00f594efac26e004c868508d2",
+        "afterSha256": "2a0de8c2b614b58d1a2dcfc8e690e6e86665fff00f594efac26e004c868508d2",
+        "intact": true
+      },
+      {
+        "origin": "http://127.0.0.1:4275",
+        "beforeSha256": "2a0de8c2b614b58d1a2dcfc8e690e6e86665fff00f594efac26e004c868508d2",
+        "afterSha256": "2a0de8c2b614b58d1a2dcfc8e690e6e86665fff00f594efac26e004c868508d2",
+        "intact": true
+      }
+    ]
+  },
+  "legacyPortableWindows": "NOT EXECUTED: old SEA on 4175 requires Windows; server historical unit tests PASS"
+}
