@@ -3,7 +3,8 @@
 Statut : décisions R0 validées par audit indépendant favorable à
 `62bfdb9f36b406a0196ba7ceee45884217c68365`. GO R0.1 reçu après audit du plan
 à `1c2b08c727af9fb8002b7678bd7403fcc0d39c27` ; R0.1 DONE après audit indépendant favorable et clôture utilisateur au SHA
-`d5bb1a89c847604f2f80aaaa3270e4125f4a3fef`, avec amendement I-R01-C ; R1/R2 non autorisés.
+`d5bb1a89c847604f2f80aaaa3270e4125f4a3fef`, avec amendement I-R01-C ; cadrage R1 validé, PLAN R1.1 à auditer,
+implémentations R1/R2 non autorisées.
 Point d'entrée : [current_plan](../../current_plan.md).
 Option B extraction sélective, verticales R1 mémoire/R2 durable, architecture à
 six modules, stockage neuf isolé et matrice de reprise sont validés.
@@ -84,3 +85,35 @@ environnement Windows compatible avant toute déclaration de compatibilité,
 disponibilité, qualification ou distribution Windows ; preuves et levée explicite
 à enregistrer dans le [canon R0.1](./rewrite_r01_canon.md#limites-windows-résiduelles).
 R1 prochain lot NOT STARTED ; R2 NOT STARTED, aucun GO implicite.
+
+## Cadrage R1 validé — préparation R1.1 uniquement
+
+Décisions reçues de l'utilisateur le 2026-10-10 ; enregistrées depuis
+`8926b1f1b73650c17114914a168c368d0331d87b`. **R1 — CADRAGE VALIDÉ** ;
+[R1.1 PLAN](./rewrite_r11_plan.md) **PLANNED / NOT STARTED — PLAN À AUDITER**.
+R1.2–R1.4 et R2–R6 NOT STARTED. Aucune autorisation d'implémentation.
+Les mentions précédentes « R1 prochain lot » décrivent la clôture R0.1.
+
+| ID | Nature / portée | Décision validée et contrat détaillé |
+| --- | --- | --- |
+| D-R1-01 | Conforme R0 T01/T12-R ; R1.1 | Modèle autonome sans autorité legacy ; IDs stables opaques, ref exacte (kind, entityId, versionId), owner typé immuable, versions immuables ; aucune modification/suppression physique des archives ; collision divergente refusée. Aucun latest/timestamp/ordre de création pour Current. [PLAN §4/§7](./rewrite_r11_plan.md#4-architecture-cible-des-primitives) ; stockage physique R2. |
+| D-R1-02 | Précision architecturale T01/T03 ; R1.1 | Filiation distincte de provenance : 0..1 predecessor exact de même identité/version différente ; branches autorisées, cycles refusés ; provenance métier multiple (merge SubPeriods notamment), aucune fusion concurrente automatique. [PLAN §4.4](./rewrite_r11_plan.md#44-enveloppe-owner-filiation-provenance). Politiques métier merge : R1.3. |
+| D-R1-03 | Conforme T04/I19 + précision de séparation ; R1.2/R1.3 uniquement | Registre passif, manifestes explicites, resolver pur sans fallback Current. Validation structurelle distincte des préconditions historiques. Construire candidat complet avant publication logique ; aucun état incomplet publié. [R0 §13](./rewrite_r0_plan.md#13-addendum-normatif-r1-du-2026-10-10). |
+| D-R1-04 | Précision R0 §3.1/T05/I02/I03/I07 ; R1.2/R1.3 uniquement | Lifecycle existing/deleted distinct usage Forecast confirmed/suspended ; grille TA complète pour associations structurellement présentes, suspendues incluses. PT deleted conserve PTEC sélectionné aligné AP courant, sans nouvelles cellules TA courantes requises. ever-nonzero sur toutes versions archivées. [R0 §13](./rewrite_r0_plan.md#13-addendum-normatif-r1-du-2026-10-10). |
+| D-R1-05 | Conforme T05/T10/T11/T15 + précision preuves ; R1.3 uniquement | Restore sous ID stable avec revue paramètres et aucune réactivation automatique. Nouvelle version AP rebond tous PTEC atomiquement. Confirmation individualisée par TA concerné : refs base, valeur exacte, période candidate ; obligations selon opération, raccourcissement exige reconfirmations R0. [R0 §13](./rewrite_r0_plan.md#13-addendum-normatif-r1-du-2026-10-10). |
+| A-R1-01 | AMENDEMENT NORMATIF NOUVEAU T09/I23 ; R1.2/R1.3 | Snapshot.knowledgeDate doit aussi être ≥ knowledgeDate explicitement présente de chaque AP sélectionné, inactive/deleted inclus ; through reste borne. Monotonie AP par chaque lien exact de filiation (précision R0), jamais ordre d'archives ni date de capture. Remplace seulement bornes insuffisantes T09/§3.2/I23. [R0 §13](./rewrite_r0_plan.md#13-addendum-normatif-r1-du-2026-10-10). |
+| A-R1-02 | AMENDEMENT NORMATIF NOUVEAU AP vide, T13/I23 ; R1.2/R1.3 | AP vide peut déclarer knowledgeDate facultative ; pas de from/through/SubPeriod/TA/couverture/cutoff. S'il déclare connaissance, borne Snapshot A-R1-01 s'applique. Remplace « sans dates » et « sans couverture aucune borne » dans cette seule mesure. [R0 §13](./rewrite_r0_plan.md#13-addendum-normatif-r1-du-2026-10-10). |
+| D-R1-06 | Conforme R0 §8 oracle + précision admission ; R1.4 uniquement | Simulation native réelle bornée, manifeste complet toujours validé ; admission selon contributions effectivement démontrées, refus explicite hors périmètre, aucune approximation ; oracle exact 1/3 Actuals + 2/3 ETC = 1 EAC. Snapshot résolu/simulé indépendamment de Current, sélection jamais par date. [R0 §13](./rewrite_r0_plan.md#13-addendum-normatif-r1-du-2026-10-10). |
+
+A-R1-01 et A-R1-02 ne sont **pas** des règles déjà écrites dans R0, ni des
+corrections éditoriales. Les lignes historiques T09/T13 et I23 sont conservées
+comme origine ; leur portée actuelle est amendée par R0 §13. Dates civiles et
+connaissance déclaratives restent distinctes des timestamps techniques.
+Justification, emplacements remplacés, impact et lots de validation sont explicites
+dans cet addendum. Aucun canon historique n'est modifié rétroactivement.
+
+D-R1-01/02 fixent les fondations R1.1 ; les lexèmes, chemins, types, fonctions et
+représentations de son PLAN restent proposés à audit. D-R1-03–06 et A-R1-01/02
+sont enregistrés comme cadre global, aucune implémentation anticipée par R1.1.
+Prochain événement : audit indépendant ChatGPT du PLAN, puis décision explicite
+d'autorisation ou de correction. Aucun GO n'est déduit du cadrage validé.

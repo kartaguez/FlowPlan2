@@ -139,3 +139,38 @@ initiales impliquant R0.1 distinguent désormais exclusion/adaptation/neuf
 livrés et les futurs lots non commencés ; aucun champ métier n'est anticipé.
 Toute extraction future garde source exacte/SHA/destination/dépendances retirées/
 contrats/preuves/décision d'audit et ajoute une ligne liée, jamais merge automatique.
+
+## Intentions R1.1 — aucune extraction
+
+[PLAN R1.1](./rewrite_r11_plan.md), **PLANNED / NOT STARTED — PLAN À AUDITER**.
+Toutes sources/symboles ci-dessous inspectés au commit exact
+`8926b1f1b73650c17114914a168c368d0331d87b` (SHA source commun à toutes les lignes = cette baseline,
+pas un commit d'extraction). Aucun code copié, aucune destination réelle,
+aucun test exécuté, audit des intentions **NON SOUMIS**. Destinations proposées
+sous src-v2/domain, noms soumis à audit. Les lignes patrimoniales restent intactes.
+REUSE de logique ne signifie jamais import direct de src dans src-v2.
+
+| Source et symboles concernés (SHA ci-dessus pour chaque ligne) | Classe / état | Transitifs à vérifier et adaptations d'autonomie | Destination V2 envisagée | Preuves futures PLAN §9 |
+| --- | --- | --- | --- | --- |
+| src/domain/model/rational.ts : gcd, normalizeRational/createRational, rationalFromInteger, add/subtract/multiply/divideRationals, compare/min/maxRational, isZero/isNegative | REUSE logique pure ; NOT STARTED | Import result.js uniquement constaté ; remplacer par résultat natif, auditer tous helpers privés/reexports ; aucun decimal renderer nécessaire au Domain | domain/primitives/rational.ts proposé | Q02/Q03 ; BigInt grands/signes/canonicalisation et indépendance legacy |
+| src/domain/model/rational.ts : parseDecimalRational, parseSerializedRational, rationalToCanonicalString | ADAPT API parsing ; NOT STARTED | result + normalize/reduce/gcd ; API native entière/décimale/fraction, grammaire PLAN, contrôle runtime ; texte canonique logique ≠ codec R2 | domain/primitives/rational.ts proposé | Q01/Q05 ; exactitude, entrées mal formées, ÷0 et zéro canonique |
+| src/domain/model/date.ts : createCivilDate, compareCivilDates, toEpochDay/fromEpochDay (privés), isoWeekday, civilDayDifference | REUSE logique pure ; NOT STARTED | result.js uniquement ; native result, vérifier plage proposée 0000–9999 et sûreté entiers, aucun Date/TZ | domain/primitives/civilDate.ts proposé | D01/D03/D04, siècles/bissextile et processus TZ distincts |
+| src/domain/model/date.ts : addDays, civilDatesInclusive ; src/domain/model/horizon.ts : PlanningHorizon/createPlanningHorizon | ADAPT ; NOT STARTED | date/result et conversions privées ; vérifier addition intermédiaire offset extrême, intervalle générique validé, inverse refusé, pas énumération cachée | domain/primitives/civilDate.ts et civilInterval.ts proposés | D02/D03, bornes mêmes jour et invalides/sortie de plage |
+| src/domain/model/scalars.ts : capacityFromRational, remainingWorkloadFromRational, consumedWorkloadFromRational, createDailyCap, createReservationRatio, createUnavailabilityRatio, rationalOf et helpers privés | ADAPT validations ; NOT STARTED | rational/result ; auditer WeakMap/wrappers et chemins serialized, retirer format backup/autorité RAF ; quantities natives ETC/fixed-daily, absence distincte, ratios bornés ; pas copier scalars entier | domain/primitives/quantity.ts proposé | Q04/Q05 ; unités, forged values, négatifs, ratio >1, absent ≠ zéro |
+| src/domain/model/result.ts : DomainResult/DomainError, success/failure/error/atPath | ADAPT ; NOT STARTED | Aucun import constaté ; contrat d'erreurs natif, immutabilité des erreurs et copies, aucun code legacy partagé | domain/primitives/result.ts proposé | Q05 et tests enveloppe/refs invalides, erreurs explicites/code/path |
+| src/domain/model/scalars.ts : TeamId/ProjectId/ReservationId/ProgramId/PriorityFamilyId et create*Id ; src/domain/model/entities.ts : Team/Project/Portfolio/factories | REFERENCE ; NOT STARTED | scalars→rational/result ; entities→capacity/schedule/reservation/actuals/records/snapshots/color/scalars ; ne copier aucun Portfolio inline/barrel, IDs natifs séparés owner/entity/version/ref | domain/primitives/identity.ts et exactReference.ts neufs proposés | V01/V02 ; kinds/owners/familles opaques et aucune sélection latest |
+| src/domain/actuals/snapshots.ts : snapshotId, ActualsSnapshotBase, createSnapshotHistory, createProjectActualsSnapshot/createReservationActualsSnapshot | REFERENCE ; NOT STARTED | date/rational/scalars/result ; IDs dérivés/version numérique/histoire consécutive incompatibles ; enveloppe native, predecessor distinct provenance multiple, aucune archive V4/V5 | domain/versioning/versionEnvelope.ts neuf proposé | V03–V06, branches/cycles/collisions/immutabilité ; aucune preuve de transitions métier |
+| src/application/session/editableQuantity.ts : parseExactQuantityInput ; helpers formatting non repris | REFERENCE lexicale ; NOT STARTED | Import ../../domain/index.js entraîne barrel legacy ; aucun import/copie module ; séparer grammaire Domain stricte du trim/virgule UI R5 | contrat parsing natif rational.ts proposé, aucune UI R1.1 | Q01/Q05 ; invalides/longues décimales, erreur jamais zéro |
+| src/domain/model/rational.test.ts/date.test.ts/scalars.test.ts ; src/application/session/editableQuantity.test.ts | REFERENCE de vecteurs ; NOT STARTED | node:test/assert + legacy factories ; nouveaux tests natifs/oracles indépendants, aucun import de test/fixture legacy | tests V2 adjacents proposés | Q01–Q05/D01–D04 ; aucun résultat ancien présenté comme PASS V2 |
+| src-v2/bootstrap/emptyPortfolioShellState.ts : createEmptyPortfolioShellState ; src-v2/main/createV2Application.ts ; scripts/v2/boundaries.mjs : checkModule/readConfig et garde compilation/artefacts ; package.json aliases V2 | REUSE socle R0.1 livré, pas extraction R1.1 | Bootstrap sans Domain, root environment/ui ; garde technique TS/fs/path, accès calculé runtime refusé ; vérifier compatibilité primitives sans élargissement silencieux du garde | chemins existants conservés ; Domain nouveau séparé, aucun montage métier | A01–A03 ; compilation/build/tests isolés, aucun modèle shell promu métier |
+
+Sous-périmètres parsing/intervalle classés ADAPT précisent la ligne groupée
+REUSE R0, sans réinterprétation de sa logique pure. Filiation/versionEnvelope
+est une construction native REFERENCE : aucun équivalent legacy conforme identifié.
+Couleurs, schedule/reservation, moteur, reconstruction, commandes/proofs, persistence,
+UI et oracles G1 restent hors R1.1 ; lots et classifications initiaux inchangés.
+
+Après GO futur seulement : ajouter les opérations effectives liées à ces lignes,
+SHA source réel, symboles réellement repris, destination réelle, transitifs
+vérifiés/retirés, contrats, preuves exécutées et audit. Ne pas remplir un champ
+réalisé ni transformer NOT STARTED en DONE au stade de ce PLAN.

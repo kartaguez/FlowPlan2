@@ -36,11 +36,20 @@ périphérique au socle/runtime/browser validé. Aucune compatibilité ou dispon
 Windows n’est attestée. Levée : validation sur Windows x64 compatible (Node 26
 pour construction) avant qualification ou distribution Windows, preuves archivées.
 Les résultats partiels G15/G16 restent inchangés ; hors SEA n’est pas PASS SEA.
-**R1 prochain lot — NOT STARTED ; R2 — NOT STARTED**. Cadrage indépendant R1,
-plan/audit/autorisation propres ; aucun lancement R1/R2 dans cette clôture.
+**R1 — CADRAGE VALIDÉ ; R1.1 — PLANNED / NOT STARTED — PLAN À AUDITER**.
+[PLAN R1.1](./steps/PORTFOLIO_VERSIONED/rewrite_r11_plan.md), aucune primitive,
+extraction ou implémentation nouvelle. R1.2–R1.4 et R2–R6 NOT STARTED.
+Prochain événement : audit indépendant ChatGPT du PLAN puis décision explicite
+d'autorisation ou de correction ; aucun GO implicite ni lancement après livraison.
+Décisions globales dans le registre ; amendements normatifs nouveaux A-R1-01/02
+explicités à [R0 §13](./steps/PORTFOLIO_VERSIONED/rewrite_r0_plan.md#13-addendum-normatif-r1-du-2026-10-10) :
+Snapshot borné aussi par connaissance AP déclarée ; AP vide peut la déclarer,
+sans couverture/TA/cutoff. Cibles uniquement, aucune règle déjà livrée ni preuve
+d'exécution nouvelle. Les archives ci-dessous restent inchangées.
 
 Option B extraction sélective, T01–T11/T12-R/T13–T15, I01–I21/I22-R/I23 et
-architecture à six modules restent inchangés. Current/PortfolioSnapshots natifs,
+architecture à six modules restent le socle ; seules les clauses désignées
+T09/T13/I23 sont amendées explicitement par R0 §13. Current/PortfolioSnapshots natifs,
 graphe versionné, AP/SubPeriod/TA/PT/RT/PTEC, ETC/status, Settings/Order, CAS et
 robustesse durable sont des cibles R1+ ; aucune de ces primitives n'est livrée
 par le DTO shell R0.1. Migration T12 historique inapplicable ; aucun bridge ou

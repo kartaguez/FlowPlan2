@@ -1,6 +1,6 @@
 # FlowPlan2 current plan — point d'entrée unique
 
-## Trajectoire active — FlowPlan2 V2 / R0.1 DONE, R1 prochain lot
+## Trajectoire active — FlowPlan2 V2 / R1 cadrage validé, PLAN R1.1 à auditer
 
 **R0 clôturé. R0.1 — Rewrite Initialization : DONE**, clôture utilisateur
 autorisée le 2026-10-10 après audit indépendant favorable de l’architecture,
@@ -32,20 +32,38 @@ ne bloquent plus la clôture R0.1. Ils restent obligatoires avant toute qualific
 ou distribution Windows. Aucun résultat non exécuté n’est PASS ; aucune autre
 gate n’est amendée. Détails et condition de levée dans le canon R0.1.
 
-**Prochain lot : R1 — NOT STARTED**, cadrage/plan et audit indépendants puis
-autorisation distincte avant lancement. **R2 — NOT STARTED** ; R2–R6 non autorisés.
-Le socle technique V2 est disponible ; la clôture n’autorise aucune primitive
-métier, extraction R1+, moteur ou repository R2. Arrêt après cette clôture
-strictement documentaire ; rendre la main pour le cadrage du lot suivant.
+**R1 — CADRAGE VALIDÉ**, découpage R1.1 primitives/identités/versionnement,
+R1.2 graphe métier versionné, R1.3 transitions/preuves, R1.4 verticale mémoire.
+**R1.1 — PLANNED / NOT STARTED — PLAN À AUDITER** :
+[PLAN dédié](./steps/PORTFOLIO_VERSIONED/rewrite_r11_plan.md), préparé depuis
+`8926b1f1b73650c17114914a168c368d0331d87b` sur la branche attendue, arbre initial
+propre et HEAD/origin exacts après fetch (0/0). Inventaire lu, aucune extraction.
+**R1.2–R1.4 — NOT STARTED ; R2–R6 — NOT STARTED**, périmètres R2–R6 inchangés.
+
+Prochain événement : audit indépendant du PLAN R1.1 par ChatGPT au SHA de
+livraison documentaire, puis décision explicite d'autorisation ou de correction.
+Aucune implémentation ne commence à l'issue de cette session. Le cadrage global
+ne constitue aucun GO : ni code/types/tests/configs/dépendances/scripts, ni
+stockage, ni début d'un sous-lot suivant. Le socle shell R0.1 n'est pas un modèle
+métier et aucune preuve nouvelle de code n'est produite ici.
+
+Décisions globales enregistrées D-R1-01–06 ; amendements **nouveaux**
+A-R1-01 (T09/I23 : borne Snapshot sur connaissances AP explicites) et A-R1-02
+(AP vide avec connaissance facultative déclarée, sans couverture/TA/cutoff).
+[Addendum normatif R0 §13](./steps/PORTFOLIO_VERSIONED/rewrite_r0_plan.md#13-addendum-normatif-r1-du-2026-10-10)
+explicite emplacements remplacés, justification et impact ; aucun canon historique
+réécrit. CivilDate/refs/enveloppes seuls en R1.1 ; graphes/transitions/simulation
+restent respectivement R1.2/R1.3/R1.4. Gates du PLAN toutes futures/non exécutées.
 
 **Documents normatifs V2 — ordre de lecture :**
 
 1. Cette section : état, prochaine étape et interdictions.
 2. [Registre durable des décisions](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md) : T01–T11/T12-R/T13–T15, statuts et portée.
 3. [Dossier normatif R0 autonome](./steps/PORTFOLIO_VERSIONED/rewrite_r0_plan.md) : contrats §2–§3, architecture §5, stockage/Git/lots §6–§8, invariants I01–I21/I22-R/I23 §9, clôture/reprise §11 et GO §12.
-4. [Registre vivant des extractions](./steps/PORTFOLIO_VERSIONED/rewrite_reuse_registry.md) : opérations techniques R0.1 réalisées, exclusions et provenance ; extractions métier R1+ NOT STARTED.
+4. [Registre vivant des extractions](./steps/PORTFOLIO_VERSIONED/rewrite_reuse_registry.md) : opérations techniques R0.1 réalisées, exclusions et provenance ; extractions métier R1+ NOT STARTED, intentions R1.1 documentées.
 5. [Plan R0.1 audité](./steps/PORTFOLIO_VERSIONED/rewrite_r01_plan.md) puis [canon R0.1](./steps/PORTFOLIO_VERSIONED/rewrite_r01_canon.md) : contrat et résultats G01–G16, limites, suite et rollback.
-6. [Current canon, section active](./current_canon.md) : cible distinguée du patrimoine livré.
+6. [PLAN R1.1 à auditer](./steps/PORTFOLIO_VERSIONED/rewrite_r11_plan.md) et addendum R0 §13 : fondations, décisions globales, amendements et gates futures.
+7. [Current canon, section active](./current_canon.md) : cible distinguée du patrimoine livré.
 
 **Documents patrimoniaux — consultation facultative :**
 [plan architectural antérieur](./steps/PORTFOLIO_VERSIONED/architecture_plan.md),
@@ -64,7 +82,7 @@ ETC/status explicites, CAS/atomicité/recovery. **T12-R remplace T12 historique*
 aucune migration V4–V8, dépôt neuf vide et stockage isolé, format natif exclusif,
 pas auto-import/hybride/autorité parallèle. T14 migration inapplicable ; natif
 open/ETC explicite, zéro n'implique jamais completed. I22 migration hors portée →
-I22-R import natif robuste ; I01–I21/I23 conservés. M01–M04 ne bloquent plus V2.
+I22-R import natif robuste ; I01–I21 conservés ; T09/T13/I23 amendés explicitement par A-R1-01/02 (R0 §13). M01–M04 ne bloquent plus V2.
 REUSE n'atteste aucune extraction et n'autorise aucun merge/copie massive.
 
 Séquence validée : **R0 → R0.1 → R1 → R2 → R3 → R4 → R5 → R6**.

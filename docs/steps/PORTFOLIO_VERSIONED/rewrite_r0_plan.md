@@ -2,11 +2,12 @@
 
 **État de reprise postérieur : R0 clôturé, R0.1 DONE après audit indépendant
 favorable et clôture utilisateur au SHA `d5bb1a89c847604f2f80aaaa3270e4125f4a3fef`.
-Windows reporté I-R01-C ; R1 prochain lot NOT STARTED, R2 NOT STARTED.**
+Windows reporté I-R01-C ; cadrage R1 validé, PLAN R1.1 à auditer,
+R1.1 PLANNED / NOT STARTED ; R1.2–R1.4 et R2–R6 NOT STARTED.**
 Résultats/limites et prochaines preuves dans [canon R0.1](./rewrite_r01_canon.md) et [current_plan](../../current_plan.md).
 Les statuts de préparation et l'exercice R0 conservés ci-dessous décrivent la
-clôture documentaire R0 ; ils n'annulent pas ce GO limité à R0.1. Contrats R0
-inchangés ; R1/R2 non autorisés. La clôture R0.1 externe est reçue ; les étapes
+clôture documentaire R0 ; ils n'annulent pas ce GO limité à R0.1. Contrats R0 conservés sous les amendements explicites A-R1-01/02 de §13 ;
+implémentations R1/R2 non autorisées. La clôture R0.1 externe est reçue ; les étapes
 de préparation ci-dessous restent historiques, l’état courant est dans current_plan.
 
 Date : 2026-10-10. **R0 — Architecture & Reconstruction Plan : clôture
@@ -669,3 +670,101 @@ R0.1/R1. Aucun squelette, runtime/stockage, extraction ou Domain modifié.
 Préparation documentaire R0.1 désormais livrée et PLANNED / NOT STARTED ;
 attendre audit de son plan puis autorisation explicite de lancement.
 Les conditions GO ci-dessus restent obligatoires ; aucune implémentation acquise.
+
+## 13. Addendum normatif R1 du 2026-10-10
+
+**Cadrage R1 validé par l'utilisateur ; implémentation non autorisée.**
+Baseline de préparation `8926b1f1b73650c17114914a168c368d0331d87b`.
+[Registre R1](./rewrite_decisions.md#cadrage-r1-validé--préparation-r11-uniquement)
+et [PLAN R1.1](./rewrite_r11_plan.md). R0/R0.1 restent DONE ; R1.1 PLANNED /
+NOT STARTED — PLAN À AUDITER ; R1.2–R1.4/R2–R6 NOT STARTED.
+Les anciennes indications de reprise R0/R0.1 ci-dessus sont historiques ; cet
+addendum et current_plan fixent la reprise courante. Il précise le découpage
+R1.1 primitives → R1.2 graphe → R1.3 transitions → R1.4 verticale mémoire,
+sans changer les responsabilités R2–R6 ni lancer un lot.
+
+### Amendements normatifs explicites A-R1-01 et A-R1-02
+
+**A-R1-01 — renforcement T09/I23.** Aux emplacements §2 ligne T09,
+§3.2 paragraphe « Snapshot knowledgeDate ≥ max through » et §9 ligne I23,
+la borne Snapshot est désormais : knowledgeDate déclarative obligatoire ≥
+chaque through des AP couverts sélectionnés **et** ≥ chaque knowledgeDate
+explicitement présente des AP sélectionnés, inactive/deleted inclus, Teams
+masquées incluses. Un AP vide avec connaissance déclarée impose donc cette
+borne ; sans couverture ni connaissance déclarée il n'en impose aucune.
+
+Justification : une capture ne peut déclarer une connaissance antérieure à la
+connaissance AP qu'elle sélectionne, même si celle-ci dépasse through. Impact :
+certaines sélections auparavant conformes à la seule borne de couverture sont
+désormais invalides. Exemple : AP through 2026-09-30, connaissance 2026-10-05,
+Snapshot connaissance 2026-10-01 : refus. Ni createdAt, ni date de recherche,
+ni latest ne choisissent une version. Égalités et recul entre captures restent
+permis si toutes les bornes des refs sélectionnées sont respectées. Validation
+structurelle R1.2 ; transition/confirmation R1.3 ; durable R2. Ce renforcement
+n'était pas écrit dans R0 : les anciennes formulations sont gardées pour trace.
+
+**A-R1-02 — connaissance facultative AP vide.** Aux emplacements §2 ligne T13,
+§3.2 « AP vide Project : aucune date fictive » et « sans couverture aucune borne »,
+et §9 I23 « AP vide sans borne », remplacer seulement l'interdiction générale
+des dates/l'absence inconditionnelle de borne par : AP vide peut porter une
+knowledgeDate civile facultative **explicitement déclarée**, jamais inventée.
+Il n'a ni from/through, ni SubPeriod, ni TA, ne crée aucune couverture et aucun
+cutoff Forecast. Sans connaissance déclarée, aucune comparaison artificielle.
+Avec connaissance déclarée, A-R1-01 s'applique, y compris inactive/deleted.
+Cette précision vaut pour tout propriétaire AP typé Project/Reservation ; elle
+ne crée pas de PTEC Reservation ni de couverture à la création native.
+
+Justification : distinguer absence de consommation couverte et connaissance
+déclarée. Impact : payload AP vide autorisant ce champ, validations Snapshot
+et filiation prenant en compte sa présence ; aucune distribution ni Forecast
+suspendu par cette seule date. Exemple AP vide connaissance 2026-10-05 :
+Snapshot 2026-10-01 refusé, aucun TA/cutoff créé. AP vide sans date ne reçoit pas
+un today ou timestamp substitut. Contrat AP R1.2, préconditions R1.3, codec R2.
+Il s'agit d'un amendement normatif nouveau, pas d'une correction éditoriale.
+
+### Précisions architecturales et cadre des sous-lots
+
+D-R1-01/02 précisent T01/T03 : modèle natif sans autorité legacy ; owner typé
+immuable ; refs exactes ; 0..1 predecessor de même identité ; plusieurs enfants
+possibles, cycles/collisions divergentes interdits ; provenance métier distincte
+et multiple autorisée, aucune fusion concurrente automatique. Archives non
+modifiables et non supprimables physiquement. Aucun terminal/latest/timestamp
+ou ordre de création ne sélectionne Current. Primitives en R1.1 ; politiques
+de provenance et registre en R1.2/R1.3 ; maintien physique en R2.
+
+D-R1-03 : registre passif, manifestes complets sélectionnant refs exactes,
+resolver pur sans fallback Current. Validation structurelle R1.2 distincte
+des préconditions historiques R1.3. Candidat complet avant publication logique,
+aucun état métier incomplet publié ; CAS/transactions/receipts restent R2.
+
+D-R1-04/05 précisent §3.1–§3.2 : existing/deleted distingue lifecycle de
+confirmed/suspended Forecast. Association structurellement présente ⇒ grille
+TA complète, suspendue incluse. PT deleted conserve PTEC sélectionné et aligné
+sur AP courant, mais aucune nouvelle cellule TA n'est exigée pour lui dans
+la grille courante ; ses archives restent intactes. Protection ever-nonzero
+vérifiée sur toutes versions archivées, même hors Current/Snapshots.
+Restore sous même identité, revue explicite paramètres sans réactivation auto ;
+AP nouveau ⇒ rebinding atomique de tous PTEC, deleted compris. Confirmation
+individualisée de chaque TA concerné avec refs exactes de base, valeur exacte
+et période candidate ; obligations selon opération. Le raccourcissement conserve
+les reconfirmations T11/I16 même pour zéro ; un préremplissage n'est pas preuve.
+Grille/alignement R1.2 ; transitions et preuves R1.3 ; commandes complètes R4.
+
+Connaissance AP : la règle non décroissante §3.2 se vérifie sur **chaque lien
+exact** de filiation, jamais ordre de création, tri du registre ou date de
+capture. Deux dates connues sur un lien exigent enfant ≥ parent ; racine sans
+connaissance n'impose pas de date artificielle. Le traitement d'une connaissance
+connue suivie d'un AP vide sans date devra être explicité dans le PLAN R1.3
+avant GO (aucun effacement implicite de connaissance pour contourner monotonie).
+R1.1 ne décide ni n'implémente cette transition métier.
+
+D-R1-06 précise §8 : verticale R1.4 native réelle mais bornée ; manifeste complet
+toujours validé ; admission suivant contributions métier effectivement
+démontrées. Scénario hors périmètre explicitement refusé, aucune approximation
+silencieuse. Oracle 1/3 Actuals + 2/3 ETC = 1 EAC ; Snapshot résolu et simulé
+indépendamment de Current, références exactes jamais sélection par date.
+L'oracle arithmetic de R1.1 n'est pas cette preuve end-to-end.
+
+Tous ces contrats sont enregistrés avant réalisation. Le PLAN R1.1 définit
+uniquement les fondations ; aucun GO R1.1/R1.2–R1.4/R2 implicite. Les clauses
+R0 non désignées, ses canons historiques et I-R01-C restent inchangés.
