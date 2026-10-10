@@ -1,6 +1,6 @@
 # FlowPlan2 current plan — point d'entrée unique
 
-## Trajectoire active — FlowPlan2 V2 / R0 clôture documentaire
+## Trajectoire active — FlowPlan2 V2 / R0.1 planifié
 
 **R0 — Architecture & Reconstruction Plan : plan accepté après audit indépendant
 favorable ; correctif documentaire de clôture livré.** Complétude, pertinence
@@ -10,15 +10,24 @@ Dépôt `kartaguez/FlowPlan2` ; branche actuelle de référence/livraison :
 `codex/lot11a-portfolio-snapshots`. Fetch réussi, arbre initial propre, origin 0/0.
 Branche future prévue `rewrite/portfolio-versioned` **non créée**.
 
-**Prochaine étape : audit de cette clôture puis, si favorable, autorisation de
-préparer/lancer R0.1 — Rewrite Initialization.** Ce futur lot infrastructure
-(branche/squelette/isolation runtime et stockage/environnement V2) exige son
-propre plan, audit et autorisation. R0.1 et R1–R6 sont NOT STARTED/non autorisés.
-R0 est uniquement documentaire ; son audit favorable n'autorise aucune implémentation.
+**R0.1 — Rewrite Initialization : PLANNED / NOT STARTED.** Préparation du
+[plan détaillé R0.1](./steps/PORTFOLIO_VERSIONED/rewrite_r01_plan.md) autorisée et
+livrée documentairement depuis `3e4b8a8e02c8cc8803d38021ea4606694495dea1`.
+Préflight : HEAD/origin exacts, arbre propre, fetch réussi et origin 0/0.
+R0 reste clôturé ; aucune réouverture de son architecture. Conclusion du plan :
+**READY FOR IMPLEMENTATION**, sans autorisation de lancement ni preuve V2.
 
-**Actions actuellement interdites :** création de branche, squelette, code,
-modification runtime/storage, extraction de code ancien, implémentation Domain,
-lancement R0.1 ou R1. Arrêt après commit/push de cette clôture.
+**Prochaine étape : audit indépendant du plan R0.1 puis autorisation explicite
+pour créer `rewrite/portfolio-versioned` et implémenter R0.1.** Aucun audit de ce
+plan ni GO d'implémentation n'est présumé. R1–R6 restent NOT STARTED/non autorisés.
+Cadrage inscrit : source physique `src-v2/`, entrée neuve et Portfolio vide RAM
+sans métier/storage ; origines fixes proposées `127.0.0.1:4274` et `:4275`,
+namespaces réservés, garde imports/artefacts et propres smoke gates négatives.
+Premières extractions métier en R1, persistence métier en R2.
+
+**Actions actuellement interdites :** création de branche rewrite, squelette,
+code, modification runtime/storage, extraction de code ancien, lancement R0.1
+ou R1/R2. Cette mission s'arrête après commit/push documentaire du plan.
 
 **Documents normatifs V2 — ordre de lecture :**
 
@@ -26,7 +35,8 @@ lancement R0.1 ou R1. Arrêt après commit/push de cette clôture.
 2. [Registre durable des décisions](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md) : T01–T11/T12-R/T13–T15, statuts et portée.
 3. [Dossier normatif R0 autonome](./steps/PORTFOLIO_VERSIONED/rewrite_r0_plan.md) : contrats §2–§3, architecture §5, stockage/Git/lots §6–§8, invariants I01–I21/I22-R/I23 §9, clôture/reprise §11 et GO §12.
 4. [Registre vivant des extractions](./steps/PORTFOLIO_VERSIONED/rewrite_reuse_registry.md) et matrice R0 §4 : toutes opérations NOT STARTED, provenance et preuves requises.
-5. [Current canon, section active](./current_canon.md) : cible distinguée du patrimoine livré.
+5. [Plan R0.1](./steps/PORTFOLIO_VERSIONED/rewrite_r01_plan.md) : baseline, inventaire factuel, infrastructure proposée, gates G01–G16, séquence et rollback.
+6. [Current canon, section active](./current_canon.md) : cible distinguée du patrimoine livré.
 
 **Documents patrimoniaux — consultation facultative :**
 [plan architectural antérieur](./steps/PORTFOLIO_VERSIONED/architecture_plan.md),

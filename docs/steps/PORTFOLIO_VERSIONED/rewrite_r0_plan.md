@@ -23,8 +23,9 @@ Ordre de lecture obligatoire depuis le point d'entrée :
 2. [Registre des décisions V2](./rewrite_decisions.md) : statut/portée T et renvois aux contrats détaillés.
 3. Le présent plan, intégralement : contrats V2 §2–§3, architecture §5, invariants §9, gates et reprise §11–§12.
 4. [Registre vivant des extractions](./rewrite_reuse_registry.md), puis matrice §4 : patrimoine et preuves futures.
-5. [current_canon](../../current_canon.md), section active : cible distinguée du code livré ancien.
-6. Facultativement, [architecture_plan antérieur](./architecture_plan.md), [canon livré](../../canon.md) et sources §2 : justifications, preuves et comportements patrimoniaux.
+5. [Plan R0.1](./rewrite_r01_plan.md), désormais PLANNED / NOT STARTED : infrastructure, gates et séquence propres, sans changement des contrats R0.
+6. [current_canon](../../current_canon.md), section active : cible distinguée du code livré ancien.
+7. Facultativement, [architecture_plan antérieur](./architecture_plan.md), [canon livré](../../canon.md) et sources §2 : justifications, preuves et comportements patrimoniaux.
 
 **Autonomie normative V2.** Les documents patrimoniaux servent de justification,
 de source de preuves, de description du comportement existant et de référence
@@ -64,8 +65,11 @@ R0.1 — Rewrite Initialization est un futur lot d'implémentation/infrastructur
 (branche, squelette, isolation runtime/storage et environnement V2), NOT STARTED,
 soumis à **son propre plan, audit et autorisation** ; aucun périmètre fonctionnel
 ne change avec ce renommage. R1 reste non autorisé.
-Prochaine étape : audit de cette clôture, puis, si favorable, autorisation de
-préparer/lancer R0.1 selon ses gates. Aucune autorisation de R0.1 n'est acquise ici.
+Mise à jour de reprise du 2026-10-10 depuis `3e4b8a8e02c8cc8803d38021ea4606694495dea1` :
+préparation documentaire R0.1 autorisée et [plan propre livré](./rewrite_r01_plan.md),
+PLANNED / NOT STARTED. R0 reste clôturé, ses contrats ne sont pas rouverts.
+Prochaine étape : audit du plan R0.1 puis autorisation explicite d'implémentation.
+Aucune branche, extraction ou implémentation R0.1/R1 n'est acquise ici.
 
 Contrôles initiaux effectués avant rédaction : branche exacte, fetch origin
 réussi, HEAD identique à la baseline, arbre propre, upstream origin 0/0.
@@ -614,8 +618,9 @@ par « comportement livré », sans reproduire fixtures/exemples patrimoniaux.
 Les contrats §2–§3 et invariants §9 suffisent à cadrer R0.1/R1 ; les détails
 techniques volontairement ouverts ont leur lot/gate écrit. Aucune réponse ne
 requiert une conversation. La clarification ratio reste une question documentée,
-pas un choix caché. Prochaine réponse attendue : audit de clôture, puis éventuelle
-autorisation de préparer/lancer R0.1 ; aucune création immédiate de branche.
+pas un choix caché. À la mise à jour de reprise, la préparation R0.1 est
+matérialisée dans son [plan propre](./rewrite_r01_plan.md) ; prochain acte : audit puis autorisation
+explicite d'implémentation, aucune création immédiate de branche.
 
 Nettoyage documentaire futur non bloquant : déplacer éventuellement les longues
 archives des trackers dans un fichier dédié, avec inventaire des ancres/liens et
@@ -652,4 +657,6 @@ GO futur de R0.1 — Rewrite Initialization uniquement après :
 À la livraison présente : **R0 clôturé documentairement ; arrêt obligatoire après commit/push du correctif**.
 Ne pas créer la branche, coder, migrer/importer, basculer l'application ou lancer
 R0.1/R1. Aucun squelette, runtime/stockage, extraction ou Domain modifié.
-Attendre audit de clôture puis autorisation explicite de préparer/lancer R0.1.
+Préparation documentaire R0.1 désormais livrée et PLANNED / NOT STARTED ;
+attendre audit de son plan puis autorisation explicite de lancement.
+Les conditions GO ci-dessus restent obligatoires ; aucune implémentation acquise.

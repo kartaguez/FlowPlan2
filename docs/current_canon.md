@@ -7,14 +7,20 @@ Le [plan normatif R0](./steps/PORTFOLIO_VERSIONED/rewrite_r0_plan.md) est l'auto
 pour la reconstruction V2. Baseline auditée du plan et initiale du correctif de clôture :
 `62bfdb9f36b406a0196ba7ceee45884217c68365`, branche
 `codex/lot11a-portfolio-snapshots`, contrôlée propre et origin 0/0 après fetch.
-**R0 — Architecture & Reconstruction Plan : plan accepté après audit indépendant
-favorable, clôture documentaire livrée. R0.1 — Rewrite Initialization et R1–R6
-NOT STARTED/non autorisés.** L'audit favorable porte sur complétude, pertinence
-architecturale et statelessness immédiate ; aucune implémentation n'est autorisée.
-Branche proposée `rewrite/portfolio-versioned` non créée ; aucun code ou format
-actif modifié. Prochaine action : audit de clôture puis éventuelle autorisation de préparer/lancer
-R0.1, soumis à son propre plan/audit/autorisation. Aucun code, branche, squelette,
-runtime/storage, extraction ou Domain ; ne pas commencer R0.1/R1.
+**R0 — Architecture & Reconstruction Plan : clôturé après audit favorable.**
+**R0.1 — Rewrite Initialization : PLANNED / NOT STARTED**, préparation documentaire
+livrée depuis `3e4b8a8e02c8cc8803d38021ea4606694495dea1`, arbre initial propre,
+origin 0/0 après fetch. [Plan R0.1](./steps/PORTFOLIO_VERSIONED/rewrite_r01_plan.md) :
+READY FOR IMPLEMENTATION au sens préparation, audit propre et autorisation de
+lancement encore requis. R1–R6 restent NOT STARTED/non autorisés.
+Branche `rewrite/portfolio-versioned` non créée ; aucun runtime V2 livré.
+Propositions détaillées : src-v2/public-v2/dist-v2/tests indépendants, nouvelle
+composition root, Portfolio vide RAM sans modèle métier ni persistence, ports
+fixes 4274/4275, réservations browser et garde mécanique. Les décisions d'isolation
+physique forte et d'origine dédiée fixe sont validées par cadrage et enregistrées.
+Prochaine action : audit du plan puis autorisation explicite d'implémenter R0.1.
+Aucun code, branche, squelette, runtime/storage, extraction ou Domain autorisé
+par cette livraison documentaire ; ne pas commencer R0.1/R1/R2.
 
 Décisions cibles définitives : Option B extraction sélective, identité/version
 séparées, graphes de refs exactes autonomes, Current seul sélecteur courant,

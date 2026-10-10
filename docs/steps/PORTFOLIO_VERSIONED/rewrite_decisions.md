@@ -41,3 +41,20 @@ Point métier volontairement **OUVERT** : Reservation ratio + exception sans
 période ; arbitrage documenté avant reprise complète R3, sans rouvrir les
 conclusions R0. Voir [R0 §3.3](./rewrite_r0_plan.md#33-calculs-conservés-et-amendements-obligatoires).
 Les détails techniques ouverts et leurs lots restent dans [R0 §8](./rewrite_r0_plan.md#8-séquencement-recommandé-et-validations-verticales).
+
+## Décisions d'infrastructure R0.1
+
+Préparation documentaire autorisée le 2026-10-10 ; R0.1 PLANNED / NOT STARTED.
+Ces décisions précisent T12-R et la frontière de reprise, sans changement métier.
+Les choix techniques détaillés du [plan R0.1](./rewrite_r01_plan.md) sont proposés
+pour audit ; aucune décision ci-dessous n'atteste du code extrait ou d'un PASS V2.
+
+| ID | Statut / portée | Décision | Contrat détaillé |
+| --- | --- | --- | --- |
+| I-R01-A | VALIDÉE par cadrage utilisateur ; infrastructure R0.1 | Isolation physique forte : source root V2 distinct de src ; ancien src hors compilation/tests/exécution V2 ; imports V2 → legacy interdits mécaniquement. Aucune extraction métier avant R1. | [R0.1 §3–§6](./rewrite_r01_plan.md#3-cible-et-portfolio-vide-borné-à-r01) ; proposition précise src-v2/public-v2/dist-v2/.test-dist-v2 |
+| I-R01-B | VALIDÉE par cadrage utilisateur ; environnement R0.1 | Origines browser V2 dédiées et fixes, distinctes du legacy, vérifiées mécaniquement ; namespaces distincts, aucun bridge runtime. | [R0.1 §5](./rewrite_r01_plan.md#5-origines-fixes-et-frontières-browser) ; proposition dev 127.0.0.1:4274 / portable 127.0.0.1:4275 |
+
+Source root exact, ports, outillage, DTO shell, packaging et gates G01–G16 sont
+fixés comme propositions explicites auditables dans ce plan ; audit propre puis
+autorisation distincte avant implémentation. Les namespaces réservés R0 §6 restent
+inchangés. R0.1 n'ouvre aucun stockage ; schéma/codec/persistence métier restent R2.

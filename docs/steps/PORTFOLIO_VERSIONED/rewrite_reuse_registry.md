@@ -70,3 +70,33 @@ Clôture d'un lot : mettre ce registre à jour pour toute extraction/abandon
 réalisé, puis appliquer la [checklist stateless R0 §11](./rewrite_r0_plan.md#11-contrat-de-clôture-et-exercice-final-de-reprise-à-froid).
 Aucun SHA/destination/test exécuté ou avis d'audit d'extraction n'est inventé
 pour remplir un champ à la clôture documentaire R0.
+
+## Préparation R0.1 — décisions inspectées, aucune opération réalisée
+
+[PLAN R0.1](./rewrite_r01_plan.md) préparé à la baseline exacte
+`3e4b8a8e02c8cc8803d38021ea4606694495dea1`. Ce SHA est une **source inspectée**,
+pas un SHA d'extraction effectuée. Les 37 opérations ci-dessus restent NOT STARTED,
+champs effectifs inchangés ; aucune extraction métier ni technique déclarée réalisée.
+Table ci-dessous : décisions d'intention PLANNED, destinations et preuves futures.
+
+| Périmètre inspecté à cette baseline | Traitement prévu / classe | Destination future ou exclusion | Dépendances à couper / preuve attendue |
+| --- | --- | --- | --- |
+| package.json, tsconfig*.json, scripts/build.mjs | ADAPT outillage, options strictes reprises explicitement | Configs tsconfig.v2.*, scripts/v2/build.mjs, aliases package | src/public/dist legacy ; G01/G13/G14 |
+| scripts/test.mjs et harness storageBrowserHarness.mjs | ADAPT découverte tests/CDP technique | scripts/v2/test.mjs, browser-harness.mjs ; .test-dist-v2 | Toute compilation/suite/fixture ancienne, dist et origine aléatoire app ; G02/G07–G13 |
+| scripts/dev.mjs | ADAPT watcher/serveur | scripts/v2/dev.mjs, request-handler.cjs | build/config/public legacy et PORT arbitraire ; G12/G14 |
+| scripts/build-sea.mjs, portable-server.cjs, portable-server.test.cjs, smoke-sea.ps1 | ADAPT packaging/HTTP/test technique | scripts/v2/build-sea.mjs, portable-server.cjs, servers.test.cjs, smoke-sea.ps1 | dist legacy, entrypoint/asset ancien, port 4175 ; G12/G14/G16, preuve Windows |
+| src/main/main.ts, createPersistentPlanningApplication.ts ; public/index.html | REFERENCE ; entrée/composition neuves | src-v2/main/* et public-v2/index.html, aucun fichier ancien importé | Domain/Application/Engine/Persistence/History/UI legacy ; G03/G04/G13/G14 |
+| src/main/demo/createDemoPlanningScenario.ts et appel fallback dans root | DROP du chemin V2 ; bootstrap vide neuf | Aucune extraction demo ; src-v2/bootstrap/emptyPortfolioShellState.ts neuf | Aucun fallback ni fixture métier ; G04/G05 |
+| indexedDbRepositoryStorage.ts, createPlanningRepository.ts, repositoryTransfer.ts, localPlanningBackup.ts | DROP de l'initialisation V2 ; mécanismes restent références R2 selon lignes initiales | Aucune copie/opener/port métier R0.1 | DB/Current/codecs/legacy fingerprint/staging/recovery ; G06–G10 |
+| indexedDbHistoryScratch.ts, snapshotValidationWorker.ts, planningStorageWorker.ts ; channel dans root | Exclus du runtime R0.1 ; reprise future conserve classes initiales | Aucun scratch/worker/channel actif ; noms réservés seulement | History/codec/DB legacy et URL worker ; G09/G11/G14 |
+| src/main/mountPlanningApplication.ts, planning/buildPlanningSessionProjection.ts, src/ui/renderApp.ts, public/styles.css | REFERENCE pour frontières, conservation patrimoniale ; adaptations visuelles R5 non commencées | UI shell R0.1 neuve ; aucun ancien mount/render/style copié | Simulation/session/controllers/barrels ; G03/G05/G14 |
+| src/, public/, scripts et configs historiques conservés | REFERENCE physique indépendante | Hors graphes V2, checkout historique au SHA exact | Aucun runtime partagé ; G15 |
+
+Pendant l'implémentation, ajouter lignes liées par opération technique/exclusion
+avec **source exacte et SHA source effectif**, destination réelle (ou « aucune,
+exclu du runtime V2 »), dépendances retirées, contrats, résultats exécutés et
+décision d'audit ; conserver la classification initiale et la provenance.
+Bootstrap/composition neufs ne sont pas extraction métier. Le présent tableau
+ne remplit pas les champs effectifs ni n'anticipe l'audit. Futures extractions
+R1+ : même protocole source/SHA/destination/dépendances/contrats/preuves/audit.
+Aucun merge automatique de l'ancien runtime vers rewrite.
