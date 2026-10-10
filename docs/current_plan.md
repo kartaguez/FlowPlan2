@@ -1,44 +1,53 @@
-# FlowPlan2 current plan
+# FlowPlan2 current plan — point d'entrée unique
 
-## Trajectoire documentaire active — Portfolio versionné (PLAN ONLY)
+## Trajectoire active — FlowPlan2 V2 / R0 PLAN
 
-La consolidation du 2026-10-10 part de la baseline documentaire vérifiée
-`c2e32fd5560074aad8822e853c582512f49811a8`, branche
-`codex/lot11a-portfolio-snapshots`, arbre propre et origin 0/0 après fetch.
-Le [plan architectural consolidé](./steps/PORTFOLIO_VERSIONED/architecture_plan.md)
-intègre les **15 décisions utilisateur T01–T15 définitives**, les invariants
-I01–I23, les contre-exemples B01–B23 et le dossier de préparation V1 (§8.1).
-Aucun nouveau lot commencé, implémenté ou DONE ; aucune implémentation autorisée.
+**Statut : PLAN documentaire livré pour audit indépendant ; aucune implémentation
+ni création de branche autorisée.** R0 initialisation et R1–R6 NOT STARTED.
+Dépôt `kartaguez/FlowPlan2`, branche de référence/livraison
+`codex/lot11a-portfolio-snapshots`, baseline R0 vérifiée le 2026-10-10 :
+`98737b1521e2877031b7cb0dd2624c268823d51e`. Fetch réussi, arbre initial propre,
+origin 0/0. Aucun nouveau runtime/format ni accès aux données utilisateur en R0.
 
-Current/captures cibles sont des manifestes de refs exactes vers versions immuables,
-avec PlanningSettings/PortfolioOrder distincts, dailyCap PT, ETC/status PTEC.
-Masquage Team purement visuel sans condition de charge ; restore contrôlé,
-catalogues usage-driven auto-deleted et priorités historiques conservées ; AP vide,
-reconfirmations et reopen explicites. Les décisions ne sont plus à ratifier.
+**Lire dans cet ordre pour reprendre sans conversation :**
 
-**T12 : conversion obligatoire, mais universalité réfutée sous les invariants
-actuels.** Une capture non convertible bloque l'activation entière. Le plan
-identifie M01–M04 : Actuals avant earliest, information V4 absente, filiation V5
-non attestée, retrait historique positif. Les classes exact/réconciliation/
-impossible sont distinguées par format. Aucune date ni lignée synthétique,
-aucun résultat calculé dans les captures converties. L'ancien dépôt scellé de
-recovery peut garder ses bytes/résultats temporairement ; il n'est jamais une
-seconde autorité ni un fallback. Audit des bloqueurs requis avant V2/V5.
+1. Cette section : état et prochaine action.
+2. [Plan normatif R0 autonome](./steps/PORTFOLIO_VERSIONED/rewrite_r0_plan.md), intégralement : décisions, modèle, inventaire, architecture, Git/stockage, lots, invariants, exercice de reprise et GO.
+3. [Current canon](./current_canon.md) : cible distinguée des acquis réellement livrés.
+4. [Plan architectural antérieur](./steps/PORTFOLIO_VERSIONED/architecture_plan.md), §3–§6, sous les remplacements R0 ; puis canons et plans patrimoniaux référencés dans R0 §2.
 
-Séquence conservée : **V1 → V2 → V3 → V4 → V6 → V7 consultation minimale → V5
-bascule atomique → V7 comparaisons avancées**. Chaque lot a entrées, sorties,
-invariants/oracles, mesures, GO/NO-GO et rollback. V1 est préparé pour audit de
-contrat, sans autorisation de lancement ; V2/V5 ne peuvent activer une source
-incompatible par simple confirmation. Prochaine étape : audit indépendant du
-plan consolidé, puis autorisation explicite avant toute implémentation.
+Décisions définitives : **Option B, reconstruction avec extraction sélective**,
+branche future `rewrite/portfolio-versioned` partageant l'historique, référence
+préservée et reprises auditées sans merge automatique. Modèle Portfolio versionné,
+identités stables/versions immuables/refs exactes, Current/Snapshots inputs-only,
+AP/SubPeriod/TeamActual/PT/RT/PTEC, Settings/Order versionnés, CAS/atomicité/recovery.
+T01–T11 et T13–T15 maintenus selon portée R0 ; **T12 remplacée par T12-R** :
+nouveau dépôt initial vide, format exclusivement natif, aucune migration V4–V8,
+aucun import automatique/hybride/autorité legacy. T14 migrée inapplicable mais
+non-inférence de completed maintenue en natif ; I22 migration remplacé dans le
+chemin V2 par I22-R import natif robuste. I01–I21/I23 maintenus. M01–M04 ne
+bloquent plus V2. Ancien Portfolio sauvegardé indépendamment avant bascule.
 
-La cible remplace la proposition 11D.2 de configurations copiées dans les captures.
-Les acquis livrés 11D.0, 11D.1 et 11D.2/G1 restent préservés, avec leurs limites.
-Les sections anciennes ci-dessous sont les enregistrements de livraison et de
-trajectoire antérieure ; aucune règle cible ne leur est attribuée rétroactivement.
-11D.3 est remplacé par contrats/persistance/bascule ; 11D.4 rebasé en moteur/service ;
-11D.5 reporté à la consultation puis aux comparaisons sur le nouveau service.
-**Arrêt après livraison documentaire du plan consolidé.**
+Trajectoire recommandée : R0 PLAN → audit/autorisation → R0 initialisation
+(branche/squelette sûrs) → **R1 Domain et simulation verticale mémoire** →
+**R2 Storage natif et verticale durable** → R3 moteur/service complet →
+R4 commandes atomiques → R5 UI/consultation minimale → R6 History/comparaisons.
+Service Snapshot minimum en R2/R3, consultation minimale avant Save UI R5.
+Les gates/tests/risques/rollback de chaque lot sont dans R0 §8–§10.
+
+**Prochaine étape : audit indépendant de R0 et exercice de reprise à froid
+(R0 §11), puis autorisation explicite par SHA avant création de branche ou code.**
+Le prompt minimal de reprise et les sources de chaque réponse sont dans R0.
+Arrêt obligatoire après livraison Git du PLAN. Aucun lot nouveau commencé ici.
+
+R0 fait autorité pour la cible V2. Le plan précédent reste consultable comme trace,
+mais T12/migration/V1–V7/switch et ses bloqueurs ne sont plus la trajectoire active.
+11D.0/11D.1/11D.2 G1 et tous canons DONE restent les acquis de l'ancienne app,
+avec leurs limites ; ils ne certifient pas V2. Les sections suivantes sont des
+**archives de suivi de l'application de référence** : leurs « current », gates
+et statuts intermédiaires ne remplacent pas cette section ni le plan R0.
+
+## Archives de suivi — application de référence
 
 Current validated baseline:
 `ee66a72cb6073c753681af95acae5122f93f13d3` (11D.2 G1 proof implementation validated by

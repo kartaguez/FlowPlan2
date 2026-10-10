@@ -1,42 +1,52 @@
 # FlowPlan2 current canon
 
-This document describes the currently active product/build trajectory.
-For durable invariants and architecture, see [canon](./canon.md).
+## Trajectoire active — V2 : cible normative, aucune implémentation
 
-`canon.md` is durable truth. `current_canon.md` is the truth of the currently
-active implementation and trajectory. The remaining work is in the
-[current plan](./current_plan.md).
+Point d'entrée unique et ordre de lecture : [current_plan](./current_plan.md).
+Le [plan normatif R0](./steps/PORTFOLIO_VERSIONED/rewrite_r0_plan.md) est l'autorité
+pour la reconstruction V2. Baseline R0 :
+`98737b1521e2877031b7cb0dd2624c268823d51e`, branche
+`codex/lot11a-portfolio-snapshots`, contrôlée propre et origin 0/0 après fetch.
+**PLAN livré pour audit ; R0 initialisation et R1–R6 non commencés/non autorisés.**
+Branche proposée `rewrite/portfolio-versioned` non créée ; aucun code ou format
+actif modifié. Prochaine action : audit indépendant puis autorisation explicite.
 
-## Trajectoire Portfolio versionné consolidée — PLAN ONLY
+Décisions cibles définitives : Option B extraction sélective, identité/version
+séparées, graphes de refs exactes autonomes, Current seul sélecteur courant,
+PortfolioSnapshots inputs-only sans résultats, AP/SubPeriod/TeamActual/PT/RT/PTEC,
+ETC/status explicites, Settings/Order versionnés, histoire conservée et publications
+CAS atomiques. Domain/Engine indépendants UI/stockage, simulation historique
+sans lecture implicite Current. Continuité visuelle FlowPlan1/2 préservée.
 
-Le [plan Portfolio versionné](./steps/PORTFOLIO_VERSIONED/architecture_plan.md)
-est consolidé le 2026-10-10 depuis la baseline documentaire
-`c2e32fd5560074aad8822e853c582512f49811a8`. T01–T15 sont des décisions utilisateur
-**définitives pour la cible**, aucun contrat nouvellement implémenté. Le code,
-les formats actifs et les canons DONE ci-dessous restent leurs contrats livrés ;
-11D.0/11D.1/11D.2 G1 conservés avec leurs limites. La cible normalisée remplace
-la cible copiée ancienne de 11D.2, sans réécrire ses acquis.
+**T12-R remplace migration obligatoire** : dépôt neuf vide, format natif autonome,
+aucun convertisseur V4–V8/auto-import/hybride/autorité legacy. Ancien stockage jamais
+écrit, origine et namespaces V2 distincts ; sauvegarde/restauration ancienne
+vérifiée avant bascule. Robustesse native CAS/recovery/import-export inchangée.
+T01–T11/T13–T15 conservés selon portée détaillée R0 §2 ; T14 migration inapplicable,
+non-inférence de completed native conservée. I01–I21/I23 maintenus, I22 migration
+hors portée remplacé par I22-R natif robuste. M01–M04 références négatives,
+plus bloqueurs. Architecture précédente conservée comme trace, séquence V1–V7
+supplantée par R0–R6 et verticales précoces R1/R2.
 
-Les manifestes cibles sélectionnent des versions exactes ; Current seul désigne
-le courant. PlanningSettings/PortfolioOrder versionnés, dailyCap PT, ETC/status
-PTEC ; AP vide explicite, hide visuel sans condition de charge, restore contrôlé,
-ordre historique et catalogues usage-driven conservés, preuves de consommation
-et completed/reopen explicites. Ce paragraphe décrit la **cible**, pas le produit
-actif. I01–I23/B01–B23 et préparation V1 sont dans le plan.
+**Faits du code livré à cette baseline** : Portfolio/requirements/RAF inline,
+Actuals object-scoped V4/V5, formats V1–V8, captures avec résultats persistés,
+IndexedDB `flowplan-planning`, startup legacy/demo ; ce sont des faits anciens,
+pas des composants V2 activés. 11D.0 storage/CAS/recovery, 11D.1 RAF/UX, 11D.2
+G1 seulement, 11A/11A.2/11B/11C restent acquis avec leurs limites. G1 n'est ni
+service historique production ni preuve de conformité au graphe V2.
 
-T12 exige la conversion de toutes captures sans résultats calculés ni invention,
-et une activation atomique du dépôt. M01–M04 documentent des cas valides anciens
-non exactement convertibles sous les invariants : earliest incompatible, V4
-incomplet, filiation inconnue, retrait positif historique. Ils bloquent la gate
-de migration ; aucune capture legacy-only active ne contourne T12. Les bytes et
-résultats d'une génération ancienne scellée peuvent être gardés temporairement
-pour recovery/export, sans seconde autorité métier. La lecture V4–V8 livrée et
-G1 ne certifient pas cette nouvelle conversion universelle.
+Inventaire/module/tests et décisions REUSE/ADAPT/REFERENCE/DROP : R0 §4.
+Invariants→propriétaires→tests : R0 §9. Reprise stateless : R0 §1 et §11 ; aucun
+choix nécessaire au lancement n'est réservé à une conversation. Les détails
+techniques ouverts sont nommés et affectés à un lot dans R0 §8.
 
-Voir le [current plan](./current_plan.md) pour les gates V1–V7. V1 préparé pour
-audit, aucun nouveau lot commencé/implémenté/DONE. Audit indépendant du plan
-consolidé puis autorisation explicite avant toute implémentation. Arrêt après
-livraison documentaire ; aucune migration réelle ni nouveau format actif.
+## Archives de canon — application de référence
+
+Les sections suivantes et [canon.md](./canon.md) décrivent les contrats livrés de
+l'ancienne application ; elles ne sont pas réécrites rétroactivement. En cas de
+différence de cible, R0 prévaut pour V2, les canons livrés restent vrais pour
+l'ancien produit. Le [plan antérieur](./steps/PORTFOLIO_VERSIONED/architecture_plan.md)
+a la même portée documentaire historique pour migration/switch/séquence ancienne.
 
 ## 11D.1 UX — DONE
 
