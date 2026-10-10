@@ -7,15 +7,36 @@ For durable invariants and architecture, see [canon](./canon.md).
 active implementation and trajectory. The remaining work is in the
 [current plan](./current_plan.md).
 
-## Nouvelle étude architecturale — PLAN ONLY
+## Trajectoire Portfolio versionné consolidée — PLAN ONLY
 
 Le [plan Portfolio versionné](./steps/PORTFOLIO_VERSIONED/architecture_plan.md)
-a été rédigé à la baseline `1128246c101701b653569b62ca015d04366a2f79`.
-Il décrit une cible demandée par l'utilisateur et des propositions à arbitrer,
-aucun contrat implémenté. Le code et les formats restent ceux décrits ci-dessous ;
-les acquis 11D.0/11D.1/11D.2 sont conservés. La nouvelle trajectoire remplace la
-cible copiée de 11D.2, sans changer sa preuve G1 ; voir le
-[current plan](./current_plan.md). Aucun lot nouveau commencé ou DONE.
+est consolidé le 2026-10-10 depuis la baseline documentaire
+`c2e32fd5560074aad8822e853c582512f49811a8`. T01–T15 sont des décisions utilisateur
+**définitives pour la cible**, aucun contrat nouvellement implémenté. Le code,
+les formats actifs et les canons DONE ci-dessous restent leurs contrats livrés ;
+11D.0/11D.1/11D.2 G1 conservés avec leurs limites. La cible normalisée remplace
+la cible copiée ancienne de 11D.2, sans réécrire ses acquis.
+
+Les manifestes cibles sélectionnent des versions exactes ; Current seul désigne
+le courant. PlanningSettings/PortfolioOrder versionnés, dailyCap PT, ETC/status
+PTEC ; AP vide explicite, hide visuel sans condition de charge, restore contrôlé,
+ordre historique et catalogues usage-driven conservés, preuves de consommation
+et completed/reopen explicites. Ce paragraphe décrit la **cible**, pas le produit
+actif. I01–I23/B01–B23 et préparation V1 sont dans le plan.
+
+T12 exige la conversion de toutes captures sans résultats calculés ni invention,
+et une activation atomique du dépôt. M01–M04 documentent des cas valides anciens
+non exactement convertibles sous les invariants : earliest incompatible, V4
+incomplet, filiation inconnue, retrait positif historique. Ils bloquent la gate
+de migration ; aucune capture legacy-only active ne contourne T12. Les bytes et
+résultats d'une génération ancienne scellée peuvent être gardés temporairement
+pour recovery/export, sans seconde autorité métier. La lecture V4–V8 livrée et
+G1 ne certifient pas cette nouvelle conversion universelle.
+
+Voir le [current plan](./current_plan.md) pour les gates V1–V7. V1 préparé pour
+audit, aucun nouveau lot commencé/implémenté/DONE. Audit indépendant du plan
+consolidé puis autorisation explicite avant toute implémentation. Arrêt après
+livraison documentaire ; aucune migration réelle ni nouveau format actif.
 
 ## 11D.1 UX — DONE
 

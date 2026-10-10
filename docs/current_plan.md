@@ -2,22 +2,43 @@
 
 ## Trajectoire documentaire active — Portfolio versionné (PLAN ONLY)
 
-La mission du 2026-10-09 à la baseline documentaire
-`1128246c101701b653569b62ca015d04366a2f79` formalise le
-[plan architectural et de faisabilité](./steps/PORTFOLIO_VERSIONED/architecture_plan.md).
-Il confronte les 23 invariants demandés aux contrats réels, explicite les arbitrages,
-la migration V4–V8, les risques et les gates des sept lots proposés.
+La consolidation du 2026-10-10 part de la baseline documentaire vérifiée
+`c2e32fd5560074aad8822e853c582512f49811a8`, branche
+`codex/lot11a-portfolio-snapshots`, arbre propre et origin 0/0 après fetch.
+Le [plan architectural consolidé](./steps/PORTFOLIO_VERSIONED/architecture_plan.md)
+intègre les **15 décisions utilisateur T01–T15 définitives**, les invariants
+I01–I23, les contre-exemples B01–B23 et le dossier de préparation V1 (§8.1).
 Aucun nouveau lot commencé, implémenté ou DONE ; aucune implémentation autorisée.
 
-La cible normalisée remplace la proposition 11D.2 de configurations copiées dans
-les captures : Current et nouvelles captures deviennent des manifestes de refs
-exactes vers des versions immuables de toutes les entités nécessaires. Les acquis
-validés 11D.0, 11D.1 et 11D.2/G1 restent préservés. Les sections anciennes ci-dessous
-restent des enregistrements de livraison et de trajectoire antérieure ; les choix
-« configurations copiées / normalisation hors scope » ne sont plus la cible active.
+Current/captures cibles sont des manifestes de refs exactes vers versions immuables,
+avec PlanningSettings/PortfolioOrder distincts, dailyCap PT, ETC/status PTEC.
+Masquage Team purement visuel sans condition de charge ; restore contrôlé,
+catalogues usage-driven auto-deleted et priorités historiques conservées ; AP vide,
+reconfirmations et reopen explicites. Les décisions ne sont plus à ratifier.
+
+**T12 : conversion obligatoire, mais universalité réfutée sous les invariants
+actuels.** Une capture non convertible bloque l'activation entière. Le plan
+identifie M01–M04 : Actuals avant earliest, information V4 absente, filiation V5
+non attestée, retrait historique positif. Les classes exact/réconciliation/
+impossible sont distinguées par format. Aucune date ni lignée synthétique,
+aucun résultat calculé dans les captures converties. L'ancien dépôt scellé de
+recovery peut garder ses bytes/résultats temporairement ; il n'est jamais une
+seconde autorité ni un fallback. Audit des bloqueurs requis avant V2/V5.
+
+Séquence conservée : **V1 → V2 → V3 → V4 → V6 → V7 consultation minimale → V5
+bascule atomique → V7 comparaisons avancées**. Chaque lot a entrées, sorties,
+invariants/oracles, mesures, GO/NO-GO et rollback. V1 est préparé pour audit de
+contrat, sans autorisation de lancement ; V2/V5 ne peuvent activer une source
+incompatible par simple confirmation. Prochaine étape : audit indépendant du
+plan consolidé, puis autorisation explicite avant toute implémentation.
+
+La cible remplace la proposition 11D.2 de configurations copiées dans les captures.
+Les acquis livrés 11D.0, 11D.1 et 11D.2/G1 restent préservés, avec leurs limites.
+Les sections anciennes ci-dessous sont les enregistrements de livraison et de
+trajectoire antérieure ; aucune règle cible ne leur est attribuée rétroactivement.
 11D.3 est remplacé par contrats/persistance/bascule ; 11D.4 rebasé en moteur/service ;
 11D.5 reporté à la consultation puis aux comparaisons sur le nouveau service.
-Arbitrages et audit du plan requis avant tout lot d'implémentation.
+**Arrêt après livraison documentaire du plan consolidé.**
 
 Current validated baseline:
 `ee66a72cb6073c753681af95acae5122f93f13d3` (11D.2 G1 proof implementation validated by
