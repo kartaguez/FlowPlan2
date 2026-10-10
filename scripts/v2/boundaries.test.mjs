@@ -62,3 +62,7 @@ test('rejects assets outside compiler/HTML allowlist', () => fixture(async root 
   await writeFile(resolve(root, 'dist-v2/old.js'), 'export const legacy = true;');
   await assert.rejects(checkAssets(root), /allowlist/);
 }));
+test('rejects a DOM factory alias that could construct a script', () => fixture(async root => {
+  const file = resolve(root, 'src-v2/main.ts'); await writeFile(file, 'const create = document.createElement; create("script");');
+  await assert.rejects(checkModule(file, resolve(root, 'src-v2'), options), /DOM factory alias/);
+}));

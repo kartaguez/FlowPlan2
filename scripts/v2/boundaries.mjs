@@ -46,6 +46,7 @@ export async function checkModule(file, root, options = {}, runtime = true, tool
       if (ts.isIdentifier(node) && ['window', 'globalThis', 'document', 'navigator'].includes(node.text)) {
         if (!ts.isPropertyAccessExpression(node.parent) || node.parent.expression !== node || !domProperties.has(node.parent.name.text)) fail(file, 'unapproved browser-global access');
       }
+      if (ts.isPropertyAccessExpression(node) && node.name.text === 'createElement' && (!ts.isCallExpression(node.parent) || node.parent.expression !== node)) fail(file, 'DOM factory alias');
       if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression) && node.expression.name.text === 'createElement') {
         if (!ts.isStringLiteral(node.arguments[0]) || !tags.has(node.arguments[0].text)) fail(file, 'unapproved DOM element');
       }
@@ -107,7 +108,8 @@ export async function checkSources(root = projectRoot) {
     for (const f of program.getSourceFiles().filter(f => f.isDeclarationFile)) {
       const path = await realpath(f.fileName);
       const approved = [resolve(root, 'node_modules/typescript/lib'), ...(mode === 'test' ? [resolve(root, 'node_modules/@types/node'), resolve(root, 'node_modules/undici-types')] : [])];
-      if (!approved.some(p => inside(p, path))) fail(mode, `unapproved declaration ${path}`);
+      const canonicalApproved = await Promise.all(approved.map(p => realpath(p).catch(() => p)));
+      if (!canonicalApproved.some(p => inside(p, path))) fail(mode, `unapproved declaration ${path}`);
     }
     lists[mode] = list.map(f => relative(root, f)).sort();
   }
@@ -125,7 +127,7 @@ export async function checkAssets(root = projectRoot) {
   const config = await readConfig(root, 'app');
   const expected = ['index.html', 'styles.css', ...config.fileNames.map(f => 'js/' + relative(resolve(root, 'src-v2'), f).replace(/\.ts$/, '.js'))].sort();
   const dist = resolve(root, 'dist-v2');
-  const actual = (await filesUnder(dist)).filter(f => !inside(resolve(dist, '.sea'), f) && !f.endsWith('.exe')).map(f => relative(dist, f).split(sep).join('/'));
+  const actual = (await filesUnder(dist)).filter(f => !['.sea/config.json', '.sea/main.cjs', 'FlowPlan2-V2.exe'].includes(relative(dist, f).split(sep).join('/'))).map(f => relative(dist, f).split(sep).join('/'));
   if (JSON.stringify(actual.sort()) !== JSON.stringify(expected)) fail('dist-v2', 'artifact allowlist mismatch');
   const html = await readFile(resolve(dist, 'index.html'), 'utf8');
   const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
