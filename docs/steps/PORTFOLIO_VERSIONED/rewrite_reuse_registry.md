@@ -2,6 +2,8 @@
 
 Matrice patrimoniale issue de R0 ; **reprises de primitives R1.1 validées, DONE**.
 Entités métier complètes et extractions R1.2+ NOT STARTED.
+[Intentions R1.2](#intentions-r12--plan-only-aucune-opération-réalisée) : PLAN ONLY ;
+contrats cibles soumis aux amendements A-R12, aucune opération réalisée.
 R0.1 DONE après audit indépendant favorable et clôture utilisateur à
 `d5bb1a89c847604f2f80aaaa3270e4125f4a3fef`, report Windows I-R01-C ; adaptations
 techniques et exclusions enregistrées ci-dessous.
@@ -202,3 +204,35 @@ Contrats, modules/interfaces, commandes, résultats bruts et limites dans le
 [canon R1.1](./rewrite_r11_canon.md). Couleurs/capacités/moteur/persistence/UI/G1
 ne sont pas repris ; aucune ligne R1.2+ marquée réalisée. Audit extraction :
 **VALIDÉ** dans l’audit indépendant final ; R1.1 DONE après autorisation utilisateur.
+
+## Intentions R1.2 — PLAN ONLY, aucune opération réalisée
+
+**R1.2 — NOT STARTED / PLAN PROPOSED FOR AUDIT**.
+[PLAN proposé](./rewrite_r12_plan.md), [norme amendée A-R12](./rewrite_decisions.md#amendements-normatifs-r12--2026-10-11).
+Source inspectée commune à toutes intentions ci-dessous :
+`afa76016e4ab89f1e63c5bf23ce83ab0ab41be7d`, baseline clôture R1.1.
+Aucune extraction/copie/import, destination réelle, gate exécutée ni audit
+extraction R1.2. Destinations ci-dessous proposées seulement. Champs réalisés
+à renseigner dans future session autorisée après audit du PLAN ; R1.3/R2 NOT STARTED.
+
+Les lignes initiales restent la classification patrimoniale et les opérations
+R0.1/R1.1 restent historiques. Leurs mentions protection historique/ever-nonzero,
+confirmed/suspended, complete/reopen, statut PTEC, connaissances AP et provenance
+merge obligatoire ne sont plus des contrats cibles ; correspondances A-R12 et
+PLAN §2. Ni reprendre proofs/indexes ever-nonzero, ni coder ces anciens comportements.
+Un composant neuf à partir de REFERENCE n'est pas extraction d'un modèle legacy.
+
+| Source / symboles inspectés au SHA commun | Classe / état intention | Destination V2 envisagée | Dépendances et contrats / preuves futures |
+| --- | --- | --- | --- |
+| src-v2/domain/primitives/*.ts : validateurs quantities/dates/IDs/refs/result/data ; versioning/*.ts : createVersionEnvelope/createTypedVersionEnvelope, validateVersionContext, copyImmutableValue/equalImmutableValues | REUSE socle livré R1.1 ; intégration R1.2 NOT STARTED | domain/portfolio/payloadValidation.ts, manifest.ts, graphResolver.ts, graphValidation.ts ; registry nouveau | Imports Domain internes ; aucun changement primitives/générique ; payload `P` runtime non validé par factory ; G12-01/02/04/12/13 |
+| src/domain/model/color.ts : createColor (pas suggestColor), normalizeCatalogName/catalogNameKey | REUSE logique pure avec API runtime native ; NOT STARTED | domain/portfolio/catalogValidation.ts ou helper color natif | result legacy remplacé ; pas génération/default/suggestion ; couleur six hex, normalisation noms existants unique par catalogue ; G12-01/09/13 |
+| src/domain/capacity/schedule.ts : validations createWorkingPattern/createCapacityPeriod/createCapacityException/createTeamCapacitySchedule | ADAPT validations uniquement ; NOT STARTED | domain/portfolio/capacityValidation.ts | date/scalars/result legacy retirés ; wrappers R1.1 ; période inclusive/gaps/overlaps/exceptions/weekday ; pas calcul capacité ou moteur ; G12-01/09/13 |
+| src/domain/model/entities.ts : champs Project/Team/Program/PriorityFamily et factories ; src/domain/capacity/reservation.ts : Reservation/ReservationAmount et validations | REFERENCE contrats, modèle natif neuf ; NOT STARTED | domain/portfolio/payloads.ts et payloadValidation.ts | Aucun Portfolio inline/RAF/Actuals history/catalogue auto-tombstone/barrel/default ; RT natif owner immutable + mode exact zéro valide ; G12-01/05/09/11 |
+| src-v2/domain/primitives/exactReference.ts : versionKinds ; versioning/owner.ts : OwnerByKind ; aucune contrepartie legacy conforme manifeste/registre/certificat | REFERENCE fondations pour construction neuve ; NOT STARTED | domain/versioning/versionRegistry.ts ; domain/portfolio/manifest.ts, graphResolver.ts, graphValidation.ts, validatedPortfolioGraph.ts | 14 kinds inchangés ; mapping owner 1:1/refs sélection/structure seuls ; pas latest/ever-nonzero/preuves transition/Current history ; G12-02–12 |
+| Ports Application et adapter lecture mémoire : construction neuve, legacy repositories non repris | REFERENCE architecture seulement ; NOT STARTED | application/ports/portfolioReadPort.ts, application/portfolio/loadPortfolioGraph.ts, adapters/memory/memoryPortfolioReadAdapter.ts | Domain sans port/I/O ; Snapshot sans readCurrent ; pas write/CAS/recovery/Save/moteur ; G12-04/10/13 |
+| src-v2/domain/*/*.test.ts et scripts/v2/r11.test.mjs : vecteurs R1.1 ; scripts/v2/boundaries.mjs : checkModule/checkSources | REFERENCE preuves/REUSE garde livré ; NOT STARTED | nouveaux tests natifs G12 ; adaptation ciblée A02 proposée PLAN §8 | Aucun ancien test comme preuve G12 ; nouvelles fixtures, canaris anti-legacy et frontières hexagonales ; test R1.1 interdit noms hors ancien périmètre à borner sans lever isolation |
+
+Prochaine opération après audit/GO seulement : ajouter source exacte/SHA source
+**effectif**, symboles réellement repris, destination **réelle**, imports retirés,
+contrats/preuves exécutées/avis reviewer ; ne jamais transformer les intentions
+ci-dessus en DONE sur seule validation du PLAN. Toutes G12 NOT EXECUTED.

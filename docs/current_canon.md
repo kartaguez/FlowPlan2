@@ -1,6 +1,6 @@
 # FlowPlan2 current canon
 
-## Trajectoire active — V2 : socle R0.1 disponible, DONE
+## Trajectoire active — V2 : R1.1 DONE, PLAN R1.2 proposé pour audit
 
 Point d'entrée et ordre de lecture : [current_plan](./current_plan.md).
 R0 clôturé ; contrats normatifs dans [R0](./steps/PORTFOLIO_VERSIONED/rewrite_r0_plan.md)
@@ -53,33 +53,62 @@ aucun défaut de production reproduit. `createTypedVersionEnvelope` contrôle la
 structure, sans validation du schéma métier (R1.2). BigInt, mémoire/pile,
 Windows DEFERRED / NOT EXECUTED et rollback conservent leurs limites documentées.
 Shell R0.1 et garde inchangés, aucun registre/Current/métier complet/storage.
-R1.2–R1.4 et R2–R6 NOT STARTED. Prochaine étape : cadrage indépendant R1.2
-avec ChatGPT ; aucun travail R1.2 dans cette session.
+Baseline documentaire de clôture R1.1 :
+`afa76016e4ab89f1e63c5bf23ce83ab0ab41be7d`.
+**R0/R0.1/R1.1 DONE ; R1.2 — NOT STARTED / PLAN PROPOSED FOR AUDIT ;
+R1.3/R1.4 et R2–R6 NOT STARTED.**
+[PLAN R1.2](./steps/PORTFOLIO_VERSIONED/rewrite_r12_plan.md) proposé le 2026-10-11,
+uniquement documentaire ; aucune gate G12 exécutée ni nouvelle preuve de code.
+Prochaine action : audit indépendant du SHA exact puis validation explicite
+utilisateur avant toute implémentation R1.2. Le code livré reste le socle R1.1.
 
-Décisions globales dans le registre ; amendements normatifs nouveaux A-R1-01/02
-explicités à [R0 §13](./steps/PORTFOLIO_VERSIONED/rewrite_r0_plan.md#13-addendum-normatif-r1-du-2026-10-10) :
-Snapshot borné aussi par connaissance AP déclarée ; AP vide peut la déclarer,
-sans couverture/TA/cutoff. Cibles uniquement, aucune règle déjà livrée ni preuve
-d'exécution nouvelle. Les archives ci-dessous restent inchangées.
+**Cible applicable amendée**, distincte de la livraison :
+[A-R12-01–09](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md#amendements-normatifs-r12--2026-10-11)
+remplacent les anciennes clauses désignées R0/D-R1, annulent A-R1-01/02 ;
+[R0 §14](./steps/PORTFOLIO_VERSIONED/rewrite_r0_plan.md#14-précédence-normative-r12-du-2026-10-11).
+Project/Reservation/Team/PT/RT existing/deleted seuls, isActive Project/Reservation
+séparé, visibilité Team visuelle. Suppressions permises avec Actuals historiques,
+cascades tombstones atomiques et retrait TA/PTEC Current concernés ; aucun
+confirmed/suspended ni ever-nonzero/proof/index. Restore garde IDs sans réactiver
+associations/Forecast/Actuals implicitement ; revue/grille confirmée/PTEC valide.
 
-Option B extraction sélective, T01–T11/T12-R/T13–T15, I01–I21/I22-R/I23 et
-architecture à six modules restent le socle ; seules les clauses désignées
-T09/T13/I23 sont amendées explicitement par R0 §13. Current/PortfolioSnapshots natifs,
-graphe versionné, AP/SubPeriod/TA/PT/RT/PTEC, ETC/status, Settings/Order, CAS et
-robustesse durable sont des cibles R1+ ; aucune de ces primitives n'est livrée
-par le DTO shell R0.1. Migration T12 historique inapplicable ; aucun bridge ou
-format hybride. [Registre de reprise](./steps/PORTFOLIO_VERSIONED/rewrite_reuse_registry.md)
-actualisé pour les reprises bornées R1.1, validées dans l’audit indépendant final.
-Arbitrage Reservation ratio + exception sans période reste ouvert pour R3.
+AP stable pour tous Project/Reservation selected, deleted inclus ; vide sans
+bornes/SubPeriods/TA ou couvert avec partition contiguë complète, sans association
+existing permis. Aucun AP.knowledgeDate/monotonie/attestation ; through borne Actuals.
+TA = grille exacte existing associations × SubPeriods, zéros explicites ;
+versions individuelles, dates modifiées même ID, split/merge nouveaux IDs,
+provenance métier facultative sans changement générique R1.1. Aucun prorata.
+PTEC seulement PT existing : identité AP stable, lastActualsDate=through/null,
+ETC exact ≥0, sans statut/complete/reopen ni rebond automatique par version AP.
+Confirmations transitoires ciblées, ETC zéro maintenu par défaut sans confirmation
+supplémentaire, zéro→positif confirmé, positif revu ; payload identique sans nouvelle
+version. Suppression TA confirmation globale unique zéro compris, Team Portfolio
+toujours confirmée. Ces obligations de transition appartiennent à R1.3.
 
-Patrimoine historique : Portfolio/RAF inline, Actuals V4/V5, formats V1–V8,
-snapshots avec résultats, DB flowplan-planning et bootstrap/demo sont des faits
-anciens conservés, pas des modules V2. Canons DONE suivants restent vrais pour
-l'ancienne application ; G1 11D.2 n'est pas une preuve runtime V2.
-Stateless : aucune conversation normative, décisions nouvelles enregistrées,
-prochaine preuve/état/limites accessibles depuis current_plan et les canons R0.1/R1.1.
-Sauvegarde/restauration utilisateur vérifiée R0 §6 reste requise avant bascule
-opérationnelle réelle ; cette mission n'utilise que des profils de laboratoire.
+Program/Pas lifecycle autonome, existing inutilisé valide ; existing owner
+référence seulement catalogue existing. Manifeste exact, racines dérivées des
+Settings sans liste redondante. SnapshotId stable distinct, knowledgeDate obligatoire
+≥max(AP.through), inactive/deleted inclus, AP vides sans borne ; createdAt technique,
+dates égales et recul permis ; inputs-only, résoluble sans Current.
+Current = manifeste opérationnel publié + CAS, sans histoire métier automatique
+complète ; Snapshots sur Save explicite. Versions archivées immuables.
+
+Domain : types/invariants/validation/résolution pure ; Application commandes/
+transitions ; ports abstraits versions/manifests, adapters et composition root.
+Aucune dépendance Domain UI/IDB/moteur/legacy. R1.2 certifiera la structure seulement ;
+R1.3 préparations/confirmations/stale/ETC/transitions RAM, R1.4 simulation certifiée,
+R2 durable/CAS/transactions/reçus minimaux/recovery/import-export/autonomie Snapshots.
+`ValidatedPortfolioGraph` ne prouve ni transition légitime ni conservation durable.
+Unicité historique à vie des couples garantie R2, contrôle local graph/registre
+fourni en R1.2. Propositions/ambiguïtés techniques au PLAN §10 restent à auditer.
+
+Primitives/enveloppes/filiation/provenance R1.1, Option B/T12-R/isolation et report
+Windows I-R01-C conservés. Ratio RT + exception sans période ouvert pour R3 (ou
+avant scénario moteur concerné R1.4). Aucun nouveau modèle métier monté dans shell.
+Registre de reprise complété par intentions R1.2 non réalisées, aucune extraction
+anticipée. Canons DONE/archives ci-dessous identiques : faits historiques, jamais
+preuve d'une règle R1.2. Sauvegarde/restauration utilisateur R0 §6 avant bascule
+opérationnelle reste requise ; aucune donnée réelle utilisée par ce PLAN.
 
 ## Archives de canon — application de référence
 

@@ -1,6 +1,6 @@
 # FlowPlan2 current plan — point d'entrée unique
 
-## Trajectoire active — FlowPlan2 V2 / R1 cadrage validé, R1.1 DONE
+## Trajectoire active — FlowPlan2 V2 / R1.1 DONE, PLAN R1.2 proposé pour audit
 
 **R0 clôturé. R0.1 — Rewrite Initialization : DONE**, clôture utilisateur
 autorisée le 2026-10-10 après audit indépendant favorable de l’architecture,
@@ -50,65 +50,89 @@ payload typé lèvent les deux réserves, sans défaut de production reproduit.
 `createTypedVersionEnvelope` valide la structure et les données admissibles,
 sans valider le schéma métier du payload (R1.2). Limites physiques BigInt,
 mémoire/pile, report Windows et procédure de rollback conservés dans le canon.
-**R0 — DONE ; R0.1 — DONE ; R1.2–R1.4 — NOT STARTED ; R2–R6 — NOT STARTED**.
-Prochaine étape : cadrage indépendant R1.2 avec ChatGPT. Aucun travail R1.2
-ne commence dans cette session ; aucune implémentation supplémentaire autorisée.
-R1.2 conserve entités et schémas/validations métier, manifestes, registre passif,
-résolution et fermeture du graphe ; R1.3 conserve transitions, confirmations,
-protections historiques et publication atomique logique ; R1.4 conserve la
-simulation native minimale en mémoire ; R2–R6 conservent persistance et autres
-capacités de la feuille de route.
+**R0 — DONE ; R0.1 — DONE ; R1.1 — DONE.** Baseline de clôture R1.1 :
+`afa76016e4ab89f1e63c5bf23ce83ab0ab41be7d`.
+**R1.2 — NOT STARTED / PLAN PROPOSED FOR AUDIT** (2026-10-11).
+**R1.3, R1.4 et R2–R6 — NOT STARTED**.
+[PLAN R1.2 proposé pour audit](./steps/PORTFOLIO_VERSIONED/rewrite_r12_plan.md).
+Préparation documentaire uniquement ; aucun code/test/script/config/dépendance
+modifié, aucune gate G12 exécutée. Prochaine action : audit indépendant du SHA
+exact du PLAN puis validation explicite utilisateur avant toute implémentation.
+R1.2 n'est ni IN REVIEW ni DONE. Aucune implémentation R1.2/R1.3/R2 autorisée.
 
-Décisions globales enregistrées D-R1-01–06 ; amendements **nouveaux**
-A-R1-01 (T09/I23 : borne Snapshot sur connaissances AP explicites) et A-R1-02
-(AP vide avec connaissance facultative déclarée, sans couverture/TA/cutoff).
-[Addendum normatif R0 §13](./steps/PORTFOLIO_VERSIONED/rewrite_r0_plan.md#13-addendum-normatif-r1-du-2026-10-10)
-explicite emplacements remplacés, justification et impact ; aucun canon historique
-réécrit. CivilDate/refs/enveloppes seuls en R1.1 ; graphes/transitions/simulation
-restent respectivement R1.2/R1.3/R1.4. Gates R1.1 exécutées et tracées dans son canon ; autres lots non exécutés.
+**Norme applicable consolidée — amendements du 2026-10-11 :**
+[A-R12-01–09, correspondances anciennes→nouvelles](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md#amendements-normatifs-r12--2026-10-11).
+Ces décisions fonctionnelles remplacent les clauses désignées R0/D-R1, et
+annulent intégralement A-R1-01/02. Elles ne changent pas les primitives ni les
+contrats génériques filiation/provenance livrés R1.1. Les canons DONE conservent
+leur vérité historique. R0 §14 expose leur précédence ; son corps historique
+n'est pas une norme actuelle lorsqu'une clause est remplacée.
 
-**Documents normatifs V2 — ordre de lecture :**
+- Project/Reservation/Team/PT/RT : existing/deleted ; isActive Project/Reservation
+  séparé, visibilité Team purement visuelle ; plus confirmed/suspended.
+- Toute suppression permise indépendamment des Actuals historiques ; cascades
+  Project→PT, Reservation→RT, Team→PT/RT atomiques ; tombstones sélectionnés.
+  PT deleted sans TA/PTEC, RT deleted sans TA ; aucun ever-nonzero/proof/index.
+- Restore garde identités sans restauration implicite d'associations ou de
+  Forecast/Actuals ; association explicitement revue, grille confirmée complète,
+  PTEC valide pour PT. Préparation/confirmation/stale/atomicité : R1.3.
+- AP stable pour chaque Project/Reservation, deleted inclus ; vide sans bornes/
+  SubPeriods/TA ; couvert partition complète contiguë, même sans association.
+  AP.knowledgeDate et monotonie supprimées ; through reste frontière Actuals.
+- Grille TA exactement associations existing × SubPeriods, zéro explicite ;
+  versions individuelles, ajustement dates même identité, split/merge nouveaux
+  IDs avec provenance métier facultative. Aucune proratisation automatique.
+- PTEC uniquement PT existing, identité AP stable, lastActualsDate=through/null,
+  ETC exact ≥0 ; aucun open/completed/complete/reopen ni rebond par version AP.
+  ETC zéro reste zéro par défaut ; zéro→positif confirmation, ETC positif revue
+  ciblée ; confirmation sans payload modifié ne crée aucune version (R1.3).
+- Program/Pas autonomes, existing inutilisé valide, aucun auto-tombstone ;
+  propriétaire existing référence seulement catalogue existing.
+- Manifeste fermé exact ; racines dérivées des Settings, aucune liste redondante.
+  SnapshotId distinct, knowledgeDate déclarative ≥max through de tous AP,
+  inactive/deleted compris ; vides sans borne, dates égales/recul autorisés.
+  Snapshot inputs-only résoluble sans Current. Current = seul manifeste publié
+  et CAS, aucun historique métier automatique complet ; Save explicite uniquement.
 
-1. Cette section : état, prochaine étape et interdictions.
-2. [Registre durable des décisions](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md) : T01–T11/T12-R/T13–T15, statuts et portée.
-3. [Dossier normatif R0 autonome](./steps/PORTFOLIO_VERSIONED/rewrite_r0_plan.md) : contrats §2–§3, architecture §5, stockage/Git/lots §6–§8, invariants I01–I21/I22-R/I23 §9, clôture/reprise §11 et GO §12.
-4. [Registre vivant des extractions](./steps/PORTFOLIO_VERSIONED/rewrite_reuse_registry.md) : opérations techniques R0.1 réalisées, exclusions et provenance ; reprises de primitives R1.1 validées, DONE, opérations effectives documentées ; entités R1.2+ NOT STARTED.
-5. [Plan R0.1 audité](./steps/PORTFOLIO_VERSIONED/rewrite_r01_plan.md) puis [canon R0.1](./steps/PORTFOLIO_VERSIONED/rewrite_r01_canon.md) : contrat et résultats G01–G16, limites, suite et rollback.
-6. [PLAN R1.1 approuvé](./steps/PORTFOLIO_VERSIONED/rewrite_r11_plan.md) et addendum R0 §13 : fondations, décisions globales, amendements et contrats de gates ; résultats au canon R1.1.
-7. [Current canon, section active](./current_canon.md) : cible distinguée du patrimoine livré.
+R1.2 : 14 payloads runtime, manifeste, registre passif, resolver pur, validateur
+structurel et `ValidatedPortfolioGraph`. Ce certificat ne prouve aucune transition.
+R1.3 : commandes/suppressions/restaurations, versions sélectives, conséquences,
+confirmations transitoires (globale unique pour suppression TA, zéros compris ;
+Team Portfolio toujours confirmée), stale/revue ETC/atomicité RAM.
+R1.4 : simulation native certifiée sans sélection ; R2 : durable/CAS/transactions,
+reçus techniques minimaux/idempotence/recovery/import-export/Snapshots autonomes.
+R3 moteur complet, R4 généralisation commandes, R5 UI/consultation, R6 comparaison.
+Architecture hexagonale : Domain types/invariants/validation/résolution pure ;
+Application cas d'usage/transitions ; ports abstraits versions/manifests ; adapters
+stockage/UI/intégrations ; composition root. Domain sans UI/IDB/moteur/legacy.
 
-**Documents patrimoniaux — consultation facultative :**
-[plan architectural antérieur](./steps/PORTFOLIO_VERSIONED/architecture_plan.md),
-[canon de référence](./canon.md), anciens plans/canons et archives ci-dessous.
-Ils justifient les choix, décrivent le comportement existant et fournissent
-preuves/références d'extraction ; aucune norme V2 ne peut exister exclusivement
-dans ces documents. Une règle retenue doit être explicitée dans la documentation
-normative V2 avant implémentation. La hiérarchie V2 (R0 §1) prévaut.
+**Ordre de lecture normatif V2 :**
 
-Conclusions validées conservées : **Option B extraction sélective**, architecture
-Domain / Application / Planning Engine / Persistence / Historical Simulation / UI,
-matrice REUSE/ADAPT/REFERENCE/DROP, verticales R1 mémoire → R2 durable.
-Portfolio versionné : identités stables, versions immuables, refs exactes,
-Current/Snapshots inputs-only, AP/SubPeriod/TeamActual/PT/RT/PTEC, Settings/Order,
-ETC/status explicites, CAS/atomicité/recovery. **T12-R remplace T12 historique** :
-aucune migration V4–V8, dépôt neuf vide et stockage isolé, format natif exclusif,
-pas auto-import/hybride/autorité parallèle. T14 migration inapplicable ; natif
-open/ETC explicite, zéro n'implique jamais completed. I22 migration hors portée →
-I22-R import natif robuste ; I01–I21 conservés ; T09/T13/I23 amendés explicitement par A-R1-01/02 (R0 §13). M01–M04 ne bloquent plus V2.
-REUSE n'atteste aucune extraction et n'autorise aucun merge/copie massive.
+1. Cette section et [current_canon actif](./current_canon.md).
+2. [Décisions et amendements A-R12](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md).
+3. [PLAN R1.2](./steps/PORTFOLIO_VERSIONED/rewrite_r12_plan.md) : baseline, contradictions,
+   ancien→nouveau, architecture/payloads, contrats/cas limites, G12-01–13,
+   ordre futur, réception/risques et O12-01–08 à auditer.
+4. [R0 avec addendum §14](./steps/PORTFOLIO_VERSIONED/rewrite_r0_plan.md), puis
+   [registre de reprise](./steps/PORTFOLIO_VERSIONED/rewrite_reuse_registry.md).
+5. Plans/canons [R0.1](./steps/PORTFOLIO_VERSIONED/rewrite_r01_canon.md) et
+   [R1.1](./steps/PORTFOLIO_VERSIONED/rewrite_r11_canon.md) : acquis, preuves et limites.
 
-Séquence validée : **R0 → R0.1 → R1 → R2 → R3 → R4 → R5 → R6**.
-R1 simulation verticale mémoire ; R2 publication/relecture native durable ;
-R3 moteur/service, R4 commandes, R5 UI/consultation minimale, R6 comparaisons.
-Service Snapshot minimum R2/R3, consultation avant Save UI R5. Gates/rollback R0 §8.
-Point métier volontairement ouvert : Reservation ratio + exception sans période,
-arbitrage avant reprise complète R3. Détails techniques ouverts affectés par lot
-au dossier R0 §8 ; aucune décision métier nouvelle dans ce correctif.
+Options techniques R1.2 à auditer : mapping identities Settings, capacités et
+catalogues sous tombstones, fermeture des liens génériques déclarés, encodages
+payload/metadata, ports et certificat runtime. Voir PLAN §10 ; aucun choix tacite.
+Unicité PT/RT historique à vie : R1.2 contrôle graph/contexte fourni, R2 garantit
+toutes versions durables. Ratio RT + exception sans période reste ouvert pour R3,
+ou avant scénario concerné R1.4. Defaults bootstrap à fixer avant usage natif.
 
-**Invariant documentaire stateless :** une conversation ChatGPT/Codex n'est
-jamais normative ; toutes décisions nécessaires sont dans le dépôt avant clôture
-du lot introducteur. La checklist DONE et le prompt minimal/exercice final de
-reprise se trouvent en R0 §11. Les deux registres doivent rester à jour.
+Option B extraction sélective, T12-R sans migration V4–V8/bridge/autorité legacy,
+origines fixes 4274/4275 et garde V2 conservés. REUSE ne signifie pas extraction
+réalisée. Le [registre](./steps/PORTFOLIO_VERSIONED/rewrite_reuse_registry.md)
+conserve opérations R0.1/R1.1 et intentions R1.2, toutes non réalisées.
+Documents patrimoniaux : [architecture antérieure](./steps/PORTFOLIO_VERSIONED/architecture_plan.md),
+[canon de référence](./canon.md), archives suivantes ; aucune norme V2
+exclusivement déduite d'eux. Stateless : décisions nécessaires dans le dépôt,
+checklist de clôture/reprise R0 §11 ; audit et GO propres par lot.
 
 ## Limite explicite des archives
 

@@ -4,10 +4,18 @@ Statut : décisions R0 validées par audit indépendant favorable à
 `62bfdb9f36b406a0196ba7ceee45884217c68365`. GO R0.1 reçu après audit du plan
 à `1c2b08c727af9fb8002b7678bd7403fcc0d39c27` ; R0.1 DONE après audit indépendant favorable et clôture utilisateur au SHA
 `d5bb1a89c847604f2f80aaaa3270e4125f4a3fef`, avec amendement I-R01-C ; R1 — CADRAGE VALIDÉ, R1.1 — DONE après audit final favorable et clôture utilisateur ;
-R1.2–R1.4 et R2–R6 non autorisés.
+R1.2 — NOT STARTED / PLAN PROPOSED FOR AUDIT ; R1.3, R1.4 et R2–R6 NOT STARTED.
+Préparation documentaire R1.2 autorisée uniquement ; aucune implémentation autorisée.
 Point d'entrée : [current_plan](../../current_plan.md).
 Option B extraction sélective, verticales R1 mémoire/R2 durable, architecture à
 six modules, stockage neuf isolé et matrice de reprise sont validés.
+
+**Précédence actuelle (2026-10-11)** : les amendements A-R12-01–09 de la
+[section R1.2](#amendements-normatifs-r12--2026-10-11) remplacent les clauses
+désignées des tables historiques ci-dessous et de R0 §2/§3/§6/§8/§9/§13.
+Les mentions « VALIDÉE » des anciennes lignes décrivent leur adoption initiale,
+pas la survie de leurs clauses remplacées. A-R1-01/02 sont entièrement remplacés.
+D-R1-01/02 et D-R11-01, primitives livrées R1.1, restent inchangés.
 
 Ce registre est l'index compact des décisions normatives, pas un second plan.
 Contrats détaillés : [dossier normatif R0 §2–§3](./rewrite_r0_plan.md#2-nouvelle-trajectoire-et-décisions-définitives).
@@ -155,3 +163,50 @@ métier ni résolution ; provenance multiple distincte. Aucun registre/Current.
 R1 reste CADRAGE VALIDÉ ; R1.2–R1.4/R2–R6 NOT STARTED. Prochaine étape :
 cadrage indépendant R1.2 avec ChatGPT ; aucun travail R1.2 dans cette session.
 Les indications de GO non accordé des sections de préparation restent historiques.
+
+
+## Amendements normatifs R1.2 — 2026-10-11
+
+Décisions fonctionnelles et architecturales **CONSOLIDÉES PAR INSTRUCTION
+UTILISATEUR** du 2026-10-11, enregistrées avant toute implémentation.
+Leur adoption ne vaut ni audit ni GO du [PLAN R1.2](./rewrite_r12_plan.md).
+**R1.2 — NOT STARTED / PLAN PROPOSED FOR AUDIT** ; R1.3/R1.4/R2 NOT STARTED.
+Contrats détaillés applicables : PLAN §3–§7 ; propositions d'encodage/API et
+questions ouvertes : §4–§6/§10. Les anciens textes restent traçables ci-dessus,
+dans R0 et les plans/canons clôturés, sans réécriture de leur histoire.
+
+| Amendement | Ancien contrat / emplacements remplacés | Nouveau contrat applicable | Portée / justification |
+| --- | --- | --- | --- |
+| A-R12-01 | T02/T10/T14/I08 ; R0 §2/§3.1/§3.2/§8 ; allusions statut PTEC dans plans/registres | PTEC sans open/completed ; aucune transition complete/reopen. ETC exact ≥0, zéro permis sans statut implicite. | Payload/structure R1.2 ; retrait des commandes correspondantes de la cible R1.3/R4 et du statut de l'UI R5. Complétion moteur demeure dérivée R1.4/R3. T14 migration reste inapplicable sous T12-R. |
+| A-R12-02 | T05/I03/I04/I11–I14, D-R1-04 ; R0 §3.1/§3.2/§6/§9/§10 et contre-exemples §9 | Project/Reservation/Team/PT/RT : existing/deleted seuls ; isActive Project/Reservation séparé ; visibilité Team visuelle. confirmed/suspended et ever-nonzero supprimés, avec preuves et index associés. Toute suppression autorisée indépendamment des Actuals historiques. Tombstones sélectionnés. PT deleted sans TA/PTEC ; RT deleted sans TA. Project→tous PT deleted ; Reservation→tous RT deleted ; Team→tous PT/RT deleted, atomiquement. Association existing exige deux extrémités existing ; deleted admet extrémités existing/deleted. | R1.2 valide état final, jamais histoire positive ; cascades/atomicité logique R1.3, durable R2. Zéro demande RT existing valide, dans les deux modes. Aucune redistribution/réaffectation/proratisation ; anciennes versions conservées. Hide ne retire aucune charge. |
+| A-R12-03 | T05/T15/I12–I14, D-R1-05 ; R0 §3.2 (Actuals conservés réactivés) | Restore sous mêmes identités ; restauration propriétaire/Team ne restaure aucun PT/RT. Chaque association restaurée explicitement, paramètres revus, grille TA complète confirmée selon partition courante ; PT avec PTEC valide. Aucun ancien Forecast/Actuals réactivé implicitement. | Transitions R1.3 ; R1.2 certifie seulement résultat fourni. Deleted non éditable reste règle de commande T15. Unicité à vie oblige réemploi de l'identité du couple, garantie durable R2. |
+| A-R12-04 | T09/T13/I23, A-R1-01/02 intégralement ; R0 §3.1/§3.2/§13 et report R1.1 §11 | Un AP stable par Project ET Reservation sélectionné, deleted inclus. AP vide sans bornes/SubPeriods/TA ; couvert = bornes inclusives et partition complète contiguë. AP couvert avec zéro association existing valide, grille TA vide. AP.knowledgeDate, monotonie et attestations de connaissance supprimées. AP.through reste frontière Actuals. | R1.2 structure, R1.3 corrections ; annule le point ouvert « connaissance connue vers AP vide » du plan R1.1. Aucun changement de CivilDate R1.1. |
+| A-R12-05 | T10/I07, D-R1-04/05 ; R0 §3.1/§3.2/§13 (PTEC deleted, ref version AP, rebond total) | PTEC obligatoire seulement PT existing ; aucun sélectionné PT deleted. Payload = identité AP stable, lastActualsDate nullable, ETC exact ≥0. lastActualsDate = AP.through ; AP vide ⇒ les deux null. Nouvelle version AP à through inchangé n'oblige aucun nouveau PTEC. Confirmation sans changement payload ne crée aucune version PTEC. | R1.2 égalité de frontière/owner ; versions sélectives R1.3. Ni ref exacte de version AP dans PTEC, ni rebind systématique. |
+| A-R12-06 | T11/I05/I06/I16, D-R1-05 ; R0 §3.2 (preuves, renouvellements TA/PTEC) | Confirmations transitoires liées à préparation exacte. Suppression retirant cellules TA courantes : confirmation globale unique, zéros compris ; suppression Team Portfolio toujours confirmée. Corrections : cellules affectées confirmées, bornes modifiées incluses même quantité identique. ETC précédent zéro : maintien zéro par défaut sans confirmation supplémentaire ; zéro→positif explicitement confirmé ; ETC précédent positif : revue ciblée. Aucun recalcul ETC automatique. | Validation de préparation, conséquences, stale, revue ETC et transitions atomiques R1.3 ; aucun champ de confirmation ni système de preuves historiques R1.2/R2. Pas prorata ; création des seules versions effectivement modifiées. |
+| A-R12-07 | T03 ; R0 §2/§3.1/§3.2 et négatif « split/merge sans provenance » §9 | Bornes SubPeriod modifiées : même ID/nouvelle version. Split/merge : nouveaux IDs, provenance métier facultative. Filiation/provenance génériques R1.1 inchangées (forme, doublons, auto-source, branches, owner). | Structure R1.2 ; politiques de correction R1.3. Ne pas exiger source métier pour accepter nouvelle identité. |
+| A-R12-08 | T07 ; R0 §2/§3.2/§8, D-R1-05 pour catalogue lors restore | Program/Pas lifecycle autonome ; existing inutilisé valide, aucun auto-tombstone du dernier usage. Project/Reservation existing référence seulement catalogue existing. Suppression explicite catalogue utilisé doit préserver cette cohérence sans cascade automatique des références. | Structure R1.2 ; commande R1.3/R4. Noms existing normalisés uniques par catalogue et absence de fusion d'identités conservées. Mode de commande catalogue utilisé à auditer, aucun algorithme choisi implicitement. |
+| A-R12-09 | T04/T09/I19/I23 ; R0 §3.1/§3.2/§6 et racines redondantes éventuelles | Manifeste exact fermé ; racines ProjectId/ReservationId/TeamId dérivées des Settings, aucune liste racine redondante. SnapshotId distinct stable, knowledgeDate déclarative obligatoire ≥max(AP.through) de tous AP sélectionnés (inactive/deleted inclus), AP vides sans borne ; createdAt technique distinct ; même date et recul permis. Snapshot résoluble sans Current ; inputs-only. Current = manifeste opérationnel publié + révision CAS uniquement, aucun historique métier automatique complet ; Snapshots sur Save explicite seulement. | R1.2 résolubilité avec données fournies ; R2 conservation/autonomie durable, CAS/receipts/idempotence/recovery minimaux sans deuxième histoire métier. Registre passif sans latest/date/ordre, versions archivées immuables. |
+
+**Compléments d'architecture et de périmètre remplaçant R0 §5/§8 :**
+Domain contient types, invariants, validation pure et résolution structurelle.
+Application porte cas d'usage/commandes/transitions et collecte via ports.
+Ports abstraits versions/manifests ; adapters mémoire puis stockage/UI/intégrations ;
+composition root assemble. Aucune dépendance Domain vers Application, ports
+concrets, IndexedDB, UI, moteur ou legacy. `ValidatedPortfolioGraph` ne certifie
+que la validité structurelle du graphe sélectionné, jamais la légitimité d'une
+transition, une confirmation, une publication CAS ou une histoire exhaustive.
+R1.2 : 14 payloads, registre passif, manifestes, resolver et certification/gates.
+R1.3 : commandes, suppressions/restaurations composites, versions sélectives,
+préparations/confirmations/stale/ETC et atomicité RAM. R1.4 : simulation certifiée,
+sans autorité de sélection. R2 : durable/CAS/transactions/recovery/import-export.
+R4 généralise les commandes ; aucune commande anticipée dans R1.2.
+
+Autres contradictions découvertes : matrice de réutilisation et risques R0
+mentionnent encore protection historique/suspension ; B natifs sans provenance
+ou retrait positif interdit ne sont plus négatifs ; R4 complete/reopen et R5
+statut PTEC deviennent sans objet. Les tables patrimoniales sont conservées avec
+cette correspondance, pas réutilisées comme norme active. Le test A02 R1.1
+interdit les noms de futurs graphes : adaptation technique proposée au PLAN §8,
+sans modification maintenant ni changement des garanties livrées R1.1.
+Le point métier ratio RT + exception sans période reste ouvert pour R3 ; sa
+résolution n'est pas requise pour valider une demande RT comme donnée en R1.2.

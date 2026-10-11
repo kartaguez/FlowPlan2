@@ -1,5 +1,11 @@
 # FlowPlan2 V2 — R0 : plan normatif de reconstruction
 
+**Précédence actuelle :** [§14](#14-précédence-normative-r12-du-2026-10-11) et
+[A-R12-01–09](./rewrite_decisions.md#amendements-normatifs-r12--2026-10-11)
+remplacent les clauses historiques désignées ci-dessous, §13 compris.
+R0/R0.1/R1.1 DONE ; R1.2 — NOT STARTED / PLAN PROPOSED FOR AUDIT ;
+R1.3/R1.4 et R2–R6 NOT STARTED. Corps historique conservé, pas réécrit.
+
 **État de reprise postérieur : R0 clôturé, R0.1 DONE après audit indépendant
 favorable et clôture utilisateur au SHA `d5bb1a89c847604f2f80aaaa3270e4125f4a3fef`.
 Windows reporté I-R01-C ; cadrage R1 validé, PLAN R1.1 à auditer,
@@ -777,3 +783,58 @@ L'oracle arithmetic de R1.1 n'est pas cette preuve end-to-end.
 Tous ces contrats sont enregistrés avant réalisation. Le PLAN R1.1 définit
 uniquement les fondations ; aucun GO R1.1/R1.2–R1.4/R2 implicite. Les clauses
 R0 non désignées, ses canons historiques et I-R01-C restent inchangés.
+
+
+## 14. Précédence normative R1.2 du 2026-10-11
+
+Cadrage consolidé reçu par instruction utilisateur, préparation **PLAN ONLY**.
+[Registre A-R12-01–09](./rewrite_decisions.md#amendements-normatifs-r12--2026-10-11)
+contient correspondance explicite T/I/D/A et contrats de remplacement ;
+[PLAN R1.2](./rewrite_r12_plan.md) §2 inventorie contradictions et §3–§7 détaille
+architecture/payloads/manifestes/registre/résolution/structure et G12.
+Ces amendements priment sur toutes occurrences des clauses désignées dans §2,
+§3, §5, §6, §8, §9, §10, exercice historique §11 et addendum §13. Aucun retrait
+silencieux, aucun changement rétroactif des plans/canons DONE.
+
+A-R12-01 retire open/completed et complete/reopen (T02/T10/T14/I08).
+A-R12-02/03 remplacent protection historique, suspension, absence de cascade et
+Actuals restaurés implicitement (T05/I03/I04/I11–I14/D-R1-04/05) par lifecycle
+existing/deleted, suppressions permises/cascades atomiques/tombstones et restore
+explicite de chaque association. PT deleted sans TA/PTEC ; RT deleted sans TA.
+A-R12-04 annule intégralement A-R1-01/02 et AP.knowledgeDate/monotonie/attestations
+(T09/T13/I23), fixe AP stable Project/Reservation même deleted et couvert sans
+association valide. A-R12-05 remplace PTEC tous PT/ref version AP/rebond total
+(T10/I07/D-R1-04/05) par PTEC PT existing seulement, identité AP stable et
+lastActualsDate=through/null. A-R12-06 remplace preuves/versions systématiques
+(T11/I05/I06/I16/R0 §3.2) par confirmations transitoires ciblées et versions
+réellement changées ; zéro ETC maintenu, zéro→positif confirmé, positif revu.
+A-R12-07 rend provenance métier split/merge facultative (T03), sans modification
+des mécanismes génériques R1.1. A-R12-08 retire auto-tombstone Program/Pas T07.
+A-R12-09 précise manifestes/inventaires Settings/Snapshot borne through et
+Current opérationnel sans historisation métier automatique (T04/T09/I19/I23,
+§3.1/§6) ; R2 conserve CAS/reçus/idempotence/recovery techniques minimaux.
+
+Les risques/contre-exemples et matrices historiques concernant ever-nonzero,
+retrait positif interdit, split/merge provenance obligatoire, complete/reopen
+R4 et statut PTEC R5 ne sont plus des prescriptions applicables. Ils restent
+traçables, avec renvoi aux amendements. Aucun index/proof historique de charge
+ne doit être créé/reconstruit en R1.2 ou R2 au titre de ces clauses.
+L'exercice §11 reflète la reprise R0 ancienne ; une reprise actuelle lit les
+trackers, A-R12 puis PLAN R1.2 et distingue acquis des propositions à auditer.
+
+§5 amendé : Domain types/invariants/validation pure/résolution structurelle ;
+Application cas d'usage/commandes/transitions via ports abstraits ; adapters
+stockage/UI/intégrations ; composition root assemble. Domain sans Application,
+IndexedDB/UI/moteur/legacy. §8 précisé : R1.2 structure/certificat seulement ;
+R1.3 transitions/confirmations/stale/ETC/versions sélectives/atomicité mémoire ;
+R1.4 simulation native sur graphe certifié ; R2 durable/CAS/import-export/recovery.
+Certificat ne légitime aucune transition, ne prouve pas unicité historique
+exhaustive : R2 doit garantir unicité à vie des couples sur registre durable.
+
+**R1.2 — NOT STARTED / PLAN PROPOSED FOR AUDIT**. Aucun code/test/script/build/
+dépendance modifié. R1.3/R1.4/R2 NOT STARTED. Audit indépendant du SHA exact et
+validation explicite utilisateur du PLAN requis avant toute implémentation.
+Questions/propositions R1.2 §10 explicites ; ratio RT exception sans période reste
+ouvert avant simulation concernée R1.4/R3 ; qualification Windows reportée
+I-R01-C inchangée. Conservation des versions et absence d'autorité legacy restent
+intangibles. D-R1-01/02/D-R11-01 livrés R1.1 inchangés.
