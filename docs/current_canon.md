@@ -1,5 +1,30 @@
 # FlowPlan2 current canon
 
+## R1.3 — PLAN ONLY — 2026-10-11
+
+**R1.3 — PLAN PROPOSED FOR AUDIT / NOT STARTED.**
+[PLAN dédié R1.3](./steps/PORTFOLIO_VERSIONED/rewrite_r13_plan.md) livré depuis
+`12f835263547cc9bc94b9199562da782f09bb3d6` : préflight conforme, fetch réussi,
+branche exacte `rewrite/portfolio-versioned`, HEAD/origin exacts, arbre propre, 0/0.
+Noyau proposé de transitions légitimes RAM : règles pures Domain, orchestration
+Application prepare/execute, confirmations transitoires, stale global, versions
+sélectives, candidat séparé, certification R1.2 complète et publication RAM unique.
+Commandes représentatives et 19 familles de preuves ; aucun CRUD exhaustif R4.
+PERF-EDIT à mesurer sur Current déjà chargé, segments distincts et expérience
+taille sélectionnée/histoire RAM ; tension withVersions explicite, aucune
+optimisation préautorisée. Allocation/historique, failure interne, restore à payload
+identique et defaults opérationnels sont proposés/arbitrés dans le plan, pas réalisés.
+
+R0/R0.1/R1.1/R1.2 restent **DONE**. R1.4/R2 restent **NOT STARTED** ; R4 non
+anticipé. PERF-LOAD acceptée avec réserve et classification historique C intactes ;
+PERF-TRENDS hors R1.3 ; P3-C abandonné dans le cadre actuel. Aucun code/test/script/
+fixture/benchmark/configuration/dépendance/runtime ou preuve historique modifié ;
+aucun test/build/benchmark exécuté. Contrôles documentaires seulement.
+**Prochain acte : audit indépendant ChatGPT du PLAN, puis éventuel GO explicite.
+Aucune implémentation autorisée.** Le bandeau présent prime uniquement pour la
+préparation documentaire R1.3 ; les sections de clôture/livraisons ci-dessous
+conservent leurs états historiques et leurs contrats non remplacés.
+
 ## Clôture documentaire R1.2 — DONE — 2026-10-11
 
 Décision utilisateur sur les résultats audités : **R1.2 — DONE, avec limite de

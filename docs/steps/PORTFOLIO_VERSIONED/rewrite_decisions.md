@@ -1,5 +1,23 @@
 # FlowPlan2 V2 — registre durable des décisions
 
+## Préparation R1.3 — PLAN ONLY — 2026-10-11
+
+**R1.3 — PLAN PROPOSED FOR AUDIT / NOT STARTED.**
+[PLAN R1.3](./rewrite_r13_plan.md), baseline
+`12f835263547cc9bc94b9199562da782f09bb3d6`, préflight conforme branche/HEAD/origin,
+fetch réussi, arbre propre et divergence 0/0. R0/R0.1/R1.1/R1.2 restent DONE.
+A-R12-01–09/B1–B4 et clôture R1.2 inchangés ; aucune norme historique réécrite.
+La mission autorise uniquement ce plan : transition métier RAM, préparation,
+confirmations/revues transitoires, stale global, versionnement sélectif,
+certification complète unique puis publication atomique RAM. R1.4 simulation,
+R2 durable/CAS/recovery et R4 généralisation restent séparés.
+Propositions techniques O13-01–06 à auditer, aucune décision implémentée ni GO.
+PERF-EDIT à qualifier ; coût historique withVersions et tension restore/versions
+sélectives explicitement soumis à audit. Aucun test/build/benchmark exécuté.
+Prochain acte : audit indépendant ChatGPT puis éventuel GO explicite utilisateur.
+La clôture R1.2 ci-dessous demeure normative ; ses interdictions de cadrage
+suivant décrivent cette mission passée, sans annuler ce nouveau PLAN ONLY.
+
 Statut : décisions R0 validées par audit indépendant favorable à
 `62bfdb9f36b406a0196ba7ceee45884217c68365`. GO R0.1 reçu après audit du plan
 à `1c2b08c727af9fb8002b7678bd7403fcc0d39c27` ; R0.1 DONE après audit indépendant favorable et clôture utilisateur au SHA
