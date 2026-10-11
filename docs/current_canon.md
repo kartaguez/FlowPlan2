@@ -114,6 +114,18 @@ aucune optimisation P2/P3 réalisée. Grands NOT_EXECUTED.
 **R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED.** Audit indépendant requis,
 aucun GO ni clôture automatique ; arrêt après commit/push de P1.
 
+[R1.2-PERF-P2 — plan proposé pour audit](./steps/PORTFOLIO_VERSIONED/rewrite_r12_perf_p2_plan.md),
+2026-10-11, **PLAN ONLY**, baseline P1 auditée
+`ee6e26fe9b056fbbd62ffb72be9989385a962e5f` ; P0/P1 techniquement acceptés
+selon la mission utilisateur. Grille TA quadratique dominante (75,01 % inclusifs
+M3 dense / 63,12 % M5) ; option A recommandée : comptes temporaires par couple
+stable PT/RT × SubPeriod, décision au point historique après partitions.
+Option B bornée à des scans nommés, soumise à arbitrage explicite, aucun GO implicite.
+Oracle réel P1 isolé, diagnostics complets, copie/gel et M1–M6/profils/mémoire
+prévus ; aucun code/test/outil/preuve modifié, aucune campagne exécutée.
+**Performance globale C ; R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED.**
+Audit indépendant du plan puis GO explicite requis ; arrêt après livraison documentaire.
+
 **Cible applicable amendée**, distincte de la livraison :
 [A-R12-01–09](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md#amendements-normatifs-r12--2026-10-11)
 remplacent les anciennes clauses désignées R0/D-R1, annulent A-R1-01/02 ;
