@@ -74,12 +74,20 @@ classification **C**, dégradation manifeste du registre sur moyen sparse.
 Correction à décider/auditer avant R1.3 ; aucune optimisation dans cette livraison.
 **R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED** inchangés.
 
-[R1.2-PERF-FIX — plan proposé pour audit](./steps/PORTFOLIO_VERSIONED/rewrite_r12_perf_fix_plan.md),
-baseline documentaire `80fe87326cc0ab9108c8a1864147ca20751520a8` : tables locales
-owners/références P0, extension contextuelle R1.1 soumise à GO spécifique,
-lookups P1 conditionnels après remesure ; P2/P3 différés. **PLAN ONLY** :
-aucune optimisation commencée, audit indépendant puis GO explicite requis.
-**R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED** conservés.
+[R1.2-PERF-FIX — réalisation P0-A/P0-B et preuves](./steps/PORTFOLIO_VERSIONED/rewrite_r12_perf_fix_plan.md#11-réalisation-p0-ap0-b--2026-10-11),
+baseline `4effcfce23bb1e835201c9fe0c8f06967ce67339`, après audit favorable du
+plan et autorisation explicite : tables temporaires locales pour les unicités du
+registre et les contrôles internes `validateVersionContext`. Contrats publics,
+priorités/ordre des diagnostics, copie/gel et certification inchangés ; aucun
+chargement historique ni mémoïsation des chaînes. Équivalence stricte sur 563 cas,
+174/174 tests V2, 32/32 ciblés R1.1 et 103/103 ciblés R1.2 (G12-01–13),
+frontières/typecheck/build PASS. Les résultats historiques ci-dessus restent
+historiques ; R1.1 demeure DONE, sans requalification.
+Deux verdicts distincts : **P0 techniquement conforme**, mais **performance globale
+encore C** : résolution moyen dense interrompue à 30 s malgré M1 dense ≈2,82 s.
+M5 moyen sparse ≈4,11 s ; les coûts résiduels imposent une décision séparée avant
+la poursuite de R1.3. P1 non implémenté, P2/P3 hors périmètre ; grands non exécutés.
+Audit indépendant du correctif requis. **R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED**.
 
 **Norme applicable consolidée — amendements du 2026-10-11 :**
 [A-R12-01–09, correspondances anciennes→nouvelles](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md#amendements-normatifs-r12--2026-10-11).

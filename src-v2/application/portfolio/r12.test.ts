@@ -358,3 +358,68 @@ test('G12-12 certification wrapper accessors/source and JS-cast incomplete graph
   const forged = {manifest:f.manifest,versions:[]} as unknown as ValidatedPortfolioGraph;
   bad(certifyPortfolioGraph({source:'current',manifest:forged.manifest,versions:forged.versions}),'MISSING_EXACT_VERSION');
 });
+
+for (const kind of versionKinds) test(`PERF-P0 ${kind}: indexed exact refs, mappings and complete collisions`,() => {
+  const f = fixture(); f.cover(); f.cover('r');
+  const v = structuredClone(f.versions.find(v => v.ref.kind === kind)!);
+  const next = {...structuredClone(v),ref:{...structuredClone(v.ref),versionId:id('VersionId','other/version: é')}};
+  const registry = ok(createVersionRegistry([v,next,v,next,v]));
+  assert.deepEqual(registry.versions.map(v=>v.ref),[v.ref,next.ref]);
+  assert.deepEqual(registry.context.identicalRepetitions,[v.ref,next.ref,v.ref]);
+  const reordered = Object.fromEntries(Object.entries(v).reverse());
+  ok(createVersionRegistry([v,reordered]));
+  const differentId = {...structuredClone(v),ref:{...structuredClone(v.ref),entityId:id('EntityId','__proto__')}};
+  if (['Program','Pas','ActualSubPeriod'].includes(kind)) ok(createVersionRegistry([v,differentId]));
+  else bad(createVersionRegistry([v,differentId]),'OWNER_IDENTITY_CONFLICT');
+  const changed = {...structuredClone(v),provenance:[ref(kind,'absent/source','v:2')]};
+  bad(createVersionRegistry([v,changed]),'DIVERGENT_VERSION_COLLISION');
+});
+test('PERF-P0 composite owners preserve component boundaries, family and kind',() => {
+  const f=fixture(); f.cover(); f.cover('r');
+  const pt=structuredClone(f.get('pt-t1')), other=structuredClone(f.get('pt-t2'));
+  pt.owner.projectId.value='a/b'; pt.owner.teamId.value='c';
+  other.owner.projectId.value='a'; other.owner.teamId.value='b/c';
+  ok(createVersionRegistry([pt,other]));
+  other.owner=structuredClone(pt.owner); bad(createVersionRegistry([pt,other]),'OWNER_IDENTITY_CONFLICT');
+  const rt=structuredClone(f.get('rt-t1')); rt.ref.entityId.value=pt.ref.entityId.value;
+  rt.owner.reservationId.value=pt.owner.projectId.value;rt.owner.teamId.value=pt.owner.teamId.value;
+  ok(createVersionRegistry([pt,rt]));
+  const rt2=structuredClone(f.get('rt-t2'));
+  rt.owner.reservationId.value='a/b';rt.owner.teamId.value='c';
+  rt2.owner.reservationId.value='a';rt2.owner.teamId.value='b/c';
+  ok(createVersionRegistry([rt,rt2]));
+  rt2.owner=structuredClone(rt.owner);bad(createVersionRegistry([rt,rt2]),'OWNER_IDENTITY_CONFLICT');
+  const apProject=structuredClone(f.get('ap-p')),apReservation=structuredClone(f.get('ap-r'));
+  apProject.owner.projectId.value='same';apReservation.owner.reservationId.value='same';
+  ok(createVersionRegistry([apProject,apReservation]));
+  const ta=structuredClone(f.get('ta-p-t1-a')),ta2=structuredClone(f.get('ta-r-t1-a'));
+  ta2.owner.association.entityId.value=ta.owner.association.entityId.value;
+  ta2.owner.subPeriod=structuredClone(ta.owner.subPeriod);
+  ok(createVersionRegistry([ta,ta2]));
+  ta2.owner=structuredClone(ta.owner);bad(createVersionRegistry([ta,ta2]),'OWNER_IDENTITY_CONFLICT');
+  const ta3=structuredClone(ta);ta3.ref.entityId.value='different';
+  ta.owner.association.entityId.value='a/b';ta.owner.subPeriod.entityId.value='c';
+  ta3.owner.association.entityId.value='a';ta3.owner.subPeriod.entityId.value='b/c';
+  ok(createVersionRegistry([ta,ta3]));
+});
+test('PERF-P0 exact reference components, tombstone and unselected mappings',() => {
+  const f=fixture(),p=structuredClone(f.get('ps')),q=structuredClone(p);
+  p.ref=ref('ProjectSettings','a/b','c');q.ref=ref('ProjectSettings','a','b/c');
+  q.owner.projectId.value='distinct';ok(createVersionRegistry([p,q]));
+  q.owner=structuredClone(p.owner);q.payload.lifecycle='deleted';
+  bad(createVersionRegistry([p,q]),'OWNER_IDENTITY_CONFLICT');
+  const original=ok(createVersionRegistry(f.versions));
+  bad(withVersions(original,[{...structuredClone(f.get('ps')),ref:ref('ProjectSettings','unselected') }]),'OWNER_IDENTITY_CONFLICT');
+});
+test('PERF-P0 withVersions remains atomic, detached and deeply frozen',() => {
+  const f=fixture(),original=ok(createVersionRegistry(f.versions)),before=structuredClone(original);
+  const batch: Raw[]=[{...structuredClone(f.get('ps')),ref:ref('ProjectSettings','ps','v2')}];
+  const appended=ok(withVersions(original,batch));
+  bad(withVersions(original,[...batch,{invalid:true}]),'INVALID_RECORD');
+  assert.deepEqual(original,before);
+  batch[0]!.payload.name='mutated';batch[0]!.owner.projectId.value='changed';
+  assert.equal((appended.versions.at(-1)!.payload as Raw).name,'Project');
+  function frozen(x: unknown): void {if(x!==null&&typeof x==='object'){assert.ok(Object.isFrozen(x));for(const child of Object.values(x))frozen(child);}}
+  frozen(appended);frozen(original);
+  assert.deepEqual(Object.keys(appended),['versions','context']);
+});

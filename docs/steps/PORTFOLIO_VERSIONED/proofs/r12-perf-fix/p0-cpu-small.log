@@ -1,0 +1,5 @@
+small:dense M1 started
+small:dense M1 COMPLETED cold:56.2ms warmup:50.4ms measured-1:52.1ms
+small:dense M5 started
+small:dense M5 COMPLETED cold:157.5ms warmup:158.9ms measured-1:157.2ms
+Evidence: /Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-fix/p0-cpu/small.json

@@ -1,5 +1,18 @@
 # FlowPlan2 V2 — R1.2-PERF-FIX : plan de correction
 
+2026-10-11 — **P0-A/P0-B AUTORISÉS ET IMPLÉMENTÉS, audit du correctif requis**.
+Baseline de réalisation `4effcfce23bb1e835201c9fe0c8f06967ce67339`.
+Audit indépendant favorable du plan et GO explicite P0-A/P0-B communiqués par
+la mission utilisateur. Contrats publics R1.1/R1.2 inchangés ; P1 reste soumis
+à décision distincte, P2/P3 hors périmètre. Résultats et verdicts séparés au §11.
+**R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED.**
+
+Les sections 1–10 ci-dessous conservent le plan audité **avant GO** et ses
+conditions historiques ; l'état de réalisation du §11 prévaut sur leurs mentions
+PLAN ONLY/GO non accordé. Aucune requalification rétroactive de R1.1.
+
+État historique du plan :
+
 2026-10-11 — **PLAN ONLY / PLAN PROPOSÉ POUR AUDIT — GO NON ACCORDÉ**.
 **R1.2 IN REVIEW ; R1.3 NOT STARTED ; R1.4 NOT STARTED ; R2 NOT STARTED.**
 Livraison exclusivement documentaire. Aucun code, test, outil, package ou preuve
@@ -407,3 +420,204 @@ nécessite toutefois un GO ciblé sur l'implémentation contextuelle R1.1 appel�
 P1 dépend des remesures et peut rester interne au resolver. Une API de lot éventuelle
 exige son propre arbitrage. P2/P3 restent différés. Ce plan est à auditer, aucune
 optimisation n'est autorisée maintenant. **R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED.**
+
+## 11. Réalisation P0-A/P0-B — 2026-10-11
+
+### Autorisation, baseline et séquence
+
+Mission utilisateur : audit indépendant favorable du présent plan, GO explicite
+P0-A et extension P0-B strictement algorithmique. Baseline obligatoire
+`4effcfce23bb1e835201c9fe0c8f06967ce67339`, branche active
+`rewrite/portfolio-versioned`, HEAD exact, arbre propre avant code ; fetch origin
+code 0, origin exact, divergence 0/0. Aucun AGENTS.md applicable ni modification
+concurrente constatée au préflight. Les conditions historiques « GO non accordé »
+des sections précédentes sont levées **seulement pour P0-A/P0-B**.
+
+A : clone isolé réel de la baseline, compilation TypeScript existante, oracle
+initial 325 cas et hashes/réponses enregistrés **avant production**. B : registre
+seul optimisé, 154 tests existants puis 174 avec régressions, oracle 325 puis
+563 cas (extension adversariale rejouée sur baseline), campagne intermédiaire
+M1–M6 petit dense/moyen sparse et profil M3, avant toute modification R1.1.
+C : P0-B appliqué, 174 tests, ciblés R1.1/R1.2 et oracle complet. D : campagne
+complète sur les cinq scénarios puis profils séparés. E : rapport et verdicts.
+Les clones de laboratoire portent des commits locaux isolés pour satisfaire
+le contrôle `productionDiff` du lanceur inchangé ; ils ne sont jamais poussés.
+[SHAs, patches, commandes et protocole](./proofs/r12-perf-fix/README.md).
+
+### Changements réalisés et invariants
+
+- **P0-A** : `versionRegistry.ts` utilise des tables temporaires owner→EntityId
+  pour les 11 mappings et une table de références pour la déduplication finale.
+  La liste distincte conserve le premier exemplaire et son ordre ; le rapport
+  conserve chaque répétition. Validation métier complète, contexte R1.1 puis
+  mapping restent trois phases séparées. Tombstones/non selected restent inclus.
+  `withVersions` demeure une reconstruction atomique copiée/gelée, sans publication
+  partielle. `lookupExact` reste inchangé et linéaire : P1 n'est pas anticipé.
+- **P0-B interne R1.1** : `validateVersionContext` indexe les enveloppes exactes,
+  puis les premiers owners par identité dans une phase séparée. L'égalité complète
+  reste obligatoire pour collision exacte ; l'égalité structurée existante reste
+  utilisée pour l'owner immuable. Le même parcours des racines/prédécesseurs utilise
+  le lookup indexé ; les ensembles locaux visited/missing remplacent seulement
+  les recherches de membership. `visited` contient les enveloppes canoniques
+  uniques issues de la table exacte, jamais des objets ID utilisés comme clés
+  d'identité mémoire. Listes et diagnostics restent dans l'ordre de rencontre.
+  Aucun suffixe mémorisé, aucune fermeture historique chargée ou provenance traversée.
+- **Helper Domain interne** : `localVersionTables.ts`, trie de Maps natives par
+  composants primitifs. Références : kind, famille/valeur EntityId, famille/valeur
+  VersionId ; owners : kind/type et tous composants famille/kind/valeur validés.
+  Aucun séparateur, hash, JSON, trim, normalisation ou propriété magique de dictionnaire.
+  Projection exhaustive des dix formes d'owners, PT/RT et Project/Reservation
+  discriminés. Même composants ⇔ égalité structurée des owners validés ; l'ordre
+  des clés record n'intervient pas. Tables locales abandonnées après l'opération,
+  jamais exposées dans registre/graphe/certificat ni persistées.
+
+Plus aucun scan de l'ensemble des versions **par version** pour les unicités
+ciblées : références exactes, owner immuable, mappings owners/PT/RT/TA. Coût
+amorti attendu O(N + taille des composants + égalité des répétitions), espace
+O(V), hors validations/copies et filiations. Le parcours des suffixes de longues
+chaînes reste potentiellement quadratique : aucune mémoïsation autorisée ici.
+`createVersionEnvelope`/provenance, égalité générale, APIs, schémas unknown,
+copies/gel, manifeste, resolver, graphValidation, Application et adapter inchangés.
+R1.1 reste DONE ; ce changement ne requalifie pas sa livraison historique.
+
+### Équivalence et validations réellement exécutées
+
+[Oracle et réponses complètes compressées](./proofs/r12-perf-fix/README.md#oracle) :
+**563/563 cas strictement équivalents**, P0-A et P0 complet contre les vrais modules
+baseline isolés, aucun écart inexpliqué. Tous les 14 kinds et 11 mappings, owners
+composites/discriminants, octets adversariaux, permutations, répétitions/collisions,
+branches/parents manquants/cycles/provenance, malformations/multidéfauts, lots,
+manifestes, tombstones, Snapshots et lectures/certifications/inventaires sont inclus.
+Comparaison de toutes les valeurs et erreurs code/path/message/ordre, BigInt typés,
+listes ordonnées ; pas un simple booléen. Corpus SHA256
+`2e273951190897cef1fb7cea91600ebd2ddee53c9c2540c89fec00a02879c100`, réponses
+`e745c1fe476a882a0d6f63e654dfcfe27c35c5d9940c35f15f934670c30255df`.
+[Comparaison intégrale](./proofs/r12-perf-fix/differential.log).
+
+| Vérification de cette session | Résultat / preuve |
+| --- | --- |
+| `npm run test:v2`, P0-A puis P0 complet | 174/174 PASS ; [P0-A](./proofs/r12-perf-fix/p0-a-tests.log), [P0](./proofs/r12-perf-fix/p0-tests.log) |
+| R1.1 primitives/enveloppes + audit A1–A7 | 32/32 PASS, [journal ciblé](./proofs/r12-perf-fix/r11-targeted.log) |
+| R1.2 métier et frontières, G12-01 à G12-13 | 103/103 PASS (92 métier + 11 frontières), [journal](./proofs/r12-perf-fix/r12-targeted.log) |
+| Nouveaux tests pérennes | 20 : 14 kinds + 3 registre/composites/atomicité, 3 contexte/diagnostics/bytes |
+| Copie, gel profond, absence de mutation, lot atomique | Tests séparés PERF-P0 et existants R1.1/R1.2 PASS, non déduits du transport JSON |
+| `npm run typecheck:v2` | PASS, [journal](./proofs/r12-perf-fix/typecheck.log) |
+| `npm run build:v2` | PASS, [journal](./proofs/r12-perf-fix/build.log) |
+| `npm run check:boundaries:v2` | PASS, [journal](./proofs/r12-perf-fix/boundaries.log), gardes inchangés |
+| `verify.mjs` des benchmarks | Trois variantes PASS, [journal](./proofs/r12-perf-fix/verify.log), distinct des gates |
+| `git diff --check` et revue complète | PASS avant commit ; scope limité aux 5 sources/tests, 4 documents et nouvelles preuves |
+
+174 est le nombre de tests distincts V2, pas la somme des réexécutions ciblées.
+Aucun skip/todo/cancelled. Les anciens résultats 154/86 des canons restent
+historiques. Windows, browser et multi-TZ non réexécutés : modules dormants,
+bootstrap/runtime inchangés ; aucune nouvelle qualification de ces plateformes.
+
+### Remesure M1–M6 et mémoire
+
+Les sept outils/fixtures `scripts/benchmarks/r12-perf/` sont **inchangés** ; hashes
+initiaux conservés, hashes de fixtures contrôlés avant/après pour chaque scénario.
+Anciennes preuves `proofs/r12-perf/` intactes. Même Apple M4/10 CPU/16 Gio,
+Darwin 27 arm64, Node 24.21.0/npm 11.19.0/TS 5.9.3. Environnement et commandes
+absolues dans les JSON : un enfant neuf par scénario/API, heap 1024 Mio,
+cold/warm-up puis trois mesures, deadline 30 s **par phase**, un benchmark actif.
+Le rejeu baseline a coexisté avec quelques tests/compilations/oracles courts,
+pas un autre benchmark ; machine non réservée, pression OS non instrumentée.
+
+- [Rejeu initial complet](./proofs/r12-perf-fix/baseline-replay.json) : 23 expériences
+  complètes, 6 timeouts denses, 1 M6 historique non exécuté.
+- [P0-A seul](./proofs/r12-perf-fix/p0-a-comparison.md) : 12 expériences complètes
+  (M1–M6 petit dense/moyen sparse), attribuées séparément.
+- [P0 complet](./proofs/r12-perf-fix/p0-measures.json) : 24 expériences complètes,
+  **5 timeouts denses M2–M6 cold**, M6 historique absent non exécuté ; 120 appels
+  complets dont 72 mesures statistiques. Aucun refus DomainResult/crash présenté
+  comme réussite. Grand non exécuté, moyens non maîtrisés.
+- [Tableau intégral M1–M6](./proofs/r12-perf-fix/comparison.md) et
+  [JSON statistique](./proofs/r12-perf-fix/p0-summary.json) : cold/warm-up, médiane,
+  min/max/SD population/IQR, CPU user+system, heap endpoints/deltas/GC, RSS lifetime,
+  setups et interruptions. [Comparaison aux mesures historiques](./proofs/r12-perf-fix/historical-comparison.md).
+
+Médianes en millisecondes, **avant = rejeu contemporain** :
+
+| Scénario | M1 avant → P0 | M3 avant → P0 | M5 avant → P0 |
+| --- | ---: | ---: | ---: |
+| Petit dense | 240,0 → 48,9 | 266,7 → 73,3 | 527,3 → 150,8 |
+| Petit sparse | 62,9 → 28,4 | 73,7 → 37,1 | 138,0 → 72,9 |
+| Petit historique | 61,9 → 27,3 | 68,7 → 37,1 | 133,4 → 69,4 |
+| Moyen sparse | 12582,4 → 441,4 | 14119,4 → 1851,0 | 28113,7 → 4111,7 |
+| Moyen dense | initial cold >30 s → 2816,5 | cold >30 s → cold >30 s | avant lecture non commencée (setup >30 s) → cold lecture >30 s |
+
+Étape **P0-A seule**, moyen sparse : M1 939,4 ms ; M2 1920,6 ; M3 2377,6 ;
+M4 2522,0 ; M5 5141,6 ; M6 4934,3. P0-B explique seulement la différence
+supplémentaire vers les résultats P0 complets, pas le gain initial P0-A.
+Moyen sparse P0 : cold M1 470,3/M5 4082,1 ; M5 mesuré 4104,9–4118,9,
+SD 5,7/IQR 7,0 ms ; CPU médian M1 496,6/M5 4262,7 ms.
+Moyen dense M1 : cold 2915,3, médiane 2816,5, plage 2800,0–2826,0,
+SD 10,7/IQR 13,0, CPU médian 3176,0 ms. Aucun ratio/pourcentage à partir
+des timeouts ; la durée initiale réelle dense demeure inconnue.
+Les setups denses M5/M6 terminent en 13820,6/13722,1 ms, puis la lecture cold
+est interrompue à 30 s ; ce n'est plus une interruption pendant le setup.
+
+Mémoire : moyen sparse M1 heap endpoint 86,8→67,0 Mio, RSS lifetime
+228,7→258,2 ; M5 heap 136,4→63,0, RSS 273,5→295,8 ; M6 RSS 268,4→297,0.
+Le surcoût RSS d'environ 8–13 % sur ces expériences est documenté, avec des
+endpoints heap variables selon GC et durée ; pas une taille exclusive des tables.
+M1 dense P0 : heap endpoint **332,0 Mio**, RSS lifetime **498,9 Mio**, pas de
+comparaison complète disponible avant. Aucun OOM/crash sur opérations terminées,
+mais pas de qualification mémoire complète de M2–M6 dense interrompus ni du grand.
+Les maps temporaires augmentent l'espace local O(V) ; aucune fuite démontrée ni
+pic intra-appel prétendu. Polling externe `ps` indisponible (`spawn EPERM`), heap
+endpoints = bornes basses, maxRSS = processus entier fixture/setup compris.
+
+### Profils CPU et réponses aux sept questions
+
+[Profils bruts P0](./proofs/r12-perf-fix/p0-cpu/),
+[synthèse CPU](./proofs/r12-perf-fix/p0-cpu-summary.log),
+[profil intermédiaire P0-A](./proofs/r12-perf-fix/p0-a-cpu-summary.log).
+P0-A M3 moyen sparse : 1602 samples/2422,7 ms ; P0 M3 : 1256/1894,4 ms ;
+P0 M5 moyen sparse : 2799/4210,5 ms ; M1 dense : 1891/2864,3 ms.
+Petits M1/M5 denses, moyens M1/M3/M5 sparse et M1 dense profilés séparément,
+une mesure profilée par opération (18 appels complets, plus 3 intermédiaires).
+Pas de profil dense M5 achevé : cold échoue avant la phase profilée de l'outil ;
+aucune attribution CPU directe inventée pour ces interruptions.
+Les pourcentages inclusifs se recouvrent, ne s'additionnent pas ; petits profils
+courts particulièrement sensibles à Inspector/JIT/GC. Lignes = JS compilé.
+
+| Question de réception | Observation mesurée et portée |
+| --- | --- |
+| 1. Scan owner du registre disparu ? | Oui, inspection des tables et disparition du callback quadratique. Égalité structurée self M3 sparse : 73,90 % historique → 0,48 % P0 ; égalité générale conservée. |
+| 2. Autre goulet dans validateVersionContext ? | Plus de find/some sur versions pour unicités. M3 sparse contexte inclusif 27,64 % P0-A → 9,86 % P0, self 0,08 %. Sur M1 dense inclusif 42,89 %, self 0,63 % : essentiellement validation/copie appelée, pas ancien scan. Longues chaînes fournies restent non qualifiées/potentiellement quadratiques, sans memo. |
+| 3. Lookups exacts dominants ? | Oui : M3 sparse 44,84 % inclusif/30,61 % self ; M5 39,24 % inclusif/28,58 % self. Collect 49,68 % inclusif et 13,80 % self (recouvrement). Manifeste 7,50 % M3/8,99 % M5. P1 distinct à décider/auditer pour lookups et unicité de sélection ; aucune API de lot ajoutée ici. |
+| 4. Grille TA prochain problème ? | Coût significatif : callback grille JS ligne 120 = 13,99 % M3 sparse/5,99 % M5. Pas encore dominant devant lookup sur ce scénario ; dense interrompu en amont ne permet pas d'isoler son coût. P2 reste interdit. |
+| 5. M5 compatible avec poursuite R1.3 ? | Petit dense 150,8 ms, sparse 72,9 ms ; moyen sparse 4,11 s et dense cold >30 s. Pas de GO performance pour R1.3, aucun SLA arbitraire ajouté. |
+| 6. Mémoire maîtrisée ? | Opérations terminées sous garde-fou sans OOM ; surcoût RSS explicité, M1 dense 332 Mio heap/499 Mio RSS. Qualification globale dense/grand non obtenue. |
+| 7. Immuabilité/certification conservées ? | Oui : oracle complet, tests séparés de copie/gel/atomicité, G12-12/13 et architecture PASS, aucune frontière unknown/certification réduite. |
+
+Sur M1 dense, `dataRecord` self 57,37 %, copie self 16,43 %, copie inclusif
+47,63 %, GC 3,06 % : les coûts nécessaires de validation/copie deviennent visibles.
+P3 reste interdit. Les seuls changements de production sont les algorithmes P0.
+
+### Deux verdicts et livraison
+
+**A — Correction P0 techniquement conforme : OUI**, sous réserve du nouvel audit
+indépendant. Équivalence stricte observée, scans ciblés supprimés, 174 tests et
+13 gates PASS, aucun contrat public ni architecture modifié. Cette lettre A est
+le nom du verdict demandé, pas une classification de performance globale.
+
+**B — Performance R1.2 redevenue acceptable : NON. Classification globale C
+maintenue** (blocage observé au moyen dense). Les petits sont nettement améliorés ;
+le moyen sparse termine mais M5 reste à plusieurs secondes ; M2–M6 dense restent
+interrompus. Une appréciation A (absence de blocage mesuré) ou B (réserves compatibles
+avec poursuite) ne serait pas étayée. Le correctif P0 ne résout donc pas à lui seul
+R1.2-PERF. Prochaine décision : périmètre P1 indépendant à instruire sur les lookups
+et le manifeste, puis remesure avant toute autre optimisation. Aucun GO implicite
+P1/P2/P3, aucune grille/certification/revalidation contournée.
+
+Fichiers : trois modules Domain (dont helper nouveau), deux tests pérennes,
+ce plan, canon R1.2, current_plan/current_canon, nouvelles preuves uniquement
+sous `proofs/r12-perf-fix/`. Registre de réutilisation inchangé : aucune reprise
+legacy ou évolution de responsabilité. Sources benchmark/package/lock/config,
+archives, R1.1 canon et lots ultérieurs inchangés. Revue complète et diff-check
+avant commit normal/push sans force ; SHA final et correspondance local/distant
+communiqués après livraison, sans auto-référence circulaire dans les fichiers.
+**R1.2 reste IN REVIEW jusqu'à audit indépendant du correctif ; R1.3/R1.4/R2
+NOT STARTED. Arrêt après commit/push.**

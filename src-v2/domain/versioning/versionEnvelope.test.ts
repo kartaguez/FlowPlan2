@@ -252,3 +252,31 @@ test('audit B3 a claimed TypeScript payload type is not runtime schema validatio
   assert.equal(Object.hasOwn(forged.payload, 'label'), false);
   assert.equal(Object.isFrozen(forged.payload), true);
 });
+
+test('PERF-P0 context preserves ordered missing parents and repeated exact refs', () => {
+  const a=envelope('a','missing-a'), b=envelope('b','a'), c=envelope('c','missing-c');
+  const report=value(validateVersionContext([c,b,a,c,b,c]));
+  assert.deepEqual(report.missingPredecessors,[ref('missing-c'),ref('missing-a')]);
+  assert.deepEqual(report.identicalRepetitions,[c.ref,b.ref,c.ref]);
+  assert.equal(report.status,'not-established');
+  assert.ok(Object.isFrozen(report));assert.ok(Object.isFrozen(report.missingPredecessors));
+  assert.throws(()=>{(report.missingPredecessors as unknown[]).pop();});
+});
+test('PERF-P0 context diagnostics retain collision, owner and cycle phase priority', () => {
+  const a=envelope('a','b'),b=envelope('b','a');
+  const ownerChange={...b,owner:owner('changed')};
+  rejected(validateVersionContext([a,ownerChange]),'IMMUTABLE_OWNER_MISMATCH');
+  rejected(validateVersionContext([a,ownerChange,{...a,payload:{changed:true}}]),'DIVERGENT_VERSION_COLLISION');
+  rejected(validateVersionContext([a,b]),'LINEAGE_CYCLE');
+  const valid=envelope('valid');
+  rejected(validateVersionContext([valid,{...valid,payload:{changed:true}},{invalid:true}]),'DIVERGENT_VERSION_COLLISION');
+  rejected(validateVersionContext([valid,{invalid:true},{...valid,payload:{changed:true}}]),'INVALID_RECORD');
+});
+test('PERF-P0 context typed components preserve adversarial bytes without aliasing', () => {
+  for(const text of ['__proto__',' a/b:c é💡 ','x'.repeat(1024)]) {
+    const a={...envelope('v'),ref:ref('b/c',text),owner:owner(text)};
+    const b={...envelope('v'),ref:ref('c',`${text}/b`),owner:owner(`${text}/other`)};
+    assert.equal(value(validateVersionContext([a,b,a])).identicalRepetitions.length,1);
+    rejected(validateVersionContext([a,{...b,ref:ref('different',text)}]),'IMMUTABLE_OWNER_MISMATCH');
+  }
+});

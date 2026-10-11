@@ -3,6 +3,7 @@ import { dataRecord, field, hasKeys } from '../primitives/data.js';
 import { createExactReference, sameIdentity, sameReference, validateExactReference, type ExactReference, type VersionKind } from '../primitives/exactReference.js';
 import { createOwner, type VersionOwner } from './owner.js';
 import { copyImmutableValue, equalImmutableValues, type DeepReadonly, type ImmutableValue } from './immutableValue.js';
+import { LocalVersionTable, identityParts, referenceParts } from './localVersionTables.js';
 declare const envelopeBrand: unique symbol;
 export interface VersionEnvelope<K extends VersionKind, P = ImmutableValue> {
   readonly ref: ExactReference<K>; readonly owner: VersionOwner<K>; readonly payload: DeepReadonly<P>;
@@ -46,31 +47,40 @@ export function validateVersionContext(input: unknown, path = 'context'): Domain
   const copied = copyImmutableValue(input, path); if (!copied.ok) return copied;
   if (!Array.isArray(copied.value)) return invalid('INVALID_VERSION_CONTEXT', path);
   const versions: VersionEnvelope<VersionKind>[] = [], identical: ExactReference<VersionKind>[] = [];
+  const references = new LocalVersionTable<VersionEnvelope<VersionKind>>();
   for (const entry of copied.value) {
     const record = dataRecord(entry, path); if (!record.ok) return record;
     const ref = validateExactReference(field(record.value, 'ref'), `${path}.ref`); if (!ref.ok) return ref;
     const version = createVersionEnvelope(ref.value.kind, entry, path); if (!version.ok) return version;
-    const duplicate = versions.find(v => sameReference(v.ref, version.value.ref));
+    const key = referenceParts(version.value.ref);
+    const duplicate = references.get(key);
     if (duplicate !== undefined) {
       if (!equalImmutableValues(duplicate as unknown as ImmutableValue, version.value as unknown as ImmutableValue)) return invalid('DIVERGENT_VERSION_COLLISION', path);
       identical.push(version.value.ref);
-    } else versions.push(version.value);
+    } else { versions.push(version.value); references.set(key,version.value); }
   }
+  // Separate phase: collisions/malformed envelopes retain priority over owner mismatch.
+  const owners = new LocalVersionTable<VersionOwner<VersionKind>>();
   for (const version of versions) {
-    if (versions.some(other => sameIdentity(version.ref, other.ref) &&
-        !equalImmutableValues(version.owner as unknown as ImmutableValue, other.owner as unknown as ImmutableValue))) return invalid('IMMUTABLE_OWNER_MISMATCH', path);
+    const key = identityParts(version.ref), owner = owners.get(key);
+    if (owner !== undefined && !equalImmutableValues(version.owner as unknown as ImmutableValue, owner as unknown as ImmutableValue))
+      return invalid('IMMUTABLE_OWNER_MISMATCH', path);
+    if (owner === undefined) owners.set(key,version.owner);
   }
   const missing: ExactReference<VersionKind>[] = [];
+  const missingReferences = new LocalVersionTable<true>();
   for (const version of versions) {
     let current: VersionEnvelope<VersionKind> | undefined = version;
-    const visited: ExactReference<VersionKind>[] = [];
+    // The exact table returns one canonical envelope per ref; membership is therefore exact.
+    const visited = new Set<VersionEnvelope<VersionKind>>();
     while (current !== undefined) {
-      if (visited.some(ref => sameReference(ref, current!.ref))) return invalid('LINEAGE_CYCLE', path);
-      visited.push(current.ref);
+      if (visited.has(current)) return invalid('LINEAGE_CYCLE', path);
+      visited.add(current);
       const parent: ExactReference<VersionKind> | undefined = current.predecessor;
       if (parent === undefined) break;
-      current = versions.find(v => sameReference(v.ref, parent));
-      if (current === undefined && !missing.some(ref => sameReference(ref, parent))) missing.push(parent);
+      const key = referenceParts(parent);
+      current = references.get(key);
+      if (current === undefined && missingReferences.get(key) === undefined) { missing.push(parent); missingReferences.set(key,true); }
     }
   }
   return success(Object.freeze({ status: missing.length ? 'not-established' : 'established',

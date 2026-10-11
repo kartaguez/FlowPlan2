@@ -1,0 +1,375 @@
+{
+  "startedAt": "2026-10-11T09:04:08.916Z",
+  "command": [
+    "/Users/Kartaguez/.nvm/versions/node/v24.21.0/bin/node",
+    "/private/tmp/flowplan-r12-p0/scripts/benchmarks/r12-perf/run.mjs",
+    "--scenarios=small:dense",
+    "--operations=M1,M5",
+    "--repeats=1",
+    "--profile",
+    "--output=/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-fix/p0-cpu/small.json"
+  ],
+  "codeSHA": "d92f455e9a1288a347d3c288b190fbbe4354dbb6",
+  "productionTree": "d7ee25c2ba4f33e454ffdc166eac9dfbf880e189",
+  "productionDiff": "",
+  "environment": {
+    "node": "v24.21.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "release": "27.0.0",
+    "cpu": "Apple M4",
+    "logicalCPUs": 10,
+    "totalRAM": 17179869184,
+    "freeRAMAtStart": 606830592,
+    "availableMemoryAtStart": 3540549632,
+    "npm": "11.19.0"
+  },
+  "settings": {
+    "timeoutMs": 30000,
+    "repeats": 1,
+    "heapMiB": 1024,
+    "rssPollMs": 250
+  },
+  "runs": [
+    {
+      "size": "small",
+      "variant": "dense",
+      "operation": "M1",
+      "profile": "/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-fix/p0-cpu/small-dense-M1.cpuprofile",
+      "samples": [
+        {
+          "event": "sample",
+          "phase": "cold",
+          "ms": 56.174375,
+          "cpuUserMs": 81.056,
+          "cpuSystemMs": 2.716,
+          "before": {
+            "rss": 67452928,
+            "heapTotal": 11354112,
+            "heapUsed": 5986320,
+            "external": 2616555,
+            "arrayBuffers": 143615
+          },
+          "after": {
+            "rss": 87228416,
+            "heapTotal": 27869184,
+            "heapUsed": 14132440,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "retainedWithResult": {
+            "rss": 87261184,
+            "heapTotal": 27082752,
+            "heapUsed": 6938040,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "afterReleaseGC": {
+            "rss": 87228416,
+            "heapTotal": 25247744,
+            "heapUsed": 6921576,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "processMaxRSSKiB": 85184,
+          "observed": {
+            "versions": 894,
+            "context": "established"
+          }
+        },
+        {
+          "event": "sample",
+          "phase": "warmup",
+          "ms": 50.432708000000005,
+          "cpuUserMs": 61.095,
+          "cpuSystemMs": 1.381,
+          "before": {
+            "rss": 87228416,
+            "heapTotal": 24985600,
+            "heapUsed": 6922000,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "after": {
+            "rss": 87769088,
+            "heapTotal": 27607040,
+            "heapUsed": 18178760,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "retainedWithResult": {
+            "rss": 87769088,
+            "heapTotal": 26820608,
+            "heapUsed": 6968064,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "afterReleaseGC": {
+            "rss": 87769088,
+            "heapTotal": 24723456,
+            "heapUsed": 6952952,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "processMaxRSSKiB": 85712,
+          "observed": {
+            "versions": 894,
+            "context": "established"
+          }
+        },
+        {
+          "event": "sample",
+          "phase": "measured-1",
+          "ms": 52.10941700000001,
+          "cpuUserMs": 68.184,
+          "cpuSystemMs": 2.301,
+          "before": {
+            "rss": 87769088,
+            "heapTotal": 24723456,
+            "heapUsed": 6952896,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "after": {
+            "rss": 108691456,
+            "heapTotal": 45170688,
+            "heapUsed": 26455288,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "retainedWithResult": {
+            "rss": 109461504,
+            "heapTotal": 42287104,
+            "heapUsed": 7752920,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "afterReleaseGC": {
+            "rss": 109461504,
+            "heapTotal": 42287104,
+            "heapUsed": 7196672,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "processMaxRSSKiB": 106832,
+          "observed": {
+            "versions": 894,
+            "context": "established"
+          }
+        }
+      ],
+      "rssSamples": [],
+      "status": "COMPLETED",
+      "fixture": {
+        "size": "small",
+        "variant": "dense",
+        "seed": 1202,
+        "projects": 10,
+        "teams": 5,
+        "reservations": 1,
+        "subPeriodsPerOwner": 12,
+        "versions": 894,
+        "selectedReferences": 894,
+        "byKind": {
+          "ProjectSettings": 10,
+          "ReservationSettings": 1,
+          "TeamSettings": 5,
+          "TeamCapacity": 5,
+          "Program": 1,
+          "Pas": 1,
+          "PT": 50,
+          "RT": 2,
+          "ActualPeriod": 11,
+          "ActualSubPeriod": 132,
+          "TeamActual": 624,
+          "PTEC": 50,
+          "PlanningSettings": 1,
+          "PortfolioOrder": 1
+        },
+        "exactReferenceOccurrences": 1920,
+        "identityOccurrences": 1501,
+        "existingPT": 50,
+        "deletedAssociations": 0,
+        "projectTA": 600,
+        "reservationTA": 24,
+        "fixtureSha256": "7adc331e1f02eb321f50bf85bd0e9f844dfd518c7b0fc8916f71c92da7ee7b24"
+      },
+      "exitCode": 0,
+      "signal": null,
+      "stderr": "",
+      "rssObservedPeakMiB": null
+    },
+    {
+      "size": "small",
+      "variant": "dense",
+      "operation": "M5",
+      "profile": "/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-fix/p0-cpu/small-dense-M5.cpuprofile",
+      "samples": [
+        {
+          "event": "sample",
+          "phase": "cold",
+          "ms": 157.51720899999998,
+          "cpuUserMs": 183.942,
+          "cpuSystemMs": 3.819,
+          "before": {
+            "rss": 88637440,
+            "heapTotal": 28393472,
+            "heapUsed": 7295120,
+            "external": 2616555,
+            "arrayBuffers": 143615
+          },
+          "after": {
+            "rss": 109772800,
+            "heapTotal": 49364992,
+            "heapUsed": 22468408,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "retainedWithResult": {
+            "rss": 109805568,
+            "heapTotal": 48578560,
+            "heapUsed": 8322208,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "afterReleaseGC": {
+            "rss": 109723648,
+            "heapTotal": 43073536,
+            "heapUsed": 8301640,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "processMaxRSSKiB": 107200,
+          "observed": {
+            "versions": 894,
+            "context": "established"
+          }
+        },
+        {
+          "event": "sample",
+          "phase": "warmup",
+          "ms": 158.93129199999998,
+          "cpuUserMs": 178.529,
+          "cpuSystemMs": 4.781,
+          "before": {
+            "rss": 109723648,
+            "heapTotal": 43335680,
+            "heapUsed": 8296512,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "after": {
+            "rss": 143933440,
+            "heapTotal": 83181568,
+            "heapUsed": 21807088,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "retainedWithResult": {
+            "rss": 143851520,
+            "heapTotal": 81870848,
+            "heapUsed": 8342576,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "afterReleaseGC": {
+            "rss": 143851520,
+            "heapTotal": 76365824,
+            "heapUsed": 8325704,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "processMaxRSSKiB": 140560,
+          "observed": {
+            "versions": 894,
+            "context": "established"
+          }
+        },
+        {
+          "event": "sample",
+          "phase": "measured-1",
+          "ms": 157.203917,
+          "cpuUserMs": 186.361,
+          "cpuSystemMs": 2.247,
+          "before": {
+            "rss": 143851520,
+            "heapTotal": 76627968,
+            "heapUsed": 8325824,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "after": {
+            "rss": 147800064,
+            "heapTotal": 82395136,
+            "heapUsed": 20284432,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "retainedWithResult": {
+            "rss": 147931136,
+            "heapTotal": 81084416,
+            "heapUsed": 9092224,
+            "external": 2597786,
+            "arrayBuffers": 143631
+          },
+          "afterReleaseGC": {
+            "rss": 147947520,
+            "heapTotal": 77152256,
+            "heapUsed": 8376392,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "processMaxRSSKiB": 144544,
+          "observed": {
+            "versions": 894,
+            "context": "established"
+          }
+        }
+      ],
+      "rssSamples": [],
+      "status": "COMPLETED",
+      "fixture": {
+        "size": "small",
+        "variant": "dense",
+        "seed": 1202,
+        "projects": 10,
+        "teams": 5,
+        "reservations": 1,
+        "subPeriodsPerOwner": 12,
+        "versions": 894,
+        "selectedReferences": 894,
+        "byKind": {
+          "ProjectSettings": 10,
+          "ReservationSettings": 1,
+          "TeamSettings": 5,
+          "TeamCapacity": 5,
+          "Program": 1,
+          "Pas": 1,
+          "PT": 50,
+          "RT": 2,
+          "ActualPeriod": 11,
+          "ActualSubPeriod": 132,
+          "TeamActual": 624,
+          "PTEC": 50,
+          "PlanningSettings": 1,
+          "PortfolioOrder": 1
+        },
+        "exactReferenceOccurrences": 1920,
+        "identityOccurrences": 1501,
+        "existingPT": 50,
+        "deletedAssociations": 0,
+        "projectTA": 600,
+        "reservationTA": 24,
+        "fixtureSha256": "7adc331e1f02eb321f50bf85bd0e9f844dfd518c7b0fc8916f71c92da7ee7b24"
+      },
+      "adapterSetupMs": 71.361625,
+      "rssPollingUnavailable": "spawn EPERM",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": "",
+      "rssObservedPeakMiB": null
+    }
+  ],
+  "finishedAt": "2026-10-11T09:04:09.876Z",
+  "largePolicy": "Not automatic; explicit separate --allow-large invocation required"
+}

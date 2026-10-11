@@ -1,0 +1,628 @@
+TAP version 13
+# Subtest: G12-01 ProjectSettings: schema valid, extra/missing keys refused
+ok 1 - G12-01 ProjectSettings: schema valid, extra/missing keys refused
+  ---
+  duration_ms: 1.287667
+  type: 'test'
+  ...
+# Subtest: G12-01 ReservationSettings: schema valid, extra/missing keys refused
+ok 2 - G12-01 ReservationSettings: schema valid, extra/missing keys refused
+  ---
+  duration_ms: 0.217292
+  type: 'test'
+  ...
+# Subtest: G12-01 TeamSettings: schema valid, extra/missing keys refused
+ok 3 - G12-01 TeamSettings: schema valid, extra/missing keys refused
+  ---
+  duration_ms: 0.079792
+  type: 'test'
+  ...
+# Subtest: G12-01 TeamCapacity: schema valid, extra/missing keys refused
+ok 4 - G12-01 TeamCapacity: schema valid, extra/missing keys refused
+  ---
+  duration_ms: 0.106792
+  type: 'test'
+  ...
+# Subtest: G12-01 Program: schema valid, extra/missing keys refused
+ok 5 - G12-01 Program: schema valid, extra/missing keys refused
+  ---
+  duration_ms: 0.098792
+  type: 'test'
+  ...
+# Subtest: G12-01 Pas: schema valid, extra/missing keys refused
+ok 6 - G12-01 Pas: schema valid, extra/missing keys refused
+  ---
+  duration_ms: 0.054084
+  type: 'test'
+  ...
+# Subtest: G12-01 PT: schema valid, extra/missing keys refused
+ok 7 - G12-01 PT: schema valid, extra/missing keys refused
+  ---
+  duration_ms: 0.168542
+  type: 'test'
+  ...
+# Subtest: G12-01 RT: schema valid, extra/missing keys refused
+ok 8 - G12-01 RT: schema valid, extra/missing keys refused
+  ---
+  duration_ms: 0.099958
+  type: 'test'
+  ...
+# Subtest: G12-01 ActualPeriod: schema valid, extra/missing keys refused
+ok 9 - G12-01 ActualPeriod: schema valid, extra/missing keys refused
+  ---
+  duration_ms: 0.083292
+  type: 'test'
+  ...
+# Subtest: G12-01 ActualSubPeriod: schema valid, extra/missing keys refused
+ok 10 - G12-01 ActualSubPeriod: schema valid, extra/missing keys refused
+  ---
+  duration_ms: 0.102583
+  type: 'test'
+  ...
+# Subtest: G12-01 TeamActual: schema valid, extra/missing keys refused
+ok 11 - G12-01 TeamActual: schema valid, extra/missing keys refused
+  ---
+  duration_ms: 0.340291
+  type: 'test'
+  ...
+# Subtest: G12-01 PTEC: schema valid, extra/missing keys refused
+ok 12 - G12-01 PTEC: schema valid, extra/missing keys refused
+  ---
+  duration_ms: 0.140417
+  type: 'test'
+  ...
+# Subtest: G12-01 PlanningSettings: schema valid, extra/missing keys refused
+ok 13 - G12-01 PlanningSettings: schema valid, extra/missing keys refused
+  ---
+  duration_ms: 0.091667
+  type: 'test'
+  ...
+# Subtest: G12-01 PortfolioOrder: schema valid, extra/missing keys refused
+ok 14 - G12-01 PortfolioOrder: schema valid, extra/missing keys refused
+  ---
+  duration_ms: 0.055958
+  type: 'test'
+  ...
+# Subtest: G12-01 mandatory, typed refs, colors and eliminated statuses
+ok 15 - G12-01 mandatory, typed refs, colors and eliminated statuses
+  ---
+  duration_ms: 6.561042
+  type: 'test'
+  ...
+# Subtest: G12-01 runtime unknown accessors, cycles, sparse arrays and forged quantities
+ok 16 - G12-01 runtime unknown accessors, cycles, sparse arrays and forged quantities
+  ---
+  duration_ms: 0.123875
+  type: 'test'
+  ...
+# Subtest: G12-02 immutable registry, repetitions, branches, append and exact lookup
+ok 17 - G12-02 immutable registry, repetitions, branches, append and exact lookup
+  ---
+  duration_ms: 4.379084
+  type: 'test'
+  ...
+# Subtest: G12-02 collisions, owner changes and contextual cycles refused
+ok 18 - G12-02 collisions, owner changes and contextual cycles refused
+  ---
+  duration_ms: 4.207375
+  type: 'test'
+  ...
+# Subtest: G12-03 empty explicit manifest and inventories derived from opaque Settings owners
+ok 19 - G12-03 empty explicit manifest and inventories derived from opaque Settings owners
+  ---
+  duration_ms: 2.218334
+  type: 'test'
+  ...
+# Subtest: G12-03 duplicate selection and wrong table kind refused
+ok 20 - G12-03 duplicate selection and wrong table kind refused
+  ---
+  duration_ms: 0.285542
+  type: 'test'
+  ...
+# Subtest: G12-04 exact resolver invariant under registry permutation; no predecessor/provenance substitution
+ok 21 - G12-04 exact resolver invariant under registry permutation; no predecessor/provenance substitution
+  ---
+  duration_ms: 3.982917
+  type: 'test'
+  ...
+# Subtest: G12-04/B1 Snapshot v10000: ten thousand historical versions available only to witness; zero historical/Current reads
+ok 22 - G12-04/B1 Snapshot v10000: ten thousand historical versions available only to witness; zero historical/Current reads
+  ---
+  duration_ms: 37.60725
+  type: 'test'
+  ...
+# Subtest: G12-04 read ports reject wrong versions, Snapshot IDs and propagate read diagnostics
+ok 23 - G12-04 read ports reject wrong versions, Snapshot IDs and propagate read diagnostics
+  ---
+  duration_ms: 2.935083
+  type: 'test'
+  ...
+# Subtest: G12-05 tombstones keep covered AP, archived positive actuals, capacities and references
+ok 24 - G12-05 tombstones keep covered AP, archived positive actuals, capacities and references
+  ---
+  duration_ms: 4.170042
+  type: 'test'
+  ...
+# Subtest: G12-05 deleted endpoints forbid existing PT/RT; deleted associations forbid selected TA/PTEC
+ok 25 - G12-05 deleted endpoints forbid existing PT/RT; deleted associations forbid selected TA/PTEC
+  ---
+  duration_ms: 5.254083
+  type: 'test'
+  ...
+# Subtest: G12-05 restored owner with only deleted associations; hidden/inactive owners retain complete grid
+ok 26 - G12-05 restored owner with only deleted associations; hidden/inactive owners retain complete grid
+  ---
+  duration_ms: 3.031917
+  type: 'test'
+  ...
+# Subtest: G12-06 empty/covered partitions, leap day, singleton and date extremes
+ok 27 - G12-06 empty/covered partitions, leap day, singleton and date extremes
+  ---
+  duration_ms: 4.276292
+  type: 'test'
+  ...
+# Subtest: G12-06 partition gaps, overlaps, ordering, bounds, wrong AP and extra SubPeriods refused
+ok 28 - G12-06 partition gaps, overlaps, ordering, bounds, wrong AP and extra SubPeriods refused
+  ---
+  duration_ms: 8.014708
+  type: 'test'
+  ...
+# Subtest: G12-06 earliest constraint is independent of activity and lifecycle
+ok 29 - G12-06 earliest constraint is independent of activity and lifecycle
+  ---
+  duration_ms: 3.238
+  type: 'test'
+  ...
+# Subtest: G12-07 exact 2x2 grids include zeros, RT demand zero and inactive/hidden roots
+ok 30 - G12-07 exact 2x2 grids include zeros, RT demand zero and inactive/hidden roots
+  ---
+  duration_ms: 3.91675
+  type: 'test'
+  ...
+# Subtest: G12-07 foreign association/subperiod and forged Consumption family refused
+ok 31 - G12-07 foreign association/subperiod and forged Consumption family refused
+  ---
+  duration_ms: 3.973041
+  type: 'test'
+  ...
+# Subtest: G12-08 PTEC AP identity stable across through-equivalent AP versions
+ok 32 - G12-08 PTEC AP identity stable across through-equivalent AP versions
+  ---
+  duration_ms: 3.334583
+  type: 'test'
+  ...
+# Subtest: G12-08 missing/foreign PTEC and version AP references refused
+ok 33 - G12-08 missing/foreign PTEC and version AP references refused
+  ---
+  duration_ms: 2.488083
+  type: 'test'
+  ...
+# Subtest: G12-09 calendar gaps and exceptions outside horizon; RT zero modes
+ok 34 - G12-09 calendar gaps and exceptions outside horizon; RT zero modes
+  ---
+  duration_ms: 2.114625
+  type: 'test'
+  ...
+# Subtest: G12-09 overlaps, duplicate exceptions, weekday/limit/horizon invalidity
+ok 35 - G12-09 overlaps, duplicate exceptions, weekday/limit/horizon invalidity
+  ---
+  duration_ms: 0.1745
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 ps existing -> Program existing
+ok 36 - G12-09/B3 ps existing -> Program existing
+  ---
+  duration_ms: 2.021875
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 ps existing -> Program deleted
+ok 37 - G12-09/B3 ps existing -> Program deleted
+  ---
+  duration_ms: 1.92575
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 ps deleted -> Program existing
+ok 38 - G12-09/B3 ps deleted -> Program existing
+  ---
+  duration_ms: 2.21425
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 ps deleted -> Program deleted
+ok 39 - G12-09/B3 ps deleted -> Program deleted
+  ---
+  duration_ms: 1.98275
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 ps existing -> Pas existing
+ok 40 - G12-09/B3 ps existing -> Pas existing
+  ---
+  duration_ms: 2.089334
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 ps existing -> Pas deleted
+ok 41 - G12-09/B3 ps existing -> Pas deleted
+  ---
+  duration_ms: 1.9145
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 ps deleted -> Pas existing
+ok 42 - G12-09/B3 ps deleted -> Pas existing
+  ---
+  duration_ms: 1.887542
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 ps deleted -> Pas deleted
+ok 43 - G12-09/B3 ps deleted -> Pas deleted
+  ---
+  duration_ms: 2.248459
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 rs existing -> Program existing
+ok 44 - G12-09/B3 rs existing -> Program existing
+  ---
+  duration_ms: 1.977375
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 rs existing -> Program deleted
+ok 45 - G12-09/B3 rs existing -> Program deleted
+  ---
+  duration_ms: 1.939541
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 rs deleted -> Program existing
+ok 46 - G12-09/B3 rs deleted -> Program existing
+  ---
+  duration_ms: 2.775041
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 rs deleted -> Program deleted
+ok 47 - G12-09/B3 rs deleted -> Program deleted
+  ---
+  duration_ms: 2.085333
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 rs existing -> Pas existing
+ok 48 - G12-09/B3 rs existing -> Pas existing
+  ---
+  duration_ms: 2.0285
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 rs existing -> Pas deleted
+ok 49 - G12-09/B3 rs existing -> Pas deleted
+  ---
+  duration_ms: 2.442791
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 rs deleted -> Pas existing
+ok 50 - G12-09/B3 rs deleted -> Pas existing
+  ---
+  duration_ms: 1.970459
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 rs deleted -> Pas deleted
+ok 51 - G12-09/B3 rs deleted -> Pas deleted
+  ---
+  duration_ms: 2.079084
+  type: 'test'
+  ...
+# Subtest: G12-09 catalogues autonomous, normalized existing names unique; deleted releases name
+ok 52 - G12-09 catalogues autonomous, normalized existing names unique; deleted releases name
+  ---
+  duration_ms: 3.222458
+  type: 'test'
+  ...
+# Subtest: G12-09 order complete for inactive and deleted projects
+ok 53 - G12-09 order complete for inactive and deleted projects
+  ---
+  duration_ms: 2.018625
+  type: 'test'
+  ...
+# Subtest: G12-10 Snapshot bound includes inactive/deleted AP, empty ignores bound, dates equal/backwards allowed
+ok 54 - G12-10 Snapshot bound includes inactive/deleted AP, empty ignores bound, dates equal/backwards allowed
+  ---
+  duration_ms: 4.550583
+  type: 'test'
+  ...
+# Subtest: G12-10 historical Snapshot independent after explicit divergent Current; adapter copies input
+ok 55 - G12-10 historical Snapshot independent after explicit divergent Current; adapter copies input
+  ---
+  duration_ms: 6.592209
+  type: 'test'
+  ...
+# Subtest: G12-11/B2 owner mapping ps: same identity versions accepted; different identity never selected refused
+ok 56 - G12-11/B2 owner mapping ps: same identity versions accepted; different identity never selected refused
+  ---
+  duration_ms: 1.894791
+  type: 'test'
+  ...
+# Subtest: G12-11/B2 owner mapping rs: same identity versions accepted; different identity never selected refused
+ok 57 - G12-11/B2 owner mapping rs: same identity versions accepted; different identity never selected refused
+  ---
+  duration_ms: 1.989333
+  type: 'test'
+  ...
+# Subtest: G12-11/B2 owner mapping ts-t1: same identity versions accepted; different identity never selected refused
+ok 58 - G12-11/B2 owner mapping ts-t1: same identity versions accepted; different identity never selected refused
+  ---
+  duration_ms: 1.7125
+  type: 'test'
+  ...
+# Subtest: G12-11/B2 owner mapping cap-t1: same identity versions accepted; different identity never selected refused
+ok 59 - G12-11/B2 owner mapping cap-t1: same identity versions accepted; different identity never selected refused
+  ---
+  duration_ms: 1.799625
+  type: 'test'
+  ...
+# Subtest: G12-11/B2 owner mapping ap-p: same identity versions accepted; different identity never selected refused
+ok 60 - G12-11/B2 owner mapping ap-p: same identity versions accepted; different identity never selected refused
+  ---
+  duration_ms: 1.663291
+  type: 'test'
+  ...
+# Subtest: G12-11/B2 owner mapping ptec-t1: same identity versions accepted; different identity never selected refused
+ok 61 - G12-11/B2 owner mapping ptec-t1: same identity versions accepted; different identity never selected refused
+  ---
+  duration_ms: 1.809125
+  type: 'test'
+  ...
+# Subtest: G12-11/B2 owner mapping pt-t1: same identity versions accepted; different identity never selected refused
+ok 62 - G12-11/B2 owner mapping pt-t1: same identity versions accepted; different identity never selected refused
+  ---
+  duration_ms: 1.829875
+  type: 'test'
+  ...
+# Subtest: G12-11/B2 owner mapping rt-t1: same identity versions accepted; different identity never selected refused
+ok 63 - G12-11/B2 owner mapping rt-t1: same identity versions accepted; different identity never selected refused
+  ---
+  duration_ms: 1.685084
+  type: 'test'
+  ...
+# Subtest: G12-11/B2 owner mapping planning: same identity versions accepted; different identity never selected refused
+ok 64 - G12-11/B2 owner mapping planning: same identity versions accepted; different identity never selected refused
+  ---
+  duration_ms: 1.672791
+  type: 'test'
+  ...
+# Subtest: G12-11/B2 owner mapping order: same identity versions accepted; different identity never selected refused
+ok 65 - G12-11/B2 owner mapping order: same identity versions accepted; different identity never selected refused
+  ---
+  duration_ms: 1.782917
+  type: 'test'
+  ...
+# Subtest: G12-11 TA identity per cell; lifecycle changes under same PT identity accepted
+ok 66 - G12-11 TA identity per cell; lifecycle changes under same PT identity accepted
+  ---
+  duration_ms: 3.506791
+  type: 'test'
+  ...
+# Subtest: G12-12/B4 unknown/deserialized data revalidated; forged validated flag has no authority
+ok 67 - G12-12/B4 unknown/deserialized data revalidated; forged validated flag has no authority
+  ---
+  duration_ms: 4.756167
+  type: 'test'
+  ...
+# Subtest: G12-12 structure independent of transition history and static opacity/quantity families
+ok 68 - G12-12 structure independent of transition history and static opacity/quantity families
+  ---
+  duration_ms: 2.128917
+  type: 'test'
+  ...
+# Subtest: G12-04 Snapshot-only adapter has no Current data; wrong extra response is diagnosed
+ok 69 - G12-04 Snapshot-only adapter has no Current data; wrong extra response is diagnosed
+  ---
+  duration_ms: 3.993375
+  type: 'test'
+  ...
+# Subtest: G12-05/B3 Team deleted rejects two Capacity identities, even only one selected
+ok 70 - G12-05/B3 Team deleted rejects two Capacity identities, even only one selected
+  ---
+  duration_ms: 0.914541
+  type: 'test'
+  ...
+# Subtest: G12-06 foreign AP owner and AP/SubPeriod selection version disagreement
+ok 71 - G12-06 foreign AP owner and AP/SubPeriod selection version disagreement
+  ---
+  duration_ms: 2.396833
+  type: 'test'
+  ...
+# Subtest: G12-06/08 bound adjustments and split with empty provenance preserve unaffected TA/PTEC versions
+ok 72 - G12-06/08 bound adjustments and split with empty provenance preserve unaffected TA/PTEC versions
+  ---
+  duration_ms: 3.008375
+  type: 'test'
+  ...
+# Subtest: G12-08 empty AP requires null PTEC date and orphan PTEC cannot certify
+ok 73 - G12-08 empty AP requires null PTEC date and orphan PTEC cannot certify
+  ---
+  duration_ms: 2.02575
+  type: 'test'
+  ...
+# Subtest: G12-09 foreign Portfolio catalogue and unknown order Project refused
+ok 74 - G12-09 foreign Portfolio catalogue and unknown order Project refused
+  ---
+  duration_ms: 1.873125
+  type: 'test'
+  ...
+# Subtest: G12-12 certification wrapper accessors/source and JS-cast incomplete graph cannot bypass validation
+ok 75 - G12-12 certification wrapper accessors/source and JS-cast incomplete graph cannot bypass validation
+  ---
+  duration_ms: 0.168834
+  type: 'test'
+  ...
+# Subtest: PERF-P0 ProjectSettings: indexed exact refs, mappings and complete collisions
+ok 76 - PERF-P0 ProjectSettings: indexed exact refs, mappings and complete collisions
+  ---
+  duration_ms: 0.635667
+  type: 'test'
+  ...
+# Subtest: PERF-P0 ReservationSettings: indexed exact refs, mappings and complete collisions
+ok 77 - PERF-P0 ReservationSettings: indexed exact refs, mappings and complete collisions
+  ---
+  duration_ms: 0.553541
+  type: 'test'
+  ...
+# Subtest: PERF-P0 TeamSettings: indexed exact refs, mappings and complete collisions
+ok 78 - PERF-P0 TeamSettings: indexed exact refs, mappings and complete collisions
+  ---
+  duration_ms: 0.565
+  type: 'test'
+  ...
+# Subtest: PERF-P0 TeamCapacity: indexed exact refs, mappings and complete collisions
+ok 79 - PERF-P0 TeamCapacity: indexed exact refs, mappings and complete collisions
+  ---
+  duration_ms: 0.496709
+  type: 'test'
+  ...
+# Subtest: PERF-P0 Program: indexed exact refs, mappings and complete collisions
+ok 80 - PERF-P0 Program: indexed exact refs, mappings and complete collisions
+  ---
+  duration_ms: 0.456959
+  type: 'test'
+  ...
+# Subtest: PERF-P0 Pas: indexed exact refs, mappings and complete collisions
+ok 81 - PERF-P0 Pas: indexed exact refs, mappings and complete collisions
+  ---
+  duration_ms: 0.459958
+  type: 'test'
+  ...
+# Subtest: PERF-P0 PT: indexed exact refs, mappings and complete collisions
+ok 82 - PERF-P0 PT: indexed exact refs, mappings and complete collisions
+  ---
+  duration_ms: 0.632125
+  type: 'test'
+  ...
+# Subtest: PERF-P0 RT: indexed exact refs, mappings and complete collisions
+ok 83 - PERF-P0 RT: indexed exact refs, mappings and complete collisions
+  ---
+  duration_ms: 0.641625
+  type: 'test'
+  ...
+# Subtest: PERF-P0 ActualPeriod: indexed exact refs, mappings and complete collisions
+ok 84 - PERF-P0 ActualPeriod: indexed exact refs, mappings and complete collisions
+  ---
+  duration_ms: 0.8475
+  type: 'test'
+  ...
+# Subtest: PERF-P0 ActualSubPeriod: indexed exact refs, mappings and complete collisions
+ok 85 - PERF-P0 ActualSubPeriod: indexed exact refs, mappings and complete collisions
+  ---
+  duration_ms: 0.506583
+  type: 'test'
+  ...
+# Subtest: PERF-P0 TeamActual: indexed exact refs, mappings and complete collisions
+ok 86 - PERF-P0 TeamActual: indexed exact refs, mappings and complete collisions
+  ---
+  duration_ms: 0.652375
+  type: 'test'
+  ...
+# Subtest: PERF-P0 PTEC: indexed exact refs, mappings and complete collisions
+ok 87 - PERF-P0 PTEC: indexed exact refs, mappings and complete collisions
+  ---
+  duration_ms: 0.845292
+  type: 'test'
+  ...
+# Subtest: PERF-P0 PlanningSettings: indexed exact refs, mappings and complete collisions
+ok 88 - PERF-P0 PlanningSettings: indexed exact refs, mappings and complete collisions
+  ---
+  duration_ms: 0.618125
+  type: 'test'
+  ...
+# Subtest: PERF-P0 PortfolioOrder: indexed exact refs, mappings and complete collisions
+ok 89 - PERF-P0 PortfolioOrder: indexed exact refs, mappings and complete collisions
+  ---
+  duration_ms: 0.544083
+  type: 'test'
+  ...
+# Subtest: PERF-P0 composite owners preserve component boundaries, family and kind
+ok 90 - PERF-P0 composite owners preserve component boundaries, family and kind
+  ---
+  duration_ms: 1.152583
+  type: 'test'
+  ...
+# Subtest: PERF-P0 exact reference components, tombstone and unselected mappings
+ok 91 - PERF-P0 exact reference components, tombstone and unselected mappings
+  ---
+  duration_ms: 1.789625
+  type: 'test'
+  ...
+# Subtest: PERF-P0 withVersions remains atomic, detached and deeply frozen
+ok 92 - PERF-P0 withVersions remains atomic, detached and deeply frozen
+  ---
+  duration_ms: 2.487334
+  type: 'test'
+  ...
+# Subtest: G12-13 all Domain, Application, ports and memory adapter dependencies respect hexagonal layers
+ok 93 - G12-13 all Domain, Application, ports and memory adapter dependencies respect hexagonal layers
+  ---
+  duration_ms: 56.075
+  type: 'test'
+  ...
+# Subtest: G12-13 canary rejects Domain to Application
+ok 94 - G12-13 canary rejects Domain to Application
+  ---
+  duration_ms: 3.269792
+  type: 'test'
+  ...
+# Subtest: G12-13 canary rejects Domain to adapter
+ok 95 - G12-13 canary rejects Domain to adapter
+  ---
+  duration_ms: 2.257834
+  type: 'test'
+  ...
+# Subtest: G12-13 canary rejects Domain to UI
+ok 96 - G12-13 canary rejects Domain to UI
+  ---
+  duration_ms: 2.016458
+  type: 'test'
+  ...
+# Subtest: G12-13 canary rejects Domain to engine
+ok 97 - G12-13 canary rejects Domain to engine
+  ---
+  duration_ms: 2.172541
+  type: 'test'
+  ...
+# Subtest: G12-13 canary rejects Application to adapter
+ok 98 - G12-13 canary rejects Application to adapter
+  ---
+  duration_ms: 2.625584
+  type: 'test'
+  ...
+# Subtest: G12-13 canary rejects ports to orchestration
+ok 99 - G12-13 canary rejects ports to orchestration
+  ---
+  duration_ms: 2.552667
+  type: 'test'
+  ...
+# Subtest: G12-13 canary rejects Domain clock
+ok 100 - G12-13 canary rejects Domain clock
+  ---
+  duration_ms: 2.209709
+  type: 'test'
+  ...
+# Subtest: G12-13 canary rejects Domain storage
+ok 101 - G12-13 canary rejects Domain storage
+  ---
+  duration_ms: 2.089542
+  type: 'test'
+  ...
+# Subtest: G12-13 canary rejects Domain fixture
+ok 102 - G12-13 canary rejects Domain fixture
+  ---
+  duration_ms: 2.074959
+  type: 'test'
+  ...
+# Subtest: G12-13 canary rejects Domain legacy type
+ok 103 - G12-13 canary rejects Domain legacy type
+  ---
+  duration_ms: 2.009792
+  type: 'test'
+  ...
+1..103
+# tests 103
+# suites 0
+# pass 103
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 271.789708

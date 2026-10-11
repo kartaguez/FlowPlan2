@@ -1,0 +1,7 @@
+medium:sparse M1 started
+medium:sparse M1 COMPLETED cold:471.1ms warmup:463.1ms measured-1:450.9ms
+medium:sparse M3 started
+medium:sparse M3 COMPLETED cold:1878.2ms warmup:1852.4ms measured-1:1879.9ms
+medium:sparse M5 started
+medium:sparse M5 COMPLETED cold:4096.5ms warmup:4169.4ms measured-1:4193.2ms
+Evidence: /Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-fix/p0-cpu/sparse.json

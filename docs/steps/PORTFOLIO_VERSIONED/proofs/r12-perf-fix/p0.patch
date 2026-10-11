@@ -1,0 +1,268 @@
+diff --git a/src-v2/application/portfolio/r12.test.ts b/src-v2/application/portfolio/r12.test.ts
+index 63c0313..e75fbb7 100644
+--- a/src-v2/application/portfolio/r12.test.ts
++++ b/src-v2/application/portfolio/r12.test.ts
+@@ -358,3 +358,68 @@ test('G12-12 certification wrapper accessors/source and JS-cast incomplete graph
+   const forged = {manifest:f.manifest,versions:[]} as unknown as ValidatedPortfolioGraph;
+   bad(certifyPortfolioGraph({source:'current',manifest:forged.manifest,versions:forged.versions}),'MISSING_EXACT_VERSION');
+ });
++
++for (const kind of versionKinds) test(`PERF-P0 ${kind}: indexed exact refs, mappings and complete collisions`,() => {
++  const f = fixture(); f.cover(); f.cover('r');
++  const v = structuredClone(f.versions.find(v => v.ref.kind === kind)!);
++  const next = {...structuredClone(v),ref:{...structuredClone(v.ref),versionId:id('VersionId','other/version: é')}};
++  const registry = ok(createVersionRegistry([v,next,v,next,v]));
++  assert.deepEqual(registry.versions.map(v=>v.ref),[v.ref,next.ref]);
++  assert.deepEqual(registry.context.identicalRepetitions,[v.ref,next.ref,v.ref]);
++  const reordered = Object.fromEntries(Object.entries(v).reverse());
++  ok(createVersionRegistry([v,reordered]));
++  const differentId = {...structuredClone(v),ref:{...structuredClone(v.ref),entityId:id('EntityId','__proto__')}};
++  if (['Program','Pas','ActualSubPeriod'].includes(kind)) ok(createVersionRegistry([v,differentId]));
++  else bad(createVersionRegistry([v,differentId]),'OWNER_IDENTITY_CONFLICT');
++  const changed = {...structuredClone(v),provenance:[ref(kind,'absent/source','v:2')]};
++  bad(createVersionRegistry([v,changed]),'DIVERGENT_VERSION_COLLISION');
++});
++test('PERF-P0 composite owners preserve component boundaries, family and kind',() => {
++  const f=fixture(); f.cover(); f.cover('r');
++  const pt=structuredClone(f.get('pt-t1')), other=structuredClone(f.get('pt-t2'));
++  pt.owner.projectId.value='a/b'; pt.owner.teamId.value='c';
++  other.owner.projectId.value='a'; other.owner.teamId.value='b/c';
++  ok(createVersionRegistry([pt,other]));
++  other.owner=structuredClone(pt.owner); bad(createVersionRegistry([pt,other]),'OWNER_IDENTITY_CONFLICT');
++  const rt=structuredClone(f.get('rt-t1')); rt.ref.entityId.value=pt.ref.entityId.value;
++  rt.owner.reservationId.value=pt.owner.projectId.value;rt.owner.teamId.value=pt.owner.teamId.value;
++  ok(createVersionRegistry([pt,rt]));
++  const rt2=structuredClone(f.get('rt-t2'));
++  rt.owner.reservationId.value='a/b';rt.owner.teamId.value='c';
++  rt2.owner.reservationId.value='a';rt2.owner.teamId.value='b/c';
++  ok(createVersionRegistry([rt,rt2]));
++  rt2.owner=structuredClone(rt.owner);bad(createVersionRegistry([rt,rt2]),'OWNER_IDENTITY_CONFLICT');
++  const apProject=structuredClone(f.get('ap-p')),apReservation=structuredClone(f.get('ap-r'));
++  apProject.owner.projectId.value='same';apReservation.owner.reservationId.value='same';
++  ok(createVersionRegistry([apProject,apReservation]));
++  const ta=structuredClone(f.get('ta-p-t1-a')),ta2=structuredClone(f.get('ta-r-t1-a'));
++  ta2.owner.association.entityId.value=ta.owner.association.entityId.value;
++  ta2.owner.subPeriod=structuredClone(ta.owner.subPeriod);
++  ok(createVersionRegistry([ta,ta2]));
++  ta2.owner=structuredClone(ta.owner);bad(createVersionRegistry([ta,ta2]),'OWNER_IDENTITY_CONFLICT');
++  const ta3=structuredClone(ta);ta3.ref.entityId.value='different';
++  ta.owner.association.entityId.value='a/b';ta.owner.subPeriod.entityId.value='c';
++  ta3.owner.association.entityId.value='a';ta3.owner.subPeriod.entityId.value='b/c';
++  ok(createVersionRegistry([ta,ta3]));
++});
++test('PERF-P0 exact reference components, tombstone and unselected mappings',() => {
++  const f=fixture(),p=structuredClone(f.get('ps')),q=structuredClone(p);
++  p.ref=ref('ProjectSettings','a/b','c');q.ref=ref('ProjectSettings','a','b/c');
++  q.owner.projectId.value='distinct';ok(createVersionRegistry([p,q]));
++  q.owner=structuredClone(p.owner);q.payload.lifecycle='deleted';
++  bad(createVersionRegistry([p,q]),'OWNER_IDENTITY_CONFLICT');
++  const original=ok(createVersionRegistry(f.versions));
++  bad(withVersions(original,[{...structuredClone(f.get('ps')),ref:ref('ProjectSettings','unselected') }]),'OWNER_IDENTITY_CONFLICT');
++});
++test('PERF-P0 withVersions remains atomic, detached and deeply frozen',() => {
++  const f=fixture(),original=ok(createVersionRegistry(f.versions)),before=structuredClone(original);
++  const batch: Raw[]=[{...structuredClone(f.get('ps')),ref:ref('ProjectSettings','ps','v2')}];
++  const appended=ok(withVersions(original,batch));
++  bad(withVersions(original,[...batch,{invalid:true}]),'INVALID_RECORD');
++  assert.deepEqual(original,before);
++  batch[0]!.payload.name='mutated';batch[0]!.owner.projectId.value='changed';
++  assert.equal((appended.versions.at(-1)!.payload as Raw).name,'Project');
++  function frozen(x: unknown): void {if(x!==null&&typeof x==='object'){assert.ok(Object.isFrozen(x));for(const child of Object.values(x))frozen(child);}}
++  frozen(appended);frozen(original);
++  assert.deepEqual(Object.keys(appended),['versions','context']);
++});
+diff --git a/src-v2/domain/versioning/localVersionTables.ts b/src-v2/domain/versioning/localVersionTables.ts
+new file mode 100644
+index 0000000..e0e2792
+--- /dev/null
++++ b/src-v2/domain/versioning/localVersionTables.ts
+@@ -0,0 +1,49 @@
++import type { ExactReference, VersionKind } from '../primitives/exactReference.js';
++import type { VersionOwner } from './owner.js';
++
++interface Node<T> { readonly children: Map<string, Node<T>>; value?: T }
++/** Temporary, operation-local component trie. Never retained in a public value. */
++export class LocalVersionTable<T> {
++  private readonly root: Node<T> = { children: new Map() };
++  get(parts: readonly string[]): T | undefined {
++    let node = this.root;
++    for (const part of parts) {
++      const child = node.children.get(part); if (child === undefined) return undefined;
++      node = child;
++    }
++    return node.value;
++  }
++  set(parts: readonly string[], value: T): void {
++    let node = this.root;
++    for (const part of parts) {
++      let child = node.children.get(part);
++      if (child === undefined) { child = { children: new Map() }; node.children.set(part,child); }
++      node = child;
++    }
++    node.value = value;
++  }
++}
++export function identityParts(ref: ExactReference<VersionKind>): readonly string[] {
++  return [ref.kind,ref.entityId.family,ref.entityId.value];
++}
++export function referenceParts(ref: ExactReference<VersionKind>): readonly string[] {
++  return [...identityParts(ref),ref.versionId.family,ref.versionId.value];
++}
++/** Only validated owners enter here; all discriminants and ID families are retained.
++ * Component equality is equivalent to structured owner equality, regardless of record key order.
++ */
++export function ownerParts(kind: VersionKind, owner: VersionOwner<VersionKind>): readonly string[] {
++  const prefix = [kind,owner.type];
++  switch (owner.type) {
++    case 'Project': return [...prefix,owner.projectId.family,owner.projectId.value];
++    case 'Reservation': return [...prefix,owner.reservationId.family,owner.reservationId.value];
++    case 'Team': return [...prefix,owner.teamId.family,owner.teamId.value];
++    case 'Portfolio': return [...prefix,owner.portfolioId.family,owner.portfolioId.value];
++    case 'ProjectTeam': return [...prefix,owner.projectId.family,owner.projectId.value,owner.teamId.family,owner.teamId.value];
++    case 'ReservationTeam': return [...prefix,owner.reservationId.family,owner.reservationId.value,owner.teamId.family,owner.teamId.value];
++    case 'ActualPeriod': return [...prefix,owner.actualPeriod.kind,owner.actualPeriod.entityId.family,owner.actualPeriod.entityId.value];
++    case 'PT': return [...prefix,owner.pt.kind,owner.pt.entityId.family,owner.pt.entityId.value];
++    case 'PTSubPeriod': case 'RTSubPeriod': return [...prefix,owner.association.kind,owner.association.entityId.family,owner.association.entityId.value,
++      owner.subPeriod.kind,owner.subPeriod.entityId.family,owner.subPeriod.entityId.value];
++  }
++}
+diff --git a/src-v2/domain/versioning/versionEnvelope.test.ts b/src-v2/domain/versioning/versionEnvelope.test.ts
+index 37f1a6c..d3f2131 100644
+--- a/src-v2/domain/versioning/versionEnvelope.test.ts
++++ b/src-v2/domain/versioning/versionEnvelope.test.ts
+@@ -252,3 +252,31 @@ test('audit B3 a claimed TypeScript payload type is not runtime schema validatio
+   assert.equal(Object.hasOwn(forged.payload, 'label'), false);
+   assert.equal(Object.isFrozen(forged.payload), true);
+ });
++
++test('PERF-P0 context preserves ordered missing parents and repeated exact refs', () => {
++  const a=envelope('a','missing-a'), b=envelope('b','a'), c=envelope('c','missing-c');
++  const report=value(validateVersionContext([c,b,a,c,b,c]));
++  assert.deepEqual(report.missingPredecessors,[ref('missing-c'),ref('missing-a')]);
++  assert.deepEqual(report.identicalRepetitions,[c.ref,b.ref,c.ref]);
++  assert.equal(report.status,'not-established');
++  assert.ok(Object.isFrozen(report));assert.ok(Object.isFrozen(report.missingPredecessors));
++  assert.throws(()=>{(report.missingPredecessors as unknown[]).pop();});
++});
++test('PERF-P0 context diagnostics retain collision, owner and cycle phase priority', () => {
++  const a=envelope('a','b'),b=envelope('b','a');
++  const ownerChange={...b,owner:owner('changed')};
++  rejected(validateVersionContext([a,ownerChange]),'IMMUTABLE_OWNER_MISMATCH');
++  rejected(validateVersionContext([a,ownerChange,{...a,payload:{changed:true}}]),'DIVERGENT_VERSION_COLLISION');
++  rejected(validateVersionContext([a,b]),'LINEAGE_CYCLE');
++  const valid=envelope('valid');
++  rejected(validateVersionContext([valid,{...valid,payload:{changed:true}},{invalid:true}]),'DIVERGENT_VERSION_COLLISION');
++  rejected(validateVersionContext([valid,{invalid:true},{...valid,payload:{changed:true}}]),'INVALID_RECORD');
++});
++test('PERF-P0 context typed components preserve adversarial bytes without aliasing', () => {
++  for(const text of ['__proto__',' a/b:c é💡 ','x'.repeat(1024)]) {
++    const a={...envelope('v'),ref:ref('b/c',text),owner:owner(text)};
++    const b={...envelope('v'),ref:ref('c',`${text}/b`),owner:owner(`${text}/other`)};
++    assert.equal(value(validateVersionContext([a,b,a])).identicalRepetitions.length,1);
++    rejected(validateVersionContext([a,{...b,ref:ref('different',text)}]),'IMMUTABLE_OWNER_MISMATCH');
++  }
++});
+diff --git a/src-v2/domain/versioning/versionEnvelope.ts b/src-v2/domain/versioning/versionEnvelope.ts
+index 370b427..09119ab 100644
+--- a/src-v2/domain/versioning/versionEnvelope.ts
++++ b/src-v2/domain/versioning/versionEnvelope.ts
+@@ -3,6 +3,7 @@ import { dataRecord, field, hasKeys } from '../primitives/data.js';
+ import { createExactReference, sameIdentity, sameReference, validateExactReference, type ExactReference, type VersionKind } from '../primitives/exactReference.js';
+ import { createOwner, type VersionOwner } from './owner.js';
+ import { copyImmutableValue, equalImmutableValues, type DeepReadonly, type ImmutableValue } from './immutableValue.js';
++import { LocalVersionTable, identityParts, referenceParts } from './localVersionTables.js';
+ declare const envelopeBrand: unique symbol;
+ export interface VersionEnvelope<K extends VersionKind, P = ImmutableValue> {
+   readonly ref: ExactReference<K>; readonly owner: VersionOwner<K>; readonly payload: DeepReadonly<P>;
+@@ -46,31 +47,40 @@ export function validateVersionContext(input: unknown, path = 'context'): Domain
+   const copied = copyImmutableValue(input, path); if (!copied.ok) return copied;
+   if (!Array.isArray(copied.value)) return invalid('INVALID_VERSION_CONTEXT', path);
+   const versions: VersionEnvelope<VersionKind>[] = [], identical: ExactReference<VersionKind>[] = [];
++  const references = new LocalVersionTable<VersionEnvelope<VersionKind>>();
+   for (const entry of copied.value) {
+     const record = dataRecord(entry, path); if (!record.ok) return record;
+     const ref = validateExactReference(field(record.value, 'ref'), `${path}.ref`); if (!ref.ok) return ref;
+     const version = createVersionEnvelope(ref.value.kind, entry, path); if (!version.ok) return version;
+-    const duplicate = versions.find(v => sameReference(v.ref, version.value.ref));
++    const key = referenceParts(version.value.ref);
++    const duplicate = references.get(key);
+     if (duplicate !== undefined) {
+       if (!equalImmutableValues(duplicate as unknown as ImmutableValue, version.value as unknown as ImmutableValue)) return invalid('DIVERGENT_VERSION_COLLISION', path);
+       identical.push(version.value.ref);
+-    } else versions.push(version.value);
++    } else { versions.push(version.value); references.set(key,version.value); }
+   }
++  // Separate phase: collisions/malformed envelopes retain priority over owner mismatch.
++  const owners = new LocalVersionTable<VersionOwner<VersionKind>>();
+   for (const version of versions) {
+-    if (versions.some(other => sameIdentity(version.ref, other.ref) &&
+-        !equalImmutableValues(version.owner as unknown as ImmutableValue, other.owner as unknown as ImmutableValue))) return invalid('IMMUTABLE_OWNER_MISMATCH', path);
++    const key = identityParts(version.ref), owner = owners.get(key);
++    if (owner !== undefined && !equalImmutableValues(version.owner as unknown as ImmutableValue, owner as unknown as ImmutableValue))
++      return invalid('IMMUTABLE_OWNER_MISMATCH', path);
++    if (owner === undefined) owners.set(key,version.owner);
+   }
+   const missing: ExactReference<VersionKind>[] = [];
++  const missingReferences = new LocalVersionTable<true>();
+   for (const version of versions) {
+     let current: VersionEnvelope<VersionKind> | undefined = version;
+-    const visited: ExactReference<VersionKind>[] = [];
++    // The exact table returns one canonical envelope per ref; membership is therefore exact.
++    const visited = new Set<VersionEnvelope<VersionKind>>();
+     while (current !== undefined) {
+-      if (visited.some(ref => sameReference(ref, current!.ref))) return invalid('LINEAGE_CYCLE', path);
+-      visited.push(current.ref);
++      if (visited.has(current)) return invalid('LINEAGE_CYCLE', path);
++      visited.add(current);
+       const parent: ExactReference<VersionKind> | undefined = current.predecessor;
+       if (parent === undefined) break;
+-      current = versions.find(v => sameReference(v.ref, parent));
+-      if (current === undefined && !missing.some(ref => sameReference(ref, parent))) missing.push(parent);
++      const key = referenceParts(parent);
++      current = references.get(key);
++      if (current === undefined && missingReferences.get(key) === undefined) { missing.push(parent); missingReferences.set(key,true); }
+     }
+   }
+   return success(Object.freeze({ status: missing.length ? 'not-established' : 'established',
+diff --git a/src-v2/domain/versioning/versionRegistry.ts b/src-v2/domain/versioning/versionRegistry.ts
+index c009f1a..6de6734 100644
+--- a/src-v2/domain/versioning/versionRegistry.ts
++++ b/src-v2/domain/versioning/versionRegistry.ts
+@@ -1,9 +1,10 @@
+ import { invalid, success, type DomainResult } from '../primitives/result.js';
+-import { sameIdentity, sameReference, validateExactReference, type ExactReference, type VersionKind } from '../primitives/exactReference.js';
+-import { copyImmutableValue, equalImmutableValues, type ImmutableValue } from './immutableValue.js';
++import { sameReference, validateExactReference, type ExactReference, type VersionKind } from '../primitives/exactReference.js';
++import { copyImmutableValue } from './immutableValue.js';
+ import { validateVersionContext, type ContextReport } from './versionEnvelope.js';
+ import { createBusinessVersion } from '../portfolio/payloadValidation.js';
+ import type { BusinessVersion } from '../portfolio/payloads.js';
++import { LocalVersionTable, ownerParts, referenceParts } from './localVersionTables.js';
+ export interface VersionRegistry { readonly versions: readonly BusinessVersion[]; readonly context: ContextReport }
+ const uniqueOwners: readonly VersionKind[] = ['ProjectSettings','ReservationSettings','TeamSettings','TeamCapacity','ActualPeriod','PTEC','TeamActual','PT','RT','PlanningSettings','PortfolioOrder'];
+ export function createVersionRegistry(input: unknown, path = 'versions'): DomainResult<VersionRegistry> {
+@@ -15,13 +16,20 @@ export function createVersionRegistry(input: unknown, path = 'versions'): Domain
+     versions.push(v.value);
+   }
+   const context = validateVersionContext(versions,path); if (!context.ok) return context;
++  const ownerIdentities = new LocalVersionTable<string>();
+   for (const version of versions) {
+-    if (uniqueOwners.includes(version.ref.kind) && versions.some(other => other.ref.kind === version.ref.kind &&
+-      !sameIdentity(other.ref,version.ref) && equalImmutableValues(other.owner as unknown as ImmutableValue,version.owner as unknown as ImmutableValue)))
+-      return invalid('OWNER_IDENTITY_CONFLICT',path);
++    if (!uniqueOwners.includes(version.ref.kind)) continue;
++    const key = ownerParts(version.ref.kind,version.owner);
++    const identity = ownerIdentities.get(key);
++    if (identity !== undefined && identity !== version.ref.entityId.value) return invalid('OWNER_IDENTITY_CONFLICT',path);
++    ownerIdentities.set(key,version.ref.entityId.value);
+   }
+   const distinct: BusinessVersion[] = [];
+-  for (const version of versions) if (!distinct.some(other => sameReference(other.ref,version.ref))) distinct.push(version);
++  const references = new LocalVersionTable<true>();
++  for (const version of versions) {
++    const key = referenceParts(version.ref);
++    if (references.get(key) === undefined) { references.set(key,true); distinct.push(version); }
++  }
+   return success(Object.freeze({versions:Object.freeze(distinct),context:context.value}));
+ }
+ export function withVersions(registry: VersionRegistry, batch: unknown): DomainResult<VersionRegistry> {

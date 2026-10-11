@@ -1,9 +1,10 @@
 import { invalid, success, type DomainResult } from '../primitives/result.js';
-import { sameIdentity, sameReference, validateExactReference, type ExactReference, type VersionKind } from '../primitives/exactReference.js';
-import { copyImmutableValue, equalImmutableValues, type ImmutableValue } from './immutableValue.js';
+import { sameReference, validateExactReference, type ExactReference, type VersionKind } from '../primitives/exactReference.js';
+import { copyImmutableValue } from './immutableValue.js';
 import { validateVersionContext, type ContextReport } from './versionEnvelope.js';
 import { createBusinessVersion } from '../portfolio/payloadValidation.js';
 import type { BusinessVersion } from '../portfolio/payloads.js';
+import { LocalVersionTable, ownerParts, referenceParts } from './localVersionTables.js';
 export interface VersionRegistry { readonly versions: readonly BusinessVersion[]; readonly context: ContextReport }
 const uniqueOwners: readonly VersionKind[] = ['ProjectSettings','ReservationSettings','TeamSettings','TeamCapacity','ActualPeriod','PTEC','TeamActual','PT','RT','PlanningSettings','PortfolioOrder'];
 export function createVersionRegistry(input: unknown, path = 'versions'): DomainResult<VersionRegistry> {
@@ -15,13 +16,20 @@ export function createVersionRegistry(input: unknown, path = 'versions'): Domain
     versions.push(v.value);
   }
   const context = validateVersionContext(versions,path); if (!context.ok) return context;
+  const ownerIdentities = new LocalVersionTable<string>();
   for (const version of versions) {
-    if (uniqueOwners.includes(version.ref.kind) && versions.some(other => other.ref.kind === version.ref.kind &&
-      !sameIdentity(other.ref,version.ref) && equalImmutableValues(other.owner as unknown as ImmutableValue,version.owner as unknown as ImmutableValue)))
-      return invalid('OWNER_IDENTITY_CONFLICT',path);
+    if (!uniqueOwners.includes(version.ref.kind)) continue;
+    const key = ownerParts(version.ref.kind,version.owner);
+    const identity = ownerIdentities.get(key);
+    if (identity !== undefined && identity !== version.ref.entityId.value) return invalid('OWNER_IDENTITY_CONFLICT',path);
+    ownerIdentities.set(key,version.ref.entityId.value);
   }
   const distinct: BusinessVersion[] = [];
-  for (const version of versions) if (!distinct.some(other => sameReference(other.ref,version.ref))) distinct.push(version);
+  const references = new LocalVersionTable<true>();
+  for (const version of versions) {
+    const key = referenceParts(version.ref);
+    if (references.get(key) === undefined) { references.set(key,true); distinct.push(version); }
+  }
   return success(Object.freeze({versions:Object.freeze(distinct),context:context.value}));
 }
 export function withVersions(registry: VersionRegistry, batch: unknown): DomainResult<VersionRegistry> {

@@ -1,0 +1,5 @@
+c78b1ff36bd302bbf2652f97d0a2ef32df6eaa2e4618c034e0b7f28c35d2e8a0  src-v2/domain/versioning/localVersionTables.ts
+f10e89647f69f623b912b74a43762d17dea4686c952daaa8de4d839063f8f3d9  src-v2/domain/versioning/versionRegistry.ts
+78d80491a191107d838a172e201e626090129b0ea8c371fa087918bf64c56339  src-v2/domain/versioning/versionEnvelope.ts
+2f3e63aaaf0a34232a0bf7e99cc09483e6026206f1f0eb73f76f014e54b17531  src-v2/domain/versioning/versionEnvelope.test.ts
+c3ed8f87bb906e6b5e3251a414bf642876f00136b6e9b2406c79234c45365aa5  src-v2/application/portfolio/r12.test.ts

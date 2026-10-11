@@ -16,8 +16,10 @@ avant DONE. Ce canon décrit la livraison, sans constituer cet audit.
 Les modules restent dormants : bootstrap, composition root, UI, origines fixes,
 stockage, moteur et runtime shell inchangés. Domain ne dépend que de Domain.
 Application lit par ports injectés et demande un certificat ; adapter mémoire
-ne fait aucune sélection métier ni publication. Aucun changement du code ou
-contrat générique R1.1, aucun package/config/lockfile changé.
+ne fait aucune sélection métier ni publication. La livraison initiale R1.2 ne changeait ni code ni
+contrat générique R1.1. Le correctif P0-B ultérieur optimise uniquement ses
+algorithmes internes (voir addendum PERF-FIX), sans changement de contrat.
+Aucun package/config/lockfile changé.
 
 | Couche / fichiers sous src-v2 | API et responsabilité |
 | --- | --- |
@@ -144,3 +146,37 @@ dormants et primitives inchangées ; aucune gate métier browser requise par R1.
 Preuves et archives DONE conservées. Prochain acte : audit indépendant du SHA
 livré avant toute clôture documentaire R1.2. **R1.2 IN REVIEW ; R1.3/R1.4/R2
 NOT STARTED.** Arrêt après commit/push, sans démarrage du lot suivant.
+
+## Addendum R1.2-PERF-FIX — P0-A/P0-B, IN REVIEW
+
+2026-10-11, baseline `4effcfce23bb1e835201c9fe0c8f06967ce67339`, après audit
+favorable du plan et GO utilisateur P0-A/P0-B. [Réalisation, décisions, mesures
+et deux verdicts](./rewrite_r12_perf_fix_plan.md#11-réalisation-p0-ap0-b--2026-10-11).
+Registre : mappings owner→identité et déduplication par tables natives temporaires.
+R1.1 : recherches exactes/owners internes à `validateVersionContext` indexées ;
+parcours des filiations conservé, membership local indexé, sans mémoïsation,
+chargement transitif ni modification des signatures/contrats. Helper Domain
+`localVersionTables.ts` : Maps par composants typés/discriminés, sans concaténation,
+jamais exposées ou persistées. Égalité structurée, validation unknown, copie/gel,
+ordre/priorité des diagnostics et certification inchangés. R1.1 reste DONE.
+
+Preuves actuelles : **563 cas différentiels complets identiques**, **174/174 V2**,
+**32/32 R1.1 ciblés**, **103/103 R1.2 ciblés**, **G12-01–G12-13 PASS**,
+20 tests pérennes supplémentaires ; typecheck/build/frontières/diff-check PASS.
+[Oracle, commandes, patches, hashes et journaux](./proofs/r12-perf-fix/README.md).
+Ces résultats sont réexécutés, distincts des preuves historiques ci-dessus.
+Fixtures/outils R1.2-PERF et anciennes preuves inchangés.
+
+**P0 conforme techniquement ; performance globale encore C.**
+Moyen sparse médian M1 12582,4→441,4 ms, M3 14119,4→1851,0 ms,
+M5 28113,7→4111,7 ms (rejeu contemporain). Moyen dense M1 médian 2816,5 ms,
+M2–M6 cold interrompus à 30 s ; les anciens timeouts ne sont jamais convertis
+en gains chiffrés. [Comparaison M1–M6, dispersion/CPU/mémoire](./proofs/r12-perf-fix/comparison.md).
+M3 sparse : lookup 44,84 % inclusif, grille 13,99 % ; M5 lookup 39,24 %.
+M1 dense : 332,0 Mio heap endpoint/498,9 Mio RSS lifetime, validation/copies
+dominantes ; mémoire des opérations denses interrompues non qualifiée.
+[Profils CPU](./proofs/r12-perf-fix/p0-cpu-summary.log).
+P1 nécessite une décision distincte ; aucun changement P1/P2/P3.
+Grands non exécutés, longues chaînes non qualifiées, limites Inspector/GC/sandbox
+explicitées au rapport. **R1.2 IN REVIEW**, audit indépendant du correctif requis ;
+**R1.3/R1.4/R2 NOT STARTED**. Arrêt à la livraison commit/push.

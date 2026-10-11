@@ -1,0 +1,28 @@
+✔ V01 opaque identities, exact references and compile/runtime family separation (2.327875ms)
+✔ V02 complete owner matrix and explicitly supplied AP owner checks (0.809166ms)
+✔ V03 deep copy/freeze archives, input/output mutations and exotic rejection (0.441583ms)
+✔ V04 roots, chains, branching, missing exact parent, self/long cycles (1.008334ms)
+✔ V05 identical repetition and divergent collisions in every envelope component (0.721209ms)
+✔ V06 multiple provenance is independent of lineage; no source selection (0.417167ms)
+✔ typed payload assembly preserves static type and readonly collections (0.119917ms)
+✔ audit A1 same identity and owner establish the root/child link (0.134417ms)
+✔ audit A2 different owners reject a factory-created root/child pair (0.13675ms)
+✔ audit A3 missing exact predecessor stays not-established without implicit resolution (0.415834ms)
+✔ audit A4 another predecessor identity or kind is rejected at envelope creation (0.088417ms)
+✔ audit A5 branches with the same owner establish the whole context (0.16625ms)
+✔ audit A6 one divergent branch rejects the whole context (0.138833ms)
+✔ audit A7 reversed contexts preserve acceptance, rejection and missing-parent reports (0.80375ms)
+✔ audit B1 typed assembly preserves inferred/explicit fields and deep readonly output (0.107167ms)
+✔ audit B2 typed assembly applies admissible-data runtime checks (0.162208ms)
+✔ audit B3 a claimed TypeScript payload type is not runtime schema validation (0.054416ms)
+✔ PERF-P0 context preserves ordered missing parents and repeated exact refs (0.323917ms)
+✔ PERF-P0 context diagnostics retain collision, owner and cycle phase priority (0.415958ms)
+✔ PERF-P0 context typed components preserve adversarial bytes without aliasing (0.492666ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 48.81025

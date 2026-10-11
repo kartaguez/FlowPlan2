@@ -1,0 +1,206 @@
+{
+  "startedAt": "2026-10-11T08:57:59.175Z",
+  "command": [
+    "/Users/Kartaguez/.nvm/versions/node/v24.21.0/bin/node",
+    "/private/tmp/flowplan-r12-p0a/scripts/benchmarks/r12-perf/run.mjs",
+    "--scenarios=medium:sparse",
+    "--operations=M3",
+    "--repeats=1",
+    "--profile",
+    "--output=/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-fix/p0-a-cpu/run.json"
+  ],
+  "codeSHA": "42ed8110b7b5268f8ca0524eefd1bb806556a1cf",
+  "productionTree": "db1ad6653672d75a0e1624ed5d812b21c483a3ad",
+  "productionDiff": "",
+  "environment": {
+    "node": "v24.21.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "release": "27.0.0",
+    "cpu": "Apple M4",
+    "logicalCPUs": 10,
+    "totalRAM": 17179869184,
+    "freeRAMAtStart": 386842624,
+    "availableMemoryAtStart": 3663216640,
+    "npm": "11.19.0"
+  },
+  "settings": {
+    "timeoutMs": 30000,
+    "repeats": 1,
+    "heapMiB": 1024,
+    "rssPollMs": 250
+  },
+  "runs": [
+    {
+      "size": "medium",
+      "variant": "sparse",
+      "operation": "M3",
+      "profile": "/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-fix/p0-a-cpu/medium-sparse-M3.cpuprofile",
+      "samples": [
+        {
+          "event": "sample",
+          "phase": "cold",
+          "ms": 2583.0132500000004,
+          "cpuUserMs": 2726.703,
+          "cpuSystemMs": 20.119,
+          "before": {
+            "rss": 107298816,
+            "heapTotal": 29179904,
+            "heapUsed": 10612176,
+            "external": 2616555,
+            "arrayBuffers": 143615
+          },
+          "after": {
+            "rss": 191447040,
+            "heapTotal": 109133824,
+            "heapUsed": 41134208,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "retainedWithResult": {
+            "rss": 191463424,
+            "heapTotal": 96288768,
+            "heapUsed": 18018824,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "afterReleaseGC": {
+            "rss": 191463424,
+            "heapTotal": 87638016,
+            "heapUsed": 18003400,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "processMaxRSSKiB": 186960,
+          "observed": {
+            "versions": 8604,
+            "context": "established"
+          }
+        },
+        {
+          "event": "sample",
+          "phase": "warmup",
+          "ms": 2402.775958,
+          "cpuUserMs": 2506.99,
+          "cpuSystemMs": 14.808,
+          "before": {
+            "rss": 191463424,
+            "heapTotal": 87900160,
+            "heapUsed": 18003048,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "after": {
+            "rss": 257769472,
+            "heapTotal": 182534144,
+            "heapUsed": 65849064,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "retainedWithResult": {
+            "rss": 257769472,
+            "heapTotal": 167591936,
+            "heapUsed": 18113408,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "afterReleaseGC": {
+            "rss": 257671168,
+            "heapTotal": 153960448,
+            "heapUsed": 18102208,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "processMaxRSSKiB": 251808,
+          "observed": {
+            "versions": 8604,
+            "context": "established"
+          }
+        },
+        {
+          "event": "sample",
+          "phase": "measured-1",
+          "ms": 2402.8002500000002,
+          "cpuUserMs": 2487.583,
+          "cpuSystemMs": 12.908,
+          "before": {
+            "rss": 257671168,
+            "heapTotal": 153960448,
+            "heapUsed": 18101952,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "after": {
+            "rss": 255754240,
+            "heapTotal": 182272000,
+            "heapUsed": 65640128,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "retainedWithResult": {
+            "rss": 255885312,
+            "heapTotal": 155009024,
+            "heapUsed": 19018896,
+            "external": 2625134,
+            "arrayBuffers": 143631
+          },
+          "afterReleaseGC": {
+            "rss": 255885312,
+            "heapTotal": 151076864,
+            "heapUsed": 12307552,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "processMaxRSSKiB": 256864,
+          "observed": {
+            "versions": 8604,
+            "context": "established"
+          }
+        }
+      ],
+      "rssSamples": [],
+      "status": "COMPLETED",
+      "fixture": {
+        "size": "medium",
+        "variant": "sparse",
+        "seed": 1202,
+        "projects": 100,
+        "teams": 20,
+        "reservations": 10,
+        "subPeriodsPerOwner": 24,
+        "versions": 8604,
+        "selectedReferences": 8604,
+        "byKind": {
+          "ProjectSettings": 100,
+          "ReservationSettings": 10,
+          "TeamSettings": 20,
+          "TeamCapacity": 20,
+          "Program": 1,
+          "Pas": 1,
+          "PT": 200,
+          "RT": 20,
+          "ActualPeriod": 110,
+          "ActualSubPeriod": 2640,
+          "TeamActual": 5280,
+          "PTEC": 200,
+          "PlanningSettings": 1,
+          "PortfolioOrder": 1
+        },
+        "exactReferenceOccurrences": 19848,
+        "identityOccurrences": 13810,
+        "existingPT": 200,
+        "deletedAssociations": 0,
+        "projectTA": 4800,
+        "reservationTA": 480,
+        "fixtureSha256": "87dd085a7c6991c5a11bf6d2706a9ef2492822f284d819709c1cc24baaba9aa9"
+      },
+      "rssPollingUnavailable": "spawn EPERM",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": "",
+      "rssObservedPeakMiB": null
+    }
+  ],
+  "finishedAt": "2026-10-11T08:58:06.805Z",
+  "largePolicy": "Not automatic; explicit separate --allow-large invocation required"
+}

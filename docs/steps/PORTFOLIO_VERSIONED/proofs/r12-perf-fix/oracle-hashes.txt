@@ -1,0 +1,2 @@
+d74d599ed5a75052a3d9c082b53ac0ace34aff58752a90e376f535f2f493e498  docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-fix/oracle.mjs
+7179dbdedea7596ed6d5de148ca9d556f773de6cce9d8c707d6be03eda757baf  docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-fix/compare-oracle.mjs
