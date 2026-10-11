@@ -2,7 +2,8 @@ import { invalid, success, type DomainResult } from '../primitives/result.js';
 import { dataRecord, field, hasKeys } from '../primitives/data.js';
 import { validateId, type PortfolioId } from '../primitives/identity.js';
 import { createCivilDate, type CivilDate } from '../primitives/civilDate.js';
-import { createExactReference, sameIdentity, type ExactReference } from '../primitives/exactReference.js';
+import { createExactReference, type ExactReference } from '../primitives/exactReference.js';
+import { LocalVersionTable, identityParts } from '../versioning/localVersionTables.js';
 import { copyImmutableValue } from '../versioning/immutableValue.js';
 export const manifestTables = Object.freeze(([
   ['projectSettings','ProjectSettings'],['reservationSettings','ReservationSettings'],['teamSettings','TeamSettings'],['teamCapacities','TeamCapacity'],['programs','Program'],['pas','Pas'],['pts','PT'],['rts','RT'],['actualPeriods','ActualPeriod'],['actualSubPeriods','ActualSubPeriod'],['teamActuals','TeamActual'],['ptecs','PTEC']
@@ -31,11 +32,12 @@ export function createPortfolioManifest(input: unknown, path = 'manifest'): Doma
   }
   for (const [key,kind] of manifestTables) {
     const refs = field(r.value,key); if (!Array.isArray(refs)) return invalid('INVALID_MANIFEST_TABLE',`${path}.${key}`);
-    const seen: ExactReference<typeof manifestTables[number][1]>[] = [];
+    const seen = new LocalVersionTable<true>();
     for (const [i,ref] of refs.entries()) {
       const checked = createExactReference(kind,ref,`${path}.${key}.${i}`); if (!checked.ok) return checked;
-      if (seen.some(other => sameIdentity(other,checked.value))) return invalid('MULTIPLE_IDENTITY_SELECTION',`${path}.${key}.${i}`);
-      seen.push(checked.value);
+      const identity = identityParts(checked.value);
+      if (seen.get(identity) !== undefined) return invalid('MULTIPLE_IDENTITY_SELECTION',`${path}.${key}.${i}`);
+      seen.set(identity,true);
     }
   }
   return success(copied.value as unknown as PortfolioManifest);

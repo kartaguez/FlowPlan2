@@ -1,5 +1,15 @@
 # FlowPlan2 V2 — R1.2-PERF-P1 : optimisation des lookups exacts
 
+2026-10-11 — **P1 AUTORISÉ ET IMPLÉMENTÉ ; AUDIT INDÉPENDANT REQUIS**.
+Baseline de réalisation obligatoire : `f9440517d176d93e3089a8b7cf34da86f36f5f18`.
+A-P1-01 B, A-P1-02–04 approuvés explicitement par la mission utilisateur ;
+A-P1-05 évalué sur mesures, performance globale encore C. Résultats en §13.
+R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED. Aucun GO P2/P3.
+Les §§1–12 conservent le plan audité et ses conditions **historiques avant GO** ;
+leurs mentions « non autorisé », ancien SHA et arrêt documentaire ne décrivent
+pas la présente réalisation. Le SHA imposé par la mission prime pour l’oracle.
+
+État historique du plan :
 2026-10-11 — **PLAN ONLY / PROPOSÉ POUR AUDIT ; GO P1 NON ACCORDÉ**.
 Baseline P0 auditée imposée : `8ec0c7318c782ca407063f3c3d44dc8ff7f4df53`.
 **R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED. Classification C maintenue.**
@@ -535,3 +545,59 @@ SHA final dans compte rendu, pas dans ce fichier pour éviter auto-référence.
 
 **Arrêt impératif après livraison du plan. R1.2 IN REVIEW ; R1.3/R1.4/R2
 NOT STARTED. Aucune optimisation avant audit indépendant et nouveau GO explicite.**
+
+
+## 13. Réalisation P1
+
+Autorisation explicite de l’utilisateur après audit du plan : option B,
+frontière factory existante, unicité manifeste et équivalence publique stricte.
+Baseline réelle `f9440517d176d93e3089a8b7cf34da86f36f5f18`, branche attendue,
+arbre propre, fetch réussi, origin identique/divergence 0/0, aucun delta concurrent.
+Le SHA historique de préparation du plan n’est pas l’oracle de cette réalisation.
+
+API effectivement ajoutée dans `domain/versioning/versionRegistry.ts` :
+
+```ts
+lookupExactBatch(registry: VersionRegistry, inputs: readonly unknown[]):
+  Readonly<{
+    result: DomainResult<readonly BusinessVersion[]>;
+    failedIndex: number | null;
+  }>
+```
+
+Table locale `LocalVersionTable<BusinessVersion>`/`referenceParts`, une seule
+construction par lot ; premier exemplaire conservé. Validation de chaque demande
+avant son lookup, arrêt au premier échec, messages/paths de lookupExact identiques,
+ordinal séparé. Liste et wrapper gelés, versions déjà copiées/gelées par factory.
+Aucune Map exposée/retournée, aucun index conservé ; lookupExact unitaire inchangé.
+VersionRegistry reste structurel, sans certification runtime, marque ou WeakMap.
+
+Resolver : manifeste puis registre validés, un lot exact, remapping vers
+`manifest.references.i`, inventaires Settings et contexte R1.1 inchangés.
+Collect : erreurs du port puis validation complète du registre prioritaires,
+lot exact puis cardinalité des versions dédupliquées, premier missing avant extras,
+`READ_REFERENCE_MISMATCH` aux mêmes chemins/messages. Retour de réponse originale
+pour certification complète : répétitions identiques et contexte conservés.
+Adapter : registre privé validé au setup ; table temporaire à chaque lecture,
+ordre/multiplicité/premier échec, Snapshot indépendant de Current, aucun cache.
+Manifeste : table `LocalVersionTable<true>`/`identityParts` distincte par table,
+après validation du kind/ref. 12 tables et globals, format, copies/gel,
+ordre/priorités/index de refus préservés ; aucun tri ou dédoublonnage automatique.
+
+Oracle P0 figé avant production (563 puis 896 cas), extension finale 941 cas,
+zéro divergence de réponses publiques complètes sur vrais modules en clones
+isolés. Helper comparé aux vrais appels lookupExact P0 arrêtés au premier échec.
+Copie/gel/mutations vérifiés séparément. 15 tests pérennes ajoutés ; 189/189 tests
+V2, 32/32 R1.1 ciblés, 118/118 R1.2 ciblés dont G12-01–13 et P0 PASS.
+Frontières/typecheck/build et vérification des trois fixtures PASS.
+Les résultats antérieurs restent historiques ; aucune gate assouplie.
+
+[Rapport complet et preuves](./proofs/r12-perf-p1/report.md) : campagne P0/P1
+contemporaine M1–M6, outils/fixtures inchangés, seed 1202, cold/warm-up/3 mesures,
+CPU/mémoire/setup séparé, deadline 30 s, profils séparés. Aucun ratio sur timeout.
+P1 techniquement conforme ; performance globale encore C (M3 dense ≈20,79 s),
+M5 sparse ≈1,47 s encourageant, M5 dense ≈24,49 s ; compatibilité R1.3 non établie.
+Diagnostic P2 proposé seulement, sans implémentation ; P3 interdit/inchangé.
+Rollback normal en clone jetable, diff complet/périmètre et diff-check contrôlés.
+Livraison commit/push normal puis arrêt ; SHA final communiqué après livraison.
+**R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED**, audit indépendant requis.

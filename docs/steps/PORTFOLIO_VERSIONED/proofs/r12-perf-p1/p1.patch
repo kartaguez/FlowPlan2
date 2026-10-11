@@ -1,0 +1,233 @@
+diff --git a/src-v2/adapters/memory/memoryPortfolioReadAdapter.ts b/src-v2/adapters/memory/memoryPortfolioReadAdapter.ts
+index 45b81a1..3e907e4 100644
+--- a/src-v2/adapters/memory/memoryPortfolioReadAdapter.ts
++++ b/src-v2/adapters/memory/memoryPortfolioReadAdapter.ts
+@@ -1,8 +1,7 @@
+ import { invalid, success, type DomainResult } from '../../domain/primitives/result.js';
+-import { createVersionRegistry, lookupExact } from '../../domain/versioning/versionRegistry.js';
++import { createVersionRegistry, lookupExactBatch } from '../../domain/versioning/versionRegistry.js';
+ import { copyImmutableValue } from '../../domain/versioning/immutableValue.js';
+ import { createCurrentSelection, createPortfolioSnapshot, createSnapshotId, type PortfolioSnapshot } from '../../domain/portfolio/manifest.js';
+-import type { BusinessVersion } from '../../domain/portfolio/payloads.js';
+ import type { ExactVersionsReader, CurrentSelectionReader, SnapshotReader } from '../../application/ports/portfolioReadPort.js';
+ export interface MemoryPortfolioReader { readonly versions: ExactVersionsReader; readonly current: CurrentSelectionReader; readonly snapshots: SnapshotReader }
+ /** Explicit immutable inputs only. No business selection, publication or storage. */
+@@ -17,9 +16,7 @@ export function createMemoryPortfolioReadAdapter(versions: unknown, current: unk
+     list.push(snapshot.value); }
+   return success(Object.freeze({
+     versions:Object.freeze({async readExactVersions(refs) {
+-      const result: BusinessVersion[] = [];
+-      for (const ref of refs) { const found = lookupExact(registry.value,ref); if (!found.ok) return found; result.push(found.value); }
+-      return success(Object.freeze(result));
++      return lookupExactBatch(registry.value,refs).result;
+     }} as ExactVersionsReader),
+     current:Object.freeze({async readCurrentSelection() { return selection.value === null ? invalid('READ_CURRENT_MISSING','current') : success(selection.value); }}),
+     snapshots:Object.freeze({async readSnapshot(input) {
+diff --git a/src-v2/application/portfolio/loadPortfolioGraph.ts b/src-v2/application/portfolio/loadPortfolioGraph.ts
+index 2912f55..95a37ea 100644
+--- a/src-v2/application/portfolio/loadPortfolioGraph.ts
++++ b/src-v2/application/portfolio/loadPortfolioGraph.ts
+@@ -1,6 +1,5 @@
+ import { invalid, type DomainResult } from '../../domain/primitives/result.js';
+-import { sameReference } from '../../domain/primitives/exactReference.js';
+-import { createVersionRegistry, referenceLabel } from '../../domain/versioning/versionRegistry.js';
++import { createVersionRegistry, lookupExactBatch, referenceLabel } from '../../domain/versioning/versionRegistry.js';
+ import { createCurrentSelection, createPortfolioSnapshot, createSnapshotId, selectedReferences, type PortfolioManifest } from '../../domain/portfolio/manifest.js';
+ import { certifyPortfolioGraph, type ValidatedPortfolioGraph } from '../../domain/portfolio/validatedPortfolioGraph.js';
+ import type { ExactVersionsReader, CurrentSelectionReader, SnapshotReader } from '../ports/portfolioReadPort.js';
+@@ -8,8 +7,11 @@ async function collect(manifest: PortfolioManifest, reader: ExactVersionsReader)
+   const refs = selectedReferences(manifest);
+   const response = await reader.readExactVersions(refs); if (!response.ok) return response;
+   const registry = createVersionRegistry(response.value); if (!registry.ok) return registry;
+-  for (const [i,ref] of refs.entries()) if (!registry.value.versions.some(v => sameReference(v.ref,ref)))
+-    return invalid('READ_REFERENCE_MISMATCH',`readExactVersions.${i}`,`Expected ${referenceLabel(ref)}`);
++  const batch = lookupExactBatch(registry.value,refs);
++  if (!batch.result.ok) {
++    const i = batch.failedIndex!;
++    return invalid('READ_REFERENCE_MISMATCH',`readExactVersions.${i}`,`Expected ${referenceLabel(refs.at(i)!)}`);
++  }
+   if (registry.value.versions.length !== refs.length) return invalid('READ_REFERENCE_MISMATCH','readExactVersions','Unexpected unrequested version');
+   return response;
+ }
+diff --git a/src-v2/application/portfolio/r12.test.ts b/src-v2/application/portfolio/r12.test.ts
+index e75fbb7..e4562f9 100644
+--- a/src-v2/application/portfolio/r12.test.ts
++++ b/src-v2/application/portfolio/r12.test.ts
+@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
+ import { versionKinds, sameReference } from '../../domain/primitives/exactReference.js';
+ import { success, invalid, type DomainResult } from '../../domain/primitives/result.js';
+ import { validateBusinessPayload, createBusinessVersion } from '../../domain/portfolio/payloadValidation.js';
+-import { createVersionRegistry, lookupExact, withVersions } from '../../domain/versioning/versionRegistry.js';
++import { createVersionRegistry, lookupExact, lookupExactBatch, withVersions } from '../../domain/versioning/versionRegistry.js';
+ import { createPortfolioManifest, createCurrentSelection, createPortfolioSnapshot, manifestTables } from '../../domain/portfolio/manifest.js';
+ import { resolvePortfolioManifest, type PortfolioGraph } from '../../domain/portfolio/graphResolver.js';
+ import { certifyPortfolioGraph, type ValidatedPortfolioGraph } from '../../domain/portfolio/validatedPortfolioGraph.js';
+@@ -423,3 +423,83 @@ test('PERF-P0 withVersions remains atomic, detached and deeply frozen',() => {
+   frozen(appended);frozen(original);
+   assert.deepEqual(Object.keys(appended),['versions','context']);
+ });
++
++
++test('PERF-P1 batch preserves sequential diagnostics, order, repeats and immutable copies',async () => {
++  const f = fixture();
++  const registry = ok(createVersionRegistry(f.versions));
++  const refs = registry.versions.map(v => v.ref);
++  const missing = ref('PlanningSettings','planning','absent');
++  const malformed = {kind:'PT'};
++  for (const requests of [[],refs,[...refs].reverse(),[...refs,...refs],[missing,malformed],[refs[0],malformed,missing]]) {
++    const values: unknown[] = [];
++    let expected: DomainResult<readonly unknown[]> = success(values), index: number | null = null;
++    for (const [i,r] of requests.entries()) {
++      const found = lookupExact(registry,r);
++      if (!found.ok) { expected = found; index = i; break; }
++      values.push(found.value);
++    }
++    const actual = lookupExactBatch(registry,requests);
++    assert.deepEqual(actual,{result:expected,failedIndex:index});
++    assert.ok(Object.isFrozen(actual));
++    if (actual.result.ok) assert.ok(Object.isFrozen(actual.result.value));
++  }
++  const adapter = ok(createMemoryPortfolioReadAdapter(f.versions,null,[]));
++  f.versions[0]!.payload.maxParallelProjects = 999;
++  const first = ok(await adapter.versions.readExactVersions([refs[0]!,refs[0]!]));
++  assert.deepEqual(first,[registry.versions[0],registry.versions[0]]);
++  const frozen = (v: unknown): void => { if (v && typeof v === 'object') { assert.ok(Object.isFrozen(v)); for (const child of Object.values(v)) frozen(child); } };
++  frozen(first);
++  assert.throws(() => { (first[0]!.payload as Raw).maxParallelProjects = 44; });
++  assert.deepEqual(ok(await adapter.versions.readExactVersions([refs[0]!])),[registry.versions[0]]);
++});
++for (const [table,kind] of manifestTables) test(`PERF-P1 ${table}: validated identity table keeps index, kind priority and adversarial bytes`,() => {
++  const f = fixture();
++  const refs = Array.from({length:150},(_,i) => ref(kind,` /:é __proto__ ${i}`));
++  f.manifest[table] = refs;
++  const manifest = ok(createPortfolioManifest(f.manifest,'custom'));
++  refs[149] = ref(kind,refs[0]!.entityId.value,'branch');
++  const duplicate = createPortfolioManifest(f.manifest,'custom');
++  assert.deepEqual(duplicate,invalid('MULTIPLE_IDENTITY_SELECTION',`custom.${table}.149`));
++  refs[149] = ref('PlanningSettings',refs[0]!.entityId.value);
++  bad(createPortfolioManifest(f.manifest,'custom'),'REFERENCE_KIND_MISMATCH');
++  assert.ok(Object.isFrozen(manifest));
++  assert.ok(Object.isFrozen(manifest[table]));
++  assert.equal(manifest[table].at(149)?.entityId.value,' /:é __proto__ 149');
++});
++test('PERF-P1 port duplicate response accepted; registry refusal precedes missing and extras',async () => {
++  const f = fixture();
++  const adapter = ok(createMemoryPortfolioReadAdapter(f.versions,{manifest:f.manifest,revision:'r1'},[f.snapshot()]));
++  const reader = (value: unknown): ExactVersionsReader => ({async readExactVersions() { return success(value); }});
++  const repeated = [...f.versions,f.versions[0]];
++  assert.deepEqual(await loadCurrentGraph(adapter.current,reader(repeated)),certifyPortfolioGraph({source:'current',manifest:f.manifest,versions:repeated}));
++  assert.deepEqual(await loadCurrentGraph(adapter.current,reader([...f.versions.slice(1),{...f.versions[0],ref:ref('PlanningSettings','planning','extra')}])),invalid('READ_REFERENCE_MISMATCH','readExactVersions.0','Expected PlanningSettings/planning/v1'));
++  const invalidResponse = [...f.versions.slice(1),null];
++  assert.deepEqual(await loadCurrentGraph(adapter.current,reader(invalidResponse)),createVersionRegistry(invalidResponse));
++});
++
++test('PERF-P1 exact branches and adversarial components remain distinct across large batches',() => {
++  const f = fixture(true);
++  const source = f.versions[0]!;
++  const versions: Raw[] = [];
++  for (const bytes of ['/',':','é💡',' a ','__proto__','a/b:c']) {
++    for (let i = 0; i < 75; i++) {
++      const v = structuredClone(source);
++      v.ref.entityId.value = `${bytes}${i}`;
++      v.ref.versionId.value = bytes;
++      versions.push(v,{...structuredClone(v),ref:{...structuredClone(v.ref),versionId:id('VersionId','branch')}});
++    }
++  }
++  // PlanningSettings has a unique portfolio owner: one identity, many exact branches.
++  for (const [i,v] of versions.entries()) { v.ref.entityId.value = 'planning'; v.ref.versionId.value += `:${i}`; }
++  const registry = ok(createVersionRegistry(versions));
++  const requests: Raw[] = registry.versions.map(v => structuredClone(v.ref)).reverse();
++  const batch = lookupExactBatch(registry,[...requests,...requests]);
++  assert.equal(batch.failedIndex,null);
++  assert.deepEqual(ok(batch.result),[...registry.versions].reverse().concat([...registry.versions].reverse()));
++  assert.deepEqual(Object.keys(batch),['result','failedIndex']);
++  requests[0]!.versionId.value = 'unknown';
++  assert.deepEqual(lookupExactBatch(registry,requests).result,lookupExact(registry,requests[0]));
++  assert.equal(lookupExactBatch(registry,requests).failedIndex,0);
++  assert.equal(ok(batch.result)[0]!.ref.versionId.value,registry.versions.at(-1)!.ref.versionId.value);
++});
+diff --git a/src-v2/domain/portfolio/graphResolver.ts b/src-v2/domain/portfolio/graphResolver.ts
+index 76ecb3b..cec5a68 100644
+--- a/src-v2/domain/portfolio/graphResolver.ts
++++ b/src-v2/domain/portfolio/graphResolver.ts
+@@ -1,6 +1,6 @@
+ import { failure, success, type DomainResult } from '../primitives/result.js';
+ import { type ProjectId, type ReservationId, type TeamId } from '../primitives/identity.js';
+-import { createVersionRegistry, lookupExact, type VersionRegistry } from '../versioning/versionRegistry.js';
++import { createVersionRegistry, lookupExactBatch, type VersionRegistry } from '../versioning/versionRegistry.js';
+ import { createPortfolioManifest, selectedReferences, type PortfolioManifest } from './manifest.js';
+ import type { BusinessVersion } from './payloads.js';
+ export interface PortfolioGraph {
+@@ -11,12 +11,9 @@ export interface PortfolioGraph {
+ export function resolvePortfolioManifest(input: unknown, supplied: unknown): DomainResult<PortfolioGraph> {
+   const manifest = createPortfolioManifest(input); if (!manifest.ok) return manifest;
+   const registry = createVersionRegistry(supplied); if (!registry.ok) return registry;
+-  const versions: BusinessVersion[] = [];
+-  for (const [i,ref] of selectedReferences(manifest.value).entries()) {
+-    const found = lookupExact(registry.value,ref);
+-    if (!found.ok) return failure(found.errors.map(e => ({...e,path:`manifest.references.${i}`})));
+-    versions.push(found.value);
+-  }
++  const batch = lookupExactBatch(registry.value,selectedReferences(manifest.value));
++  if (!batch.result.ok) return failure(batch.result.errors.map(e => ({...e,path:`manifest.references.${batch.failedIndex}`})));
++  const versions = batch.result.value;
+   const projects: ProjectId[] = [], reservations: ReservationId[] = [], teams: TeamId[] = [];
+   for (const version of versions) {
+     if (version.ref.kind === 'ProjectSettings' && version.owner.type === 'Project') projects.push(version.owner.projectId);
+diff --git a/src-v2/domain/portfolio/manifest.ts b/src-v2/domain/portfolio/manifest.ts
+index 8304f9b..d06d279 100644
+--- a/src-v2/domain/portfolio/manifest.ts
++++ b/src-v2/domain/portfolio/manifest.ts
+@@ -2,7 +2,8 @@ import { invalid, success, type DomainResult } from '../primitives/result.js';
+ import { dataRecord, field, hasKeys } from '../primitives/data.js';
+ import { validateId, type PortfolioId } from '../primitives/identity.js';
+ import { createCivilDate, type CivilDate } from '../primitives/civilDate.js';
+-import { createExactReference, sameIdentity, type ExactReference } from '../primitives/exactReference.js';
++import { createExactReference, type ExactReference } from '../primitives/exactReference.js';
++import { LocalVersionTable, identityParts } from '../versioning/localVersionTables.js';
+ import { copyImmutableValue } from '../versioning/immutableValue.js';
+ export const manifestTables = Object.freeze(([
+   ['projectSettings','ProjectSettings'],['reservationSettings','ReservationSettings'],['teamSettings','TeamSettings'],['teamCapacities','TeamCapacity'],['programs','Program'],['pas','Pas'],['pts','PT'],['rts','RT'],['actualPeriods','ActualPeriod'],['actualSubPeriods','ActualSubPeriod'],['teamActuals','TeamActual'],['ptecs','PTEC']
+@@ -31,11 +32,12 @@ export function createPortfolioManifest(input: unknown, path = 'manifest'): Doma
+   }
+   for (const [key,kind] of manifestTables) {
+     const refs = field(r.value,key); if (!Array.isArray(refs)) return invalid('INVALID_MANIFEST_TABLE',`${path}.${key}`);
+-    const seen: ExactReference<typeof manifestTables[number][1]>[] = [];
++    const seen = new LocalVersionTable<true>();
+     for (const [i,ref] of refs.entries()) {
+       const checked = createExactReference(kind,ref,`${path}.${key}.${i}`); if (!checked.ok) return checked;
+-      if (seen.some(other => sameIdentity(other,checked.value))) return invalid('MULTIPLE_IDENTITY_SELECTION',`${path}.${key}.${i}`);
+-      seen.push(checked.value);
++      const identity = identityParts(checked.value);
++      if (seen.get(identity) !== undefined) return invalid('MULTIPLE_IDENTITY_SELECTION',`${path}.${key}.${i}`);
++      seen.set(identity,true);
+     }
+   }
+   return success(copied.value as unknown as PortfolioManifest);
+diff --git a/src-v2/domain/versioning/versionRegistry.ts b/src-v2/domain/versioning/versionRegistry.ts
+index 6de6734..a8e442f 100644
+--- a/src-v2/domain/versioning/versionRegistry.ts
++++ b/src-v2/domain/versioning/versionRegistry.ts
+@@ -41,4 +41,22 @@ export function lookupExact(registry: VersionRegistry, input: unknown): DomainRe
+   const found = registry.versions.find(v => sameReference(v.ref,ref.value));
+   return found === undefined ? invalid('MISSING_EXACT_VERSION','ref',`Missing ${ref.value.kind}/${ref.value.entityId.value}/${ref.value.versionId.value}`) : success(found);
+ }
++/** Operation-local exact lookup. The registry must come from createVersionRegistry;
++ * its structural TypeScript type is not a runtime certificate. */
++export function lookupExactBatch(registry: VersionRegistry, inputs: readonly unknown[]): Readonly<{ result: DomainResult<readonly BusinessVersion[]>; failedIndex: number | null }> {
++  const references = new LocalVersionTable<BusinessVersion>();
++  for (const version of registry.versions) {
++    const key = referenceParts(version.ref);
++    if (references.get(key) === undefined) references.set(key,version);
++  }
++  const versions: BusinessVersion[] = [];
++  for (const [i,input] of inputs.entries()) {
++    const ref = validateExactReference(input);
++    if (!ref.ok) return Object.freeze({result:ref,failedIndex:i});
++    const found = references.get(referenceParts(ref.value));
++    if (found === undefined) return Object.freeze({result:invalid<readonly BusinessVersion[]>('MISSING_EXACT_VERSION','ref',`Missing ${ref.value.kind}/${ref.value.entityId.value}/${ref.value.versionId.value}`),failedIndex:i});
++    versions.push(found);
++  }
++  return Object.freeze({result:success(Object.freeze(versions)),failedIndex:null});
++}
+ export function referenceLabel(ref: ExactReference<VersionKind>): string { return `${ref.kind}/${ref.entityId.value}/${ref.versionId.value}`; }

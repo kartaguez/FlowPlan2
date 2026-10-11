@@ -1,6 +1,5 @@
 import { invalid, type DomainResult } from '../../domain/primitives/result.js';
-import { sameReference } from '../../domain/primitives/exactReference.js';
-import { createVersionRegistry, referenceLabel } from '../../domain/versioning/versionRegistry.js';
+import { createVersionRegistry, lookupExactBatch, referenceLabel } from '../../domain/versioning/versionRegistry.js';
 import { createCurrentSelection, createPortfolioSnapshot, createSnapshotId, selectedReferences, type PortfolioManifest } from '../../domain/portfolio/manifest.js';
 import { certifyPortfolioGraph, type ValidatedPortfolioGraph } from '../../domain/portfolio/validatedPortfolioGraph.js';
 import type { ExactVersionsReader, CurrentSelectionReader, SnapshotReader } from '../ports/portfolioReadPort.js';
@@ -8,8 +7,11 @@ async function collect(manifest: PortfolioManifest, reader: ExactVersionsReader)
   const refs = selectedReferences(manifest);
   const response = await reader.readExactVersions(refs); if (!response.ok) return response;
   const registry = createVersionRegistry(response.value); if (!registry.ok) return registry;
-  for (const [i,ref] of refs.entries()) if (!registry.value.versions.some(v => sameReference(v.ref,ref)))
-    return invalid('READ_REFERENCE_MISMATCH',`readExactVersions.${i}`,`Expected ${referenceLabel(ref)}`);
+  const batch = lookupExactBatch(registry.value,refs);
+  if (!batch.result.ok) {
+    const i = batch.failedIndex!;
+    return invalid('READ_REFERENCE_MISMATCH',`readExactVersions.${i}`,`Expected ${referenceLabel(refs.at(i)!)}`);
+  }
   if (registry.value.versions.length !== refs.length) return invalid('READ_REFERENCE_MISMATCH','readExactVersions','Unexpected unrequested version');
   return response;
 }

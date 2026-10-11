@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { versionKinds, sameReference } from '../../domain/primitives/exactReference.js';
 import { success, invalid, type DomainResult } from '../../domain/primitives/result.js';
 import { validateBusinessPayload, createBusinessVersion } from '../../domain/portfolio/payloadValidation.js';
-import { createVersionRegistry, lookupExact, withVersions } from '../../domain/versioning/versionRegistry.js';
+import { createVersionRegistry, lookupExact, lookupExactBatch, withVersions } from '../../domain/versioning/versionRegistry.js';
 import { createPortfolioManifest, createCurrentSelection, createPortfolioSnapshot, manifestTables } from '../../domain/portfolio/manifest.js';
 import { resolvePortfolioManifest, type PortfolioGraph } from '../../domain/portfolio/graphResolver.js';
 import { certifyPortfolioGraph, type ValidatedPortfolioGraph } from '../../domain/portfolio/validatedPortfolioGraph.js';
@@ -422,4 +422,84 @@ test('PERF-P0 withVersions remains atomic, detached and deeply frozen',() => {
   function frozen(x: unknown): void {if(x!==null&&typeof x==='object'){assert.ok(Object.isFrozen(x));for(const child of Object.values(x))frozen(child);}}
   frozen(appended);frozen(original);
   assert.deepEqual(Object.keys(appended),['versions','context']);
+});
+
+
+test('PERF-P1 batch preserves sequential diagnostics, order, repeats and immutable copies',async () => {
+  const f = fixture();
+  const registry = ok(createVersionRegistry(f.versions));
+  const refs = registry.versions.map(v => v.ref);
+  const missing = ref('PlanningSettings','planning','absent');
+  const malformed = {kind:'PT'};
+  for (const requests of [[],refs,[...refs].reverse(),[...refs,...refs],[missing,malformed],[refs[0],malformed,missing]]) {
+    const values: unknown[] = [];
+    let expected: DomainResult<readonly unknown[]> = success(values), index: number | null = null;
+    for (const [i,r] of requests.entries()) {
+      const found = lookupExact(registry,r);
+      if (!found.ok) { expected = found; index = i; break; }
+      values.push(found.value);
+    }
+    const actual = lookupExactBatch(registry,requests);
+    assert.deepEqual(actual,{result:expected,failedIndex:index});
+    assert.ok(Object.isFrozen(actual));
+    if (actual.result.ok) assert.ok(Object.isFrozen(actual.result.value));
+  }
+  const adapter = ok(createMemoryPortfolioReadAdapter(f.versions,null,[]));
+  f.versions[0]!.payload.maxParallelProjects = 999;
+  const first = ok(await adapter.versions.readExactVersions([refs[0]!,refs[0]!]));
+  assert.deepEqual(first,[registry.versions[0],registry.versions[0]]);
+  const frozen = (v: unknown): void => { if (v && typeof v === 'object') { assert.ok(Object.isFrozen(v)); for (const child of Object.values(v)) frozen(child); } };
+  frozen(first);
+  assert.throws(() => { (first[0]!.payload as Raw).maxParallelProjects = 44; });
+  assert.deepEqual(ok(await adapter.versions.readExactVersions([refs[0]!])),[registry.versions[0]]);
+});
+for (const [table,kind] of manifestTables) test(`PERF-P1 ${table}: validated identity table keeps index, kind priority and adversarial bytes`,() => {
+  const f = fixture();
+  const refs = Array.from({length:150},(_,i) => ref(kind,` /:é __proto__ ${i}`));
+  f.manifest[table] = refs;
+  const manifest = ok(createPortfolioManifest(f.manifest,'custom'));
+  refs[149] = ref(kind,refs[0]!.entityId.value,'branch');
+  const duplicate = createPortfolioManifest(f.manifest,'custom');
+  assert.deepEqual(duplicate,invalid('MULTIPLE_IDENTITY_SELECTION',`custom.${table}.149`));
+  refs[149] = ref('PlanningSettings',refs[0]!.entityId.value);
+  bad(createPortfolioManifest(f.manifest,'custom'),'REFERENCE_KIND_MISMATCH');
+  assert.ok(Object.isFrozen(manifest));
+  assert.ok(Object.isFrozen(manifest[table]));
+  assert.equal(manifest[table].at(149)?.entityId.value,' /:é __proto__ 149');
+});
+test('PERF-P1 port duplicate response accepted; registry refusal precedes missing and extras',async () => {
+  const f = fixture();
+  const adapter = ok(createMemoryPortfolioReadAdapter(f.versions,{manifest:f.manifest,revision:'r1'},[f.snapshot()]));
+  const reader = (value: unknown): ExactVersionsReader => ({async readExactVersions() { return success(value); }});
+  const repeated = [...f.versions,f.versions[0]];
+  assert.deepEqual(await loadCurrentGraph(adapter.current,reader(repeated)),certifyPortfolioGraph({source:'current',manifest:f.manifest,versions:repeated}));
+  assert.deepEqual(await loadCurrentGraph(adapter.current,reader([...f.versions.slice(1),{...f.versions[0],ref:ref('PlanningSettings','planning','extra')}])),invalid('READ_REFERENCE_MISMATCH','readExactVersions.0','Expected PlanningSettings/planning/v1'));
+  const invalidResponse = [...f.versions.slice(1),null];
+  assert.deepEqual(await loadCurrentGraph(adapter.current,reader(invalidResponse)),createVersionRegistry(invalidResponse));
+});
+
+test('PERF-P1 exact branches and adversarial components remain distinct across large batches',() => {
+  const f = fixture(true);
+  const source = f.versions[0]!;
+  const versions: Raw[] = [];
+  for (const bytes of ['/',':','é💡',' a ','__proto__','a/b:c']) {
+    for (let i = 0; i < 75; i++) {
+      const v = structuredClone(source);
+      v.ref.entityId.value = `${bytes}${i}`;
+      v.ref.versionId.value = bytes;
+      versions.push(v,{...structuredClone(v),ref:{...structuredClone(v.ref),versionId:id('VersionId','branch')}});
+    }
+  }
+  // PlanningSettings has a unique portfolio owner: one identity, many exact branches.
+  for (const [i,v] of versions.entries()) { v.ref.entityId.value = 'planning'; v.ref.versionId.value += `:${i}`; }
+  const registry = ok(createVersionRegistry(versions));
+  const requests: Raw[] = registry.versions.map(v => structuredClone(v.ref)).reverse();
+  const batch = lookupExactBatch(registry,[...requests,...requests]);
+  assert.equal(batch.failedIndex,null);
+  assert.deepEqual(ok(batch.result),[...registry.versions].reverse().concat([...registry.versions].reverse()));
+  assert.deepEqual(Object.keys(batch),['result','failedIndex']);
+  requests[0]!.versionId.value = 'unknown';
+  assert.deepEqual(lookupExactBatch(registry,requests).result,lookupExact(registry,requests[0]));
+  assert.equal(lookupExactBatch(registry,requests).failedIndex,0);
+  assert.equal(ok(batch.result)[0]!.ref.versionId.value,registry.versions.at(-1)!.ref.versionId.value);
 });

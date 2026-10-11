@@ -1,0 +1,9 @@
+medium:sparse M3 started
+medium:sparse M3 COMPLETED cold:942.5ms warmup:902.8ms measured-1:904.9ms
+medium:sparse M5 started
+medium:sparse M5 COMPLETED cold:1470.5ms warmup:1474.7ms measured-1:1471.8ms
+medium:dense M3 started
+medium:dense M3 COMPLETED cold:21973.9ms warmup:20722.6ms measured-1:20820.3ms
+medium:dense M5 started
+medium:dense M5 COMPLETED cold:25467.1ms warmup:24744.5ms measured-1:24568.8ms
+Evidence: /Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-cpu/results.json

@@ -180,3 +180,34 @@ P1 nécessite une décision distincte ; aucun changement P1/P2/P3.
 Grands non exécutés, longues chaînes non qualifiées, limites Inspector/GC/sandbox
 explicitées au rapport. **R1.2 IN REVIEW**, audit indépendant du correctif requis ;
 **R1.3/R1.4/R2 NOT STARTED**. Arrêt à la livraison commit/push.
+
+
+## Addendum R1.2-PERF-P1 — réalisation autorisée, IN REVIEW
+
+Baseline `f9440517d176d93e3089a8b7cf34da86f36f5f18`, A-P1-01 B et
+A-P1-02–04 approuvés explicitement par l’utilisateur après audit du plan.
+[Plan et réalisation](./rewrite_r12_perf_p1_plan.md#13-réalisation-p1),
+[rapport/preuves](./proofs/r12-perf-p1/report.md).
+`lookupExactBatch(VersionRegistry, readonly unknown[])` retourne un wrapper
+readonly `{result: DomainResult<readonly BusinessVersion[]>, failedIndex: number|null}`.
+Table exacte construite une fois par lot, temporaire, versions demandées dans
+l’ordre avec répétitions ; validation individuelle et arrêt au premier échec.
+lookupExact unitaire et diagnostics publics inchangés, ordinal hors DomainError.
+Factory registre obligatoire chez les trois appelants : resolver, collect,
+adapter mémoire (setup). VersionRegistry n’est pas un certificat runtime.
+Aucune autorité/certification nouvelle, Map exposée, table retenue ou cache.
+Unicité du manifeste par tables locales d’identités après validation kind/ref,
+12 tables/globals, format, copies/gel et refus au même index conservés.
+Collect revalide toute réponse puis missing avant extras, déduplication des
+répétitions identiques pour cardinalité seulement ; réponse originale certifiée.
+Inventaires owners Settings, filiation/provenance/not-established et Snapshot
+historique autonome avec Current divergent inchangés.
+Oracle réel P0 : 563 puis 896 cas figés avant code ; corpus final 941 réponses
+complètes identiques en clones/processus isolés. 189/189 V2, 32/32 ciblés R1.1,
+118/118 ciblés R1.2 dont G12-01–13, frontières/typecheck/build PASS réellement
+réexécutés ; preuves historiques conservées intactes.
+Verdict technique P1 conforme, verdict global C : M5 sparse ≈4,08→1,47 s,
+M3 dense ≈20,79 s ; poursuite R1.3 non autorisée. Profils et mémoire qualifiés
+dans le rapport, diagnostic P2 soumis à arbitrage distinct, aucun P2/P3 réalisé.
+Grands non exécutés. R1.2 reste IN REVIEW jusqu’à audit indépendant ;
+R1.3/R1.4/R2 NOT STARTED. Arrêt après commit/push sans force.

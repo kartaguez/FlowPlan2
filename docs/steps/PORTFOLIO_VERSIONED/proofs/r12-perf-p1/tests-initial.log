@@ -1,0 +1,5 @@
+
+> flowplan@0.1.0 test:v2
+> node scripts/v2/test.mjs
+
+Boundary: /Users/Kartaguez/FlowPlan2/src-v2/application/portfolio/loadPortfolioGraph.ts: computed property access in R0.1 runtime

@@ -1,0 +1,40 @@
+✔ D01 strict Gregorian calendar, year zero and both inclusive bounds (0.838166ms)
+✔ D02 inclusive intervals, adjacency, year/month crossings and inverted refusal (0.321875ms)
+✔ D03 exact daily arithmetic, safe intermediates and independent 400-year oracle (129.547666ms)
+✔ D04 identical DST vectors (suite executed in separate real TZ processes) (0.089417ms)
+✔ Q01 exact grammar, noncanonical input and unlimited precision (1.82125ms)
+✔ Q02 canonical signs, canonical zero and forged operands (0.456333ms)
+✔ Q03 exact arithmetic, comparisons, independent conservation oracle (9.36175ms)
+✔ Q04 units, runtime families and absence distinct from exact zero (0.418ms)
+✔ Q05 immutable diagnostics, exact paths and invalid runtime values (0.399875ms)
+✔ V01 opaque identities, exact references and compile/runtime family separation (2.804084ms)
+✔ V02 complete owner matrix and explicitly supplied AP owner checks (0.910333ms)
+✔ V03 deep copy/freeze archives, input/output mutations and exotic rejection (0.716583ms)
+✔ V04 roots, chains, branching, missing exact parent, self/long cycles (1.223834ms)
+✔ V05 identical repetition and divergent collisions in every envelope component (0.781625ms)
+✔ V06 multiple provenance is independent of lineage; no source selection (0.44675ms)
+✔ typed payload assembly preserves static type and readonly collections (0.130375ms)
+✔ audit A1 same identity and owner establish the root/child link (0.135166ms)
+✔ audit A2 different owners reject a factory-created root/child pair (0.11925ms)
+✔ audit A3 missing exact predecessor stays not-established without implicit resolution (0.749875ms)
+✔ audit A4 another predecessor identity or kind is rejected at envelope creation (0.104125ms)
+✔ audit A5 branches with the same owner establish the whole context (0.173917ms)
+✔ audit A6 one divergent branch rejects the whole context (0.157083ms)
+✔ audit A7 reversed contexts preserve acceptance, rejection and missing-parent reports (1.784958ms)
+✔ audit B1 typed assembly preserves inferred/explicit fields and deep readonly output (0.366084ms)
+✔ audit B2 typed assembly applies admissible-data runtime checks (0.458292ms)
+✔ audit B3 a claimed TypeScript payload type is not runtime schema validation (0.175708ms)
+✔ PERF-P0 context preserves ordered missing parents and repeated exact refs (0.821417ms)
+✔ PERF-P0 context diagnostics retain collision, owner and cycle phase priority (0.98575ms)
+✔ PERF-P0 context typed components preserve adversarial bytes without aliasing (1.376083ms)
+✔ A01 actual V2 source/type/transitive graph is autonomous (312.933167ms)
+✔ A02 Domain has only internal dependencies and pure primitive APIs (44.904958ms)
+✔ A03 isolated compiler/test scope and exact required V2 commands (0.735209ms)
+ℹ tests 32
+ℹ suites 0
+ℹ pass 32
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 526.580334

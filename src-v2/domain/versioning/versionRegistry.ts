@@ -41,4 +41,22 @@ export function lookupExact(registry: VersionRegistry, input: unknown): DomainRe
   const found = registry.versions.find(v => sameReference(v.ref,ref.value));
   return found === undefined ? invalid('MISSING_EXACT_VERSION','ref',`Missing ${ref.value.kind}/${ref.value.entityId.value}/${ref.value.versionId.value}`) : success(found);
 }
+/** Operation-local exact lookup. The registry must come from createVersionRegistry;
+ * its structural TypeScript type is not a runtime certificate. */
+export function lookupExactBatch(registry: VersionRegistry, inputs: readonly unknown[]): Readonly<{ result: DomainResult<readonly BusinessVersion[]>; failedIndex: number | null }> {
+  const references = new LocalVersionTable<BusinessVersion>();
+  for (const version of registry.versions) {
+    const key = referenceParts(version.ref);
+    if (references.get(key) === undefined) references.set(key,version);
+  }
+  const versions: BusinessVersion[] = [];
+  for (const [i,input] of inputs.entries()) {
+    const ref = validateExactReference(input);
+    if (!ref.ok) return Object.freeze({result:ref,failedIndex:i});
+    const found = references.get(referenceParts(ref.value));
+    if (found === undefined) return Object.freeze({result:invalid<readonly BusinessVersion[]>('MISSING_EXACT_VERSION','ref',`Missing ${ref.value.kind}/${ref.value.entityId.value}/${ref.value.versionId.value}`),failedIndex:i});
+    versions.push(found);
+  }
+  return Object.freeze({result:success(Object.freeze(versions)),failedIndex:null});
+}
 export function referenceLabel(ref: ExactReference<VersionKind>): string { return `${ref.kind}/${ref.entityId.value}/${ref.versionId.value}`; }

@@ -1,8 +1,7 @@
 import { invalid, success, type DomainResult } from '../../domain/primitives/result.js';
-import { createVersionRegistry, lookupExact } from '../../domain/versioning/versionRegistry.js';
+import { createVersionRegistry, lookupExactBatch } from '../../domain/versioning/versionRegistry.js';
 import { copyImmutableValue } from '../../domain/versioning/immutableValue.js';
 import { createCurrentSelection, createPortfolioSnapshot, createSnapshotId, type PortfolioSnapshot } from '../../domain/portfolio/manifest.js';
-import type { BusinessVersion } from '../../domain/portfolio/payloads.js';
 import type { ExactVersionsReader, CurrentSelectionReader, SnapshotReader } from '../../application/ports/portfolioReadPort.js';
 export interface MemoryPortfolioReader { readonly versions: ExactVersionsReader; readonly current: CurrentSelectionReader; readonly snapshots: SnapshotReader }
 /** Explicit immutable inputs only. No business selection, publication or storage. */
@@ -17,9 +16,7 @@ export function createMemoryPortfolioReadAdapter(versions: unknown, current: unk
     list.push(snapshot.value); }
   return success(Object.freeze({
     versions:Object.freeze({async readExactVersions(refs) {
-      const result: BusinessVersion[] = [];
-      for (const ref of refs) { const found = lookupExact(registry.value,ref); if (!found.ok) return found; result.push(found.value); }
-      return success(Object.freeze(result));
+      return lookupExactBatch(registry.value,refs).result;
     }} as ExactVersionsReader),
     current:Object.freeze({async readCurrentSelection() { return selection.value === null ? invalid('READ_CURRENT_MISSING','current') : success(selection.value); }}),
     snapshots:Object.freeze({async readSnapshot(input) {

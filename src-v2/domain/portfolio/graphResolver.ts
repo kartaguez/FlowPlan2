@@ -1,6 +1,6 @@
 import { failure, success, type DomainResult } from '../primitives/result.js';
 import { type ProjectId, type ReservationId, type TeamId } from '../primitives/identity.js';
-import { createVersionRegistry, lookupExact, type VersionRegistry } from '../versioning/versionRegistry.js';
+import { createVersionRegistry, lookupExactBatch, type VersionRegistry } from '../versioning/versionRegistry.js';
 import { createPortfolioManifest, selectedReferences, type PortfolioManifest } from './manifest.js';
 import type { BusinessVersion } from './payloads.js';
 export interface PortfolioGraph {
@@ -11,12 +11,9 @@ export interface PortfolioGraph {
 export function resolvePortfolioManifest(input: unknown, supplied: unknown): DomainResult<PortfolioGraph> {
   const manifest = createPortfolioManifest(input); if (!manifest.ok) return manifest;
   const registry = createVersionRegistry(supplied); if (!registry.ok) return registry;
-  const versions: BusinessVersion[] = [];
-  for (const [i,ref] of selectedReferences(manifest.value).entries()) {
-    const found = lookupExact(registry.value,ref);
-    if (!found.ok) return failure(found.errors.map(e => ({...e,path:`manifest.references.${i}`})));
-    versions.push(found.value);
-  }
+  const batch = lookupExactBatch(registry.value,selectedReferences(manifest.value));
+  if (!batch.result.ok) return failure(batch.result.errors.map(e => ({...e,path:`manifest.references.${batch.failedIndex}`})));
+  const versions = batch.result.value;
   const projects: ProjectId[] = [], reservations: ReservationId[] = [], teams: TeamId[] = [];
   for (const version of versions) {
     if (version.ref.kind === 'ProjectSettings' && version.owner.type === 'Project') projects.push(version.owner.projectId);

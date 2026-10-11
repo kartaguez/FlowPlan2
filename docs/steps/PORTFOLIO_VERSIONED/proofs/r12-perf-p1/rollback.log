@@ -1,0 +1,1484 @@
+[rewrite/portfolio-versioned 8b83f93] lab: P1 documentation and evidence rollback snapshot
+ 70 files changed, 37088 insertions(+), 24 deletions(-)
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/README.md
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/baseline-git.txt
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/boundaries.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/build.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/candidate-full-oracle.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/candidate-git.txt
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/comparison.json
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/differential.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/fixtures.json
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/full-oracle.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/isolated-oracle.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/oracle-freeze.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/oracle-initial.mjs
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/oracle.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/oracle.mjs
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-cpu-summary.json
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-cpu-summary.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-cpu.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-cpu/medium-sparse-M3.cpuprofile
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-cpu/medium-sparse-M5.cpuprofile
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-cpu/results.json
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-extended-oracle.json.gz
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-extended-oracle.meta.json
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-full-oracle.json.gz
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-full-oracle.meta.json
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-oracle.json.gz
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-oracle.meta.json
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-replay.json
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-replay.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-summary.json
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-summary.md
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-cpu-sparse-summary.json
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-cpu-sparse-summary.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-cpu-summary.json
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-cpu-summary.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-cpu.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-cpu/medium-dense-M3.cpuprofile
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-cpu/medium-dense-M5.cpuprofile
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-cpu/medium-sparse-M3.cpuprofile
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-cpu/medium-sparse-M5.cpuprofile
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-cpu/results.json
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-extended-oracle.json.gz
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-extended-oracle.meta.json
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-full-oracle.json.gz
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-full-oracle.meta.json
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-isolated-oracle.json.gz
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-isolated-oracle.meta.json
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-measures.json
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-measures.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-oracle.json.gz
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-oracle.meta.json
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-summary.json
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-summary.md
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1.patch
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/profile-posts.json
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/profile-posts.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/profile-posts.mjs
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/r11-targeted.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/r12-targeted.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/report.md
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/source-hashes.json
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/tests-initial.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/tests.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/tools-hashes.txt
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/typecheck.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/verify.log
+[rewrite/portfolio-versioned acaafdb] Revert "lab: P1 documentation and evidence rollback snapshot"
+ Date: Sun Oct 11 12:22:20 2026 +0200
+ 70 files changed, 24 insertions(+), 37088 deletions(-)
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/README.md
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/baseline-git.txt
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/boundaries.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/build.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/candidate-full-oracle.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/candidate-git.txt
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/comparison.json
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/differential.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/fixtures.json
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/full-oracle.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/isolated-oracle.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/oracle-freeze.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/oracle-initial.mjs
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/oracle.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/oracle.mjs
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-cpu-summary.json
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-cpu-summary.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-cpu.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-cpu/medium-sparse-M3.cpuprofile
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-cpu/medium-sparse-M5.cpuprofile
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-cpu/results.json
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-extended-oracle.json.gz
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-extended-oracle.meta.json
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-full-oracle.json.gz
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-full-oracle.meta.json
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-oracle.json.gz
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-oracle.meta.json
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-replay.json
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-replay.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-summary.json
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-summary.md
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-cpu-sparse-summary.json
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-cpu-sparse-summary.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-cpu-summary.json
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-cpu-summary.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-cpu.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-cpu/medium-dense-M3.cpuprofile
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-cpu/medium-dense-M5.cpuprofile
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-cpu/medium-sparse-M3.cpuprofile
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-cpu/medium-sparse-M5.cpuprofile
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-cpu/results.json
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-extended-oracle.json.gz
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-extended-oracle.meta.json
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-full-oracle.json.gz
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-full-oracle.meta.json
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-isolated-oracle.json.gz
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-isolated-oracle.meta.json
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-measures.json
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-measures.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-oracle.json.gz
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-oracle.meta.json
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-summary.json
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-summary.md
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1.patch
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/profile-posts.json
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/profile-posts.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/profile-posts.mjs
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/r11-targeted.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/r12-targeted.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/report.md
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/source-hashes.json
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/tests-initial.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/tests.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/tools-hashes.txt
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/typecheck.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/verify.log
+[rewrite/portfolio-versioned 6aa8959] Revert "lab: complete P1 batch regressions"
+ Date: Sun Oct 11 12:22:20 2026 +0200
+ 1 file changed, 26 deletions(-)
+[rewrite/portfolio-versioned 10f1796] Revert "lab: isolated P1 candidate"
+ Date: Sun Oct 11 12:22:20 2026 +0200
+ 6 files changed, 21 insertions(+), 91 deletions(-)
+10f17969e7cbdeaa396ffb53d5967f7441ecb252
+40faccee4fb5ba51eaf3ac698a03f047be751ccd
+40faccee4fb5ba51eaf3ac698a03f047be751ccd
+?? node_modules
+
+> flowplan@0.1.0 test:v2
+> node scripts/v2/test.mjs
+
+TAP version 13
+# Subtest: G12-01 ProjectSettings: schema valid, extra/missing keys refused
+ok 1 - G12-01 ProjectSettings: schema valid, extra/missing keys refused
+  ---
+  duration_ms: 2.754542
+  type: 'test'
+  ...
+# Subtest: G12-01 ReservationSettings: schema valid, extra/missing keys refused
+ok 2 - G12-01 ReservationSettings: schema valid, extra/missing keys refused
+  ---
+  duration_ms: 0.523542
+  type: 'test'
+  ...
+# Subtest: G12-01 TeamSettings: schema valid, extra/missing keys refused
+ok 3 - G12-01 TeamSettings: schema valid, extra/missing keys refused
+  ---
+  duration_ms: 0.18825
+  type: 'test'
+  ...
+# Subtest: G12-01 TeamCapacity: schema valid, extra/missing keys refused
+ok 4 - G12-01 TeamCapacity: schema valid, extra/missing keys refused
+  ---
+  duration_ms: 0.59
+  type: 'test'
+  ...
+# Subtest: G12-01 Program: schema valid, extra/missing keys refused
+ok 5 - G12-01 Program: schema valid, extra/missing keys refused
+  ---
+  duration_ms: 0.298416
+  type: 'test'
+  ...
+# Subtest: G12-01 Pas: schema valid, extra/missing keys refused
+ok 6 - G12-01 Pas: schema valid, extra/missing keys refused
+  ---
+  duration_ms: 0.474334
+  type: 'test'
+  ...
+# Subtest: G12-01 PT: schema valid, extra/missing keys refused
+ok 7 - G12-01 PT: schema valid, extra/missing keys refused
+  ---
+  duration_ms: 0.501125
+  type: 'test'
+  ...
+# Subtest: G12-01 RT: schema valid, extra/missing keys refused
+ok 8 - G12-01 RT: schema valid, extra/missing keys refused
+  ---
+  duration_ms: 0.266708
+  type: 'test'
+  ...
+# Subtest: G12-01 ActualPeriod: schema valid, extra/missing keys refused
+ok 9 - G12-01 ActualPeriod: schema valid, extra/missing keys refused
+  ---
+  duration_ms: 0.221417
+  type: 'test'
+  ...
+# Subtest: G12-01 ActualSubPeriod: schema valid, extra/missing keys refused
+ok 10 - G12-01 ActualSubPeriod: schema valid, extra/missing keys refused
+  ---
+  duration_ms: 0.265458
+  type: 'test'
+  ...
+# Subtest: G12-01 TeamActual: schema valid, extra/missing keys refused
+ok 11 - G12-01 TeamActual: schema valid, extra/missing keys refused
+  ---
+  duration_ms: 1.516166
+  type: 'test'
+  ...
+# Subtest: G12-01 PTEC: schema valid, extra/missing keys refused
+ok 12 - G12-01 PTEC: schema valid, extra/missing keys refused
+  ---
+  duration_ms: 0.374
+  type: 'test'
+  ...
+# Subtest: G12-01 PlanningSettings: schema valid, extra/missing keys refused
+ok 13 - G12-01 PlanningSettings: schema valid, extra/missing keys refused
+  ---
+  duration_ms: 0.345
+  type: 'test'
+  ...
+# Subtest: G12-01 PortfolioOrder: schema valid, extra/missing keys refused
+ok 14 - G12-01 PortfolioOrder: schema valid, extra/missing keys refused
+  ---
+  duration_ms: 0.166667
+  type: 'test'
+  ...
+# Subtest: G12-01 mandatory, typed refs, colors and eliminated statuses
+ok 15 - G12-01 mandatory, typed refs, colors and eliminated statuses
+  ---
+  duration_ms: 13.305333
+  type: 'test'
+  ...
+# Subtest: G12-01 runtime unknown accessors, cycles, sparse arrays and forged quantities
+ok 16 - G12-01 runtime unknown accessors, cycles, sparse arrays and forged quantities
+  ---
+  duration_ms: 0.148625
+  type: 'test'
+  ...
+# Subtest: G12-02 immutable registry, repetitions, branches, append and exact lookup
+ok 17 - G12-02 immutable registry, repetitions, branches, append and exact lookup
+  ---
+  duration_ms: 8.504958
+  type: 'test'
+  ...
+# Subtest: G12-02 collisions, owner changes and contextual cycles refused
+ok 18 - G12-02 collisions, owner changes and contextual cycles refused
+  ---
+  duration_ms: 9.257333
+  type: 'test'
+  ...
+# Subtest: G12-03 empty explicit manifest and inventories derived from opaque Settings owners
+ok 19 - G12-03 empty explicit manifest and inventories derived from opaque Settings owners
+  ---
+  duration_ms: 5.923875
+  type: 'test'
+  ...
+# Subtest: G12-03 duplicate selection and wrong table kind refused
+ok 20 - G12-03 duplicate selection and wrong table kind refused
+  ---
+  duration_ms: 3.151792
+  type: 'test'
+  ...
+# Subtest: G12-04 exact resolver invariant under registry permutation; no predecessor/provenance substitution
+ok 21 - G12-04 exact resolver invariant under registry permutation; no predecessor/provenance substitution
+  ---
+  duration_ms: 9.833334
+  type: 'test'
+  ...
+# Subtest: G12-04/B1 Snapshot v10000: ten thousand historical versions available only to witness; zero historical/Current reads
+ok 22 - G12-04/B1 Snapshot v10000: ten thousand historical versions available only to witness; zero historical/Current reads
+  ---
+  duration_ms: 55.989209
+  type: 'test'
+  ...
+# Subtest: G12-04 read ports reject wrong versions, Snapshot IDs and propagate read diagnostics
+ok 23 - G12-04 read ports reject wrong versions, Snapshot IDs and propagate read diagnostics
+  ---
+  duration_ms: 7.558583
+  type: 'test'
+  ...
+# Subtest: G12-05 tombstones keep covered AP, archived positive actuals, capacities and references
+ok 24 - G12-05 tombstones keep covered AP, archived positive actuals, capacities and references
+  ---
+  duration_ms: 8.447666
+  type: 'test'
+  ...
+# Subtest: G12-05 deleted endpoints forbid existing PT/RT; deleted associations forbid selected TA/PTEC
+ok 25 - G12-05 deleted endpoints forbid existing PT/RT; deleted associations forbid selected TA/PTEC
+  ---
+  duration_ms: 13.435667
+  type: 'test'
+  ...
+# Subtest: G12-05 restored owner with only deleted associations; hidden/inactive owners retain complete grid
+ok 26 - G12-05 restored owner with only deleted associations; hidden/inactive owners retain complete grid
+  ---
+  duration_ms: 3.294208
+  type: 'test'
+  ...
+# Subtest: G12-06 empty/covered partitions, leap day, singleton and date extremes
+ok 27 - G12-06 empty/covered partitions, leap day, singleton and date extremes
+  ---
+  duration_ms: 6.844583
+  type: 'test'
+  ...
+# Subtest: G12-06 partition gaps, overlaps, ordering, bounds, wrong AP and extra SubPeriods refused
+ok 28 - G12-06 partition gaps, overlaps, ordering, bounds, wrong AP and extra SubPeriods refused
+  ---
+  duration_ms: 8.941
+  type: 'test'
+  ...
+# Subtest: G12-06 earliest constraint is independent of activity and lifecycle
+ok 29 - G12-06 earliest constraint is independent of activity and lifecycle
+  ---
+  duration_ms: 3.235333
+  type: 'test'
+  ...
+# Subtest: G12-07 exact 2x2 grids include zeros, RT demand zero and inactive/hidden roots
+ok 30 - G12-07 exact 2x2 grids include zeros, RT demand zero and inactive/hidden roots
+  ---
+  duration_ms: 4.435084
+  type: 'test'
+  ...
+# Subtest: G12-07 foreign association/subperiod and forged Consumption family refused
+ok 31 - G12-07 foreign association/subperiod and forged Consumption family refused
+  ---
+  duration_ms: 4.195792
+  type: 'test'
+  ...
+# Subtest: G12-08 PTEC AP identity stable across through-equivalent AP versions
+ok 32 - G12-08 PTEC AP identity stable across through-equivalent AP versions
+  ---
+  duration_ms: 3.396375
+  type: 'test'
+  ...
+# Subtest: G12-08 missing/foreign PTEC and version AP references refused
+ok 33 - G12-08 missing/foreign PTEC and version AP references refused
+  ---
+  duration_ms: 2.545417
+  type: 'test'
+  ...
+# Subtest: G12-09 calendar gaps and exceptions outside horizon; RT zero modes
+ok 34 - G12-09 calendar gaps and exceptions outside horizon; RT zero modes
+  ---
+  duration_ms: 1.976417
+  type: 'test'
+  ...
+# Subtest: G12-09 overlaps, duplicate exceptions, weekday/limit/horizon invalidity
+ok 35 - G12-09 overlaps, duplicate exceptions, weekday/limit/horizon invalidity
+  ---
+  duration_ms: 0.1615
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 ps existing -> Program existing
+ok 36 - G12-09/B3 ps existing -> Program existing
+  ---
+  duration_ms: 2.026125
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 ps existing -> Program deleted
+ok 37 - G12-09/B3 ps existing -> Program deleted
+  ---
+  duration_ms: 2.225917
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 ps deleted -> Program existing
+ok 38 - G12-09/B3 ps deleted -> Program existing
+  ---
+  duration_ms: 2.421917
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 ps deleted -> Program deleted
+ok 39 - G12-09/B3 ps deleted -> Program deleted
+  ---
+  duration_ms: 1.937208
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 ps existing -> Pas existing
+ok 40 - G12-09/B3 ps existing -> Pas existing
+  ---
+  duration_ms: 1.911458
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 ps existing -> Pas deleted
+ok 41 - G12-09/B3 ps existing -> Pas deleted
+  ---
+  duration_ms: 2.172875
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 ps deleted -> Pas existing
+ok 42 - G12-09/B3 ps deleted -> Pas existing
+  ---
+  duration_ms: 1.978875
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 ps deleted -> Pas deleted
+ok 43 - G12-09/B3 ps deleted -> Pas deleted
+  ---
+  duration_ms: 2.09975
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 rs existing -> Program existing
+ok 44 - G12-09/B3 rs existing -> Program existing
+  ---
+  duration_ms: 1.975375
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 rs existing -> Program deleted
+ok 45 - G12-09/B3 rs existing -> Program deleted
+  ---
+  duration_ms: 2.820625
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 rs deleted -> Program existing
+ok 46 - G12-09/B3 rs deleted -> Program existing
+  ---
+  duration_ms: 2.422833
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 rs deleted -> Program deleted
+ok 47 - G12-09/B3 rs deleted -> Program deleted
+  ---
+  duration_ms: 2.001541
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 rs existing -> Pas existing
+ok 48 - G12-09/B3 rs existing -> Pas existing
+  ---
+  duration_ms: 2.251333
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 rs existing -> Pas deleted
+ok 49 - G12-09/B3 rs existing -> Pas deleted
+  ---
+  duration_ms: 2.447875
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 rs deleted -> Pas existing
+ok 50 - G12-09/B3 rs deleted -> Pas existing
+  ---
+  duration_ms: 1.990209
+  type: 'test'
+  ...
+# Subtest: G12-09/B3 rs deleted -> Pas deleted
+ok 51 - G12-09/B3 rs deleted -> Pas deleted
+  ---
+  duration_ms: 1.953375
+  type: 'test'
+  ...
+# Subtest: G12-09 catalogues autonomous, normalized existing names unique; deleted releases name
+ok 52 - G12-09 catalogues autonomous, normalized existing names unique; deleted releases name
+  ---
+  duration_ms: 3.949625
+  type: 'test'
+  ...
+# Subtest: G12-09 order complete for inactive and deleted projects
+ok 53 - G12-09 order complete for inactive and deleted projects
+  ---
+  duration_ms: 2.04125
+  type: 'test'
+  ...
+# Subtest: G12-10 Snapshot bound includes inactive/deleted AP, empty ignores bound, dates equal/backwards allowed
+ok 54 - G12-10 Snapshot bound includes inactive/deleted AP, empty ignores bound, dates equal/backwards allowed
+  ---
+  duration_ms: 4.626417
+  type: 'test'
+  ...
+# Subtest: G12-10 historical Snapshot independent after explicit divergent Current; adapter copies input
+ok 55 - G12-10 historical Snapshot independent after explicit divergent Current; adapter copies input
+  ---
+  duration_ms: 6.826542
+  type: 'test'
+  ...
+# Subtest: G12-11/B2 owner mapping ps: same identity versions accepted; different identity never selected refused
+ok 56 - G12-11/B2 owner mapping ps: same identity versions accepted; different identity never selected refused
+  ---
+  duration_ms: 2.136625
+  type: 'test'
+  ...
+# Subtest: G12-11/B2 owner mapping rs: same identity versions accepted; different identity never selected refused
+ok 57 - G12-11/B2 owner mapping rs: same identity versions accepted; different identity never selected refused
+  ---
+  duration_ms: 1.76025
+  type: 'test'
+  ...
+# Subtest: G12-11/B2 owner mapping ts-t1: same identity versions accepted; different identity never selected refused
+ok 58 - G12-11/B2 owner mapping ts-t1: same identity versions accepted; different identity never selected refused
+  ---
+  duration_ms: 2.653
+  type: 'test'
+  ...
+# Subtest: G12-11/B2 owner mapping cap-t1: same identity versions accepted; different identity never selected refused
+ok 59 - G12-11/B2 owner mapping cap-t1: same identity versions accepted; different identity never selected refused
+  ---
+  duration_ms: 2.004333
+  type: 'test'
+  ...
+# Subtest: G12-11/B2 owner mapping ap-p: same identity versions accepted; different identity never selected refused
+ok 60 - G12-11/B2 owner mapping ap-p: same identity versions accepted; different identity never selected refused
+  ---
+  duration_ms: 1.693708
+  type: 'test'
+  ...
+# Subtest: G12-11/B2 owner mapping ptec-t1: same identity versions accepted; different identity never selected refused
+ok 61 - G12-11/B2 owner mapping ptec-t1: same identity versions accepted; different identity never selected refused
+  ---
+  duration_ms: 1.917542
+  type: 'test'
+  ...
+# Subtest: G12-11/B2 owner mapping pt-t1: same identity versions accepted; different identity never selected refused
+ok 62 - G12-11/B2 owner mapping pt-t1: same identity versions accepted; different identity never selected refused
+  ---
+  duration_ms: 1.881917
+  type: 'test'
+  ...
+# Subtest: G12-11/B2 owner mapping rt-t1: same identity versions accepted; different identity never selected refused
+ok 63 - G12-11/B2 owner mapping rt-t1: same identity versions accepted; different identity never selected refused
+  ---
+  duration_ms: 1.769041
+  type: 'test'
+  ...
+# Subtest: G12-11/B2 owner mapping planning: same identity versions accepted; different identity never selected refused
+ok 64 - G12-11/B2 owner mapping planning: same identity versions accepted; different identity never selected refused
+  ---
+  duration_ms: 1.839917
+  type: 'test'
+  ...
+# Subtest: G12-11/B2 owner mapping order: same identity versions accepted; different identity never selected refused
+ok 65 - G12-11/B2 owner mapping order: same identity versions accepted; different identity never selected refused
+  ---
+  duration_ms: 1.97475
+  type: 'test'
+  ...
+# Subtest: G12-11 TA identity per cell; lifecycle changes under same PT identity accepted
+ok 66 - G12-11 TA identity per cell; lifecycle changes under same PT identity accepted
+  ---
+  duration_ms: 3.700042
+  type: 'test'
+  ...
+# Subtest: G12-12/B4 unknown/deserialized data revalidated; forged validated flag has no authority
+ok 67 - G12-12/B4 unknown/deserialized data revalidated; forged validated flag has no authority
+  ---
+  duration_ms: 5.125583
+  type: 'test'
+  ...
+# Subtest: G12-12 structure independent of transition history and static opacity/quantity families
+ok 68 - G12-12 structure independent of transition history and static opacity/quantity families
+  ---
+  duration_ms: 2.37525
+  type: 'test'
+  ...
+# Subtest: G12-04 Snapshot-only adapter has no Current data; wrong extra response is diagnosed
+ok 69 - G12-04 Snapshot-only adapter has no Current data; wrong extra response is diagnosed
+  ---
+  duration_ms: 5.896667
+  type: 'test'
+  ...
+# Subtest: G12-05/B3 Team deleted rejects two Capacity identities, even only one selected
+ok 70 - G12-05/B3 Team deleted rejects two Capacity identities, even only one selected
+  ---
+  duration_ms: 1.000958
+  type: 'test'
+  ...
+# Subtest: G12-06 foreign AP owner and AP/SubPeriod selection version disagreement
+ok 71 - G12-06 foreign AP owner and AP/SubPeriod selection version disagreement
+  ---
+  duration_ms: 3.021417
+  type: 'test'
+  ...
+# Subtest: G12-06/08 bound adjustments and split with empty provenance preserve unaffected TA/PTEC versions
+ok 72 - G12-06/08 bound adjustments and split with empty provenance preserve unaffected TA/PTEC versions
+  ---
+  duration_ms: 3.158541
+  type: 'test'
+  ...
+# Subtest: G12-08 empty AP requires null PTEC date and orphan PTEC cannot certify
+ok 73 - G12-08 empty AP requires null PTEC date and orphan PTEC cannot certify
+  ---
+  duration_ms: 2.468584
+  type: 'test'
+  ...
+# Subtest: G12-09 foreign Portfolio catalogue and unknown order Project refused
+ok 74 - G12-09 foreign Portfolio catalogue and unknown order Project refused
+  ---
+  duration_ms: 1.988834
+  type: 'test'
+  ...
+# Subtest: G12-12 certification wrapper accessors/source and JS-cast incomplete graph cannot bypass validation
+ok 75 - G12-12 certification wrapper accessors/source and JS-cast incomplete graph cannot bypass validation
+  ---
+  duration_ms: 0.186625
+  type: 'test'
+  ...
+# Subtest: PERF-P0 ProjectSettings: indexed exact refs, mappings and complete collisions
+ok 76 - PERF-P0 ProjectSettings: indexed exact refs, mappings and complete collisions
+  ---
+  duration_ms: 0.742875
+  type: 'test'
+  ...
+# Subtest: PERF-P0 ReservationSettings: indexed exact refs, mappings and complete collisions
+ok 77 - PERF-P0 ReservationSettings: indexed exact refs, mappings and complete collisions
+  ---
+  duration_ms: 0.593542
+  type: 'test'
+  ...
+# Subtest: PERF-P0 TeamSettings: indexed exact refs, mappings and complete collisions
+ok 78 - PERF-P0 TeamSettings: indexed exact refs, mappings and complete collisions
+  ---
+  duration_ms: 0.472209
+  type: 'test'
+  ...
+# Subtest: PERF-P0 TeamCapacity: indexed exact refs, mappings and complete collisions
+ok 79 - PERF-P0 TeamCapacity: indexed exact refs, mappings and complete collisions
+  ---
+  duration_ms: 0.648542
+  type: 'test'
+  ...
+# Subtest: PERF-P0 Program: indexed exact refs, mappings and complete collisions
+ok 80 - PERF-P0 Program: indexed exact refs, mappings and complete collisions
+  ---
+  duration_ms: 0.453625
+  type: 'test'
+  ...
+# Subtest: PERF-P0 Pas: indexed exact refs, mappings and complete collisions
+ok 81 - PERF-P0 Pas: indexed exact refs, mappings and complete collisions
+  ---
+  duration_ms: 0.455542
+  type: 'test'
+  ...
+# Subtest: PERF-P0 PT: indexed exact refs, mappings and complete collisions
+ok 82 - PERF-P0 PT: indexed exact refs, mappings and complete collisions
+  ---
+  duration_ms: 0.640667
+  type: 'test'
+  ...
+# Subtest: PERF-P0 RT: indexed exact refs, mappings and complete collisions
+ok 83 - PERF-P0 RT: indexed exact refs, mappings and complete collisions
+  ---
+  duration_ms: 0.72875
+  type: 'test'
+  ...
+# Subtest: PERF-P0 ActualPeriod: indexed exact refs, mappings and complete collisions
+ok 84 - PERF-P0 ActualPeriod: indexed exact refs, mappings and complete collisions
+  ---
+  duration_ms: 0.903875
+  type: 'test'
+  ...
+# Subtest: PERF-P0 ActualSubPeriod: indexed exact refs, mappings and complete collisions
+ok 85 - PERF-P0 ActualSubPeriod: indexed exact refs, mappings and complete collisions
+  ---
+  duration_ms: 0.554
+  type: 'test'
+  ...
+# Subtest: PERF-P0 TeamActual: indexed exact refs, mappings and complete collisions
+ok 86 - PERF-P0 TeamActual: indexed exact refs, mappings and complete collisions
+  ---
+  duration_ms: 0.687625
+  type: 'test'
+  ...
+# Subtest: PERF-P0 PTEC: indexed exact refs, mappings and complete collisions
+ok 87 - PERF-P0 PTEC: indexed exact refs, mappings and complete collisions
+  ---
+  duration_ms: 0.890458
+  type: 'test'
+  ...
+# Subtest: PERF-P0 PlanningSettings: indexed exact refs, mappings and complete collisions
+ok 88 - PERF-P0 PlanningSettings: indexed exact refs, mappings and complete collisions
+  ---
+  duration_ms: 0.571125
+  type: 'test'
+  ...
+# Subtest: PERF-P0 PortfolioOrder: indexed exact refs, mappings and complete collisions
+ok 89 - PERF-P0 PortfolioOrder: indexed exact refs, mappings and complete collisions
+  ---
+  duration_ms: 0.535125
+  type: 'test'
+  ...
+# Subtest: PERF-P0 composite owners preserve component boundaries, family and kind
+ok 90 - PERF-P0 composite owners preserve component boundaries, family and kind
+  ---
+  duration_ms: 1.130209
+  type: 'test'
+  ...
+# Subtest: PERF-P0 exact reference components, tombstone and unselected mappings
+ok 91 - PERF-P0 exact reference components, tombstone and unselected mappings
+  ---
+  duration_ms: 1.757542
+  type: 'test'
+  ...
+# Subtest: PERF-P0 withVersions remains atomic, detached and deeply frozen
+ok 92 - PERF-P0 withVersions remains atomic, detached and deeply frozen
+  ---
+  duration_ms: 2.560542
+  type: 'test'
+  ...
+# Subtest: a fresh boot is empty without invented business configuration
+ok 93 - a fresh boot is empty without invented business configuration
+  ---
+  duration_ms: 1.180834
+  type: 'test'
+  ...
+# Subtest: published shell state and every collection resist mutation
+ok 94 - published shell state and every collection resist mutation
+  ---
+  duration_ms: 3.491625
+  type: 'test'
+  ...
+# Subtest: D01 strict Gregorian calendar, year zero and both inclusive bounds
+ok 95 - D01 strict Gregorian calendar, year zero and both inclusive bounds
+  ---
+  duration_ms: 1.50325
+  type: 'test'
+  ...
+# Subtest: D02 inclusive intervals, adjacency, year/month crossings and inverted refusal
+ok 96 - D02 inclusive intervals, adjacency, year/month crossings and inverted refusal
+  ---
+  duration_ms: 0.655875
+  type: 'test'
+  ...
+# Subtest: D03 exact daily arithmetic, safe intermediates and independent 400-year oracle
+ok 97 - D03 exact daily arithmetic, safe intermediates and independent 400-year oracle
+  ---
+  duration_ms: 165.674458
+  type: 'test'
+  ...
+# Subtest: D04 identical DST vectors (suite executed in separate real TZ processes)
+ok 98 - D04 identical DST vectors (suite executed in separate real TZ processes)
+  ---
+  duration_ms: 0.130334
+  type: 'test'
+  ...
+# Subtest: Q01 exact grammar, noncanonical input and unlimited precision
+ok 99 - Q01 exact grammar, noncanonical input and unlimited precision
+  ---
+  duration_ms: 1.064583
+  type: 'test'
+  ...
+# Subtest: Q02 canonical signs, canonical zero and forged operands
+ok 100 - Q02 canonical signs, canonical zero and forged operands
+  ---
+  duration_ms: 0.443791
+  type: 'test'
+  ...
+# Subtest: Q03 exact arithmetic, comparisons, independent conservation oracle
+ok 101 - Q03 exact arithmetic, comparisons, independent conservation oracle
+  ---
+  duration_ms: 5.669125
+  type: 'test'
+  ...
+# Subtest: Q04 units, runtime families and absence distinct from exact zero
+ok 102 - Q04 units, runtime families and absence distinct from exact zero
+  ---
+  duration_ms: 0.360291
+  type: 'test'
+  ...
+# Subtest: Q05 immutable diagnostics, exact paths and invalid runtime values
+ok 103 - Q05 immutable diagnostics, exact paths and invalid runtime values
+  ---
+  duration_ms: 0.393083
+  type: 'test'
+  ...
+# Subtest: V01 opaque identities, exact references and compile/runtime family separation
+ok 104 - V01 opaque identities, exact references and compile/runtime family separation
+  ---
+  duration_ms: 5.277833
+  type: 'test'
+  ...
+# Subtest: V02 complete owner matrix and explicitly supplied AP owner checks
+ok 105 - V02 complete owner matrix and explicitly supplied AP owner checks
+  ---
+  duration_ms: 7.405333
+  type: 'test'
+  ...
+# Subtest: V03 deep copy/freeze archives, input/output mutations and exotic rejection
+ok 106 - V03 deep copy/freeze archives, input/output mutations and exotic rejection
+  ---
+  duration_ms: 1.178375
+  type: 'test'
+  ...
+# Subtest: V04 roots, chains, branching, missing exact parent, self/long cycles
+ok 107 - V04 roots, chains, branching, missing exact parent, self/long cycles
+  ---
+  duration_ms: 2.97525
+  type: 'test'
+  ...
+# Subtest: V05 identical repetition and divergent collisions in every envelope component
+ok 108 - V05 identical repetition and divergent collisions in every envelope component
+  ---
+  duration_ms: 1.735792
+  type: 'test'
+  ...
+# Subtest: V06 multiple provenance is independent of lineage; no source selection
+ok 109 - V06 multiple provenance is independent of lineage; no source selection
+  ---
+  duration_ms: 0.917583
+  type: 'test'
+  ...
+# Subtest: typed payload assembly preserves static type and readonly collections
+ok 110 - typed payload assembly preserves static type and readonly collections
+  ---
+  duration_ms: 0.258916
+  type: 'test'
+  ...
+# Subtest: audit A1 same identity and owner establish the root/child link
+ok 111 - audit A1 same identity and owner establish the root/child link
+  ---
+  duration_ms: 0.292625
+  type: 'test'
+  ...
+# Subtest: audit A2 different owners reject a factory-created root/child pair
+ok 112 - audit A2 different owners reject a factory-created root/child pair
+  ---
+  duration_ms: 0.283083
+  type: 'test'
+  ...
+# Subtest: audit A3 missing exact predecessor stays not-established without implicit resolution
+ok 113 - audit A3 missing exact predecessor stays not-established without implicit resolution
+  ---
+  duration_ms: 0.847875
+  type: 'test'
+  ...
+# Subtest: audit A4 another predecessor identity or kind is rejected at envelope creation
+ok 114 - audit A4 another predecessor identity or kind is rejected at envelope creation
+  ---
+  duration_ms: 0.201042
+  type: 'test'
+  ...
+# Subtest: audit A5 branches with the same owner establish the whole context
+ok 115 - audit A5 branches with the same owner establish the whole context
+  ---
+  duration_ms: 0.382333
+  type: 'test'
+  ...
+# Subtest: audit A6 one divergent branch rejects the whole context
+ok 116 - audit A6 one divergent branch rejects the whole context
+  ---
+  duration_ms: 0.323833
+  type: 'test'
+  ...
+# Subtest: audit A7 reversed contexts preserve acceptance, rejection and missing-parent reports
+ok 117 - audit A7 reversed contexts preserve acceptance, rejection and missing-parent reports
+  ---
+  duration_ms: 2.198667
+  type: 'test'
+  ...
+# Subtest: audit B1 typed assembly preserves inferred/explicit fields and deep readonly output
+ok 118 - audit B1 typed assembly preserves inferred/explicit fields and deep readonly output
+  ---
+  duration_ms: 0.345416
+  type: 'test'
+  ...
+# Subtest: audit B2 typed assembly applies admissible-data runtime checks
+ok 119 - audit B2 typed assembly applies admissible-data runtime checks
+  ---
+  duration_ms: 0.495125
+  type: 'test'
+  ...
+# Subtest: audit B3 a claimed TypeScript payload type is not runtime schema validation
+ok 120 - audit B3 a claimed TypeScript payload type is not runtime schema validation
+  ---
+  duration_ms: 0.282834
+  type: 'test'
+  ...
+# Subtest: PERF-P0 context preserves ordered missing parents and repeated exact refs
+ok 121 - PERF-P0 context preserves ordered missing parents and repeated exact refs
+  ---
+  duration_ms: 1.042625
+  type: 'test'
+  ...
+# Subtest: PERF-P0 context diagnostics retain collision, owner and cycle phase priority
+ok 122 - PERF-P0 context diagnostics retain collision, owner and cycle phase priority
+  ---
+  duration_ms: 1.432584
+  type: 'test'
+  ...
+# Subtest: PERF-P0 context typed components preserve adversarial bytes without aliasing
+ok 123 - PERF-P0 context typed components preserve adversarial bytes without aliasing
+  ---
+  duration_ms: 1.302958
+  type: 'test'
+  ...
+# Subtest: only the two fixed dedicated browser origins are accepted
+ok 124 - only the two fixed dedicated browser origins are accepted
+  ---
+  duration_ms: 1.413708
+  type: 'test'
+  ...
+# Subtest: reservations are immutable and distinct from all legacy namespaces
+ok 125 - reservations are immutable and distinct from all legacy namespaces
+  ---
+  duration_ms: 0.188375
+  type: 'test'
+  ...
+# Subtest: refused origin is rejected before any state is mounted or DOM created
+ok 126 - refused origin is rejected before any state is mounted or DOM created
+  ---
+  duration_ms: 0.75
+  type: 'test'
+  ...
+# Subtest: missing browser context remains a startup error
+ok 127 - missing browser context remains a startup error
+  ---
+  duration_ms: 0.15375
+  type: 'test'
+  ...
+# Subtest: rejects direct legacy
+ok 128 - rejects direct legacy
+  ---
+  duration_ms: 9.115708
+  type: 'test'
+  ...
+# Subtest: rejects type legacy
+ok 129 - rejects type legacy
+  ---
+  duration_ms: 5.576916
+  type: 'test'
+  ...
+# Subtest: rejects barrel re-export
+ok 130 - rejects barrel re-export
+  ---
+  duration_ms: 3.608959
+  type: 'test'
+  ...
+# Subtest: rejects literal dynamic legacy
+ok 131 - rejects literal dynamic legacy
+  ---
+  duration_ms: 3.486042
+  type: 'test'
+  ...
+# Subtest: rejects computed dynamic
+ok 132 - rejects computed dynamic
+  ---
+  duration_ms: 3.404792
+  type: 'test'
+  ...
+# Subtest: rejects worker
+ok 133 - rejects worker
+  ---
+  duration_ms: 3.29125
+  type: 'test'
+  ...
+# Subtest: rejects module URL
+ok 134 - rejects module URL
+  ---
+  duration_ms: 3.304542
+  type: 'test'
+  ...
+# Subtest: rejects triple slash
+ok 135 - rejects triple slash
+  ---
+  duration_ms: 3.346542
+  type: 'test'
+  ...
+# Subtest: rejects indirect storage alias
+ok 136 - rejects indirect storage alias
+  ---
+  duration_ms: 3.166208
+  type: 'test'
+  ...
+# Subtest: rejects computed capability
+ok 137 - rejects computed capability
+  ---
+  duration_ms: 3.709375
+  type: 'test'
+  ...
+# Subtest: rejects script injection
+ok 138 - rejects script injection
+  ---
+  duration_ms: 6.019167
+  type: 'test'
+  ...
+# Subtest: rejects network loader
+ok 139 - rejects network loader
+  ---
+  duration_ms: 3.73625
+  type: 'test'
+  ...
+# Subtest: rejects runtime test import
+ok 140 - rejects runtime test import
+  ---
+  duration_ms: 4.377167
+  type: 'test'
+  ...
+# Subtest: rejects a symlink escaping the physical root
+ok 141 - rejects a symlink escaping the physical root
+  ---
+  duration_ms: 3.447417
+  type: 'test'
+  ...
+# Subtest: accepts a closed relative V2 import
+ok 142 - accepts a closed relative V2 import
+  ---
+  duration_ms: 3.864459
+  type: 'test'
+  ...
+# Subtest: rejects config legacy include
+ok 143 - rejects config legacy include
+  ---
+  duration_ms: 4.184625
+  type: 'test'
+  ...
+# Subtest: rejects config alias escape
+ok 144 - rejects config alias escape
+  ---
+  duration_ms: 2.767958
+  type: 'test'
+  ...
+# Subtest: rejects config legacy test root
+ok 145 - rejects config legacy test root
+  ---
+  duration_ms: 3.191666
+  type: 'test'
+  ...
+# Subtest: rejects assets outside compiler/HTML allowlist
+ok 146 - rejects assets outside compiler/HTML allowlist
+  ---
+  duration_ms: 6.684208
+  type: 'test'
+  ...
+# Subtest: rejects a DOM factory alias that could construct a script
+ok 147 - rejects a DOM factory alias that could construct a script
+  ---
+  duration_ms: 2.926667
+  type: 'test'
+  ...
+# Subtest: rejects a package alias that invokes the old build
+ok 148 - rejects a package alias that invokes the old build
+  ---
+  duration_ms: 482.976292
+  type: 'test'
+  ...
+# Subtest: rejects a transitive legacy re-export in an otherwise V2 tree
+ok 149 - rejects a transitive legacy re-export in an otherwise V2 tree
+  ---
+  duration_ms: 68.892792
+  type: 'test'
+  ...
+# Subtest: rejects HTML legacy entrypoint
+ok 150 - rejects HTML legacy entrypoint
+  ---
+  duration_ms: 55.904791
+  type: 'test'
+  ...
+# Subtest: rejects HTML extra inline script
+ok 151 - rejects HTML extra inline script
+  ---
+  duration_ms: 51.090667
+  type: 'test'
+  ...
+# Subtest: A01 actual V2 source/type/transitive graph is autonomous
+ok 152 - A01 actual V2 source/type/transitive graph is autonomous
+  ---
+  duration_ms: 406.921625
+  type: 'test'
+  ...
+# Subtest: A02 Domain has only internal dependencies and pure primitive APIs
+ok 153 - A02 Domain has only internal dependencies and pure primitive APIs
+  ---
+  duration_ms: 59.104208
+  type: 'test'
+  ...
+# Subtest: A03 isolated compiler/test scope and exact required V2 commands
+ok 154 - A03 isolated compiler/test scope and exact required V2 commands
+  ---
+  duration_ms: 0.899292
+  type: 'test'
+  ...
+# Subtest: G12-13 all Domain, Application, ports and memory adapter dependencies respect hexagonal layers
+ok 155 - G12-13 all Domain, Application, ports and memory adapter dependencies respect hexagonal layers
+  ---
+  duration_ms: 70.684542
+  type: 'test'
+  ...
+# Subtest: G12-13 canary rejects Domain to Application
+ok 156 - G12-13 canary rejects Domain to Application
+  ---
+  duration_ms: 5.47175
+  type: 'test'
+  ...
+# Subtest: G12-13 canary rejects Domain to adapter
+ok 157 - G12-13 canary rejects Domain to adapter
+  ---
+  duration_ms: 4.847208
+  type: 'test'
+  ...
+# Subtest: G12-13 canary rejects Domain to UI
+ok 158 - G12-13 canary rejects Domain to UI
+  ---
+  duration_ms: 3.650833
+  type: 'test'
+  ...
+# Subtest: G12-13 canary rejects Domain to engine
+ok 159 - G12-13 canary rejects Domain to engine
+  ---
+  duration_ms: 4.554291
+  type: 'test'
+  ...
+# Subtest: G12-13 canary rejects Application to adapter
+ok 160 - G12-13 canary rejects Application to adapter
+  ---
+  duration_ms: 6.493834
+  type: 'test'
+  ...
+# Subtest: G12-13 canary rejects ports to orchestration
+ok 161 - G12-13 canary rejects ports to orchestration
+  ---
+  duration_ms: 5.134791
+  type: 'test'
+  ...
+# Subtest: G12-13 canary rejects Domain clock
+ok 162 - G12-13 canary rejects Domain clock
+  ---
+  duration_ms: 3.963333
+  type: 'test'
+  ...
+# Subtest: G12-13 canary rejects Domain storage
+ok 163 - G12-13 canary rejects Domain storage
+  ---
+  duration_ms: 4.310875
+  type: 'test'
+  ...
+# Subtest: G12-13 canary rejects Domain fixture
+ok 164 - G12-13 canary rejects Domain fixture
+  ---
+  duration_ms: 4.385917
+  type: 'test'
+  ...
+# Subtest: G12-13 canary rejects Domain legacy type
+ok 165 - G12-13 canary rejects Domain legacy type
+  ---
+  duration_ms: 4.589708
+  type: 'test'
+  ...
+# Subtest: 4274 serves only V2 allowlist with no-store
+ok 166 - 4274 serves only V2 allowlist with no-store
+  ---
+  duration_ms: 0.551083
+  type: 'test'
+  ...
+# Subtest: 4274 rejects other hosts and methods
+ok 167 - 4274 rejects other hosts and methods
+  ---
+  duration_ms: 0.891041
+  type: 'test'
+  ...
+# Subtest: 4274 rejects encoded traversal and malformed paths
+ok 168 - 4274 rejects encoded traversal and malformed paths
+  ---
+  duration_ms: 0.236125
+  type: 'test'
+  ...
+# Subtest: 4274 HEAD has length but no body
+ok 169 - 4274 HEAD has length but no body
+  ---
+  duration_ms: 0.142708
+  type: 'test'
+  ...
+# Subtest: 4275 serves only V2 allowlist with no-store
+ok 170 - 4275 serves only V2 allowlist with no-store
+  ---
+  duration_ms: 0.680541
+  type: 'test'
+  ...
+# Subtest: 4275 rejects other hosts and methods
+ok 171 - 4275 rejects other hosts and methods
+  ---
+  duration_ms: 0.096458
+  type: 'test'
+  ...
+# Subtest: 4275 rejects encoded traversal and malformed paths
+ok 172 - 4275 rejects encoded traversal and malformed paths
+  ---
+  duration_ms: 0.151417
+  type: 'test'
+  ...
+# Subtest: 4275 HEAD has length but no body
+ok 173 - 4275 HEAD has length but no body
+  ---
+  duration_ms: 0.100208
+  type: 'test'
+  ...
+# Subtest: refuses a configurable or legacy application port
+ok 174 - refuses a configurable or legacy application port
+  ---
+  duration_ms: 0.449
+  type: 'test'
+  ...
+1..174
+# tests 174
+# suites 0
+# pass 174
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 982.724666
+
+{
+  "tests": 174,
+  "compiled": [
+    "/private/tmp/flowplan-p1-rollback/.test-dist-v2/application/portfolio/r12.test.js",
+    "/private/tmp/flowplan-p1-rollback/.test-dist-v2/bootstrap/emptyPortfolioShellState.test.js",
+    "/private/tmp/flowplan-p1-rollback/.test-dist-v2/domain/primitives/civilDate.test.js",
+    "/private/tmp/flowplan-p1-rollback/.test-dist-v2/domain/primitives/rational.test.js",
+    "/private/tmp/flowplan-p1-rollback/.test-dist-v2/domain/versioning/versionEnvelope.test.js",
+    "/private/tmp/flowplan-p1-rollback/.test-dist-v2/environment/browserIsolation.test.js",
+    "/private/tmp/flowplan-p1-rollback/.test-dist-v2/main/createV2Application.test.js"
+  ],
+  "technical": [
+    "/private/tmp/flowplan-p1-rollback/scripts/v2/boundaries.test.mjs",
+    "/private/tmp/flowplan-p1-rollback/scripts/v2/r11.test.mjs",
+    "/private/tmp/flowplan-p1-rollback/scripts/v2/r12.test.mjs",
+    "/private/tmp/flowplan-p1-rollback/scripts/v2/servers.test.cjs"
+  ]
+}
+
+> flowplan@0.1.0 check:boundaries:v2
+> node scripts/v2/boundaries.mjs
+
+{
+  "sources": {
+    "modules": [
+      "src-v2/adapters/memory/memoryPortfolioReadAdapter.ts",
+      "src-v2/application/portfolio/loadPortfolioGraph.ts",
+      "src-v2/application/portfolio/r12.test.ts",
+      "src-v2/application/ports/portfolioReadPort.ts",
+      "src-v2/bootstrap/emptyPortfolioShellState.test.ts",
+      "src-v2/bootstrap/emptyPortfolioShellState.ts",
+      "src-v2/domain/portfolio/graphResolver.ts",
+      "src-v2/domain/portfolio/graphValidation.ts",
+      "src-v2/domain/portfolio/manifest.ts",
+      "src-v2/domain/portfolio/payloadValidation.ts",
+      "src-v2/domain/portfolio/payloads.ts",
+      "src-v2/domain/portfolio/validatedPortfolioGraph.ts",
+      "src-v2/domain/primitives/civilDate.test.ts",
+      "src-v2/domain/primitives/civilDate.ts",
+      "src-v2/domain/primitives/civilInterval.ts",
+      "src-v2/domain/primitives/data.ts",
+      "src-v2/domain/primitives/exactReference.ts",
+      "src-v2/domain/primitives/identity.ts",
+      "src-v2/domain/primitives/quantity.ts",
+      "src-v2/domain/primitives/rational.test.ts",
+      "src-v2/domain/primitives/rational.ts",
+      "src-v2/domain/primitives/result.ts",
+      "src-v2/domain/versioning/immutableValue.ts",
+      "src-v2/domain/versioning/localVersionTables.ts",
+      "src-v2/domain/versioning/owner.ts",
+      "src-v2/domain/versioning/versionEnvelope.test.ts",
+      "src-v2/domain/versioning/versionEnvelope.ts",
+      "src-v2/domain/versioning/versionRegistry.ts",
+      "src-v2/environment/browserIsolation.test.ts",
+      "src-v2/environment/browserIsolation.ts",
+      "src-v2/main/createV2Application.test.ts",
+      "src-v2/main/createV2Application.ts",
+      "src-v2/main/main.ts",
+      "src-v2/ui/renderV2Shell.ts"
+    ],
+    "compilerSources": {
+      "app": [
+        "src-v2/adapters/memory/memoryPortfolioReadAdapter.ts",
+        "src-v2/application/portfolio/loadPortfolioGraph.ts",
+        "src-v2/application/ports/portfolioReadPort.ts",
+        "src-v2/bootstrap/emptyPortfolioShellState.ts",
+        "src-v2/domain/portfolio/graphResolver.ts",
+        "src-v2/domain/portfolio/graphValidation.ts",
+        "src-v2/domain/portfolio/manifest.ts",
+        "src-v2/domain/portfolio/payloadValidation.ts",
+        "src-v2/domain/portfolio/payloads.ts",
+        "src-v2/domain/portfolio/validatedPortfolioGraph.ts",
+        "src-v2/domain/primitives/civilDate.ts",
+        "src-v2/domain/primitives/civilInterval.ts",
+        "src-v2/domain/primitives/data.ts",
+        "src-v2/domain/primitives/exactReference.ts",
+        "src-v2/domain/primitives/identity.ts",
+        "src-v2/domain/primitives/quantity.ts",
+        "src-v2/domain/primitives/rational.ts",
+        "src-v2/domain/primitives/result.ts",
+        "src-v2/domain/versioning/immutableValue.ts",
+        "src-v2/domain/versioning/localVersionTables.ts",
+        "src-v2/domain/versioning/owner.ts",
+        "src-v2/domain/versioning/versionEnvelope.ts",
+        "src-v2/domain/versioning/versionRegistry.ts",
+        "src-v2/environment/browserIsolation.ts",
+        "src-v2/main/createV2Application.ts",
+        "src-v2/main/main.ts",
+        "src-v2/ui/renderV2Shell.ts"
+      ],
+      "test": [
+        "src-v2/adapters/memory/memoryPortfolioReadAdapter.ts",
+        "src-v2/application/portfolio/loadPortfolioGraph.ts",
+        "src-v2/application/portfolio/r12.test.ts",
+        "src-v2/application/ports/portfolioReadPort.ts",
+        "src-v2/bootstrap/emptyPortfolioShellState.test.ts",
+        "src-v2/bootstrap/emptyPortfolioShellState.ts",
+        "src-v2/domain/portfolio/graphResolver.ts",
+        "src-v2/domain/portfolio/graphValidation.ts",
+        "src-v2/domain/portfolio/manifest.ts",
+        "src-v2/domain/portfolio/payloadValidation.ts",
+        "src-v2/domain/portfolio/payloads.ts",
+        "src-v2/domain/portfolio/validatedPortfolioGraph.ts",
+        "src-v2/domain/primitives/civilDate.test.ts",
+        "src-v2/domain/primitives/civilDate.ts",
+        "src-v2/domain/primitives/civilInterval.ts",
+        "src-v2/domain/primitives/data.ts",
+        "src-v2/domain/primitives/exactReference.ts",
+        "src-v2/domain/primitives/identity.ts",
+        "src-v2/domain/primitives/quantity.ts",
+        "src-v2/domain/primitives/rational.test.ts",
+        "src-v2/domain/primitives/rational.ts",
+        "src-v2/domain/primitives/result.ts",
+        "src-v2/domain/versioning/immutableValue.ts",
+        "src-v2/domain/versioning/localVersionTables.ts",
+        "src-v2/domain/versioning/owner.ts",
+        "src-v2/domain/versioning/versionEnvelope.test.ts",
+        "src-v2/domain/versioning/versionEnvelope.ts",
+        "src-v2/domain/versioning/versionRegistry.ts",
+        "src-v2/environment/browserIsolation.test.ts",
+        "src-v2/environment/browserIsolation.ts",
+        "src-v2/main/createV2Application.test.ts",
+        "src-v2/main/createV2Application.ts",
+        "src-v2/main/main.ts",
+        "src-v2/ui/renderV2Shell.ts"
+      ]
+    }
+  }
+}
+
+> flowplan@0.1.0 typecheck:v2
+> node scripts/v2/boundaries.mjs && tsc -p tsconfig.v2.app.json --noEmit
+
+{
+  "sources": {
+    "modules": [
+      "src-v2/adapters/memory/memoryPortfolioReadAdapter.ts",
+      "src-v2/application/portfolio/loadPortfolioGraph.ts",
+      "src-v2/application/portfolio/r12.test.ts",
+      "src-v2/application/ports/portfolioReadPort.ts",
+      "src-v2/bootstrap/emptyPortfolioShellState.test.ts",
+      "src-v2/bootstrap/emptyPortfolioShellState.ts",
+      "src-v2/domain/portfolio/graphResolver.ts",
+      "src-v2/domain/portfolio/graphValidation.ts",
+      "src-v2/domain/portfolio/manifest.ts",
+      "src-v2/domain/portfolio/payloadValidation.ts",
+      "src-v2/domain/portfolio/payloads.ts",
+      "src-v2/domain/portfolio/validatedPortfolioGraph.ts",
+      "src-v2/domain/primitives/civilDate.test.ts",
+      "src-v2/domain/primitives/civilDate.ts",
+      "src-v2/domain/primitives/civilInterval.ts",
+      "src-v2/domain/primitives/data.ts",
+      "src-v2/domain/primitives/exactReference.ts",
+      "src-v2/domain/primitives/identity.ts",
+      "src-v2/domain/primitives/quantity.ts",
+      "src-v2/domain/primitives/rational.test.ts",
+      "src-v2/domain/primitives/rational.ts",
+      "src-v2/domain/primitives/result.ts",
+      "src-v2/domain/versioning/immutableValue.ts",
+      "src-v2/domain/versioning/localVersionTables.ts",
+      "src-v2/domain/versioning/owner.ts",
+      "src-v2/domain/versioning/versionEnvelope.test.ts",
+      "src-v2/domain/versioning/versionEnvelope.ts",
+      "src-v2/domain/versioning/versionRegistry.ts",
+      "src-v2/environment/browserIsolation.test.ts",
+      "src-v2/environment/browserIsolation.ts",
+      "src-v2/main/createV2Application.test.ts",
+      "src-v2/main/createV2Application.ts",
+      "src-v2/main/main.ts",
+      "src-v2/ui/renderV2Shell.ts"
+    ],
+    "compilerSources": {
+      "app": [
+        "src-v2/adapters/memory/memoryPortfolioReadAdapter.ts",
+        "src-v2/application/portfolio/loadPortfolioGraph.ts",
+        "src-v2/application/ports/portfolioReadPort.ts",
+        "src-v2/bootstrap/emptyPortfolioShellState.ts",
+        "src-v2/domain/portfolio/graphResolver.ts",
+        "src-v2/domain/portfolio/graphValidation.ts",
+        "src-v2/domain/portfolio/manifest.ts",
+        "src-v2/domain/portfolio/payloadValidation.ts",
+        "src-v2/domain/portfolio/payloads.ts",
+        "src-v2/domain/portfolio/validatedPortfolioGraph.ts",
+        "src-v2/domain/primitives/civilDate.ts",
+        "src-v2/domain/primitives/civilInterval.ts",
+        "src-v2/domain/primitives/data.ts",
+        "src-v2/domain/primitives/exactReference.ts",
+        "src-v2/domain/primitives/identity.ts",
+        "src-v2/domain/primitives/quantity.ts",
+        "src-v2/domain/primitives/rational.ts",
+        "src-v2/domain/primitives/result.ts",
+        "src-v2/domain/versioning/immutableValue.ts",
+        "src-v2/domain/versioning/localVersionTables.ts",
+        "src-v2/domain/versioning/owner.ts",
+        "src-v2/domain/versioning/versionEnvelope.ts",
+        "src-v2/domain/versioning/versionRegistry.ts",
+        "src-v2/environment/browserIsolation.ts",
+        "src-v2/main/createV2Application.ts",
+        "src-v2/main/main.ts",
+        "src-v2/ui/renderV2Shell.ts"
+      ],
+      "test": [
+        "src-v2/adapters/memory/memoryPortfolioReadAdapter.ts",
+        "src-v2/application/portfolio/loadPortfolioGraph.ts",
+        "src-v2/application/portfolio/r12.test.ts",
+        "src-v2/application/ports/portfolioReadPort.ts",
+        "src-v2/bootstrap/emptyPortfolioShellState.test.ts",
+        "src-v2/bootstrap/emptyPortfolioShellState.ts",
+        "src-v2/domain/portfolio/graphResolver.ts",
+        "src-v2/domain/portfolio/graphValidation.ts",
+        "src-v2/domain/portfolio/manifest.ts",
+        "src-v2/domain/portfolio/payloadValidation.ts",
+        "src-v2/domain/portfolio/payloads.ts",
+        "src-v2/domain/portfolio/validatedPortfolioGraph.ts",
+        "src-v2/domain/primitives/civilDate.test.ts",
+        "src-v2/domain/primitives/civilDate.ts",
+        "src-v2/domain/primitives/civilInterval.ts",
+        "src-v2/domain/primitives/data.ts",
+        "src-v2/domain/primitives/exactReference.ts",
+        "src-v2/domain/primitives/identity.ts",
+        "src-v2/domain/primitives/quantity.ts",
+        "src-v2/domain/primitives/rational.test.ts",
+        "src-v2/domain/primitives/rational.ts",
+        "src-v2/domain/primitives/result.ts",
+        "src-v2/domain/versioning/immutableValue.ts",
+        "src-v2/domain/versioning/localVersionTables.ts",
+        "src-v2/domain/versioning/owner.ts",
+        "src-v2/domain/versioning/versionEnvelope.test.ts",
+        "src-v2/domain/versioning/versionEnvelope.ts",
+        "src-v2/domain/versioning/versionRegistry.ts",
+        "src-v2/environment/browserIsolation.test.ts",
+        "src-v2/environment/browserIsolation.ts",
+        "src-v2/main/createV2Application.test.ts",
+        "src-v2/main/createV2Application.ts",
+        "src-v2/main/main.ts",
+        "src-v2/ui/renderV2Shell.ts"
+      ]
+    }
+  }
+}
+
+> flowplan@0.1.0 build:v2
+> node scripts/v2/build.mjs
+
+{
+  "assets": [
+    "index.html",
+    "js/adapters/memory/memoryPortfolioReadAdapter.js",
+    "js/application/portfolio/loadPortfolioGraph.js",
+    "js/application/ports/portfolioReadPort.js",
+    "js/bootstrap/emptyPortfolioShellState.js",
+    "js/domain/portfolio/graphResolver.js",
+    "js/domain/portfolio/graphValidation.js",
+    "js/domain/portfolio/manifest.js",
+    "js/domain/portfolio/payloadValidation.js",
+    "js/domain/portfolio/payloads.js",
+    "js/domain/portfolio/validatedPortfolioGraph.js",
+    "js/domain/primitives/civilDate.js",
+    "js/domain/primitives/civilInterval.js",
+    "js/domain/primitives/data.js",
+    "js/domain/primitives/exactReference.js",
+    "js/domain/primitives/identity.js",
+    "js/domain/primitives/quantity.js",
+    "js/domain/primitives/rational.js",
+    "js/domain/primitives/result.js",
+    "js/domain/versioning/immutableValue.js",
+    "js/domain/versioning/localVersionTables.js",
+    "js/domain/versioning/owner.js",
+    "js/domain/versioning/versionEnvelope.js",
+    "js/domain/versioning/versionRegistry.js",
+    "js/environment/browserIsolation.js",
+    "js/main/createV2Application.js",
+    "js/main/main.js",
+    "js/ui/renderV2Shell.js",
+    "styles.css"
+  ],
+  "entrypoint": "js/main/main.js"
+}

@@ -1,0 +1,1075 @@
+[
+  {
+    "path": "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-cpu/medium-sparse-M3.cpuprofile",
+    "samples": 1239,
+    "sampledMs": 1874.75,
+    "self": [
+      {
+        "frame": ".test-dist-v2/domain/versioning/versionRegistry.js#lookupExact:51",
+        "sampledMs": 584.661,
+        "percent": 31.1860781437525
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/data.js#dataRecord:3",
+        "sampledMs": 291.627,
+        "percent": 15.555514068542472
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#<anonymous>:120",
+        "sampledMs": 266.541,
+        "percent": 14.217415655420723
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/versionRegistry.js#<anonymous>:55",
+        "sampledMs": 223.171,
+        "percent": 11.9040405387385
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/immutableValue.js#copy:5",
+        "sampledMs": 78.125,
+        "percent": 4.167222296306174
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/manifest.js#createPortfolioManifest:18",
+        "sampledMs": 74.708,
+        "percent": 3.9849579943992532
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/result.js#success:1",
+        "sampledMs": 43.208,
+        "percent": 2.304733964528604
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#<anonymous>:118",
+        "sampledMs": 33.167,
+        "percent": 1.769142552340312
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#<anonymous>:88",
+        "sampledMs": 30.125,
+        "percent": 1.6068809174556609
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/manifest.js#<anonymous>:44",
+        "sampledMs": 24.749,
+        "percent": 1.3201226830244033
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#ofKind:8",
+        "sampledMs": 24.04,
+        "percent": 1.2823043072409654
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/exactReference.js#validateKind:5",
+        "sampledMs": 23.96,
+        "percent": 1.278037071609548
+      },
+      {
+        "frame": "#(program):0",
+        "sampledMs": 20.958,
+        "percent": 1.1179090545406054
+      },
+      {
+        "frame": "node:inspector#post:115",
+        "sampledMs": 19.25,
+        "percent": 1.0268035738098413
+      },
+      {
+        "frame": "#(garbage collector):0",
+        "sampledMs": 16.541,
+        "percent": 0.8823043072409654
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/immutableValue.js#equalImmutableValues:50",
+        "sampledMs": 13.542,
+        "percent": 0.7223363115082011
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphResolver.js#resolvePortfolioManifest:5",
+        "sampledMs": 13.293,
+        "percent": 0.7090545406054141
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/data.js#field:16",
+        "sampledMs": 13.125,
+        "percent": 0.7000933457794373
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#validateResolved:13",
+        "sampledMs": 12.083,
+        "percent": 0.644512601680224
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/localVersionTables.js#set:14",
+        "sampledMs": 7.875,
+        "percent": 0.4200560074676623
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#<anonymous>:10",
+        "sampledMs": 6.084,
+        "percent": 0.32452326976930257
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/identity.js#validateId:9",
+        "sampledMs": 6.042,
+        "percent": 0.32228297106280834
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/exactReference.js#createEntityIdentity:9",
+        "sampledMs": 4.583,
+        "percent": 0.24445926123483133
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/exactReference.js#<anonymous>:6",
+        "sampledMs": 4.541,
+        "percent": 0.2422189625283371
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/identity.js#createId:4",
+        "sampledMs": 4.5,
+        "percent": 0.24003200426723562
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/localVersionTables.js#get:4",
+        "sampledMs": 4.209,
+        "percent": 0.2245099346579544
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/exactReference.js#createExactReference:22",
+        "sampledMs": 3.042,
+        "percent": 0.16226163488465128
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/immutableValue.js#<anonymous>:58",
+        "sampledMs": 3.042,
+        "percent": 0.16226163488465128
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/versionEnvelope.js#createVersionEnvelope:8",
+        "sampledMs": 3.041,
+        "percent": 0.16220829443925858
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/immutableValue.js#copyImmutableValue:4",
+        "sampledMs": 3,
+        "percent": 0.1600213361781571
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/civilDate.js#toEpochDay:12",
+        "sampledMs": 3,
+        "percent": 0.1600213361781571
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/payloadValidation.js#<anonymous>:14",
+        "sampledMs": 1.542,
+        "percent": 0.08225096679557274
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/exactReference.js#validateExactReference:38",
+        "sampledMs": 1.542,
+        "percent": 0.08225096679557274
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/payloadValidation.js#record:16",
+        "sampledMs": 1.5,
+        "percent": 0.08001066808907854
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/payloadValidation.js#<anonymous>:30",
+        "sampledMs": 1.5,
+        "percent": 0.08001066808907854
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/civilDate.js#createCivilDate:3",
+        "sampledMs": 1.5,
+        "percent": 0.08001066808907854
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/data.js#hasKeys:22",
+        "sampledMs": 1.5,
+        "percent": 0.08001066808907854
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/owner.js#createOwner:5",
+        "sampledMs": 1.5,
+        "percent": 0.08001066808907854
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/versionEnvelope.js#validateVersionContext:55",
+        "sampledMs": 1.5,
+        "percent": 0.08001066808907854
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/exactReference.js#sameIdentity:47",
+        "sampledMs": 1.417,
+        "percent": 0.07558341112148287
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/rational.js#reduce:12",
+        "sampledMs": 1.416,
+        "percent": 0.07553007067609015
+      }
+    ],
+    "inclusive": [
+      {
+        "frame": "#(root):0",
+        "sampledMs": 1874.75,
+        "percent": 100
+      },
+      {
+        "frame": "file:///private/tmp/flowplan-p1-baseline/scripts/benchmarks/r12-perf/worker.mjs#<anonymous>:0",
+        "sampledMs": 1826.667,
+        "percent": 97.4352313641819
+      },
+      {
+        "frame": "node:internal/process/task_queues#processTicksAndRejections:72",
+        "sampledMs": 1826.667,
+        "percent": 97.4352313641819
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#validatePortfolioGraph:128",
+        "sampledMs": 1807.417,
+        "percent": 96.40842779037206
+      },
+      {
+        "frame": "file:///private/tmp/flowplan-p1-baseline/scripts/benchmarks/r12-perf/worker.mjs#M3:27",
+        "sampledMs": 1807.417,
+        "percent": 96.40842779037206
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphResolver.js#resolvePortfolioManifest:5",
+        "sampledMs": 1420.376,
+        "percent": 75.76348846512869
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/versionRegistry.js#lookupExact:51",
+        "sampledMs": 831.415,
+        "percent": 44.34804640618749
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/versionRegistry.js#createVersionRegistry:8",
+        "sampledMs": 433.877,
+        "percent": 23.143192425656757
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#validateResolved:13",
+        "sampledMs": 387.041,
+        "percent": 20.644939325243367
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/data.js#dataRecord:3",
+        "sampledMs": 304.918,
+        "percent": 16.264461928257102
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#<anonymous>:120",
+        "sampledMs": 267.958,
+        "percent": 14.292999066542206
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/immutableValue.js#copyImmutableValue:4",
+        "sampledMs": 231.582,
+        "percent": 12.352687024936658
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/immutableValue.js#copy:5",
+        "sampledMs": 228.582,
+        "percent": 12.1926656887585
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/versionRegistry.js#<anonymous>:55",
+        "sampledMs": 223.171,
+        "percent": 11.9040405387385
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/versionEnvelope.js#validateVersionContext:55",
+        "sampledMs": 186.751,
+        "percent": 9.96138151753567
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/payloadValidation.js#createBusinessVersion:193",
+        "sampledMs": 163.126,
+        "percent": 8.701213495132684
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/manifest.js#createPortfolioManifest:18",
+        "sampledMs": 141.791,
+        "percent": 7.563195092679025
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/versionEnvelope.js#createVersionEnvelope:8",
+        "sampledMs": 138.206,
+        "percent": 7.371969595946126
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/exactReference.js#createExactReference:22",
+        "sampledMs": 97.25,
+        "percent": 5.1873583144419255
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/exactReference.js#validateExactReference:38",
+        "sampledMs": 78.96,
+        "percent": 4.211761568209094
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/identity.js#validateId:9",
+        "sampledMs": 64.25,
+        "percent": 3.427123616482198
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/payloadValidation.js#validateBusinessPayload:56",
+        "sampledMs": 50.874,
+        "percent": 2.713641818909188
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/owner.js#createOwner:5",
+        "sampledMs": 47.708,
+        "percent": 2.5447659687958395
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/result.js#success:1",
+        "sampledMs": 43.208,
+        "percent": 2.304733964528604
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#<anonymous>:118",
+        "sampledMs": 33.167,
+        "percent": 1.769142552340312
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/exactReference.js#createEntityIdentity:9",
+        "sampledMs": 32.708,
+        "percent": 1.7446592879050542
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#<anonymous>:88",
+        "sampledMs": 30.125,
+        "percent": 1.6068809174556609
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/exactReference.js#validateKind:5",
+        "sampledMs": 29.751,
+        "percent": 1.5869315908787838
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#ofKind:8",
+        "sampledMs": 28.624,
+        "percent": 1.5268169089211894
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/payloadValidation.js#record:16",
+        "sampledMs": 25.582,
+        "percent": 1.364555274036538
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/manifest.js#<anonymous>:44",
+        "sampledMs": 24.749,
+        "percent": 1.3201226830244033
+      },
+      {
+        "frame": "#(program):0",
+        "sampledMs": 20.958,
+        "percent": 1.1179090545406054
+      },
+      {
+        "frame": "node:inspector#post:115",
+        "sampledMs": 19.25,
+        "percent": 1.0268035738098413
+      },
+      {
+        "frame": "file:///private/tmp/flowplan-p1-baseline/scripts/benchmarks/r12-perf/worker.mjs#<anonymous>:34",
+        "sampledMs": 19.25,
+        "percent": 1.0268035738098413
+      },
+      {
+        "frame": "file:///private/tmp/flowplan-p1-baseline/scripts/benchmarks/r12-perf/worker.mjs#post:34",
+        "sampledMs": 19.25,
+        "percent": 1.0268035738098413
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/immutableValue.js#equalImmutableValues:50",
+        "sampledMs": 16.584,
+        "percent": 0.8845979463928524
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#equal:12",
+        "sampledMs": 16.584,
+        "percent": 0.8845979463928524
+      },
+      {
+        "frame": "#(garbage collector):0",
+        "sampledMs": 16.541,
+        "percent": 0.8823043072409654
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/data.js#field:16",
+        "sampledMs": 13.125,
+        "percent": 0.7000933457794373
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#<anonymous>:29",
+        "sampledMs": 10.542,
+        "percent": 0.562314975330044
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/payloadValidation.js#<anonymous>:14",
+        "sampledMs": 10.499,
+        "percent": 0.5600213361781571
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/quantity.js#validateQuantity:21",
+        "sampledMs": 8.957,
+        "percent": 0.4777703693825843
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/localVersionTables.js#set:14",
+        "sampledMs": 7.875,
+        "percent": 0.4200560074676623
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/identity.js#createId:4",
+        "sampledMs": 7.584,
+        "percent": 0.4045339378583811
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/immutableValue.js#<anonymous>:58",
+        "sampledMs": 7.542,
+        "percent": 0.4022936391518869
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/payloadValidation.js#<anonymous>:30",
+        "sampledMs": 7.5,
+        "percent": 0.40005334044539276
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#<anonymous>:10",
+        "sampledMs": 6.084,
+        "percent": 0.32452326976930257
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/payloadValidation.js#<anonymous>:110",
+        "sampledMs": 6,
+        "percent": 0.3200426723563142
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/exactReference.js#<anonymous>:6",
+        "sampledMs": 4.541,
+        "percent": 0.2422189625283371
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/localVersionTables.js#get:4",
+        "sampledMs": 4.209,
+        "percent": 0.2245099346579544
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/civilDate.js#toEpochDay:12",
+        "sampledMs": 3,
+        "percent": 0.1600213361781571
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/civilDate.js#civilDayDifference:66",
+        "sampledMs": 3,
+        "percent": 0.1600213361781571
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/rational.js#validateRational:26",
+        "sampledMs": 2.916,
+        "percent": 0.1555407387651687
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/quantity.js#createQuantity:9",
+        "sampledMs": 2.916,
+        "percent": 0.1555407387651687
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#<anonymous>:57",
+        "sampledMs": 1.542,
+        "percent": 0.08225096679557274
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/civilDate.js#createCivilDate:3",
+        "sampledMs": 1.5,
+        "percent": 0.08001066808907854
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/payloadValidation.js#interval:41",
+        "sampledMs": 1.5,
+        "percent": 0.08001066808907854
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/data.js#hasKeys:22",
+        "sampledMs": 1.5,
+        "percent": 0.08001066808907854
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#<anonymous>:48",
+        "sampledMs": 1.5,
+        "percent": 0.08001066808907854
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#<anonymous>:47",
+        "sampledMs": 1.5,
+        "percent": 0.08001066808907854
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#<anonymous>:112",
+        "sampledMs": 1.5,
+        "percent": 0.08001066808907854
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/exactReference.js#sameIdentity:47",
+        "sampledMs": 1.417,
+        "percent": 0.07558341112148287
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/rational.js#reduce:12",
+        "sampledMs": 1.416,
+        "percent": 0.07553007067609015
+      }
+    ]
+  },
+  {
+    "path": "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-cpu/medium-sparse-M5.cpuprofile",
+    "samples": 2763,
+    "sampledMs": 4156.833,
+    "self": [
+      {
+        "frame": ".test-dist-v2/domain/versioning/versionRegistry.js#lookupExact:51",
+        "sampledMs": 1147.332,
+        "percent": 27.601108824915503
+      },
+      {
+        "frame": ".test-dist-v2/application/portfolio/loadPortfolioGraph.js#collect:6",
+        "sampledMs": 632.253,
+        "percent": 15.209968743031052
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/data.js#dataRecord:3",
+        "sampledMs": 616.04,
+        "percent": 14.819936235109758
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/versionRegistry.js#<anonymous>:55",
+        "sampledMs": 412.626,
+        "percent": 9.926451218992922
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/manifest.js#createPortfolioManifest:18",
+        "sampledMs": 250.458,
+        "percent": 6.0252119822951755
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#<anonymous>:120",
+        "sampledMs": 243.834,
+        "percent": 5.865859898629558
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/immutableValue.js#copy:5",
+        "sampledMs": 190.082,
+        "percent": 4.572760079608683
+      },
+      {
+        "frame": ".test-dist-v2/application/portfolio/loadPortfolioGraph.js#<anonymous>:15",
+        "sampledMs": 148.955,
+        "percent": 3.58337705652356
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/result.js#success:1",
+        "sampledMs": 47.251,
+        "percent": 1.1367067187928888
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/exactReference.js#validateKind:5",
+        "sampledMs": 42.334,
+        "percent": 1.0184195516153765
+      },
+      {
+        "frame": "#(program):0",
+        "sampledMs": 42.209,
+        "percent": 1.0154124546259136
+      },
+      {
+        "frame": "#(garbage collector):0",
+        "sampledMs": 42.084,
+        "percent": 1.0124053576364505
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/manifest.js#createPortfolioSnapshot:69",
+        "sampledMs": 37.751,
+        "percent": 0.908167347593709
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/data.js#field:16",
+        "sampledMs": 36.166,
+        "percent": 0.8700373577673195
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#ofKind:8",
+        "sampledMs": 34.583,
+        "percent": 0.8319554814927614
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#<anonymous>:118",
+        "sampledMs": 31.541,
+        "percent": 0.7587747691571926
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#<anonymous>:88",
+        "sampledMs": 24.709,
+        "percent": 0.5944188761011087
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/manifest.js#<anonymous>:44",
+        "sampledMs": 24.125,
+        "percent": 0.580369718966338
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/exactReference.js#createExactReference:22",
+        "sampledMs": 19.374,
+        "percent": 0.4660759765908325
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphResolver.js#resolvePortfolioManifest:5",
+        "sampledMs": 19,
+        "percent": 0.45707874239835955
+      },
+      {
+        "frame": "node:inspector#post:115",
+        "sampledMs": 17.792,
+        "percent": 0.4280181570921901
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/exactReference.js#<anonymous>:6",
+        "sampledMs": 13.5,
+        "percent": 0.3247664748619923
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/immutableValue.js#equalImmutableValues:50",
+        "sampledMs": 12.041,
+        "percent": 0.28966763880098145
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#validateResolved:13",
+        "sampledMs": 10.5,
+        "percent": 0.2525961471148829
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/identity.js#validateId:9",
+        "sampledMs": 7.584,
+        "percent": 0.18244658854469256
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/versionEnvelope.js#createVersionEnvelope:8",
+        "sampledMs": 7.583,
+        "percent": 0.18242253176877685
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/immutableValue.js#copyImmutableValue:4",
+        "sampledMs": 7.459,
+        "percent": 0.17943949155522967
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/localVersionTables.js#set:14",
+        "sampledMs": 7.459,
+        "percent": 0.17943949155522967
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/localVersionTables.js#get:4",
+        "sampledMs": 6.125,
+        "percent": 0.1473477524836817
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/identity.js#createId:4",
+        "sampledMs": 3.042,
+        "percent": 0.07318071233556893
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#<anonymous>:10",
+        "sampledMs": 3.042,
+        "percent": 0.07318071233556893
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/owner.js#createOwner:5",
+        "sampledMs": 3.041,
+        "percent": 0.07315665555965323
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/versionRegistry.js#createVersionRegistry:8",
+        "sampledMs": 3.041,
+        "percent": 0.07315665555965323
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/payloadValidation.js#createBusinessVersion:193",
+        "sampledMs": 2.917,
+        "percent": 0.07017361534610604
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/versionEnvelope.js#validateVersionContext:55",
+        "sampledMs": 2.583,
+        "percent": 0.062138652190261184
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/data.js#hasKeys:22",
+        "sampledMs": 1.5,
+        "percent": 0.036085163873554704
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/exactReference.js#createEntityIdentity:9",
+        "sampledMs": 1.5,
+        "percent": 0.036085163873554704
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/immutableValue.js#<anonymous>:58",
+        "sampledMs": 1.5,
+        "percent": 0.036085163873554704
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#equal:12",
+        "sampledMs": 1.5,
+        "percent": 0.036085163873554704
+      },
+      {
+        "frame": ".test-dist-v2/adapters/memory/memoryPortfolioReadAdapter.js#readExactVersions:28",
+        "sampledMs": 0.417,
+        "percent": 0.010031675556848207
+      }
+    ],
+    "inclusive": [
+      {
+        "frame": "#(root):0",
+        "sampledMs": 4156.833,
+        "percent": 100
+      },
+      {
+        "frame": "node:internal/process/task_queues#processTicksAndRejections:72",
+        "sampledMs": 4060.497,
+        "percent": 97.68246643538482
+      },
+      {
+        "frame": ".test-dist-v2/application/portfolio/loadPortfolioGraph.js#loadSnapshotGraph:33",
+        "sampledMs": 2841.873,
+        "percent": 68.366301941887
+      },
+      {
+        "frame": ".test-dist-v2/application/portfolio/loadPortfolioGraph.js#collect:6",
+        "sampledMs": 2057.666,
+        "percent": 49.5008098713612
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#validateSnapshotGraph:132",
+        "sampledMs": 1829.831,
+        "percent": 44.019834330606976
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/validatedPortfolioGraph.js#certifyPortfolioGraph:5",
+        "sampledMs": 1829.831,
+        "percent": 44.019834330606976
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#validatePortfolioGraph:128",
+        "sampledMs": 1687.539,
+        "percent": 40.59674757200975
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/versionRegistry.js#lookupExact:51",
+        "sampledMs": 1618.542,
+        "percent": 38.93690220415398
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphResolver.js#resolvePortfolioManifest:5",
+        "sampledMs": 1328.873,
+        "percent": 31.96839998142817
+      },
+      {
+        "frame": ".test-dist-v2/adapters/memory/memoryPortfolioReadAdapter.js#readExactVersions:28",
+        "sampledMs": 856.834,
+        "percent": 20.612663534955576
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/versionRegistry.js#createVersionRegistry:8",
+        "sampledMs": 848.289,
+        "percent": 20.407098384755894
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/data.js#dataRecord:3",
+        "sampledMs": 636.165,
+        "percent": 15.304078850413283
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/immutableValue.js#copyImmutableValue:4",
+        "sampledMs": 505.96,
+        "percent": 12.171766342309157
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/immutableValue.js#copy:5",
+        "sampledMs": 499.918,
+        "percent": 12.026415302226479
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/versionRegistry.js#<anonymous>:55",
+        "sampledMs": 412.626,
+        "percent": 9.926451218992922
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/manifest.js#createPortfolioManifest:18",
+        "sampledMs": 381.874,
+        "percent": 9.186657246033219
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/versionEnvelope.js#validateVersionContext:55",
+        "sampledMs": 374.791,
+        "percent": 9.016263102222293
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#validateResolved:13",
+        "sampledMs": 358.666,
+        "percent": 8.62834759058158
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/versionEnvelope.js#createVersionEnvelope:8",
+        "sampledMs": 322.792,
+        "percent": 7.765334811381646
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/payloadValidation.js#createBusinessVersion:193",
+        "sampledMs": 315.959,
+        "percent": 7.600954861549646
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/manifest.js#createPortfolioSnapshot:69",
+        "sampledMs": 297.5,
+        "percent": 7.156890834921683
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/exactReference.js#createExactReference:22",
+        "sampledMs": 252.704,
+        "percent": 6.079243501001844
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#<anonymous>:120",
+        "sampledMs": 243.834,
+        "percent": 5.865859898629558
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/exactReference.js#validateExactReference:38",
+        "sampledMs": 160.875,
+        "percent": 3.8701338254387414
+      },
+      {
+        "frame": ".test-dist-v2/application/portfolio/loadPortfolioGraph.js#<anonymous>:15",
+        "sampledMs": 148.955,
+        "percent": 3.58337705652356
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/identity.js#validateId:9",
+        "sampledMs": 140.54,
+        "percent": 3.380939287192918
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/owner.js#createOwner:5",
+        "sampledMs": 93.541,
+        "percent": 2.250294875930787
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/payloadValidation.js#validateBusinessPayload:56",
+        "sampledMs": 83.957,
+        "percent": 2.019734735554688
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/exactReference.js#validateKind:5",
+        "sampledMs": 60.334,
+        "percent": 1.4514415180980327
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/exactReference.js#createEntityIdentity:9",
+        "sampledMs": 58.625,
+        "percent": 1.4103284880580962
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/result.js#success:1",
+        "sampledMs": 47.251,
+        "percent": 1.1367067187928888
+      },
+      {
+        "frame": "#(program):0",
+        "sampledMs": 42.209,
+        "percent": 1.0154124546259136
+      },
+      {
+        "frame": "#(garbage collector):0",
+        "sampledMs": 42.084,
+        "percent": 1.0124053576364505
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/data.js#field:16",
+        "sampledMs": 36.166,
+        "percent": 0.8700373577673195
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#ofKind:8",
+        "sampledMs": 36.083,
+        "percent": 0.8680406453663161
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/payloadValidation.js#record:16",
+        "sampledMs": 34.457,
+        "percent": 0.8289243277273829
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#<anonymous>:118",
+        "sampledMs": 31.541,
+        "percent": 0.7587747691571926
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#<anonymous>:88",
+        "sampledMs": 24.709,
+        "percent": 0.5944188761011087
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/manifest.js#<anonymous>:44",
+        "sampledMs": 24.125,
+        "percent": 0.580369718966338
+      },
+      {
+        "frame": "node:inspector#post:115",
+        "sampledMs": 17.792,
+        "percent": 0.4280181570921901
+      },
+      {
+        "frame": "file:///private/tmp/flowplan-p1-baseline/scripts/benchmarks/r12-perf/worker.mjs#<anonymous>:34",
+        "sampledMs": 17.792,
+        "percent": 0.4280181570921901
+      },
+      {
+        "frame": "file:///private/tmp/flowplan-p1-baseline/scripts/benchmarks/r12-perf/worker.mjs#post:34",
+        "sampledMs": 17.792,
+        "percent": 0.4280181570921901
+      },
+      {
+        "frame": "file:///private/tmp/flowplan-p1-baseline/scripts/benchmarks/r12-perf/worker.mjs#<anonymous>:0",
+        "sampledMs": 17.792,
+        "percent": 0.4280181570921901
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/quantity.js#validateQuantity:21",
+        "sampledMs": 16.541,
+        "percent": 0.39792313042164557
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/payloadValidation.js#<anonymous>:14",
+        "sampledMs": 16.541,
+        "percent": 0.39792313042164557
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#equal:12",
+        "sampledMs": 15.041,
+        "percent": 0.36183796654809086
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/immutableValue.js#equalImmutableValues:50",
+        "sampledMs": 13.541,
+        "percent": 0.3257528026745361
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/exactReference.js#<anonymous>:6",
+        "sampledMs": 13.5,
+        "percent": 0.3247664748619923
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/payloadValidation.js#<anonymous>:110",
+        "sampledMs": 9.083,
+        "percent": 0.21850769564233158
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/payloadValidation.js#<anonymous>:30",
+        "sampledMs": 9.083,
+        "percent": 0.21850769564233158
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/quantity.js#createQuantity:9",
+        "sampledMs": 9,
+        "percent": 0.2165109832413282
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/rational.js#validateRational:26",
+        "sampledMs": 7.5,
+        "percent": 0.1804258193677735
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/localVersionTables.js#set:14",
+        "sampledMs": 7.459,
+        "percent": 0.17943949155522967
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/localVersionTables.js#get:4",
+        "sampledMs": 6.125,
+        "percent": 0.1473477524836817
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/identity.js#createId:4",
+        "sampledMs": 6.084,
+        "percent": 0.14636142467113786
+      },
+      {
+        "frame": ".test-dist-v2/domain/versioning/immutableValue.js#<anonymous>:58",
+        "sampledMs": 6.041,
+        "percent": 0.14532698330676264
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#<anonymous>:10",
+        "sampledMs": 3.042,
+        "percent": 0.07318071233556893
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#<anonymous>:57",
+        "sampledMs": 3.041,
+        "percent": 0.07315665555965323
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/payloadValidation.js#<anonymous>:15",
+        "sampledMs": 3,
+        "percent": 0.07217032774710941
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/payloadValidation.js#<anonymous>:13",
+        "sampledMs": 3,
+        "percent": 0.07217032774710941
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/payloadValidation.js#interval:41",
+        "sampledMs": 3,
+        "percent": 0.07217032774710941
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#<anonymous>:29",
+        "sampledMs": 3,
+        "percent": 0.07217032774710941
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#<anonymous>:47",
+        "sampledMs": 3,
+        "percent": 0.07217032774710941
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#<anonymous>:112",
+        "sampledMs": 3,
+        "percent": 0.07217032774710941
+      },
+      {
+        "frame": ".test-dist-v2/domain/portfolio/graphValidation.js#<anonymous>:78",
+        "sampledMs": 3,
+        "percent": 0.07217032774710941
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/data.js#hasKeys:22",
+        "sampledMs": 1.5,
+        "percent": 0.036085163873554704
+      },
+      {
+        "frame": ".test-dist-v2/domain/primitives/civilDate.js#createCivilDate:3",
+        "sampledMs": 1.5,
+        "percent": 0.036085163873554704
+      }
+    ]
+  }
+]

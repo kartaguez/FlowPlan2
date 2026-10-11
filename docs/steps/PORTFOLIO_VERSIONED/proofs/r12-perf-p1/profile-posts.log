@@ -1,0 +1,86 @@
+[
+  {
+    path: 'docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-cpu/medium-sparse-M3.cpuprofile',
+    sampledMs: 1874.75,
+    posts: {
+      registry: [Object],
+      manifest: [Object],
+      resolverLookup: [Object],
+      portCorrespondence: [Object],
+      memoryLookup: [Object],
+      teamActualGrid: [Object],
+      collectInclusive: [Object],
+      memoryReaderInclusive: [Object]
+    }
+  },
+  {
+    path: 'docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p0-cpu/medium-sparse-M5.cpuprofile',
+    sampledMs: 4156.833,
+    posts: {
+      registry: [Object],
+      manifest: [Object],
+      resolverLookup: [Object],
+      portCorrespondence: [Object],
+      memoryLookup: [Object],
+      teamActualGrid: [Object],
+      collectInclusive: [Object],
+      memoryReaderInclusive: [Object]
+    }
+  },
+  {
+    path: 'docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-cpu/medium-dense-M3.cpuprofile',
+    sampledMs: 20858.792,
+    posts: {
+      registry: [Object],
+      manifest: [Object],
+      resolverLookup: [Object],
+      portCorrespondence: [Object],
+      memoryLookup: [Object],
+      teamActualGrid: [Object],
+      collectInclusive: [Object],
+      memoryReaderInclusive: [Object]
+    }
+  },
+  {
+    path: 'docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-cpu/medium-dense-M5.cpuprofile',
+    sampledMs: 24624.291,
+    posts: {
+      registry: [Object],
+      manifest: [Object],
+      resolverLookup: [Object],
+      portCorrespondence: [Object],
+      memoryLookup: [Object],
+      teamActualGrid: [Object],
+      collectInclusive: [Object],
+      memoryReaderInclusive: [Object]
+    }
+  },
+  {
+    path: 'docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-cpu/medium-sparse-M3.cpuprofile',
+    sampledMs: 919.958,
+    posts: {
+      registry: [Object],
+      manifest: [Object],
+      resolverLookup: [Object],
+      portCorrespondence: [Object],
+      memoryLookup: [Object],
+      teamActualGrid: [Object],
+      collectInclusive: [Object],
+      memoryReaderInclusive: [Object]
+    }
+  },
+  {
+    path: 'docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/p1-cpu/medium-sparse-M5.cpuprofile',
+    sampledMs: 1488.5,
+    posts: {
+      registry: [Object],
+      manifest: [Object],
+      resolverLookup: [Object],
+      portCorrespondence: [Object],
+      memoryLookup: [Object],
+      teamActualGrid: [Object],
+      collectInclusive: [Object],
+      memoryReaderInclusive: [Object]
+    }
+  }
+]

@@ -1,0 +1,21 @@
+{
+  "cases": 563,
+  "kinds": [
+    "PlanningSettings",
+    "PortfolioOrder",
+    "Program",
+    "Pas",
+    "TeamSettings",
+    "TeamCapacity",
+    "ProjectSettings",
+    "PT",
+    "PTEC",
+    "ActualPeriod",
+    "ActualSubPeriod",
+    "TeamActual",
+    "ReservationSettings",
+    "RT"
+  ],
+  "corpusSHA256": "2e273951190897cef1fb7cea91600ebd2ddee53c9c2540c89fec00a02879c100",
+  "outputSHA256": "e745c1fe476a882a0d6f63e654dfcfe27c35c5d9940c35f15f934670c30255df"
+}

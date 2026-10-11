@@ -1,0 +1,42 @@
+{
+  cases: 563,
+  kinds: [
+    'PlanningSettings',
+    'PortfolioOrder',
+    'Program',
+    'Pas',
+    'TeamSettings',
+    'TeamCapacity',
+    'ProjectSettings',
+    'PT',
+    'PTEC',
+    'ActualPeriod',
+    'ActualSubPeriod',
+    'TeamActual',
+    'ReservationSettings',
+    'RT'
+  ],
+  corpusSHA256: '2e273951190897cef1fb7cea91600ebd2ddee53c9c2540c89fec00a02879c100',
+  outputSHA256: 'e745c1fe476a882a0d6f63e654dfcfe27c35c5d9940c35f15f934670c30255df'
+}
+{
+  cases: 896,
+  kinds: [
+    'PlanningSettings',
+    'PortfolioOrder',
+    'Program',
+    'Pas',
+    'TeamSettings',
+    'TeamCapacity',
+    'ProjectSettings',
+    'PT',
+    'PTEC',
+    'ActualPeriod',
+    'ActualSubPeriod',
+    'TeamActual',
+    'ReservationSettings',
+    'RT'
+  ],
+  corpusSHA256: '2f66e37cd475aa94165e0f9a1e10f1611ace2fcd0e8caedfcaeb835735299a4f',
+  outputSHA256: '10617542cfb3f326dedbdfa489ed7de148c98a69532db74c2273eb93e63aee20'
+}

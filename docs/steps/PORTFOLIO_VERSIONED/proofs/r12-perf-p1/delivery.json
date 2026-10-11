@@ -1,0 +1,35 @@
+{
+  "baseline": "f9440517d176d93e3089a8b7cf34da86f36f5f18",
+  "branch": "rewrite/portfolio-versioned",
+  "preflight": {
+    "clean": true,
+    "fetch": 0,
+    "divergence": [
+      0,
+      0
+    ]
+  },
+  "candidateLab": [
+    "0e0259661484d65265820ca083c1e30ca60915e8",
+    "9f3fe87a51e2941bfd566be40ac0b330cf0cb487"
+  ],
+  "oracle": {
+    "frozenInitialCases": 896,
+    "finalCases": 941,
+    "divergences": 0
+  },
+  "tests": {
+    "v2": 189,
+    "r11Targeted": 32,
+    "r12Targeted": 118,
+    "rollbackBaseline": 174,
+    "civilDateMultiTZAdditionalRuns": 12
+  },
+  "verdicts": {
+    "technical": "CONFORME — audit indépendant requis",
+    "global": "C — dense M5 24.49s, compatibilité R1.3 non établie"
+  },
+  "scope": "P1 only; P2/P3 not implemented; R1.2 IN REVIEW; R1.3/R1.4/R2 NOT STARTED",
+  "rollbackTree": "40faccee4fb5ba51eaf3ac698a03f047be751ccd",
+  "finalSHA": "Reported after normal commit/push, no self-reference"
+}

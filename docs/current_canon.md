@@ -89,20 +89,30 @@ historiques ; R1.1 demeure DONE, sans requalification.
 Deux verdicts distincts : **P0 techniquement conforme**, mais **performance globale
 encore C** : résolution moyen dense interrompue à 30 s malgré M1 dense ≈2,82 s.
 M5 moyen sparse ≈4,11 s ; les coûts résiduels imposent une décision séparée avant
-la poursuite de R1.3. P1 non implémenté, P2/P3 hors périmètre ; grands non exécutés.
+la poursuite de R1.3. À cette livraison P0, P1 non implémenté ; réalisation P1 ci-dessous.
+P2/P3 hors périmètre ; grands non exécutés.
 Audit indépendant du correctif requis. **R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED**.
 
-[R1.2-PERF-P1 — plan des lookups exacts](./steps/PORTFOLIO_VERSIONED/rewrite_r12_perf_p1_plan.md),
-2026-10-11 : **PLAN ONLY / proposé pour audit**, baseline P0 auditée
-`8ec0c7318c782ca407063f3c3d44dc8ff7f4df53` (audit favorable communiqué par
-la mission utilisateur). Trois scans ciblés : resolver, adapter mémoire et
-correspondance de réponse port ; unicité du manifeste également quadratique.
-Recommandation B : helper Domain en lot, tables temporaires par opération,
-addition d'API soumise à accord explicite ; option A et localisation comparées.
-Copies/validations/certification et diagnostics strictement conservés ; oracle
-P0 et campagne M1–M6 prévus, non exécutés. Aucun code/test/benchmark modifié.
-Classification **C maintenue** ; audit indépendant du plan et nouveau GO requis.
-**R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED.** Arrêt après livraison du plan.
+[R1.2-PERF-P1 — réalisation autorisée](./steps/PORTFOLIO_VERSIONED/rewrite_r12_perf_p1_plan.md#13-réalisation-p1),
+2026-10-11, baseline `f9440517d176d93e3089a8b7cf34da86f36f5f18` :
+A-P1-01 B et A-P1-02–04 approuvés par la mission utilisateur. Helper Domain
+`lookupExactBatch`, trois usages après factories validantes (resolver, collect,
+adapter mémoire), unicité locale des 12 tables du manifeste. Aucune nouvelle
+autorité, aucun cache/index retenu, copies/validations/certification conservées.
+Oracle figé avant production : 563 puis 896 cas ; extension finale **941 cas,
+zéro divergence**, vrai P0 et candidat en clones/processus isolés. **189/189**
+tests V2, **32/32** ciblés R1.1, **118/118** ciblés R1.2 (G12-01–13),
+frontières/typecheck/build PASS, tests P0 conservés. Résultats historiques
+ci-dessus distingués des nouvelles exécutions.
+Deux verdicts : **P1 techniquement conforme**, **performance globale C**.
+Rejeu P0/P1 sur mêmes fixtures/outils : M5 moyen sparse ≈4,08→1,47 s ;
+M3 moyen dense ≈20,79 s, donc latence dense encore bloquante malgré résolution
+M2 ≈3,32 s ; M5 dense ≈24,49 s. Mesures complètes, CPU, mémoire, profils et rollback dans les
+[preuves P1](./steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/report.md).
+A-P1-05 : acceptabilité globale non établie ; diagnostic P2 à arbitrer séparément,
+aucune optimisation P2/P3 réalisée. Grands NOT_EXECUTED.
+**R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED.** Audit indépendant requis,
+aucun GO ni clôture automatique ; arrêt après commit/push de P1.
 
 **Cible applicable amendée**, distincte de la livraison :
 [A-R12-01–09](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md#amendements-normatifs-r12--2026-10-11)

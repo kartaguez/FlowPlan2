@@ -1,0 +1,26 @@
+[
+  {
+    "file": "src-v2/adapters/memory/memoryPortfolioReadAdapter.ts",
+    "sha256": "b1e2d527a25bc2eb18fe4700ba4a2df12e35dbfb48f022b03724b46f1429d92e"
+  },
+  {
+    "file": "src-v2/application/portfolio/loadPortfolioGraph.ts",
+    "sha256": "62230a292994097e747169a606bde1019cb6f072623ace253f52f7a36954b89d"
+  },
+  {
+    "file": "src-v2/application/portfolio/r12.test.ts",
+    "sha256": "3919f78a15beb44a8adab18c3d6e32f1f1f61c99baf8df857bc6b35967680bf4"
+  },
+  {
+    "file": "src-v2/domain/portfolio/graphResolver.ts",
+    "sha256": "fa6851cb45c184b6c7d79d667c8f7f4c918098b2d8d8ee95b34e71f3e2392efc"
+  },
+  {
+    "file": "src-v2/domain/portfolio/manifest.ts",
+    "sha256": "27c49a571995f3231ebb5d3d844e6e5c793ac405cd12ce8130b78920ecd07329"
+  },
+  {
+    "file": "src-v2/domain/versioning/versionRegistry.ts",
+    "sha256": "0170e81e40e859388310fd83af9bf27c2a359f80fa0f1646a06740a8b641af29"
+  }
+]
