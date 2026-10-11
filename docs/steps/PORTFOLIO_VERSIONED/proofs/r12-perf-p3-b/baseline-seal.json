@@ -1,0 +1,28 @@
+{
+  "at": "2026-10-11T14:23:03.266Z",
+  "baseline": "1d1c66b2b38a6599f1ab0950c4dd1fdffd1e6e74",
+  "historicalReplay": [
+    {
+      "corpus": "oracle",
+      "cases": 1245,
+      "divergences": 0
+    },
+    {
+      "corpus": "supplement",
+      "cases": 9,
+      "divergences": 0
+    },
+    {
+      "corpus": "copy",
+      "cases": 34,
+      "divergences": 0
+    }
+  ],
+  "hashes": {
+    "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-b/a1-oracle.jsonl.gz": "0d3cef2e8f7a0890f158dadf5fb7deb6ed95546a277504f81292d6c50fc23725",
+    "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-b/a1-supplement.jsonl.gz": "a43390d784d4a856e48a25883247a9eb27277faae60c8317c3848a09b3d7924c",
+    "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-b/a1-copy.jsonl.gz": "26754cc0cd2568d8a4e2d483667b88244719dc0d84292ea8f78ffd91e8031a13",
+    "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-b/a1-business.jsonl.gz": "684a084e2cd008200fa26389696dd09737d87b7144edab1d88f33420e58a1528",
+    "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-b/business-oracle.mjs": "a058ae2bff0c58961ccf2ab37c7c261d2baa3514a5b10823d58513b9ccc2d150"
+  }
+}

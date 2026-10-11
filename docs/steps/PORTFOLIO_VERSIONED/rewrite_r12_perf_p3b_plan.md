@@ -1,5 +1,31 @@
 # FlowPlan2 V2 — R1.2-PERF-P3-B : réutilisation locale du payload validé
 
+## Réalisation autorisée P3-B — 2026-10-11
+
+La mission utilisateur explicite « IMPLÉMENTATION AUTORISÉE » approuve
+A-P3B-01–09 dans son périmètre et remplace l'état préalable PLAN ONLY.
+Baseline de livraison : `6b1d65f15f6479b14be721417a5a9bc036257d36` ; baseline
+oracle/mesures A1 réelle : `1d1c66b2b38a6599f1ab0950c4dd1fdffd1e6e74`.
+**Architecture B2 avec acquisition validante B1 réalisée** : orchestrateur privé,
+deux branches unknown acquises intégralement, captures const, un checker lexical
+sans paramètre, les 14 schémas textuellement préservés. Copie autonome conservée ;
+seule copie de contrôle métier du chemin version supprimée. Trois exports
+inchangés ; pas de capacité échappée, bypass, validation conditionnée à un type,
+callback ou await. Deux assertions terminales préexistantes conservées uniquement
+pour les types dépendants. Registres/certification/ports inchangés.
+
+[Rapport de réalisation, architecture, tests, oracle, benchmarks, profils,
+allocations, rollback et deux verdicts](./proofs/r12-perf-p3-b/report.md).
+245 tests PASS (32 nouveaux), R1.1 51 / R1.2 155 PASS, G12-01–13 et régressions
+acquises ; 2 259 réponses différentielles sans divergence, sceau vérifié.
+Frontières/typecheck/build PASS. Conformité technique PASS ; performance globale
+**C**. R1.2 **IN REVIEW**, R1.3/R1.4/R2 **NOT STARTED** ; aucun P3-C.
+
+Les sections 1–13 suivantes conservent l'étude de faisabilité préalable et ses
+résultats historiques/non exécutés à cette date. Les mentions « non autorisé »
+ou « futurs » y sont historiques ; les résultats réellement exécutés du correctif
+sont ceux du rapport de réalisation, distincts des anciens PASS.
+
 2026-10-11 — **PLAN ONLY / ÉTUDE DE FAISABILITÉ À AUDITER**.
 Baseline obligatoire et futur oracle P3-A1 réel :
 `1d1c66b2b38a6599f1ab0950c4dd1fdffd1e6e74`.

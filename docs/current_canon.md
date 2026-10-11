@@ -1,5 +1,17 @@
 # FlowPlan2 current canon
 
+## Actualisation P3-B — 2026-10-11
+
+Autorisation utilisateur B2/B1 réalisée : un orchestrateur privé acquiert chaque
+entrée unknown avant un checker lexical synchrone sans argument. Deux acquisitions
+validantes, aucun mode skip-copy ; seule la copie intermédiaire métier du chemin
+version disparaît. Les trois exports et les 14 schémas sont inchangés. Les deux
+registres du chargement et l'autorité opaque de certification restent intacts.
+[Preuves source/JS, tests, oracle, performances et limites](./steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-b/report.md).
+Conformité technique démontrée par 245 tests et 2 259 réponses différentielles
+sans divergence. **R1.2 reste IN REVIEW, performance globale C ;
+R1.3/R1.4/R2 NOT STARTED.** Les états P3-B « PLAN ONLY » plus bas sont historiques.
+
 ## Trajectoire active — V2 : R1.1 DONE, R1.2 IN REVIEW
 
 Point d'entrée et ordre de lecture : [current_plan](./current_plan.md).

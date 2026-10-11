@@ -1,0 +1,5 @@
+{
+  "cases": 971,
+  "outputSHA256": "e67c8d538cbf22a46a48b69773b8048cf417c8056af55e8ba823c77f3732d80c",
+  "runtime": "PASS: public JS exports, deep freeze, detached input, mutation rejection, unknown kind acquisition"
+}

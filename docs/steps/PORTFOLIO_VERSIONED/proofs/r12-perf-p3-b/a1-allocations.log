@@ -1,0 +1,30 @@
+[
+  {
+    label: 'a1',
+    variant: 'sparse',
+    calls: 25812,
+    nodes: 154284,
+    containers: 66438,
+    copyMs: 60.72508599999564,
+    control: false,
+    controlCopies: 8604,
+    controlNodes: 72840,
+    controlContainers: 28917,
+    controlMs: 28.160551000001192,
+    sampledBytes: 529770008
+  },
+  {
+    label: 'a1',
+    variant: 'dense',
+    calls: 166212,
+    nodes: 867084,
+    containers: 397638,
+    copyMs: 299.5308040000061,
+    control: false,
+    controlCopies: 55404,
+    controlNodes: 405840,
+    controlContainers: 171117,
+    controlMs: 135.5458029999943,
+    sampledBytes: 3156615896
+  }
+]

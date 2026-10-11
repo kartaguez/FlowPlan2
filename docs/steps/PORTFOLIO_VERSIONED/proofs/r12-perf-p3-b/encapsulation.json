@@ -1,0 +1,38 @@
+{
+  "checks": [
+    {
+      "file": "src-v2/domain/portfolio/payloadValidation.ts",
+      "sha256": "3b95d3884d6ce2ef80a290bcc27614836c84b6c0d338219b9467d93856927ceb",
+      "schemas": 14,
+      "switches": 1,
+      "checkerParameters": 0,
+      "checkerEscapes": false
+    },
+    {
+      "file": ".test-dist-v2/domain/portfolio/payloadValidation.js",
+      "sha256": "233bc14d1bb36f68f795fd314599dad885278b5e05c076002d0235502483621b",
+      "schemas": 14,
+      "switches": 1,
+      "checkerParameters": 0,
+      "checkerEscapes": false
+    }
+  ],
+  "schemasTextuallyUnchanged": true,
+  "publicExports": [
+    "catalogNameKey",
+    "createBusinessVersion",
+    "validateBusinessPayload"
+  ],
+  "unchanged": [
+    "src-v2/application/portfolio/loadPortfolioGraph.ts",
+    "src-v2/domain/portfolio/validatedPortfolioGraph.ts",
+    "src-v2/domain/versioning/versionRegistry.ts",
+    "src-v2/domain/versioning/versionEnvelope.ts",
+    "src-v2/domain/versioning/immutableValue.ts",
+    "src-v2/domain/portfolio/graphResolver.ts",
+    "src-v2/domain/portfolio/graphValidation.ts"
+  ],
+  "twoRegistriesPreserved": true,
+  "opaqueCertificationUnchanged": true,
+  "assertions": "Only the two existing terminal dependent-type assertions remain; none establishes provenance. All acquisition and ownership checks hold in emitted JS."
+}

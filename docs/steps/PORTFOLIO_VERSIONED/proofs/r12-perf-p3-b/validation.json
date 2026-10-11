@@ -1,0 +1,33 @@
+{
+  "testV2": {
+    "tests": 245,
+    "fail": 0,
+    "newTests": 32
+  },
+  "r11Targeted": {
+    "tests": 51,
+    "fail": 0
+  },
+  "r12Targeted": {
+    "tests": 155,
+    "fail": 0
+  },
+  "gates": "G12-01\u2013G12-13 PASS in complete/targeted suites",
+  "regressions": "P0/P1/P2/P3-A1 PASS",
+  "oracle": {
+    "cases": 2259,
+    "divergences": 0,
+    "sealedBeforeProduction": true
+  },
+  "boundaries": "PASS",
+  "typecheck": "PASS",
+  "build": "PASS",
+  "auditSourceAndJS": "PASS",
+  "rollback": {
+    "tree": "0e03096424dfdf96d229d1e862dafb24ebbbcf89",
+    "tests": 213,
+    "typecheck": "PASS",
+    "build": "PASS"
+  },
+  "diffCheck": "PASS"
+}

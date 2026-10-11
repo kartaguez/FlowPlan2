@@ -1,0 +1,8 @@
+Cloning into '/tmp/flowplan-p3b-rollback'...
+done.
+[rewrite/portfolio-versioned a7c3ae6] Revert "perf(v2): validate acquired business payload lexically (isolated candidate)"
+ Date: Sun Oct 11 16:35:14 2026 +0200
+ 2 files changed, 75 insertions(+), 148 deletions(-)
+?? node_modules
+a7c3ae636b055773c7c377d41e683d1d209021a5
+0e03096424dfdf96d229d1e862dafb24ebbbcf89

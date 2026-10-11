@@ -1,5 +1,20 @@
 # FlowPlan2 current plan — point d'entrée unique
 
+## Actualisation P3-B — 2026-10-11
+
+R1.2-PERF-P3-B implémenté sur autorisation explicite utilisateur : **B2 avec
+acquisition validante B1**, seul fichier de production `payloadValidation.ts`.
+Les 14 schémas restent dans un corps lexical unique ; la copie publique autonome
+reste complète, le chemin version réutilise exclusivement le payload acquis par
+l'enveloppe. Aucun bypass, certificat intermédiaire ou modification de ports.
+245 tests PASS (32 nouveaux), ciblés R1.1 51 et R1.2 155 PASS ; G12-01–13 et
+régressions P0/P1/P2/A1 incluses. Oracle réel A1 scellé avant production :
+**2 259 réponses, zéro divergence**. Frontières/typecheck/build PASS.
+[Rapport, mesures A1/B et deux verdicts](./steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-b/report.md).
+**R1.2 IN REVIEW ; performance globale C ; R1.3/R1.4/R2 NOT STARTED.**
+Audit indépendant requis ; arrêt après commit/push de ce correctif. Les passages
+antérieurs « plan P3-B non autorisé » décrivent l'état historique précédent.
+
 ## Trajectoire active — FlowPlan2 V2 / R1.1 DONE, R1.2 IN REVIEW
 
 **R0 clôturé. R0.1 — Rewrite Initialization : DONE**, clôture utilisateur

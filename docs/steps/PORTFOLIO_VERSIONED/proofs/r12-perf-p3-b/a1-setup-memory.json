@@ -1,0 +1,366 @@
+{
+  "scope": "Single cold adapter setup per fresh child; fixture/imports excluded from timing; additional setup-only evidence, not official API medians. GC endpoint measurements do not establish exact peak or retained ownership.",
+  "root": "/tmp/flowplan-p3b-a1",
+  "rows": [
+    {
+      "size": "small",
+      "variant": "sparse",
+      "fixture": {
+        "size": "small",
+        "variant": "sparse",
+        "seed": 1202,
+        "projects": 10,
+        "teams": 5,
+        "reservations": 1,
+        "subPeriodsPerOwner": 12,
+        "versions": 474,
+        "selectedReferences": 474,
+        "byKind": {
+          "ProjectSettings": 10,
+          "ReservationSettings": 1,
+          "TeamSettings": 5,
+          "TeamCapacity": 5,
+          "Program": 1,
+          "Pas": 1,
+          "PT": 20,
+          "RT": 2,
+          "ActualPeriod": 11,
+          "ActualSubPeriod": 132,
+          "TeamActual": 264,
+          "PTEC": 20,
+          "PlanningSettings": 1,
+          "PortfolioOrder": 1
+        },
+        "exactReferenceOccurrences": 1080,
+        "identityOccurrences": 721,
+        "existingPT": 20,
+        "deletedAssociations": 0,
+        "projectTA": 240,
+        "reservationTA": 24,
+        "fixtureSha256": "8471590449ed27421572ee9b3faeb7e090548d10acd4fbe8c7981544c263cefd"
+      },
+      "elapsedMs": 35.510124999999995,
+      "cpuUsed": {
+        "user": 53935,
+        "system": 1509
+      },
+      "before": {
+        "rss": 62259200,
+        "heapTotal": 10829824,
+        "heapUsed": 5449320,
+        "external": 2467631,
+        "arrayBuffers": 143611
+      },
+      "after": {
+        "rss": 73613312,
+        "heapTotal": 17907712,
+        "heapUsed": 9441528,
+        "external": 2521415,
+        "arrayBuffers": 143627
+      },
+      "retained": {
+        "rss": 73580544,
+        "heapTotal": 17121280,
+        "heapUsed": 6386048,
+        "external": 2521415,
+        "arrayBuffers": 143627
+      },
+      "released": {
+        "rss": 73596928,
+        "heapTotal": 16072704,
+        "heapUsed": 5893312,
+        "external": 2521415,
+        "arrayBuffers": 143627
+      },
+      "lifetimeMaxRSSKiB": 72048
+    },
+    {
+      "size": "small",
+      "variant": "dense",
+      "fixture": {
+        "size": "small",
+        "variant": "dense",
+        "seed": 1202,
+        "projects": 10,
+        "teams": 5,
+        "reservations": 1,
+        "subPeriodsPerOwner": 12,
+        "versions": 894,
+        "selectedReferences": 894,
+        "byKind": {
+          "ProjectSettings": 10,
+          "ReservationSettings": 1,
+          "TeamSettings": 5,
+          "TeamCapacity": 5,
+          "Program": 1,
+          "Pas": 1,
+          "PT": 50,
+          "RT": 2,
+          "ActualPeriod": 11,
+          "ActualSubPeriod": 132,
+          "TeamActual": 624,
+          "PTEC": 50,
+          "PlanningSettings": 1,
+          "PortfolioOrder": 1
+        },
+        "exactReferenceOccurrences": 1920,
+        "identityOccurrences": 1501,
+        "existingPT": 50,
+        "deletedAssociations": 0,
+        "projectTA": 600,
+        "reservationTA": 24,
+        "fixtureSha256": "7adc331e1f02eb321f50bf85bd0e9f844dfd518c7b0fc8916f71c92da7ee7b24"
+      },
+      "elapsedMs": 61.462333,
+      "cpuUsed": {
+        "user": 87144,
+        "system": 3000
+      },
+      "before": {
+        "rss": 66420736,
+        "heapTotal": 11091968,
+        "heapUsed": 5731560,
+        "external": 2467631,
+        "arrayBuffers": 143611
+      },
+      "after": {
+        "rss": 87212032,
+        "heapTotal": 28655616,
+        "heapUsed": 13876200,
+        "external": 2521415,
+        "arrayBuffers": 143627
+      },
+      "retained": {
+        "rss": 87146496,
+        "heapTotal": 27344896,
+        "heapUsed": 7144872,
+        "external": 2521415,
+        "arrayBuffers": 143627
+      },
+      "released": {
+        "rss": 87326720,
+        "heapTotal": 24723456,
+        "heapUsed": 6247808,
+        "external": 2521415,
+        "arrayBuffers": 143627
+      },
+      "lifetimeMaxRSSKiB": 85280
+    },
+    {
+      "size": "small",
+      "variant": "history",
+      "fixture": {
+        "size": "small",
+        "variant": "history",
+        "seed": 1202,
+        "projects": 10,
+        "teams": 5,
+        "reservations": 1,
+        "subPeriodsPerOwner": 12,
+        "versions": 460,
+        "selectedReferences": 460,
+        "byKind": {
+          "ProjectSettings": 10,
+          "ReservationSettings": 1,
+          "TeamSettings": 5,
+          "TeamCapacity": 5,
+          "Program": 1,
+          "Pas": 1,
+          "PT": 30,
+          "RT": 2,
+          "ActualPeriod": 11,
+          "ActualSubPeriod": 132,
+          "TeamActual": 240,
+          "PTEC": 20,
+          "PlanningSettings": 1,
+          "PortfolioOrder": 1
+        },
+        "exactReferenceOccurrences": 1054,
+        "identityOccurrences": 673,
+        "existingPT": 20,
+        "deletedAssociations": 12,
+        "projectTA": 240,
+        "reservationTA": 0,
+        "fixtureSha256": "13237b44785c0d72e7843859cfc4ceee9cbc690d071795e80f0e76ed94e75640"
+      },
+      "elapsedMs": 32.512292,
+      "cpuUsed": {
+        "user": 50879,
+        "system": 1711
+      },
+      "before": {
+        "rss": 62062592,
+        "heapTotal": 10567680,
+        "heapUsed": 5447952,
+        "external": 2467631,
+        "arrayBuffers": 143611
+      },
+      "after": {
+        "rss": 73547776,
+        "heapTotal": 17645568,
+        "heapUsed": 8834408,
+        "external": 2521415,
+        "arrayBuffers": 143627
+      },
+      "retained": {
+        "rss": 73531392,
+        "heapTotal": 16859136,
+        "heapUsed": 6290024,
+        "external": 2521415,
+        "arrayBuffers": 143627
+      },
+      "released": {
+        "rss": 73547776,
+        "heapTotal": 15548416,
+        "heapUsed": 5893656,
+        "external": 2521415,
+        "arrayBuffers": 143627
+      },
+      "lifetimeMaxRSSKiB": 71968
+    },
+    {
+      "size": "medium",
+      "variant": "sparse",
+      "fixture": {
+        "size": "medium",
+        "variant": "sparse",
+        "seed": 1202,
+        "projects": 100,
+        "teams": 20,
+        "reservations": 10,
+        "subPeriodsPerOwner": 24,
+        "versions": 8604,
+        "selectedReferences": 8604,
+        "byKind": {
+          "ProjectSettings": 100,
+          "ReservationSettings": 10,
+          "TeamSettings": 20,
+          "TeamCapacity": 20,
+          "Program": 1,
+          "Pas": 1,
+          "PT": 200,
+          "RT": 20,
+          "ActualPeriod": 110,
+          "ActualSubPeriod": 2640,
+          "TeamActual": 5280,
+          "PTEC": 200,
+          "PlanningSettings": 1,
+          "PortfolioOrder": 1
+        },
+        "exactReferenceOccurrences": 19848,
+        "identityOccurrences": 13810,
+        "existingPT": 200,
+        "deletedAssociations": 0,
+        "projectTA": 4800,
+        "reservationTA": 480,
+        "fixtureSha256": "87dd085a7c6991c5a11bf6d2706a9ef2492822f284d819709c1cc24baaba9aa9"
+      },
+      "elapsedMs": 545.233125,
+      "cpuUsed": {
+        "user": 667215,
+        "system": 19677
+      },
+      "before": {
+        "rss": 105791488,
+        "heapTotal": 28655616,
+        "heapUsed": 10384544,
+        "external": 2467631,
+        "arrayBuffers": 143611
+      },
+      "after": {
+        "rss": 275480576,
+        "heapTotal": 190070784,
+        "heapUsed": 61530632,
+        "external": 2521415,
+        "arrayBuffers": 143627
+      },
+      "retained": {
+        "rss": 274546688,
+        "heapTotal": 168640512,
+        "heapUsed": 19246912,
+        "external": 2521415,
+        "arrayBuffers": 143627
+      },
+      "released": {
+        "rss": 274563072,
+        "heapTotal": 150814720,
+        "heapUsed": 10992064,
+        "external": 2521415,
+        "arrayBuffers": 143627
+      },
+      "lifetimeMaxRSSKiB": 269072
+    },
+    {
+      "size": "medium",
+      "variant": "dense",
+      "fixture": {
+        "size": "medium",
+        "variant": "dense",
+        "seed": 1202,
+        "projects": 100,
+        "teams": 20,
+        "reservations": 10,
+        "subPeriodsPerOwner": 24,
+        "versions": 55404,
+        "selectedReferences": 55404,
+        "byKind": {
+          "ProjectSettings": 100,
+          "ReservationSettings": 10,
+          "TeamSettings": 20,
+          "TeamCapacity": 20,
+          "Program": 1,
+          "Pas": 1,
+          "PT": 2000,
+          "RT": 20,
+          "ActualPeriod": 110,
+          "ActualSubPeriod": 2640,
+          "TeamActual": 48480,
+          "PTEC": 2000,
+          "PlanningSettings": 1,
+          "PortfolioOrder": 1
+        },
+        "exactReferenceOccurrences": 113448,
+        "identityOccurrences": 103810,
+        "existingPT": 2000,
+        "deletedAssociations": 0,
+        "projectTA": 48000,
+        "reservationTA": 480,
+        "fixtureSha256": "f938611ae418174af984bf10b23c8f51b23d78e8caeb3656217a4f8847d16559"
+      },
+      "elapsedMs": 3476.013458,
+      "cpuUsed": {
+        "user": 3998385,
+        "system": 57568
+      },
+      "before": {
+        "rss": 337215488,
+        "heapTotal": 111738880,
+        "heapUsed": 41583704,
+        "external": 2467595,
+        "arrayBuffers": 143611
+      },
+      "after": {
+        "rss": 663175168,
+        "heapTotal": 293961728,
+        "heapUsed": 175327096,
+        "external": 2521415,
+        "arrayBuffers": 143627
+      },
+      "retained": {
+        "rss": 656048128,
+        "heapTotal": 267845632,
+        "heapUsed": 95424496,
+        "external": 2521415,
+        "arrayBuffers": 143627
+      },
+      "released": {
+        "rss": 654622720,
+        "heapTotal": 186187776,
+        "heapUsed": 42242416,
+        "external": 2521415,
+        "arrayBuffers": 143627
+      },
+      "lifetimeMaxRSSKiB": 651344
+    }
+  ]
+}

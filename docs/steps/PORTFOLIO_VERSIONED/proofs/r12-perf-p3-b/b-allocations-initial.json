@@ -1,0 +1,112 @@
+{
+  "label": "b",
+  "instrumentation": "Emitted immutableValue.js in disposable clone; 1 timer pair per complete copy; counters per visited node/successful output container. Time includes inspection and instrumentation overhead. Sampling estimates cumulative allocation including collected objects, not exact bytes. Retention endpoints are GC observations, not proof of ownership or peak. GC events include forced retention/release GC and sampling overhead. Closure/routing cost is included in whole-operation measurements, not independently isolated.",
+  "businessOriginalSHA256": "233bc14d1bb36f68f795fd314599dad885278b5e05c076002d0235502483621b",
+  "businessInstrumentedSHA256": "696ebf68cad77270085756f868d632c934a35cdfe66c6d23d11b20579c35d8d8",
+  "originalSHA256": "94590c72d7edbc8d9d5de9b8ef17085394841a2bf55802b77fab582ca36e2157",
+  "instrumentedSHA256": "f9ebd5976fc0bc0e3d9c39bf333869901290181f73e122df6272190ef132cac8",
+  "rows": [
+    {
+      "label": "b",
+      "variant": "sparse",
+      "versions": 8604,
+      "counts": {
+        "calls": 17208,
+        "nodes": 81444,
+        "containers": 37521,
+        "copyMs": 29.912781000003037,
+        "control": false,
+        "controlCopies": 0,
+        "controlNodes": 0,
+        "controlContainers": 0,
+        "controlMs": 0
+      },
+      "elapsedMs": 177.146583,
+      "cpuUsed": {
+        "user": 218557,
+        "system": 4292
+      },
+      "before": {
+        "rss": 106954752,
+        "heapTotal": 29179904,
+        "heapUsed": 10516384,
+        "external": 2394001,
+        "arrayBuffers": 143615
+      },
+      "after": {
+        "rss": 133840896,
+        "heapTotal": 50675712,
+        "heapUsed": 31836496,
+        "external": 2394021,
+        "arrayBuffers": 143631
+      },
+      "retained": {
+        "rss": 134119424,
+        "heapTotal": 51200000,
+        "heapUsed": 16211680,
+        "external": 2394021,
+        "arrayBuffers": 143631
+      },
+      "released": {
+        "rss": 136675328,
+        "heapTotal": 50675712,
+        "heapUsed": 11615968,
+        "external": 2394021,
+        "arrayBuffers": 143631
+      },
+      "sampledBytes": 460071472,
+      "gcEvents": []
+    },
+    {
+      "label": "b",
+      "variant": "dense",
+      "versions": 55404,
+      "counts": {
+        "calls": 110808,
+        "nodes": 461244,
+        "containers": 226521,
+        "copyMs": 168.93859400000093,
+        "control": false,
+        "controlCopies": 0,
+        "controlNodes": 0,
+        "controlContainers": 0,
+        "controlMs": 0
+      },
+      "elapsedMs": 1049.972791,
+      "cpuUsed": {
+        "user": 1165406,
+        "system": 11546
+      },
+      "before": {
+        "rss": 363167744,
+        "heapTotal": 183156736,
+        "heapUsed": 42329344,
+        "external": 2394021,
+        "arrayBuffers": 143631
+      },
+      "after": {
+        "rss": 451526656,
+        "heapTotal": 212975616,
+        "heapUsed": 133952048,
+        "external": 2394021,
+        "arrayBuffers": 143631
+      },
+      "retained": {
+        "rss": 452296704,
+        "heapTotal": 214548480,
+        "heapUsed": 78163272,
+        "external": 2394021,
+        "arrayBuffers": 143631
+      },
+      "released": {
+        "rss": 475742208,
+        "heapTotal": 191184896,
+        "heapUsed": 46552352,
+        "external": 2394021,
+        "arrayBuffers": 143631
+      },
+      "sampledBytes": 2776026152,
+      "gcEvents": []
+    }
+  ]
+}

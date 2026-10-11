@@ -1,0 +1,4 @@
+dense: deterministic counts, real certification and missing-cell rejection verified
+sparse: deterministic counts, real certification and missing-cell rejection verified
+history: deterministic counts, real certification and missing-cell rejection verified
+Benchmark-tool checks: 3 variants passed; separate from G12 gates

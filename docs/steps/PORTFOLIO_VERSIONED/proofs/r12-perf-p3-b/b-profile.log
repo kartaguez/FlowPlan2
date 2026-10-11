@@ -1,0 +1,13 @@
+medium:sparse M1 started
+medium:sparse M1 COMPLETED cold:452.0ms warmup:438.1ms measured-1:426.6ms
+medium:sparse M3 started
+medium:sparse M3 COMPLETED cold:661.3ms warmup:634.8ms measured-1:636.6ms
+medium:sparse M5 started
+medium:sparse M5 COMPLETED cold:1180.4ms warmup:1174.7ms measured-1:1180.6ms
+medium:dense M1 started
+medium:dense M1 COMPLETED cold:2765.6ms warmup:2682.5ms measured-1:2674.9ms
+medium:dense M3 started
+medium:dense M3 COMPLETED cold:3721.7ms warmup:3680.4ms measured-1:3702.0ms
+medium:dense M5 started
+medium:dense M5 COMPLETED cold:7330.7ms warmup:7262.4ms measured-1:7272.0ms
+Evidence: /Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-b/b-profile/results.json

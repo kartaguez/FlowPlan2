@@ -1,0 +1,1046 @@
+[
+  {
+    "label": "a1",
+    "scenario": "small/sparse",
+    "operation": "M1",
+    "cpuUserMs": {
+      "min": 37.977,
+      "median": 39.005,
+      "max": 42.57,
+      "populationSD": 1.9681253912176324
+    },
+    "cpuSystemMs": {
+      "min": 0.397,
+      "median": 0.593,
+      "max": 1.319,
+      "populationSD": 0.39659327052059545
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "a1",
+    "scenario": "small/sparse",
+    "operation": "M2",
+    "cpuUserMs": {
+      "min": 40.817,
+      "median": 44.027,
+      "max": 46.468,
+      "populationSD": 2.31412047127101
+    },
+    "cpuSystemMs": {
+      "min": 0.375,
+      "median": 0.577,
+      "max": 1.6,
+      "populationSD": 0.5362377167720385
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "a1",
+    "scenario": "small/sparse",
+    "operation": "M3",
+    "cpuUserMs": {
+      "min": 42.531,
+      "median": 44.957,
+      "max": 47.812,
+      "populationSD": 2.158329137705059
+    },
+    "cpuSystemMs": {
+      "min": 0.351,
+      "median": 0.563,
+      "max": 1.653,
+      "populationSD": 0.5704041452241463
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "a1",
+    "scenario": "small/sparse",
+    "operation": "M4",
+    "cpuUserMs": {
+      "min": 44.619,
+      "median": 46.844,
+      "max": 50.673,
+      "populationSD": 2.500284028310029
+    },
+    "cpuSystemMs": {
+      "min": 0.349,
+      "median": 0.607,
+      "max": 1.68,
+      "populationSD": 0.5763345864648031
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "a1",
+    "scenario": "small/sparse",
+    "operation": "M5",
+    "cpuUserMs": {
+      "min": 77.538,
+      "median": 77.707,
+      "max": 84.797,
+      "populationSD": 3.3827953923739864
+    },
+    "cpuSystemMs": {
+      "min": 0.691,
+      "median": 1.334,
+      "max": 3.785,
+      "populationSD": 1.3330702240400625
+    },
+    "adapterSetupMs": 38.216916
+  },
+  {
+    "label": "a1",
+    "scenario": "small/sparse",
+    "operation": "M6",
+    "cpuUserMs": {
+      "min": 72.773,
+      "median": 74.942,
+      "max": 77.791,
+      "populationSD": 2.0548502513700497
+    },
+    "cpuSystemMs": {
+      "min": 0.615,
+      "median": 0.659,
+      "max": 2.755,
+      "populationSD": 0.9985963482141653
+    },
+    "adapterSetupMs": 40.916166
+  },
+  {
+    "label": "a1",
+    "scenario": "small/dense",
+    "operation": "M1",
+    "cpuUserMs": {
+      "min": 60.51,
+      "median": 61.382,
+      "max": 68.722,
+      "populationSD": 3.682887273141367
+    },
+    "cpuSystemMs": {
+      "min": 0.841,
+      "median": 1.279,
+      "max": 1.574,
+      "populationSD": 0.30113821116261924
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "a1",
+    "scenario": "small/dense",
+    "operation": "M2",
+    "cpuUserMs": {
+      "min": 69.458,
+      "median": 70.014,
+      "max": 72.327,
+      "populationSD": 1.2423215722544987
+    },
+    "cpuSystemMs": {
+      "min": 0.833,
+      "median": 1.63,
+      "max": 2.831,
+      "populationSD": 0.8212195538073577
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "a1",
+    "scenario": "small/dense",
+    "operation": "M3",
+    "cpuUserMs": {
+      "min": 70.302,
+      "median": 72.809,
+      "max": 74.808,
+      "populationSD": 1.8434594893538854
+    },
+    "cpuSystemMs": {
+      "min": 0.781,
+      "median": 1.032,
+      "max": 2.983,
+      "populationSD": 0.9842202779640112
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "a1",
+    "scenario": "small/dense",
+    "operation": "M4",
+    "cpuUserMs": {
+      "min": 75.49,
+      "median": 77.287,
+      "max": 77.966,
+      "populationSD": 1.0446065713410437
+    },
+    "cpuSystemMs": {
+      "min": 0.739,
+      "median": 1.208,
+      "max": 2.157,
+      "populationSD": 0.5898480030199871
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "a1",
+    "scenario": "small/dense",
+    "operation": "M5",
+    "cpuUserMs": {
+      "min": 139.706,
+      "median": 144.183,
+      "max": 150.244,
+      "populationSD": 4.318290479653576
+    },
+    "cpuSystemMs": {
+      "min": 1.185,
+      "median": 2.157,
+      "max": 4.812,
+      "populationSD": 1.5329324838361278
+    },
+    "adapterSetupMs": 67.50833399999999
+  },
+  {
+    "label": "a1",
+    "scenario": "small/dense",
+    "operation": "M6",
+    "cpuUserMs": {
+      "min": 128.119,
+      "median": 138.394,
+      "max": 143.432,
+      "populationSD": 6.372205601063275
+    },
+    "cpuSystemMs": {
+      "min": 1.12,
+      "median": 1.476,
+      "max": 4.255,
+      "populationSD": 1.401499276568569
+    },
+    "adapterSetupMs": 67.09908300000001
+  },
+  {
+    "label": "a1",
+    "scenario": "small/history",
+    "operation": "M1",
+    "cpuUserMs": {
+      "min": 35.448,
+      "median": 36.972,
+      "max": 37.178,
+      "populationSD": 0.7715721324384095
+    },
+    "cpuSystemMs": {
+      "min": 0.383,
+      "median": 0.521,
+      "max": 0.919,
+      "populationSD": 0.22724045023327652
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "a1",
+    "scenario": "small/history",
+    "operation": "M2",
+    "cpuUserMs": {
+      "min": 41.771,
+      "median": 43.254,
+      "max": 46.324,
+      "populationSD": 1.8960191630536498
+    },
+    "cpuSystemMs": {
+      "min": 0.7,
+      "median": 1.041,
+      "max": 1.207,
+      "populationSD": 0.21105186303107798
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "a1",
+    "scenario": "small/history",
+    "operation": "M3",
+    "cpuUserMs": {
+      "min": 43.498,
+      "median": 45.308,
+      "max": 48.129,
+      "populationSD": 1.9055562617426616
+    },
+    "cpuSystemMs": {
+      "min": 0.704,
+      "median": 0.99,
+      "max": 1.337,
+      "populationSD": 0.25882083034837483
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "a1",
+    "scenario": "small/history",
+    "operation": "M4",
+    "cpuUserMs": {
+      "min": 44.206,
+      "median": 45.583,
+      "max": 50.918,
+      "populationSD": 2.894617572130882
+    },
+    "cpuSystemMs": {
+      "min": 0.689,
+      "median": 1.312,
+      "max": 1.449,
+      "populationSD": 0.3307395752955287
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "a1",
+    "scenario": "small/history",
+    "operation": "M5",
+    "cpuUserMs": {
+      "min": 74.668,
+      "median": 75.695,
+      "max": 76.705,
+      "populationSD": 0.8316114210107687
+    },
+    "cpuSystemMs": {
+      "min": 0.61,
+      "median": 0.695,
+      "max": 2.787,
+      "populationSD": 1.0068111375360658
+    },
+    "adapterSetupMs": 35.22070900000001
+  },
+  {
+    "label": "a1",
+    "scenario": "medium/sparse",
+    "operation": "M1",
+    "cpuUserMs": {
+      "min": 477.604,
+      "median": 483.994,
+      "max": 505.766,
+      "populationSD": 12.055198638853797
+    },
+    "cpuSystemMs": {
+      "min": 1.719,
+      "median": 1.896,
+      "max": 1.928,
+      "populationSD": 0.09191421120926953
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "a1",
+    "scenario": "medium/sparse",
+    "operation": "M2",
+    "cpuUserMs": {
+      "min": 575.155,
+      "median": 578.106,
+      "max": 586.392,
+      "populationSD": 4.756707147690428
+    },
+    "cpuSystemMs": {
+      "min": 2.208,
+      "median": 2.273,
+      "max": 2.538,
+      "populationSD": 0.14273129377337745
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "a1",
+    "scenario": "medium/sparse",
+    "operation": "M3",
+    "cpuUserMs": {
+      "min": 709.829,
+      "median": 726.995,
+      "max": 727.708,
+      "populationSD": 8.265312832689547
+    },
+    "cpuSystemMs": {
+      "min": 2.403,
+      "median": 2.687,
+      "max": 3.143,
+      "populationSD": 0.3048117816328991
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "a1",
+    "scenario": "medium/sparse",
+    "operation": "M4",
+    "cpuUserMs": {
+      "min": 742.634,
+      "median": 759.133,
+      "max": 760.729,
+      "populationSD": 8.179875318256533
+    },
+    "cpuSystemMs": {
+      "min": 2.585,
+      "median": 2.652,
+      "max": 3.183,
+      "populationSD": 0.26750991674245556
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "a1",
+    "scenario": "medium/sparse",
+    "operation": "M5",
+    "cpuUserMs": {
+      "min": 1355.693,
+      "median": 1356.988,
+      "max": 1357.197,
+      "populationSD": 0.6652252751261397
+    },
+    "cpuSystemMs": {
+      "min": 5.023,
+      "median": 5.035,
+      "max": 5.478,
+      "populationSD": 0.21171731677456662
+    },
+    "adapterSetupMs": 571.2959999999999
+  },
+  {
+    "label": "a1",
+    "scenario": "medium/sparse",
+    "operation": "M6",
+    "cpuUserMs": {
+      "min": 1341.856,
+      "median": 1360.094,
+      "max": 1364.279,
+      "populationSD": 9.7349872909807
+    },
+    "cpuSystemMs": {
+      "min": 4.5,
+      "median": 4.813,
+      "max": 5.299,
+      "populationSD": 0.3287292029754719
+    },
+    "adapterSetupMs": 586.7390829999999
+  },
+  {
+    "label": "a1",
+    "scenario": "medium/dense",
+    "operation": "M1",
+    "cpuUserMs": {
+      "min": 3089.284,
+      "median": 3101.768,
+      "max": 3103.642,
+      "populationSD": 6.372809392689724
+    },
+    "cpuSystemMs": {
+      "min": 11.713,
+      "median": 13.313,
+      "max": 13.49,
+      "populationSD": 0.7992397776776523
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "a1",
+    "scenario": "medium/dense",
+    "operation": "M2",
+    "cpuUserMs": {
+      "min": 3835.215,
+      "median": 3846.62,
+      "max": 3850.278,
+      "populationSD": 6.4148175517484765
+    },
+    "cpuSystemMs": {
+      "min": 17.211,
+      "median": 19.094,
+      "max": 28.232,
+      "populationSD": 4.813305332328526
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "a1",
+    "scenario": "medium/dense",
+    "operation": "M3",
+    "cpuUserMs": {
+      "min": 4265.67,
+      "median": 4268.297,
+      "max": 4287.751,
+      "populationSD": 9.84846184267725
+    },
+    "cpuSystemMs": {
+      "min": 16.812,
+      "median": 17.555,
+      "max": 22.317,
+      "populationSD": 2.4388913237142993
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "a1",
+    "scenario": "medium/dense",
+    "operation": "M4",
+    "cpuUserMs": {
+      "min": 4559.761,
+      "median": 4567.125,
+      "max": 4574.264,
+      "populationSD": 5.921062460966377
+    },
+    "cpuSystemMs": {
+      "min": 18.012,
+      "median": 18.983,
+      "max": 26.566,
+      "populationSD": 3.8241287460893183
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "a1",
+    "scenario": "medium/dense",
+    "operation": "M5",
+    "cpuUserMs": {
+      "min": 8545.476,
+      "median": 8552.359,
+      "max": 8580.847,
+      "populationSD": 15.311758277727117
+    },
+    "cpuSystemMs": {
+      "min": 36.446,
+      "median": 36.56,
+      "max": 36.885,
+      "populationSD": 0.18599342879670605
+    },
+    "adapterSetupMs": 3525.372291
+  },
+  {
+    "label": "a1",
+    "scenario": "medium/dense",
+    "operation": "M6",
+    "cpuUserMs": {
+      "min": 8286.791,
+      "median": 8294.556,
+      "max": 8415.237,
+      "populationSD": 58.80530390099904
+    },
+    "cpuSystemMs": {
+      "min": 31.447,
+      "median": 33.95,
+      "max": 35.267,
+      "populationSD": 1.5843645063207186
+    },
+    "adapterSetupMs": 3627.388458
+  },
+  {
+    "label": "b",
+    "scenario": "small/sparse",
+    "operation": "M1",
+    "cpuUserMs": {
+      "min": 34.841,
+      "median": 36.353,
+      "max": 38.548,
+      "populationSD": 1.5219146566815838
+    },
+    "cpuSystemMs": {
+      "min": 0.302,
+      "median": 0.662,
+      "max": 1.171,
+      "populationSD": 0.35650183106900807
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "b",
+    "scenario": "small/sparse",
+    "operation": "M2",
+    "cpuUserMs": {
+      "min": 39.655,
+      "median": 41.92,
+      "max": 45.521,
+      "populationSD": 2.4153992538616786
+    },
+    "cpuSystemMs": {
+      "min": 0.405,
+      "median": 0.552,
+      "max": 1.634,
+      "populationSD": 0.5480038523789975
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "b",
+    "scenario": "small/sparse",
+    "operation": "M3",
+    "cpuUserMs": {
+      "min": 41.312,
+      "median": 43.155,
+      "max": 46.746,
+      "populationSD": 2.256356108616035
+    },
+    "cpuSystemMs": {
+      "min": 0.433,
+      "median": 0.596,
+      "max": 1.583,
+      "populationSD": 0.5080723920422714
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "b",
+    "scenario": "small/sparse",
+    "operation": "M4",
+    "cpuUserMs": {
+      "min": 43.749,
+      "median": 45.677,
+      "max": 49.439,
+      "populationSD": 2.362812072275086
+    },
+    "cpuSystemMs": {
+      "min": 0.29,
+      "median": 0.46,
+      "max": 1.692,
+      "populationSD": 0.6247068645906387
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "b",
+    "scenario": "small/sparse",
+    "operation": "M5",
+    "cpuUserMs": {
+      "min": 74.792,
+      "median": 75.4,
+      "max": 78.285,
+      "populationSD": 1.5236629111016182
+    },
+    "cpuSystemMs": {
+      "min": 0.643,
+      "median": 0.698,
+      "max": 2.726,
+      "populationSD": 0.9692321130095148
+    },
+    "adapterSetupMs": 37.252584
+  },
+  {
+    "label": "b",
+    "scenario": "small/sparse",
+    "operation": "M6",
+    "cpuUserMs": {
+      "min": 72.632,
+      "median": 74.693,
+      "max": 77.699,
+      "populationSD": 2.080551369228837
+    },
+    "cpuSystemMs": {
+      "min": 0.626,
+      "median": 0.634,
+      "max": 2.601,
+      "populationSD": 0.9291440505468819
+    },
+    "adapterSetupMs": 38.09079100000001
+  },
+  {
+    "label": "b",
+    "scenario": "small/dense",
+    "operation": "M1",
+    "cpuUserMs": {
+      "min": 58.095,
+      "median": 58.917,
+      "max": 66.816,
+      "populationSD": 3.9317189624895637
+    },
+    "cpuSystemMs": {
+      "min": 0.423,
+      "median": 0.52,
+      "max": 1.868,
+      "populationSD": 0.6595063810659202
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "b",
+    "scenario": "small/dense",
+    "operation": "M2",
+    "cpuUserMs": {
+      "min": 67.335,
+      "median": 69.013,
+      "max": 70.797,
+      "populationSD": 1.4135763941938992
+    },
+    "cpuSystemMs": {
+      "min": 0.634,
+      "median": 0.7,
+      "max": 2.901,
+      "populationSD": 1.0534623338728768
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "b",
+    "scenario": "small/dense",
+    "operation": "M3",
+    "cpuUserMs": {
+      "min": 70.028,
+      "median": 73.315,
+      "max": 73.803,
+      "populationSD": 1.6764094567457717
+    },
+    "cpuSystemMs": {
+      "min": 0.712,
+      "median": 0.978,
+      "max": 2.956,
+      "populationSD": 1.0010425676374717
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "b",
+    "scenario": "small/dense",
+    "operation": "M4",
+    "cpuUserMs": {
+      "min": 76.074,
+      "median": 76.692,
+      "max": 77.562,
+      "populationSD": 0.6103703793599424
+    },
+    "cpuSystemMs": {
+      "min": 1.135,
+      "median": 1.331,
+      "max": 1.889,
+      "populationSD": 0.31942587385634386
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "b",
+    "scenario": "small/dense",
+    "operation": "M5",
+    "cpuUserMs": {
+      "min": 128.739,
+      "median": 146.467,
+      "max": 149.095,
+      "populationSD": 9.040373050316502
+    },
+    "cpuSystemMs": {
+      "min": 0.811,
+      "median": 1.243,
+      "max": 1.684,
+      "populationSD": 0.35640707063693333
+    },
+    "adapterSetupMs": 65.221
+  },
+  {
+    "label": "b",
+    "scenario": "small/dense",
+    "operation": "M6",
+    "cpuUserMs": {
+      "min": 123.586,
+      "median": 129.376,
+      "max": 138.836,
+      "populationSD": 6.285593757863211
+    },
+    "cpuSystemMs": {
+      "min": 0.774,
+      "median": 0.948,
+      "max": 1.232,
+      "populationSD": 0.18876675790214995
+    },
+    "adapterSetupMs": 64.651542
+  },
+  {
+    "label": "b",
+    "scenario": "small/history",
+    "operation": "M1",
+    "cpuUserMs": {
+      "min": 34.54,
+      "median": 36.394,
+      "max": 36.439,
+      "populationSD": 0.8847813289169252
+    },
+    "cpuSystemMs": {
+      "min": 0.414,
+      "median": 0.514,
+      "max": 1.358,
+      "populationSD": 0.42340839229598026
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "b",
+    "scenario": "small/history",
+    "operation": "M2",
+    "cpuUserMs": {
+      "min": 39.065,
+      "median": 41.891,
+      "max": 45.48,
+      "populationSD": 2.62508035855836
+    },
+    "cpuSystemMs": {
+      "min": 0.59,
+      "median": 0.986,
+      "max": 1.478,
+      "populationSD": 0.36322995471188774
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "b",
+    "scenario": "small/history",
+    "operation": "M3",
+    "cpuUserMs": {
+      "min": 41.219,
+      "median": 44.877,
+      "max": 48.23,
+      "populationSD": 2.8631314247787416
+    },
+    "cpuSystemMs": {
+      "min": 0.716,
+      "median": 0.869,
+      "max": 1.287,
+      "populationSD": 0.2413328729277376
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "b",
+    "scenario": "small/history",
+    "operation": "M4",
+    "cpuUserMs": {
+      "min": 43.546,
+      "median": 45.114,
+      "max": 49.017,
+      "populationSD": 2.300335096362172
+    },
+    "cpuSystemMs": {
+      "min": 0.368,
+      "median": 0.655,
+      "max": 1.461,
+      "populationSD": 0.4626798749315413
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "b",
+    "scenario": "small/history",
+    "operation": "M5",
+    "cpuUserMs": {
+      "min": 71.549,
+      "median": 73.874,
+      "max": 73.961,
+      "populationSD": 1.117086388781096
+    },
+    "cpuSystemMs": {
+      "min": 0.549,
+      "median": 0.677,
+      "max": 2.799,
+      "populationSD": 1.0318143674561275
+    },
+    "adapterSetupMs": 36.608416999999996
+  },
+  {
+    "label": "b",
+    "scenario": "medium/sparse",
+    "operation": "M1",
+    "cpuUserMs": {
+      "min": 467.084,
+      "median": 480.496,
+      "max": 484.056,
+      "populationSD": 7.307561745662265
+    },
+    "cpuSystemMs": {
+      "min": 1.8,
+      "median": 1.814,
+      "max": 3.543,
+      "populationSD": 0.818378206509001
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "b",
+    "scenario": "medium/sparse",
+    "operation": "M2",
+    "cpuUserMs": {
+      "min": 553.929,
+      "median": 563.91,
+      "max": 564.194,
+      "populationSD": 4.773436241907449
+    },
+    "cpuSystemMs": {
+      "min": 2.571,
+      "median": 2.644,
+      "max": 3.136,
+      "populationSD": 0.2509134423572311
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "b",
+    "scenario": "medium/sparse",
+    "operation": "M3",
+    "cpuUserMs": {
+      "min": 690.213,
+      "median": 690.762,
+      "max": 714.335,
+      "populationSD": 11.24405331225754
+    },
+    "cpuSystemMs": {
+      "min": 2.59,
+      "median": 2.94,
+      "max": 3.224,
+      "populationSD": 0.25929648410008715
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "b",
+    "scenario": "medium/sparse",
+    "operation": "M4",
+    "cpuUserMs": {
+      "min": 734.276,
+      "median": 736.89,
+      "max": 752.837,
+      "populationSD": 8.203322673702958
+    },
+    "cpuSystemMs": {
+      "min": 2.913,
+      "median": 3.14,
+      "max": 3.237,
+      "populationSD": 0.13577514090911091
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "b",
+    "scenario": "medium/sparse",
+    "operation": "M5",
+    "cpuUserMs": {
+      "min": 1349.352,
+      "median": 1365.029,
+      "max": 1370.747,
+      "populationSD": 9.044395919880733
+    },
+    "cpuSystemMs": {
+      "min": 5.137,
+      "median": 5.423,
+      "max": 7.044,
+      "populationSD": 0.8397146340672327
+    },
+    "adapterSetupMs": 572.200417
+  },
+  {
+    "label": "b",
+    "scenario": "medium/sparse",
+    "operation": "M6",
+    "cpuUserMs": {
+      "min": 1307.501,
+      "median": 1314.374,
+      "max": 1336.854,
+      "populationSD": 12.535226532545106
+    },
+    "cpuSystemMs": {
+      "min": 4.688,
+      "median": 4.719,
+      "max": 5.069,
+      "populationSD": 0.17276252165585243
+    },
+    "adapterSetupMs": 562.203
+  },
+  {
+    "label": "b",
+    "scenario": "medium/dense",
+    "operation": "M1",
+    "cpuUserMs": {
+      "min": 3006.011,
+      "median": 3012.563,
+      "max": 3023.489,
+      "populationSD": 7.2094587868993525
+    },
+    "cpuSystemMs": {
+      "min": 11.729,
+      "median": 12.836,
+      "max": 14.507,
+      "populationSD": 1.1418782772257297
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "b",
+    "scenario": "medium/dense",
+    "operation": "M2",
+    "cpuUserMs": {
+      "min": 3637.161,
+      "median": 3682.756,
+      "max": 3702.184,
+      "populationSD": 27.252607903750366
+    },
+    "cpuSystemMs": {
+      "min": 15.626,
+      "median": 15.812,
+      "max": 18.223,
+      "populationSD": 1.1828367972331975
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "b",
+    "scenario": "medium/dense",
+    "operation": "M3",
+    "cpuUserMs": {
+      "min": 4140.597,
+      "median": 4143.662,
+      "max": 4154.429,
+      "populationSD": 5.931523488016367
+    },
+    "cpuSystemMs": {
+      "min": 15.556,
+      "median": 16.019,
+      "max": 17.606,
+      "populationSD": 0.8778406587884982
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "b",
+    "scenario": "medium/dense",
+    "operation": "M4",
+    "cpuUserMs": {
+      "min": 4443.408,
+      "median": 4454.313,
+      "max": 4459.215,
+      "populationSD": 6.606477276128231
+    },
+    "cpuSystemMs": {
+      "min": 16.914,
+      "median": 17.606,
+      "max": 19.619,
+      "populationSD": 1.147366937334734
+    },
+    "adapterSetupMs": null
+  },
+  {
+    "label": "b",
+    "scenario": "medium/dense",
+    "operation": "M5",
+    "cpuUserMs": {
+      "min": 8422.284,
+      "median": 8431.77,
+      "max": 8449.947,
+      "populationSD": 11.477655074099554
+    },
+    "cpuSystemMs": {
+      "min": 34.9,
+      "median": 35.029,
+      "max": 38.525,
+      "populationSD": 1.6792618087190034
+    },
+    "adapterSetupMs": 3421.719708
+  },
+  {
+    "label": "b",
+    "scenario": "medium/dense",
+    "operation": "M6",
+    "cpuUserMs": {
+      "min": 8052.67,
+      "median": 8058.859,
+      "max": 8080.219,
+      "populationSD": 11.801604043518777
+    },
+    "cpuSystemMs": {
+      "min": 29.862,
+      "median": 30.161,
+      "max": 31.008,
+      "populationSD": 0.4853550819302869
+    },
+    "adapterSetupMs": 3412.290167
+  }
+]

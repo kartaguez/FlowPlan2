@@ -1,5 +1,29 @@
 # FlowPlan2 V2 — R1.2 : graphe versionné et validation structurelle
 
+## Addendum R1.2-PERF-P3-B — 2026-10-11
+
+B2 avec acquisition B1 livré sur autorisation utilisateur, baseline exacte
+`6b1d65f15f6479b14be721417a5a9bc036257d36`. Seul fichier production modifié :
+`domain/portfolio/payloadValidation.ts`. L'orchestrateur privé reçoit l'entrée
+unknown ; branche autonome : copie complète ; branche version : inspection/ref
+puis enveloppe complète, diagnostics immédiatement propagés. La sortie acquise
+est capturée par const ; un checker lexical sans paramètres reprend textuellement
+les 14 schémas. Invocation immédiate ; retour de la copie autonome ou de
+l'enveloppe initiale, sans relire le payload source. Aucun export privilégié,
+callback/await, brand, cache ou type faisant autorité sur la provenance.
+Les deux assertions terminales de types dépendants préexistantes sont conservées.
+
+245 tests PASS dont 32 nouveaux ; ciblés R1.1 51 / R1.2 155 PASS ; G12-01–13,
+P0/P1/P2/A1 restent couverts. Oracle A1 réel isolé : 1 288 réponses historiques
+rejouées puis 971 extensions scellées avant production ; **2 259 réponses,
+zéro divergence**. Audit source/JS et exports runtime PASS ; schémas uniques,
+gel/détachement et frontières conservés. Deux registres et certification opaque
+inchangés. Frontières/typecheck/build PASS.
+[Rapport et preuves contemporaines A1/B](./proofs/r12-perf-p3-b/report.md).
+Conformité technique PASS ; performance globale **C** : le gain local ne démontre
+pas l'acceptabilité globale. **R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED**.
+Aucun commencement P3-C ; audit indépendant nécessaire avant clôture.
+
 **R1.2 — IN REVIEW**, 2026-10-11. Implémentation autorisée explicitement par
 l'utilisateur après audit favorable du PLAN corrigé B1–B4. Baseline obligatoire
 `4f4691d899206868160cc27eec62a50984a21dc4`, branche

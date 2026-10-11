@@ -1,0 +1,809 @@
+{
+  "limitations": "Inclusive categories overlap and must not be added. Wrapper attribution changes with lexical routing; compare checker/orchestrator in B to old payload function with care. JIT/inlining/sampling affect frames. Whole-operation differences are not exclusive copy timings.",
+  "profiles": [
+    {
+      "label": "a1",
+      "path": "/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-b/a1-profile/medium-dense-M1.cpuprofile",
+      "sampledMs": 2840.875,
+      "categories": {
+        "copyImmutableValue": {
+          "selfSampledMs": 435.624,
+          "selfPercent": 15.334148809785717,
+          "inclusiveSampledMs": 1351.333,
+          "inclusivePercent": 47.567492409908915
+        },
+        "dataRecord": {
+          "selfSampledMs": 1678.962,
+          "selfPercent": 59.10017160205923,
+          "inclusiveSampledMs": 1722.417,
+          "inclusivePercent": 60.62980595767149
+        },
+        "createVersionEnvelope": {
+          "selfSampledMs": 28.542,
+          "selfPercent": 1.0046904562854755,
+          "inclusiveSampledMs": 977.051,
+          "inclusivePercent": 34.39260791129494
+        },
+        "validateBusinessPayload": {
+          "selfSampledMs": 3,
+          "selfPercent": 0.10560126721520659,
+          "inclusiveSampledMs": 232.501,
+          "inclusivePercent": 8.184133409600914
+        },
+        "createBusinessVersion": {
+          "selfSampledMs": 3.042,
+          "selfPercent": 0.10707968495621949,
+          "inclusiveSampledMs": 928.418,
+          "inclusivePercent": 32.680705768469224
+        },
+        "acquireAndValidate": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 0,
+          "inclusivePercent": 0
+        },
+        "checkBusinessSchema": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 0,
+          "inclusivePercent": 0
+        },
+        "createVersionRegistry": {
+          "selfSampledMs": 19.33,
+          "selfPercent": 0.680424165089981,
+          "inclusiveSampledMs": 2670.001,
+          "inclusivePercent": 93.98516302195627
+        },
+        "validateVersionContext": {
+          "selfSampledMs": 6.457,
+          "selfPercent": 0.22728912746952964,
+          "inclusiveSampledMs": 1204.418,
+          "inclusivePercent": 42.396022352268226
+        },
+        "GC": {
+          "selfSampledMs": 95.206,
+          "selfPercent": 3.351291415496986,
+          "inclusiveSampledMs": 95.206,
+          "inclusivePercent": 3.351291415496986
+        }
+      }
+    },
+    {
+      "label": "a1",
+      "path": "/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-b/a1-profile/medium-dense-M3.cpuprofile",
+      "sampledMs": 3841.541,
+      "categories": {
+        "copyImmutableValue": {
+          "selfSampledMs": 486.626,
+          "selfPercent": 12.667468601792875,
+          "inclusiveSampledMs": 1461.623,
+          "inclusivePercent": 38.047830284773745
+        },
+        "dataRecord": {
+          "selfSampledMs": 1862.578,
+          "selfPercent": 48.48517821363875,
+          "inclusiveSampledMs": 1930.747,
+          "inclusivePercent": 50.259700469160684
+        },
+        "createVersionEnvelope": {
+          "selfSampledMs": 24.082,
+          "selfPercent": 0.6268838468729085,
+          "inclusiveSampledMs": 980.166,
+          "inclusivePercent": 25.514917060627496
+        },
+        "validateBusinessPayload": {
+          "selfSampledMs": 3.042,
+          "selfPercent": 0.07918697210312216,
+          "inclusiveSampledMs": 222.459,
+          "inclusivePercent": 5.790879233099425
+        },
+        "createBusinessVersion": {
+          "selfSampledMs": 6,
+          "selfPercent": 0.1561873217024106,
+          "inclusiveSampledMs": 935.96,
+          "inclusivePercent": 24.364180936764697
+        },
+        "acquireAndValidate": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 0,
+          "inclusivePercent": 0
+        },
+        "checkBusinessSchema": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 0,
+          "inclusivePercent": 0
+        },
+        "createVersionRegistry": {
+          "selfSampledMs": 11.916,
+          "selfPercent": 0.3101880209009874,
+          "inclusiveSampledMs": 2673.125,
+          "inclusivePercent": 69.58470572095938
+        },
+        "validateVersionContext": {
+          "selfSampledMs": 12.001,
+          "selfPercent": 0.31240067462510485,
+          "inclusiveSampledMs": 1209.665,
+          "inclusivePercent": 31.489056084524414
+        },
+        "GC": {
+          "selfSampledMs": 135.542,
+          "selfPercent": 3.5283236596980223,
+          "inclusiveSampledMs": 135.542,
+          "inclusivePercent": 3.5283236596980223
+        }
+      }
+    },
+    {
+      "label": "a1",
+      "path": "/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-b/a1-profile/medium-dense-M5.cpuprofile",
+      "sampledMs": 7639.917,
+      "categories": {
+        "copyImmutableValue": {
+          "selfSampledMs": 983.615,
+          "selfPercent": 12.874681753741566,
+          "inclusiveSampledMs": 3125.752,
+          "inclusivePercent": 40.91342877154294
+        },
+        "dataRecord": {
+          "selfSampledMs": 4166.345,
+          "selfPercent": 54.53390396780489,
+          "inclusiveSampledMs": 4283.431,
+          "inclusivePercent": 56.0664598843155
+        },
+        "createVersionEnvelope": {
+          "selfSampledMs": 30.082,
+          "selfPercent": 0.3937477331232787,
+          "inclusiveSampledMs": 2040.37,
+          "inclusivePercent": 26.70670375083918
+        },
+        "validateBusinessPayload": {
+          "selfSampledMs": 4.5,
+          "selfPercent": 0.058901163455048006,
+          "inclusiveSampledMs": 418.375,
+          "inclusivePercent": 5.476172057890158
+        },
+        "createBusinessVersion": {
+          "selfSampledMs": 13.583,
+          "selfPercent": 0.1777898896022038,
+          "inclusiveSampledMs": 1868.415,
+          "inclusivePercent": 24.45595940374745
+        },
+        "acquireAndValidate": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 0,
+          "inclusivePercent": 0
+        },
+        "checkBusinessSchema": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 0,
+          "inclusivePercent": 0
+        },
+        "createVersionRegistry": {
+          "selfSampledMs": 27.918,
+          "selfPercent": 0.36542281807511784,
+          "inclusiveSampledMs": 5387.501,
+          "inclusivePercent": 70.51779489227435
+        },
+        "validateVersionContext": {
+          "selfSampledMs": 24,
+          "selfPercent": 0.3141395384269227,
+          "inclusiveSampledMs": 2454.958,
+          "inclusivePercent": 32.133307207395056
+        },
+        "GC": {
+          "selfSampledMs": 341.709,
+          "selfPercent": 4.472679480680222,
+          "inclusiveSampledMs": 341.709,
+          "inclusivePercent": 4.472679480680222
+        }
+      }
+    },
+    {
+      "label": "a1",
+      "path": "/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-b/a1-profile/medium-sparse-M1.cpuprofile",
+      "sampledMs": 454.584,
+      "categories": {
+        "copyImmutableValue": {
+          "selfSampledMs": 60.334,
+          "selfPercent": 13.272354504338033,
+          "inclusiveSampledMs": 207.835,
+          "inclusivePercent": 45.71982295901307
+        },
+        "dataRecord": {
+          "selfSampledMs": 268.96,
+          "selfPercent": 59.16618270770638,
+          "inclusiveSampledMs": 278.001,
+          "inclusivePercent": 61.1550340531123
+        },
+        "createVersionEnvelope": {
+          "selfSampledMs": 6.083,
+          "selfPercent": 1.3381465251746651,
+          "inclusiveSampledMs": 143.29,
+          "inclusivePercent": 31.521127008429684
+        },
+        "validateBusinessPayload": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 41.541,
+          "inclusivePercent": 9.138245076817487
+        },
+        "createBusinessVersion": {
+          "selfSampledMs": 3,
+          "selfPercent": 0.659944036745684,
+          "inclusiveSampledMs": 155.833,
+          "inclusivePercent": 34.28035302606339
+        },
+        "acquireAndValidate": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 0,
+          "inclusivePercent": 0
+        },
+        "checkBusinessSchema": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 0,
+          "inclusivePercent": 0
+        },
+        "createVersionRegistry": {
+          "selfSampledMs": 5.792,
+          "selfPercent": 1.2741319536103337,
+          "inclusiveSampledMs": 416.085,
+          "inclusivePercent": 91.53093817644263
+        },
+        "validateVersionContext": {
+          "selfSampledMs": 1.417,
+          "selfPercent": 0.31171356668954475,
+          "inclusiveSampledMs": 178.917,
+          "inclusivePercent": 39.35840240747584
+        },
+        "GC": {
+          "selfSampledMs": 18.124,
+          "selfPercent": 3.986941907326259,
+          "inclusiveSampledMs": 18.124,
+          "inclusivePercent": 3.986941907326259
+        }
+      }
+    },
+    {
+      "label": "a1",
+      "path": "/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-b/a1-profile/medium-sparse-M3.cpuprofile",
+      "sampledMs": 654.417,
+      "categories": {
+        "copyImmutableValue": {
+          "selfSampledMs": 83.043,
+          "selfPercent": 12.689615337009888,
+          "inclusiveSampledMs": 241.79,
+          "inclusivePercent": 36.94738981413991
+        },
+        "dataRecord": {
+          "selfSampledMs": 297.414,
+          "selfPercent": 45.44716900691761,
+          "inclusiveSampledMs": 303.372,
+          "inclusivePercent": 46.357597678544415
+        },
+        "createVersionEnvelope": {
+          "selfSampledMs": 3,
+          "selfPercent": 0.45842329890574357,
+          "inclusiveSampledMs": 144.544,
+          "inclusivePercent": 22.087445772343933
+        },
+        "validateBusinessPayload": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 54.123,
+          "inclusivePercent": 8.270414735558521
+        },
+        "createBusinessVersion": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 148.958,
+          "inclusivePercent": 22.761939252800584
+        },
+        "acquireAndValidate": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 0,
+          "inclusivePercent": 0
+        },
+        "checkBusinessSchema": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 0,
+          "inclusivePercent": 0
+        },
+        "createVersionRegistry": {
+          "selfSampledMs": 4.417,
+          "selfPercent": 0.6749519037555565,
+          "inclusiveSampledMs": 419.041,
+          "inclusivePercent": 64.03271919892056
+        },
+        "validateVersionContext": {
+          "selfSampledMs": 1.5,
+          "selfPercent": 0.22921164945287179,
+          "inclusiveSampledMs": 186.416,
+          "inclusivePercent": 28.485812562937703
+        },
+        "GC": {
+          "selfSampledMs": 12.416,
+          "selfPercent": 1.897261226404571,
+          "inclusiveSampledMs": 12.416,
+          "inclusivePercent": 1.897261226404571
+        }
+      }
+    },
+    {
+      "label": "a1",
+      "path": "/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-b/a1-profile/medium-sparse-M5.cpuprofile",
+      "sampledMs": 1259.625,
+      "categories": {
+        "copyImmutableValue": {
+          "selfSampledMs": 127.458,
+          "selfPercent": 10.11872581125335,
+          "inclusiveSampledMs": 485.712,
+          "inclusivePercent": 38.56004763322417
+        },
+        "dataRecord": {
+          "selfSampledMs": 680.419,
+          "selfPercent": 54.01758459859085,
+          "inclusiveSampledMs": 701.544,
+          "inclusivePercent": 55.69467103304555
+        },
+        "createVersionEnvelope": {
+          "selfSampledMs": 7.25,
+          "selfPercent": 0.575568125434157,
+          "inclusiveSampledMs": 306.875,
+          "inclusivePercent": 24.362409447256127
+        },
+        "validateBusinessPayload": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 97.666,
+          "inclusivePercent": 7.753577453607225
+        },
+        "createBusinessVersion": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 320.499,
+          "inclusivePercent": 25.444001190830605
+        },
+        "acquireAndValidate": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 0,
+          "inclusivePercent": 0
+        },
+        "checkBusinessSchema": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 0,
+          "inclusivePercent": 0
+        },
+        "createVersionRegistry": {
+          "selfSampledMs": 5.25,
+          "selfPercent": 0.4167907115212861,
+          "inclusiveSampledMs": 848.125,
+          "inclusivePercent": 67.33154708742681
+        },
+        "validateVersionContext": {
+          "selfSampledMs": 1.709,
+          "selfPercent": 0.13567530018854818,
+          "inclusiveSampledMs": 364.585,
+          "inclusivePercent": 28.94393172571202
+        },
+        "GC": {
+          "selfSampledMs": 43.5,
+          "selfPercent": 3.4534087526049415,
+          "inclusiveSampledMs": 43.5,
+          "inclusivePercent": 3.4534087526049415
+        }
+      }
+    },
+    {
+      "label": "b",
+      "path": "/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-b/b-profile/medium-dense-M1.cpuprofile",
+      "sampledMs": 2714.5,
+      "categories": {
+        "copyImmutableValue": {
+          "selfSampledMs": 384.547,
+          "selfPercent": 14.166402652422178,
+          "inclusiveSampledMs": 1233.379,
+          "inclusivePercent": 45.43669184011789
+        },
+        "dataRecord": {
+          "selfSampledMs": 1621.041,
+          "selfPercent": 59.717848590900715,
+          "inclusiveSampledMs": 1665.583,
+          "inclusivePercent": 61.358740099465834
+        },
+        "createVersionEnvelope": {
+          "selfSampledMs": 27.251,
+          "selfPercent": 1.0039049548719838,
+          "inclusiveSampledMs": 972.837,
+          "inclusivePercent": 35.838533799963166
+        },
+        "validateBusinessPayload": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 0,
+          "inclusivePercent": 0
+        },
+        "createBusinessVersion": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 820.75,
+          "inclusivePercent": 30.23577086019525
+        },
+        "acquireAndValidate": {
+          "selfSampledMs": 3,
+          "selfPercent": 0.11051759071652237,
+          "inclusiveSampledMs": 820.75,
+          "inclusivePercent": 30.23577086019525
+        },
+        "checkBusinessSchema": {
+          "selfSampledMs": 6.042,
+          "selfPercent": 0.22258242770307607,
+          "inclusiveSampledMs": 135.877,
+          "inclusivePercent": 5.005599557929638
+        },
+        "createVersionRegistry": {
+          "selfSampledMs": 7.958,
+          "selfPercent": 0.29316632897402833,
+          "inclusiveSampledMs": 2538.544,
+          "inclusivePercent": 93.51792226929453
+        },
+        "validateVersionContext": {
+          "selfSampledMs": 15.25,
+          "selfPercent": 0.5617977528089888,
+          "inclusiveSampledMs": 1200.586,
+          "inclusivePercent": 44.22862405599558
+        },
+        "GC": {
+          "selfSampledMs": 89.835,
+          "selfPercent": 3.309449254006263,
+          "inclusiveSampledMs": 89.835,
+          "inclusivePercent": 3.309449254006263
+        }
+      }
+    },
+    {
+      "label": "b",
+      "path": "/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-b/b-profile/medium-dense-M3.cpuprofile",
+      "sampledMs": 3740.208,
+      "categories": {
+        "copyImmutableValue": {
+          "selfSampledMs": 411.001,
+          "selfPercent": 10.988720413410164,
+          "inclusiveSampledMs": 1350.333,
+          "inclusivePercent": 36.10315255194364
+        },
+        "dataRecord": {
+          "selfSampledMs": 1896.412,
+          "selfPercent": 50.70338334124733,
+          "inclusiveSampledMs": 1953.204,
+          "inclusivePercent": 52.22180156825503
+        },
+        "createVersionEnvelope": {
+          "selfSampledMs": 25.625,
+          "selfPercent": 0.6851223247477145,
+          "inclusiveSampledMs": 960.079,
+          "inclusivePercent": 25.66913390913019
+        },
+        "validateBusinessPayload": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 0,
+          "inclusivePercent": 0
+        },
+        "createBusinessVersion": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 832.792,
+          "inclusivePercent": 22.265927456440927
+        },
+        "acquireAndValidate": {
+          "selfSampledMs": 1.25,
+          "selfPercent": 0.03342060120720559,
+          "inclusiveSampledMs": 832.792,
+          "inclusivePercent": 22.265927456440927
+        },
+        "checkBusinessSchema": {
+          "selfSampledMs": 1.5,
+          "selfPercent": 0.040104721448646706,
+          "inclusiveSampledMs": 121.331,
+          "inclusivePercent": 3.2439639720571694
+        },
+        "createVersionRegistry": {
+          "selfSampledMs": 7.709,
+          "selfPercent": 0.2061115317650783,
+          "inclusiveSampledMs": 2550.622,
+          "inclusivePercent": 68.19465655386011
+        },
+        "validateVersionContext": {
+          "selfSampledMs": 16.373,
+          "selfPercent": 0.4377564028524617,
+          "inclusiveSampledMs": 1195.874,
+          "inclusivePercent": 31.97346243845262
+        },
+        "GC": {
+          "selfSampledMs": 152.836,
+          "selfPercent": 4.086296804883579,
+          "inclusiveSampledMs": 152.836,
+          "inclusivePercent": 4.086296804883579
+        }
+      }
+    },
+    {
+      "label": "b",
+      "path": "/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-b/b-profile/medium-dense-M5.cpuprofile",
+      "sampledMs": 7327.5,
+      "categories": {
+        "copyImmutableValue": {
+          "selfSampledMs": 955.214,
+          "selfPercent": 13.036015011941318,
+          "inclusiveSampledMs": 2862.412,
+          "inclusivePercent": 39.063964517229614
+        },
+        "dataRecord": {
+          "selfSampledMs": 3817.486,
+          "selfPercent": 52.09806891845786,
+          "inclusiveSampledMs": 3939.194,
+          "inclusivePercent": 53.759044694643464
+        },
+        "createVersionEnvelope": {
+          "selfSampledMs": 43.751,
+          "selfPercent": 0.5970794950528829,
+          "inclusiveSampledMs": 1932.874,
+          "inclusivePercent": 26.37835551006483
+        },
+        "validateBusinessPayload": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 0,
+          "inclusivePercent": 0
+        },
+        "createBusinessVersion": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 1632.667,
+          "inclusivePercent": 22.281364721937905
+        },
+        "acquireAndValidate": {
+          "selfSampledMs": 1.5,
+          "selfPercent": 0.020470829068577275,
+          "inclusiveSampledMs": 1632.667,
+          "inclusivePercent": 22.281364721937905
+        },
+        "checkBusinessSchema": {
+          "selfSampledMs": 4.5,
+          "selfPercent": 0.061412487205731836,
+          "inclusiveSampledMs": 241.84,
+          "inclusivePercent": 3.300443534629819
+        },
+        "createVersionRegistry": {
+          "selfSampledMs": 22.001,
+          "selfPercent": 0.3002524735585124,
+          "inclusiveSampledMs": 5074.663,
+          "inclusivePercent": 69.25503923575572
+        },
+        "validateVersionContext": {
+          "selfSampledMs": 24.039,
+          "selfPercent": 0.3280655066530194,
+          "inclusiveSampledMs": 2413.663,
+          "inclusivePercent": 32.93978846809962
+        },
+        "GC": {
+          "selfSampledMs": 349.295,
+          "selfPercent": 4.7669054930058,
+          "inclusiveSampledMs": 349.295,
+          "inclusivePercent": 4.7669054930058
+        }
+      }
+    },
+    {
+      "label": "b",
+      "path": "/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-b/b-profile/medium-sparse-M1.cpuprofile",
+      "sampledMs": 439.375,
+      "categories": {
+        "copyImmutableValue": {
+          "selfSampledMs": 73.666,
+          "selfPercent": 16.766088193456614,
+          "inclusiveSampledMs": 196.789,
+          "inclusivePercent": 44.788392603129445
+        },
+        "dataRecord": {
+          "selfSampledMs": 241.04,
+          "selfPercent": 54.8597439544808,
+          "inclusiveSampledMs": 247.04,
+          "inclusivePercent": 56.22532005689901
+        },
+        "createVersionEnvelope": {
+          "selfSampledMs": 3.041,
+          "selfPercent": 0.6921194879089616,
+          "inclusiveSampledMs": 153.081,
+          "inclusivePercent": 34.84062588904694
+        },
+        "validateBusinessPayload": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 0,
+          "inclusivePercent": 0
+        },
+        "createBusinessVersion": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 134.541,
+          "inclusivePercent": 30.62099573257468
+        },
+        "acquireAndValidate": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 134.541,
+          "inclusivePercent": 30.62099573257468
+        },
+        "checkBusinessSchema": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 22.583,
+          "inclusivePercent": 5.139800853485064
+        },
+        "createVersionRegistry": {
+          "selfSampledMs": 2.042,
+          "selfPercent": 0.46475106685633,
+          "inclusiveSampledMs": 407.208,
+          "inclusivePercent": 92.67891891891892
+        },
+        "validateVersionContext": {
+          "selfSampledMs": 1.126,
+          "selfPercent": 0.2562731152204836,
+          "inclusiveSampledMs": 189.209,
+          "inclusivePercent": 43.06321479374111
+        },
+        "GC": {
+          "selfSampledMs": 12.126,
+          "selfPercent": 2.7598293029871974,
+          "inclusiveSampledMs": 12.126,
+          "inclusivePercent": 2.7598293029871974
+        }
+      }
+    },
+    {
+      "label": "b",
+      "path": "/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-b/b-profile/medium-sparse-M3.cpuprofile",
+      "sampledMs": 650.292,
+      "categories": {
+        "copyImmutableValue": {
+          "selfSampledMs": 73.665,
+          "selfPercent": 11.327988042294844,
+          "inclusiveSampledMs": 213.709,
+          "inclusivePercent": 32.86354437698757
+        },
+        "dataRecord": {
+          "selfSampledMs": 288.044,
+          "selfPercent": 44.29456305782633,
+          "inclusiveSampledMs": 297.002,
+          "inclusivePercent": 45.67209807286573
+        },
+        "createVersionEnvelope": {
+          "selfSampledMs": 4.5,
+          "selfPercent": 0.6919968260412246,
+          "inclusiveSampledMs": 155.041,
+          "inclusivePercent": 23.841751090279445
+        },
+        "validateBusinessPayload": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 0,
+          "inclusivePercent": 0
+        },
+        "createBusinessVersion": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 133.708,
+          "inclusivePercent": 20.56122480362668
+        },
+        "acquireAndValidate": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 133.708,
+          "inclusivePercent": 20.56122480362668
+        },
+        "checkBusinessSchema": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 34.374,
+          "inclusivePercent": 5.285933088520234
+        },
+        "createVersionRegistry": {
+          "selfSampledMs": 1.542,
+          "selfPercent": 0.2371242457234596,
+          "inclusiveSampledMs": 400.916,
+          "inclusivePercent": 61.65168877980969
+        },
+        "validateVersionContext": {
+          "selfSampledMs": 1.5,
+          "selfPercent": 0.2306656086804082,
+          "inclusiveSampledMs": 186.374,
+          "inclusivePercent": 28.660048101468266
+        },
+        "GC": {
+          "selfSampledMs": 20.084,
+          "selfPercent": 3.088458723158212,
+          "inclusiveSampledMs": 20.084,
+          "inclusivePercent": 3.088458723158212
+        }
+      }
+    },
+    {
+      "label": "b",
+      "path": "/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-b/b-profile/medium-sparse-M5.cpuprofile",
+      "sampledMs": 1198.334,
+      "categories": {
+        "copyImmutableValue": {
+          "selfSampledMs": 136.415,
+          "selfPercent": 11.383721066080074,
+          "inclusiveSampledMs": 444.501,
+          "inclusivePercent": 37.09324779235171
+        },
+        "dataRecord": {
+          "selfSampledMs": 616.959,
+          "selfPercent": 51.484727963990004,
+          "inclusiveSampledMs": 633.458,
+          "inclusivePercent": 52.861556127089784
+        },
+        "createVersionEnvelope": {
+          "selfSampledMs": 1.5,
+          "selfPercent": 0.12517378293530854,
+          "inclusiveSampledMs": 280.039,
+          "inclusivePercent": 23.369027332947244
+        },
+        "validateBusinessPayload": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 0,
+          "inclusivePercent": 0
+        },
+        "createBusinessVersion": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 277.667,
+          "inclusivePercent": 23.171085857532205
+        },
+        "acquireAndValidate": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 277.667,
+          "inclusivePercent": 23.171085857532205
+        },
+        "checkBusinessSchema": {
+          "selfSampledMs": 2.958,
+          "selfPercent": 0.24684269994842842,
+          "inclusiveSampledMs": 68.959,
+          "inclusivePercent": 5.754572598290627
+        },
+        "createVersionRegistry": {
+          "selfSampledMs": 2.333,
+          "selfPercent": 0.19468695705871653,
+          "inclusiveSampledMs": 805.584,
+          "inclusivePercent": 67.22533116810506
+        },
+        "validateVersionContext": {
+          "selfSampledMs": 6.125,
+          "selfPercent": 0.5111262803191765,
+          "inclusiveSampledMs": 366.666,
+          "inclusivePercent": 30.597980195838552
+        },
+        "GC": {
+          "selfSampledMs": 37.874,
+          "selfPercent": 3.1605545699279167,
+          "inclusiveSampledMs": 37.874,
+          "inclusivePercent": 3.1605545699279167
+        }
+      }
+    }
+  ]
+}

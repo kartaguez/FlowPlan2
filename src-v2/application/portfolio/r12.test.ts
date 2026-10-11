@@ -550,3 +550,52 @@ test('PERF-P2 complete zero grids are detached deeply frozen and expose no index
   f.get('ta-p-t1-a').payload.consumed.value.numerator=99n;f.get('ta-p-t1-a').owner.association.entityId.value='mutated';f.manifest.teamActuals.reverse();
   assert.deepEqual(graph,saved);assert.equal(graph.versions.filter(v=>v.ref.kind==='TeamActual').length,8);
 });
+
+// P3-B: exercise both public acquisitions; no private checker is exposed to tests.
+for (const kind of versionKinds) {
+  test(`PERF-P3-B ${kind}: autonomous copy accepts and detaches the complete schema`,() => {
+    const input = structuredClone(payloads[kind]!);
+    const output = ok(validateBusinessPayload(kind,input));
+    assert.deepEqual(output,input); assert.notEqual(output,input);
+    const freeze = (x: unknown): void => { if (x && typeof x === 'object') { assert.ok(Object.isFrozen(x)); Object.values(x).forEach(freeze); } };
+    freeze(output); input.extra = true; assert.equal(Object.hasOwn(output,'extra'),false);
+  });
+  test(`PERF-P3-B ${kind}: closed keys and full acquisition retain first-error priority`,() => {
+    const input = structuredClone(payloads[kind]!); delete input[Object.keys(input)[0]!];
+    bad(validateBusinessPayload(kind,input),'INVALID_PAYLOAD_KEYS');
+    const accessor = Object.defineProperty(input,'late',{enumerable:true,get(){throw new Error('getter invoked');}});
+    bad(validateBusinessPayload(kind,accessor),'INVALID_DATA_PROPERTY');
+  });
+}
+test('PERF-P3-B version acquisition keeps provenance and predecessor before business errors',() => {
+  const f = fixture(); const v = f.get('ps'); v.payload.name = '';
+  v.provenance = [v.ref]; bad(createBusinessVersion(v),'SELF_PROVENANCE');
+  v.predecessor = v.ref; bad(createBusinessVersion(v),'LINEAGE_CYCLE');
+  delete v.predecessor; v.provenance = []; bad(createBusinessVersion(v),'INVALID_NAME');
+  const result = createBusinessVersion(v,'custom');
+  assert.deepEqual(result,{ok:false,errors:[{code:'INVALID_NAME',path:'custom.payload.name',message:'INVALID_NAME'}]});
+});
+test('PERF-P3-B frozen external envelopes and false authority flags are always acquired',() => {
+  const f = fixture(); const v = f.get('ps'); Object.freeze(v.payload);
+  const result = ok(createBusinessVersion(Object.freeze(v))); assert.notEqual(result,v);assert.notEqual(result.payload,v.payload);
+  const invalid = {...v,payload:Object.freeze({name:''})}; bad(createBusinessVersion(invalid),'INVALID_PAYLOAD_KEYS');
+  bad(createBusinessVersion({...v,trusted:true}),'INVALID_VERSION_ENVELOPE');
+});
+test('PERF-P3-B null prototypes, shared DAG and immutable copies retain exact BigInt',() => {
+  const rational={numerator:10n**100n,denominator:1n}; const consumed={family:'Consumption',unit:'work',value:rational};
+  const input=Object.assign(Object.create(null),{consumed});
+  const result=ok(validateBusinessPayload('TeamActual',input));
+  rational.numerator=0n; assert.equal(result.consumed.value.numerator,10n**100n);assert.ok(Object.isFrozen(result.consumed.value));
+  const shared = {family:'ProjectId',value:'p'};
+  bad(validateBusinessPayload('PortfolioOrder',{projectIds:[shared,shared]}),'DUPLICATE_PROJECT_ORDER');
+  const a=ok(validateBusinessPayload('TeamActual',{consumed})); const b=ok(validateBusinessPayload('TeamActual',{consumed}));assert.notEqual(a.consumed,b.consumed);
+});
+test('PERF-P3-B collect never replaces the independent certification acquisition',async () => {
+  const f=fixture();const snapshot=f.snapshot(); const adapter=ok(createMemoryPortfolioReadAdapter(f.versions,null,[snapshot]));
+  const response=f.versions;
+  // Mutating at the second registry's record reflection proves that the original port
+  // response is re-acquired at certification, rather than treated as a certificate.
+  let reads=0;const proxy=new Proxy(response,{getOwnPropertyDescriptor(target,key){reads++;if(reads===response.length+2)f.get('ps').payload.name='';return Reflect.getOwnPropertyDescriptor(target,key);}});
+  const result=await loadSnapshotGraph(adapter.snapshots,{async readExactVersions(){return success(proxy);}},snapshot.snapshotId);
+  assert.ok(reads>response.length);bad(result,'INVALID_NAME');
+});

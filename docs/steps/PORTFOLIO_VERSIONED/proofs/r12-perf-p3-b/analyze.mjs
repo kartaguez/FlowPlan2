@@ -1,0 +1,17 @@
+import { readFileSync,writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+const [dir]=process.argv.slice(2);const read=p=>JSON.parse(readFileSync(resolve(dir,p)));
+const a=read('a1-summary.json'),b=read('b-summary.json');
+const rows=a.map((before,i)=>{const after=b[i];if([before.size,before.variant,before.operation].join()!==[after.size,after.variant,after.operation].join())throw Error('order');return {size:before.size,variant:before.variant,operation:before.operation,a1:before,b:after,percentLatencyChange:before.elapsedMs&&after.elapsedMs?(after.elapsedMs.median/before.elapsedMs.median-1)*100:null};});
+writeFileSync(resolve(dir,'comparison.json'),JSON.stringify(rows,null,2)+'\n');
+const f=x=>x==null?'—':x.toFixed(1);
+const table=['| Scénario | API | A1 médiane ms | B médiane ms | Variation | A1/B CPU ms | A1/B heap endpoint Mio | A1/B RSS lifetime Mio |','| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |',...rows.map(r=>`| ${r.size}/${r.variant} | ${r.operation} | ${f(r.a1.elapsedMs?.median)} | ${f(r.b.elapsedMs?.median)} | ${f(r.percentLatencyChange)} % | ${f(r.a1.cpuMs?.median)}/${f(r.b.cpuMs?.median)} | ${f(r.a1.heapEndpointObservedMaxMiB)}/${f(r.b.heapEndpointObservedMaxMiB)} | ${f(r.a1.processLifetimeMaxRSSMiB)}/${f(r.b.processLifetimeMaxRSSMiB)} |`)];writeFileSync(resolve(dir,'comparison.md'),table.join('\n')+'\n');
+const categories={copyImmutableValue:f=>/immutableValue\.js#(copy|copyImmutableValue):/.test(f),dataRecord:f=>/data\.js#dataRecord:/.test(f),createVersionEnvelope:f=>/versionEnvelope\.js#createVersionEnvelope:/.test(f),validateBusinessPayload:f=>/payloadValidation\.js#validateBusinessPayload:/.test(f),createBusinessVersion:f=>/payloadValidation\.js#createBusinessVersion:/.test(f),acquireAndValidate:f=>/payloadValidation\.js#acquireAndValidate:/.test(f),checkBusinessSchema:f=>/payloadValidation\.js#checkBusinessSchema:/.test(f),createVersionRegistry:f=>/versionRegistry\.js#createVersionRegistry:/.test(f),validateVersionContext:f=>/versionEnvelope\.js#validateVersionContext:/.test(f),GC:f=>/\(garbage collector\)/.test(f)};
+const profiles=[];
+for(const label of ['a1','b'])for(const summary of read(label+'-profiles-summary.json')) {
+ const raw=JSON.parse(readFileSync(summary.path));const nodes=new Map(raw.nodes.map(n=>[n.id,n])),parents=new Map();for(const n of raw.nodes)for(const child of n.children??[])parents.set(child,n.id);
+ const key=id=>{const f=nodes.get(id).callFrame;return `${f.url}#${f.functionName}:${f.lineNumber+1}`;};const result={label,path:summary.path,sampledMs:summary.sampledMs,categories:{}};
+ for(const [name,matches] of Object.entries(categories)){let self=0,inclusive=0;for(let i=0;i<raw.samples.length;i++){const dt=raw.timeDeltas[i]??0;let id=raw.samples[i];if(matches(key(id)))self+=dt;let found=false;while(id!==undefined){if(matches(key(id)))found=true;id=parents.get(id);}if(found)inclusive+=dt;}result.categories[name]={selfSampledMs:self/1000,selfPercent:self/(summary.sampledMs*1000)*100,inclusiveSampledMs:inclusive/1000,inclusivePercent:inclusive/(summary.sampledMs*1000)*100};}
+ profiles.push(result);
+}
+writeFileSync(resolve(dir,'profiles-analysis.json'),JSON.stringify({limitations:'Inclusive categories overlap and must not be added. Wrapper attribution changes with lexical routing; compare checker/orchestrator in B to old payload function with care. JIT/inlining/sampling affect frames. Whole-operation differences are not exclusive copy timings.',profiles},null,2)+'\n');console.log(table.join('\n'));

@@ -1,0 +1,28 @@
+{
+  "changedTrackedFiles": [
+    "docs/current_canon.md",
+    "docs/current_plan.md",
+    "docs/steps/PORTFOLIO_VERSIONED/rewrite_r12_canon.md",
+    "docs/steps/PORTFOLIO_VERSIONED/rewrite_r12_perf_p3b_plan.md",
+    "src-v2/application/portfolio/r12.test.ts",
+    "src-v2/domain/portfolio/payloadValidation.ts"
+  ],
+  "productionFiles": [
+    "src-v2/domain/portfolio/payloadValidation.ts"
+  ],
+  "candidateProductionSourceIdentical": true,
+  "baselineAndCandidateIndependentInodes": true,
+  "benchmarkRunsCompleted": 58,
+  "notExecuted": [
+    "small/history/M6",
+    "large scenarios"
+  ],
+  "historicalToolsUnchanged": true,
+  "oracleDivergences": 0,
+  "schemaAudit": "PASS",
+  "technicalVerdict": "PASS",
+  "performanceVerdict": "C",
+  "R1.2": "IN REVIEW",
+  "otherLots": "NOT STARTED",
+  "rollbackTreeExact": true
+}

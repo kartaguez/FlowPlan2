@@ -1,0 +1,25 @@
+medium:sparse M1 started
+medium:sparse M1 COMPLETED cold:465.9ms warmup:444.6ms measured-1:437.2ms measured-2:436.8ms measured-3:438.8ms
+medium:sparse M2 started
+medium:sparse M2 COMPLETED cold:540.3ms warmup:509.3ms measured-1:509.1ms measured-2:503.6ms measured-3:511.2ms
+medium:sparse M3 started
+medium:sparse M3 COMPLETED cold:680.1ms warmup:649.4ms measured-1:639.8ms measured-2:639.7ms measured-3:638.8ms
+medium:sparse M4 started
+medium:sparse M4 COMPLETED cold:712.4ms warmup:678.6ms measured-1:670.0ms measured-2:668.7ms measured-3:670.1ms
+medium:sparse M5 started
+medium:sparse M5 COMPLETED cold:1225.3ms warmup:1200.1ms measured-1:1191.3ms measured-2:1193.1ms measured-3:1191.9ms
+medium:sparse M6 started
+medium:sparse M6 COMPLETED cold:1197.1ms warmup:1181.3ms measured-1:1184.9ms measured-2:1184.0ms measured-3:1188.7ms
+medium:dense M1 started
+medium:dense M1 COMPLETED cold:2868.4ms warmup:2796.2ms measured-1:2780.3ms measured-2:2788.1ms measured-3:2781.3ms
+medium:dense M2 started
+medium:dense M2 COMPLETED cold:3356.5ms warmup:3363.2ms measured-1:3376.2ms measured-2:3348.0ms measured-3:3366.1ms
+medium:dense M3 started
+medium:dense M3 COMPLETED cold:3838.0ms warmup:3771.1ms measured-1:3773.7ms measured-2:3784.4ms measured-3:3775.3ms
+medium:dense M4 started
+medium:dense M4 COMPLETED cold:4200.1ms warmup:4083.7ms measured-1:4067.6ms measured-2:4038.2ms measured-3:4050.7ms
+medium:dense M5 started
+medium:dense M5 COMPLETED cold:7420.5ms warmup:7416.2ms measured-1:7424.7ms measured-2:7384.4ms measured-3:7456.0ms
+medium:dense M6 started
+medium:dense M6 COMPLETED cold:7350.5ms warmup:7272.0ms measured-1:7251.8ms measured-2:7274.5ms measured-3:7277.4ms
+Evidence: /Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-b/a1-medium.json

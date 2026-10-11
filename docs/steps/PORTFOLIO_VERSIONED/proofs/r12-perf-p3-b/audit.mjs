@@ -1,0 +1,33 @@
+import assert from 'node:assert/strict';
+import { readFileSync,writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import ts from 'typescript';
+import * as api from '../../../../../.test-dist-v2/domain/portfolio/payloadValidation.js';
+const p='docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-b';
+const file='src-v2/domain/portfolio/payloadValidation.ts';
+const old=execFileSync('git',['show','6b1d65f:'+file],{encoding:'utf8'}),source=readFileSync(file,'utf8');
+const original=old.slice(old.indexOf('  const r = dataRecord(copied.value,path);'),old.indexOf('  // Every kind'));
+const current=source.slice(source.indexOf('    const r = dataRecord(payload,path);'),source.indexOf('    return success(payload);'));
+const normalize=s=>s.replace('copied.value','payload').split('\n').map(line=>line.trim()).join('\n');assert.equal(normalize(current),normalize(original));
+assert.deepEqual(Object.keys(api).sort(),['catalogNameKey','createBusinessVersion','validateBusinessPayload']);
+const checks=[];
+for(const f of [file,'.test-dist-v2/domain/portfolio/payloadValidation.js']) {
+ const text=readFileSync(f,'utf8'),ast=ts.createSourceFile(f,text,ts.ScriptTarget.Latest,true);
+ let checker,orchestrator;let switches=0;
+ function visit(n){if(ts.isFunctionDeclaration(n)&&n.name?.text==='acquireAndValidate'&&n.body)orchestrator=n;if(ts.isVariableDeclaration(n)&&n.name.getText(ast)==='checkBusinessSchema')checker=n;if(ts.isSwitchStatement(n))switches++;ts.forEachChild(n,visit);}visit(ast);
+ assert.ok(checker&&orchestrator);assert.equal(switches,1);assert.equal(checker.initializer.parameters.length,0);
+ assert.equal(checker.initializer.body.getText(ast).includes('request'),false);
+ assert.equal(checker.initializer.body.getText(ast).includes('input'),false);
+ assert.equal(/\bawait\b/.test(orchestrator.body.getText(ast)),false);
+ assert.equal(/export.*acquireAndValidate/.test(text),false);
+ assert.equal((text.match(/case '/g)||[]).length,14);
+ assert.equal((text.match(/copyImmutableValue\(request.input/g)||[]).length,1);
+ assert.equal((text.match(/createVersionEnvelope\(ref.value.kind/g)||[]).length,1);
+ assert.equal((text.match(/checkBusinessSchema\(\)/g)||[]).length,1);
+ checks.push({file:f,sha256:createHash('sha256').update(text).digest('hex'),schemas:14,switches,checkerParameters:0,checkerEscapes:false});
+}
+const unchanged=['src-v2/application/portfolio/loadPortfolioGraph.ts','src-v2/domain/portfolio/validatedPortfolioGraph.ts','src-v2/domain/versioning/versionRegistry.ts','src-v2/domain/versioning/versionEnvelope.ts','src-v2/domain/versioning/immutableValue.ts','src-v2/domain/portfolio/graphResolver.ts','src-v2/domain/portfolio/graphValidation.ts'];
+for(const f of unchanged)assert.equal(readFileSync(f,'utf8'),execFileSync('git',['show','6b1d65f:'+f],{encoding:'utf8'}));
+writeFileSync(p+'/encapsulation.json',JSON.stringify({checks,schemasTextuallyUnchanged:true,publicExports:Object.keys(api).sort(),unchanged,twoRegistriesPreserved:true,opaqueCertificationUnchanged:true,assertions:'Only the two existing terminal dependent-type assertions remain; none establishes provenance. All acquisition and ownership checks hold in emitted JS.'},null,2)+'\n');
+console.log('PASS lexical source/compiled audit; identical schema body; 3 exports; unchanged trust boundaries');

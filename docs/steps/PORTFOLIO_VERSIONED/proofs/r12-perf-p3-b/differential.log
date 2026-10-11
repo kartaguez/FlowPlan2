@@ -1,0 +1,6 @@
+[
+  { corpus: 'oracle', cases: 1245, divergences: 0 },
+  { corpus: 'supplement', cases: 9, divergences: 0 },
+  { corpus: 'copy', cases: 34, divergences: 0 },
+  { corpus: 'business', cases: 971, divergences: 0 }
+]
