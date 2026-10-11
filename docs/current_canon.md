@@ -135,6 +135,27 @@ Snapshot dense pour R1.3 non établie. **R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT START
 Audit indépendant requis ; rollback normal en clone jetable, commit/push sans force,
 arrêt après livraison. Les passages P0/P1 ci-dessus décrivent leurs états historiques.
 
+[R1.2-PERF-P3 — plan documentaire proposé pour audit](./steps/PORTFOLIO_VERSIONED/rewrite_r12_perf_p3_plan.md),
+2026-10-11, baseline P2 auditée `d2ebb7142c563a43b620cd78fea63f2847d76c02`.
+P0/P1/P2 techniquement acceptés selon la mission ; **classification C maintenue**.
+Pipeline réel cartographié : setup adapter distinct ; réponse port unknown,
+registre collect puis réponse brute, nouveau registre en certification, résolution,
+structure et certificat opaque. Comptes analytiques : deux registres par lecture,
+quatre assemblages d'enveloppes et deux schémas métier par occurrence, dix
+traversées équivalentes payload ; M5 trois validations manifeste, M6 deux,
+hors setup, sur réponse mémoire stable. Comptes de code, aucune remesure.
+Recommandation **A bornée d'abord**, allocations locales sans changement de
+frontières ; B payload locale conditionnelle à preuve lexicale et audit distinct ;
+C mutualisation collect/certification ajournée faute de preuve suffisante sous
+contrats inchangés. Aucun trusted export, marque TS/symbole/cache/WeakSet comme
+preuve runtime ; factory validante unique, copie/gel et diagnostics conservés.
+Arbitrages A-P3-01–08 à soumettre ; différentiel futur contre vraie P2 sur
+1 254 réponses puis extensions, campagne M1–M6 et deux verdicts indépendants.
+**PLAN ONLY : aucune implémentation, instrumentation, suite ou campagne exécutée.**
+Seuls plan P3 et deux trackers modifiés ; preuves historiques intactes.
+**R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED.** Arrêt après commit/push du plan ;
+audit indépendant et nouveau GO explicite requis avant toute implémentation P3.
+
 **Cible applicable amendée**, distincte de la livraison :
 [A-R12-01–09](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md#amendements-normatifs-r12--2026-10-11)
 remplacent les anciennes clauses désignées R0/D-R1, annulent A-R1-01/02 ;
