@@ -6,6 +6,13 @@ configuration ou dépendance modifié. R0/R0.1/R1.1 DONE ; R1 CADRAGE VALIDÉ ;
 R1.3/R1.4 et R2–R6 NOT STARTED. Audit indépendant et validation explicite du
 SHA du PLAN requis avant toute implémentation. Aucun GO déduit du commit/push.
 
+**Correction après audit indépendant de `d16d9fbd004ec9e47ce229fbd44b2bc4c26e703b` :**
+PLAN favorable sous corrections B1–B4, **aucun GO d'implémentation**.
+Les corrections sont tracées en [§11](#11-corrections-après-audit-indépendant).
+Elles fixent la fermeture structurelle sans parcours historique, les mappings
+Settings et les tombstones, et simplifient la certification. A-R12-01–09
+intégralement conservés. Statut NOT STARTED / PLAN PROPOSED FOR AUDIT inchangé.
+
 Point d'entrée : [current_plan](../../current_plan.md).
 Décisions fonctionnelles consolidées : [A-R12-01–09](./rewrite_decisions.md#amendements-normatifs-r12--2026-10-11),
 qui priment sur les clauses contradictoires R0/R1 historiques.
@@ -143,11 +150,16 @@ weekday/compteurs. Listes denses readonly, records simples ; pas Map/Set/Date,
 accessors, fonctions, cycles, symbol keys ni prototypes exotiques dans les données.
 Le payload ne duplique ni owner ni ref de sa propre enveloppe.
 
-**Choix d'identités soumis à audit :** ProjectId/ReservationId/TeamId sont
-les owners des Settings. EntityId des Settings est distinct et opaque ; lien
-1:1 contrôlé par owner, sans égalité forcée des octets. Une identité Settings par
-owner dans le graphe/registre fourni, durable à vie R2. Idem une capacité par
-Team, un AP par Project/Reservation, un PTEC par PT, une TA par
+**Mapping Settings fixé par correction B2 :** ProjectId/ReservationId/TeamId
+sont les owners des Settings. EntityId des Settings est une identité distincte
+et opaque ; aucune égalité artificielle d'octets avec l'ID du propriétaire.
+Pour chaque kind Settings, owner → identité Settings unique dans le contexte
+R1.2 fourni : plusieurs versions sous la même identité admises, deux identités
+Settings différentes pour le même owner refusées, même non sélectionnées ensemble.
+Le manifeste sélectionne une seule de ces versions. R2 garantit l'unicité
+historique durable sur tout le registre, y compris append/import/recovery.
+Cette politique est normative, aucun choix laissé à l'implémenteur.
+Idem une capacité par Team, un AP par Project/Reservation, un PTEC par PT, une TA par
 (association kind+EntityId, SubPeriodId), globals par Portfolio. Catalogue/AP/PT/RT/
 SubPeriod identifiés par `EntityIdentity<K>` R1.1 (pas nouvelles familles ajoutées).
 `SnapshotId` proposé comme type opaque distinct hors VersionKind ; revision CAS
@@ -175,8 +187,14 @@ supprimés. Invariants inter-entités au §6. Les owners indiqués sont ceux liv
 | PlanningSettings / Portfolio | `horizon:{start,end}`, `workingWeekdays`, `maxParallelProjects` | Horizon inclusif ; weekdays uniques entiers 1..7 (liste vide proposée valide) ; maxParallelProjects entier sûr >0 ; aucun default dynamique |
 | PortfolioOrder / Portfolio | `projectIds` | Liste ProjectId uniques ; couverture de tous Projects selected au §6 ; inactive/deleted compris |
 
-Propositions conservant les contrats métier : un seul objectiveEndDate avec
-`mandatory` au lieu de deux échéances divergentes ; couleur stockée normalisée
+**Encodage mandatory confirmé :** `mandatory` est un booléen obligatoire ;
+`objectiveEndDate` est la seule échéance civile, nullable. `mandatory:true`
+exige une objectiveEndDate non nulle ; `mandatory:false` accepte date ou null.
+Aucun champ mandatoryDeadline séparé, aucune contrainte objective≥earliest,
+aucune modification automatique de l'AP. G12-01 couvre ces trois cas positifs
+et refuse mandatory vrai avec date null, booléen absent ou non booléen.
+
+Autres propositions conservant les contrats métier : couleur stockée normalisée
 majuscules, jamais suggestion générée par Domain ; Program ou ownColor exclusifs.
 Proposition pour calendriers : listes déjà chronologiques à l'entrée, sans tri
 réparateur (périodes par start, exceptions par date) ; liste désordonnée refusée.
@@ -210,13 +228,18 @@ conservation des identités/versions durables. Le resolver ne consulte pas tout
 le registre pour compléter un inventaire. Un catalogue inutilisé peut rester
 sélectionné, ce n'est pas une erreur de fermeture.
 
-Propositions de fermeture à auditer : exactement une capacité par Team
-sélectionnée, deleted comprise ; catalogues sélectionnés peuvent inclure
-existing inutilisés et deleted, mais pas étrangers au Portfolio. Références
-catalogue conservées dans Settings deleted résolubles, catalogue existing ou
-deleted accepté. Le minimum obligatoire sous Team deleted n'est pas fixé
-explicitement par le cadrage : cette politique est un choix de PLAN §10,
-pas une nouvelle décision fonctionnelle tacite.
+**Fermeture sous tombstones fixée par correction B3 :** toute Team selected,
+existing ou deleted, sélectionne exactement une TeamCapacity avec owner concordant.
+Un Project/Reservation deleted conserve ses éventuelles références Program/Pas.
+Toute référence catalogue portée par des Settings selected doit être résoluble
+par la table exacte du manifeste, même sous propriétaire deleted. Un propriétaire
+existing ne référence que des catalogues existing ; deleted peut référencer
+existing ou deleted. Un catalogue existing inutilisé est valide ; catalogues
+selected du même Portfolio existing/deleted admis. Aucune cascade automatique
+vers les catalogues ni effacement de référence pour réparer la fermeture.
+La conservation des références lors d'une suppression est une obligation de
+construction R1.3 ; R1.2 vérifie la résolubilité des références effectivement
+portées par les Settings fournis, sans inventer les références d'un état antérieur.
 
 `CurrentSelection` proposé = `{manifest, revision}` uniquement ; révision
 opaque technique, pas VersionKind, aucun tableau history/predecessor Current.
@@ -247,21 +270,36 @@ Capacity/PTEC/TA et couples PT/RT vérifié sur versions fournies, tombstones in
 même quand deux identités ne sont jamais sélectionnées ensemble. Copies/gel
 profonds et aucun alias mutable à la sortie. Pas d'index ever-nonzero.
 
-Proposition de fermeture générique : un registre peut être fourni partiellement
-et reporter parents/sources manquants, sans inventer une preuve ; la résolution
-d'un graphe certifiable exige la disponibilité exacte des predecessor/provenance
-**déclarés** de ses versions (fermeture transitive explicite dans les données
-fournies). Ces versions d'appui ne deviennent pas sélectionnées dans les tables
-métier. La collecte par port demande seulement ces refs exactes, jamais d'autres
-versions « pour voir ». Cycles de filiation refusés, sources absentes signalées,
-cycles de provenance déclarée proposés refusés (§10) ; provenance vide split/merge
-acceptée. Aucun parcours d'histoire pour savoir si supprimer est permis.
+**Trois contrats séparés, correction B1 :**
 
-L'intégrité générique des liens déclarés et la validité du graphe sélectionné
-sont deux contrôles ; les payloads d'appui sont validés localement, leurs anciens
-manifestes ne sont ni reconstruits ni certifiés. La politique de fermeture des
-sources doit être auditée explicitement ; aucune extension de l'API R1.1 ni
-transformation de `not-established` en `established` silencieuse.
+- Fermeture du graphe métier sélectionné : obligatoire et complète. Toutes les
+  refs du manifeste et dépendances structurelles (owners/extrémités, AP,
+  SubPeriods, cellules/PTEC, catalogues, capacités et ordre) doivent être présentes
+  et cohérentes. Une absence structurelle interdit la certification.
+- Filiation/provenance : liens déclarés conservés dans les enveloppes, forme et
+  contrôles génériques R1.1 inchangés. `validateVersionContext` contrôle le
+  contexte effectivement fourni (owners/collisions/cycles de filiation) et
+  rapporte les predecessor exacts manquants avec `not-established`. Les sources
+  de provenance restent distinctes de la filiation et de la sélection ; absence
+  de source non fournie n'est pas une dépendance métier manquante. Ne pas ajouter
+  une obligation de fermeture/cycles de provenance au titre de la résolution.
+- Résolution Current/Snapshot : ne charge ni n'exige transitivement predecessor
+  ou sources historiques. Un Snapshot autonome se certifie avec ses versions
+  sélectionnées et leurs dépendances structurelles seules, même si sa filiation
+  longue n'est pas fournie. Le certificat structurel ne transforme jamais un
+  rapport R1.1 `not-established` en `established` et ne prétend pas certifier une
+  lignée historique exhaustive.
+
+L'enregistrement de versions garde les garanties d'intégrité applicables :
+refs/owners/payloads valides, immutabilité, collision divergente refusée, owner
+stable par identité, forme predecessor/provenance et contrôles contextuels R1.1
+sur les données disponibles. Si un contexte fourni révèle une contradiction,
+elle est refusée, jamais masquée par la certification structurelle. Le registre
+partiel expose les limites de ses contrôles ; il ne supprime ni ne réécrit les
+liens pour obtenir un résultat `established`. R2 assure la conservation et les
+contrôles d'intégrité à l'enregistrement durable/append/import/recovery ; ces
+obligations ne deviennent pas un prérequis de parcours historique à la lecture
+Snapshot. Aucun système supplémentaire de preuves ni scan de consommation passée.
 
 Un registre partiel qui ne contient qu'un PT d'un couple prouve seulement
 l'unicité dans son contexte. R2 doit garantir la réservation à vie des couples
@@ -281,9 +319,10 @@ commande de publication dans ce port R1.2. Signature sync/async à auditer :
 Application asynchrone proposée pour adapter futur sans introduire IDB.
 
 `loadCurrentGraph` reçoit sa sélection publiée du port ; `loadSnapshotGraph`
-reçoit Snapshot exact. Tous deux collectent le manifeste et les appuis déclarés,
-vérifient correspondance entre requête et réponse (wrong version refusée),
-puis appellent le même pipeline Domain. Erreurs de lecture restent distinctes
+reçoit Snapshot exact. Tous deux collectent uniquement les versions sélectionnées
+par le manifeste et leurs dépendances structurelles, sans chargement de lignées
+ou de sources historiques. Ils vérifient la correspondance entre requête et
+réponse (wrong version refusée), puis appellent le même pipeline Domain. Erreurs de lecture restent distinctes
 des invalidités structurelles ; ni erreur, ni absent ne devient valeur zéro/vide.
 L'adapter mémoire reçoit explicitement ses données immutable, n'invente pas
 de Current par ordre d'insertion ; aucune API write/CAS/recovery/Save.
@@ -299,13 +338,34 @@ sélectionnées ne remplacent aucune table. Même ensemble de versions fourni
 permuté donne mêmes faits ; ordre du manifeste ne choisit aucune « dernière ».
 PortfolioOrder et liste AP.subPeriods gardent leur ordre métier explicite.
 
-`validatePortfolioGraph` contrôle §6 ; `certifyPortfolioGraph` est l'unique
-construction proposée de `ValidatedPortfolioGraph`, avec marque opaque privée
-et reconnaissance runtime (par exemple WeakSet privé), copie/gel profonds.
-Aucun constructeur/cast public « certify already valid », booléen `validated:true`
-forgeable ou marque sérialisée comme preuve. Un objet désérialisé doit repasser
-validation ; WeakSet éventuel mémorise uniquement certificats émis, jamais
-versions sélectionnées/Current. Choix de marque runtime soumis à audit.
+`validatePortfolioGraph` contrôle §6 ; la factory `certifyPortfolioGraph`
+constitue l'unique API de construction exportée de `ValidatedPortfolioGraph`.
+Elle reçoit des données non fiables, exécute la validation structurelle complète,
+copie/gèle profondément la sélection, et retourne un type opaque à marque
+TypeScript privée. Aucun constructeur public ni raccourci « already valid »
+ne permet de contourner ces validations dans l'API. Ce mécanisme matérialise
+le contrat structurel et évite de refaire les contrôles chez chaque consommateur.
+
+**Garanties distinctes, correction B4 :**
+
+- TypeScript : opacité/readonly empêchent une construction structurelle ordinaire
+  et les mutations dans du code correctement typé. Un cast mensonger, `any` ou
+  JavaScript contourne les garanties statiques ; aucune promesse contraire.
+- Runtime : validation complète à la factory, copie et gel assurent que sa
+  sortie répond au contrat. Les consommateurs internes correctement typés
+  reçoivent cette sortie sans registre de certificats ni test d'appartenance.
+  Une entrée `unknown`, JavaScript externe ou donnée désérialisée à une frontière
+  de confiance réellement exposée passe par la même factory, jamais par une
+  assertion de type ou un booléen `validated:true`.
+- Désérialisation : une marque TS n'est pas une preuve transportable. Revalidation
+  structurelle systématique avant admission ; objet valide accepté avec nouveau
+  certificat, objet invalide refusé même s'il revendique une marque de validation.
+
+Aucune frontière acceptant des certificats externes attestés par identité runtime
+n'est nécessaire en R1.2. Aucun WeakSet/registre d'autorité, historique ou persistant
+supplémentaire n'est prévu. Une future frontière qui exigerait une protection
+runtime différente doit justifier son besoin concret dans son propre lot ; la
+factory validante suffit aux entrées inconnues exposées par le présent plan.
 
 Certificat lié à cette sélection exacte immutable, pas à une révision courante
 future. Il atteste payloads, refs/owners, fermeture structurelle et invariants
@@ -395,8 +455,8 @@ pour appliquer ces obligations.
 
 ### 6.4 Capacités, catalogues, ordre et unicité
 
-Capacités complètes sélectionnées selon politique §4.3 ; listes de périodes
-valides sans chevauchement, exceptions date unique, gaps/schedule vide/hors horizon
+Capacités : exactement une par Team selected existing/deleted (§4.3, B3) ;
+listes de périodes valides sans chevauchement, exceptions date unique, gaps/schedule vide/hors horizon
 valides. Pattern global connu, capacité non négative et indisponibilité bornée.
 Demande RT zero ratio/fixed valide ; ratio>1, quantité négative ou mode double
 refusés. Ni calcul capacité effective, ni ratio exception sans période décidé.
@@ -404,8 +464,10 @@ refusés. Ni calcul capacité effective, ni ratio exception sans période décid
 Noms Program/Pas existing uniques après normalisation par catalogue ; même nom
 entre les deux catalogues valide, deleted ne réserve pas nom. Catalogue existing
 sans utilisateur valide. Project/Reservation existing referencing catalogue
-deleted invalide ; deleted owner peut conserver ref historique selected selon
-proposition §4.3. Aucun auto-tombstone ni suppression implicite de groupement.
+deleted invalide ; Settings d'un Project/Reservation deleted conservent leurs
+références Program/Pas éventuelles, qui doivent toutes être résolubles dans la
+sélection ; catalogues existing ou deleted permis (§4.3, B3).
+Aucun auto-tombstone ni suppression implicite de groupement.
 Commande suppression catalogue utilisé à fixer R1.3/R4 (refus ou composite
 explicitement préparée), jamais déduite de la certification d'un état.
 
@@ -415,14 +477,20 @@ commande R1.3 ; validateur ne compare pas deux ordres. PT/RT couples uniques
 par owner immutable, tombstones inclus ; deux versions de même identité dans
 registre permises, deux identités même couple refusées dans contexte fourni.
 TA unique par association/SubPeriod ; PTEC unique par PT, AP par propriétaire,
-Settings/Capacity/globals mappings 1:1. R2 couvre unicité historique exhaustive
-et préservation à vie, ce que graphe fourni seul ne prouve pas.
+Settings/Capacity/globals mappings 1:1. Mapping Settings B2 : plusieurs versions
+même identité admises dans registre, deux identités pour le même owner refusées
+sur tout contexte fourni ; une seule version sélectionnée. R2 couvre cette
+unicité Settings aussi à vie, append/import/recovery inclus. R2 couvre unicité
+historique exhaustive et préservation à vie, ce que graphe fourni seul ne prouve pas.
 
 ### 6.5 Snapshot, Current et intégrité
 
 Snapshot résout son manifeste complet et ses refs exactes depuis versions
 fournies ; aucune lecture Current, même après suppression/restauration/changement
-Current. Borne `knowledgeDate ≥ max(AP.through)` de **tous** AP sélectionnés,
+Current. Une filiation longue et des sources historiques non fournies ne
+bloquent pas ce certificat structurel et ne provoquent aucun chargement
+transitif ; rapport contextuel R1.1 séparé avec son statut réel (§5.1, B1).
+Borne `knowledgeDate ≥ max(AP.through)` de **tous** AP sélectionnés,
 y compris covered-zero et propriétaires inactive/deleted. AP vides ne contribuent
 pas ; Portfolio sans AP exige encore date déclarative. Date requise mal formée
 ou antérieure à un seul AP suffit à refuser. Aucun rapport createdAt, aucune
@@ -447,27 +515,51 @@ Chaque test doit distinguer validation payload, résolution, structure et transi
 
 | Gate / invariant | Positif | Négatif discriminant | Module responsable / tests envisagés | Limites et responsabilités différées |
 | --- | --- | --- | --- | --- |
-| G12-01 — payload runtime 14 kinds | Une version valide pour chaque kind, null/options/quantités zéro et refs owners natifs | AP avec knowledgeDate ; PTEC status ; PT confirmed/suspended ; quantity mauvaise famille ; champs obligatoires manquants même sous cast mensonger | `domain/portfolio/payloadValidation.ts` ; `payloadValidation.test.ts`, table des 14 schémas + type assertions | Schéma métier obligatoire après factory R1.1 ; codecs/import R2, saisie UI R5 |
+| G12-01 — payload runtime 14 kinds | Une version valide pour chaque kind, null/options/quantités zéro ; mandatory false avec date/null, true avec objectiveEndDate | AP knowledgeDate, PTEC status, PT confirmed/suspended rejetés ; champs inconnus/obligatoires manquants, mauvaise famille même sous cast ; mandatory true avec date null ou valeur non booléenne | `domain/portfolio/payloadValidation.ts` ; `payloadValidation.test.ts`, table 14 schémas + type assertions (§4.2) | Schéma métier après factory R1.1 ; codecs/import R2, saisie UI R5 |
 | G12-02 — registre passif immutable/owners/collisions | Deux branches même owner ; répétition ref et contenu identiques ; append garde anciennes copies et sélection indépendante | Même ref payload différent, owner changé sur autre racine, cycle filiation, tentative mutation profonde ; lookup ref absente avec autre version disponible | `domain/versioning/versionRegistry.ts` ; `versionRegistry.test.ts`, regressions V02–V06 | Contrôle contexte fini ; unicité/conservation durable/atomicité R2 ; pas latest/getCurrent |
-| G12-03 — manifeste/inventaires exacts | Globals + tables, racines dérivées des owners Settings ; portefeuille vide explicite ; catalogue inutilisé inclus | Deux versions même identité, deux Settings même owner, table mauvais kind, rootIds supplémentaire, SubPeriod table en désaccord AP | `domain/portfolio/manifest.ts` + `graphValidation.ts` ; `manifest.test.ts`, `graphValidation.test.ts` | Ne prouve pas inventaire Current exhaustif à vie ; construction candidats R1.3, durable R2 |
-| G12-04 — resolver pur sans fallback | Même graph malgré permutation registre ; snapshot résolu avec lecteur Current qui lève | Ref v1 absente avec v2 présente, port retourne mauvais versionId ; exact support declared absent, provenance utilisée comme substitution | `domain/portfolio/graphResolver.ts`, `application/portfolio/loadPortfolioGraph.ts` ; tests homonymes | I/O via ports seulement ; retry/streaming/recovery R2 ; provenance facultative n'autorise pas missing declared source (§10) |
-| G12-05 — lifecycle/tombstones | Deleted Project/AP couvert + PT deleted sans TA/PTEC, ancienne TA positive dans registre ; Team hidden existing inchangée ; RT deleted endpoints deleted | PT existing vers Team deleted ; PT deleted encore PTEC/TA ; RT deleted avec TA ; deleted endpoint manquant | `domain/portfolio/graphValidation.ts` ; `lifecycleGraph.test.ts` | Acceptation état, jamais scan historique ; cascades/confirm suppression/restore R1.3, transactions R2 |
+| G12-03 — manifeste/inventaires exacts | Globals + tables, racines dérivées des owners Settings ; portefeuille vide explicite ; catalogue inutilisé inclus | Deux versions selected même identité, deux identités Settings même owner, table mauvais kind, rootIds supplémentaire, SubPeriod table en désaccord AP | `domain/portfolio/manifest.ts` + `graphValidation.ts` ; `manifest.test.ts`, `graphValidation.test.ts` | Ne prouve pas inventaire Current exhaustif à vie ; construction candidats R1.3, durable R2 |
+| G12-04 — resolver pur sans fallback | Graphe invariant par permutation ; Snapshot complet avec version issue d'une longue filiation non fournie, sources non fournies et lecteur Current qui lève ; aucune lecture historique | Ref métier sélectionnée v1 absente avec v2 présente, capacité/catalogue structurel absent, port retourne mauvaise version ; provenance utilisée comme substitution | `domain/portfolio/graphResolver.ts`, `application/portfolio/loadPortfolioGraph.ts` ; tests homonymes et scénario longue filiation ci-dessous ; §4.3/§5.1–5.3 | B1 : fermeture métier obligatoire, aucun parcours de lignée ; rapport R1.1 not-established conservé ; intégrité d'enregistrement distincte, durable R2 |
+| G12-05 — lifecycle/tombstones | Team deleted avec une capacité ; Project/Reservation deleted conservant Program/Pas vers catalogues existing ou deleted résolus ; Project deleted/AP couvert avec ancienne TA positive archivée, PT deleted sans TA/PTEC selected ; RT deleted endpoints deleted sans TA ; Team hidden existing inchangée | Team deleted sans capacité ou avec deux identités Capacity ; ref Program/Pas absente même owner deleted ; owner existing vers catalogue deleted ; association existing vers endpoint deleted ; TA/PTEC interdits selected | `domain/portfolio/graphValidation.ts` ; `lifecycleGraph.test.ts`, `graphValidation.test.ts` ; §4.3/§6.1/§6.4 | B3 : fermeture des tombstones ; conservation des refs lors suppression/confirm/restore R1.3, transactions R2 ; pas cascade catalogue ni scan historique |
 | G12-06 — AP/partition contiguë | Vide, singleton, bissextile, couvert sans association ; AP propriétaire deleted présent | AP vide avec SubPeriod/bornes ; couvert trou/overlap/borne manquante/ordre faux ; AP autre propriétaire ou AP racine absent | `payloadValidation.ts`, `graphValidation.ts` ; `actualPeriodGraph.test.ts` | Modifier/split/merge/confirm R1.3 ; pas provenance obligatoire ni date connaissance |
 | G12-07 — TA grille exacte zéro compris | Deux associations existing d’un même AP × deux SubPeriods = quatre TA, owner inactive ou RT zéro permis ; zéro quantité gardée | Une TA zéro retirée, double identité cellule, cellule extra deleted/foreign AP ou missing colonne ; famille ETC à la place Consumption | `graphValidation.ts` ; `teamActualGrid.test.ts` | Confirmation des cellules/dates affectées et versions sélectives R1.3 ; reconstruction quotidienne R1.4/R3 hors validation |
 | G12-08 — PTEC PT existing sans statut cohérent AP | AP vide/PTEC lastActualsDate null ; AP v2 même through/PTEC v1 gardé ; ETC zéro sans statut valide | PTEC absent existing, présent deleted, AP d'autre Project/Reservation, lastActualsDate≠through/null, ref version AP ajoutée/status | `payloadValidation.ts`, `graphValidation.ts` ; `ptecGraph.test.ts` | Revue ETC positif/zero→positif et confirmation sans nouvelle version R1.3 ; pas calcul auto |
-| G12-09 — capacités/RT/catalogues/ordre | Schedule gaps/exceptions hors horizon ; RT zéro dans deux modes ; Program existing sans usage ; ordre inclut inactive/deleted | Capacités overlap, exceptions même date, ratio>1, propriétaire existing vers catalogue deleted ; ordre Project manquant/dupliqué ; deux noms existing normalisés égaux | `capacityValidation.ts`, `catalogValidation.ts`, `graphValidation.ts` ; tests homonymes + `orderGraph.test.ts` | Applicabilité ratio exception sans période R3 ; suppression catalogue utilisé R1.3/R4 ; aucun calcul/priorité Program |
+| G12-09 — capacités/RT/catalogues/ordre | Schedule gaps/exceptions hors horizon ; RT zéro deux modes ; Program/Pas existing inutilisé ; deleted owner vers catalogue existing/deleted résolu ; ordre inclut inactive/deleted | Capacités overlap/exceptions même date, ratio>1 ; toute référence catalogue non résolue (owner existing/deleted), owner existing vers catalogue deleted ; ordre manquant/dupliqué ; noms existing normalisés égaux | `capacityValidation.ts`, `catalogValidation.ts`, `graphValidation.ts` ; tests homonymes + `orderGraph.test.ts` (§4.3/§6.4) | Complète G12-05/B3 ; ratio exception sans période R3 ; suppression catalogue utilisé R1.3/R4, aucune cascade/priorité Program |
 | G12-10 — dates Snapshot/autonomie | knowledgeDate = max through dont AP deleted ; AP tous vides ; mêmes dates distinct IDs ; créations dates reculées ; Snapshot ancien après Current modifié | Date absente ou <through d'un AP inactive/deleted ; ref historique absente ne se remplace pas par Current ; résultat/profile ajouté | `manifest.ts`, `graphValidation.ts`, service lecture ; `snapshotGraph.test.ts` et port spy Current inaccessible | Résolubilité mémoire, jamais garantie durable ; Save/CAS/autonomie import-export R2 |
-| G12-11 — unicité structurelle | Même identité PT versions existing/deleted dans registre, couple unique ; TA cellule même ID avec version modifiée | Deux PTId même couple, un deleted/un existing ; deux RTId même couple ; deux AP même owner, deux PTEC même PT, deux TA même cellule | `versionRegistry.ts`, `graphValidation.ts` ; `associationUniqueness.test.ts` | R1.2 : graph/contexte fourni uniquement ; R2 : unicité historique à vie toutes versions, races/import/recovery |
-| G12-12 — certificat indépendant transitions | Deux états identiques issus de trajectoires différentes certifiés sans historique/confirm ; graph valablement deleted avec ancien consommé positif | Graphe incomplet refuse certificat ; objet cast/validated:true forgé refusé par frontière de consommation, mutation entrée/sortie ne change pas sélection certifiée | `validatedPortfolioGraph.ts` ; `validatedPortfolioGraph.test.ts` | Ne prouve confirmation, stale, revue ETC, cascade réellement préparée, CAS/durabilité, simulation ; R1.3/R2/R1.4 |
+| G12-11 — unicité structurelle | Plusieurs versions Settings d'une même identité et même owner dans registre, une selected ; PT existing/deleted sous même identité ; TA cellule même ID version modifiée | Deux identités Settings pour même owner, même non selected ensemble ; deux PT/RTId même couple (deleted/existing inclus) ; deux AP même owner, deux PTEC même PT, deux TA même cellule | `domain/versioning/versionRegistry.ts`, `domain/portfolio/graphValidation.ts` ; `versionRegistry.test.ts`, `associationUniqueness.test.ts`, `manifest.test.ts` ; §4.1/§5.1/§6.4 | B2 : mapping Settings fixé, contrôle contexte R1.2 ; R2 garantit unicité historique durable Settings et couples, append/import/recovery/races |
+| G12-12 — certificat indépendant transitions | États identiques de trajectoires différentes certifiés sans confirmations ; sortie factory copiée/gelée ; donnée désérialisée valide revalidée et recertifiée | Graphe incomplet refusé même avec cast/validated:true ; construction ordinaire opaque rejetée à compilation ; mutation input/output sans effet sur certificat | `domain/portfolio/validatedPortfolioGraph.ts` ; `validatedPortfolioGraph.test.ts` ; §5.3, B4 | Garantie TS ≠ runtime ; frontière unknown validante, aucun registre de certificats ; ne prouve transition/CAS/durabilité/simulation |
 | G12-13 — V2 natif/hexagonal isolé | Runtime/types/transitifs Domain internes ; ports/adapters injectés ; compilation/test/build V2 seulement | Import Domain→Application/adapter/UI/moteur, import type legacy/barrel/symlink, horloge/storage/browser ou tests/fixtures dans runtime | tests AST `scripts/v2/r12.test.mjs` proposé, garde existant ; vérification de dépendances + canaris ciblés | Delta A02 §8 audité ; aucune permission générique d'élargir garde ; browser/storage/CAS métier pas gates R1.2 |
+
+**Scénario discriminant G12-04/B1 — longue filiation :** fixture d'une version
+Settings `v10000` avec predecessor exact `v9999` et provenance déclarée ; la
+lignée de 10 000 versions est disponible uniquement dans un stockage témoin.
+Le port de résolution fournit `v10000` et toutes versions métier et dépendances
+structurelles du Snapshot, sans predecessor ni source historique. Toute demande
+à ces refs historiques ou à Current lève et est comptée. Attendu : certification
+structurelle réussie, zéro lecture historique/Current, liens de l'enveloppe
+inchangés, `validateVersionContext` du contexte fourni reste `not-established`
+avec `v9999` manquant. Négatif discriminant : retirer une TeamCapacity ou un
+catalogue structurel sélectionné suffit à refuser la certification, même si
+l'ensemble de la lignée historique était disponible. Aucun fallback ni parent
+manquant converti en racine/rapport `established`. Contradictions effectivement
+fournies (owner divergent/collision/cycle filiation) restent refusées G12-02.
+
+**Scénarios complémentaires B2/B3 :** pour chacun des trois Settings kinds,
+même owner et même identité avec deux versions → registre valide ; autre identité
+pour ce owner → refus G12-11, même si une seule est selected. Team existing et
+Team deleted → une Capacity chacune ; zéro ou deux identités Capacity → refus
+G12-05. Matrice Project/Reservation × owner existing/deleted × Program/Pas :
+existing→existing valide, existing→deleted refusé, deleted→existing/deleted valide,
+ref catalogue absente refusée dans tous cas ; existing unused valide G12-09.
+Vérifier ces états sans cascade/effacement catalogue ; légitimité de conservation
+des références d'une suppression relève de R1.3, pas de la comparaison historique.
 
 Corpus transversal : Portfolio vide avec Settings/Order explicites ; un Project,
 une Reservation et deux Teams (une hidden), AP vide/couvert, PT dailyCap absent/zero,
 RT ratio/fixed-daily zero, tombstones/catalogues unused, ordre stable. Snapshot
 historique partageant versions avec Current puis Current divergent. Scénarios
-supports predecessor/provenance exacts et manquants, branches, split/merge provenance
-vide et sélection cohérente. Chaque fixture est native, aucune importation de
-preuve G1/legacy ni réutilisation de ses résultats comme PASS.
+contextuels predecessor/provenance fournis ou absents, branches, split/merge
+provenance vide, longue filiation non chargée et sélection métier complète.
+Chaque fixture est native, aucune importation de preuve G1/legacy ni réutilisation de ses résultats comme PASS.
 
 Oracles : calcul indépendant des ensembles attendus de cellules/owners/ordre,
 comparaison BigInt exacte ; dates aux bornes 0000-01-01/9999-12-31 et bissextiles
@@ -489,7 +581,7 @@ modules dormants et shell inchangé. Windows demeure DEFERRED selon I-R01-C.
 | P0 | Audit indépendant du SHA exact, réponses §10, validation explicite utilisateur R1.2 ; fetch/branche/HEAD/status/origin/baseline ; diff de toute évolution | STOP si delta inexpliqué ou choix nécessaire non fixé ; aucun reset/force-push |
 | P1 | Schémas et validateurs des 14 kinds, helpers couleur/catalogue/calendrier, factory métier validante réutilisant R1.1 | G12-01, locaux G12-06/08/09 ; frontières G12-13 adaptées avant noms nouveaux |
 | P2 | Registre valeur pure, lookup/insertion passive et rapports contextuels, unicité locale | G12-02/11 ; sans sélection/commande/index historique |
-| P3 | Manifestes Current/Snapshot et inventaires dérivés ; types metadata exacts | G12-03 ; choix 1:1/fermeture §10 adoptés |
+| P3 | Manifestes Current/Snapshot et inventaires dérivés ; types metadata exacts | G12-03 ; mappings et fermeture B2/B3 fixés §4.1/§4.3, encodages restants §10 |
 | P4 | Resolver sur données fournies + diagnostics ; ports/read adapter mémoire/service collecte | G12-04 et autonomie G12-10 ; Domain sans ports/I/O |
 | P5 | Validateur inter-entités lifecycle/AP/TA/PTEC/capacités/catalogues/ordre + certificat | G12-05–12 complets ; état accepté ne vaut pas transition autorisée |
 | P6 | Gates complètes/typecheck/test/build, revue scope/isolation, registre opérations effectives/canon/preuves ; rollback et audit livraison | G12-01–13 satisfaites avec limites ; aucun R1.3/R1.4/R2 commencé ; pas DONE sans audit et clôture explicite |
@@ -521,7 +613,8 @@ rollback n'est pas exécutée dans le PLAN.
 
 ## 9. Réception et livraison documentaire
 
-Réception du PLAN pour audit : dix sections présentes, remplacements explicites
+Réception du PLAN pour audit : dix sections du plan et traçabilité d’audit §11
+présentes, remplacements explicites
 sans effacement historique, 14 kinds conservés, payloads/AP/TA/PTEC exacts,
 frontières hexagonales, gates positives/négatives/modules/tests/limites, ouvertures
 §10 identifiées, statut NOT STARTED / PLAN PROPOSED FOR AUDIT. Audit favorable
@@ -530,19 +623,23 @@ fonctionnelle des amendements ne vaut pas adoption des propositions techniques.
 
 Réception future R1.2 : toutes G12 exécutées et satisfaites, scope conforme,
 AP/TA/tombstones/RT zero/catalogues unused/Snapshot historical natifs démontrés,
-certificat non forgeable et structure seule clairement attestée, aucun moteur/
+factory validante unique/type opaque et frontières unknown revalidées,
+structure seule attestée, aucun moteur/
 commande/confirmation/durable ajouté. Provenance reprises et erreurs conservées,
 R1.1/isolement non régressés ; revue indépendante et clôture utilisateur avant DONE.
 
-Livraison présente : seuls six Markdown autorisés (PLAN, deux trackers, décisions,
-addendum R0, intentions registre de reprise). Contrôle du diff complet, absence
+Livraison initiale du PLAN (baseline auditée) : six Markdown (PLAN, deux trackers,
+décisions, addendum R0, intentions registre de reprise). Correction d'audit §11 :
+uniquement documents nécessaires, aucun code/test/script/config/dépendance.
+Contrôle du diff complet, absence
 de modification source/test/script/config/dépendance, `git diff --check`, liens
 relatifs et ancres nouvelles, maintien des canons et archives byte-identiques,
 statuts cohérents. Commit/push normal sur branche autorisée, fetch final puis
 SHA local/distant/arbre propre/divergence 0/0. SHA final dans compte rendu,
 pas auto-référence circulaire. Aucun test métier/build n'est requis pour Markdown.
 
-Contrôles documentaires effectivement obtenus avant commit : diff complet des
+Contrôles documentaires de la livraison initiale à d16d9fb, conservés pour trace :
+diff complet des
 cinq fichiers existants et du nouveau PLAN examiné ; six Markdown exclusivement ;
 210 liens locaux dont 50 ancres contrôlés, tableaux bien formés, dix sections et
 13 gates présentes, statuts cohérents. Archives des trackers, plans/canons R0.1/
@@ -552,16 +649,18 @@ après commit/push ; ces vérifications documentaires ne valent pas audit indép
 
 ## 10. Risques, arbitrages ouverts et décisions d'audit nécessaires
 
-Les règles fonctionnelles A-R12 sont fixées par le cadrage. Les choix suivants
-sont **propositions ou questions**, aucune résolution silencieuse dans du code.
+Les règles fonctionnelles A-R12 sont fixées par le cadrage et conservées.
+O12-01/02/03 sont clos par corrections B2/B3/B1, et le mécanisme de certification
+O12-05 est simplifié par B4. Seules les autres propositions/questions indiquées
+restent à auditer ; aucune politique close n'est laissée à l'implémenteur.
 
 | ID / sujet | Proposition du PLAN / ambiguïté explicite | Décision attendue / effet |
 | --- | --- | --- |
-| O12-01 — identités Settings et mappings | EntityId opaque distinct de ProjectId/etc ; mapping par owner 1:1 ; racines dérivées des Settings | Valider choix et unicité locale/durable avant P1–P3 ; aucune égalité d'octets imposée par R1.1 |
-| O12-02 — capacités/catalogues sous tombstone | Une capacité par Team deleted aussi ; refs catalogue conservées dans Settings deleted résolubles, catalogue deleted accepté ; catalogues selected inutilisés admis | Valider minimum de fermeture et politique avant P3/P5 ; cadrage ne précise pas obligation Capacity deleted ni inventaire exact de catalogues non référencés |
-| O12-03 — fermeture lineage/provenance générique | Support exact des liens déclarés requis pour certifier, distinct sélection ; absence reportée, provenance vide valide ; cycles provenance proposés refusés | Valider portée de fermeture/cycle avant P2/P4 ; ne pas confondre source business facultative avec ref déclarée introuvable ni modifier contrats R1.1 |
-| O12-04 — encodages locaux | Null explicite, dailyCap OptionalQuantity, mandatory+objective unique, couleur canonique, noms normalisés, listes périodes/exceptions chronologiques strictes, weekdays vide valide ; SnapshotId opaque distinct et createdAt format fixe §4 | Audit avant P1/P3 ; choix techniques de représentation non livrés R1.1, aucun parsing legacy repris implicitement |
-| O12-05 — lecture/certificat | Ports async séparant capacité Current/Snapshot ; registre valeur pure sans mutation ; marque privée reconnue runtime | Audit API et anti-forge avant P2/P4/P5 ; pas nouveau service de preuve ou autorité de sélection |
+| O12-01 — Settings : FIXÉ B2 | EntityId opaque distinct ; owner→identité unique ; versions multiples même identité admises ; deux identités même owner refusées | Normatif §4.1/§5.1/§6.4, G12-11 ; unicité historique durable R2 append/import/recovery |
+| O12-02 — tombstones : FIXÉ B3 | Une Capacity par Team selected existing/deleted ; refs catalogue conservées sous owner deleted et toutes résolubles ; existing→existing, deleted→existing/deleted ; unused existing valide | Normatif §4.3/§6.4, G12-05/09 ; aucune cascade automatique vers catalogues |
+| O12-03 — fermeture : CORRIGÉ B1 | Fermeture métier complète ; contexte R1.1 distinct sans promotion de statut ; Snapshot sans chargement transitif des lignées/sources | Normatif §5.1–5.3, G12-04 ; intégrité enregistrement conservée, durable R2 |
+| O12-04 — encodages locaux | Null explicite, dailyCap OptionalQuantity, mandatory booléen et objective unique confirmés §4.2, couleur canonique, noms normalisés, listes périodes/exceptions chronologiques strictes, weekdays vide valide ; SnapshotId opaque distinct et createdAt format fixe §4 | Mandatory fixé ; autres encodages à auditer avant P1/P3 ; choix techniques de représentation non livrés R1.1, aucun parsing legacy repris implicitement |
+| O12-05 — certificat SIMPLIFIÉ B4 / ports proposés | Factory validante unique/type opaque, unknown revalidé, aucun registre de certificats ; ports async séparant Current/Snapshot et registre valeur pure | Certification fixée §5.3/G12-12 ; détail API des ports reste proposé pour audit P2/P4 |
 | O12-06 — catalogue utilisé / revue ETC / confirmations | Structure interdit owner existing→catalogue deleted ; commande catalogue utilisée encore à définir ; ETC positif exige revue ciblée, étendue exacte/read-set à définir R1.3 | Ne bloque pas validation état R1.2 ; arbitrage commandes/preparation/stale obligatoire avant GO R1.3/R4 |
 | O12-07 — ratio exception sans période | Divergence patrimoine déjà ouverte ; R1.2 valide shape/mode/quantité seulement | Arbitrage normatif R3 (ou avant scénario moteur concerné R1.4) ; ne pas choisir en validateur structurel |
 | O12-08 — configuration bootstrap | Aucun default horizon/weekdays/N ni ID/révision générés ; fixtures fournissent tout explicitement | Defaults à fixer avant bootstrap natif opérationnel R1.3/R2 ; pas défaut horloge dans R1.2 |
@@ -580,3 +679,31 @@ toute exhaustion ni plafond métier arbitraire. Budgets moteur/stockage R1.4/R2/
 Prochaine action : audit indépendant de ce PLAN au SHA documentaire livré,
 corrections documentaires si nécessaires, puis validation explicite avant toute
 implémentation. **Arrêt après commit/push documentaire.**
+
+## 11. Corrections après audit indépendant
+
+Baseline documentaire auditée et SHA initial de cette correction :
+`d16d9fbd004ec9e47ce229fbd44b2bc4c26e703b`.
+Audit indépendant : **PLAN favorable sous corrections, aucun GO d'implémentation**.
+Préflight : branche `rewrite/portfolio-versioned`, arbre propre, HEAD/origin exacts
+à cette baseline, fetch réussi et divergence 0/0 ; aucune évolution intercalaire.
+Mission documentaire uniquement, A-R12-01–09 conservés intégralement ; R0/R0.1/
+R1.1 DONE, R1.2 NOT STARTED / PLAN PROPOSED FOR AUDIT, R1.3/R1.4/R2 NOT STARTED.
+
+| Correction reçue | Modification et correspondance | Gates/tests documentés, non exécutés |
+| --- | --- | --- |
+| B1 — fermeture historique | §5.1 remplace l'exigence transitive de predecessor/provenance ; §5.2/§6.5 collectent seulement métier/structure ; O12-03 clos ; contexte R1.1/garanties d'enregistrement conservés | G12-04 : v10000, zéro lecture historique/Current, liens conservés et not-established réel ; dépendance métier absente refusée ; G12-02 garde contradictions fournies |
+| B2 — mappings Settings | §4.1/§5.1/§6.4 et O12-01 fixent mapping owner→identité Settings sans égalité d'octets ; multiple versions admises, double identité refusée ; R2 unicité historique append/import/recovery | G12-03/11 et suites registre/manifeste ; trois kinds Settings, double identité non sélectionnée ensemble incluse |
+| B3 — tombstones | §4.3/§6.4 et O12-02 fixent Capacity Team existing/deleted, refs Program/Pas conservées/résolubles, lifecycle catalogues autorisé selon owner, unused existing ; pas cascade | G12-05/09 : Capacity absente/double et matrice owner/catalogues existing/deleted/manquants, Project et Reservation |
+| B4 — certificat | §5.3 et O12-05 remplacent WeakSet/reconnaissance par factory validante unique/type opaque ; garantie TS, runtime et revalidation unknown/désérialisation distinctes | G12-12 : opacité compilation, mutation/copie/gel, données inconnues invalides malgré marque et données valides recertifiées ; aucune table d'autorité |
+
+Encodage mandatory confirmé §4.2/G12-01. Renvois G12-04→§4.3/§5.1–5.3,
+G12-05→§4.3/§6.1/§6.4, G12-11→§4.1/§5.1/§6.4 rendus explicites.
+Contrôles documentaires effectués : diff complet examiné, quatre Markdown
+exclusivement, 127 liens locaux dont 45 ancres vérifiés, tableaux/13 gates/statuts
+et renvois G12-04/05/11 contrôlés ; archives et registre initial (A-R12-01–09
+inclus) identiques à la baseline. `git diff --check` sans erreur. SHA final et
+synchronisation Git sont rapportés après commit/push.
+Aucun test applicatif, build ou gate exécuté ; pas de preuve d'implémentation.
+Prochain acte : nouvel audit du PLAN corrigé puis GO explicite utilisateur.
+**Arrêt après livraison documentaire, aucun démarrage R1.2.**

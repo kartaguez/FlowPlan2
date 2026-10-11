@@ -59,6 +59,9 @@ Baseline documentaire de clôture R1.1 :
 R1.3/R1.4 et R2–R6 NOT STARTED.**
 [PLAN R1.2](./steps/PORTFOLIO_VERSIONED/rewrite_r12_plan.md) proposé le 2026-10-11,
 uniquement documentaire ; aucune gate G12 exécutée ni nouvelle preuve de code.
+Audit indépendant de `d16d9fbd004ec9e47ce229fbd44b2bc4c26e703b` favorable sous
+corrections B1–B4, aucun GO. PLAN corrigé pour nouvel audit, traçabilité §11 et
+[registre](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md#corrections-du-plan-r12-après-audit-indépendant).
 Prochaine action : audit indépendant du SHA exact puis validation explicite
 utilisateur avant toute implémentation R1.2. Le code livré reste le socle R1.1.
 
@@ -100,7 +103,16 @@ R1.3 préparations/confirmations/stale/ETC/transitions RAM, R1.4 simulation cert
 R2 durable/CAS/transactions/reçus minimaux/recovery/import-export/autonomie Snapshots.
 `ValidatedPortfolioGraph` ne prouve ni transition légitime ni conservation durable.
 Unicité historique à vie des couples garantie R2, contrôle local graph/registre
-fourni en R1.2. Propositions/ambiguïtés techniques au PLAN §10 restent à auditer.
+fourni en R1.2. Corrections fixées dans le PLAN : mapping Settings owner→identité
+opaque unique (versions multiples admises, double identité refusée), Capacity
+obligatoire pour chaque Team existing/deleted, refs catalogues conservées sous
+owner deleted et toutes résolubles (existing→existing ; deleted→existing/deleted).
+Snapshot sans chargement transitif des lignées/sources, validation contextuelle
+R1.1 distincte avec statut réel et garanties d'enregistrement conservées.
+Factory de certificat validante unique/type opaque, revalidation unknown/désérialisation,
+aucun registre runtime supplémentaire. Mandatory booléen confirmé, true exige
+objectiveEndDate. A-R12-01–09 inchangés ; autres encodages/metadata et détails API
+ports restent proposés à audit (§10), décisions B1–B4 non laissées ouvertes.
 
 Primitives/enveloppes/filiation/provenance R1.1, Option B/T12-R/isolation et report
 Windows I-R01-C conservés. Ratio RT + exception sans période ouvert pour R3 (ou

@@ -210,3 +210,30 @@ interdit les noms de futurs graphes : adaptation technique proposée au PLAN §8
 sans modification maintenant ni changement des garanties livrées R1.1.
 Le point métier ratio RT + exception sans période reste ouvert pour R3 ; sa
 résolution n'est pas requise pour valider une demande RT comme donnée en R1.2.
+
+
+## Corrections du PLAN R1.2 après audit indépendant
+
+Audit de la baseline documentaire `d16d9fbd004ec9e47ce229fbd44b2bc4c26e703b` :
+**PLAN favorable sous corrections B1–B4 ; aucun GO d'implémentation**.
+Correction uniquement documentaire, [PLAN corrigé §11](./rewrite_r12_plan.md#11-corrections-après-audit-indépendant).
+**R1.2 — NOT STARTED / PLAN PROPOSED FOR AUDIT**, nouvel audit puis GO explicite
+requis ; R1.3/R1.4/R2 NOT STARTED. A-R12-01–09 **intégralement inchangés**,
+contrats et canons R1.1 conservés. Les précisions ci-dessous fixent/remplacent
+les propositions techniques du PLAN audité, sans réviser les décisions métier.
+
+| Correction / portée | Contrat fixé et remplacement de proposition | Référence / gates futures |
+| --- | --- | --- |
+| B1 — structure vs histoire | Fermeture métier selected obligatoire complète. Validation filiation/provenance selon R1.1 et contexte fourni, liens conservés, not-established jamais promu sans données. Supprime exigence transitive des predecessor/sources pour résoudre/certifier Snapshot ; pas de lecture exhaustive des lignées. Garanties d'intégrité à l'enregistrement maintenues, durable R2. | PLAN §5.1–5.3/§6.5 ; G12-04 longue filiation non chargée et structure absente discriminante, G12-02 contradictions fournies |
+| B2 — mapping Settings | EntityId distinct opaque sans égalité artificielle avec owner ProjectId/ReservationId/TeamId. Mapping owner→identité unique par kind dans contexte R1.2 ; versions multiples même identité admises, deux identités même owner refusées. R2 unicité historique durable append/import/recovery. O12-01 fixé. | PLAN §4.1/§5.1/§6.4 ; G12-03/11 |
+| B3 — fermeture tombstones | Une Team selected existing/deleted sélectionne exactement une Capacity ; Project/Reservation deleted conserve refs Program/Pas éventuelles. Toute ref catalogue de Settings selected résoluble ; existing owner→catalogue existing, deleted→existing/deleted ; existing unused valide. Aucune cascade catalogue. O12-02 fixé. | PLAN §4.3/§6.1/§6.4 ; G12-05/09 |
+| B4 — certificat simplifié | Factory validante unique/type opaque, aucun raccourci de validation ; garantie TS distincte de runtime, casts non garantis ; unknown/désérialisé revalidé à frontière exposée. Pas WeakSet/registre d'autorité supplémentaire. Remplace proposition reconnaissance systématique runtime O12-05 ; détail API ports reste proposé. | PLAN §5.3 ; G12-12, aucune preuve de transition/durabilité |
+
+Encodage mandatory confirmé : booléen obligatoire, true exige objectiveEndDate
+civile non nulle ; false accepte date ou null ; aucune mandatoryDeadline séparée,
+pas objective≥earliest ni effet automatique sur AP. PLAN §4.2/G12-01.
+Aucune implémentation/test/build exécuté ; renvois G12-04/05/11 précisés.
+Les autres propositions d'encodage/metadata et détail API ports restent à auditer ;
+commandes catalogue utilisé/confirmations/revue ETC R1.3, ratio exception sans
+période avant moteur concerné R1.4/R3, defaults avant bootstrap opérationnel.
+Arrêt après commit/push documentaire ; aucun début R1.2 sans nouvel audit et GO.

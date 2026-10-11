@@ -54,7 +54,10 @@ mémoire/pile, report Windows et procédure de rollback conservés dans le canon
 `afa76016e4ab89f1e63c5bf23ce83ab0ab41be7d`.
 **R1.2 — NOT STARTED / PLAN PROPOSED FOR AUDIT** (2026-10-11).
 **R1.3, R1.4 et R2–R6 — NOT STARTED**.
-[PLAN R1.2 proposé pour audit](./steps/PORTFOLIO_VERSIONED/rewrite_r12_plan.md).
+[PLAN R1.2 corrigé pour nouvel audit](./steps/PORTFOLIO_VERSIONED/rewrite_r12_plan.md).
+Audit indépendant de `d16d9fbd004ec9e47ce229fbd44b2bc4c26e703b` : favorable sous
+corrections B1–B4, **aucun GO d'implémentation**. Traçabilité au PLAN §11 et au
+[registre](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md#corrections-du-plan-r12-après-audit-indépendant).
 Préparation documentaire uniquement ; aucun code/test/script/config/dépendance
 modifié, aucune gate G12 exécutée. Prochaine action : audit indépendant du SHA
 exact du PLAN puis validation explicite utilisateur avant toute implémentation.
@@ -112,15 +115,22 @@ stockage/UI/intégrations ; composition root. Domain sans UI/IDB/moteur/legacy.
 2. [Décisions et amendements A-R12](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md).
 3. [PLAN R1.2](./steps/PORTFOLIO_VERSIONED/rewrite_r12_plan.md) : baseline, contradictions,
    ancien→nouveau, architecture/payloads, contrats/cas limites, G12-01–13,
-   ordre futur, réception/risques et O12-01–08 à auditer.
+   ordre futur, réception/risques, état des O12-01–08 et corrections B1–B4 (§11).
 4. [R0 avec addendum §14](./steps/PORTFOLIO_VERSIONED/rewrite_r0_plan.md), puis
    [registre de reprise](./steps/PORTFOLIO_VERSIONED/rewrite_reuse_registry.md).
 5. Plans/canons [R0.1](./steps/PORTFOLIO_VERSIONED/rewrite_r01_canon.md) et
    [R1.1](./steps/PORTFOLIO_VERSIONED/rewrite_r11_canon.md) : acquis, preuves et limites.
 
-Options techniques R1.2 à auditer : mapping identities Settings, capacités et
-catalogues sous tombstones, fermeture des liens génériques déclarés, encodages
-payload/metadata, ports et certificat runtime. Voir PLAN §10 ; aucun choix tacite.
+Corrections fixées : mappings Settings owner→identité opaque unique, versions
+multiples sous cette identité admises ; une Capacity par Team selected même
+deleted ; toutes refs Program/Pas résolubles, conservées sous propriétaire deleted,
+existing→existing et deleted→existing/deleted ; catalogue existing inutilisé valide.
+Snapshot certifié sur métier/structure sans parcours transitif de lignées/sources ;
+statut contextuel R1.1 conservé, garanties d'enregistrement inchangées.
+Certificat : factory validante unique/type opaque, données unknown/désérialisées
+revalidées, aucun registre de certificats. Mandatory booléen confirmé, true exige
+objectiveEndDate. A-R12-01–09 inchangés. Options restantes : autres encodages,
+metadata et détails API ports (§10), aucune politique B1–B4 ouverte à l'implémenteur.
 Unicité PT/RT historique à vie : R1.2 contrôle graph/contexte fourni, R2 garantit
 toutes versions durables. Ratio RT + exception sans période reste ouvert pour R3,
 ou avant scénario concerné R1.4. Defaults bootstrap à fixer avant usage natif.
