@@ -1,6 +1,6 @@
 # FlowPlan2 current plan — point d'entrée unique
 
-## Trajectoire active — FlowPlan2 V2 / R1.1 DONE, PLAN R1.2 proposé pour audit
+## Trajectoire active — FlowPlan2 V2 / R1.1 DONE, R1.2 IN REVIEW
 
 **R0 clôturé. R0.1 — Rewrite Initialization : DONE**, clôture utilisateur
 autorisée le 2026-10-10 après audit indépendant favorable de l’architecture,
@@ -52,16 +52,21 @@ sans valider le schéma métier du payload (R1.2). Limites physiques BigInt,
 mémoire/pile, report Windows et procédure de rollback conservés dans le canon.
 **R0 — DONE ; R0.1 — DONE ; R1.1 — DONE.** Baseline de clôture R1.1 :
 `afa76016e4ab89f1e63c5bf23ce83ab0ab41be7d`.
-**R1.2 — NOT STARTED / PLAN PROPOSED FOR AUDIT** (2026-10-11).
-**R1.3, R1.4 et R2–R6 — NOT STARTED**.
-[PLAN R1.2 corrigé pour nouvel audit](./steps/PORTFOLIO_VERSIONED/rewrite_r12_plan.md).
-Audit indépendant de `d16d9fbd004ec9e47ce229fbd44b2bc4c26e703b` : favorable sous
-corrections B1–B4, **aucun GO d'implémentation**. Traçabilité au PLAN §11 et au
-[registre](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md#corrections-du-plan-r12-après-audit-indépendant).
-Préparation documentaire uniquement ; aucun code/test/script/config/dépendance
-modifié, aucune gate G12 exécutée. Prochaine action : audit indépendant du SHA
-exact du PLAN puis validation explicite utilisateur avant toute implémentation.
-R1.2 n'est ni IN REVIEW ni DONE. Aucune implémentation R1.2/R1.3/R2 autorisée.
+**R0/R0.1/R1.1 DONE ; R1.2 — IN REVIEW**, 2026-10-11.
+Implémentation autorisée après audit favorable du PLAN corrigé B1–B4, baseline
+`4f4691d899206868160cc27eec62a50984a21dc4` ; préflight exact/propre,
+fetch réussi, divergence 0/0. [PLAN et résultats R1.2](./steps/PORTFOLIO_VERSIONED/rewrite_r12_plan.md#12-résultats-dimplémentation-r12--in-review),
+[canon R1.2 et preuves](./steps/PORTFOLIO_VERSIONED/rewrite_r12_canon.md).
+14 payloads runtime, registre passif, manifestes exacts/inventaires dérivés,
+resolver pur, ports async séparés/adapter mémoire et certificat opaque validant.
+A-R12-01–09/B1–B4 appliqués ; aucun contrat générique R1.1 modifié.
+G12-01–13 exécutées PASS, 154/154 tests V2 et 86/86 ciblés, frontières,
+typecheck/build PASS ; rollback en clone jetable tree baseline identique et
+68/68 tests du socle restauré PASS. Shell/runtime de démarrage inchangé.
+Browser/multi-TZ non réexécutés pour ces modules dormants ; Windows reporté
+selon I-R01-C. Le certificat n'atteste aucune transition/confirmation/durabilité.
+**R1.3/R1.4/R2–R6 NOT STARTED**. Prochain acte : audit indépendant de la
+livraison avant toute clôture R1.2 ; arrêt après commit/push.
 
 **Norme applicable consolidée — amendements du 2026-10-11 :**
 [A-R12-01–09, correspondances anciennes→nouvelles](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md#amendements-normatifs-r12--2026-10-11).
@@ -129,8 +134,7 @@ Snapshot certifié sur métier/structure sans parcours transitif de lignées/sou
 statut contextuel R1.1 conservé, garanties d'enregistrement inchangées.
 Certificat : factory validante unique/type opaque, données unknown/désérialisées
 revalidées, aucun registre de certificats. Mandatory booléen confirmé, true exige
-objectiveEndDate. A-R12-01–09 inchangés. Options restantes : autres encodages,
-metadata et détails API ports (§10), aucune politique B1–B4 ouverte à l'implémenteur.
+objectiveEndDate. A-R12-01–09 inchangés. Encodages, metadata et API ports réalisés dans le canon R1.2 ; aucune politique B1–B4 ouverte à l'implémenteur.
 Unicité PT/RT historique à vie : R1.2 contrôle graph/contexte fourni, R2 garantit
 toutes versions durables. Ratio RT + exception sans période reste ouvert pour R3,
 ou avant scénario concerné R1.4. Defaults bootstrap à fixer avant usage natif.
@@ -138,7 +142,7 @@ ou avant scénario concerné R1.4. Defaults bootstrap à fixer avant usage natif
 Option B extraction sélective, T12-R sans migration V4–V8/bridge/autorité legacy,
 origines fixes 4274/4275 et garde V2 conservés. REUSE ne signifie pas extraction
 réalisée. Le [registre](./steps/PORTFOLIO_VERSIONED/rewrite_reuse_registry.md)
-conserve opérations R0.1/R1.1 et intentions R1.2, toutes non réalisées.
+conserve opérations R0.1/R1.1, intentions historiques et opérations effectives R1.2 IN REVIEW.
 Documents patrimoniaux : [architecture antérieure](./steps/PORTFOLIO_VERSIONED/architecture_plan.md),
 [canon de référence](./canon.md), archives suivantes ; aucune norme V2
 exclusivement déduite d'eux. Stateless : décisions nécessaires dans le dépôt,

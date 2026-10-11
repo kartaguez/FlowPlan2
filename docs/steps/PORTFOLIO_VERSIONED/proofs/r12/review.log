@@ -1,0 +1,10 @@
+Baseline 4f4691d899206868160cc27eec62a50984a21dc4
+Scope allowlist: PASS (29 files)
+R1.1 production unchanged: PASS
+Historical DONE plans/canons unchanged: PASS
+Tracker archives byte-identical: PASS
+Decision amendments/reuse history preserved: PASS
+Relative links/anchors checked: PASS (196)
+git diff --check: PASS
+Gate names and executed TAP results: PASS (G12-01 through G12-13)
+Full implementation diff reviewed by author; independent audit PENDING.

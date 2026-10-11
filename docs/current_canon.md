@@ -1,6 +1,6 @@
 # FlowPlan2 current canon
 
-## Trajectoire active — V2 : R1.1 DONE, PLAN R1.2 proposé pour audit
+## Trajectoire active — V2 : R1.1 DONE, R1.2 IN REVIEW
 
 Point d'entrée et ordre de lecture : [current_plan](./current_plan.md).
 R0 clôturé ; contrats normatifs dans [R0](./steps/PORTFOLIO_VERSIONED/rewrite_r0_plan.md)
@@ -55,15 +55,21 @@ Windows DEFERRED / NOT EXECUTED et rollback conservent leurs limites documentée
 Shell R0.1 et garde inchangés, aucun registre/Current/métier complet/storage.
 Baseline documentaire de clôture R1.1 :
 `afa76016e4ab89f1e63c5bf23ce83ab0ab41be7d`.
-**R0/R0.1/R1.1 DONE ; R1.2 — NOT STARTED / PLAN PROPOSED FOR AUDIT ;
-R1.3/R1.4 et R2–R6 NOT STARTED.**
-[PLAN R1.2](./steps/PORTFOLIO_VERSIONED/rewrite_r12_plan.md) proposé le 2026-10-11,
-uniquement documentaire ; aucune gate G12 exécutée ni nouvelle preuve de code.
-Audit indépendant de `d16d9fbd004ec9e47ce229fbd44b2bc4c26e703b` favorable sous
-corrections B1–B4, aucun GO. PLAN corrigé pour nouvel audit, traçabilité §11 et
-[registre](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md#corrections-du-plan-r12-après-audit-indépendant).
-Prochaine action : audit indépendant du SHA exact puis validation explicite
-utilisateur avant toute implémentation R1.2. Le code livré reste le socle R1.1.
+**R0/R0.1/R1.1 DONE ; R1.2 — IN REVIEW**, 2026-10-11.
+Implémentation autorisée après audit favorable du PLAN corrigé B1–B4, baseline
+`4f4691d899206868160cc27eec62a50984a21dc4` ; préflight exact/propre,
+fetch réussi, divergence 0/0. [PLAN et résultats R1.2](./steps/PORTFOLIO_VERSIONED/rewrite_r12_plan.md#12-résultats-dimplémentation-r12--in-review),
+[canon R1.2 et preuves](./steps/PORTFOLIO_VERSIONED/rewrite_r12_canon.md).
+14 payloads runtime, registre passif, manifestes exacts/inventaires dérivés,
+resolver pur, ports async séparés/adapter mémoire et certificat opaque validant.
+A-R12-01–09/B1–B4 appliqués ; aucun contrat générique R1.1 modifié.
+G12-01–13 exécutées PASS, 154/154 tests V2 et 86/86 ciblés, frontières,
+typecheck/build PASS ; rollback en clone jetable tree baseline identique et
+68/68 tests du socle restauré PASS. Shell/runtime de démarrage inchangé.
+Browser/multi-TZ non réexécutés pour ces modules dormants ; Windows reporté
+selon I-R01-C. Le certificat n'atteste aucune transition/confirmation/durabilité.
+**R1.3/R1.4/R2–R6 NOT STARTED**. Prochain acte : audit indépendant de la
+livraison avant toute clôture R1.2 ; arrêt après commit/push.
 
 **Cible applicable amendée**, distincte de la livraison :
 [A-R12-01–09](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md#amendements-normatifs-r12--2026-10-11)
@@ -98,7 +104,7 @@ complète ; Snapshots sur Save explicite. Versions archivées immuables.
 
 Domain : types/invariants/validation/résolution pure ; Application commandes/
 transitions ; ports abstraits versions/manifests, adapters et composition root.
-Aucune dépendance Domain UI/IDB/moteur/legacy. R1.2 certifiera la structure seulement ;
+Aucune dépendance Domain UI/IDB/moteur/legacy. R1.2 certifie la structure seulement ;
 R1.3 préparations/confirmations/stale/ETC/transitions RAM, R1.4 simulation certifiée,
 R2 durable/CAS/transactions/reçus minimaux/recovery/import-export/autonomie Snapshots.
 `ValidatedPortfolioGraph` ne prouve ni transition légitime ni conservation durable.
@@ -111,16 +117,14 @@ Snapshot sans chargement transitif des lignées/sources, validation contextuelle
 R1.1 distincte avec statut réel et garanties d'enregistrement conservées.
 Factory de certificat validante unique/type opaque, revalidation unknown/désérialisation,
 aucun registre runtime supplémentaire. Mandatory booléen confirmé, true exige
-objectiveEndDate. A-R12-01–09 inchangés ; autres encodages/metadata et détails API
-ports restent proposés à audit (§10), décisions B1–B4 non laissées ouvertes.
+objectiveEndDate. A-R12-01–09 inchangés ; encodages/metadata/API ports réalisés dans le canon R1.2, décisions B1–B4 appliquées.
 
 Primitives/enveloppes/filiation/provenance R1.1, Option B/T12-R/isolation et report
 Windows I-R01-C conservés. Ratio RT + exception sans période ouvert pour R3 (ou
 avant scénario moteur concerné R1.4). Aucun nouveau modèle métier monté dans shell.
-Registre de reprise complété par intentions R1.2 non réalisées, aucune extraction
-anticipée. Canons DONE/archives ci-dessous identiques : faits historiques, jamais
+Registre de reprise complété par opérations effectives R1.2 IN REVIEW. Canons DONE/archives ci-dessous identiques : faits historiques, jamais
 preuve d'une règle R1.2. Sauvegarde/restauration utilisateur R0 §6 avant bascule
-opérationnelle reste requise ; aucune donnée réelle utilisée par ce PLAN.
+opérationnelle reste requise ; aucune donnée réelle utilisée par R1.2.
 
 ## Archives de canon — application de référence
 

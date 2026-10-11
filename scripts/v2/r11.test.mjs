@@ -15,13 +15,17 @@ test('A01 actual V2 source/type/transitive graph is autonomous', async () => {
 });
 test('A02 Domain has only internal dependencies and pure primitive APIs', async () => {
   const root = resolve(projectRoot, 'src-v2/domain');
-  const prohibited = new Set(['Date', 'window', 'document', 'navigator', 'globalThis', 'performance', 'setTimeout', 'setInterval', 'fetch', 'Current', 'PortfolioSnapshot', 'GraphResolver', 'GraphValidator']);
+  const prohibited = new Set(['Date', 'window', 'document', 'navigator', 'globalThis', 'performance', 'setTimeout', 'setInterval', 'fetch']);
   const modules = (await filesUnder(root)).filter(f => f.endsWith('.ts') && !f.endsWith('.test.ts'));
   for (const file of modules) {
     const code = await readFile(file, 'utf8');
     const ast = ts.createSourceFile(file, code, ts.ScriptTarget.Latest, true);
     function visit(node) {
-      if (ts.isIdentifier(node)) assert.equal(prohibited.has(node.text), false, `${file}: ${node.text}`);
+      if (ts.isIdentifier(node)) {
+        assert.equal(prohibited.has(node.text), false, `${file}: ${node.text}`);
+        if (relative(root,file).startsWith('primitives/') || ['versioning/versionEnvelope.ts','versioning/owner.ts','versioning/immutableValue.ts'].includes(relative(root,file)))
+          assert.ok(!['Current','PortfolioSnapshot','GraphResolver','GraphValidator'].includes(node.text),file);
+      }
       if (ts.isPropertyAccessExpression(node)) assert.ok(!['random','now'].includes(node.name.text), file);
       if (relative(root,file) === 'primitives/rational.ts' || relative(root,file) === 'primitives/quantity.ts') {
         if (ts.isIdentifier(node)) assert.ok(!['Number','parseFloat','parseInt'].includes(node.text),file);

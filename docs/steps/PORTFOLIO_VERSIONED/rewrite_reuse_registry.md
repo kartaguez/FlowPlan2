@@ -236,3 +236,24 @@ Prochaine opération après audit/GO seulement : ajouter source exacte/SHA sourc
 **effectif**, symboles réellement repris, destination **réelle**, imports retirés,
 contrats/preuves exécutées/avis reviewer ; ne jamais transformer les intentions
 ci-dessus en DONE sur seule validation du PLAN. Toutes G12 NOT EXECUTED.
+
+## Opérations effectives R1.2 — IN REVIEW
+
+Baseline source effective commune : `4f4691d899206868160cc27eec62a50984a21dc4`.
+Les intentions précédentes restent historiques. Implémentation autorisée après
+audit favorable du PLAN corrigé ; audit indépendant de l'extraction/livraison
+R1.2 **EN ATTENTE**, aucun DONE. [Canon et preuves](./rewrite_r12_canon.md).
+Aucun import legacy ni fichier entier repris ; sources legacy conservées intactes.
+
+| Source/symboles effectivement utilisés | Classe effective | Destination réelle | Adaptations/dépendances retirées | Preuves exécutées |
+| --- | --- | --- | --- | --- |
+| src-v2/domain/primitives et versioning R1.1 : validateQuantity/createOptionalQuantity/createCivilDate/IDs/refs/data/result/copyImmutableValue/equalImmutableValues/createVersionEnvelope/validateVersionContext | REUSE du socle livré, imports internes Domain | domain/portfolio/{payloadValidation,manifest,graphResolver,graphValidation,validatedPortfolioGraph}.ts ; domain/versioning/versionRegistry.ts | Aucun changement des primitives ou contrats ; payloads métier validés séparément ; rapport contextuel conservé | G12-01–12 PASS ; 68 tests acquis repassés dans 154/154 |
+| src/domain/model/color.ts : regex createColor, normalizeCatalogName/catalogNameKey | REUSE logique clé de nom ; ADAPT validation stricte d'encodage | domain/portfolio/payloadValidation.ts : color/catalogNameKey | result legacy retiré ; pas suggestColor/default ; lowercase couleur et noms non canoniques refusés plutôt que réparation | G12-01/09 PASS, matrice catalogues et noms |
+| src/domain/capacity/schedule.ts : createWorkingPattern/createCapacityPeriod/createTeamCapacitySchedule | ADAPT contrôles intervalle/weekday/overlap/doublon uniquement | domain/portfolio/payloadValidation.ts : cases TeamCapacity/PlanningSettings | Aucun import/scalars/date/result legacy, pas tri réparateur, unavailabilityRatio obligatoire, pas calcul quotidien | G12-01/09 PASS, gaps/bornes/exceptions/negative |
+| Fondations R1.1, PLAN normatif payloads/manifestes et architecture | REFERENCE, construction native | payloads/manifest/registry/resolver/validation/certificat ; ports/services/adapter mémoire | Aucun modèle inline legacy/RAF/history/catalogue automatique/CAS/moteur/UI | G12-03–12 PASS, B1–B4 discriminants |
+| scripts/v2/r11.test.mjs A02 et garde boundaries.mjs | REUSE garde inchangé, ADAPT A02 ciblé | scripts/v2/r11.test.mjs ; scripts/v2/r12.test.mjs | Noms futurs limités aux modules historiques R1.1 ; pureté et dépendances conservées ; 10 canaris hexagonaux neufs | G12-13, A01–A03 et canaris généraux PASS |
+
+Tests natifs neufs dans src-v2/application/portfolio/r12.test.ts ; aucun import de
+preuve/fixture/oracle legacy. Modules capacité/catalogue initialement envisagés
+séparément regroupés dans payloadValidation, choix simple sans abstraction métier
+supplémentaire. Aucune autre intention R1.3/R1.4/R2 transformée en opération.

@@ -1,6 +1,16 @@
 # FlowPlan2 V2 — PLAN R1.2 : graphe versionné et validation structurelle
 
-Date : 2026-10-11. **R1.2 — NOT STARTED / PLAN PROPOSED FOR AUDIT**.
+Date de livraison : 2026-10-11. **R1.2 — IN REVIEW**.
+Implémentation explicitement autorisée après audit favorable du PLAN corrigé
+B1–B4, baseline `4f4691d899206868160cc27eec62a50984a21dc4`.
+Résultats actuels en [§12](#12-résultats-dimplémentation-r12--in-review) et
+[canon de livraison](./rewrite_r12_canon.md). R1.3/R1.4/R2 restent NOT STARTED.
+Les sections 1–11 ci-dessous conservent le PLAN et sa préparation documentaire
+historiques ; leurs mentions NOT STARTED/NOT EXECUTED décrivent cette préparation,
+pas l'état de livraison. Les règles fonctionnelles et corrections B1–B4 restent
+normatives. Aucun canon DONE ni amendement A-R12-01–09 modifié.
+
+Date du PLAN historique : 2026-10-11. **R1.2 — NOT STARTED / PLAN PROPOSED FOR AUDIT**.
 **PLAN ONLY** : livraison documentaire exclusivement, aucun code/test/script,
 configuration ou dépendance modifié. R0/R0.1/R1.1 DONE ; R1 CADRAGE VALIDÉ ;
 R1.3/R1.4 et R2–R6 NOT STARTED. Audit indépendant et validation explicite du
@@ -707,3 +717,33 @@ synchronisation Git sont rapportés après commit/push.
 Aucun test applicatif, build ou gate exécuté ; pas de preuve d'implémentation.
 Prochain acte : nouvel audit du PLAN corrigé puis GO explicite utilisateur.
 **Arrêt après livraison documentaire, aucun démarrage R1.2.**
+
+## 12. Résultats d'implémentation R1.2 — IN REVIEW
+
+Autorisation utilisateur après audit favorable B1–B4. Préflight exact au SHA
+`4f4691d899206868160cc27eec62a50984a21dc4` : branche attendue, arbre propre,
+fetch origin réussi et HEAD/origin identiques, divergence 0/0. R1.1 examiné ;
+aucun contrat ou module de production R1.1 modifié.
+
+P1–P5 implémentés dans l'ordre de dépendance : 14 payloads runtime, registre
+passif, manifestes/inventaires, resolver et lecteurs injectés mémoire, validation
+structurelle et factory opaque unique. Encodages O12-04/API O12-05 réalisés et
+tracés dans le [canon R1.2](./rewrite_r12_canon.md#décisions-techniques-réalisées).
+Helpers locaux regroupés dans payloadValidation plutôt que modules séparés ;
+suite native intégrée dans application/portfolio/r12.test.ts. B1–B4 et
+A-R12-01–09 appliqués ; aucune commande, confirmation, CAS durable, IDB,
+simulation, UI, migration ou historique Current ajoutés.
+
+P6 : **G12-01–G12-13 PASS réellement exécutées**, matrice module→tests→résultat
+et limites dans le [canon](./rewrite_r12_canon.md#gates-réellement-exécutées).
+154/154 tests V2, 86/86 ciblés (mêmes nouveaux tests), frontières, typecheck,
+build et diff-check PASS. Rollback réel en clone jetable : revert normal,
+tree baseline identique, 68/68 tests du socle/frontières/typecheck/build PASS.
+Preuves brutes sous [proofs/r12](./proofs/r12/delivery.json). Windows toujours
+DEFERRED / NOT EXECUTED ; browser/multi-TZ non relancés, shell et primitives
+inchangés. A02 adapté exactement selon §8 sans affaiblir le garde général.
+
+**R1.2 — IN REVIEW**, audit indépendant de l'implémentation requis avant DONE.
+R0/R0.1/R1.1 restent DONE ; R1.3/R1.4/R2–R6 NOT STARTED.
+SHA final et synchronisation origin/arbre propre rapportés après commit/push.
+Arrêt à cette livraison, aucun lot suivant commencé.

@@ -1,0 +1,185 @@
+{
+  "status": "IN REVIEW",
+  "baseline": "4f4691d899206868160cc27eec62a50984a21dc4",
+  "branch": "rewrite/portfolio-versioned",
+  "environment": {
+    "system": "Darwin",
+    "architecture": "arm64",
+    "node": "v24.21.0",
+    "npm": "11.19.0",
+    "typescript": "5.9.3"
+  },
+  "tests": {
+    "v2Distinct": 154,
+    "v2Passed": 154,
+    "r12Distinct": 86,
+    "targetedPassed": 86,
+    "rollbackBaselinePassed": 68,
+    "fail": 0,
+    "skip": 0,
+    "todo": 0,
+    "cancelled": 0
+  },
+  "gates": {
+    "G12-01": {
+      "status": "PASS",
+      "tests": [
+        "G12-01 ProjectSettings: schema valid, extra/missing keys refused",
+        "G12-01 ReservationSettings: schema valid, extra/missing keys refused",
+        "G12-01 TeamSettings: schema valid, extra/missing keys refused",
+        "G12-01 TeamCapacity: schema valid, extra/missing keys refused",
+        "G12-01 Program: schema valid, extra/missing keys refused",
+        "G12-01 Pas: schema valid, extra/missing keys refused",
+        "G12-01 PT: schema valid, extra/missing keys refused",
+        "G12-01 RT: schema valid, extra/missing keys refused",
+        "G12-01 ActualPeriod: schema valid, extra/missing keys refused",
+        "G12-01 ActualSubPeriod: schema valid, extra/missing keys refused",
+        "G12-01 TeamActual: schema valid, extra/missing keys refused",
+        "G12-01 PTEC: schema valid, extra/missing keys refused",
+        "G12-01 PlanningSettings: schema valid, extra/missing keys refused",
+        "G12-01 PortfolioOrder: schema valid, extra/missing keys refused",
+        "G12-01 mandatory, typed refs, colors and eliminated statuses",
+        "G12-01 runtime unknown accessors, cycles, sparse arrays and forged quantities"
+      ]
+    },
+    "G12-02": {
+      "status": "PASS",
+      "tests": [
+        "G12-02 immutable registry, repetitions, branches, append and exact lookup",
+        "G12-02 collisions, owner changes and contextual cycles refused"
+      ]
+    },
+    "G12-03": {
+      "status": "PASS",
+      "tests": [
+        "G12-03 empty explicit manifest and inventories derived from opaque Settings owners",
+        "G12-03 duplicate selection and wrong table kind refused"
+      ]
+    },
+    "G12-04": {
+      "status": "PASS",
+      "tests": [
+        "G12-04 exact resolver invariant under registry permutation; no predecessor/provenance substitution",
+        "G12-04/B1 Snapshot v10000: ten thousand historical versions available only to witness; zero historical/Current reads",
+        "G12-04 read ports reject wrong versions, Snapshot IDs and propagate read diagnostics",
+        "G12-04 Snapshot-only adapter has no Current data; wrong extra response is diagnosed"
+      ]
+    },
+    "G12-05": {
+      "status": "PASS",
+      "tests": [
+        "G12-05 tombstones keep covered AP, archived positive actuals, capacities and references",
+        "G12-05 deleted endpoints forbid existing PT/RT; deleted associations forbid selected TA/PTEC",
+        "G12-05 restored owner with only deleted associations; hidden/inactive owners retain complete grid",
+        "G12-05/B3 Team deleted rejects two Capacity identities, even only one selected"
+      ]
+    },
+    "G12-06": {
+      "status": "PASS",
+      "tests": [
+        "G12-06 empty/covered partitions, leap day, singleton and date extremes",
+        "G12-06 partition gaps, overlaps, ordering, bounds, wrong AP and extra SubPeriods refused",
+        "G12-06 earliest constraint is independent of activity and lifecycle",
+        "G12-06 foreign AP owner and AP/SubPeriod selection version disagreement",
+        "G12-06/08 bound adjustments and split with empty provenance preserve unaffected TA/PTEC versions"
+      ]
+    },
+    "G12-07": {
+      "status": "PASS",
+      "tests": [
+        "G12-07 exact 2x2 grids include zeros, RT demand zero and inactive/hidden roots",
+        "G12-07 foreign association/subperiod and forged Consumption family refused"
+      ]
+    },
+    "G12-08": {
+      "status": "PASS",
+      "tests": [
+        "G12-08 PTEC AP identity stable across through-equivalent AP versions",
+        "G12-08 missing/foreign PTEC and version AP references refused",
+        "G12-08 empty AP requires null PTEC date and orphan PTEC cannot certify"
+      ]
+    },
+    "G12-09": {
+      "status": "PASS",
+      "tests": [
+        "G12-09 calendar gaps and exceptions outside horizon; RT zero modes",
+        "G12-09 overlaps, duplicate exceptions, weekday/limit/horizon invalidity",
+        "G12-09/B3 ps existing -> Program existing",
+        "G12-09/B3 ps existing -> Program deleted",
+        "G12-09/B3 ps deleted -> Program existing",
+        "G12-09/B3 ps deleted -> Program deleted",
+        "G12-09/B3 ps existing -> Pas existing",
+        "G12-09/B3 ps existing -> Pas deleted",
+        "G12-09/B3 ps deleted -> Pas existing",
+        "G12-09/B3 ps deleted -> Pas deleted",
+        "G12-09/B3 rs existing -> Program existing",
+        "G12-09/B3 rs existing -> Program deleted",
+        "G12-09/B3 rs deleted -> Program existing",
+        "G12-09/B3 rs deleted -> Program deleted",
+        "G12-09/B3 rs existing -> Pas existing",
+        "G12-09/B3 rs existing -> Pas deleted",
+        "G12-09/B3 rs deleted -> Pas existing",
+        "G12-09/B3 rs deleted -> Pas deleted",
+        "G12-09 catalogues autonomous, normalized existing names unique; deleted releases name",
+        "G12-09 order complete for inactive and deleted projects",
+        "G12-09 foreign Portfolio catalogue and unknown order Project refused"
+      ]
+    },
+    "G12-10": {
+      "status": "PASS",
+      "tests": [
+        "G12-10 Snapshot bound includes inactive/deleted AP, empty ignores bound, dates equal/backwards allowed",
+        "G12-10 historical Snapshot independent after explicit divergent Current; adapter copies input"
+      ]
+    },
+    "G12-11": {
+      "status": "PASS",
+      "tests": [
+        "G12-11/B2 owner mapping ps: same identity versions accepted; different identity never selected refused",
+        "G12-11/B2 owner mapping rs: same identity versions accepted; different identity never selected refused",
+        "G12-11/B2 owner mapping ts-t1: same identity versions accepted; different identity never selected refused",
+        "G12-11/B2 owner mapping cap-t1: same identity versions accepted; different identity never selected refused",
+        "G12-11/B2 owner mapping ap-p: same identity versions accepted; different identity never selected refused",
+        "G12-11/B2 owner mapping ptec-t1: same identity versions accepted; different identity never selected refused",
+        "G12-11/B2 owner mapping pt-t1: same identity versions accepted; different identity never selected refused",
+        "G12-11/B2 owner mapping rt-t1: same identity versions accepted; different identity never selected refused",
+        "G12-11/B2 owner mapping planning: same identity versions accepted; different identity never selected refused",
+        "G12-11/B2 owner mapping order: same identity versions accepted; different identity never selected refused",
+        "G12-11 TA identity per cell; lifecycle changes under same PT identity accepted"
+      ]
+    },
+    "G12-12": {
+      "status": "PASS",
+      "tests": [
+        "G12-12/B4 unknown/deserialized data revalidated; forged validated flag has no authority",
+        "G12-12 structure independent of transition history and static opacity/quantity families",
+        "G12-12 certification wrapper accessors/source and JS-cast incomplete graph cannot bypass validation"
+      ]
+    },
+    "G12-13": {
+      "status": "PASS",
+      "tests": [
+        "G12-13 all Domain, Application, ports and memory adapter dependencies respect hexagonal layers",
+        "G12-13 canary rejects Domain to Application",
+        "G12-13 canary rejects Domain to adapter",
+        "G12-13 canary rejects Domain to UI",
+        "G12-13 canary rejects Domain to engine",
+        "G12-13 canary rejects Application to adapter",
+        "G12-13 canary rejects ports to orchestration",
+        "G12-13 canary rejects Domain clock",
+        "G12-13 canary rejects Domain storage",
+        "G12-13 canary rejects Domain fixture",
+        "G12-13 canary rejects Domain legacy type"
+      ]
+    }
+  },
+  "typecheck": "PASS",
+  "build": "PASS",
+  "boundaries": "PASS",
+  "diffCheck": "PASS",
+  "rollback": "PASS",
+  "browser": "NOT REEXECUTED - dormant modules, shell unchanged",
+  "windows": "DEFERRED / NOT EXECUTED",
+  "independentImplementationAudit": "PENDING",
+  "nextLots": "R1.3/R1.4/R2 NOT STARTED"
+}

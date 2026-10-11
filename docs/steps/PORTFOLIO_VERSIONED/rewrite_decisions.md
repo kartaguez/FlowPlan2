@@ -237,3 +237,27 @@ Les autres propositions d'encodage/metadata et détail API ports restent à audi
 commandes catalogue utilisé/confirmations/revue ETC R1.3, ratio exception sans
 période avant moteur concerné R1.4/R3, defaults avant bootstrap opérationnel.
 Arrêt après commit/push documentaire ; aucun début R1.2 sans nouvel audit et GO.
+
+## Décisions techniques réalisées R1.2 — IN REVIEW
+
+Implémentation autorisée au SHA baseline
+`4f4691d899206868160cc27eec62a50984a21dc4`, après audit favorable du PLAN
+corrigé B1–B4. Les amendements A-R12-01–09 ci-dessus sont inchangés.
+[Canon et décisions complètes](./rewrite_r12_canon.md#décisions-techniques-réalisées),
+[preuves exécutées](./rewrite_r12_canon.md#gates-réellement-exécutées).
+
+O12-04 réalisé : null explicite, DailyCap OptionalQuantity R1.1, couleurs
+majuscules/noms catalogue canoniques exigés, calendrier chronologique sans tri,
+weekdays vide permis ; SnapshotId opaque record distinct, revision chaîne opaque,
+createdAt format ISO UTC fixe validé sans horloge. Mandatory conforme au PLAN.
+O12-05 API réalisée : ports async Promise<DomainResult<unknown>>, lecteurs
+Current/Snapshot séparables, collecte exacte, adapter mémoire sans Current
+possible (current null), unique factory unknown validante et type opaque.
+Helpers catalogue/capacité regroupés dans payloadValidation ; aucune duplication
+inter-couches des règles. A02 adapté conformément au delta §8 du PLAN, garde
+boundaries.mjs inchangé, canaris hexagonaux ajoutés.
+
+G12-01–13 réellement exécutées PASS ; 154/154 V2, 86/86 ciblés, typecheck/build/
+frontières PASS. Audit indépendant de l'implémentation encore requis, aucune
+clôture DONE. O12-06/07/08 restent différés aux lots concernés ; R1.3/R1.4/R2
+NOT STARTED. Aucun défaut bootstrap, moteur, transaction ou confirmation ajouté.
