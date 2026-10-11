@@ -92,6 +92,18 @@ M5 moyen sparse ≈4,11 s ; les coûts résiduels imposent une décision sépar�
 la poursuite de R1.3. P1 non implémenté, P2/P3 hors périmètre ; grands non exécutés.
 Audit indépendant du correctif requis. **R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED**.
 
+[R1.2-PERF-P1 — plan des lookups exacts](./steps/PORTFOLIO_VERSIONED/rewrite_r12_perf_p1_plan.md),
+2026-10-11 : **PLAN ONLY / proposé pour audit**, baseline P0 auditée
+`8ec0c7318c782ca407063f3c3d44dc8ff7f4df53` (audit favorable communiqué par
+la mission utilisateur). Trois scans ciblés : resolver, adapter mémoire et
+correspondance de réponse port ; unicité du manifeste également quadratique.
+Recommandation B : helper Domain en lot, tables temporaires par opération,
+addition d'API soumise à accord explicite ; option A et localisation comparées.
+Copies/validations/certification et diagnostics strictement conservés ; oracle
+P0 et campagne M1–M6 prévus, non exécutés. Aucun code/test/benchmark modifié.
+Classification **C maintenue** ; audit indépendant du plan et nouveau GO requis.
+**R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED.** Arrêt après livraison du plan.
+
 **Cible applicable amendée**, distincte de la livraison :
 [A-R12-01–09](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md#amendements-normatifs-r12--2026-10-11)
 remplacent les anciennes clauses désignées R0/D-R1, annulent A-R1-01/02 ;
