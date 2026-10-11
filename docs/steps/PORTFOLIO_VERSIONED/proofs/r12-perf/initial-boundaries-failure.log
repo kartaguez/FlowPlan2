@@ -1,0 +1,5 @@
+
+> flowplan@0.1.0 check:boundaries:v2
+> node scripts/v2/boundaries.mjs
+
+Boundary: /Users/Kartaguez/FlowPlan2/scripts/v2/perf/verify.mjs: unapproved module ../../../.test-dist-v2/domain/portfolio/validatedPortfolioGraph.js

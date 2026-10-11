@@ -1,0 +1,204 @@
+{
+  "startedAt": "2026-10-11T08:07:14.433Z",
+  "command": [
+    "/Users/Kartaguez/.nvm/versions/node/v24.21.0/bin/node",
+    "/Users/Kartaguez/FlowPlan2/scripts/benchmarks/r12-perf/run.mjs",
+    "--scenarios=small:sparse",
+    "--operations=M1",
+    "--repeats=1",
+    "--output=docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf/relocation-check.json"
+  ],
+  "codeSHA": "c9ef65e2ad3223952f39005651dc50dfd0f44c21",
+  "productionTree": "f39d3f286058345c646ddeb673fddf50ba54a3f4",
+  "productionDiff": "",
+  "environment": {
+    "node": "v24.21.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "release": "27.0.0",
+    "cpu": "Apple M4",
+    "logicalCPUs": 10,
+    "totalRAM": 17179869184,
+    "freeRAMAtStart": 389480448,
+    "availableMemoryAtStart": 3506880512,
+    "npm": "11.19.0"
+  },
+  "settings": {
+    "timeoutMs": 30000,
+    "repeats": 1,
+    "heapMiB": 1024,
+    "rssPollMs": 250
+  },
+  "runs": [
+    {
+      "size": "small",
+      "variant": "sparse",
+      "operation": "M1",
+      "profile": null,
+      "samples": [
+        {
+          "event": "sample",
+          "phase": "cold",
+          "ms": 69.427875,
+          "cpuUserMs": 95.457,
+          "cpuSystemMs": 2.045,
+          "before": {
+            "rss": 63488000,
+            "heapTotal": 10567680,
+            "heapUsed": 5660328,
+            "external": 2616555,
+            "arrayBuffers": 143615
+          },
+          "after": {
+            "rss": 74072064,
+            "heapTotal": 17121280,
+            "heapUsed": 10492456,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "retainedWithResult": {
+            "rss": 73990144,
+            "heapTotal": 16596992,
+            "heapUsed": 6305416,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "afterReleaseGC": {
+            "rss": 74137600,
+            "heapTotal": 15548416,
+            "heapUsed": 6299840,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "processMaxRSSKiB": 72336,
+          "observed": {
+            "versions": 474,
+            "context": "established"
+          }
+        },
+        {
+          "event": "sample",
+          "phase": "warmup",
+          "ms": 64.721958,
+          "cpuUserMs": 79.487,
+          "cpuSystemMs": 1.282,
+          "before": {
+            "rss": 74137600,
+            "heapTotal": 15548416,
+            "heapUsed": 6300264,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "after": {
+            "rss": 83116032,
+            "heapTotal": 25772032,
+            "heapUsed": 14672904,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "retainedWithResult": {
+            "rss": 83116032,
+            "heapTotal": 25772032,
+            "heapUsed": 6375392,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "afterReleaseGC": {
+            "rss": 83181568,
+            "heapTotal": 24461312,
+            "heapUsed": 6371152,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "processMaxRSSKiB": 81168,
+          "observed": {
+            "versions": 474,
+            "context": "established"
+          }
+        },
+        {
+          "event": "sample",
+          "phase": "measured-1",
+          "ms": 62.296209000000005,
+          "cpuUserMs": 75.141,
+          "cpuSystemMs": 0.671,
+          "before": {
+            "rss": 83181568,
+            "heapTotal": 24461312,
+            "heapUsed": 6371424,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "after": {
+            "rss": 84852736,
+            "heapTotal": 25772032,
+            "heapUsed": 9880056,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "retainedWithResult": {
+            "rss": 84852736,
+            "heapTotal": 25772032,
+            "heapUsed": 6458272,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "afterReleaseGC": {
+            "rss": 84852736,
+            "heapTotal": 24461312,
+            "heapUsed": 6454224,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "processMaxRSSKiB": 82864,
+          "observed": {
+            "versions": 474,
+            "context": "established"
+          }
+        }
+      ],
+      "rssSamples": [],
+      "status": "COMPLETED",
+      "fixture": {
+        "size": "small",
+        "variant": "sparse",
+        "seed": 1202,
+        "projects": 10,
+        "teams": 5,
+        "reservations": 1,
+        "subPeriodsPerOwner": 12,
+        "versions": 474,
+        "selectedReferences": 474,
+        "byKind": {
+          "ProjectSettings": 10,
+          "ReservationSettings": 1,
+          "TeamSettings": 5,
+          "TeamCapacity": 5,
+          "Program": 1,
+          "Pas": 1,
+          "PT": 20,
+          "RT": 2,
+          "ActualPeriod": 11,
+          "ActualSubPeriod": 132,
+          "TeamActual": 264,
+          "PTEC": 20,
+          "PlanningSettings": 1,
+          "PortfolioOrder": 1
+        },
+        "exactReferenceOccurrences": 1080,
+        "identityOccurrences": 721,
+        "existingPT": 20,
+        "deletedAssociations": 0,
+        "projectTA": 240,
+        "reservationTA": 24,
+        "fixtureSha256": "8471590449ed27421572ee9b3faeb7e090548d10acd4fbe8c7981544c263cefd"
+      },
+      "exitCode": 0,
+      "signal": null,
+      "stderr": "",
+      "rssObservedPeakMiB": null
+    }
+  ],
+  "finishedAt": "2026-10-11T08:07:14.774Z",
+  "largePolicy": "Not automatic; explicit separate --allow-large invocation required"
+}

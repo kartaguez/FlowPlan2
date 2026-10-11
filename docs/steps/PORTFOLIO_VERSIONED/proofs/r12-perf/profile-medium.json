@@ -1,0 +1,206 @@
+{
+  "startedAt": "2026-10-11T08:04:27.367Z",
+  "command": [
+    "/Users/Kartaguez/.nvm/versions/node/v24.21.0/bin/node",
+    "/Users/Kartaguez/FlowPlan2/scripts/v2/perf/run.mjs",
+    "--scenarios=medium:sparse",
+    "--operations=M3",
+    "--repeats=1",
+    "--profile",
+    "--output=docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf/profile-medium.json"
+  ],
+  "codeSHA": "c9ef65e2ad3223952f39005651dc50dfd0f44c21",
+  "productionTree": "f39d3f286058345c646ddeb673fddf50ba54a3f4",
+  "productionDiff": "",
+  "environment": {
+    "node": "v24.21.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "release": "27.0.0",
+    "cpu": "Apple M4",
+    "logicalCPUs": 10,
+    "totalRAM": 17179869184,
+    "freeRAMAtStart": 377257984,
+    "availableMemoryAtStart": 3424059392,
+    "npm": "11.19.0"
+  },
+  "settings": {
+    "timeoutMs": 30000,
+    "repeats": 1,
+    "heapMiB": 1024,
+    "rssPollMs": 250
+  },
+  "runs": [
+    {
+      "size": "medium",
+      "variant": "sparse",
+      "operation": "M3",
+      "profile": "/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf/medium-sparse-M3.cpuprofile",
+      "samples": [
+        {
+          "event": "sample",
+          "phase": "cold",
+          "ms": 14754.644291,
+          "cpuUserMs": 14897.103,
+          "cpuSystemMs": 28.6,
+          "before": {
+            "rss": 107282432,
+            "heapTotal": 28917760,
+            "heapUsed": 10601624,
+            "external": 2616555,
+            "arrayBuffers": 143615
+          },
+          "after": {
+            "rss": 172507136,
+            "heapTotal": 108609536,
+            "heapUsed": 68371880,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "retainedWithResult": {
+            "rss": 172523520,
+            "heapTotal": 94978048,
+            "heapUsed": 17979112,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "afterReleaseGC": {
+            "rss": 172605440,
+            "heapTotal": 87375872,
+            "heapUsed": 17970712,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "processMaxRSSKiB": 185904,
+          "observed": {
+            "versions": 8604,
+            "context": "established"
+          }
+        },
+        {
+          "event": "sample",
+          "phase": "warmup",
+          "ms": 14331.465000000002,
+          "cpuUserMs": 14415.899,
+          "cpuSystemMs": 24.202,
+          "before": {
+            "rss": 172605440,
+            "heapTotal": 87375872,
+            "heapUsed": 17970528,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "after": {
+            "rss": 249167872,
+            "heapTotal": 181485568,
+            "heapUsed": 94028336,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "retainedWithResult": {
+            "rss": 249249792,
+            "heapTotal": 169164800,
+            "heapUsed": 18055816,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "afterReleaseGC": {
+            "rss": 249118720,
+            "heapTotal": 154222592,
+            "heapUsed": 18051640,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "processMaxRSSKiB": 243328,
+          "observed": {
+            "versions": 8604,
+            "context": "established"
+          }
+        },
+        {
+          "event": "sample",
+          "phase": "measured-1",
+          "ms": 14077.732625,
+          "cpuUserMs": 14154.422,
+          "cpuSystemMs": 61.25,
+          "before": {
+            "rss": 249118720,
+            "heapTotal": 154222592,
+            "heapUsed": 18051512,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "after": {
+            "rss": 255492096,
+            "heapTotal": 182272000,
+            "heapUsed": 64374264,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "retainedWithResult": {
+            "rss": 255574016,
+            "heapTotal": 155533312,
+            "heapUsed": 19049480,
+            "external": 2690555,
+            "arrayBuffers": 143631
+          },
+          "afterReleaseGC": {
+            "rss": 255574016,
+            "heapTotal": 151339008,
+            "heapUsed": 12350224,
+            "external": 2551039,
+            "arrayBuffers": 143631
+          },
+          "processMaxRSSKiB": 250016,
+          "observed": {
+            "versions": 8604,
+            "context": "established"
+          }
+        }
+      ],
+      "rssSamples": [],
+      "status": "COMPLETED",
+      "fixture": {
+        "size": "medium",
+        "variant": "sparse",
+        "seed": 1202,
+        "projects": 100,
+        "teams": 20,
+        "reservations": 10,
+        "subPeriodsPerOwner": 24,
+        "versions": 8604,
+        "selectedReferences": 8604,
+        "byKind": {
+          "ProjectSettings": 100,
+          "ReservationSettings": 10,
+          "TeamSettings": 20,
+          "TeamCapacity": 20,
+          "Program": 1,
+          "Pas": 1,
+          "PT": 200,
+          "RT": 20,
+          "ActualPeriod": 110,
+          "ActualSubPeriod": 2640,
+          "TeamActual": 5280,
+          "PTEC": 200,
+          "PlanningSettings": 1,
+          "PortfolioOrder": 1
+        },
+        "exactReferenceOccurrences": 19848,
+        "identityOccurrences": 13810,
+        "existingPT": 200,
+        "deletedAssociations": 0,
+        "projectTA": 4800,
+        "reservationTA": 480,
+        "fixtureSha256": "87dd085a7c6991c5a11bf6d2706a9ef2492822f284d819709c1cc24baaba9aa9"
+      },
+      "rssPollingUnavailable": "spawn EPERM",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": "",
+      "rssObservedPeakMiB": null
+    }
+  ],
+  "finishedAt": "2026-10-11T08:05:10.768Z",
+  "largePolicy": "Not automatic; explicit separate --allow-large invocation required"
+}

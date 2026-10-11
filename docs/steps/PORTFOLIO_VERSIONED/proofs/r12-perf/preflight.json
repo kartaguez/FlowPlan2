@@ -1,0 +1,27 @@
+{
+  "record": "Checks performed before creating benchmark files; recorded afterwards",
+  "baseline": "c9ef65e2ad3223952f39005651dc50dfd0f44c21",
+  "initialHEAD": "c9ef65e2ad3223952f39005651dc50dfd0f44c21",
+  "branch": "rewrite/portfolio-versioned",
+  "initialWorktree": "clean",
+  "fetch": { "command": "git fetch origin", "exitCode": 0 },
+  "originAfterFetch": "c9ef65e2ad3223952f39005651dc50dfd0f44c21",
+  "divergence": { "ahead": 0, "behind": 0 },
+  "commitsSinceAuditedBaseline": [],
+  "productionTree": "f39d3f286058345c646ddeb673fddf50ba54a3f4",
+  "applicableAGENTS": [],
+  "contractsRead": [
+    "docs/steps/PORTFOLIO_VERSIONED/rewrite_r11_canon.md",
+    "docs/steps/PORTFOLIO_VERSIONED/rewrite_r12_canon.md",
+    "docs/steps/PORTFOLIO_VERSIONED/rewrite_r12_plan.md",
+    "docs/steps/PORTFOLIO_VERSIONED/rewrite_decisions.md"
+  ],
+  "existingGateEvidenceRead": [
+    "docs/steps/PORTFOLIO_VERSIONED/proofs/r12/delivery.json",
+    "docs/steps/PORTFOLIO_VERSIONED/proofs/r12/targeted.log"
+  ],
+  "gateEvidence": "G12-01 through G12-13: existing delivery PASS, 86 targeted tests; not a performance gate",
+  "independentAudit": "Favourable audit communicated by user; no proofs/r12-audit directory in this baseline",
+  "scope": "Benchmark tooling, raw evidence and diagnostic documentation only; no optimization",
+  "statuses": { "R1.2": "IN REVIEW", "R1.3": "NOT STARTED", "R1.4": "NOT STARTED", "R2": "NOT STARTED" }
+}

@@ -1,0 +1,56 @@
+{
+  "baseline": "c9ef65e2ad3223952f39005651dc50dfd0f44c21",
+  "productionTree": "f39d3f286058345c646ddeb673fddf50ba54a3f4",
+  "branch": "rewrite/portfolio-versioned",
+  "classification": "C",
+  "recommendation": "Correction du registre avant R1.3, après audit et décision explicite",
+  "statuses": {
+    "R1.2": "IN REVIEW",
+    "R1.3": "NOT STARTED",
+    "R1.4": "NOT STARTED",
+    "R2": "NOT STARTED"
+  },
+  "mainCampaign": {
+    "completedExperiments": 23,
+    "completedAPIInvocations": 115,
+    "measuredRepetitions": 69,
+    "coldCompleted": 23,
+    "warmupCompleted": 23,
+    "interruptedExperiments": 6,
+    "interruptedFirstAPIInvocations": 4,
+    "interruptedAdapterSetups": 2,
+    "domainFailures": 0,
+    "crashes": 0,
+    "historyCurrent": "NOT EXECUTED",
+    "large": "NOT EXECUTED"
+  },
+  "additionalExecutions": {
+    "profilingAPIInvocations": 9,
+    "relocationSmokeAPIInvocations": 3,
+    "fixtureChecks": "3 variants passed, separate from gates",
+    "initialLauncherFailure": "ps spawn EPERM; no complete measurement retained",
+    "initialFinalChecks": "tests/typecheck/build/boundaries refused unapproved compiled imports under scripts/v2; relocated isolated tools, guard unchanged"
+  },
+  "nonRegression": {
+    "tests": {
+      "exitCode": 0,
+      "pass": 154,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "typecheck": {
+      "exitCode": 0
+    },
+    "build": {
+      "exitCode": 0
+    },
+    "boundaries": {
+      "exitCode": 0
+    },
+    "productionAndContracts": "UNCHANGED",
+    "diffCheck": "PASS"
+  },
+  "deliverySHA": "Reported after normal commit and push; no circular self-reference"
+}

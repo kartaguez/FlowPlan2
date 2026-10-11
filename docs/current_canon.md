@@ -71,6 +71,12 @@ selon I-R01-C. Le certificat n'atteste aucune transition/confirmation/durabilit�
 **R1.3/R1.4/R2–R6 NOT STARTED**. Prochain acte : audit indépendant de la
 livraison avant toute clôture R1.2 ; arrêt après commit/push.
 
+Vérification complémentaire [R1.2-PERF : benchmark et diagnostic](./steps/PORTFOLIO_VERSIONED/rewrite_r12_perf.md)
+sur la baseline auditée `c9ef65e2ad3223952f39005651dc50dfd0f44c21` :
+classification **C**, dégradation manifeste du registre sur moyen sparse.
+Correction à décider/auditer avant R1.3 ; aucune optimisation dans cette livraison.
+**R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED** inchangés.
+
 **Cible applicable amendée**, distincte de la livraison :
 [A-R12-01–09](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md#amendements-normatifs-r12--2026-10-11)
 remplacent les anciennes clauses désignées R0/D-R1, annulent A-R1-01/02 ;

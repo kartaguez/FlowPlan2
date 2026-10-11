@@ -1,0 +1,25 @@
+medium:sparse M1 started
+medium:sparse M1 COMPLETED cold:13251.8ms warmup:12645.5ms measured-1:12609.6ms measured-2:12598.0ms measured-3:12604.1ms
+medium:sparse M2 started
+medium:sparse M2 COMPLETED cold:14280.2ms warmup:13565.2ms measured-1:13601.3ms measured-2:13550.3ms measured-3:13530.5ms
+medium:sparse M3 started
+medium:sparse M3 COMPLETED cold:14722.2ms warmup:14314.0ms measured-1:14035.9ms measured-2:14012.5ms measured-3:14038.4ms
+medium:sparse M4 started
+medium:sparse M4 COMPLETED cold:14874.3ms warmup:14461.6ms measured-1:14197.9ms measured-2:14251.9ms measured-3:14206.6ms
+medium:sparse M5 started
+medium:sparse M5 COMPLETED cold:28179.4ms warmup:28379.3ms measured-1:28179.2ms measured-2:28207.4ms measured-3:28175.7ms
+medium:sparse M6 started
+medium:sparse M6 COMPLETED cold:28005.3ms warmup:28176.5ms measured-1:27966.1ms measured-2:28028.6ms measured-3:27981.4ms
+medium:dense M1 started
+medium:dense M1 INTERRUPTED_TIMEOUT
+medium:dense M2 started
+medium:dense M2 INTERRUPTED_TIMEOUT
+medium:dense M3 started
+medium:dense M3 INTERRUPTED_TIMEOUT
+medium:dense M4 started
+medium:dense M4 INTERRUPTED_TIMEOUT
+medium:dense M5 started
+medium:dense M5 INTERRUPTED_TIMEOUT
+medium:dense M6 started
+medium:dense M6 INTERRUPTED_TIMEOUT
+Evidence: /Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf/medium.json

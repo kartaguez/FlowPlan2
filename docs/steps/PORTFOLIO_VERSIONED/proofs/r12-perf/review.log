@@ -1,0 +1,30 @@
+R1.2-PERF review: isolated diagnostic only
+Full source/tooling/document diff reviewed; raw JSON schemas, statuses, counts and profile samples checked
+All proof JSON parse; 3 cpuprofiles have matching samples/timeDeltas
+New report/README local links resolve (review.log created by this check)
+$ git branch --show-current
+rewrite/portfolio-versioned
+exitCode=0
+$ git rev-parse HEAD origin/rewrite/portfolio-versioned
+c9ef65e2ad3223952f39005651dc50dfd0f44c21
+c9ef65e2ad3223952f39005651dc50dfd0f44c21
+exitCode=0
+$ git rev-list --left-right --count HEAD...origin/rewrite/portfolio-versioned
+0	0
+exitCode=0
+$ git diff --cached --check
+(empty output)
+exitCode=0
+$ git diff --check
+(empty output)
+exitCode=0
+$ git diff --exit-code c9ef65e2ad3223952f39005651dc50dfd0f44c21 -- src-v2 scripts/v2 package.json package-lock.json tsconfig.json tsconfig.v2.app.json tsconfig.v2.test.json docs/steps/PORTFOLIO_VERSIONED/rewrite_r11_plan.md docs/steps/PORTFOLIO_VERSIONED/rewrite_r11_canon.md docs/steps/PORTFOLIO_VERSIONED/rewrite_r12_plan.md docs/steps/PORTFOLIO_VERSIONED/rewrite_r12_canon.md docs/steps/PORTFOLIO_VERSIONED/rewrite_decisions.md
+(empty output)
+exitCode=0
+Scope: staged files restricted to 7 isolated tools, diagnostic, two tracker references and dedicated proofs
+R1.2 production modules, R1.1/R1.2 contracts, application tooling/guards, packages/configs unchanged
+Final tests 154/154, typecheck/build/boundaries exit 0; tool checks separate
+Initial diff --check found 6 trailing spaces in timeout log lines: trimmed; launcher trimEnd fixed, no numerical evidence changed
+Final fetch succeeded after sandbox retry with authorized escalation; upstream still baseline, 0/0
+No optimization; R1.2 IN REVIEW; R1.3/R1.4/R2 NOT STARTED
+Delivery SHA reported after normal commit/push and local/remote clean verification
