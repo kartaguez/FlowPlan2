@@ -162,6 +162,27 @@ acceptabilité R1.3 non établie. Aucune autre cible A/B/C implémentée/autoris
 arrêt après commit/push sans force. Le plan initial reste historique pour les
 options différées, aucune permission nouvelle n'en est déduite.
 
+[R1.2-PERF-P3-B — cadrage et plan uniquement](./steps/PORTFOLIO_VERSIONED/rewrite_r12_perf_p3b_plan.md),
+2026-10-11, baseline obligatoire P3-A1 réelle
+`1d1c66b2b38a6599f1ab0950c4dd1fdffd1e6e74` : fetch réussi, branche attendue,
+HEAD/origin exacts, 0/0, arbre propre et aucun concurrent inexpliqué.
+P0/P1/P2/P3-A1 techniquement acceptés selon la mission utilisateur ; leurs
+preuves et statuts historiques sont conservés. **B PLAN ONLY, non autorisé**.
+Recommandation proposée **B2 avec capture lexicale B1** : orchestrateur privé
+acquérant lui-même chaque unknown, checker lexical sans argument de données,
+14 schémas uniques ; seule la copie payload de contrôle abandonnée dans le flux
+version pourrait être retirée. APIs publiques, copie complète initiale,
+diagnostics, R1.1, ports et pipeline collect/certification restent intégralement
+préservés ; aucun helper trusted exporté/cache/certificat intermédiaire.
+Cartographie des 14 schémas, preuve d'encapsulation proposée, arbitrages ouverts,
+oracle futur **1 288 réponses A1 + extensions**, gates/runtime et campagne M1–M6
+avec allocations séparées documentés. N copies/registre potentiellement évitées,
+aucun pourcentage de latence garanti. Aucun code/test/script/benchmark/configuration
+ni preuve historique modifié ; aucune exécution de test/build/mesure/instrumentation.
+Audit indépendant et **nouveau GO explicite requis avant B** ; sinon conserver
+la copie (A/C). **R1.2 IN REVIEW ; performance globale C ; R1.3/R1.4/R2 NOT STARTED**.
+Arrêt après commit/push documentaire normal, sans force.
+
 **Cible applicable amendée**, distincte de la livraison :
 [A-R12-01–09](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md#amendements-normatifs-r12--2026-10-11)
 remplacent les anciennes clauses désignées R0/D-R1, annulent A-R1-01/02 ;
