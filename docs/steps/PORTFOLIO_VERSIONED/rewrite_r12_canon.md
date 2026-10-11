@@ -1,5 +1,77 @@
 # FlowPlan2 V2 — R1.2 : graphe versionné et validation structurelle
 
+## Clôture R1.2 — DONE — 2026-10-11
+
+Clôture documentaire autorisée par la mission utilisateur sur les résultats
+audités, baseline obligatoire `5eb3f4320fa995c730be3090f0a4a284247efdfc`.
+Préflight branche `rewrite/portfolio-versioned`, fetch réussi, HEAD/origin exacts,
+divergence 0/0 et arbre propre. **R1.2 DONE avec limite LOAD non bloquante** :
+invariants fonctionnels/architecturaux, équivalence différentielle, frontières
+hexagonales et certification opaque validés. Le chargement initial volumineux
+n'est pas le cas d'usage critique retenu ; **C reste la classification historique
+LOAD**, jamais réécrite en A/B. EDIT et TRENDS ne sont pas validées.
+
+[Contrats PERF-LOAD / PERF-EDIT / PERF-TRENDS et décision P3-C](./rewrite_decisions.md#clôture-r12-et-exigences-de-performance--2026-10-11)
+applicables sans dérogation : Domain valide, Application orchestre, ports
+indépendants des adaptateurs sans autorité de certification, unknown revalidé,
+copies/gel/détachement, références exactes, snapshots autonomes, certificat opaque
+unique. A-R12-01–09 et B1–B4 restent inchangés.
+
+| Élément | Statut actuel |
+| --- | --- |
+| R0 / R0.1 | DONE |
+| R1.1 | DONE |
+| R1.2 | DONE |
+| PERF-LOAD | Acceptée avec réserve documentée |
+| PERF-EDIT | À qualifier |
+| PERF-TRENDS | À qualifier |
+| P3-C | Étude terminée, non implémentée |
+| R1.3 | NOT STARTED |
+| R1.4 | NOT STARTED |
+| R2 | NOT STARTED |
+
+## Bilan audité des correctifs
+
+Les audits indépendants favorables de chaque correctif sont les résultats
+communiqués par la mission de clôture. Les preuves contemporaines ci-dessous
+conservent leurs statuts historiques ; aucun rapport d'audit absent n'est créé.
+
+| Correctif | Réalisation et SHA livré sur la branche | Preuves et oracle différentiel sans divergence |
+| --- | --- | --- |
+| P0 | Corrections initiales des parcours et structures de registre ; tables temporaires d'unicité et contrôles internes du contexte. `8ec0c7318c782ca407063f3c3d44dc8ff7f4df53` | [Preuves P0](./proofs/r12-perf-fix/README.md), [comparaison](./proofs/r12-perf-fix/comparison.md) ; 563 cas ; 174 tests V2 PASS |
+| P1 | Optimisations des recherches exactes par lot et contrôles associés, unicités du manifeste. `ee6e26fe9b056fbbd62ffb72be9989385a962e5f` | [Rapport P1](./proofs/r12-perf-p1/report.md) ; 941 réponses ; 189 tests V2 PASS |
+| P2 | Suppression du contrôle quadratique de la grille TeamActual, compteur local des couples. `9490d32eb9ec671ed335b4fa3b7f8debc0dbfe94` | [Rapport P2](./proofs/r12-perf-p2/report.md) ; 1 254 réponses ; 194 tests V2 PASS |
+| P3-A1 | Pile locale des ancêtres lors des copies profondes ; copie/gel et détection de cycles conservés. `1d1c66b2b38a6599f1ab0950c4dd1fdffd1e6e74` | [Rapport A1](./proofs/r12-perf-p3-a1/report.md) ; 1 288 réponses ; 213 tests V2 PASS |
+| P3-B | Suppression de la copie intermédiaire de contrôle du payload, acquisition lexicale B1/B2 et 14 schémas uniques. `4b98501a99a94a92c64e6b4a9390766a2915b6e6` | [Rapport B](./proofs/r12-perf-p3-b/report.md) ; 2 259 réponses ; 245 tests V2 PASS |
+
+Chaque correctif a fait l'objet de tests, d'oracles différentiels et d'un audit
+indépendant. Les comptes sont ceux des suites de chaque campagne, non additifs :
+les tests ciblés/rejoués ne sont pas de nouveaux tests distincts, les corpus
+successifs incluent les cas précédents. Aucun test ou benchmark relancé ici.
+
+PERF-LOAD accepte plusieurs secondes sur portfolio volumineux avec réserve :
+[après P3-B](./proofs/r12-perf-p3-b/comparison.md), médianes Snapshot moyen dense
+M5 ≈7,23 s et Current moyen dense M6 ≈7,00 s, propres aux fixtures/environnement,
+setup mémoire séparé/exclu, sans SLA ni garantie universelle. Grands non exécutés,
+M6 historique non exécuté, limites CPU/mémoire/dispersion conservées.
+PERF-EDIT reste priorité critique à qualifier sur portfolio chargé ; PERF-TRENDS
+reste à qualifier, maximum 100 projets sélectionnés sans limite totale portfolio
+ni plafond arbitraire de snapshots. Les dépendances historiques peuvent couvrir
+l'ensemble du portfolio ; aucun sous-portfolio présumé équivalent.
+
+P3-C : **étudié, non implémenté et abandonné dans le cadre actuel**. Deux registres
+indépendants, frontières Application/Domain et seconde acquisition de certification
+maintenus ; aucune autorité de confiance/certification intermédiaire, aucune
+optimisation supplémentaire sans nouveau besoin mesuré. Ce n'est pas un correctif.
+Aucun cache, projection partielle ou agrégation préalable introduit/autorisé.
+
+Clôture uniquement documentaire ; aucun démarrage ou cadrage R1.3/R1.4/R2.
+Arrêt après commit/push normal. Le corps ci-dessous conserve les livraisons
+historiques : ses statuts et prochaines actions antérieurs ne remplacent pas
+cette clôture ; ses preuves et contrats non amendés restent intacts.
+
+## Historique des livraisons R1.2
+
 ## Addendum R1.2-PERF-P3-B — 2026-10-11
 
 B2 avec acquisition B1 livré sur autorisation utilisateur, baseline exacte

@@ -1,5 +1,24 @@
 # FlowPlan2 V2 — R1.2-PERF-P3-C : étude architecturale et plan
 
+## Décision finale de clôture — étude terminée, non implémentée — 2026-10-11
+
+**P3-C étudié, non implémenté et abandonné dans le cadre actuel**, sur instruction
+utilisateur de clôture à la baseline `5eb3f4320fa995c730be3090f0a4a284247efdfc`.
+[Décision normative D-R12-P3C](./rewrite_decisions.md#clôture-r12-et-exigences-de-performance--2026-10-11) :
+maintien des deux constructions indépendantes de registre, des frontières
+Application/Domain et de la seconde acquisition lors de la certification.
+Aucune nouvelle autorité de confiance ni certification intermédiaire ; aucune
+optimisation supplémentaire sans nouveau besoin mesuré. L'étude n'est pas un
+correctif implémenté. Aucun GO de laboratoire, de refactoring ou d'implémentation.
+
+R1.2 **DONE avec réserve LOAD non bloquante**, classification historique C
+conservée ; EDIT/TRENDS à qualifier ; R1.3/R1.4/R2 **NOT STARTED**.
+Le corps ci-dessous est l'étude historique : ses onze arbitrages proposés et
+étapes conditionnelles sont clos par le maintien A et l'abandon dans ce cadre,
+sans permission de les lancer. Aucun résultat, preuve ou analyse historique réécrit.
+
+## Étude historique conservée
+
 2026-10-11 — **PLAN ONLY, PROPOSÉ À AUDIT ; AUCUN GO D’IMPLÉMENTATION**.
 Baseline obligatoire, référence fonctionnelle et futur oracle P3-B :
 `4b98501a99a94a92c64e6b4a9390766a2915b6e6`.

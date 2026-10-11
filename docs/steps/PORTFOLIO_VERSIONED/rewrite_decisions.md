@@ -4,11 +4,14 @@ Statut : décisions R0 validées par audit indépendant favorable à
 `62bfdb9f36b406a0196ba7ceee45884217c68365`. GO R0.1 reçu après audit du plan
 à `1c2b08c727af9fb8002b7678bd7403fcc0d39c27` ; R0.1 DONE après audit indépendant favorable et clôture utilisateur au SHA
 `d5bb1a89c847604f2f80aaaa3270e4125f4a3fef`, avec amendement I-R01-C ; R1 — CADRAGE VALIDÉ, R1.1 — DONE après audit final favorable et clôture utilisateur ;
-R1.2 — NOT STARTED / PLAN PROPOSED FOR AUDIT ; R1.3, R1.4 et R2–R6 NOT STARTED.
-Préparation documentaire R1.2 autorisée uniquement ; aucune implémentation autorisée.
+R1.2 — DONE avec limite LOAD documentée non bloquante ; R1.3, R1.4 et R2–R6 NOT STARTED.
+Clôture documentaire autorisée, sans démarrage du lot suivant.
 Point d'entrée : [current_plan](../../current_plan.md).
 Option B extraction sélective, verticales R1 mémoire/R2 durable, architecture à
 six modules, stockage neuf isolé et matrice de reprise sont validés.
+
+[Clôture R1.2, statuts et décisions PERF-LOAD / PERF-EDIT / PERF-TRENDS / P3-C](#clôture-r12-et-exigences-de-performance--2026-10-11) :
+la décision finale prime sur les statuts et prochaines actions historiques ci-dessous.
 
 **Précédence actuelle (2026-10-11)** : les amendements A-R12-01–09 de la
 [section R1.2](#amendements-normatifs-r12--2026-10-11) remplacent les clauses
@@ -261,3 +264,87 @@ G12-01–13 réellement exécutées PASS ; 154/154 V2, 86/86 ciblés, typecheck/
 frontières PASS. Audit indépendant de l'implémentation encore requis, aucune
 clôture DONE. O12-06/07/08 restent différés aux lots concernés ; R1.3/R1.4/R2
 NOT STARTED. Aucun défaut bootstrap, moteur, transaction ou confirmation ajouté.
+
+
+## Clôture R1.2 et exigences de performance — 2026-10-11
+
+Décision utilisateur sur les résultats audités : **R1.2 — DONE, avec limite de
+performance LOAD documentée et non bloquante**. Baseline obligatoire de clôture :
+`5eb3f4320fa995c730be3090f0a4a284247efdfc`, branche
+`rewrite/portfolio-versioned`. Avant modification : fetch origin réussi,
+HEAD local/distant identiques à cette baseline, divergence 0/0, arbre propre.
+
+Les invariants fonctionnels et architecturaux R1.2, l'équivalence différentielle
+des optimisations, les frontières hexagonales et la certification opaque sont
+validés. Chaque correctif P0, P1, P2, P3-A1 et P3-B a fait l'objet de tests,
+d'oracles différentiels et d'un audit indépendant, selon les résultats audités
+communiqués par la mission de clôture ; aucun nouveau rapport d'audit n'est inventé.
+Les campagnes caractérisent le chargement initial, qui n'est pas le cas d'usage
+critique retenu. La classification historique **C** reste le résultat LOAD et
+une limite actuelle ; elle n'est pas reclassée en A/B et ne bloque plus R1.2.
+
+- **PERF-LOAD — acceptée avec réserve documentée** : un portfolio volumineux peut
+  prendre plusieurs secondes à charger. Après P3-B, Snapshot moyen dense M5
+  ≈ **7,23 s**, Current moyen dense M6 ≈ **7,00 s**. Mesures propres aux fixtures
+  et à l'environnement ; aucune garantie universelle ni SLA arbitraire.
+- **PERF-EDIT — à qualifier** : priorité critique sur portfolio déjà chargé,
+  réactivité adaptée à l'interaction. Les lots concernés mesureront commande,
+  validation de transition, reconstruction éventuelle du candidat, simulation
+  ou recalcul du planning et mise à disposition du résultat ; publication et
+  persistance seront mesurées séparément. Aucun moteur incrémental imposé,
+  aucune dérogation à la certification, aucune performance d'édition validée.
+- **PERF-TRENDS — à qualifier** : au maximum **100 projets sélectionnés** dans
+  l'onglet, indépendamment du total du portfolio (100 projets : tous analysables ;
+  2 000 projets : analyse sur 100 sélectionnés). Aucune limite totale sur le
+  portfolio, ni limite de 100 sur le moteur ou le modèle Domain ; aucun plafond
+  arbitraire de snapshots. Qualification distincte de l'acquisition/validation
+  des snapshots nécessaires, du calcul des indicateurs historiques, du chargement
+  des données de Trends, puis du rendu et des interactions. Les résultats des
+  projets sélectionnés peuvent dépendre de tout le portfolio : priorités,
+  réservations, capacités des Teams et autres projets. Un sous-portfolio de
+  100 projets n'est donc pas présumé équivalent. La sélection limite présentation
+  et analyse demandée, pas automatiquement les dépendances nécessaires au calcul.
+  Aucun cache, projection partielle ou agrégation préalable autorisé ici.
+
+**D-R12-P3C — P3-C étudié, non implémenté et abandonné dans le cadre actuel.** Maintien des
+deux constructions indépendantes de registre dans le chargement, des frontières
+Application/Domain et de la seconde acquisition lors de la certification.
+Aucune nouvelle autorité de confiance ni certification intermédiaire ; aucune
+optimisation supplémentaire sans nouveau besoin mesuré. L'étude P3-C n'est pas
+un correctif implémenté et ne donne aucun GO de laboratoire ou d'implémentation.
+
+Domain reste propriétaire des validations métier ; Application orchestre ; ports
+indépendants des adaptateurs, adaptateurs sans autorité de certification.
+Les données unknown sont revalidées aux frontières appropriées ; copies, gel
+profond, détachement, versions et références exactes, snapshots historiques
+autonomes et certification opaque unique sont préservés. Aucune dérogation
+architecturale n'est créée par la clôture.
+
+Ces décisions sont normatives, validées par instruction utilisateur le
+2026-10-11. **D-R12-CLOSE** remplace le statut courant IN REVIEW par DONE et
+le caractère bloquant de LOAD pour R1.2, sans réécrire la classification C.
+**PERF-LOAD**, **PERF-EDIT** et **PERF-TRENDS** distinguent désormais les exigences ;
+**D-R12-P3C** termine l'étude et remplace ses arbitrages ouverts/actions futures
+par le maintien de l'architecture actuelle et l'abandon dans ce cadre.
+A-R12-01–09/B1–B4 et les autres contrats non concernés restent inchangés.
+
+| Élément | Statut actuel |
+| --- | --- |
+| R0 / R0.1 | DONE |
+| R1.1 | DONE |
+| R1.2 | DONE |
+| PERF-LOAD | Acceptée avec réserve documentée |
+| PERF-EDIT | À qualifier |
+| PERF-TRENDS | À qualifier |
+| P3-C | Étude terminée, non implémentée |
+| R1.3 | NOT STARTED |
+| R1.4 | NOT STARTED |
+| R2 | NOT STARTED |
+
+[Bilan audité, SHAs et preuves](./rewrite_r12_canon.md#bilan-audité-des-correctifs),
+[mesures P3-B](./proofs/r12-perf-p3-b/comparison.md),
+[étude P3-C conservée](./rewrite_r12_perf_p3c_plan.md).
+Les sections antérieures de ce registre conservent l'historique de leurs
+adoptions ; les statuts et demandes d'audit passés ne remplacent pas cette décision.
+Aucun test/build/benchmark relancé ; aucune implémentation ni cadrage R1.3 autorisé.
+Arrêt après commit/push documentaire normal, sans force.

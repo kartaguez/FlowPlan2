@@ -1,9 +1,56 @@
 # FlowPlan2 V2 — PLAN R1.2 : graphe versionné et validation structurelle
 
-Date de livraison : 2026-10-11. **R1.2 — IN REVIEW**.
+## Clôture documentaire R1.2 — DONE — 2026-10-11
+
+Baseline obligatoire `5eb3f4320fa995c730be3090f0a4a284247efdfc`, branche
+`rewrite/portfolio-versioned`, fetch réussi avant modification, HEAD/origin exacts,
+divergence 0/0 et arbre propre. La mission utilisateur autorise la clôture sur
+les résultats audités : invariants R1.2, équivalence différentielle des correctifs,
+frontières hexagonales et certification opaque validés.
+
+**R1.2 DONE, avec limite LOAD documentée non bloquante** : la classification
+historique C demeure le résultat des campagnes LOAD ; elle n'est pas transformée
+en A/B. Le chargement initial volumineux n'est pas le cas d'usage critique retenu.
+[Décisions normatives LOAD/EDIT/TRENDS et P3-C](./rewrite_decisions.md#clôture-r12-et-exigences-de-performance--2026-10-11),
+[bilan audité P0–P3-B avec SHAs et preuves](./rewrite_r12_canon.md#bilan-audité-des-correctifs).
+PERF-LOAD : plusieurs secondes acceptées avec réserve, M5 moyen dense ≈7,23 s,
+M6 moyen dense ≈7,00 s après P3-B, propres aux fixtures/environnement, sans SLA.
+PERF-EDIT critique sur portfolio chargé et PERF-TRENDS restent **à qualifier**.
+Trends : maximum 100 projets sélectionnés, aucun plafond total du portfolio,
+aucune limite moteur/Domain ni plafond arbitraire de snapshots ; dépendances
+potentielles de tout le portfolio, aucun sous-portfolio présumé équivalent.
+
+P3-C étudié, non implémenté et abandonné dans le cadre actuel : maintien des deux
+registres indépendants, frontières Application/Domain et seconde acquisition de
+certification ; aucune nouvelle autorité/certification intermédiaire, aucune
+optimisation supplémentaire sans nouveau besoin mesuré. Aucun cache, projection
+partielle ou agrégation préalable autorisé. Aucune dérogation architecturale.
+
+| Élément | Statut actuel |
+| --- | --- |
+| R0 / R0.1 | DONE |
+| R1.1 | DONE |
+| R1.2 | DONE |
+| PERF-LOAD | Acceptée avec réserve documentée |
+| PERF-EDIT | À qualifier |
+| PERF-TRENDS | À qualifier |
+| P3-C | Étude terminée, non implémentée |
+| R1.3 | NOT STARTED |
+| R1.4 | NOT STARTED |
+| R2 | NOT STARTED |
+
+Aucun test/build/oracle/benchmark relancé : livraison exclusivement documentaire.
+Arrêt après commit/push normal ; aucun code ni démarrage de cadrage R1.3/R1.4/R2.
+Les sections suivantes conservent le plan, ses corrections et sa livraison
+historiques ; leurs statuts/GO/prochaines actions ne constituent pas l'état actuel.
+Les contrats fonctionnels A-R12-01–09/B1–B4 restent normatifs et inchangés.
+
+## Historique du plan et de la livraison initiale
+
+Date de livraison initiale (historique) : 2026-10-11. **R1.2 — IN REVIEW**.
 Implémentation explicitement autorisée après audit favorable du PLAN corrigé
 B1–B4, baseline `4f4691d899206868160cc27eec62a50984a21dc4`.
-Résultats actuels en [§12](#12-résultats-dimplémentation-r12--in-review) et
+Résultats de la livraison initiale en [§12](#12-résultats-dimplémentation-r12--in-review) et
 [canon de livraison](./rewrite_r12_canon.md). R1.3/R1.4/R2 restent NOT STARTED.
 Les sections 1–11 ci-dessous conservent le PLAN et sa préparation documentaire
 historiques ; leurs mentions NOT STARTED/NOT EXECUTED décrivent cette préparation,
