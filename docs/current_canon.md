@@ -77,6 +77,13 @@ classification **C**, dégradation manifeste du registre sur moyen sparse.
 Correction à décider/auditer avant R1.3 ; aucune optimisation dans cette livraison.
 **R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED** inchangés.
 
+[R1.2-PERF-FIX — plan proposé pour audit](./steps/PORTFOLIO_VERSIONED/rewrite_r12_perf_fix_plan.md),
+baseline documentaire `80fe87326cc0ab9108c8a1864147ca20751520a8` : tables locales
+owners/références P0, extension contextuelle R1.1 soumise à GO spécifique,
+lookups P1 conditionnels après remesure ; P2/P3 différés. **PLAN ONLY** :
+aucune optimisation commencée, audit indépendant puis GO explicite requis.
+**R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED** conservés.
+
 **Cible applicable amendée**, distincte de la livraison :
 [A-R12-01–09](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md#amendements-normatifs-r12--2026-10-11)
 remplacent les anciennes clauses désignées R0/D-R1, annulent A-R1-01/02 ;
