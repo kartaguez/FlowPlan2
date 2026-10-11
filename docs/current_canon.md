@@ -114,17 +114,26 @@ aucune optimisation P2/P3 réalisée. Grands NOT_EXECUTED.
 **R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED.** Audit indépendant requis,
 aucun GO ni clôture automatique ; arrêt après commit/push de P1.
 
-[R1.2-PERF-P2 — plan proposé pour audit](./steps/PORTFOLIO_VERSIONED/rewrite_r12_perf_p2_plan.md),
-2026-10-11, **PLAN ONLY**, baseline P1 auditée
-`ee6e26fe9b056fbbd62ffb72be9989385a962e5f` ; P0/P1 techniquement acceptés
-selon la mission utilisateur. Grille TA quadratique dominante (75,01 % inclusifs
-M3 dense / 63,12 % M5) ; option A recommandée : comptes temporaires par couple
-stable PT/RT × SubPeriod, décision au point historique après partitions.
-Option B bornée à des scans nommés, soumise à arbitrage explicite, aucun GO implicite.
-Oracle réel P1 isolé, diagnostics complets, copie/gel et M1–M6/profils/mémoire
-prévus ; aucun code/test/outil/preuve modifié, aucune campagne exécutée.
-**Performance globale C ; R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED.**
-Audit indépendant du plan puis GO explicite requis ; arrêt après livraison documentaire.
+[R1.2-PERF-P2 — option A réalisée, IN REVIEW](./steps/PORTFOLIO_VERSIONED/rewrite_r12_perf_p2_plan.md),
+2026-10-11, GO explicite A-P2-01–04, baseline
+`fae4929af58c3ecd0aaa8026e51687e41c51cc7c`, oracle réel P1 isolé
+`ee6e26fe9b056fbbd62ffb72be9989385a962e5f`. Grille TA seule remplacée par
+compteur temporaire à six composants, après EXTRA_SUBPERIOD/cardinalité ; mêmes
+diagnostics/priorités, grille O(C+F), autres scans/copies/contrats inchangés.
+[Preuves et deux verdicts](./steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/report.md) :
+1254 réponses publiques complètes identiques ; 194/194 V2, 32/32 ciblés R1.1,
+123/123 R1.2, G12-01–13/P0/P1, frontières/typecheck/build PASS.
+M1–M6 sur cinq scénarios avant/après, médianes/dispersion/CPU/heap/RSS/setup publiés.
+Snapshot moyen sparse 1,466→1,418 s, dense 24,223→8,728 s ; validation dense
+20,749→4,438 s. Contrôles M1/M2 qualifient la dérive d'environnement.
+Sept profils obtenus, P1 M5 dense limité par deux timeouts cold 30 s ; registre/
+copies/validations dominants résiduels. Index dense ~14,6 Mio retenus dans
+laboratoire séparé, aucune instrumentation en production. Outils/fixtures intacts,
+M6 historique et grands non exécutés, option B/P3 non réalisés.
+**P2 techniquement conforme ; performance globale C réévaluée**, acceptabilité
+Snapshot dense pour R1.3 non établie. **R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED.**
+Audit indépendant requis ; rollback normal en clone jetable, commit/push sans force,
+arrêt après livraison. Les passages P0/P1 ci-dessus décrivent leurs états historiques.
 
 **Cible applicable amendée**, distincte de la livraison :
 [A-R12-01–09](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md#amendements-normatifs-r12--2026-10-11)

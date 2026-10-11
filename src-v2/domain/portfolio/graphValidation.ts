@@ -1,6 +1,7 @@
 import { invalid, success, type DomainResult } from '../primitives/result.js';
 import { civilDayDifference } from '../primitives/civilDate.js';
-import { sameIdentity, sameReference, type ExactReference, type VersionKind } from '../primitives/exactReference.js';
+import { sameIdentity, sameReference, type EntityIdentity, type ExactReference, type VersionKind } from '../primitives/exactReference.js';
+import { LocalVersionTable } from '../versioning/localVersionTables.js';
 import { equalImmutableValues, type ImmutableValue } from '../versioning/immutableValue.js';
 import { catalogNameKey } from './payloadValidation.js';
 import { resolvePortfolioManifest, type PortfolioGraph } from './graphResolver.js';
@@ -11,6 +12,11 @@ function ofKind<K extends VersionKind>(graph: PortfolioGraph, kind: K): readonly
   return graph.versions.filter(v => v.ref.kind === kind) as BusinessVersion<K>[];
 }
 function equal(a: unknown, b: unknown): boolean { return equalImmutableValues(a as ImmutableValue,b as ImmutableValue); }
+/** Stable cell components from validated identities, independent of selected version IDs. */
+function actualCellParts(association: EntityIdentity<'PT' | 'RT'>, subPeriod: EntityIdentity<'ActualSubPeriod'>): readonly string[] {
+  return [association.kind,association.entityId.family,association.entityId.value,
+    subPeriod.kind,subPeriod.entityId.family,subPeriod.entityId.value];
+}
 function validateResolved(graph: PortfolioGraph): DomainResult<PortfolioGraph> {
   const projects = ofKind(graph,'ProjectSettings'), reservations = ofKind(graph,'ReservationSettings'), teams = ofKind(graph,'TeamSettings');
   const capacities = ofKind(graph,'TeamCapacity'), aps = ofKind(graph,'ActualPeriod'), subs = ofKind(graph,'ActualSubPeriod');
@@ -84,7 +90,16 @@ function validateResolved(graph: PortfolioGraph): DomainResult<PortfolioGraph> {
     for (const association of associations) if (association.payload.lifecycle === 'existing') for (const sub of partition) expectedCells.push({association,sub});
   }
   if (partitionRefs.length !== subs.length || subs.some(sub => !partitionRefs.some(ref => sameReference(sub.ref,ref)))) return invalid('EXTRA_SUBPERIOD','actualSubPeriods');
-  if (actuals.length !== expectedCells.length || expectedCells.some(cell => actuals.filter(ta => sameIdentity(ta.owner.association,cell.association.ref) && sameIdentity(ta.owner.subPeriod,cell.sub.ref)).length !== 1)) return invalid('INCOMPLETE_OR_FOREIGN_ACTUAL_GRID','teamActuals');
+  if (actuals.length !== expectedCells.length) return invalid('INCOMPLETE_OR_FOREIGN_ACTUAL_GRID','teamActuals');
+  // Deferred until all historical structural checks succeed; never retained in the graph.
+  const actualCellCounts = new LocalVersionTable<number>();
+  for (const ta of actuals) {
+    const parts = actualCellParts(ta.owner.association,ta.owner.subPeriod);
+    actualCellCounts.set(parts,(actualCellCounts.get(parts) ?? 0) + 1);
+  }
+  for (const cell of expectedCells) {
+    if (actualCellCounts.get(actualCellParts(cell.association.ref,cell.sub.ref)) !== 1) return invalid('INCOMPLETE_OR_FOREIGN_ACTUAL_GRID','teamActuals');
+  }
   const order = ofKind(graph,'PortfolioOrder').at(0);
   if (!order || order.payload.projectIds.length !== projects.length || projects.some(p => !order.payload.projectIds.some(id => equal(id,p.owner.projectId)))) return invalid('INCOMPLETE_PORTFOLIO_ORDER','portfolioOrder');
   return success(graph);

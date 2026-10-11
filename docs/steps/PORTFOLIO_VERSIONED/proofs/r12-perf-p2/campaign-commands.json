@@ -1,0 +1,100 @@
+[
+  {
+    "cwd": "/private/tmp/flowplan-p2-p1",
+    "command": [
+      "node",
+      "scripts/benchmarks/r12-perf/verify.mjs"
+    ],
+    "start": "2026-10-11T10:58:55.550345+00:00",
+    "end": "2026-10-11T10:58:55.955991+00:00",
+    "exit": 0
+  },
+  {
+    "cwd": "/private/tmp/flowplan-p2-p1",
+    "command": [
+      "node",
+      "scripts/benchmarks/r12-perf/run.mjs",
+      "--scenarios=small:sparse,small:dense,small:history",
+      "--output=/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/p1-small.json"
+    ],
+    "start": "2026-10-11T10:58:55.956308+00:00",
+    "end": "2026-10-11T10:59:03.000287+00:00",
+    "exit": 0
+  },
+  {
+    "cwd": "/private/tmp/flowplan-p2-p1",
+    "command": [
+      "node",
+      "scripts/benchmarks/r12-perf/run.mjs",
+      "--scenarios=medium:sparse,medium:dense",
+      "--output=/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/p1-medium.json"
+    ],
+    "start": "2026-10-11T10:59:03.000603+00:00",
+    "end": "2026-10-11T11:08:14.748787+00:00",
+    "exit": 0
+  },
+  {
+    "cwd": "/private/tmp/flowplan-p2-p1",
+    "command": [
+      "node",
+      "scripts/benchmarks/r12-perf/run.mjs",
+      "--scenarios=medium:sparse,medium:dense",
+      "--operations=M3,M5",
+      "--repeats=1",
+      "--profile",
+      "--output=/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/p1-cpu/cpu.json"
+    ],
+    "start": "2026-10-11T11:08:14.749150+00:00",
+    "end": "2026-10-11T11:10:17.058726+00:00",
+    "exit": 0
+  },
+  {
+    "cwd": "/private/tmp/flowplan-p2-candidate",
+    "command": [
+      "node",
+      "scripts/benchmarks/r12-perf/verify.mjs"
+    ],
+    "start": "2026-10-11T11:10:17.059060+00:00",
+    "end": "2026-10-11T11:10:17.531591+00:00",
+    "exit": 0
+  },
+  {
+    "cwd": "/private/tmp/flowplan-p2-candidate",
+    "command": [
+      "node",
+      "scripts/benchmarks/r12-perf/run.mjs",
+      "--scenarios=small:sparse,small:dense,small:history",
+      "--output=/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/p2-small.json"
+    ],
+    "start": "2026-10-11T11:10:17.531946+00:00",
+    "end": "2026-10-11T11:10:25.902590+00:00",
+    "exit": 0
+  },
+  {
+    "cwd": "/private/tmp/flowplan-p2-candidate",
+    "command": [
+      "node",
+      "scripts/benchmarks/r12-perf/run.mjs",
+      "--scenarios=medium:sparse,medium:dense",
+      "--output=/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/p2-medium.json"
+    ],
+    "start": "2026-10-11T11:10:25.902944+00:00",
+    "end": "2026-10-11T11:13:57.730909+00:00",
+    "exit": 0
+  },
+  {
+    "cwd": "/private/tmp/flowplan-p2-candidate",
+    "command": [
+      "node",
+      "scripts/benchmarks/r12-perf/run.mjs",
+      "--scenarios=medium:sparse,medium:dense",
+      "--operations=M3,M5",
+      "--repeats=1",
+      "--profile",
+      "--output=/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/p2-cpu/cpu.json"
+    ],
+    "start": "2026-10-11T11:13:57.731278+00:00",
+    "end": "2026-10-11T11:14:52.457602+00:00",
+    "exit": 0
+  }
+]

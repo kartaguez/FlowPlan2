@@ -1,0 +1,230 @@
+{
+  "root": "/private/tmp/flowplan-p2-index-lab",
+  "command": [
+    "/Users/Kartaguez/.nvm/versions/node/v24.21.0/bin/node",
+    "/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/index-lab.mjs",
+    "/private/tmp/flowplan-p2-index-lab",
+    "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/index-lab.json"
+  ],
+  "originalSHA256": "37b9dac3f04fccfeb236e5cd8c5ddd3a8c1165170ea25029e7d14cc8c28db0be",
+  "instrumentedSHA256": "354fedca0434f96b85a405a603ec49aeddac295c8465e198a3f66fea52c756ec",
+  "notes": "Disposable compiled code only; GC immediately before index and after construction. Delta is retained table plus incidental locals/JIT, not exclusive peak. Instrumentation timing/GC overhead excluded from M1–M6. U=C holds for these valid fixtures. Table root read only in this laboratory.",
+  "runs": [
+    {
+      "C": 5280,
+      "F": 5280,
+      "U": 5280,
+      "nodesAndMaps": 5945,
+      "setCalls": 5280,
+      "getCalls": 10560,
+      "buildMs": 2.002207999999996,
+      "verifyMs": 0.9529999999999745,
+      "before": {
+        "rss": 264404992,
+        "heapTotal": 163135488,
+        "heapUsed": 18156248,
+        "external": 2387728,
+        "arrayBuffers": 143611
+      },
+      "heldAfterBuildGC": {
+        "rss": 264601600,
+        "heapTotal": 155795456,
+        "heapUsed": 19824032,
+        "external": 2387768,
+        "arrayBuffers": 143611
+      },
+      "retainedHeapDeltaMiB": 1.5905227661132812,
+      "variant": "sparse",
+      "phase": "warmup"
+    },
+    {
+      "C": 5280,
+      "F": 5280,
+      "U": 5280,
+      "nodesAndMaps": 5945,
+      "setCalls": 5280,
+      "getCalls": 10560,
+      "buildMs": 2.047166000000061,
+      "verifyMs": 0.8781249999999545,
+      "before": {
+        "rss": 298008576,
+        "heapTotal": 172572672,
+        "heapUsed": 24958392,
+        "external": 2387768,
+        "arrayBuffers": 143611
+      },
+      "heldAfterBuildGC": {
+        "rss": 297943040,
+        "heapTotal": 162873344,
+        "heapUsed": 26632664,
+        "external": 2387768,
+        "arrayBuffers": 143611
+      },
+      "retainedHeapDeltaMiB": 1.596710205078125,
+      "variant": "sparse",
+      "phase": "measured-1"
+    },
+    {
+      "C": 5280,
+      "F": 5280,
+      "U": 5280,
+      "nodesAndMaps": 5945,
+      "setCalls": 5280,
+      "getCalls": 10560,
+      "buildMs": 2.0072500000001128,
+      "verifyMs": 1.1198339999996278,
+      "before": {
+        "rss": 305905664,
+        "heapTotal": 179912704,
+        "heapUsed": 25119464,
+        "external": 2387768,
+        "arrayBuffers": 143611
+      },
+      "heldAfterBuildGC": {
+        "rss": 306216960,
+        "heapTotal": 163135488,
+        "heapUsed": 26659416,
+        "external": 2387768,
+        "arrayBuffers": 143611
+      },
+      "retainedHeapDeltaMiB": 1.4686126708984375,
+      "variant": "sparse",
+      "phase": "measured-2"
+    },
+    {
+      "C": 5280,
+      "F": 5280,
+      "U": 5280,
+      "nodesAndMaps": 5945,
+      "setCalls": 5280,
+      "getCalls": 10560,
+      "buildMs": 1.778291999999965,
+      "verifyMs": 0.9094579999996313,
+      "before": {
+        "rss": 306839552,
+        "heapTotal": 176504832,
+        "heapUsed": 24996800,
+        "external": 2387768,
+        "arrayBuffers": 143611
+      },
+      "heldAfterBuildGC": {
+        "rss": 306561024,
+        "heapTotal": 163135488,
+        "heapUsed": 26650704,
+        "external": 2387768,
+        "arrayBuffers": 143611
+      },
+      "retainedHeapDeltaMiB": 1.5772857666015625,
+      "variant": "sparse",
+      "phase": "measured-3"
+    },
+    {
+      "C": 48480,
+      "F": 48480,
+      "U": 48480,
+      "nodesAndMaps": 54545,
+      "setCalls": 48480,
+      "getCalls": 96960,
+      "buildMs": 12.903916999999637,
+      "verifyMs": 7.871291000000383,
+      "before": {
+        "rss": 718962688,
+        "heapTotal": 236535808,
+        "heapUsed": 95960504,
+        "external": 2387768,
+        "arrayBuffers": 143611
+      },
+      "heldAfterBuildGC": {
+        "rss": 719224832,
+        "heapTotal": 249380864,
+        "heapUsed": 111298296,
+        "external": 2387768,
+        "arrayBuffers": 143611
+      },
+      "retainedHeapDeltaMiB": 14.62725830078125,
+      "variant": "dense",
+      "phase": "warmup"
+    },
+    {
+      "C": 48480,
+      "F": 48480,
+      "U": 48480,
+      "nodesAndMaps": 54545,
+      "setCalls": 48480,
+      "getCalls": 96960,
+      "buildMs": 12.800750000000335,
+      "verifyMs": 6.607250000000931,
+      "before": {
+        "rss": 767197184,
+        "heapTotal": 313851904,
+        "heapUsed": 131048232,
+        "external": 2385243,
+        "arrayBuffers": 143611
+      },
+      "heldAfterBuildGC": {
+        "rss": 766935040,
+        "heapTotal": 286851072,
+        "heapUsed": 146405576,
+        "external": 2385243,
+        "arrayBuffers": 143611
+      },
+      "retainedHeapDeltaMiB": 14.645904541015625,
+      "variant": "dense",
+      "phase": "measured-1"
+    },
+    {
+      "C": 48480,
+      "F": 48480,
+      "U": 48480,
+      "nodesAndMaps": 54545,
+      "setCalls": 48480,
+      "getCalls": 96960,
+      "buildMs": 12.653249999999389,
+      "verifyMs": 7.71270899999945,
+      "before": {
+        "rss": 768999424,
+        "heapTotal": 310706176,
+        "heapUsed": 131188344,
+        "external": 2385243,
+        "arrayBuffers": 143611
+      },
+      "heldAfterBuildGC": {
+        "rss": 768999424,
+        "heapTotal": 286588928,
+        "heapUsed": 146415600,
+        "external": 2385243,
+        "arrayBuffers": 143611
+      },
+      "retainedHeapDeltaMiB": 14.521842956542969,
+      "variant": "dense",
+      "phase": "measured-2"
+    },
+    {
+      "C": 48480,
+      "F": 48480,
+      "U": 48480,
+      "nodesAndMaps": 54545,
+      "setCalls": 48480,
+      "getCalls": 96960,
+      "buildMs": 12.76929200000086,
+      "verifyMs": 7.376666000000114,
+      "before": {
+        "rss": 768950272,
+        "heapTotal": 320143360,
+        "heapUsed": 131059720,
+        "external": 2385243,
+        "arrayBuffers": 143611
+      },
+      "heldAfterBuildGC": {
+        "rss": 769081344,
+        "heapTotal": 286588928,
+        "heapUsed": 146420200,
+        "external": 2385243,
+        "arrayBuffers": 143611
+      },
+      "retainedHeapDeltaMiB": 14.648895263671875,
+      "variant": "dense",
+      "phase": "measured-3"
+    }
+  ]
+}

@@ -1,12 +1,16 @@
 # FlowPlan2 V2 — R1.2-PERF-P2 : validation structurelle et grille TeamActual
 
-2026-10-11 — **PLAN ONLY / PROPOSÉ POUR AUDIT ; GO P2 NON ACCORDÉ**.
-**R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED. Performance globale C maintenue.**
+2026-10-11 — **OPTION A IMPLÉMENTÉE SUR GO EXPLICITE A-P2-01–04 ; IN REVIEW**.
+La mission de réalisation impose la baseline `fae4929af58c3ecd0aaa8026e51687e41c51cc7c`.
+L'oracle de comparaison reste le vrai P1 `ee6e26fe9b056fbbd62ffb72be9989385a962e5f`.
+Les sections de préparation ci-dessous sont historiques ; l'option B reste interdite.
+Résultats de réalisation : [rapport P2](./proofs/r12-perf-p2/report.md).
+**R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED. Verdict global de réalisation au §12.**
 P0-A/P0-B et P1 techniquement acceptés après audit indépendant selon la mission
-utilisateur. Leurs contrats et optimisations sont acquis. Ce document prépare
-un correctif ; il ne réalise ni optimisation, ni nouvelle campagne, ni clôture.
-Audit indépendant de ce plan puis **GO explicite sur un périmètre nommé** requis
-avant implémentation. Arrêt après livraison documentaire, commit/push sans force.
+utilisateur. Leurs contrats et optimisations sont acquis. Le GO utilisateur
+A-P2-01–04 autorise exclusivement la grille TeamActual, clé à six composants,
+indexation différée et réception globale après mesures. Audit indépendant de
+réalisation requis avant toute clôture. Arrêt après commit/push sans force.
 
 ## 1. Baseline Git, documents et composants
 
@@ -463,7 +467,7 @@ R1.1/R1.2, identité TA ou format manifeste, métier Actuals/PTEC, commandes R1.
 moteur R1.4, persistance R2, UI, migration legacy, dépendance externe.
 Toute autre cible que la liste approuvée requiert une décision séparée.
 
-## 11. Découpage futur d'implémentation et livraison documentaire
+## 11. Découpage et livraison du plan initial (historique)
 
 1. Audit indépendant du plan puis GO explicite avec A-P2-01–04 et option/scans.
 2. Nouveau préflight, baseline P1 exacte confirmée, clones isolés ; figer oracle
@@ -487,3 +491,56 @@ Après revue complète et `git diff --check`, commit/push normaux sur la branche
 active, vérifier HEAD local/distant et arbre propre. Arrêt impératif ; aucune
 implémentation sans audit indépendant et GO explicite.
 **R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED ; classification C maintenue.**
+
+## 12. Réalisation autorisée — option A exclusivement, IN REVIEW
+
+Mission A-P2-01–04 : baseline de livraison
+`fae4929af58c3ecd0aaa8026e51687e41c51cc7c`, vrai oracle P1 exact
+`ee6e26fe9b056fbbd62ffb72be9989385a962e5f`. Préflight propre, fetch réussi,
+HEAD/origin exacts, divergence 0/0, aucune modification concurrente inexpliquée.
+Les sections de plan initial ci-dessus conservent leur chronologie ; leur GO
+non accordé est supersédé par l'autorisation explicite de cette mission.
+
+Production : uniquement graphValidation.ts, petit projecteur privé de six
+composants et LocalVersionTable<number> des cellules sélectionnées. Cardinalité
+historique d'abord, après EXTRA_SUBPERIOD, puis comptes et vérification des
+attendus dans leur ordre. Diagnostic grille code/path/message identique,
+PortfolioOrder et borne Snapshot toujours après. Autres scans/contrats/registre/
+certification inchangés, option B et P3 non réalisés. Complexité de grille seule
+O(C+F), O(U) espace supplémentaire, pipeline entier non linéaire.
+
+[Rapport complet et deux verdicts](./proofs/r12-perf-p2/report.md),
+[protocole reproductible](./proofs/r12-perf-p2/README.md),
+[oracle différentiel](./proofs/r12-perf-p2/differential.log),
+[validation](./proofs/r12-perf-p2/validation.json),
+[comparaison M1–M6](./proofs/r12-perf-p2/comparison.json).
+1254 cas complets identiques (941 P1 + 304 P2 + 9 complémentaires figés avant
+production), copies/gel/non-mutation prouvés séparément ; cinq tests pérennes
+ajoutés. 194/194 V2, 32/32 ciblés R1.1, 123/123 ciblés R1.2, G12-01–13,
+P0/P1, frontières/typecheck/build/diff-check PASS.
+
+Campagnes contemporaines P1/P2 : cinq scénarios, 29 opérations exécutables
+terminées par version ; cold/warm-up/trois mesures, 30 s, old-space 1024 Mio,
+setup séparé, seed 1202/volumes/hashes et sept outils inchangés. M6 historique
+NOT_EXECUTED, grands NOT_EXECUTED. Moyen sparse M1–M6 médianes P1→P2 ms :
+440,9→538,3 ; 518,4→604,1 ; 913,7→748,5 ; 943,9→802,4 ;
+1466,0→1418,2 ; 1411,1→1380,2. Moyen dense : 2825,9→3287,7 ;
+3338,1→3871,3 ; 20749,4→4437,7 ; 20980,3→4708,1 ;
+24223,0→8727,7 ; 28668,0→8594,1. Dérive M1/M2 à source inchangée
+examinée dans un contrôle séparé, pas corrigée artificiellement dans les mesures.
+
+Sept profils contemporains obtenus ; P1 M5 dense non obtenu après deux timeouts
+cold 30003 ms, échecs archivés, aucun profil historique présenté comme remesuré.
+Grille historique M3 dense 75,25 % inclusifs, scan retiré du candidat ; registre
+P2 M3/M5 dense 74,13/77,31 % inclusifs, copies/validations dominantes résiduelles.
+Inclusifs recouvrants non additifs. Laboratoire jetable séparé : dense 48480
+cellules, 54545 nœuds/Maps, construction ~12,8 ms, vérification ~7,4 ms,
+heap retenu additionnel ~14,6 Mio, instrumentation jamais livrée dans Domain.
+
+**Verdict A technique : PASS. Verdict B global : C réévaluée**, Snapshot dense
+reste ~8,73 s, CPU/mémoire substantiels, dérive d'environnement et comparaison
+profil M5 dense incomplète ; acceptabilité pour R1.3 non établie, aucun SLA inventé.
+Rollback par revert normal en clone jetable, commit/push sans force après revue
+et contrôles Git ; SHA final dans compte rendu, aucune auto-référence.
+**R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED.** Audit indépendant requis.
+Arrêt après commit/push ; aucun nouveau travail sur les lots suivants.

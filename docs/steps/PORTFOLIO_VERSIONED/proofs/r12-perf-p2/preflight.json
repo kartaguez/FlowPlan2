@@ -1,0 +1,39 @@
+{
+  "time": "2026-10-11T10:53:09.787074+00:00",
+  "initial": "fae4929af58c3ecd0aaa8026e51687e41c51cc7c",
+  "branch": "rewrite/portfolio-versioned",
+  "origin": "fae4929af58c3ecd0aaa8026e51687e41c51cc7c",
+  "divergence": "0\t0",
+  "preflightTree": "clean before proof creation",
+  "fetch": "git fetch origin: exit 0",
+  "baseline": "ee6e26fe9b056fbbd62ffb72be9989385a962e5f",
+  "baselineTree": "7ff7069759fa9e9667c0e5a945b73295b52718da",
+  "baselineStatus": "",
+  "candidate": "fae4929af58c3ecd0aaa8026e51687e41c51cc7c",
+  "node": "v24.21.0",
+  "npm": "11.19.0",
+  "typescript": "Version 5.9.3",
+  "os": "Darwin MacBook-Air-de-Julien.local 27.0.0 Darwin Kernel Version 27.0.0: Tue Aug 11 21:02:57 PDT 2026; root:xnu-13432.1.9~1/RELEASE_ARM64_T8132 arm64",
+  "cpu": "UNAVAILABLE: sysctl: sysctl fmt -1 1024 1: Operation not permitted",
+  "memory": "UNAVAILABLE: sysctl: sysctl fmt -1 1024 1: Operation not permitted",
+  "load": "UNAVAILABLE: sysctl: sysctl fmt -1 1024 1: Operation not permitted",
+  "tools": {
+    "scripts/benchmarks/r12-perf/README.md": "9d12fb78f5b6496e2e92cdc641f8d6bea7985be962b2805c0c0f120afee60187",
+    "scripts/benchmarks/r12-perf/fixture.mjs": "339cca4991da9c28469c58870082a5bcfa68aef9b172ab45daa467771904c279",
+    "scripts/benchmarks/r12-perf/profile-summary.mjs": "6c6beae1ee82efe0a1dc08717c8e5355201937bd1201e50323a211afd9253e28",
+    "scripts/benchmarks/r12-perf/run.mjs": "cf679c8f56af836d5f42ef7c53194e5d8f956b56397bcb670edbd954aac4bae9",
+    "scripts/benchmarks/r12-perf/summarize.mjs": "b645eea123c0c48f3fc41dc0afc9cd71ab1929492a4339413d67114ce3103ec5",
+    "scripts/benchmarks/r12-perf/verify.mjs": "07c4e7768605c4fd762c2bb76d5249df919af851afab6dd05975dcdb25f5f2c7",
+    "scripts/benchmarks/r12-perf/worker.mjs": "e0b5bc59aba88d320e775e9102215704618ebac3ca2844cc85536c8d40aee85e"
+  },
+  "dependencies": "Existing node_modules copied into each clone; no installation; separate compiled outputs",
+  "commands": [
+    "git clone --no-hardlinks --no-checkout . /private/tmp/flowplan-p2-p1",
+    "git -C /private/tmp/flowplan-p2-p1 checkout --detach ee6e26fe9b056fbbd62ffb72be9989385a962e5f",
+    "git clone --no-hardlinks --no-checkout . /private/tmp/flowplan-p2-candidate",
+    "git -C /private/tmp/flowplan-p2-candidate checkout --detach fae4929af58c3ecd0aaa8026e51687e41c51cc7c",
+    "node_modules/.bin/tsc -p /private/tmp/flowplan-p2-p1/tsconfig.v2.test.json",
+    "node docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p1/oracle.mjs /private/tmp/flowplan-p2-p1 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/p1-original",
+    "node docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/oracle.mjs /private/tmp/flowplan-p2-p1 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/p1-frozen"
+  ]
+}

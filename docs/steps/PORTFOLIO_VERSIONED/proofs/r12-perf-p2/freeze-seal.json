@@ -1,0 +1,13 @@
+{
+  "sealedBeforeProduction": "2026-10-11T10:56:45.028318+00:00",
+  "files": {
+    "p1-original.json.gz": "e85bce3cd65e150f1ed1a00ae2dbd83efafca3c55f14825f00a8ee69e2e4950c",
+    "p1-supplement.jsonl.gz": "a43390d784d4a856e48a25883247a9eb27277faae60c8317c3848a09b3d7924c",
+    "p1-frozen.jsonl.gz": "0d3cef2e8f7a0890f158dadf5fb7deb6ed95546a277504f81292d6c50fc23725",
+    "p1-original.meta.json": "e2cd04c41b54eff0ededf5d9bb459e4eb64cf92fa92388ddd007fda76bfcc125",
+    "supplement.mjs": "39eb869fa10e0e61fd194a13fe016fccc4e69f4c4bb8478b4228581f275f3c81",
+    "p1-frozen.meta.json": "09969d48cb80353a86bd81e3afba37d48902992203352647ae46deff11ffbb69",
+    "oracle.mjs": "9b6de4dff5f00d2463974e2be61a7e31f865112b3b3d50fe93767a6e850b986f",
+    "p1-supplement.meta.json": "edee0ad6fd66f9c0bd530a3072afcbb0f1ef6803c642efe80421c34aead82536"
+  }
+}

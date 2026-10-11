@@ -211,3 +211,35 @@ M3 dense ≈20,79 s ; poursuite R1.3 non autorisée. Profils et mémoire qualifi
 dans le rapport, diagnostic P2 soumis à arbitrage distinct, aucun P2/P3 réalisé.
 Grands non exécutés. R1.2 reste IN REVIEW jusqu’à audit indépendant ;
 R1.3/R1.4/R2 NOT STARTED. Arrêt après commit/push sans force.
+
+
+## Addendum R1.2-PERF-P2 — option A réalisée, IN REVIEW
+
+GO utilisateur A-P2-01–04, baseline `fae4929af58c3ecd0aaa8026e51687e41c51cc7c`,
+oracle P1 exact `ee6e26fe9b056fbbd62ffb72be9989385a962e5f` en clone isolé.
+[Rapport P2](./proofs/r12-perf-p2/report.md),
+[plan et résultats](./rewrite_r12_perf_p2_plan.md#12-réalisation-autorisée--option-a-exclusivement-in-review).
+Production limitée à graphValidation.ts : compteur local de cellules TA, six
+composants association/SP kind/family/value, cardinalité avant construction,
+après EXTRA_SUBPERIOD. Diagnostic historique intact, attendus et validations dans
+leur ordre, PortfolioOrder/borne Snapshot après grille. LocalVersionTable<number>
+temporaire, aucun index public/persistant ; grille seule O(C+F), reste du pipeline
+inchangé. Option B/P3 et autres scans non réalisés.
+
+1254 réponses publiques complètes identiques (941 P1 + 304 P2 + neuf compléments),
+baseline figée avant code, zéro divergence, copies/gel/non-mutation indépendants.
+194 tests V2, ciblés R1.1 32/R1.2 123, G12-01–13/P0/P1, frontières/typecheck/build
+PASS. Cinq tests pérennes ajoutés, suites/gardes/outils/fixtures/packages inchangés.
+Campagnes P1/P2 cinq scénarios M1–M6, 29 opérations terminées chacune,
+M6 historique non exécuté, grands non exécutés ; statistiques/CPU/mémoire/setup
+complets dans les preuves. M5 moyen sparse 1,466→1,418 s, dense 24,223→8,728 s ;
+M3 dense 20,749→4,438 s. Dérive M1/M2 contrôlée séparément et conservée.
+Sept profils contemporains, P1 M5 dense non obtenu après deux timeouts cold 30 s.
+Laboratoire séparé index dense ~12,8 ms construction/~7,4 ms vérification,
+~14,6 Mio retenus pendant construction ; mesures expérimentales exclues M1–M6.
+Registre/copies/validations dominants résiduels, aucun B/P3 appliqué.
+
+**Verdict technique P2 : conforme. Performance globale : C réévaluée**,
+acceptabilité Snapshot dense pour R1.3 non établie, malgré gain majeur de grille.
+Audit indépendant requis ; **R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED**.
+Rollback normal en clone jetable, livraison par commit/push sans force, arrêt.

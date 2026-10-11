@@ -1,0 +1,35 @@
+small:sparse M1 started
+small:sparse M1 COMPLETED cold:46.5ms warmup:40.6ms measured-1:40.3ms measured-2:44.0ms measured-3:44.6ms
+small:sparse M2 started
+small:sparse M2 COMPLETED cold:54.5ms warmup:47.1ms measured-1:45.4ms measured-2:46.7ms measured-3:44.5ms
+small:sparse M3 started
+small:sparse M3 COMPLETED cold:50.2ms warmup:45.4ms measured-1:43.5ms measured-2:45.4ms measured-3:42.9ms
+small:sparse M4 started
+small:sparse M4 COMPLETED cold:53.2ms warmup:47.8ms measured-1:45.8ms measured-2:46.8ms measured-3:45.1ms
+small:sparse M5 started
+small:sparse M5 COMPLETED cold:88.1ms warmup:87.6ms measured-1:90.9ms measured-2:89.3ms measured-3:86.5ms
+small:sparse M6 started
+small:sparse M6 COMPLETED cold:84.6ms warmup:82.5ms measured-1:78.3ms measured-2:76.3ms measured-3:77.9ms
+small:dense M1 started
+small:dense M1 COMPLETED cold:66.8ms warmup:60.4ms measured-1:60.7ms measured-2:59.0ms measured-3:59.0ms
+small:dense M2 started
+small:dense M2 COMPLETED cold:76.9ms warmup:71.7ms measured-1:70.7ms measured-2:73.7ms measured-3:75.1ms
+small:dense M3 started
+small:dense M3 COMPLETED cold:86.6ms warmup:76.9ms measured-1:74.2ms measured-2:71.6ms measured-3:73.8ms
+small:dense M4 started
+small:dense M4 COMPLETED cold:87.1ms warmup:79.2ms measured-1:76.4ms measured-2:76.6ms measured-3:78.3ms
+small:dense M5 started
+small:dense M5 COMPLETED cold:149.1ms warmup:157.5ms measured-1:148.9ms measured-2:144.3ms measured-3:146.6ms
+small:dense M6 started
+small:dense M6 COMPLETED cold:150.3ms warmup:151.1ms measured-1:142.0ms measured-2:139.6ms measured-3:141.5ms
+small:history M1 started
+small:history M1 COMPLETED cold:37.0ms warmup:34.4ms measured-1:33.3ms measured-2:32.7ms measured-3:34.3ms
+small:history M2 started
+small:history M2 COMPLETED cold:45.7ms warmup:42.5ms measured-1:40.8ms measured-2:41.8ms measured-3:39.7ms
+small:history M3 started
+small:history M3 COMPLETED cold:48.9ms warmup:43.8ms measured-1:41.8ms measured-2:43.5ms measured-3:41.2ms
+small:history M4 started
+small:history M4 COMPLETED cold:49.2ms warmup:43.8ms measured-1:41.8ms measured-2:44.5ms measured-3:41.1ms
+small:history M5 started
+small:history M5 COMPLETED cold:81.5ms warmup:81.4ms measured-1:82.9ms measured-2:83.3ms measured-3:87.7ms
+Evidence: /Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/p2-small.json

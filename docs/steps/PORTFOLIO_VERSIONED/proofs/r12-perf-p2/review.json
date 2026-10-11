@@ -1,0 +1,37 @@
+{
+  "time": "2026-10-11T11:45:52.059697+00:00",
+  "head": "fae4929af58c3ecd0aaa8026e51687e41c51cc7c",
+  "origin": "fae4929af58c3ecd0aaa8026e51687e41c51cc7c",
+  "branch": "rewrite/portfolio-versioned",
+  "divergence": "0/0",
+  "trackedChanges": [
+    "docs/current_canon.md",
+    "docs/current_plan.md",
+    "docs/steps/PORTFOLIO_VERSIONED/rewrite_r12_canon.md",
+    "docs/steps/PORTFOLIO_VERSIONED/rewrite_r12_perf_p2_plan.md",
+    "src-v2/application/portfolio/r12.test.ts",
+    "src-v2/domain/portfolio/graphValidation.ts"
+  ],
+  "gates": [
+    "G12-01",
+    "G12-02",
+    "G12-03",
+    "G12-04",
+    "G12-05",
+    "G12-06",
+    "G12-07",
+    "G12-08",
+    "G12-09",
+    "G12-10",
+    "G12-11",
+    "G12-12",
+    "G12-13"
+  ],
+  "optionAOnly": true,
+  "freezeSealIntact": true,
+  "measuredSourceMatchesDelivery": true,
+  "sevenToolsMatchHistoricalHashes": true,
+  "ordinaryBenchmarkRunsPerVersion": 29,
+  "ordinaryBenchmarkSamplesPerRun": 5,
+  "note": "Full tracked diff reviewed; full oracle responses compared structurally; evidence scripts/logs/summary data reviewed; raw CPU profiles inspected with preserved readers. Final fetch succeeded with authorized sandbox escalation after .git/FETCH_HEAD permission refusal. No concurrent changes."
+}

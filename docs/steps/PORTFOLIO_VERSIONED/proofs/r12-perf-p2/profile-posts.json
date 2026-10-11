@@ -1,0 +1,684 @@
+{
+  "method": "Time-delta weighted stacks; category counted once per sample; inclusive overlaps, not additive or exclusive durations. JIT/inlining/sampling limits apply. Table frames cover all phases; dedicated grid cost measured only in separate laboratory.",
+  "rows": [
+    {
+      "label": "p1",
+      "variant": "sparse",
+      "operation": "M3",
+      "path": "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/p1-cpu/medium-sparse-M3.cpuprofile",
+      "samples": 703,
+      "sampledMs": 1071.083,
+      "self": {
+        "immutable-values": {
+          "sampledMs": 100.666,
+          "percent": 9.39852467082383
+        },
+        "GC": {
+          "sampledMs": 10.584,
+          "percent": 0.9881587141239287
+        },
+        "local-tables-all-phases": {
+          "sampledMs": 10.625,
+          "percent": 0.9919866154163589
+        },
+        "payload-validation": {
+          "sampledMs": 4.5,
+          "percent": 0.42013550770575203
+        },
+        "envelopes-context": {
+          "sampledMs": 9.084,
+          "percent": 0.8481135448886781
+        },
+        "registry": {
+          "sampledMs": 1,
+          "percent": 0.09336344615683378
+        },
+        "structural-validation": {
+          "sampledMs": 446.416,
+          "percent": 41.67893617954911
+        },
+        "ofKind": {
+          "sampledMs": 40.041,
+          "percent": 3.7383657475657817
+        },
+        "structured-equality-wrapper": {
+          "sampledMs": 1.5,
+          "percent": 0.14004516923525068
+        },
+        "validateResolved": {
+          "sampledMs": 15,
+          "percent": 1.4004516923525068
+        },
+        "historical-grid-callback": {
+          "sampledMs": 316.334,
+          "percent": 29.53403237657586
+        }
+      },
+      "inclusive": {
+        "immutable-values": {
+          "sampledMs": 303.917,
+          "percent": 28.374738465646452
+        },
+        "structural-validation": {
+          "sampledMs": 1033.457,
+          "percent": 96.48710697490297
+        },
+        "GC": {
+          "sampledMs": 10.584,
+          "percent": 0.9881587141239287
+        },
+        "local-tables-all-phases": {
+          "sampledMs": 10.625,
+          "percent": 0.9919866154163589
+        },
+        "registry": {
+          "sampledMs": 512.79,
+          "percent": 47.87584155476279
+        },
+        "payload-validation": {
+          "sampledMs": 177.416,
+          "percent": 16.564169163360823
+        },
+        "envelopes-context": {
+          "sampledMs": 284,
+          "percent": 26.515218708540793
+        },
+        "ofKind": {
+          "sampledMs": 46.083,
+          "percent": 4.302467689245371
+        },
+        "validateResolved": {
+          "sampledMs": 461.5,
+          "percent": 43.08723040137879
+        },
+        "structured-equality-wrapper": {
+          "sampledMs": 19.625,
+          "percent": 1.832257630827863
+        },
+        "historical-grid-callback": {
+          "sampledMs": 317.834,
+          "percent": 29.67407754581111
+        }
+      }
+    },
+    {
+      "label": "p1",
+      "variant": "sparse",
+      "operation": "M5",
+      "path": "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/p1-cpu/medium-sparse-M5.cpuprofile",
+      "samples": 1166,
+      "sampledMs": 1761.875,
+      "self": {
+        "immutable-values": {
+          "sampledMs": 194.415,
+          "percent": 11.034551259311813
+        },
+        "GC": {
+          "sampledMs": 40.96,
+          "percent": 2.324796026959915
+        },
+        "local-tables-all-phases": {
+          "sampledMs": 30.751,
+          "percent": 1.7453565094004966
+        },
+        "registry": {
+          "sampledMs": 6.292,
+          "percent": 0.357119545938276
+        },
+        "payload-validation": {
+          "sampledMs": 7.5,
+          "percent": 0.42568286626463286
+        },
+        "envelopes-context": {
+          "sampledMs": 6.959,
+          "percent": 0.39497694217807733
+        },
+        "structural-validation": {
+          "sampledMs": 438.958,
+          "percent": 24.914253281305427
+        },
+        "ofKind": {
+          "sampledMs": 36.209,
+          "percent": 2.0551401206101456
+        },
+        "validateResolved": {
+          "sampledMs": 16.624,
+          "percent": 0.9435402625044342
+        },
+        "historical-grid-callback": {
+          "sampledMs": 314.084,
+          "percent": 17.826690315714792
+        }
+      },
+      "inclusive": {
+        "immutable-values": {
+          "sampledMs": 568.539,
+          "percent": 32.26897481376375
+        },
+        "GC": {
+          "sampledMs": 40.96,
+          "percent": 2.324796026959915
+        },
+        "local-tables-all-phases": {
+          "sampledMs": 30.751,
+          "percent": 1.7453565094004966
+        },
+        "registry": {
+          "sampledMs": 1079.499,
+          "percent": 61.26989712664065
+        },
+        "envelopes-context": {
+          "sampledMs": 604.662,
+          "percent": 34.319233770840725
+        },
+        "payload-validation": {
+          "sampledMs": 358.956,
+          "percent": 20.37352252571834
+        },
+        "structural-validation": {
+          "sampledMs": 1058.249,
+          "percent": 60.063795672224195
+        },
+        "ofKind": {
+          "sampledMs": 42.125,
+          "percent": 2.3909187655196877
+        },
+        "validateResolved": {
+          "sampledMs": 449.292,
+          "percent": 25.50078751330259
+        },
+        "structured-equality-wrapper": {
+          "sampledMs": 13.334,
+          "percent": 0.7568073785030153
+        },
+        "historical-grid-callback": {
+          "sampledMs": 314.084,
+          "percent": 17.826690315714792
+        }
+      }
+    },
+    {
+      "label": "p1",
+      "variant": "dense",
+      "operation": "M3",
+      "path": "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/p1-cpu/medium-dense-M3.cpuprofile",
+      "samples": 16729,
+      "sampledMs": 25175.5,
+      "self": {
+        "immutable-values": {
+          "sampledMs": 710.583,
+          "percent": 2.82251792417231
+        },
+        "GC": {
+          "sampledMs": 151.957,
+          "percent": 0.6035907926356974
+        },
+        "local-tables-all-phases": {
+          "sampledMs": 64.75,
+          "percent": 0.25719449464757405
+        },
+        "registry": {
+          "sampledMs": 22.292,
+          "percent": 0.08854640424221961
+        },
+        "envelopes-context": {
+          "sampledMs": 32.376,
+          "percent": 0.12860121943953448
+        },
+        "payload-validation": {
+          "sampledMs": 11.75,
+          "percent": 0.04667236003257135
+        },
+        "structural-validation": {
+          "sampledMs": 21116.167,
+          "percent": 83.87585946654485
+        },
+        "ofKind": {
+          "sampledMs": 255.375,
+          "percent": 1.0143790590057795
+        },
+        "validateResolved": {
+          "sampledMs": 1796.878,
+          "percent": 7.137407400051638
+        },
+        "historical-grid-callback": {
+          "sampledMs": 18934.412,
+          "percent": 75.2096760739608
+        }
+      },
+      "inclusive": {
+        "immutable-values": {
+          "sampledMs": 1877.578,
+          "percent": 7.457957140871085
+        },
+        "structural-validation": {
+          "sampledMs": 24934.333,
+          "percent": 99.04205676153403
+        },
+        "GC": {
+          "sampledMs": 151.957,
+          "percent": 0.6035907926356974
+        },
+        "local-tables-all-phases": {
+          "sampledMs": 64.75,
+          "percent": 0.25719449464757405
+        },
+        "registry": {
+          "sampledMs": 3405.459,
+          "percent": 13.52687732120514
+        },
+        "payload-validation": {
+          "sampledMs": 1151.376,
+          "percent": 4.573398740839308
+        },
+        "envelopes-context": {
+          "sampledMs": 2012.586,
+          "percent": 7.994224543703203
+        },
+        "ofKind": {
+          "sampledMs": 272,
+          "percent": 1.0804154833071835
+        },
+        "validateResolved": {
+          "sampledMs": 21170.709,
+          "percent": 84.09250660364243
+        },
+        "structured-equality-wrapper": {
+          "sampledMs": 95.041,
+          "percent": 0.3775138527536692
+        },
+        "historical-grid-callback": {
+          "sampledMs": 18943.496,
+          "percent": 75.24575877341066
+        }
+      }
+    },
+    {
+      "label": "p1",
+      "variant": "dense",
+      "operation": "M5",
+      "status": "NOT_OBTAINED",
+      "reason": "Two reference-tool attempts timed out at cold phase, 30s retained. Historical P1 M5 profile kept separate."
+    },
+    {
+      "label": "p2",
+      "variant": "sparse",
+      "operation": "M3",
+      "path": "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/p2-cpu/medium-sparse-M3.cpuprofile",
+      "samples": 529,
+      "sampledMs": 806.958,
+      "self": {
+        "immutable-values": {
+          "sampledMs": 112.709,
+          "percent": 13.96714574984076
+        },
+        "GC": {
+          "sampledMs": 19.665,
+          "percent": 2.436929803038076
+        },
+        "local-tables-all-phases": {
+          "sampledMs": 9.875,
+          "percent": 1.2237315944572085
+        },
+        "payload-validation": {
+          "sampledMs": 4.583,
+          "percent": 0.5679353820149252
+        },
+        "envelopes-context": {
+          "sampledMs": 7.542,
+          "percent": 0.934621132698356
+        },
+        "registry": {
+          "sampledMs": 1.542,
+          "percent": 0.19108801201549522
+        },
+        "structural-validation": {
+          "sampledMs": 136.584,
+          "percent": 16.925787959224643
+        },
+        "ofKind": {
+          "sampledMs": 34.417,
+          "percent": 4.26502990242367
+        },
+        "structured-equality-wrapper": {
+          "sampledMs": 3.042,
+          "percent": 0.37697129218621045
+        },
+        "validateResolved": {
+          "sampledMs": 16.542,
+          "percent": 2.0499208137226472
+        },
+        "cell-projection": {
+          "sampledMs": 1.5,
+          "percent": 0.1858832801707152
+        }
+      },
+      "inclusive": {
+        "immutable-values": {
+          "sampledMs": 314.001,
+          "percent": 38.9116905712565
+        },
+        "structural-validation": {
+          "sampledMs": 758.667,
+          "percent": 94.015673678184
+        },
+        "GC": {
+          "sampledMs": 19.665,
+          "percent": 2.436929803038076
+        },
+        "local-tables-all-phases": {
+          "sampledMs": 9.875,
+          "percent": 1.2237315944572085
+        },
+        "registry": {
+          "sampledMs": 540.71,
+          "percent": 67.00596561407161
+        },
+        "envelopes-context": {
+          "sampledMs": 304.128,
+          "percent": 37.68820682117285
+        },
+        "payload-validation": {
+          "sampledMs": 191.083,
+          "percent": 23.67942321657385
+        },
+        "ofKind": {
+          "sampledMs": 40.333,
+          "percent": 4.998153559416971
+        },
+        "validateResolved": {
+          "sampledMs": 153.291,
+          "percent": 18.99615593376607
+        },
+        "structured-equality-wrapper": {
+          "sampledMs": 21.166,
+          "percent": 2.622937005395572
+        },
+        "cell-projection": {
+          "sampledMs": 1.5,
+          "percent": 0.1858832801707152
+        }
+      }
+    },
+    {
+      "label": "p2",
+      "variant": "sparse",
+      "operation": "M5",
+      "path": "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/p2-cpu/medium-sparse-M5.cpuprofile",
+      "samples": 993,
+      "sampledMs": 1499.125,
+      "self": {
+        "immutable-values": {
+          "sampledMs": 223.792,
+          "percent": 14.928174768615026
+        },
+        "GC": {
+          "sampledMs": 47.706,
+          "percent": 3.182256316184441
+        },
+        "local-tables-all-phases": {
+          "sampledMs": 24.5,
+          "percent": 1.6342866672225465
+        },
+        "registry": {
+          "sampledMs": 5.124,
+          "percent": 0.3417993829734012
+        },
+        "payload-validation": {
+          "sampledMs": 13.542,
+          "percent": 0.9033269407154173
+        },
+        "envelopes-context": {
+          "sampledMs": 9.083,
+          "percent": 0.6058867672809138
+        },
+        "structural-validation": {
+          "sampledMs": 133.583,
+          "percent": 8.91073125990161
+        },
+        "ofKind": {
+          "sampledMs": 46.458,
+          "percent": 3.099007754523472
+        },
+        "validateResolved": {
+          "sampledMs": 9.124,
+          "percent": 0.6086216959893271
+        }
+      },
+      "inclusive": {
+        "immutable-values": {
+          "sampledMs": 602.254,
+          "percent": 40.173701325773365
+        },
+        "GC": {
+          "sampledMs": 47.706,
+          "percent": 3.182256316184441
+        },
+        "local-tables-all-phases": {
+          "sampledMs": 24.5,
+          "percent": 1.6342866672225465
+        },
+        "registry": {
+          "sampledMs": 1128.252,
+          "percent": 75.26070207621112
+        },
+        "payload-validation": {
+          "sampledMs": 377.75,
+          "percent": 25.19803218544151
+        },
+        "envelopes-context": {
+          "sampledMs": 621.211,
+          "percent": 41.4382389727341
+        },
+        "structural-validation": {
+          "sampledMs": 779.793,
+          "percent": 52.016542983406985
+        },
+        "ofKind": {
+          "sampledMs": 49.5,
+          "percent": 3.3019261235720836
+        },
+        "validateResolved": {
+          "sampledMs": 144.125,
+          "percent": 9.613941465855081
+        },
+        "structured-equality-wrapper": {
+          "sampledMs": 10.542,
+          "percent": 0.7032102059534728
+        }
+      }
+    },
+    {
+      "label": "p2",
+      "variant": "dense",
+      "operation": "M3",
+      "path": "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/p2-cpu/medium-dense-M3.cpuprofile",
+      "samples": 3072,
+      "sampledMs": 4632.458,
+      "self": {
+        "immutable-values": {
+          "sampledMs": 723.419,
+          "percent": 15.616309958989374
+        },
+        "GC": {
+          "sampledMs": 177.249,
+          "percent": 3.8262408423346743
+        },
+        "local-tables-all-phases": {
+          "sampledMs": 68.003,
+          "percent": 1.4679679772595888
+        },
+        "payload-validation": {
+          "sampledMs": 15,
+          "percent": 0.32380218018166596
+        },
+        "registry": {
+          "sampledMs": 22.663,
+          "percent": 0.48922192063047304
+        },
+        "envelopes-context": {
+          "sampledMs": 36.333,
+          "percent": 0.7843136408360313
+        },
+        "structural-validation": {
+          "sampledMs": 505.25,
+          "percent": 10.906736769119115
+        },
+        "ofKind": {
+          "sampledMs": 266.708,
+          "percent": 5.757375458126118
+        },
+        "validateResolved": {
+          "sampledMs": 53.669,
+          "percent": 1.1585426138779888
+        },
+        "structured-equality-wrapper": {
+          "sampledMs": 1.5,
+          "percent": 0.032380218018166596
+        },
+        "cell-projection": {
+          "sampledMs": 0.667,
+          "percent": 0.01439840361207808
+        }
+      },
+      "inclusive": {
+        "immutable-values": {
+          "sampledMs": 1930.166,
+          "percent": 41.666130594168365
+        },
+        "structural-validation": {
+          "sampledMs": 4342.541,
+          "percent": 93.7416162218848
+        },
+        "GC": {
+          "sampledMs": 177.249,
+          "percent": 3.8262408423346743
+        },
+        "local-tables-all-phases": {
+          "sampledMs": 68.003,
+          "percent": 1.4679679772595888
+        },
+        "registry": {
+          "sampledMs": 3433.876,
+          "percent": 74.12643568489989
+        },
+        "payload-validation": {
+          "sampledMs": 1091.044,
+          "percent": 23.552161724941705
+        },
+        "envelopes-context": {
+          "sampledMs": 2033.748,
+          "percent": 43.90213575600686
+        },
+        "ofKind": {
+          "sampledMs": 293.874,
+          "percent": 6.343802793247127
+        },
+        "validateResolved": {
+          "sampledMs": 590.541,
+          "percent": 12.74789755244408
+        },
+        "structured-equality-wrapper": {
+          "sampledMs": 79.708,
+          "percent": 1.7206416118613488
+        },
+        "cell-projection": {
+          "sampledMs": 0.667,
+          "percent": 0.01439840361207808
+        }
+      }
+    },
+    {
+      "label": "p2",
+      "variant": "dense",
+      "operation": "M5",
+      "path": "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/p2-cpu/medium-dense-M5.cpuprofile",
+      "samples": 5913,
+      "sampledMs": 8922.708,
+      "self": {
+        "immutable-values": {
+          "sampledMs": 1286.412,
+          "percent": 14.417282286946968
+        },
+        "GC": {
+          "sampledMs": 379.122,
+          "percent": 4.248956706865226
+        },
+        "local-tables-all-phases": {
+          "sampledMs": 156.704,
+          "percent": 1.7562381286040067
+        },
+        "registry": {
+          "sampledMs": 60.043,
+          "percent": 0.6729235115617367
+        },
+        "envelopes-context": {
+          "sampledMs": 67.414,
+          "percent": 0.7555329615179607
+        },
+        "payload-validation": {
+          "sampledMs": 12.083,
+          "percent": 0.13541852989025305
+        },
+        "structural-validation": {
+          "sampledMs": 443.375,
+          "percent": 4.9690632036821105
+        },
+        "ofKind": {
+          "sampledMs": 240.167,
+          "percent": 2.691638009447356
+        },
+        "validateResolved": {
+          "sampledMs": 45.041,
+          "percent": 0.5047906980705857
+        },
+        "structured-equality-wrapper": {
+          "sampledMs": 1.5,
+          "percent": 0.01681103987713147
+        }
+      },
+      "inclusive": {
+        "immutable-values": {
+          "sampledMs": 3787.253,
+          "percent": 42.4451074718572
+        },
+        "GC": {
+          "sampledMs": 379.122,
+          "percent": 4.248956706865226
+        },
+        "local-tables-all-phases": {
+          "sampledMs": 156.704,
+          "percent": 1.7562381286040067
+        },
+        "registry": {
+          "sampledMs": 6897.963,
+          "percent": 77.30795404265163
+        },
+        "payload-validation": {
+          "sampledMs": 2180.794,
+          "percent": 24.440943265206034
+        },
+        "envelopes-context": {
+          "sampledMs": 3930.743,
+          "percent": 44.053251546503596
+        },
+        "structural-validation": {
+          "sampledMs": 4431.213,
+          "percent": 49.66219896470892
+        },
+        "ofKind": {
+          "sampledMs": 267.167,
+          "percent": 2.9942367272357227
+        },
+        "validateResolved": {
+          "sampledMs": 520.125,
+          "percent": 5.829228077395338
+        },
+        "structured-equality-wrapper": {
+          "sampledMs": 81.291,
+          "percent": 0.911057495101263
+        }
+      }
+    }
+  ]
+}

@@ -503,3 +503,50 @@ test('PERF-P1 exact branches and adversarial components remain distinct across l
   assert.equal(lookupExactBatch(registry,requests).failedIndex,0);
   assert.equal(ok(batch.result)[0]!.ref.versionId.value,registry.versions.at(-1)!.ref.versionId.value);
 });
+
+test('PERF-P2 equal-cardinality substitutions retain complete grid diagnostic',() => {
+  for (const target of ['association','subPeriod']) {
+    const f=fixture();f.cover();f.cover('r');
+    const ta=f.get('ta-p-t1-a');ta.owner[target].entityId.value='foreign';
+    const before=structuredClone({manifest:f.manifest,versions:f.versions});
+    const result=f.certify();assert.deepEqual(result,{ok:false,errors:[{code:'INCOMPLETE_OR_FOREIGN_ACTUAL_GRID',path:'teamActuals',message:'INCOMPLETE_OR_FOREIGN_ACTUAL_GRID'}]});
+    assert.deepEqual({manifest:f.manifest,versions:f.versions},before);
+  }
+});
+test('PERF-P2 cell components distinguish PT/RT and adversarial identities',() => {
+  for (const bytes of ['__proto__','constructor','a/b:c|','"\\\u0000',' é ','e\u0301']) {
+    const f=fixture();f.cover();f.cover('r');
+    for (const kind of ['PT','RT']) {
+      const entity=kind.toLowerCase()+'-t1';const association=f.get(entity);association.ref.entityId.value=bytes;
+      for (const v of f.versions) {
+        if (v.ref.kind==='PTEC' && kind==='PT' && v.owner.pt.entityId.value===entity) v.owner.pt.entityId.value=bytes;
+        if (v.ref.kind==='TeamActual' && v.owner.association.kind===kind && v.owner.association.entityId.value===entity) v.owner.association.entityId.value=bytes;
+      }
+    }
+    ok(f.certify());f.get('ta-p-t1-a').owner.subPeriod=identity('ActualSubPeriod','sp-r-a');bad(f.certify(),'INCOMPLETE_OR_FOREIGN_ACTUAL_GRID');
+  }
+});
+test('PERF-P2 duplicates keep registry and manifest priority over grid/order',() => {
+  const f=fixture();f.cover();f.get('order').payload.projectIds=[];
+  f.add('TeamActual','duplicate',structuredClone(f.get('ta-p-t1-a').owner));bad(f.certify(),'OWNER_IDENTITY_CONFLICT');
+  const g=fixture();g.cover();g.manifest.teamActuals.push(structuredClone(g.manifest.teamActuals[0]));bad(g.certify(),'MULTIPLE_IDENTITY_SELECTION');
+});
+test('PERF-P2 historical diagnostic phases precede grid and order follows it',() => {
+  for (const [defect,code] of [
+    [(f: ReturnType<typeof fixture>)=>f.remove('cap-t1'),'TEAM_CAPACITY_REQUIRED'],
+    [(f: ReturnType<typeof fixture>)=>{f.get('ps').payload.program=identity('Program','missing');f.get('ps').payload.ownColor=null;},'MISSING_CATALOG_REFERENCE'],
+    [(f: ReturnType<typeof fixture>)=>{f.get('pt-t1').owner.teamId=id('TeamId','missing');},'MISSING_ASSOCIATION_ENDPOINT'],
+    [(f: ReturnType<typeof fixture>)=>f.remove('ptec-t1'),'PTEC_SELECTION_MISMATCH'],
+    [(f: ReturnType<typeof fixture>)=>{f.get('ap-p').payload.subPeriods.reverse();},'PARTITION_BOUNDARY_MISMATCH'],
+    [(f: ReturnType<typeof fixture>)=>{f.add('ActualSubPeriod','extra',{type:'ActualPeriod',actualPeriod:identity('ActualPeriod','ap-p')});},'EXTRA_SUBPERIOD']
+  ] as const) {const f=fixture();f.cover();f.get('ta-p-t1-a').owner.association.entityId.value='foreign';defect(f);bad(f.certify(),code);}
+  const f=fixture();f.cover();f.remove('ta-p-t1-a');f.get('order').payload.projectIds=[];bad(f.certify(),'INCOMPLETE_OR_FOREIGN_ACTUAL_GRID');
+});
+test('PERF-P2 complete zero grids are detached deeply frozen and expose no index',() => {
+  const f=fixture();f.cover();f.cover('r');const before=structuredClone({manifest:f.manifest,versions:f.versions});const graph=ok(f.certify());
+  assert.deepEqual({manifest:f.manifest,versions:f.versions},before);
+  function inspect(x: unknown): void {if(x!==null&&typeof x==='object'){assert.ok(Object.isFrozen(x));assert.equal(x instanceof Map,false);assert.equal(x instanceof Set,false);for(const child of Object.values(x))inspect(child);}}
+  inspect(graph);const saved=structuredClone(graph);
+  f.get('ta-p-t1-a').payload.consumed.value.numerator=99n;f.get('ta-p-t1-a').owner.association.entityId.value='mutated';f.manifest.teamActuals.reverse();
+  assert.deepEqual(graph,saved);assert.equal(graph.versions.filter(v=>v.ref.kind==='TeamActual').length,8);
+});

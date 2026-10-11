@@ -1,0 +1,15 @@
+{
+  ".": {
+    "src-v2/domain/portfolio/graphValidation.ts": "47a9a78dad0fc161822b2ecd56c936eff489f763c73c60e402100ebfd99c7c19",
+    "src-v2/application/portfolio/r12.test.ts": "21b8c5e1f70e7a43ad64ad83c4cbd34621f214697153950c26af6f0e722c0579"
+  },
+  "/private/tmp/flowplan-p2-p1": {
+    "src-v2/domain/portfolio/graphValidation.ts": "26748366e1b3e28730697142cd544bb9e15fb680b7c63b6ed75db745ddc151b5",
+    "src-v2/application/portfolio/r12.test.ts": "3919f78a15beb44a8adab18c3d6e32f1f1f61c99baf8df857bc6b35967680bf4"
+  },
+  "/private/tmp/flowplan-p2-candidate": {
+    "src-v2/domain/portfolio/graphValidation.ts": "47a9a78dad0fc161822b2ecd56c936eff489f763c73c60e402100ebfd99c7c19",
+    "src-v2/application/portfolio/r12.test.ts": "21b8c5e1f70e7a43ad64ad83c4cbd34621f214697153950c26af6f0e722c0579"
+  },
+  "candidateSHA": "94ae3c97f0df02de3fd03fd2c8ecd53dbc220e99"
+}

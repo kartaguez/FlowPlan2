@@ -1,0 +1,56 @@
+{
+  "test:v2": {
+    "tests": 194,
+    "pass": 194,
+    "fail": 0,
+    "skip": 0,
+    "todo": 0,
+    "cancelled": 0
+  },
+  "r11-targeted": {
+    "tests": 32,
+    "pass": 32
+  },
+  "r12-targeted": {
+    "tests": 123,
+    "pass": 123
+  },
+  "gates": [
+    "G12-01",
+    "G12-02",
+    "G12-03",
+    "G12-04",
+    "G12-05",
+    "G12-06",
+    "G12-07",
+    "G12-08",
+    "G12-09",
+    "G12-10",
+    "G12-11",
+    "G12-12",
+    "G12-13"
+  ],
+  "regressions": "All PERF-P0/P1 in unchanged existing suites rerun; five P2 tests added",
+  "commands": [
+    "npm run test:v2",
+    "node --test --test-reporter=tap .test-dist-v2/domain/primitives/*.test.js .test-dist-v2/domain/versioning/*.test.js scripts/v2/r11.test.mjs",
+    "node --test --test-reporter=tap .test-dist-v2/application/portfolio/r12.test.js scripts/v2/r12.test.mjs",
+    "npm run check:boundaries:v2",
+    "npm run typecheck:v2",
+    "npm run build:v2",
+    "git diff --check"
+  ],
+  "results": {
+    "boundaries": "PASS",
+    "typecheck": "PASS",
+    "build": "PASS",
+    "diff-check": "PASS"
+  },
+  "oracle": {
+    "original": 941,
+    "extended": 1245,
+    "supplement": 9,
+    "total": 1254,
+    "differences": 0
+  }
+}

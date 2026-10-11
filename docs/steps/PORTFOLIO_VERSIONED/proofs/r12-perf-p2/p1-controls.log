@@ -1,0 +1,9 @@
+medium:sparse M1 started
+medium:sparse M1 COMPLETED cold:614.0ms warmup:690.6ms measured-1:573.2ms measured-2:544.1ms measured-3:518.6ms
+medium:sparse M2 started
+medium:sparse M2 COMPLETED cold:628.3ms warmup:609.5ms measured-1:618.5ms measured-2:594.5ms measured-3:623.2ms
+medium:dense M1 started
+medium:dense M1 COMPLETED cold:3818.5ms warmup:3246.6ms measured-1:3307.6ms measured-2:3229.4ms measured-3:3278.5ms
+medium:dense M2 started
+medium:dense M2 COMPLETED cold:4019.5ms warmup:3957.0ms measured-1:3858.8ms measured-2:3936.1ms measured-3:3933.4ms
+Evidence: /Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/p1-controls.json
