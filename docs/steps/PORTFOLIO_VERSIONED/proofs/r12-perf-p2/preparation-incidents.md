@@ -7,3 +7,5 @@ Correction du seul transport de preuve : réponses complètes écrites une par u
 Lecture initiale sysctl CPU refusée par sandbox ; indisponibilité consignée, environnement CPU/RAM obtenu par les outils Node des campagnes. Aucun garde ni outil de benchmark modifié.
 
 La première exécution des 194 tests V2 a obtenu 193 PASS / 1 FAIL : la nouvelle fixture catalogue+grille conservait `ownColor` tout en ajoutant une référence Program, donc la factory retournait légitimement PROGRAM_COLOR_EXCLUSIVITY. Fixture corrigée en posant ownColor=null afin d'atteindre MISSING_CATALOG_REFERENCE ; assertion et production inchangées, nouvelle exécution 194/194 PASS. Journal initial conservé.
+
+Le contrôle final indexé détectait les espaces du diagnostic TAP brut dans tests-initial.log. Journal préservé byte-for-byte en tests-initial.log.gz (SHA256 brut c558b34343e0058281b4a48a2cca63fd57d9b7c5c8043fdb346cca1dd2f1428d), sans modification des réponses ni du diagnostic. Correction documentaire dans un second commit normal avant push.

@@ -42,7 +42,7 @@ contiennent diagnostics code/path/message/ordre, versions/owners/payloads/refs/
 provenance, contextes, inventaires, résolution, validation, certification et
 chargements réels Current/Snapshot. Copies/gel/absence de mutation sont prouvés
 séparément par les suites runtime, pas par le JSON. Incidents de préparation
-conservés dans preparation-incidents.md et tests-initial.log.
+conservés dans preparation-incidents.md et tests-initial.log.gz.
 
 ## Validation et mesures
 

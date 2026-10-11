@@ -1,9 +1,9 @@
 {
-  "time": "2026-10-11T11:44:30.368217+00:00",
+  "time": "2026-10-11T11:47:00.551550+00:00",
   "clone": "/private/tmp/flowplan-p2-rollback",
   "baseline": "fae4929af58c3ecd0aaa8026e51687e41c51cc7c",
-  "snapshotCommit": "ef231f4fdc4704bbcff8b478c77710a2ef7ac475",
-  "revertCommit": "7b36beccc0cd4c08c741c74b4f7ce1c83534f31f",
+  "snapshotCommit": "b6a7501b940013132819d90f485c4022cd1ceb55",
+  "revertCommit": "0a9447c3ddaf9ce3bb8346747b31c0779d318d8e",
   "baselineTree": "59de7b0f730ed2d934d40aaa78031904ed71a16d",
   "restoredTree": "59de7b0f730ed2d934d40aaa78031904ed71a16d",
   "identical": true,
@@ -11,10 +11,6 @@
   "files": [
     "docs/current_canon.md",
     "docs/current_plan.md",
-    "docs/steps/PORTFOLIO_VERSIONED/rewrite_r12_canon.md",
-    "docs/steps/PORTFOLIO_VERSIONED/rewrite_r12_perf_p2_plan.md",
-    "src-v2/application/portfolio/r12.test.ts",
-    "src-v2/domain/portfolio/graphValidation.ts",
     "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/README.md",
     "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/analyze-profiles.mjs",
     "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/boundaries.log",
@@ -29,6 +25,7 @@
     "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/controls-summary.md",
     "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/diff-check.log",
     "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/differential.log",
+    "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/files.txt",
     "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/fixtures.json",
     "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/freeze-seal.json",
     "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/freeze.log",
@@ -90,15 +87,22 @@
     "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/r11-targeted.log",
     "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/r12-targeted.log",
     "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/report.md",
+    "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/review.json",
+    "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/rollback.json",
+    "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/rollback.log",
     "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/source-hashes.json",
     "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/supplement-freeze.log",
     "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/supplement.mjs",
-    "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/tests-initial.log",
+    "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/tests-initial.log.gz",
     "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/tests.log",
     "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/tools-hashes.json",
     "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/typecheck.log",
     "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/validation.json",
-    "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/verify-original.mjs"
+    "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/verify-original.mjs",
+    "docs/steps/PORTFOLIO_VERSIONED/rewrite_r12_canon.md",
+    "docs/steps/PORTFOLIO_VERSIONED/rewrite_r12_perf_p2_plan.md",
+    "src-v2/application/portfolio/r12.test.ts",
+    "src-v2/domain/portfolio/graphValidation.ts"
   ],
-  "note": "Complete delivery snapshot at time of rollback excluding its own subsequent receipt/log and final review receipts; normal revert, no shared-repo destructive action, no push of lab commits."
+  "note": "Final complete delivery snapshot including byte-preserved compressed initial log, excluding own subsequent receipt and final review updates; normal revert; no shared destructive action, no laboratory push."
 }

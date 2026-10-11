@@ -1,6 +1,6 @@
 
-[detached HEAD ef231f4] perf(v2): P2 delivery rollback laboratory snapshot
- 90 files changed, 43798 insertions(+), 31 deletions(-)
+[detached HEAD b6a7501] perf(v2): final P2 rollback laboratory snapshot
+ 94 files changed, 43005 insertions(+), 31 deletions(-)
  create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/README.md
  create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/analyze-profiles.mjs
  create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/boundaries.log
@@ -15,6 +15,7 @@
  create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/controls-summary.md
  create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/diff-check.log
  create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/differential.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/files.txt
  create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/fixtures.json
  create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/freeze-seal.json
  create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/freeze.log
@@ -76,18 +77,21 @@
  create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/r11-targeted.log
  create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/r12-targeted.log
  create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/report.md
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/review.json
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/rollback.json
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/rollback.log
  create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/source-hashes.json
  create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/supplement-freeze.log
  create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/supplement.mjs
- create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/tests-initial.log
+ create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/tests-initial.log.gz
  create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/tests.log
  create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/tools-hashes.json
  create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/typecheck.log
  create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/validation.json
  create mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/verify-original.mjs
-[detached HEAD 7b36bec] Revert "perf(v2): P2 delivery rollback laboratory snapshot"
- Date: Sun Oct 11 13:44:30 2026 +0200
- 90 files changed, 31 insertions(+), 43798 deletions(-)
+[detached HEAD 0a9447c] Revert "perf(v2): final P2 rollback laboratory snapshot"
+ Date: Sun Oct 11 13:47:00 2026 +0200
+ 94 files changed, 31 insertions(+), 43005 deletions(-)
  delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/README.md
  delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/analyze-profiles.mjs
  delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/boundaries.log
@@ -102,6 +106,7 @@
  delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/controls-summary.md
  delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/diff-check.log
  delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/differential.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/files.txt
  delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/fixtures.json
  delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/freeze-seal.json
  delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/freeze.log
@@ -163,10 +168,13 @@
  delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/r11-targeted.log
  delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/r12-targeted.log
  delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/report.md
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/review.json
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/rollback.json
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/rollback.log
  delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/source-hashes.json
  delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/supplement-freeze.log
  delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/supplement.mjs
- delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/tests-initial.log
+ delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/tests-initial.log.gz
  delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/tests.log
  delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/tools-hashes.json
  delete mode 100644 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/typecheck.log

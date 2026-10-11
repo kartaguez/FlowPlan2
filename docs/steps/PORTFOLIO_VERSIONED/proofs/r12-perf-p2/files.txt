@@ -1,9 +1,5 @@
 docs/current_canon.md
 docs/current_plan.md
-docs/steps/PORTFOLIO_VERSIONED/rewrite_r12_canon.md
-docs/steps/PORTFOLIO_VERSIONED/rewrite_r12_perf_p2_plan.md
-src-v2/application/portfolio/r12.test.ts
-src-v2/domain/portfolio/graphValidation.ts
 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/README.md
 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/analyze-profiles.mjs
 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/boundaries.log
@@ -18,6 +14,7 @@ docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/controls-summary.json
 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/controls-summary.md
 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/diff-check.log
 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/differential.log
+docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/files.txt
 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/fixtures.json
 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/freeze-seal.json
 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/freeze.log
@@ -85,9 +82,13 @@ docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/rollback.log
 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/source-hashes.json
 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/supplement-freeze.log
 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/supplement.mjs
-docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/tests-initial.log
+docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/tests-initial.log.gz
 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/tests.log
 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/tools-hashes.json
 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/typecheck.log
 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/validation.json
 docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/verify-original.mjs
+docs/steps/PORTFOLIO_VERSIONED/rewrite_r12_canon.md
+docs/steps/PORTFOLIO_VERSIONED/rewrite_r12_perf_p2_plan.md
+src-v2/application/portfolio/r12.test.ts
+src-v2/domain/portfolio/graphValidation.ts

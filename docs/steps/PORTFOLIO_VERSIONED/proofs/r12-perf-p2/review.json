@@ -33,5 +33,8 @@
   "sevenToolsMatchHistoricalHashes": true,
   "ordinaryBenchmarkRunsPerVersion": 29,
   "ordinaryBenchmarkSamplesPerRun": 5,
-  "note": "Full tracked diff reviewed; full oracle responses compared structurally; evidence scripts/logs/summary data reviewed; raw CPU profiles inspected with preserved readers. Final fetch succeeded with authorized sandbox escalation after .git/FETCH_HEAD permission refusal. No concurrent changes."
+  "note": "Full tracked diff reviewed; full oracle responses compared structurally; evidence scripts/logs/summary data reviewed; raw CPU profiles inspected with preserved readers. Final fetch succeeded with authorized sandbox escalation after .git/FETCH_HEAD permission refusal. No concurrent changes.",
+  "finalWholeDeliveryDiffCheck": "git diff fae4929af58c3ecd0aaa8026e51687e41c51cc7c --check: PASS",
+  "initialLogPreservedCompressed": true,
+  "finalRollbackTreeIdentical": true
 }
