@@ -1,0 +1,25 @@
+{
+  "baseline": "4186efc065a8d75de58cc9a2a685c9ef40641bc5",
+  "productionFiles": [
+    "src-v2/domain/versioning/immutableValue.ts"
+  ],
+  "newTestFile": "src-v2/domain/versioning/immutableValue.test.ts",
+  "documentationFiles": [
+    "docs/current_canon.md",
+    "docs/current_plan.md",
+    "docs/steps/PORTFOLIO_VERSIONED/rewrite_r12_canon.md",
+    "docs/steps/PORTFOLIO_VERSIONED/rewrite_r12_perf_p3_plan.md"
+  ],
+  "newProofDirectory": "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1",
+  "existingProofs": "unchanged by git diff",
+  "benchmarkTools": "hashes verified unchanged",
+  "fixtures": "historical P2 metadata/hashes exact, seed 1202",
+  "publicSignatures": "unchanged",
+  "dataRecord/equalImmutableValues/registry/certification/load": "unchanged",
+  "trustBoundaryChanges": false,
+  "instrumentationInProduction": false,
+  "sourceMatchesMeasuredCandidate": true,
+  "fullDiffReviewed": true,
+  "rollback": "normal revert; restored tree exact and clean",
+  "diffCheck": "PASS"
+}

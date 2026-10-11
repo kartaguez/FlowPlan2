@@ -1,0 +1,1104 @@
+[
+  {
+    "label": "p2",
+    "scenario": "small/sparse",
+    "operation": "M1",
+    "cpuUserMs": {
+      "min": 35.822,
+      "median": 37.979,
+      "max": 38.324,
+      "populationSD": 1.1071323317472015
+    },
+    "cpuSystemMs": {
+      "min": 0.288,
+      "median": 0.459,
+      "max": 1.482,
+      "populationSD": 0.5271944612759129
+    },
+    "rssPollingUnavailable": null,
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "p2",
+    "scenario": "small/sparse",
+    "operation": "M2",
+    "cpuUserMs": {
+      "min": 40.154,
+      "median": 42.755,
+      "max": 45.713,
+      "populationSD": 2.2710116688383604
+    },
+    "cpuSystemMs": {
+      "min": 0.29,
+      "median": 0.5,
+      "max": 1.498,
+      "populationSD": 0.5269796538345247
+    },
+    "rssPollingUnavailable": null,
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "p2",
+    "scenario": "small/sparse",
+    "operation": "M3",
+    "cpuUserMs": {
+      "min": 42.593,
+      "median": 44.646,
+      "max": 48.644,
+      "populationSD": 2.512489115509865
+    },
+    "cpuSystemMs": {
+      "min": 0.327,
+      "median": 0.577,
+      "max": 1.522,
+      "populationSD": 0.5146249983132271
+    },
+    "rssPollingUnavailable": null,
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "p2",
+    "scenario": "small/sparse",
+    "operation": "M4",
+    "cpuUserMs": {
+      "min": 44.306,
+      "median": 46.467,
+      "max": 49.98,
+      "populationSD": 2.3382178873853667
+    },
+    "cpuSystemMs": {
+      "min": 0.348,
+      "median": 0.696,
+      "max": 1.508,
+      "populationSD": 0.4860324634790927
+    },
+    "rssPollingUnavailable": null,
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "p2",
+    "scenario": "small/sparse",
+    "operation": "M5",
+    "cpuUserMs": {
+      "min": 77.734,
+      "median": 77.739,
+      "max": 80.422,
+      "populationSD": 1.2659584862422961
+    },
+    "cpuSystemMs": {
+      "min": 0.862,
+      "median": 0.864,
+      "max": 2.873,
+      "populationSD": 0.947523438584327
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "p2",
+    "scenario": "small/sparse",
+    "operation": "M6",
+    "cpuUserMs": {
+      "min": 72.502,
+      "median": 74.952,
+      "max": 78.571,
+      "populationSD": 2.492932721826957
+    },
+    "cpuSystemMs": {
+      "min": 0.586,
+      "median": 0.719,
+      "max": 2.697,
+      "populationSD": 0.9653148018479084
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "p2",
+    "scenario": "small/dense",
+    "operation": "M1",
+    "cpuUserMs": {
+      "min": 59.133,
+      "median": 60.656,
+      "max": 67.25,
+      "populationSD": 3.522720760371953
+    },
+    "cpuSystemMs": {
+      "min": 0.475,
+      "median": 0.71,
+      "max": 2.186,
+      "populationSD": 0.7572847695696925
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "p2",
+    "scenario": "small/dense",
+    "operation": "M2",
+    "cpuUserMs": {
+      "min": 68.432,
+      "median": 68.957,
+      "max": 71.387,
+      "populationSD": 1.2872256989355058
+    },
+    "cpuSystemMs": {
+      "min": 0.828,
+      "median": 1.025,
+      "max": 1.732,
+      "populationSD": 0.3881400091032444
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "p2",
+    "scenario": "small/dense",
+    "operation": "M3",
+    "cpuUserMs": {
+      "min": 71.228,
+      "median": 73.462,
+      "max": 75.402,
+      "populationSD": 1.7054367964444406
+    },
+    "cpuSystemMs": {
+      "min": 0.613,
+      "median": 0.832,
+      "max": 2.998,
+      "populationSD": 1.0764004830916791
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "p2",
+    "scenario": "small/dense",
+    "operation": "M4",
+    "cpuUserMs": {
+      "min": 74.796,
+      "median": 79.157,
+      "max": 80.944,
+      "populationSD": 2.5821953192325817
+    },
+    "cpuSystemMs": {
+      "min": 0.982,
+      "median": 1.284,
+      "max": 2.758,
+      "populationSD": 0.7758905993902891
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "p2",
+    "scenario": "small/dense",
+    "operation": "M5",
+    "cpuUserMs": {
+      "min": 135.13,
+      "median": 144.421,
+      "max": 149.895,
+      "populationSD": 6.09455660587563
+    },
+    "cpuSystemMs": {
+      "min": 0.927,
+      "median": 1.379,
+      "max": 3.92,
+      "populationSD": 1.3173641190734708
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "p2",
+    "scenario": "small/dense",
+    "operation": "M6",
+    "cpuUserMs": {
+      "min": 127.979,
+      "median": 133.175,
+      "max": 142.959,
+      "populationSD": 6.2104345169149715
+    },
+    "cpuSystemMs": {
+      "min": 0.866,
+      "median": 1.053,
+      "max": 2.982,
+      "populationSD": 0.9564672265977312
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "p2",
+    "scenario": "small/history",
+    "operation": "M1",
+    "cpuUserMs": {
+      "min": 35.997,
+      "median": 37.477,
+      "max": 38,
+      "populationSD": 0.8482621450157175
+    },
+    "cpuSystemMs": {
+      "min": 0.344,
+      "median": 0.732,
+      "max": 1.13,
+      "populationSD": 0.3208918128521754
+    },
+    "rssPollingUnavailable": null,
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "p2",
+    "scenario": "small/history",
+    "operation": "M2",
+    "cpuUserMs": {
+      "min": 40.99,
+      "median": 43.785,
+      "max": 46.359,
+      "populationSD": 2.1925039465313523
+    },
+    "cpuSystemMs": {
+      "min": 0.558,
+      "median": 0.854,
+      "max": 1.208,
+      "populationSD": 0.2657132957824195
+    },
+    "rssPollingUnavailable": null,
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "p2",
+    "scenario": "small/history",
+    "operation": "M3",
+    "cpuUserMs": {
+      "min": 41.449,
+      "median": 44.436,
+      "max": 47.558,
+      "populationSD": 2.4941917862639733
+    },
+    "cpuSystemMs": {
+      "min": 0.512,
+      "median": 0.539,
+      "max": 1.554,
+      "populationSD": 0.48496483263107737
+    },
+    "rssPollingUnavailable": null,
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "p2",
+    "scenario": "small/history",
+    "operation": "M4",
+    "cpuUserMs": {
+      "min": 43.753,
+      "median": 45.49,
+      "max": 50.218,
+      "populationSD": 2.731856877656662
+    },
+    "cpuSystemMs": {
+      "min": 0.486,
+      "median": 0.569,
+      "max": 1.754,
+      "populationSD": 0.5791697122222083
+    },
+    "rssPollingUnavailable": null,
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "p2",
+    "scenario": "small/history",
+    "operation": "M5",
+    "cpuUserMs": {
+      "min": 73.608,
+      "median": 74.94,
+      "max": 75.992,
+      "populationSD": 0.975498960646408
+    },
+    "cpuSystemMs": {
+      "min": 0.708,
+      "median": 0.801,
+      "max": 2.863,
+      "populationSD": 0.9946813001604529
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "p2",
+    "scenario": "medium/sparse",
+    "operation": "M1",
+    "cpuUserMs": {
+      "min": 485.794,
+      "median": 498.102,
+      "max": 504.24,
+      "populationSD": 7.669686535677693
+    },
+    "cpuSystemMs": {
+      "min": 1.721,
+      "median": 2.479,
+      "max": 2.771,
+      "populationSD": 0.4425090080690134
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "p2",
+    "scenario": "medium/sparse",
+    "operation": "M2",
+    "cpuUserMs": {
+      "min": 575.68,
+      "median": 578.237,
+      "max": 585.117,
+      "populationSD": 3.985105853884774
+    },
+    "cpuSystemMs": {
+      "min": 2.214,
+      "median": 2.274,
+      "max": 2.306,
+      "populationSD": 0.03813426572286695
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "p2",
+    "scenario": "medium/sparse",
+    "operation": "M3",
+    "cpuUserMs": {
+      "min": 701.619,
+      "median": 729.574,
+      "max": 733.482,
+      "populationSD": 14.18921835604607
+    },
+    "cpuSystemMs": {
+      "min": 2.46,
+      "median": 2.551,
+      "max": 2.583,
+      "populationSD": 0.05210459565996937
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "p2",
+    "scenario": "medium/sparse",
+    "operation": "M4",
+    "cpuUserMs": {
+      "min": 754.691,
+      "median": 760.133,
+      "max": 761.85,
+      "populationSD": 3.0516795739759788
+    },
+    "cpuSystemMs": {
+      "min": 2.757,
+      "median": 2.798,
+      "max": 3.39,
+      "populationSD": 0.2892200238956878
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "p2",
+    "scenario": "medium/sparse",
+    "operation": "M5",
+    "cpuUserMs": {
+      "min": 1378.058,
+      "median": 1378.456,
+      "max": 1381.121,
+      "populationSD": 1.359844680673396
+    },
+    "cpuSystemMs": {
+      "min": 5.346,
+      "median": 5.463,
+      "max": 6.293,
+      "populationSD": 0.42155769342865623
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "p2",
+    "scenario": "medium/sparse",
+    "operation": "M6",
+    "cpuUserMs": {
+      "min": 1347.74,
+      "median": 1349.812,
+      "max": 1355.226,
+      "populationSD": 3.1560308405760304
+    },
+    "cpuSystemMs": {
+      "min": 4.808,
+      "median": 5.085,
+      "max": 5.813,
+      "populationSD": 0.4238367085984359
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "p2",
+    "scenario": "medium/dense",
+    "operation": "M1",
+    "cpuUserMs": {
+      "min": 3160.247,
+      "median": 3160.87,
+      "max": 3171.973,
+      "populationSD": 5.386854514051406
+    },
+    "cpuSystemMs": {
+      "min": 13.679,
+      "median": 13.828,
+      "max": 14.756,
+      "populationSD": 0.47648178232634353
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "p2",
+    "scenario": "medium/dense",
+    "operation": "M2",
+    "cpuUserMs": {
+      "min": 3754.818,
+      "median": 3758.128,
+      "max": 3797.577,
+      "populationSD": 19.42367336239182
+    },
+    "cpuSystemMs": {
+      "min": 15.329,
+      "median": 15.731,
+      "max": 16.683,
+      "populationSD": 0.5677659924847753
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "p2",
+    "scenario": "medium/dense",
+    "operation": "M3",
+    "cpuUserMs": {
+      "min": 4307.89,
+      "median": 4309.372,
+      "max": 4317.09,
+      "populationSD": 4.033248594151069
+    },
+    "cpuSystemMs": {
+      "min": 16.432,
+      "median": 24.272,
+      "max": 29.266,
+      "populationSD": 5.282225877622257
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "p2",
+    "scenario": "medium/dense",
+    "operation": "M4",
+    "cpuUserMs": {
+      "min": 4535.131,
+      "median": 4553.573,
+      "max": 4573.954,
+      "populationSD": 15.856011317127683
+    },
+    "cpuSystemMs": {
+      "min": 18.204,
+      "median": 18.407,
+      "max": 21.176,
+      "populationSD": 1.355702114117338
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "p2",
+    "scenario": "medium/dense",
+    "operation": "M5",
+    "cpuUserMs": {
+      "min": 8736.823,
+      "median": 8749.102,
+      "max": 8769.832,
+      "populationSD": 13.622289014699376
+    },
+    "cpuSystemMs": {
+      "min": 34.116,
+      "median": 37.06,
+      "max": 39.057,
+      "populationSD": 2.0294669798304743
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "p2",
+    "scenario": "medium/dense",
+    "operation": "M6",
+    "cpuUserMs": {
+      "min": 8282.678,
+      "median": 8380.081,
+      "max": 8391.268,
+      "populationSD": 48.76734048064918
+    },
+    "cpuSystemMs": {
+      "min": 32.246,
+      "median": 33.037,
+      "max": 35.938,
+      "populationSD": 1.5871828992134325
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "a1",
+    "scenario": "small/sparse",
+    "operation": "M1",
+    "cpuUserMs": {
+      "min": 38.031,
+      "median": 40.544,
+      "max": 40.908,
+      "populationSD": 1.2790966430345374
+    },
+    "cpuSystemMs": {
+      "min": 0.432,
+      "median": 0.587,
+      "max": 1.203,
+      "populationSD": 0.33298681989265316
+    },
+    "rssPollingUnavailable": null,
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "a1",
+    "scenario": "small/sparse",
+    "operation": "M2",
+    "cpuUserMs": {
+      "min": 40.772,
+      "median": 43.068,
+      "max": 47.306,
+      "populationSD": 2.70648225972797
+    },
+    "cpuSystemMs": {
+      "min": 0.374,
+      "median": 0.426,
+      "max": 1.684,
+      "populationSD": 0.6056555676840316
+    },
+    "rssPollingUnavailable": null,
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "a1",
+    "scenario": "small/sparse",
+    "operation": "M3",
+    "cpuUserMs": {
+      "min": 42.599,
+      "median": 44.086,
+      "max": 47.078,
+      "populationSD": 1.8626347527688385
+    },
+    "cpuSystemMs": {
+      "min": 0.433,
+      "median": 0.521,
+      "max": 1.502,
+      "populationSD": 0.4845233625831564
+    },
+    "rssPollingUnavailable": null,
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "a1",
+    "scenario": "small/sparse",
+    "operation": "M4",
+    "cpuUserMs": {
+      "min": 44.418,
+      "median": 46.199,
+      "max": 50.339,
+      "populationSD": 2.480362921473836
+    },
+    "cpuSystemMs": {
+      "min": 0.299,
+      "median": 0.483,
+      "max": 1.461,
+      "populationSD": 0.5099655761802839
+    },
+    "rssPollingUnavailable": null,
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "a1",
+    "scenario": "small/sparse",
+    "operation": "M5",
+    "cpuUserMs": {
+      "min": 77.371,
+      "median": 77.376,
+      "max": 79.851,
+      "populationSD": 1.1679064840797635
+    },
+    "cpuSystemMs": {
+      "min": 0.687,
+      "median": 1.386,
+      "max": 3.016,
+      "populationSD": 0.9758040559228863
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "a1",
+    "scenario": "small/sparse",
+    "operation": "M6",
+    "cpuUserMs": {
+      "min": 72.149,
+      "median": 74.68,
+      "max": 77.558,
+      "populationSD": 2.20972914378412
+    },
+    "cpuSystemMs": {
+      "min": 0.549,
+      "median": 0.58,
+      "max": 2.77,
+      "populationSD": 1.0397596944593603
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "a1",
+    "scenario": "small/dense",
+    "operation": "M1",
+    "cpuUserMs": {
+      "min": 58.447,
+      "median": 59.98,
+      "max": 67.775,
+      "populationSD": 4.0841658743112905
+    },
+    "cpuSystemMs": {
+      "min": 0.516,
+      "median": 1.057,
+      "max": 1.785,
+      "populationSD": 0.5199386715971627
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "a1",
+    "scenario": "small/dense",
+    "operation": "M2",
+    "cpuUserMs": {
+      "min": 70.229,
+      "median": 71.563,
+      "max": 72.5,
+      "populationSD": 0.9318420228534214
+    },
+    "cpuSystemMs": {
+      "min": 0.604,
+      "median": 0.874,
+      "max": 2.968,
+      "populationSD": 1.0565263839582995
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "a1",
+    "scenario": "small/dense",
+    "operation": "M3",
+    "cpuUserMs": {
+      "min": 70.503,
+      "median": 74.193,
+      "max": 76.075,
+      "populationSD": 2.3143323491284105
+    },
+    "cpuSystemMs": {
+      "min": 0.603,
+      "median": 0.83,
+      "max": 2.682,
+      "populationSD": 0.9311685609431243
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "a1",
+    "scenario": "small/dense",
+    "operation": "M4",
+    "cpuUserMs": {
+      "min": 75.834,
+      "median": 77.129,
+      "max": 78.129,
+      "populationSD": 0.9395063715708497
+    },
+    "cpuSystemMs": {
+      "min": 0.736,
+      "median": 1.617,
+      "max": 2.009,
+      "populationSD": 0.5323275933733538
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "a1",
+    "scenario": "small/dense",
+    "operation": "M5",
+    "cpuUserMs": {
+      "min": 142.488,
+      "median": 148.864,
+      "max": 151.339,
+      "populationSD": 3.7285564975678667
+    },
+    "cpuSystemMs": {
+      "min": 1.184,
+      "median": 1.625,
+      "max": 5.184,
+      "populationSD": 1.7907466475064404
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "a1",
+    "scenario": "small/dense",
+    "operation": "M6",
+    "cpuUserMs": {
+      "min": 128.388,
+      "median": 137.907,
+      "max": 143.588,
+      "populationSD": 6.270965918864135
+    },
+    "cpuSystemMs": {
+      "min": 0.925,
+      "median": 1.013,
+      "max": 3.982,
+      "populationSD": 1.4207960992188695
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "a1",
+    "scenario": "small/history",
+    "operation": "M1",
+    "cpuUserMs": {
+      "min": 35.712,
+      "median": 37.247,
+      "max": 37.306,
+      "populationSD": 0.7379055946844849
+    },
+    "cpuSystemMs": {
+      "min": 0.359,
+      "median": 0.496,
+      "max": 1.183,
+      "populationSD": 0.36051105700411223
+    },
+    "rssPollingUnavailable": null,
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "a1",
+    "scenario": "small/history",
+    "operation": "M2",
+    "cpuUserMs": {
+      "min": 41.526,
+      "median": 43.263,
+      "max": 45.96,
+      "populationSD": 1.824260398079177
+    },
+    "cpuSystemMs": {
+      "min": 0.592,
+      "median": 0.703,
+      "max": 1.167,
+      "populationSD": 0.24905198029505587
+    },
+    "rssPollingUnavailable": null,
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "a1",
+    "scenario": "small/history",
+    "operation": "M3",
+    "cpuUserMs": {
+      "min": 43.1,
+      "median": 46.064,
+      "max": 48.008,
+      "populationSD": 2.0180545086790898
+    },
+    "cpuSystemMs": {
+      "min": 0.651,
+      "median": 0.851,
+      "max": 1.185,
+      "populationSD": 0.22028062909742102
+    },
+    "rssPollingUnavailable": null,
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "a1",
+    "scenario": "small/history",
+    "operation": "M4",
+    "cpuUserMs": {
+      "min": 43.728,
+      "median": 45.462,
+      "max": 50.784,
+      "populationSD": 3.002176543776197
+    },
+    "cpuSystemMs": {
+      "min": 0.612,
+      "median": 0.696,
+      "max": 1.351,
+      "populationSD": 0.33035368252155983
+    },
+    "rssPollingUnavailable": null,
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "a1",
+    "scenario": "small/history",
+    "operation": "M5",
+    "cpuUserMs": {
+      "min": 73.612,
+      "median": 75.34,
+      "max": 76.137,
+      "populationSD": 1.0539248339210732
+    },
+    "cpuSystemMs": {
+      "min": 0.571,
+      "median": 0.615,
+      "max": 2.551,
+      "populationSD": 0.9231848256022314
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "a1",
+    "scenario": "medium/sparse",
+    "operation": "M1",
+    "cpuUserMs": {
+      "min": 478.327,
+      "median": 490.72,
+      "max": 494.413,
+      "populationSD": 6.879794037614797
+    },
+    "cpuSystemMs": {
+      "min": 1.617,
+      "median": 1.792,
+      "max": 2.308,
+      "populationSD": 0.2933261362753448
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "a1",
+    "scenario": "medium/sparse",
+    "operation": "M2",
+    "cpuUserMs": {
+      "min": 568.924,
+      "median": 581.769,
+      "max": 612.11,
+      "populationSD": 18.1064779752073
+    },
+    "cpuSystemMs": {
+      "min": 2.107,
+      "median": 2.207,
+      "max": 3.515,
+      "populationSD": 0.6414677613792363
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "a1",
+    "scenario": "medium/sparse",
+    "operation": "M3",
+    "cpuUserMs": {
+      "min": 707.533,
+      "median": 724.032,
+      "max": 732.5,
+      "populationSD": 10.367015610418777
+    },
+    "cpuSystemMs": {
+      "min": 2.443,
+      "median": 2.528,
+      "max": 3.047,
+      "populationSD": 0.2669585902137051
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "a1",
+    "scenario": "medium/sparse",
+    "operation": "M4",
+    "cpuUserMs": {
+      "min": 760.457,
+      "median": 772.66,
+      "max": 775.416,
+      "populationSD": 6.500260046080222
+    },
+    "cpuSystemMs": {
+      "min": 2.664,
+      "median": 3.068,
+      "max": 3.591,
+      "populationSD": 0.37948415279458275
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "a1",
+    "scenario": "medium/sparse",
+    "operation": "M5",
+    "cpuUserMs": {
+      "min": 1372.732,
+      "median": 1373.576,
+      "max": 1374.603,
+      "populationSD": 0.7650494537392505
+    },
+    "cpuSystemMs": {
+      "min": 5.143,
+      "median": 5.405,
+      "max": 5.941,
+      "populationSD": 0.33212179827420074
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "a1",
+    "scenario": "medium/sparse",
+    "operation": "M6",
+    "cpuUserMs": {
+      "min": 1343.574,
+      "median": 1343.815,
+      "max": 1356.876,
+      "populationSD": 6.214597564516015
+    },
+    "cpuSystemMs": {
+      "min": 4.726,
+      "median": 4.78,
+      "max": 5.417,
+      "populationSD": 0.3137879680435322
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "a1",
+    "scenario": "medium/dense",
+    "operation": "M1",
+    "cpuUserMs": {
+      "min": 3140.01,
+      "median": 3145.791,
+      "max": 3148.065,
+      "populationSD": 3.3907400372189525
+    },
+    "cpuSystemMs": {
+      "min": 11.451,
+      "median": 12.327,
+      "max": 12.826,
+      "populationSD": 0.5683310850395412
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "a1",
+    "scenario": "medium/dense",
+    "operation": "M2",
+    "cpuUserMs": {
+      "min": 3774.998,
+      "median": 3796.25,
+      "max": 3811.958,
+      "populationSD": 15.145334331073723
+    },
+    "cpuSystemMs": {
+      "min": 14.319,
+      "median": 15.372,
+      "max": 16.665,
+      "populationSD": 0.9594196162263927
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "a1",
+    "scenario": "medium/dense",
+    "operation": "M3",
+    "cpuUserMs": {
+      "min": 4231.283,
+      "median": 4259.576,
+      "max": 4266.834,
+      "populationSD": 15.337122770874672
+    },
+    "cpuSystemMs": {
+      "min": 15.753,
+      "median": 16.112,
+      "max": 16.485,
+      "populationSD": 0.2988559667948571
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "a1",
+    "scenario": "medium/dense",
+    "operation": "M4",
+    "cpuUserMs": {
+      "min": 4529.495,
+      "median": 4535.431,
+      "max": 4535.953,
+      "populationSD": 2.9290564275131374
+    },
+    "cpuSystemMs": {
+      "min": 17.415,
+      "median": 17.867,
+      "max": 19.393,
+      "populationSD": 0.8462639462169397
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "a1",
+    "scenario": "medium/dense",
+    "operation": "M5",
+    "cpuUserMs": {
+      "min": 8687.098,
+      "median": 8690.745,
+      "max": 8706.449,
+      "populationSD": 8.395616753203354
+    },
+    "cpuSystemMs": {
+      "min": 32.833,
+      "median": 33.176,
+      "max": 36.307,
+      "populationSD": 1.563098276571958
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  },
+  {
+    "label": "a1",
+    "scenario": "medium/dense",
+    "operation": "M6",
+    "cpuUserMs": {
+      "min": 8166.086,
+      "median": 8238.48,
+      "max": 8270.77,
+      "populationSD": 43.769948077038734
+    },
+    "cpuSystemMs": {
+      "min": 29.841,
+      "median": 30.386,
+      "max": 30.395,
+      "populationSD": 0.2590628409393272
+    },
+    "rssPollingUnavailable": "spawn EPERM",
+    "rssObservedPeakMiB": null
+  }
+]

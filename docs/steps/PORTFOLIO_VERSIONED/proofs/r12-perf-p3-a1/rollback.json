@@ -1,0 +1,12 @@
+{
+  "method": "git revert --no-edit 1752f6ed0a9e5101d2f153201ac448c443c4659b in disposable clone",
+  "candidateCommit": "1752f6ed0a9e5101d2f153201ac448c443c4659b",
+  "revertCommit": "a89fe68701db3e3768262f804a486f4772a02757",
+  "restoredTree": "db32498f605cb609a5f4a444af0657303f9a0d2e",
+  "baselineTree": "db32498f605cb609a5f4a444af0657303f9a0d2e",
+  "treeExact": true,
+  "tests": 194,
+  "typecheck": "PASS (boundaries included)",
+  "build": "PASS",
+  "worktree": ""
+}

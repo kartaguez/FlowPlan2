@@ -132,26 +132,32 @@ Snapshot dense pour R1.3 non établie. **R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT START
 Audit indépendant requis ; rollback normal en clone jetable, commit/push sans force,
 arrêt après livraison. Les passages P0/P1 ci-dessus décrivent leurs états historiques.
 
-[R1.2-PERF-P3 — plan documentaire proposé pour audit](./steps/PORTFOLIO_VERSIONED/rewrite_r12_perf_p3_plan.md),
-2026-10-11, baseline P2 auditée `d2ebb7142c563a43b620cd78fea63f2847d76c02`.
-P0/P1/P2 techniquement acceptés selon la mission ; **classification C maintenue**.
-Pipeline réel cartographié : setup adapter distinct ; réponse port unknown,
-registre collect puis réponse brute, nouveau registre en certification, résolution,
-structure et certificat opaque. Comptes analytiques : deux registres par lecture,
-quatre assemblages d'enveloppes et deux schémas métier par occurrence, dix
-traversées équivalentes payload ; M5 trois validations manifeste, M6 deux,
-hors setup, sur réponse mémoire stable. Comptes de code, aucune remesure.
-Recommandation **A bornée d'abord**, allocations locales sans changement de
-frontières ; B payload locale conditionnelle à preuve lexicale et audit distinct ;
-C mutualisation collect/certification ajournée faute de preuve suffisante sous
-contrats inchangés. Aucun trusted export, marque TS/symbole/cache/WeakSet comme
-preuve runtime ; factory validante unique, copie/gel et diagnostics conservés.
-Arbitrages A-P3-01–08 à soumettre ; différentiel futur contre vraie P2 sur
-1 254 réponses puis extensions, campagne M1–M6 et deux verdicts indépendants.
-**PLAN ONLY : aucune implémentation, instrumentation, suite ou campagne exécutée.**
-Seuls plan P3 et deux trackers modifiés ; preuves historiques intactes.
-**R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED.** Arrêt après commit/push du plan ;
-audit indépendant et nouveau GO explicite requis avant toute implémentation P3.
+[R1.2-PERF-P3-A1 — pile locale implémentée, IN REVIEW](./steps/PORTFOLIO_VERSIONED/rewrite_r12_perf_p3_plan.md#13-réalisation-p3-a1-autorisée--pile-locale-seulement),
+2026-10-11, GO utilisateur pour la première cible A exclusivement. Baseline
+`4186efc065a8d75de58cc9a2a685c9ef40641bc5`, préflight propre/exact, fetch et 0/0.
+Une seule production : immutableValue.ts. Pile ancêtres locale par appel, includes
+avant push, pop par finally, ordre/diagnostics/copiage DAG/gel conservés ; recherche
+ancêtre O(D), aucune mémoïsation ni frontière de confiance nouvelle.
+[Rapport et deux verdicts](./steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/report.md).
+Vraie P2 `d2ebb7142c563a43b620cd78fea63f2847d76c02` isolée et scellée avant
+code : **1 288 réponses complètes identiques** (1 254+34), runtime de copie/gel
+vérifié séparément. **19 tests ajoutés, 213/213 V2**, 32/32 R1.1, 123/123 R1.2,
+19/19 copie, G12-01–13/P0/P1/P2, frontières/typecheck/build PASS. Rollback normal
+restaure exactement l'arbre initial, 194 tests/typecheck/build PASS.
+M1–M6 remesurés : 29 opérations par version, 12 profils séparés, 30 contrôles
+inversés, fixtures/hashes/seed 1202 et outils inchangés. M6 historique/grands non
+exécutés. Snapshot moyen dense **7 567,94→7 554,24 ms** (−0,18 %), contrôle
+**7 523,99→7 477,19 ms** (−0,62 %) : effet global faible, dispersion conservée.
+Mémoire retenue ~131,82 Mio stable ; heap endpoint 440,16→442,92 Mio et RSS
+lifetime 827,94→799,95 Mio ne prouvent pas un gain exclusif d'A1. Petits variables.
+Laboratoire indépendant : tableaux ancêtres 514→1 (chaîne), 1 202→1 (DAG),
+mêmes visites et pile équilibrée après refus/exception ; observations instrumentées
+séparées des métriques officielles. Registre/inspection/copies/validations restent
+dominants. **Verdict technique A1 conforme ; verdict global C maintenu**,
+acceptabilité R1.3 non établie. Aucune autre cible A/B/C implémentée/autorisée.
+**R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED.** Audit indépendant requis,
+arrêt après commit/push sans force. Le plan initial reste historique pour les
+options différées, aucune permission nouvelle n'en est déduite.
 
 **Norme applicable consolidée — amendements du 2026-10-11 :**
 [A-R12-01–09, correspondances anciennes→nouvelles](./steps/PORTFOLIO_VERSIONED/rewrite_decisions.md#amendements-normatifs-r12--2026-10-11).

@@ -1,0 +1,142 @@
+[
+  {
+    "file": "p2-small.json",
+    "command": [
+      "/Users/Kartaguez/.nvm/versions/node/v24.21.0/bin/node",
+      "/private/tmp/flowplan-p3-p2/scripts/benchmarks/r12-perf/run.mjs",
+      "--scenarios=small:sparse,small:dense,small:history",
+      "--output=/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/p2-small.json"
+    ],
+    "sha": "d2ebb7142c563a43b620cd78fea63f2847d76c02",
+    "tree": "a2bbae403888098864e0360a9145af88764a1bfd",
+    "startedAt": "2026-10-11T13:24:16.852Z",
+    "finishedAt": "2026-10-11T13:24:22.991Z"
+  },
+  {
+    "file": "p2-medium.json",
+    "command": [
+      "/Users/Kartaguez/.nvm/versions/node/v24.21.0/bin/node",
+      "/private/tmp/flowplan-p3-p2/scripts/benchmarks/r12-perf/run.mjs",
+      "--scenarios=medium:sparse,medium:dense",
+      "--output=/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/p2-medium.json"
+    ],
+    "sha": "d2ebb7142c563a43b620cd78fea63f2847d76c02",
+    "tree": "a2bbae403888098864e0360a9145af88764a1bfd",
+    "startedAt": "2026-10-11T13:24:23.488Z",
+    "finishedAt": "2026-10-11T13:27:23.723Z"
+  },
+  {
+    "file": "p2-controls.json",
+    "command": [
+      "/Users/Kartaguez/.nvm/versions/node/v24.21.0/bin/node",
+      "/private/tmp/flowplan-p3-p2/scripts/benchmarks/r12-perf/run.mjs",
+      "--scenarios=medium:sparse,medium:dense",
+      "--operations=M1,M3,M5",
+      "--output=/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/p2-controls.json"
+    ],
+    "sha": "d2ebb7142c563a43b620cd78fea63f2847d76c02",
+    "tree": "a2bbae403888098864e0360a9145af88764a1bfd",
+    "startedAt": "2026-10-11T13:38:51.698Z",
+    "finishedAt": "2026-10-11T13:40:20.079Z"
+  },
+  {
+    "file": "p2-small-controls.json",
+    "command": [
+      "/Users/Kartaguez/.nvm/versions/node/v24.21.0/bin/node",
+      "/private/tmp/flowplan-p3-p2/scripts/benchmarks/r12-perf/run.mjs",
+      "--scenarios=small:sparse,small:dense,small:history",
+      "--operations=M1,M3,M5",
+      "--output=/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/p2-small-controls.json"
+    ],
+    "sha": "d2ebb7142c563a43b620cd78fea63f2847d76c02",
+    "tree": "a2bbae403888098864e0360a9145af88764a1bfd",
+    "startedAt": "2026-10-11T13:41:24.422Z",
+    "finishedAt": "2026-10-11T13:41:27.665Z"
+  },
+  {
+    "file": "p2-profile/cpu.json",
+    "command": [
+      "/Users/Kartaguez/.nvm/versions/node/v24.21.0/bin/node",
+      "/private/tmp/flowplan-p3-p2/scripts/benchmarks/r12-perf/run.mjs",
+      "--scenarios=medium:sparse,medium:dense",
+      "--operations=M1,M3,M5",
+      "--repeats=1",
+      "--profile",
+      "--output=/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/p2-profile/cpu.json"
+    ],
+    "sha": "d2ebb7142c563a43b620cd78fea63f2847d76c02",
+    "tree": "a2bbae403888098864e0360a9145af88764a1bfd",
+    "startedAt": "2026-10-11T13:27:24.230Z",
+    "finishedAt": "2026-10-11T13:28:20.147Z"
+  },
+  {
+    "file": "a1-small.json",
+    "command": [
+      "/Users/Kartaguez/.nvm/versions/node/v24.21.0/bin/node",
+      "/private/tmp/flowplan-p3-a1/scripts/benchmarks/r12-perf/run.mjs",
+      "--scenarios=small:sparse,small:dense,small:history",
+      "--output=/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/a1-small.json"
+    ],
+    "sha": "1752f6ed0a9e5101d2f153201ac448c443c4659b",
+    "tree": "23c1e83be6a4ffea379f57811409e2f40f1397ee",
+    "startedAt": "2026-10-11T13:32:46.092Z",
+    "finishedAt": "2026-10-11T13:32:52.175Z"
+  },
+  {
+    "file": "a1-medium.json",
+    "command": [
+      "/Users/Kartaguez/.nvm/versions/node/v24.21.0/bin/node",
+      "/private/tmp/flowplan-p3-a1/scripts/benchmarks/r12-perf/run.mjs",
+      "--scenarios=medium:sparse,medium:dense",
+      "--output=/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/a1-medium.json"
+    ],
+    "sha": "1752f6ed0a9e5101d2f153201ac448c443c4659b",
+    "tree": "23c1e83be6a4ffea379f57811409e2f40f1397ee",
+    "startedAt": "2026-10-11T13:32:52.676Z",
+    "finishedAt": "2026-10-11T13:35:51.700Z"
+  },
+  {
+    "file": "a1-controls.json",
+    "command": [
+      "/Users/Kartaguez/.nvm/versions/node/v24.21.0/bin/node",
+      "/private/tmp/flowplan-p3-a1/scripts/benchmarks/r12-perf/run.mjs",
+      "--scenarios=medium:sparse,medium:dense",
+      "--operations=M1,M3,M5",
+      "--output=/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/a1-controls.json"
+    ],
+    "sha": "1752f6ed0a9e5101d2f153201ac448c443c4659b",
+    "tree": "23c1e83be6a4ffea379f57811409e2f40f1397ee",
+    "startedAt": "2026-10-11T13:37:23.440Z",
+    "finishedAt": "2026-10-11T13:38:51.193Z"
+  },
+  {
+    "file": "a1-small-controls.json",
+    "command": [
+      "/Users/Kartaguez/.nvm/versions/node/v24.21.0/bin/node",
+      "/private/tmp/flowplan-p3-a1/scripts/benchmarks/r12-perf/run.mjs",
+      "--scenarios=small:sparse,small:dense,small:history",
+      "--operations=M1,M3,M5",
+      "--output=/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/a1-small-controls.json"
+    ],
+    "sha": "1752f6ed0a9e5101d2f153201ac448c443c4659b",
+    "tree": "23c1e83be6a4ffea379f57811409e2f40f1397ee",
+    "startedAt": "2026-10-11T13:41:20.736Z",
+    "finishedAt": "2026-10-11T13:41:23.924Z"
+  },
+  {
+    "file": "a1-profile/cpu.json",
+    "command": [
+      "/Users/Kartaguez/.nvm/versions/node/v24.21.0/bin/node",
+      "/private/tmp/flowplan-p3-a1/scripts/benchmarks/r12-perf/run.mjs",
+      "--scenarios=medium:sparse,medium:dense",
+      "--operations=M1,M3,M5",
+      "--repeats=1",
+      "--profile",
+      "--output=/Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/a1-profile/cpu.json"
+    ],
+    "sha": "1752f6ed0a9e5101d2f153201ac448c443c4659b",
+    "tree": "23c1e83be6a4ffea379f57811409e2f40f1397ee",
+    "startedAt": "2026-10-11T13:35:52.198Z",
+    "finishedAt": "2026-10-11T13:36:47.634Z"
+  }
+]

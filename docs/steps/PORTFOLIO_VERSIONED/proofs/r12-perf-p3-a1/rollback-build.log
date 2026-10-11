@@ -1,0 +1,38 @@
+
+> flowplan@0.1.0 build:v2
+> node scripts/v2/build.mjs
+
+{
+  "assets": [
+    "index.html",
+    "js/adapters/memory/memoryPortfolioReadAdapter.js",
+    "js/application/portfolio/loadPortfolioGraph.js",
+    "js/application/ports/portfolioReadPort.js",
+    "js/bootstrap/emptyPortfolioShellState.js",
+    "js/domain/portfolio/graphResolver.js",
+    "js/domain/portfolio/graphValidation.js",
+    "js/domain/portfolio/manifest.js",
+    "js/domain/portfolio/payloadValidation.js",
+    "js/domain/portfolio/payloads.js",
+    "js/domain/portfolio/validatedPortfolioGraph.js",
+    "js/domain/primitives/civilDate.js",
+    "js/domain/primitives/civilInterval.js",
+    "js/domain/primitives/data.js",
+    "js/domain/primitives/exactReference.js",
+    "js/domain/primitives/identity.js",
+    "js/domain/primitives/quantity.js",
+    "js/domain/primitives/rational.js",
+    "js/domain/primitives/result.js",
+    "js/domain/versioning/immutableValue.js",
+    "js/domain/versioning/localVersionTables.js",
+    "js/domain/versioning/owner.js",
+    "js/domain/versioning/versionEnvelope.js",
+    "js/domain/versioning/versionRegistry.js",
+    "js/environment/browserIsolation.js",
+    "js/main/createV2Application.js",
+    "js/main/main.js",
+    "js/ui/renderV2Shell.js",
+    "styles.css"
+  ],
+  "entrypoint": "js/main/main.js"
+}

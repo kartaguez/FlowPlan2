@@ -1,0 +1,25 @@
+{
+  "comparisons": [
+    {
+      "corpus": "oracle",
+      "cases": 1245,
+      "divergences": 0,
+      "outputSHA256": "b3d5831b531c1bf04845f1b7bd8b03714c3c0673b20e1255b750a383d4dbcccb"
+    },
+    {
+      "corpus": "supplement",
+      "cases": 9,
+      "divergences": 0,
+      "outputSHA256": "297c21794b0dae1b99a0fc4689d8abc25608c16e3a4ae804e44ac333d72af213"
+    },
+    {
+      "corpus": "copy",
+      "cases": 34,
+      "divergences": 0,
+      "outputSHA256": "93bc094454090fe2e03bf543f7908fd8d117dc61b9a6d7529f30e1ffb6a0357d"
+    }
+  ],
+  "total": 1288,
+  "divergences": 0,
+  "sealVerified": true
+}

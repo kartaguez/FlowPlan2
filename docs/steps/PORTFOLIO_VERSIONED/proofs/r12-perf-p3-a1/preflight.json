@@ -1,0 +1,13 @@
+{
+  "branch": "rewrite/portfolio-versioned",
+  "initialSHA": "4186efc065a8d75de58cc9a2a685c9ef40641bc5",
+  "fetch": "PASS after sandbox escalation",
+  "divergence": "0/0",
+  "initialWorktree": "clean",
+  "concurrentChanges": "none",
+  "oracleBaseline": "d2ebb7142c563a43b620cd78fea63f2847d76c02",
+  "isolatedCheckout": "/private/tmp/flowplan-p3-p2",
+  "dependencies": "existing node_modules linked read-only in practice; no installation; sources/compiled outputs separate",
+  "baselineProductionDiff": "",
+  "sealedBeforeProduction": true
+}

@@ -1,0 +1,102 @@
+[
+  {
+    label: 'p2',
+    scenario: 'depth512',
+    arrays: 514,
+    objects: 513,
+    slots: 131841,
+    depth: 513,
+    live: 0,
+    ms: 18.45325
+  },
+  {
+    label: 'p2',
+    scenario: 'dag400',
+    arrays: 1202,
+    objects: 1201,
+    slots: 3601,
+    depth: 4,
+    live: 0,
+    ms: 3.6922089999999983
+  },
+  {
+    label: 'p2',
+    scenario: 'cycle',
+    arrays: 2,
+    objects: 1,
+    slots: 1,
+    depth: 1,
+    live: 0,
+    ms: 0.07325000000000159
+  },
+  {
+    label: 'p2',
+    scenario: 'refusal',
+    arrays: 3,
+    objects: 2,
+    slots: 3,
+    depth: 2,
+    live: 0,
+    ms: 0.02891699999999986
+  },
+  {
+    label: 'p2',
+    scenario: 'throw',
+    arrays: 3,
+    objects: 2,
+    slots: 3,
+    depth: 2,
+    live: 0,
+    ms: 0.04408300000000054
+  },
+  {
+    label: 'a1',
+    scenario: 'depth512',
+    arrays: 1,
+    objects: 513,
+    slots: 0,
+    depth: 513,
+    live: 0,
+    ms: 9.157332999999994
+  },
+  {
+    label: 'a1',
+    scenario: 'dag400',
+    arrays: 1,
+    objects: 1201,
+    slots: 0,
+    depth: 4,
+    live: 0,
+    ms: 3.0868750000000063
+  },
+  {
+    label: 'a1',
+    scenario: 'cycle',
+    arrays: 1,
+    objects: 1,
+    slots: 0,
+    depth: 1,
+    live: 0,
+    ms: 0.020625000000009663
+  },
+  {
+    label: 'a1',
+    scenario: 'refusal',
+    arrays: 1,
+    objects: 2,
+    slots: 0,
+    depth: 2,
+    live: 0,
+    ms: 0.024292000000002645
+  },
+  {
+    label: 'a1',
+    scenario: 'throw',
+    arrays: 1,
+    objects: 2,
+    slots: 0,
+    depth: 2,
+    live: 0,
+    ms: 0.0401250000000033
+  }
+]

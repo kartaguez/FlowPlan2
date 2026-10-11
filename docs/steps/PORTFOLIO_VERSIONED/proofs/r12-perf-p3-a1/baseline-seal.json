@@ -1,0 +1,20 @@
+{
+  "sealedAt": "2026-10-11T13:24:15.611386+00:00",
+  "baseline": "d2ebb7142c563a43b620cd78fea63f2847d76c02",
+  "productionUnmodified": true,
+  "historicalArchivesEqual": true,
+  "responses": 1288,
+  "hashes": {
+    "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/oracle.mjs": "9b6de4dff5f00d2463974e2be61a7e31f865112b3b3d50fe93767a6e850b986f",
+    "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p2/supplement.mjs": "39eb869fa10e0e61fd194a13fe016fccc4e69f4c4bb8478b4228581f275f3c81",
+    "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/copy-oracle.mjs": "7c7452c28237feba46f3bc23192b85d33ef3a4c714ab68ab2595a94d34592923",
+    "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/p2-supplement.meta.json": "edee0ad6fd66f9c0bd530a3072afcbb0f1ef6803c642efe80421c34aead82536",
+    "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/p2-oracle.meta.json": "09969d48cb80353a86bd81e3afba37d48902992203352647ae46deff11ffbb69",
+    "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/p2-supplement.jsonl.gz": "a43390d784d4a856e48a25883247a9eb27277faae60c8317c3848a09b3d7924c",
+    "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/p2-oracle.log": "d8b1ca5436276737bbcd2706bee201baa1050df3092f7d350f020c40cf91dae2",
+    "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/p2-copy.meta.json": "3b7725806b3a5273f4001a9a3447a54e059b527768996ad88f57e25a86dfd16b",
+    "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/p2-supplement.log": "b419ee400adb1c4c3f58b1910ea5e40c2558a2e82bbb0d00ba2d456f67d964a1",
+    "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/p2-copy.jsonl.gz": "26754cc0cd2568d8a4e2d483667b88244719dc0d84292ea8f78ffd91e8031a13",
+    "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/p2-oracle.jsonl.gz": "0d3cef2e8f7a0890f158dadf5fb7deb6ed95546a277504f81292d6c50fc23725"
+  }
+}

@@ -1,15 +1,17 @@
 # FlowPlan2 V2 — R1.2-PERF-P3 : copies et validations répétées
 
-2026-10-11 — **PLAN ONLY / PROPOSÉ POUR AUDIT ; GO P3 NON ACCORDÉ**.
-Baseline P2 auditée obligatoire : `d2ebb7142c563a43b620cd78fea63f2847d76c02`.
+2026-10-11 — **P3-A1 IMPLÉMENTÉ SUR GO EXPLICITE ; IN REVIEW**.
+Baseline de livraison obligatoire : `4186efc065a8d75de58cc9a2a685c9ef40641bc5`.
+Baseline oracle/mesures P2 exacte : `d2ebb7142c563a43b620cd78fea63f2847d76c02`.
 **R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED ; performance globale C.**
-P0, P1 et P2 techniquement acceptés selon la mission utilisateur. Les demandes
-d'audit dans leurs livraisons décrivent leur chronologie historique ; aucun
-résultat supplémentaire n'est attribué à cet audit. Cette session ne livre que
-ce plan et les deux points d'entrée courants. Aucune instrumentation, suite,
-compilation ou campagne exécutée ; aucune optimisation/refactorisation autorisée.
-Arrêt après commit/push documentaire. Audit indépendant puis **nouveau GO
-explicite** obligatoires avant toute implémentation P3.
+
+La mission autorise uniquement la pile locale d'ancêtres de copyImmutableValue,
+première cible A. Résultats au §13 et dans le [rapport A1](./proofs/r12-perf-p3-a1/report.md).
+Les sections 1–12 conservent le plan initial audité et ses constats historiques :
+leurs mentions « futur », « PLAN ONLY » et GO non accordé décrivent la rédaction
+initiale, remplacées pour A1 seulement par cette autorisation et sa réalisation.
+Aucune autre cible A, B ou C autorisée ; aucune frontière de confiance modifiée.
+Audit indépendant de réalisation requis, aucun GO R1.3/R1.4/R2 ni clôture R1.2.
 
 ## 1. Préflight et sources de vérité
 
@@ -652,3 +654,52 @@ vérification SHA local/distant, divergence 0/0 et arbre propre au compte rendu.
 **Arrêt impératif après livraison du plan. Aucune implémentation P3 sans audit
 indépendant et nouveau GO explicite. R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED ;
 classification C maintenue.**
+
+## 13. Réalisation P3-A1 autorisée — pile locale seulement
+
+GO explicite utilisateur, baseline `4186efc065a8d75de58cc9a2a685c9ef40641bc5`.
+Préflight exact/propre, fetch réussi, divergence 0/0, aucun concurrent.
+[Rapport, mesures et deux verdicts](./proofs/r12-perf-p3-a1/report.md),
+[preuves reproductibles](./proofs/r12-perf-p3-a1/README.md).
+Seul fichier production modifié : domain/versioning/immutableValue.ts sous src-v2.
+Tableau ancêtres local par appel public ; includes avant push, pop dans finally
+sur succès/refus/exception. Ordre des inspections/récursions et priorité des
+records/tableaux inchangés, copies indépendantes DAG et gel profond conservés.
+Recherche ancêtre toujours O(D) ; N spreads et Σdᵢ écritures supprimés, pas de
+promesse de pipeline linéaire ni de latence garantie.
+
+Vraie P2 `d2ebb7142c563a43b620cd78fea63f2847d76c02` isolée et scellée avant
+production : 1 254 réponses historiques + 34 extensions, **1 288 identiques**,
+zéro divergence. Runtime de détachement/gel/mutation séparé. 19 tests ajoutés,
+**213/213 V2**, **32/32 R1.1**, **123/123 R1.2**, **19/19 copie ciblée**,
+G12-01–13/P0/P1/P2, frontières/typecheck/build PASS, aucun test affaibli.
+Rollback normal en clone jetable : tree baseline identique, 194 tests restaurés,
+typecheck/build PASS. Sources/outils/fixtures historiques hashés et préservés.
+
+Campagnes contemporaines P2/A1, cinq scénarios M1–M6, 29 opérations par version,
+cold/warm-up/trois mesures, timeout 30 s/phase, old-space 1 Gio/seed 1202.
+12 profils CPU séparés, 30 opérations de contrôles inversés conservées à part.
+M6 historique et grands non exécutés. M5 moyen dense **7 567,94→7 554,24 ms**
+(−0,18 %), contrôle inversé **7 523,99→7 477,19 ms** (−0,62 %), intervalles
+se recouvrent ; moyen sparse **1 215,05→1 214,07 ms**, contrôle +0,75 %.
+M1 petit sparse +4,34 % ordinaire, −3,50 % contrôle : variation non stable.
+M5 dense heap endpoint 440,16→442,92 Mio, RSS lifetime 827,94→799,95 Mio,
+heap retenue avec résultat ~131,82 Mio inchangée. CPU/M1–M6/dispersion/setup/
+mémoire complets dans les preuves, aucune baisse uniforme ni pic exclusif déduit.
+
+Laboratoire indépendant : chaîne profondeur 513, 514→1 tableaux ancêtres ; DAG
+1 202→1, mêmes objets visités, push/pop équilibrés même après refus/exception.
+Masse d'allocations échantillonnée et timings instrumentés séparés des métriques
+officielles. Gestion des ancêtres et tableaux temporaires sans frame CPU fiable individuelle ;
+M5 dense registre 78,24→77,47 % inclusifs, copy 41,95→40,65 %, dataRecord
+56,22→56,69 %. Inclusifs recouvrants jamais convertis en temps exclusifs.
+
+**Verdict A : P3-A1 techniquement conforme, à auditer indépendamment.**
+**Verdict B : classification globale C maintenue** : gain M5 faible, ~7,55 s
+reste sans acceptabilité démontrée pour R1.3 ; registre/inspection/copies/
+validations dominants résiduels, mémoire retenue stable, petits variables.
+Aucun B/C ni autre optimisation A ; aucun flag/cache/WeakMap/WeakSet trusted,
+aucune frontière modifiée ni nouvelle preuve/certification. Les arbitrages du
+plan initial restent non autorisés pour toute cible autre que la pile A1.
+**R1.2 IN REVIEW ; R1.3/R1.4/R2 NOT STARTED.** Arrêt après commit/push normal,
+sans force ; aucun nouveau lot avant audit/arbitrage indépendant.

@@ -1,0 +1,54 @@
+{
+  "tests": {
+    "tests": 213,
+    "pass": 213,
+    "fail": 0,
+    "skip": 0,
+    "todo": 0,
+    "cancelled": 0
+  },
+  "r11-targeted": {
+    "tests": 32,
+    "pass": 32,
+    "fail": 0,
+    "skip": 0,
+    "todo": 0,
+    "cancelled": 0
+  },
+  "r12-targeted": {
+    "tests": 123,
+    "pass": 123,
+    "fail": 0,
+    "skip": 0,
+    "todo": 0,
+    "cancelled": 0
+  },
+  "copy-targeted": {
+    "tests": 19,
+    "pass": 19,
+    "fail": 0,
+    "skip": 0,
+    "todo": 0,
+    "cancelled": 0
+  },
+  "G12": {
+    "G12-01": "PASS",
+    "G12-02": "PASS",
+    "G12-03": "PASS",
+    "G12-04": "PASS",
+    "G12-05": "PASS",
+    "G12-06": "PASS",
+    "G12-07": "PASS",
+    "G12-08": "PASS",
+    "G12-09": "PASS",
+    "G12-10": "PASS",
+    "G12-11": "PASS",
+    "G12-12": "PASS",
+    "G12-13": "PASS"
+  },
+  "boundaries": "PASS",
+  "typecheck": "PASS",
+  "build": "PASS",
+  "P0/P1/P2": "PASS existing regression tests rerun, unchanged",
+  "newTests": 19
+}

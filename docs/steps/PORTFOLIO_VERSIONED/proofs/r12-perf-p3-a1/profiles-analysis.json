@@ -1,0 +1,593 @@
+{
+  "limitations": "Ancestor membership, push/pop, array spreads and descriptor arrays have no reliably separate sampled frame. Anonymous copy rows cannot uniquely identify ancestor allocations. Inclusive categories overlap; no subtraction/conversion to exclusive elapsed durations. Self values are direct sample attribution, affected by JIT/inlining/GC and sampling.",
+  "profiles": [
+    {
+      "label": "p2",
+      "path": "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/p2-profile/medium-dense-M1.cpuprofile",
+      "sampledMs": 2858.667,
+      "categories": {
+        "copy": {
+          "selfSampledMs": 463.576,
+          "selfPercent": 16.216509303112257,
+          "inclusiveSampledMs": 1396.044,
+          "inclusivePercent": 48.835488708548425
+        },
+        "ancestorArraysAndCopyTemporaries": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 0,
+          "inclusivePercent": 0
+        },
+        "dataRecord": {
+          "selfSampledMs": 1697.709,
+          "selfPercent": 59.38813439970447,
+          "inclusiveSampledMs": 1751.959,
+          "inclusivePercent": 61.2858720515541
+        },
+        "envelope": {
+          "selfSampledMs": 16.626,
+          "selfPercent": 0.5815997456157013,
+          "inclusiveSampledMs": 942.089,
+          "inclusivePercent": 32.95553486992364
+        },
+        "payload": {
+          "selfSampledMs": 10.584,
+          "selfPercent": 0.37024249414150023,
+          "inclusiveSampledMs": 928.043,
+          "inclusivePercent": 32.46418697945581
+        },
+        "registry": {
+          "selfSampledMs": 15.834,
+          "selfPercent": 0.553894524965657,
+          "inclusiveSampledMs": 2690.581,
+          "inclusivePercent": 94.12012661845537
+        },
+        "gc": {
+          "selfSampledMs": 89.376,
+          "selfPercent": 3.126492172750446,
+          "inclusiveSampledMs": 89.376,
+          "inclusivePercent": 3.126492172750446
+        }
+      }
+    },
+    {
+      "label": "p2",
+      "path": "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/p2-profile/medium-dense-M3.cpuprofile",
+      "sampledMs": 3842.834,
+      "categories": {
+        "copy": {
+          "selfSampledMs": 526.876,
+          "selfPercent": 13.710610450516466,
+          "inclusiveSampledMs": 1508.582,
+          "inclusivePercent": 39.2570170868687
+        },
+        "ancestorArraysAndCopyTemporaries": {
+          "selfSampledMs": 1.5,
+          "selfPercent": 0.03903369232186454,
+          "inclusiveSampledMs": 21.21,
+          "inclusivePercent": 0.5519364094311646
+        },
+        "dataRecord": {
+          "selfSampledMs": 1881.375,
+          "selfPercent": 48.9580085946986,
+          "inclusiveSampledMs": 1927.959,
+          "inclusivePercent": 50.17023894344642
+        },
+        "envelope": {
+          "selfSampledMs": 22.542,
+          "selfPercent": 0.5865983282129803,
+          "inclusiveSampledMs": 959.122,
+          "inclusivePercent": 24.95871536475424
+        },
+        "payload": {
+          "selfSampledMs": 18.001,
+          "selfPercent": 0.46843033032392234,
+          "inclusiveSampledMs": 933.293,
+          "inclusivePercent": 24.286581205433283
+        },
+        "registry": {
+          "selfSampledMs": 15.293,
+          "selfPercent": 0.3979615044521829,
+          "inclusiveSampledMs": 2849.837,
+          "inclusivePercent": 74.15977375031032
+        },
+        "gc": {
+          "selfSampledMs": 146.707,
+          "selfPercent": 3.817677266309188,
+          "inclusiveSampledMs": 146.707,
+          "inclusivePercent": 3.817677266309188
+        }
+      }
+    },
+    {
+      "label": "p2",
+      "path": "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/p2-profile/medium-dense-M5.cpuprofile",
+      "sampledMs": 7701.333,
+      "categories": {
+        "copy": {
+          "selfSampledMs": 1058.713,
+          "selfPercent": 13.747139618556945,
+          "inclusiveSampledMs": 3230.507,
+          "inclusivePercent": 41.94737456489675
+        },
+        "ancestorArraysAndCopyTemporaries": {
+          "selfSampledMs": 1.5,
+          "selfPercent": 0.01947714765742502,
+          "inclusiveSampledMs": 16.583,
+          "inclusivePercent": 0.21532635973538608
+        },
+        "dataRecord": {
+          "selfSampledMs": 4183.802,
+          "selfPercent": 54.325686215620074,
+          "inclusiveSampledMs": 4329.427,
+          "inclusivePercent": 56.216592634028416
+        },
+        "envelope": {
+          "selfSampledMs": 28.166,
+          "selfPercent": 0.3657288939460221,
+          "inclusiveSampledMs": 1960.548,
+          "inclusivePercent": 25.45725525697954
+        },
+        "payload": {
+          "selfSampledMs": 17.915,
+          "selfPercent": 0.2326220668551795,
+          "inclusiveSampledMs": 1893.125,
+          "inclusivePercent": 24.581783439308495
+        },
+        "registry": {
+          "selfSampledMs": 39.208,
+          "selfPercent": 0.5091066702348801,
+          "inclusiveSampledMs": 6025.589,
+          "inclusivePercent": 78.24085778397064
+        },
+        "gc": {
+          "selfSampledMs": 303.575,
+          "selfPercent": 3.9418500667352,
+          "inclusiveSampledMs": 303.575,
+          "inclusivePercent": 3.9418500667352
+        }
+      }
+    },
+    {
+      "label": "p2",
+      "path": "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/p2-profile/medium-sparse-M1.cpuprofile",
+      "sampledMs": 462.875,
+      "categories": {
+        "copy": {
+          "selfSampledMs": 77.168,
+          "selfPercent": 16.671455576559545,
+          "inclusiveSampledMs": 233.503,
+          "inclusivePercent": 50.446232784229004
+        },
+        "ancestorArraysAndCopyTemporaries": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 0,
+          "inclusivePercent": 0
+        },
+        "dataRecord": {
+          "selfSampledMs": 256.837,
+          "selfPercent": 55.48733459357278,
+          "inclusiveSampledMs": 265.753,
+          "inclusivePercent": 57.41355657574939
+        },
+        "envelope": {
+          "selfSampledMs": 3.042,
+          "selfPercent": 0.6571968674048069,
+          "inclusiveSampledMs": 164.916,
+          "inclusivePercent": 35.628625438833375
+        },
+        "payload": {
+          "selfSampledMs": 3.041,
+          "selfPercent": 0.6569808263570078,
+          "inclusiveSampledMs": 151.625,
+          "inclusivePercent": 32.75722387253578
+        },
+        "registry": {
+          "selfSampledMs": 2.959,
+          "selfPercent": 0.6392654604374831,
+          "inclusiveSampledMs": 423.877,
+          "inclusivePercent": 91.5748312179314
+        },
+        "gc": {
+          "selfSampledMs": 13.541,
+          "selfPercent": 2.9254118282473667,
+          "inclusiveSampledMs": 13.541,
+          "inclusivePercent": 2.9254118282473667
+        }
+      }
+    },
+    {
+      "label": "p2",
+      "path": "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/p2-profile/medium-sparse-M3.cpuprofile",
+      "sampledMs": 659.916,
+      "categories": {
+        "copy": {
+          "selfSampledMs": 85.836,
+          "selfPercent": 13.00710999581765,
+          "inclusiveSampledMs": 233.002,
+          "inclusivePercent": 35.30782705677692
+        },
+        "ancestorArraysAndCopyTemporaries": {
+          "selfSampledMs": 3,
+          "selfPercent": 0.4546033131489462,
+          "inclusiveSampledMs": 7.376,
+          "inclusivePercent": 1.1177180125955426
+        },
+        "dataRecord": {
+          "selfSampledMs": 277.164,
+          "selfPercent": 41.99989089520484,
+          "inclusiveSampledMs": 289.413,
+          "inclusivePercent": 43.85603622279199
+        },
+        "envelope": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 147.416,
+          "inclusivePercent": 22.338600670388352
+        },
+        "payload": {
+          "selfSampledMs": 3,
+          "selfPercent": 0.4546033131489462,
+          "inclusiveSampledMs": 148.916,
+          "inclusivePercent": 22.565902326962824
+        },
+        "registry": {
+          "selfSampledMs": 2.708,
+          "selfPercent": 0.4103552573357821,
+          "inclusiveSampledMs": 439.249,
+          "inclusivePercent": 66.56135023245383
+        },
+        "gc": {
+          "selfSampledMs": 19.792,
+          "selfPercent": 2.9991695912813148,
+          "inclusiveSampledMs": 19.792,
+          "inclusivePercent": 2.9991695912813148
+        }
+      }
+    },
+    {
+      "label": "p2",
+      "path": "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/p2-profile/medium-sparse-M5.cpuprofile",
+      "sampledMs": 1241.875,
+      "categories": {
+        "copy": {
+          "selfSampledMs": 164.045,
+          "selfPercent": 13.209461499748365,
+          "inclusiveSampledMs": 484.666,
+          "inclusivePercent": 39.02695520885757
+        },
+        "ancestorArraysAndCopyTemporaries": {
+          "selfSampledMs": 1.5,
+          "selfPercent": 0.12078510317060896,
+          "inclusiveSampledMs": 6,
+          "inclusivePercent": 0.48314041268243585
+        },
+        "dataRecord": {
+          "selfSampledMs": 635.416,
+          "selfPercent": 51.16585807750378,
+          "inclusiveSampledMs": 662.333,
+          "inclusivePercent": 53.3333064921993
+        },
+        "envelope": {
+          "selfSampledMs": 4.5,
+          "selfPercent": 0.3623553095118269,
+          "inclusiveSampledMs": 273.708,
+          "inclusivePercent": 22.039899345747358
+        },
+        "payload": {
+          "selfSampledMs": 9.042,
+          "selfPercent": 0.7280926019124309,
+          "inclusiveSampledMs": 309.21,
+          "inclusivePercent": 24.898641167589332
+        },
+        "registry": {
+          "selfSampledMs": 9.25,
+          "selfPercent": 0.7448414695520886,
+          "inclusiveSampledMs": 922.795,
+          "inclusivePercent": 74.30659285354805
+        },
+        "gc": {
+          "selfSampledMs": 40.997,
+          "selfPercent": 3.30121791645697,
+          "inclusiveSampledMs": 40.997,
+          "inclusivePercent": 3.30121791645697
+        }
+      }
+    },
+    {
+      "label": "a1",
+      "path": "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/a1-profile/medium-dense-M1.cpuprofile",
+      "sampledMs": 2829.041,
+      "categories": {
+        "copy": {
+          "selfSampledMs": 448.094,
+          "selfPercent": 15.839077623830832,
+          "inclusiveSampledMs": 1333.499,
+          "inclusivePercent": 47.136078975172154
+        },
+        "ancestorArraysAndCopyTemporaries": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 0,
+          "inclusivePercent": 0
+        },
+        "dataRecord": {
+          "selfSampledMs": 1609.983,
+          "selfPercent": 56.90914341644394,
+          "inclusiveSampledMs": 1653.443,
+          "inclusivePercent": 58.44535303659438
+        },
+        "envelope": {
+          "selfSampledMs": 31.541,
+          "selfPercent": 1.1149007737957846,
+          "inclusiveSampledMs": 934.957,
+          "inclusivePercent": 33.04854896058417
+        },
+        "payload": {
+          "selfSampledMs": 10.584,
+          "selfPercent": 0.37411971053088305,
+          "inclusiveSampledMs": 906.707,
+          "inclusivePercent": 32.0499773598191
+        },
+        "registry": {
+          "selfSampledMs": 15.459,
+          "selfPercent": 0.5464395885390138,
+          "inclusiveSampledMs": 2636.585,
+          "inclusivePercent": 93.19712934524456
+        },
+        "gc": {
+          "selfSampledMs": 104.248,
+          "selfPercent": 3.68492361899315,
+          "inclusiveSampledMs": 104.248,
+          "inclusivePercent": 3.68492361899315
+        }
+      }
+    },
+    {
+      "label": "a1",
+      "path": "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/a1-profile/medium-dense-M3.cpuprofile",
+      "sampledMs": 3906.083,
+      "categories": {
+        "copy": {
+          "selfSampledMs": 500.041,
+          "selfPercent": 12.801596893870407,
+          "inclusiveSampledMs": 1547.756,
+          "inclusivePercent": 39.62424761583407
+        },
+        "ancestorArraysAndCopyTemporaries": {
+          "selfSampledMs": 1.5,
+          "selfPercent": 0.038401641746987965,
+          "inclusiveSampledMs": 22.583,
+          "inclusivePercent": 0.5781495170481529
+        },
+        "dataRecord": {
+          "selfSampledMs": 2007.451,
+          "selfPercent": 51.3929427510885,
+          "inclusiveSampledMs": 2075.285,
+          "inclusivePercent": 53.12956739526528
+        },
+        "envelope": {
+          "selfSampledMs": 25.582,
+          "selfPercent": 0.6549271994476308,
+          "inclusiveSampledMs": 1023.915,
+          "inclusivePercent": 26.213344672911454
+        },
+        "payload": {
+          "selfSampledMs": 11.876,
+          "selfPercent": 0.30403859825815277,
+          "inclusiveSampledMs": 954.875,
+          "inclusivePercent": 24.44584510877009
+        },
+        "registry": {
+          "selfSampledMs": 16.501,
+          "selfPercent": 0.4224436603113656,
+          "inclusiveSampledMs": 2919.414,
+          "inclusivePercent": 74.74019369276076
+        },
+        "gc": {
+          "selfSampledMs": 146.458,
+          "selfPercent": 3.749485097986909,
+          "inclusiveSampledMs": 146.458,
+          "inclusivePercent": 3.749485097986909
+        }
+      }
+    },
+    {
+      "label": "a1",
+      "path": "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/a1-profile/medium-dense-M5.cpuprofile",
+      "sampledMs": 7625.583,
+      "categories": {
+        "copy": {
+          "selfSampledMs": 979.793,
+          "selfPercent": 12.848761858601499,
+          "inclusiveSampledMs": 3100.129,
+          "inclusivePercent": 40.654321118791835
+        },
+        "ancestorArraysAndCopyTemporaries": {
+          "selfSampledMs": 3.082,
+          "selfPercent": 0.040416581919048025,
+          "inclusiveSampledMs": 15.082,
+          "inclusivePercent": 0.19778159912494558
+        },
+        "dataRecord": {
+          "selfSampledMs": 4199.748,
+          "selfPercent": 55.07445135670282,
+          "inclusiveSampledMs": 4323.204,
+          "inclusivePercent": 56.69342265371709
+        },
+        "envelope": {
+          "selfSampledMs": 37.333,
+          "selfPercent": 0.48957568227898113,
+          "inclusiveSampledMs": 1946.135,
+          "inclusivePercent": 25.521130646666624
+        },
+        "payload": {
+          "selfSampledMs": 34.333,
+          "selfPercent": 0.4502344279775068,
+          "inclusiveSampledMs": 1867.335,
+          "inclusivePercent": 24.48776703368123
+        },
+        "registry": {
+          "selfSampledMs": 46.749,
+          "selfPercent": 0.6130547657798755,
+          "inclusiveSampledMs": 5907.583,
+          "inclusivePercent": 77.470575036689
+        },
+        "gc": {
+          "selfSampledMs": 326.419,
+          "selfPercent": 4.280577629277657,
+          "inclusiveSampledMs": 326.419,
+          "inclusivePercent": 4.280577629277657
+        }
+      }
+    },
+    {
+      "label": "a1",
+      "path": "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/a1-profile/medium-sparse-M1.cpuprofile",
+      "sampledMs": 457.667,
+      "categories": {
+        "copy": {
+          "selfSampledMs": 75.537,
+          "selfPercent": 16.504794971016047,
+          "inclusiveSampledMs": 200.538,
+          "inclusivePercent": 43.817448057211905
+        },
+        "ancestorArraysAndCopyTemporaries": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 0,
+          "inclusivePercent": 0
+        },
+        "dataRecord": {
+          "selfSampledMs": 243.214,
+          "selfPercent": 53.14213172459452,
+          "inclusiveSampledMs": 253.672,
+          "inclusivePercent": 55.42719925185779
+        },
+        "envelope": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 136.667,
+          "inclusivePercent": 29.861667981305185
+        },
+        "payload": {
+          "selfSampledMs": 4.5,
+          "selfPercent": 0.9832476451218899,
+          "inclusiveSampledMs": 151.875,
+          "inclusivePercent": 33.184608022863785
+        },
+        "registry": {
+          "selfSampledMs": 3.084,
+          "selfPercent": 0.6738523861235353,
+          "inclusiveSampledMs": 415.251,
+          "inclusivePercent": 90.73212619655776
+        },
+        "gc": {
+          "selfSampledMs": 15.083,
+          "selfPercent": 3.2956276069718813,
+          "inclusiveSampledMs": 15.083,
+          "inclusivePercent": 3.2956276069718813
+        }
+      }
+    },
+    {
+      "label": "a1",
+      "path": "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/a1-profile/medium-sparse-M3.cpuprofile",
+      "sampledMs": 661.291,
+      "categories": {
+        "copy": {
+          "selfSampledMs": 71.293,
+          "selfPercent": 10.780881639096858,
+          "inclusiveSampledMs": 238.752,
+          "inclusivePercent": 36.103923991102256
+        },
+        "ancestorArraysAndCopyTemporaries": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 1.5,
+          "inclusivePercent": 0.22682903593123147
+        },
+        "dataRecord": {
+          "selfSampledMs": 300.541,
+          "selfPercent": 45.44761685853882,
+          "inclusiveSampledMs": 309.499,
+          "inclusivePercent": 46.80223986112014
+        },
+        "envelope": {
+          "selfSampledMs": 7.5,
+          "selfPercent": 1.1341451796561575,
+          "inclusiveSampledMs": 145.874,
+          "inclusivePercent": 22.058972524954974
+        },
+        "payload": {
+          "selfSampledMs": 7.5,
+          "selfPercent": 1.1341451796561575,
+          "inclusiveSampledMs": 153.333,
+          "inclusivePercent": 23.186917710962344
+        },
+        "registry": {
+          "selfSampledMs": 3.416,
+          "selfPercent": 0.5165653244940578,
+          "inclusiveSampledMs": 450.834,
+          "inclusivePercent": 68.1748277233472
+        },
+        "gc": {
+          "selfSampledMs": 14.666,
+          "selfPercent": 2.217783093978294,
+          "inclusiveSampledMs": 14.666,
+          "inclusivePercent": 2.217783093978294
+        }
+      }
+    },
+    {
+      "label": "a1",
+      "path": "docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/a1-profile/medium-sparse-M5.cpuprofile",
+      "sampledMs": 1236.875,
+      "categories": {
+        "copy": {
+          "selfSampledMs": 149.96,
+          "selfPercent": 12.12410308236483,
+          "inclusiveSampledMs": 472.084,
+          "inclusivePercent": 38.167478524507324
+        },
+        "ancestorArraysAndCopyTemporaries": {
+          "selfSampledMs": 0,
+          "selfPercent": 0,
+          "inclusiveSampledMs": 1.459,
+          "inclusivePercent": 0.11795856493178372
+        },
+        "dataRecord": {
+          "selfSampledMs": 623.205,
+          "selfPercent": 50.38544719555331,
+          "inclusiveSampledMs": 633.705,
+          "inclusivePercent": 51.23436078827691
+        },
+        "envelope": {
+          "selfSampledMs": 4.416,
+          "selfPercent": 0.3570288024254674,
+          "inclusiveSampledMs": 292.211,
+          "inclusivePercent": 23.624941889843353
+        },
+        "payload": {
+          "selfSampledMs": 2.709,
+          "selfPercent": 0.2190197069226882,
+          "inclusiveSampledMs": 306.291,
+          "inclusivePercent": 24.763294593228906
+        },
+        "registry": {
+          "selfSampledMs": 8.582,
+          "selfPercent": 0.6938453764527539,
+          "inclusiveSampledMs": 903.123,
+          "inclusivePercent": 73.01651339060132
+        },
+        "gc": {
+          "selfSampledMs": 44.168,
+          "selfPercent": 3.570934815563416,
+          "inclusiveSampledMs": 44.168,
+          "inclusivePercent": 3.570934815563416
+        }
+      }
+    }
+  ]
+}

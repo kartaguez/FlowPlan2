@@ -1,0 +1,19 @@
+small:sparse M1 started
+small:sparse M1 COMPLETED cold:32.3ms warmup:29.1ms measured-1:28.0ms measured-2:27.8ms measured-3:29.3ms
+small:sparse M3 started
+small:sparse M3 COMPLETED cold:38.8ms warmup:34.9ms measured-1:33.5ms measured-2:34.4ms measured-3:33.1ms
+small:sparse M5 started
+small:sparse M5 COMPLETED cold:67.6ms warmup:67.0ms measured-1:65.3ms measured-2:65.6ms measured-3:71.9ms
+small:dense M1 started
+small:dense M1 COMPLETED cold:55.7ms warmup:49.6ms measured-1:51.0ms measured-2:48.9ms measured-3:48.8ms
+small:dense M3 started
+small:dense M3 COMPLETED cold:67.5ms warmup:63.2ms measured-1:61.7ms measured-2:60.5ms measured-3:61.5ms
+small:dense M5 started
+small:dense M5 COMPLETED cold:120.5ms warmup:121.6ms measured-1:117.2ms measured-2:117.8ms measured-3:120.3ms
+small:history M1 started
+small:history M1 COMPLETED cold:31.4ms warmup:28.3ms measured-1:27.0ms measured-2:26.7ms measured-3:27.9ms
+small:history M3 started
+small:history M3 COMPLETED cold:38.7ms warmup:35.5ms measured-1:33.3ms measured-2:34.4ms measured-3:33.7ms
+small:history M5 started
+small:history M5 COMPLETED cold:69.0ms warmup:65.5ms measured-1:63.4ms measured-2:63.0ms measured-3:64.9ms
+Evidence: /Users/Kartaguez/FlowPlan2/docs/steps/PORTFOLIO_VERSIONED/proofs/r12-perf-p3-a1/p2-small-controls.json

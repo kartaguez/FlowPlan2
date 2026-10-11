@@ -1,0 +1,124 @@
+TAP version 13
+# Subtest: P3-A1 DAG siblings are copied independently and deeply frozen
+ok 1 - P3-A1 DAG siblings are copied independently and deeply frozen
+  ---
+  duration_ms: 0.988417
+  type: 'test'
+  ...
+# Subtest: P3-A1 direct cycle preserves complete diagnostic
+ok 2 - P3-A1 direct cycle preserves complete diagnostic
+  ---
+  duration_ms: 0.1045
+  type: 'test'
+  ...
+# Subtest: P3-A1 indirect cycle over multiple levels
+ok 3 - P3-A1 indirect cycle over multiple levels
+  ---
+  duration_ms: 0.058959
+  type: 'test'
+  ...
+# Subtest: P3-A1 cycle in final branch after shared valid branches
+ok 4 - P3-A1 cycle in final branch after shared valid branches
+  ---
+  duration_ms: 0.060583
+  type: 'test'
+  ...
+# Subtest: P3-A1 successful branch exit allows repeated object in later traversal
+ok 5 - P3-A1 successful branch exit allows repeated object in later traversal
+  ---
+  duration_ms: 0.059667
+  type: 'test'
+  ...
+# Subtest: P3-A1 early refusal leaves inputs intact and independent calls succeed
+ok 6 - P3-A1 early refusal leaves inputs intact and independent calls succeed
+  ---
+  duration_ms: 0.090084
+  type: 'test'
+  ...
+# Subtest: P3-A1 throwing reflection exits do not retain state across calls
+ok 7 - P3-A1 throwing reflection exits do not retain state across calls
+  ---
+  duration_ms: 0.171209
+  type: 'test'
+  ...
+# Subtest: P3-A1 array shared objects remain independent copies
+ok 8 - P3-A1 array shared objects remain independent copies
+  ---
+  duration_ms: 0.047417
+  type: 'test'
+  ...
+# Subtest: P3-A1 adversarial keys remain own data and detach
+ok 9 - P3-A1 adversarial keys remain own data and detach
+  ---
+  duration_ms: 0.0605
+  type: 'test'
+  ...
+# Subtest: P3-A1 nonstandard record and array prototypes stay refused
+ok 10 - P3-A1 nonstandard record and array prototypes stay refused
+  ---
+  duration_ms: 0.078375
+  type: 'test'
+  ...
+# Subtest: P3-A1 late record accessor precedes invalid recursive child without executing getter
+ok 11 - P3-A1 late record accessor precedes invalid recursive child without executing getter
+  ---
+  duration_ms: 0.049875
+  type: 'test'
+  ...
+# Subtest: P3-A1 hidden late record descriptor precedes child cycle
+ok 12 - P3-A1 hidden late record descriptor precedes child cycle
+  ---
+  duration_ms: 0.047333
+  type: 'test'
+  ...
+# Subtest: P3-A1 sparse arrays and symbols keep historical rejection priority
+ok 13 - P3-A1 sparse arrays and symbols keep historical rejection priority
+  ---
+  duration_ms: 0.054083
+  type: 'test'
+  ...
+# Subtest: P3-A1 array recursion precedes later descriptor and never runs getters
+ok 14 - P3-A1 array recursion precedes later descriptor and never runs getters
+  ---
+  duration_ms: 0.045125
+  type: 'test'
+  ...
+# Subtest: P3-A1 null prototype records remain admitted with historical output prototype
+ok 15 - P3-A1 null prototype records remain admitted with historical output prototype
+  ---
+  duration_ms: 0.054583
+  type: 'test'
+  ...
+# Subtest: P3-A1 exact BigInt safe integer boundaries and negative zero
+ok 16 - P3-A1 exact BigInt safe integer boundaries and negative zero
+  ---
+  duration_ms: 0.094834
+  type: 'test'
+  ...
+# Subtest: P3-A1 deep acyclic and deeply wrapped cyclic inputs
+ok 17 - P3-A1 deep acyclic and deeply wrapped cyclic inputs
+  ---
+  duration_ms: 0.641625
+  type: 'test'
+  ...
+# Subtest: P3-A1 mutation of inputs and outputs proves deep detachment and freeze
+ok 18 - P3-A1 mutation of inputs and outputs proves deep detachment and freeze
+  ---
+  duration_ms: 0.101208
+  type: 'test'
+  ...
+# Subtest: P3-A1 registry copies entire list before business validation
+ok 19 - P3-A1 registry copies entire list before business validation
+  ---
+  duration_ms: 0.074708
+  type: 'test'
+  ...
+1..19
+# tests 19
+# suites 0
+# pass 19
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 39.617667

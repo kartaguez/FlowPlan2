@@ -1,0 +1,9 @@
+{
+  "scripts/benchmarks/r12-perf/worker.mjs": "e0b5bc59aba88d320e775e9102215704618ebac3ca2844cc85536c8d40aee85e",
+  "scripts/benchmarks/r12-perf/run.mjs": "cf679c8f56af836d5f42ef7c53194e5d8f956b56397bcb670edbd954aac4bae9",
+  "scripts/benchmarks/r12-perf/fixture.mjs": "339cca4991da9c28469c58870082a5bcfa68aef9b172ab45daa467771904c279",
+  "scripts/benchmarks/r12-perf/profile-summary.mjs": "6c6beae1ee82efe0a1dc08717c8e5355201937bd1201e50323a211afd9253e28",
+  "scripts/benchmarks/r12-perf/summarize.mjs": "b645eea123c0c48f3fc41dc0afc9cd71ab1929492a4339413d67114ce3103ec5",
+  "scripts/benchmarks/r12-perf/verify.mjs": "07c4e7768605c4fd762c2bb76d5249df919af851afab6dd05975dcdb25f5f2c7",
+  "scripts/benchmarks/r12-perf/README.md": "9d12fb78f5b6496e2e92cdc641f8d6bea7985be962b2805c0c0f120afee60187"
+}

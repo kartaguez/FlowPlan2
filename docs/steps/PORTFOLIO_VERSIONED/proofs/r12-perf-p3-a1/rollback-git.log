@@ -1,0 +1,4 @@
+[rewrite/portfolio-versioned a89fe68] Revert "lab: isolate P3-A1 ancestor stack candidate"
+ Date: Sun Oct 11 15:42:05 2026 +0200
+ 2 files changed, 21 insertions(+), 129 deletions(-)
+ delete mode 100644 src-v2/domain/versioning/immutableValue.test.ts

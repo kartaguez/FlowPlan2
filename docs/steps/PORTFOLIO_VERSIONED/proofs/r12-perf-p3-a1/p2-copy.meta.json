@@ -1,0 +1,5 @@
+{
+  "cases": 34,
+  "outputSHA256": "93bc094454090fe2e03bf543f7908fd8d117dc61b9a6d7529f30e1ffb6a0357d",
+  "runtime": "PASS: independent DAG copies, deep freeze, detached input, mutation rejection, fresh call after refusal/throw; negative zero exact"
+}

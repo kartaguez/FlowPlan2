@@ -1,0 +1,56 @@
+import { pathToFileURL } from 'node:url';
+import { resolve } from 'node:path';
+import { writeFileSync } from 'node:fs';
+import { gzipSync } from 'node:zlib';
+import { createHash } from 'node:crypto';
+import assert from 'node:assert/strict';
+const [root, out] = process.argv.slice(2);
+const { copyImmutableValue } = await import(pathToFileURL(resolve(root, '.test-dist-v2/domain/versioning/immutableValue.js')));
+const { createVersionRegistry } = await import(pathToFileURL(resolve(root, '.test-dist-v2/domain/versioning/versionRegistry.js')));
+const encode = x => typeof x === 'bigint' ? ['bigint', String(x)] : typeof x === 'number' ? ['number', Object.is(x, -0) ? '-0' : String(x)] : Array.isArray(x) ? ['array', x.map(encode)] : x !== null && typeof x === 'object' ? ['record', Object.keys(x).sort().map(k => [k, encode(x[k])])] : [typeof x, x];
+const cases = [];
+const add = (name, input) => cases.push([name, input]);
+const shared = { nested: [1n, { number: -0 }] };
+add('dag', { left: shared, right: shared });
+add('array-dag', [shared, shared, { leaf: shared }]);
+const direct = {}; direct.self = direct; add('direct', direct);
+const indirect = { a: { b: {} } }; indirect.a.b.back = indirect; add('indirect', indirect);
+add('last-cycle', { first: shared, middle: shared, last: indirect });
+add('early-child', { child: { invalid: undefined }, later: shared });
+add('late-descriptor', Object.defineProperty({ child: undefined }, 'late', { get() { throw new Error('getter executed'); }, enumerable: true }));
+add('late-hidden', Object.defineProperty({ child: direct }, 'late', { value: 1, enumerable: false }));
+add('accessor', Object.defineProperty({}, 'child', { get() { throw new Error('getter executed'); }, enumerable: true }));
+add('symbol', { child: undefined, [Symbol('forbidden')]: 1 });
+add('null-prototype', Object.assign(Object.create(null), { nested: shared }));
+add('adversarial', Object.fromEntries([['__proto__', shared], ['constructor', shared], ['\0/é💡', shared]]));
+add('prototype', Object.create({ inherited: 1 }));
+add('date', new Date(0));
+add('array-prototype', Object.setPrototypeOf([1], null));
+add('sparse', [1, , 3]);
+add('array-symbol', Object.assign([shared], { [Symbol('forbidden')]: true }));
+add('array-accessor', Object.defineProperty([undefined], '0', { get() { throw new Error('getter executed'); }, enumerable: true }));
+add('array-late-descriptor', Object.defineProperty([undefined, 1], '1', { get() { throw new Error('getter executed'); }, enumerable: true }));
+add('array-extra', Object.assign([1], { extra: 1 }));
+for (const n of [0, -0, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER + 1, Number.MIN_SAFE_INTEGER - 1, NaN, Infinity, -Infinity, 0.5]) add('number/' + (Object.is(n, -0) ? '-0' : String(n)), { n });
+add('bigint', { n: 10n ** 200n, negative: -(10n ** 200n) });
+let deep = { leaf: shared }; for (let i = 0; i < 256; i++) deep = { child: deep }; add('deep', deep);
+let deepCycle = direct; for (let i = 0; i < 256; i++) deepCycle = { child: deepCycle }; add('deep-cycle', deepCycle);
+const lines = cases.map(([name, input]) => [name, encode(copyImmutableValue(input, 'copy'))]);
+// Full list copy must still precede business validation of an earlier version.
+lines.push(['registry-copy-before-business', encode(createVersionRegistry([{ bad: true }, indirect], 'versions'))]);
+// Public traversal aborts on first failure: no continuation is exposed. Verify fresh calls,
+// successful sibling continuation, and thrown reflection exits separately at runtime.
+const frozen = x => { if (x && typeof x === 'object') { assert.equal(Object.isFrozen(x), true); for (const v of Object.values(x)) frozen(v); } };
+const result = copyImmutableValue({ left: shared, right: shared }); assert.equal(result.ok, true);
+assert.notEqual(result.value.left, result.value.right); assert.notEqual(result.value.left, shared); frozen(result.value);
+assert.equal(Object.is(result.value.left.nested[1].number, -0), true);
+shared.nested.push(9n); assert.equal(result.value.left.nested.length, 2);
+assert.throws(() => result.value.left.nested.push(2), TypeError);
+for (const bad of [direct, indirect, { child: undefined }]) { assert.equal(copyImmutableValue(bad).ok, false); assert.equal(copyImmutableValue({ left: shared, right: shared }).ok, true); }
+const throwing = new Proxy({}, { ownKeys() { throw new Error('reflection'); } });
+assert.throws(() => copyImmutableValue({ child: throwing }), /reflection/); assert.equal(copyImmutableValue(shared).ok, true);
+assert.equal(Object.isFrozen(direct), false); assert.equal(direct.self, direct);
+const text = lines.map(x => JSON.stringify(x) + '\n').join('');
+writeFileSync(out + '.jsonl.gz', gzipSync(text, { mtime: 0 }));
+const meta = { cases: lines.length, outputSHA256: createHash('sha256').update(text).digest('hex'), runtime: 'PASS: independent DAG copies, deep freeze, detached input, mutation rejection, fresh call after refusal/throw; negative zero exact' };
+writeFileSync(out + '.meta.json', JSON.stringify(meta, null, 2) + '\n'); console.log(meta);

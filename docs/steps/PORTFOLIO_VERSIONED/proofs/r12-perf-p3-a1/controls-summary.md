@@ -1,0 +1,32 @@
+| Scenario | API | cold ms | median ms [min–max] | SD ms | heap endpoints MiB | RSS lifetime MiB | status |
+|---|---|---:|---:|---:|---:|---:|---|
+| medium/sparse | M1 | 459.7 | 434.9 [434.9–439.2] | 2.0 | 63.1 | 258.5 | COMPLETED |
+| medium/sparse | M3 | 672.5 | 633.5 [633.5–635.2] | 0.8 | 107.2 | 270.7 | COMPLETED |
+| medium/sparse | M5 | 1236.6 | 1218.2 [1215.3–1219.8] | 1.9 | 112.5 | 324.4 | COMPLETED |
+| medium/dense | M1 | 2860.1 | 2782.2 [2774.6–2784.2] | 4.1 | 316.5 | 644.1 | COMPLETED |
+| medium/dense | M3 | 3819.1 | 3755.5 [3746.4–3758.3] | 5.1 | 377.9 | 686.1 | COMPLETED |
+| medium/dense | M5 | 7464.8 | 7477.2 [7442.2–7527.8] | 35.1 | 447.5 | 809.8 | COMPLETED |
+| medium/sparse | M1 | 468.7 | 440.9 [439.2–441.2] | 0.9 | 66.8 | 258.2 | COMPLETED |
+| medium/sparse | M3 | 673.9 | 642.8 [642.1–643.6] | 0.6 | 112.1 | 268.3 | COMPLETED |
+| medium/sparse | M5 | 1219.2 | 1209.1 [1204.2–1213.9] | 4.0 | 95.1 | 324.6 | COMPLETED |
+| medium/dense | M1 | 2893.3 | 2819.4 [2802.4–2824.9] | 9.6 | 327.0 | 648.1 | COMPLETED |
+| medium/dense | M3 | 3853.8 | 3785.8 [3782.9–3818.8] | 16.3 | 384.3 | 701.9 | COMPLETED |
+| medium/dense | M5 | 7547.6 | 7524.0 [7489.6–7532.5] | 18.6 | 420.3 | 802.0 | COMPLETED |
+| small/sparse | M1 | 31.4 | 27.0 [26.9–27.9] | 0.5 | 22.5 | 89.0 | COMPLETED |
+| small/sparse | M3 | 37.8 | 32.6 [32.5–33.4] | 0.4 | 22.3 | 96.8 | COMPLETED |
+| small/sparse | M5 | 68.2 | 65.9 [65.6–67.8] | 0.9 | 23.7 | 129.3 | COMPLETED |
+| small/dense | M1 | 54.4 | 49.5 [49.0–51.5] | 1.1 | 25.7 | 103.4 | COMPLETED |
+| small/dense | M3 | 66.3 | 58.7 [57.8–60.6] | 1.2 | 37.3 | 133.2 | COMPLETED |
+| small/dense | M5 | 118.4 | 120.7 [117.0–120.9] | 1.8 | 20.7 | 201.0 | COMPLETED |
+| small/history | M1 | 30.5 | 26.7 [26.5–27.4] | 0.4 | 12.5 | 89.3 | COMPLETED |
+| small/history | M3 | 37.5 | 32.3 [32.3–33.4] | 0.5 | 19.4 | 97.9 | COMPLETED |
+| small/history | M5 | 66.2 | 63.6 [63.0–64.7] | 0.7 | 34.4 | 129.6 | COMPLETED |
+| small/sparse | M1 | 32.3 | 28.0 [27.8–29.3] | 0.6 | 18.2 | 96.4 | COMPLETED |
+| small/sparse | M3 | 38.8 | 33.5 [33.1–34.4] | 0.6 | 18.5 | 96.6 | COMPLETED |
+| small/sparse | M5 | 67.6 | 65.6 [65.3–71.9] | 3.1 | 20.4 | 129.3 | COMPLETED |
+| small/dense | M1 | 55.7 | 48.9 [48.8–51.0] | 1.0 | 24.7 | 100.1 | COMPLETED |
+| small/dense | M3 | 67.5 | 61.5 [60.5–61.7] | 0.5 | 22.6 | 133.3 | COMPLETED |
+| small/dense | M5 | 120.5 | 117.8 [117.2–120.3] | 1.4 | 63.8 | 189.4 | COMPLETED |
+| small/history | M1 | 31.4 | 27.0 [26.7–27.9] | 0.5 | 15.6 | 96.3 | COMPLETED |
+| small/history | M3 | 38.7 | 33.7 [33.3–34.4] | 0.4 | 23.3 | 96.2 | COMPLETED |
+| small/history | M5 | 69.0 | 63.4 [63.0–64.9] | 0.8 | 28.0 | 129.4 | COMPLETED |
