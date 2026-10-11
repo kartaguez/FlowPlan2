@@ -1,5 +1,26 @@
 # FlowPlan2 current plan — point d'entrée unique
 
+## Actualisation P3-C — cadrage architectural PLAN ONLY — 2026-10-11
+
+[Étude et plan P3-C](./steps/PORTFOLIO_VERSIONED/rewrite_r12_perf_p3c_plan.md),
+baseline obligatoire P3-B `4b98501a99a94a92c64e6b4a9390766a2915b6e6` :
+préflight conforme, fetch réussi, HEAD/origin exacts, divergence 0/0, arbre propre.
+P3-B techniquement accepté selon la mission utilisateur ; preuves conservées.
+**Recommandation proposée : conserver A (deux registres).** B (flux fermé) ne
+prouve pas l’équivalence de la seconde acquisition ni la séparation du contrôle
+Application du lot ; C (préparation certifiée) introduit une autorité intermédiaire
+à rejeter dans le cadre actuel. D (organisation locale sans partage) est faisable
+sous preuve, mais la piste des suffixes de filiation est hors cible : les fixtures
+moyennes n’ont aucun predecessor. Aucun gain dense sensible établi. Le test P3-B de
+mutation à la seconde acquisition empêche d’en présumer la redondance.
+Onze arbitrages **ouverts, non approuvés**, oracle futur vraie B 2 259 réponses
+et extensions, gates et protocole M1–M6/laboratoire isolé définis dans le plan.
+Aucune production/test/script/benchmark/configuration/preuve historique modifié ;
+aucun test/build/oracle/benchmark/profil/instrumentation exécuté ici.
+**PLAN ONLY ; aucun GO P3-C.** Audit indépendant et nouveau GO explicite requis ;
+arrêt après commit/push documentaire normal. **R1.2 IN REVIEW ; performance
+globale C ; R1.3/R1.4/R2 NOT STARTED.** Les états antérieurs restent historiques.
+
 ## Actualisation P3-B — 2026-10-11
 
 R1.2-PERF-P3-B implémenté sur autorisation explicite utilisateur : **B2 avec
