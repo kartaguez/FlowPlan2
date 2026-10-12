@@ -1,0 +1,236 @@
+{
+  "note": "Sampling includes setup and all five commands; classified execute descendants separately. Self vs inclusive classifications are not additive. CPU campaign excluded from official timings.",
+  "summaries": [
+    {
+      "name": "medium-dense-local",
+      "exit": 0,
+      "signal": null,
+      "sampledMicroseconds": 139862083,
+      "phasesMicroseconds": {
+        "setup/other": 106127615,
+        "prepare/business": 11791,
+        "execute/other": 3430464,
+        "execute/registry": 12888750,
+        "execute/certification": 17403463
+      },
+      "topSelf": [
+        [
+          "(anonymous) immutableValue.js:64",
+          41737851
+        ],
+        [
+          "equalImmutableValues immutableValue.js:56",
+          38023781
+        ],
+        [
+          "dataRecord data.js:3",
+          32242553
+        ],
+        [
+          "copy immutableValue.js:6",
+          10180142
+        ],
+        [
+          "(garbage collector) :0",
+          4128696
+        ],
+        [
+          "success result.js:1",
+          3031827
+        ],
+        [
+          "validateKind exactReference.js:5",
+          1875936
+        ],
+        [
+          "ofKind graphValidation.js:9",
+          1197705
+        ],
+        [
+          "field data.js:16",
+          990008
+        ],
+        [
+          "(program) :0",
+          799534
+        ],
+        [
+          "validateId identity.js:9",
+          519956
+        ],
+        [
+          "createExactReference exactReference.js:22",
+          474460
+        ],
+        [
+          "get localVersionTables.js:4",
+          460788
+        ],
+        [
+          "set localVersionTables.js:14",
+          364246
+        ],
+        [
+          "createId identity.js:4",
+          343865
+        ],
+        [
+          "createVersionEnvelope versionEnvelope.js:8",
+          303328
+        ],
+        [
+          "validateResolved graphValidation.js:19",
+          284540
+        ],
+        [
+          "(anonymous) exactReference.js:6",
+          239497
+        ],
+        [
+          "createEntityIdentity exactReference.js:9",
+          231289
+        ],
+        [
+          "(anonymous) graphValidation.js:124",
+          201374
+        ],
+        [
+          "(anonymous) graphValidation.js:11",
+          164792
+        ],
+        [
+          "(anonymous) graphValidation.js:59",
+          133833
+        ],
+        [
+          "admitRamHistory session.js:19",
+          131250
+        ],
+        [
+          "createOwner owner.js:5",
+          128295
+        ],
+        [
+          "validateVersionContext versionEnvelope.js:55",
+          127001
+        ]
+      ]
+    },
+    {
+      "name": "medium-dense-actuals",
+      "exit": 0,
+      "signal": null,
+      "sampledMicroseconds": 150261666,
+      "phasesMicroseconds": {
+        "setup/other": 105940322,
+        "prepare/business": 10947252,
+        "execute/answers": 4041,
+        "execute/other": 3418383,
+        "execute/registry": 12826418,
+        "execute/certification": 17125250
+      },
+      "topSelf": [
+        [
+          "(anonymous) immutableValue.js:64",
+          41656856
+        ],
+        [
+          "equalImmutableValues immutableValue.js:56",
+          37810513
+        ],
+        [
+          "dataRecord data.js:3",
+          32463032
+        ],
+        [
+          "copy immutableValue.js:6",
+          9966655
+        ],
+        [
+          "ofKind transition.js:15",
+          9162576
+        ],
+        [
+          "(garbage collector) :0",
+          3999999
+        ],
+        [
+          "success result.js:1",
+          3251036
+        ],
+        [
+          "validateKind exactReference.js:5",
+          1947463
+        ],
+        [
+          "ofKind graphValidation.js:9",
+          1217163
+        ],
+        [
+          "(anonymous) transition.js:17",
+          1139959
+        ],
+        [
+          "field data.js:16",
+          1107418
+        ],
+        [
+          "(program) :0",
+          960081
+        ],
+        [
+          "createExactReference exactReference.js:22",
+          431997
+        ],
+        [
+          "validateId identity.js:9",
+          427255
+        ],
+        [
+          "get localVersionTables.js:4",
+          419498
+        ],
+        [
+          "set localVersionTables.js:14",
+          377163
+        ],
+        [
+          "(anonymous) exactReference.js:6",
+          305698
+        ],
+        [
+          "createVersionEnvelope versionEnvelope.js:8",
+          305036
+        ],
+        [
+          "createId identity.js:4",
+          289167
+        ],
+        [
+          "createEntityIdentity exactReference.js:9",
+          250004
+        ],
+        [
+          "validateResolved graphValidation.js:19",
+          248380
+        ],
+        [
+          "(anonymous) graphValidation.js:124",
+          195291
+        ],
+        [
+          "(anonymous) graphValidation.js:11",
+          166794
+        ],
+        [
+          "(anonymous) graphValidation.js:94",
+          144541
+        ],
+        [
+          "createOwner owner.js:5",
+          143834
+        ]
+      ]
+    }
+  ]
+}

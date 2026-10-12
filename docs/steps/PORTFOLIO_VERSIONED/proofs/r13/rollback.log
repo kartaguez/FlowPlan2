@@ -1,0 +1,9 @@
+Cloning into '/tmp/flowplan-r13-rollback'...
+done.
+
+Exercice normal dans /tmp/flowplan-r13-rollback, snapshot isolé 46eda01, revert 599320ade2b99128a77bf1e64cb36ff4298f570b.
+Patch source/docs/outillage R1.3 de l'index, hors preuves s'auto-référençant et rapport final. Aucun commit du clone poussé.
+Tree baseline = tree après revert = 68fa044018f66edf17437643e40d303c9226cc48.
+Working tree final du clone propre après retrait du symlink technique node_modules.
+Gates restaurées : frontières/typecheck/build PASS ; test:v2 245/245, fail/cancel/skip/todo 0. Journaux rollback-*.log séparés.
+Aucun reset/rebase/force. Pas de données ni stockage utilisateur touchés.

@@ -1,0 +1,159 @@
+
+> flowplan@0.1.0 typecheck:v2
+> node scripts/v2/boundaries.mjs && tsc -p tsconfig.v2.app.json --noEmit
+
+{
+  "sources": {
+    "modules": [
+      "src-v2/adapters/memory/currentRamAdapter.ts",
+      "src-v2/adapters/memory/memoryPortfolioReadAdapter.ts",
+      "src-v2/application/portfolio/loadPortfolioGraph.ts",
+      "src-v2/application/portfolio/r12.test.ts",
+      "src-v2/application/portfolio/transitions/session.ts",
+      "src-v2/application/ports/candidateAssemblyPort.ts",
+      "src-v2/application/ports/currentRamPort.ts",
+      "src-v2/application/ports/portfolioReadPort.ts",
+      "src-v2/application/ports/transitionAllocationPort.ts",
+      "src-v2/bootstrap/emptyPortfolioShellState.test.ts",
+      "src-v2/bootstrap/emptyPortfolioShellState.ts",
+      "src-v2/domain/portfolio/graphResolver.ts",
+      "src-v2/domain/portfolio/graphValidation.ts",
+      "src-v2/domain/portfolio/manifest.ts",
+      "src-v2/domain/portfolio/payloadValidation.ts",
+      "src-v2/domain/portfolio/payloads.ts",
+      "src-v2/domain/portfolio/transitions/transition.ts",
+      "src-v2/domain/portfolio/validatedPortfolioGraph.ts",
+      "src-v2/domain/primitives/civilDate.test.ts",
+      "src-v2/domain/primitives/civilDate.ts",
+      "src-v2/domain/primitives/civilInterval.ts",
+      "src-v2/domain/primitives/data.ts",
+      "src-v2/domain/primitives/exactReference.ts",
+      "src-v2/domain/primitives/identity.ts",
+      "src-v2/domain/primitives/quantity.ts",
+      "src-v2/domain/primitives/rational.test.ts",
+      "src-v2/domain/primitives/rational.ts",
+      "src-v2/domain/primitives/result.ts",
+      "src-v2/domain/versioning/immutableValue.test.ts",
+      "src-v2/domain/versioning/immutableValue.ts",
+      "src-v2/domain/versioning/localVersionTables.ts",
+      "src-v2/domain/versioning/owner.ts",
+      "src-v2/domain/versioning/versionEnvelope.test.ts",
+      "src-v2/domain/versioning/versionEnvelope.ts",
+      "src-v2/domain/versioning/versionRegistry.ts",
+      "src-v2/environment/browserIsolation.test.ts",
+      "src-v2/environment/browserIsolation.ts",
+      "src-v2/main/createV2Application.test.ts",
+      "src-v2/main/createV2Application.ts",
+      "src-v2/main/main.ts",
+      "src-v2/ui/renderV2Shell.ts"
+    ],
+    "compilerSources": {
+      "app": [
+        "src-v2/adapters/memory/currentRamAdapter.ts",
+        "src-v2/adapters/memory/memoryPortfolioReadAdapter.ts",
+        "src-v2/application/portfolio/loadPortfolioGraph.ts",
+        "src-v2/application/portfolio/transitions/session.ts",
+        "src-v2/application/ports/candidateAssemblyPort.ts",
+        "src-v2/application/ports/currentRamPort.ts",
+        "src-v2/application/ports/portfolioReadPort.ts",
+        "src-v2/application/ports/transitionAllocationPort.ts",
+        "src-v2/bootstrap/emptyPortfolioShellState.ts",
+        "src-v2/domain/portfolio/graphResolver.ts",
+        "src-v2/domain/portfolio/graphValidation.ts",
+        "src-v2/domain/portfolio/manifest.ts",
+        "src-v2/domain/portfolio/payloadValidation.ts",
+        "src-v2/domain/portfolio/payloads.ts",
+        "src-v2/domain/portfolio/transitions/transition.ts",
+        "src-v2/domain/portfolio/validatedPortfolioGraph.ts",
+        "src-v2/domain/primitives/civilDate.ts",
+        "src-v2/domain/primitives/civilInterval.ts",
+        "src-v2/domain/primitives/data.ts",
+        "src-v2/domain/primitives/exactReference.ts",
+        "src-v2/domain/primitives/identity.ts",
+        "src-v2/domain/primitives/quantity.ts",
+        "src-v2/domain/primitives/rational.ts",
+        "src-v2/domain/primitives/result.ts",
+        "src-v2/domain/versioning/immutableValue.ts",
+        "src-v2/domain/versioning/localVersionTables.ts",
+        "src-v2/domain/versioning/owner.ts",
+        "src-v2/domain/versioning/versionEnvelope.ts",
+        "src-v2/domain/versioning/versionRegistry.ts",
+        "src-v2/environment/browserIsolation.ts",
+        "src-v2/main/createV2Application.ts",
+        "src-v2/main/main.ts",
+        "src-v2/ui/renderV2Shell.ts"
+      ],
+      "test": [
+        "src-v2/adapters/memory/currentRamAdapter.ts",
+        "src-v2/adapters/memory/memoryPortfolioReadAdapter.ts",
+        "src-v2/application/portfolio/loadPortfolioGraph.ts",
+        "src-v2/application/portfolio/r12.test.ts",
+        "src-v2/application/portfolio/transitions/session.ts",
+        "src-v2/application/ports/candidateAssemblyPort.ts",
+        "src-v2/application/ports/currentRamPort.ts",
+        "src-v2/application/ports/portfolioReadPort.ts",
+        "src-v2/application/ports/transitionAllocationPort.ts",
+        "src-v2/bootstrap/emptyPortfolioShellState.test.ts",
+        "src-v2/bootstrap/emptyPortfolioShellState.ts",
+        "src-v2/domain/portfolio/graphResolver.ts",
+        "src-v2/domain/portfolio/graphValidation.ts",
+        "src-v2/domain/portfolio/manifest.ts",
+        "src-v2/domain/portfolio/payloadValidation.ts",
+        "src-v2/domain/portfolio/payloads.ts",
+        "src-v2/domain/portfolio/transitions/transition.ts",
+        "src-v2/domain/portfolio/validatedPortfolioGraph.ts",
+        "src-v2/domain/primitives/civilDate.test.ts",
+        "src-v2/domain/primitives/civilDate.ts",
+        "src-v2/domain/primitives/civilInterval.ts",
+        "src-v2/domain/primitives/data.ts",
+        "src-v2/domain/primitives/exactReference.ts",
+        "src-v2/domain/primitives/identity.ts",
+        "src-v2/domain/primitives/quantity.ts",
+        "src-v2/domain/primitives/rational.test.ts",
+        "src-v2/domain/primitives/rational.ts",
+        "src-v2/domain/primitives/result.ts",
+        "src-v2/domain/versioning/immutableValue.test.ts",
+        "src-v2/domain/versioning/immutableValue.ts",
+        "src-v2/domain/versioning/localVersionTables.ts",
+        "src-v2/domain/versioning/owner.ts",
+        "src-v2/domain/versioning/versionEnvelope.test.ts",
+        "src-v2/domain/versioning/versionEnvelope.ts",
+        "src-v2/domain/versioning/versionRegistry.ts",
+        "src-v2/environment/browserIsolation.test.ts",
+        "src-v2/environment/browserIsolation.ts",
+        "src-v2/main/createV2Application.test.ts",
+        "src-v2/main/createV2Application.ts",
+        "src-v2/main/main.ts",
+        "src-v2/ui/renderV2Shell.ts"
+      ]
+    }
+  }
+}
+src-v2/application/portfolio/transitions/session.ts(3,42): error TS6133: 'VersionId' is declared but its value is never read.
+src-v2/application/portfolio/transitions/session.ts(114,67): error TS18048: 'd' is possibly 'undefined'.
+src-v2/application/portfolio/transitions/session.ts(169,22): error TS2352: Conversion of type 'Readonly<{ preparationId: string; baseRevision: SelectionRevision; obligations: readonly Obligation[]; }>' to type 'PreparedTransition' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Property '[preparedBrand]' is missing in type 'Readonly<{ preparationId: string; baseRevision: SelectionRevision; obligations: readonly Obligation[]; }>' but required in type 'PreparedTransition'.
+src-v2/domain/portfolio/transitions/transition.ts(41,3): error TS2322: Type 'BusinessVersion[]' is not assignable to type 'readonly BusinessVersion<K>[]'.
+  Type 'BusinessVersion' is not assignable to type 'BusinessVersion<K>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Type 'VersionEnvelope<"ProjectSettings", Grouped & { readonly earliestStartDate: CivilDate | null; readonly objectiveEndDate: CivilDate | null; readonly mandatory: boolean; }>' is not assignable to type 'VersionEnvelope<K, BusinessPayloadByKind[K]>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+      Types of property 'ref' are incompatible.
+        Type 'ExactReference<"ProjectSettings">' is not assignable to type 'ExactReference<K>'.
+          Type '"ProjectSettings"' is not assignable to type 'K'.
+            '"ProjectSettings"' is assignable to the constraint of type 'K', but 'K' could be instantiated with a different subtype of constraint '"ProjectSettings" | "ReservationSettings" | "TeamSettings" | "TeamCapacity" | "Program" | "Pas" | "PT" | "RT" | "ActualPeriod" | "ActualSubPeriod" | "TeamActual" | "PTEC" | "PlanningSettings" | "PortfolioOrder"'.
+src-v2/domain/portfolio/transitions/transition.ts(41,36): error TS2677: A type predicate's type must be assignable to its parameter's type.
+  Type 'BusinessVersion<K>' is not assignable to type 'BusinessVersion' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Type 'VersionEnvelope<K, BusinessPayloadByKind[K]>' is not assignable to type 'VersionEnvelope<"ProjectSettings", Grouped & { readonly earliestStartDate: CivilDate | null; readonly objectiveEndDate: CivilDate | null; readonly mandatory: boolean; }>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+      Types of property 'ref' are incompatible.
+        Type 'ExactReference<K>' is not assignable to type 'ExactReference<"ProjectSettings">'.
+          Type 'K' is not assignable to type '"ProjectSettings"'.
+            Type '"ProjectSettings" | "ReservationSettings" | "TeamSettings" | "TeamCapacity" | "Program" | "Pas" | "PT" | "RT" | "ActualPeriod" | "ActualSubPeriod" | "TeamActual" | "PTEC" | "PlanningSettings" | "PortfolioOrder"' is not assignable to type '"ProjectSettings"'.
+              Type '"ReservationSettings"' is not assignable to type '"ProjectSettings"'.
+src-v2/domain/portfolio/transitions/transition.ts(111,142): error TS2339: Property 'projectId' does not exist on type 'PTOwner | RTOwner'.
+  Property 'projectId' does not exist on type 'RTOwner'.
+src-v2/domain/portfolio/transitions/transition.ts(111,255): error TS2339: Property 'reservationId' does not exist on type 'PTOwner | RTOwner'.
+  Property 'reservationId' does not exist on type 'PTOwner'.
+src-v2/domain/portfolio/transitions/transition.ts(144,169): error TS2339: Property 'association' does not exist on type 'ProjectOwner | ReservationOwner | TeamOwner | PortfolioOwner | PTOwner | RTOwner | SubPeriodOwner | PTECOwner | TeamActualOwner'.
+  Property 'association' does not exist on type 'ProjectOwner'.
+src-v2/domain/portfolio/transitions/transition.ts(144,284): error TS2339: Property 'pt' does not exist on type 'ProjectOwner | ReservationOwner | TeamOwner | PortfolioOwner | PTOwner | RTOwner | SubPeriodOwner | PTECOwner | TeamActualOwner'.
+  Property 'pt' does not exist on type 'ProjectOwner'.
+src-v2/domain/portfolio/transitions/transition.ts(153,285): error TS2365: Operator '>' cannot be applied to types 'string' and '{ readonly [x: number]: string; readonly toString: {}; readonly charAt: {}; readonly charCodeAt: {}; readonly concat: {}; readonly indexOf: {}; readonly lastIndexOf: {}; readonly localeCompare: {}; ... 45 more ...; readonly [civilDateBrand]: "CivilDate"; }'.

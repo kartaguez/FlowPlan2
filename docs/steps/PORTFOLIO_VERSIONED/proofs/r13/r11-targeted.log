@@ -1,0 +1,316 @@
+TAP version 13
+# Subtest: D01 strict Gregorian calendar, year zero and both inclusive bounds
+ok 1 - D01 strict Gregorian calendar, year zero and both inclusive bounds
+  ---
+  duration_ms: 3.80875
+  type: 'test'
+  ...
+# Subtest: D02 inclusive intervals, adjacency, year/month crossings and inverted refusal
+ok 2 - D02 inclusive intervals, adjacency, year/month crossings and inverted refusal
+  ---
+  duration_ms: 0.652042
+  type: 'test'
+  ...
+# Subtest: D03 exact daily arithmetic, safe intermediates and independent 400-year oracle
+ok 3 - D03 exact daily arithmetic, safe intermediates and independent 400-year oracle
+  ---
+  duration_ms: 227.794333
+  type: 'test'
+  ...
+# Subtest: D04 identical DST vectors (suite executed in separate real TZ processes)
+ok 4 - D04 identical DST vectors (suite executed in separate real TZ processes)
+  ---
+  duration_ms: 0.180833
+  type: 'test'
+  ...
+# Subtest: Q01 exact grammar, noncanonical input and unlimited precision
+ok 5 - Q01 exact grammar, noncanonical input and unlimited precision
+  ---
+  duration_ms: 1.638167
+  type: 'test'
+  ...
+# Subtest: Q02 canonical signs, canonical zero and forged operands
+ok 6 - Q02 canonical signs, canonical zero and forged operands
+  ---
+  duration_ms: 0.703416
+  type: 'test'
+  ...
+# Subtest: Q03 exact arithmetic, comparisons, independent conservation oracle
+ok 7 - Q03 exact arithmetic, comparisons, independent conservation oracle
+  ---
+  duration_ms: 9.718208
+  type: 'test'
+  ...
+# Subtest: Q04 units, runtime families and absence distinct from exact zero
+ok 8 - Q04 units, runtime families and absence distinct from exact zero
+  ---
+  duration_ms: 0.458333
+  type: 'test'
+  ...
+# Subtest: Q05 immutable diagnostics, exact paths and invalid runtime values
+ok 9 - Q05 immutable diagnostics, exact paths and invalid runtime values
+  ---
+  duration_ms: 0.397542
+  type: 'test'
+  ...
+# Subtest: P3-A1 DAG siblings are copied independently and deeply frozen
+ok 10 - P3-A1 DAG siblings are copied independently and deeply frozen
+  ---
+  duration_ms: 1.323833
+  type: 'test'
+  ...
+# Subtest: P3-A1 direct cycle preserves complete diagnostic
+ok 11 - P3-A1 direct cycle preserves complete diagnostic
+  ---
+  duration_ms: 0.105041
+  type: 'test'
+  ...
+# Subtest: P3-A1 indirect cycle over multiple levels
+ok 12 - P3-A1 indirect cycle over multiple levels
+  ---
+  duration_ms: 0.067292
+  type: 'test'
+  ...
+# Subtest: P3-A1 cycle in final branch after shared valid branches
+ok 13 - P3-A1 cycle in final branch after shared valid branches
+  ---
+  duration_ms: 0.077042
+  type: 'test'
+  ...
+# Subtest: P3-A1 successful branch exit allows repeated object in later traversal
+ok 14 - P3-A1 successful branch exit allows repeated object in later traversal
+  ---
+  duration_ms: 0.065208
+  type: 'test'
+  ...
+# Subtest: P3-A1 early refusal leaves inputs intact and independent calls succeed
+ok 15 - P3-A1 early refusal leaves inputs intact and independent calls succeed
+  ---
+  duration_ms: 0.100542
+  type: 'test'
+  ...
+# Subtest: P3-A1 throwing reflection exits do not retain state across calls
+ok 16 - P3-A1 throwing reflection exits do not retain state across calls
+  ---
+  duration_ms: 0.1725
+  type: 'test'
+  ...
+# Subtest: P3-A1 array shared objects remain independent copies
+ok 17 - P3-A1 array shared objects remain independent copies
+  ---
+  duration_ms: 0.061416
+  type: 'test'
+  ...
+# Subtest: P3-A1 adversarial keys remain own data and detach
+ok 18 - P3-A1 adversarial keys remain own data and detach
+  ---
+  duration_ms: 0.088583
+  type: 'test'
+  ...
+# Subtest: P3-A1 nonstandard record and array prototypes stay refused
+ok 19 - P3-A1 nonstandard record and array prototypes stay refused
+  ---
+  duration_ms: 0.09375
+  type: 'test'
+  ...
+# Subtest: P3-A1 late record accessor precedes invalid recursive child without executing getter
+ok 20 - P3-A1 late record accessor precedes invalid recursive child without executing getter
+  ---
+  duration_ms: 0.0615
+  type: 'test'
+  ...
+# Subtest: P3-A1 hidden late record descriptor precedes child cycle
+ok 21 - P3-A1 hidden late record descriptor precedes child cycle
+  ---
+  duration_ms: 0.044042
+  type: 'test'
+  ...
+# Subtest: P3-A1 sparse arrays and symbols keep historical rejection priority
+ok 22 - P3-A1 sparse arrays and symbols keep historical rejection priority
+  ---
+  duration_ms: 0.059875
+  type: 'test'
+  ...
+# Subtest: P3-A1 array recursion precedes later descriptor and never runs getters
+ok 23 - P3-A1 array recursion precedes later descriptor and never runs getters
+  ---
+  duration_ms: 0.0465
+  type: 'test'
+  ...
+# Subtest: P3-A1 null prototype records remain admitted with historical output prototype
+ok 24 - P3-A1 null prototype records remain admitted with historical output prototype
+  ---
+  duration_ms: 0.042875
+  type: 'test'
+  ...
+# Subtest: P3-A1 exact BigInt safe integer boundaries and negative zero
+ok 25 - P3-A1 exact BigInt safe integer boundaries and negative zero
+  ---
+  duration_ms: 0.086041
+  type: 'test'
+  ...
+# Subtest: P3-A1 deep acyclic and deeply wrapped cyclic inputs
+ok 26 - P3-A1 deep acyclic and deeply wrapped cyclic inputs
+  ---
+  duration_ms: 0.668917
+  type: 'test'
+  ...
+# Subtest: P3-A1 mutation of inputs and outputs proves deep detachment and freeze
+ok 27 - P3-A1 mutation of inputs and outputs proves deep detachment and freeze
+  ---
+  duration_ms: 0.112208
+  type: 'test'
+  ...
+# Subtest: P3-A1 registry copies entire list before business validation
+ok 28 - P3-A1 registry copies entire list before business validation
+  ---
+  duration_ms: 0.080291
+  type: 'test'
+  ...
+# Subtest: V01 opaque identities, exact references and compile/runtime family separation
+ok 29 - V01 opaque identities, exact references and compile/runtime family separation
+  ---
+  duration_ms: 15.27125
+  type: 'test'
+  ...
+# Subtest: V02 complete owner matrix and explicitly supplied AP owner checks
+ok 30 - V02 complete owner matrix and explicitly supplied AP owner checks
+  ---
+  duration_ms: 4.798875
+  type: 'test'
+  ...
+# Subtest: V03 deep copy/freeze archives, input/output mutations and exotic rejection
+ok 31 - V03 deep copy/freeze archives, input/output mutations and exotic rejection
+  ---
+  duration_ms: 1.380709
+  type: 'test'
+  ...
+# Subtest: V04 roots, chains, branching, missing exact parent, self/long cycles
+ok 32 - V04 roots, chains, branching, missing exact parent, self/long cycles
+  ---
+  duration_ms: 2.035333
+  type: 'test'
+  ...
+# Subtest: V05 identical repetition and divergent collisions in every envelope component
+ok 33 - V05 identical repetition and divergent collisions in every envelope component
+  ---
+  duration_ms: 1.410666
+  type: 'test'
+  ...
+# Subtest: V06 multiple provenance is independent of lineage; no source selection
+ok 34 - V06 multiple provenance is independent of lineage; no source selection
+  ---
+  duration_ms: 0.874709
+  type: 'test'
+  ...
+# Subtest: typed payload assembly preserves static type and readonly collections
+ok 35 - typed payload assembly preserves static type and readonly collections
+  ---
+  duration_ms: 0.1515
+  type: 'test'
+  ...
+# Subtest: audit A1 same identity and owner establish the root/child link
+ok 36 - audit A1 same identity and owner establish the root/child link
+  ---
+  duration_ms: 0.146709
+  type: 'test'
+  ...
+# Subtest: audit A2 different owners reject a factory-created root/child pair
+ok 37 - audit A2 different owners reject a factory-created root/child pair
+  ---
+  duration_ms: 0.134792
+  type: 'test'
+  ...
+# Subtest: audit A3 missing exact predecessor stays not-established without implicit resolution
+ok 38 - audit A3 missing exact predecessor stays not-established without implicit resolution
+  ---
+  duration_ms: 0.335209
+  type: 'test'
+  ...
+# Subtest: audit A4 another predecessor identity or kind is rejected at envelope creation
+ok 39 - audit A4 another predecessor identity or kind is rejected at envelope creation
+  ---
+  duration_ms: 0.949584
+  type: 'test'
+  ...
+# Subtest: audit A5 branches with the same owner establish the whole context
+ok 40 - audit A5 branches with the same owner establish the whole context
+  ---
+  duration_ms: 0.249542
+  type: 'test'
+  ...
+# Subtest: audit A6 one divergent branch rejects the whole context
+ok 41 - audit A6 one divergent branch rejects the whole context
+  ---
+  duration_ms: 0.177916
+  type: 'test'
+  ...
+# Subtest: audit A7 reversed contexts preserve acceptance, rejection and missing-parent reports
+ok 42 - audit A7 reversed contexts preserve acceptance, rejection and missing-parent reports
+  ---
+  duration_ms: 1.660417
+  type: 'test'
+  ...
+# Subtest: audit B1 typed assembly preserves inferred/explicit fields and deep readonly output
+ok 43 - audit B1 typed assembly preserves inferred/explicit fields and deep readonly output
+  ---
+  duration_ms: 0.560667
+  type: 'test'
+  ...
+# Subtest: audit B2 typed assembly applies admissible-data runtime checks
+ok 44 - audit B2 typed assembly applies admissible-data runtime checks
+  ---
+  duration_ms: 0.346875
+  type: 'test'
+  ...
+# Subtest: audit B3 a claimed TypeScript payload type is not runtime schema validation
+ok 45 - audit B3 a claimed TypeScript payload type is not runtime schema validation
+  ---
+  duration_ms: 0.165292
+  type: 'test'
+  ...
+# Subtest: PERF-P0 context preserves ordered missing parents and repeated exact refs
+ok 46 - PERF-P0 context preserves ordered missing parents and repeated exact refs
+  ---
+  duration_ms: 1.163917
+  type: 'test'
+  ...
+# Subtest: PERF-P0 context diagnostics retain collision, owner and cycle phase priority
+ok 47 - PERF-P0 context diagnostics retain collision, owner and cycle phase priority
+  ---
+  duration_ms: 1.016291
+  type: 'test'
+  ...
+# Subtest: PERF-P0 context typed components preserve adversarial bytes without aliasing
+ok 48 - PERF-P0 context typed components preserve adversarial bytes without aliasing
+  ---
+  duration_ms: 1.495042
+  type: 'test'
+  ...
+# Subtest: A01 actual V2 source/type/transitive graph is autonomous
+ok 49 - A01 actual V2 source/type/transitive graph is autonomous
+  ---
+  duration_ms: 803.618958
+  type: 'test'
+  ...
+# Subtest: A02 Domain has only internal dependencies and pure primitive APIs
+ok 50 - A02 Domain has only internal dependencies and pure primitive APIs
+  ---
+  duration_ms: 118.2085
+  type: 'test'
+  ...
+# Subtest: A03 isolated compiler/test scope and exact required V2 commands
+ok 51 - A03 isolated compiler/test scope and exact required V2 commands
+  ---
+  duration_ms: 1.157042
+  type: 'test'
+  ...
+1..51
+# tests 51
+# suites 0
+# pass 51
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1191.554625

@@ -1,0 +1,232 @@
+TAP version 13
+# Subtest: G13-02/04/05 local selective versions, frozen inputs, no-op and strict stale before invalid answers
+ok 1 - G13-02/04/05 local selective versions, frozen inputs, no-op and strict stale before invalid answers
+  ---
+  duration_ms: 42.303708
+  type: 'test'
+  ...
+# Subtest: G13-02/03 wrong, duplicated, missing, declined and foreign answers permit retry; handles are session bound
+ok 2 - G13-02/03 wrong, duplicated, missing, declined and foreign answers permit retry; handles are session bound
+  ---
+  duration_ms: 46.899584
+  type: 'test'
+  ...
+# Subtest: G13-06 positive historical delete ProjectSettings exact cascade and untouched AP/Capacity
+ok 3 - G13-06 positive historical delete ProjectSettings exact cascade and untouched AP/Capacity
+  ---
+  duration_ms: 21.647917
+  type: 'test'
+  ...
+# Subtest: G13-06 positive historical delete ReservationSettings exact cascade and untouched AP/Capacity
+ok 4 - G13-06 positive historical delete ReservationSettings exact cascade and untouched AP/Capacity
+  ---
+  duration_ms: 28.630333
+  type: 'test'
+  ...
+# Subtest: G13-06 positive historical delete TeamSettings exact cascade and untouched AP/Capacity
+ok 5 - G13-06 positive historical delete TeamSettings exact cascade and untouched AP/Capacity
+  ---
+  duration_ms: 22.8465
+  type: 'test'
+  ...
+# Subtest: G13-06 positive historical delete PT exact cascade and untouched AP/Capacity
+ok 6 - G13-06 positive historical delete PT exact cascade and untouched AP/Capacity
+  ---
+  duration_ms: 24.228625
+  type: 'test'
+  ...
+# Subtest: G13-06 positive historical delete RT exact cascade and untouched AP/Capacity
+ok 7 - G13-06 positive historical delete RT exact cascade and untouched AP/Capacity
+  ---
+  duration_ms: 17.701833
+  type: 'test'
+  ...
+# Subtest: G13-07 B1/B3 restore PT, positive→zero and zero→zero new versions, explicit predecessor
+ok 8 - G13-07 B1/B3 restore PT, positive→zero and zero→zero new versions, explicit predecessor
+  ---
+  duration_ms: 26.824375
+  type: 'test'
+  ...
+# Subtest: G13-07 B1/B3 restore RT, positive→zero and zero→zero new versions, explicit predecessor
+ok 9 - G13-07 B1/B3 restore RT, positive→zero and zero→zero new versions, explicit predecessor
+  ---
+  duration_ms: 28.62075
+  type: 'test'
+  ...
+# Subtest: G13-07 root restore keeps order, capacity and associations deleted; deleted endpoint restore refused
+ok 10 - G13-07 root restore keeps order, capacity and associations deleted; deleted endpoint restore refused
+  ---
+  duration_ms: 40.106583
+  type: 'test'
+  ...
+# Subtest: G13-08/09 correction 1/3→2/3: one TA only, positive ETC keep, unchanged refs retained
+ok 11 - G13-08/09 correction 1/3→2/3: one TA only, positive ETC keep, unchanged refs retained
+  ---
+  duration_ms: 29.052833
+  type: 'test'
+  ...
+# Subtest: G13-04/09 ETC zero→positive confirmation, negative/family refused, reorder selective and execute NoOp
+ok 12 - G13-04/09 ETC zero→positive confirmation, negative/family refused, reorder selective and execute NoOp
+  ---
+  duration_ms: 18.342333
+  type: 'test'
+  ...
+# Subtest: G13-08 adjust exact partition/version counts, all zeros confirmed, no redistribution
+ok 13 - G13-08 adjust exact partition/version counts, all zeros confirmed, no redistribution
+  ---
+  duration_ms: 15.028375
+  type: 'test'
+  ...
+# Subtest: G13-08 extend exact partition/version counts, all zeros confirmed, no redistribution
+ok 14 - G13-08 extend exact partition/version counts, all zeros confirmed, no redistribution
+  ---
+  duration_ms: 17.508958
+  type: 'test'
+  ...
+# Subtest: G13-08 reduce exact partition/version counts, all zeros confirmed, no redistribution
+ok 15 - G13-08 reduce exact partition/version counts, all zeros confirmed, no redistribution
+  ---
+  duration_ms: 19.320875
+  type: 'test'
+  ...
+# Subtest: G13-08 split exact partition/version counts, all zeros confirmed, no redistribution
+ok 16 - G13-08 split exact partition/version counts, all zeros confirmed, no redistribution
+  ---
+  duration_ms: 20.587083
+  type: 'test'
+  ...
+# Subtest: G13-08 merge exact partition/version counts, all zeros confirmed, no redistribution
+ok 17 - G13-08 merge exact partition/version counts, all zeros confirmed, no redistribution
+  ---
+  duration_ms: 19.446625
+  type: 'test'
+  ...
+# Subtest: G13-08/09 empty↔covered, lastActualsDate aligned, historic cells not replayed
+ok 18 - G13-08/09 empty↔covered, lastActualsDate aligned, historic cells not replayed
+  ---
+  duration_ms: 35.432542
+  type: 'test'
+  ...
+# Subtest: G13-10 Program used delete requires complete explicit owners; single coherent publication
+ok 19 - G13-10 Program used delete requires complete explicit owners; single coherent publication
+  ---
+  duration_ms: 20.370333
+  type: 'test'
+  ...
+# Subtest: G13-10 Pas used delete requires complete explicit owners; single coherent publication
+ok 20 - G13-10 Pas used delete requires complete explicit owners; single coherent publication
+  ---
+  duration_ms: 24.372375
+  type: 'test'
+  ...
+# Subtest: G13-12 real certification rejects intentionally incoherent assembled candidate without swap or published versions
+ok 21 - G13-12 real certification rejects intentionally incoherent assembled candidate without swap or published versions
+  ---
+  duration_ms: 42.475458
+  type: 'test'
+  ...
+# Subtest: G13-05 B2 missing inventory/ref, partial source and collisions refuse admission
+ok 22 - G13-05 B2 missing inventory/ref, partial source and collisions refuse admission
+  ---
+  duration_ms: 24.793792
+  type: 'test'
+  ...
+# Subtest: G13-05 reserved identities burn on abandon/stale, VersionId collision leaves Current intact
+ok 23 - G13-05 reserved identities burn on abandon/stale, VersionId collision leaves Current intact
+  ---
+  duration_ms: 44.22125
+  type: 'test'
+  ...
+# Subtest: G13-11 snapshots stay autonomous immutable through correction/delete/restore
+ok 24 - G13-11 snapshots stay autonomous immutable through correction/delete/restore
+  ---
+  duration_ms: 26.813333
+  type: 'test'
+  ...
+# Subtest: G13-04 execute NoOp after explicit keep creates no version, revision or publication
+ok 25 - G13-04 execute NoOp after explicit keep creates no version, revision or publication
+  ---
+  duration_ms: 10.207583
+  type: 'test'
+  ...
+# Subtest: G13-05 B2 same fresh TA couple refuses second preparation and remains reserved after abandon
+ok 26 - G13-05 B2 same fresh TA couple refuses second preparation and remains reserved after abandon
+  ---
+  duration_ms: 37.516917
+  type: 'test'
+  ...
+# Subtest: G13-05/07 B3 explicit branch chosen, sole historical ref never implicit, wrong identity refused
+ok 27 - G13-05/07 B3 explicit branch chosen, sole historical ref never implicit, wrong identity refused
+  ---
+  duration_ms: 41.086667
+  type: 'test'
+  ...
+# Subtest: G13-02/11 reentrant execution through allocation cannot interpose; RAM publishes one whole view
+ok 28 - G13-02/11 reentrant execution through allocation cannot interpose; RAM publishes one whole view
+  ---
+  duration_ms: 20.186292
+  type: 'test'
+  ...
+# Subtest: G13-03 answers copied without accessors, declined ETC corrected by replacement, old snapshot remains unchanged
+ok 29 - G13-03 answers copied without accessors, declined ETC corrected by replacement, old snapshot remains unchanged
+  ---
+  duration_ms: 21.304542
+  type: 'test'
+  ...
+# Subtest: G13-06 Team without associations always confirms; unused catalog and zero-association AP are valid
+ok 30 - G13-06 Team without associations always confirms; unused catalog and zero-association AP are valid
+  ---
+  duration_ms: 37.025833
+  type: 'test'
+  ...
+# Subtest: G13-07 explicit positive restore is confirmed with complete grid and exact historical bases
+ok 31 - G13-07 explicit positive restore is confirmed with complete grid and exact historical bases
+  ---
+  duration_ms: 33.392541
+  type: 'test'
+  ...
+# Subtest: G13-05 complete native session transfer preserves published and burned reservation ledger
+ok 32 - G13-05 complete native session transfer preserves published and burned reservation ledger
+  ---
+  duration_ms: 28.186542
+  type: 'test'
+  ...
+# Subtest: G13-05 opaque initial IDs do not collide with private template labels; split provenance stays separate from predecessor
+ok 33 - G13-05 opaque initial IDs do not collide with private template labels; split provenance stays separate from predecessor
+  ---
+  duration_ms: 20.837708
+  type: 'test'
+  ...
+# Subtest: G13-02/05 one command session per RAM cell prevents competing ledgers and revision ABA
+ok 34 - G13-02/05 one command session per RAM cell prevents competing ledgers and revision ABA
+  ---
+  duration_ms: 18.646083
+  type: 'test'
+  ...
+# Subtest: G13-03 answers from another session cannot replay even with identical textual preparationId and revision
+ok 35 - G13-03 answers from another session cannot replay even with identical textual preparationId and revision
+  ---
+  duration_ms: 24.261708
+  type: 'test'
+  ...
+# Subtest: G13-01 Domain rules pure: context unchanged, unknown/accessor inputs rejected without invoking getters
+ok 36 - G13-01 Domain rules pure: context unchanged, unknown/accessor inputs rejected without invoking getters
+  ---
+  duration_ms: 12.521875
+  type: 'test'
+  ...
+# Subtest: G13-01/02/12 synchronous execute uses the real certification factory before publication; no async pipeline
+ok 37 - G13-01/02/12 synchronous execute uses the real certification factory before publication; no async pipeline
+  ---
+  duration_ms: 16.310792
+  type: 'test'
+  ...
+1..37
+# tests 37
+# suites 0
+# pass 37
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1053.474291

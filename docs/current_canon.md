@@ -1,5 +1,29 @@
 # FlowPlan2 current canon
 
+## R1.3 — IN REVIEW — 2026-10-12
+
+GO explicite utilisateur après audit favorable du PLAN corrigé B1–B4, baseline
+`6cce48f41afa015bba86fb428450b0dab9d861b8`, préflight exact/propre et origin 0/0.
+[Noyau livré et contrats](./steps/PORTFOLIO_VERSIONED/rewrite_r13_canon.md) :
+Domain pur, admission historique RAM complète, prepare/execute et confirmations
+liées à session, stale global strict, versions sélectives, candidat séparé,
+certification R1.2 réelle puis publication cohérente unique. B1 restore historique
+TA/PTEC toujours nouvelle version ; B2 inventaire/ledger explicites et refus
+incomplet ; B3 predecessor courant exact ou base historique désignée ; B4 mesure
+S constant/H variable et séparation candidat/certification, sans optimisation
+VersionRegistry. Modules dormants, shell/UI/bootstrap inchangés.
+
+282/282 tests V2, ciblés R1.1 51/51, R1.2 155/155, R1.3 37/37, frontières,
+typecheck/build PASS ; [preuves nouvelles](./steps/PORTFOLIO_VERSIONED/proofs/r13/README.md).
+PERF-EDIT : [mesures et qualification avec réserve](./steps/PORTFOLIO_VERSIONED/proofs/r13/perf/report.md),
+aucun verdict favorable anticipé ni SLA. PERF-LOAD et sa classification historique
+inchangés ; P3-C toujours abandonné. R0/R0.1/R1.1/R1.2 DONE ; R1.4/R2/R4 non commencés.
+
+**Prochain acte : audit indépendant ChatGPT du code, des tests, des preuves et des
+mesures. R1.3 reste IN REVIEW ; aucun passage à DONE ni GO correctif implicite.**
+Le bandeau présent prime sur les états de préparation conservés ci-dessous.
+
+
 ## R1.3 — PLAN CORRIGÉ après audit B1–B4 — 2026-10-12
 
 **R1.3 — PLAN CORRIGÉ / PROPOSED FOR RE-AUDIT / NOT STARTED.**

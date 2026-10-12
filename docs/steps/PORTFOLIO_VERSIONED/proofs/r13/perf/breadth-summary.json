@@ -1,0 +1,185 @@
+{
+  "note": "Fixed S, |H| and B; 1000 extra Settings versions form either a chain or 1000 sibling branches. Distinguishes lineage depth from unselected volume on Small only. Separate from the main campaign.",
+  "rows": [
+    {
+      "scenario": "local",
+      "mode": "official",
+      "S": 894,
+      "H": 1894,
+      "sHash": "eebbb7774fc5d4d719a85d4500a6b53fad9d128bf02b85f9a7e0b41bceb8621e",
+      "B": 1,
+      "chainDepth": 1000,
+      "breadthDepth": 1,
+      "medians": {
+        "prepare": {
+          "chain": 0.11337499999990541,
+          "breadth": 0.11595899999997528
+        },
+        "execute": {
+          "chain": 228.20708400000012,
+          "breadth": 166.98454200000015
+        },
+        "total": {
+          "chain": 228.32045900000003,
+          "breadth": 167.10050100000012
+        }
+      }
+    },
+    {
+      "scenario": "actuals",
+      "mode": "official",
+      "S": 894,
+      "H": 1894,
+      "sHash": "eebbb7774fc5d4d719a85d4500a6b53fad9d128bf02b85f9a7e0b41bceb8621e",
+      "B": 1,
+      "chainDepth": 1000,
+      "breadthDepth": 1,
+      "medians": {
+        "prepare": {
+          "chain": 1.6331250000000637,
+          "breadth": 1.6688749999999573
+        },
+        "execute": {
+          "chain": 230.16991699999994,
+          "breadth": 167.23066700000004
+        },
+        "total": {
+          "chain": 231.803042,
+          "breadth": 168.9281249999999
+        }
+      }
+    },
+    {
+      "scenario": "boundary",
+      "mode": "official",
+      "S": 894,
+      "H": 1894,
+      "sHash": "eebbb7774fc5d4d719a85d4500a6b53fad9d128bf02b85f9a7e0b41bceb8621e",
+      "B": 7,
+      "chainDepth": 1000,
+      "breadthDepth": 1,
+      "medians": {
+        "prepare": {
+          "chain": 5.823708000000124,
+          "breadth": 5.795040999999969
+        },
+        "execute": {
+          "chain": 230.83820800000012,
+          "breadth": 168.17308400000002
+        },
+        "total": {
+          "chain": 236.55470800000012,
+          "breadth": 174.28004199999987
+        }
+      }
+    },
+    {
+      "scenario": "local",
+      "mode": "instrumented",
+      "S": 894,
+      "H": 1894,
+      "sHash": "eebbb7774fc5d4d719a85d4500a6b53fad9d128bf02b85f9a7e0b41bceb8621e",
+      "B": 1,
+      "chainDepth": 1000,
+      "breadthDepth": 1,
+      "medians": {
+        "total": {
+          "chain": 230.47812599999975,
+          "breadth": 171.520125
+        },
+        "E2": {
+          "chain": 0.11858400000028269,
+          "breadth": 0.11149999999997817
+        },
+        "E5": {
+          "chain": 176.98199999999997,
+          "breadth": 118.38466699999981
+        },
+        "E5-REGISTRY": {
+          "chain": 164.86062500000003,
+          "breadth": 106.89041700000007
+        },
+        "E5-EXTRACTION": {
+          "chain": 3.1864580000001297,
+          "breadth": 3.1559579999998277
+        },
+        "E6": {
+          "chain": 52.088209000000006,
+          "breadth": 52.944999999999936
+        }
+      }
+    },
+    {
+      "scenario": "actuals",
+      "mode": "instrumented",
+      "S": 894,
+      "H": 1894,
+      "sHash": "eebbb7774fc5d4d719a85d4500a6b53fad9d128bf02b85f9a7e0b41bceb8621e",
+      "B": 1,
+      "chainDepth": 1000,
+      "breadthDepth": 1,
+      "medians": {
+        "total": {
+          "chain": 231.8510839999999,
+          "breadth": 173.03441600000008
+        },
+        "E2": {
+          "chain": 1.6548749999997199,
+          "breadth": 1.6976659999997992
+        },
+        "E5": {
+          "chain": 177.85854199999994,
+          "breadth": 118.715959
+        },
+        "E5-REGISTRY": {
+          "chain": 166.2940410000001,
+          "breadth": 106.847667
+        },
+        "E5-EXTRACTION": {
+          "chain": 3.156208000000106,
+          "breadth": 3.094249999999988
+        },
+        "E6": {
+          "chain": 52.22458400000005,
+          "breadth": 52.60270900000012
+        }
+      }
+    },
+    {
+      "scenario": "boundary",
+      "mode": "instrumented",
+      "S": 894,
+      "H": 1894,
+      "sHash": "eebbb7774fc5d4d719a85d4500a6b53fad9d128bf02b85f9a7e0b41bceb8621e",
+      "B": 7,
+      "chainDepth": 1000,
+      "breadthDepth": 1,
+      "medians": {
+        "total": {
+          "chain": 236.6327080000001,
+          "breadth": 176.51495799999987
+        },
+        "E2": {
+          "chain": 5.953126000000111,
+          "breadth": 6.024874000000068
+        },
+        "E5": {
+          "chain": 177.6367499999999,
+          "breadth": 117.77808299999992
+        },
+        "E5-REGISTRY": {
+          "chain": 165.8888750000001,
+          "breadth": 106.00237500000003
+        },
+        "E5-EXTRACTION": {
+          "chain": 3.102000000000089,
+          "breadth": 3.042541999999912
+        },
+        "E6": {
+          "chain": 52.16687499999989,
+          "breadth": 52.146208
+        }
+      }
+    }
+  ]
+}

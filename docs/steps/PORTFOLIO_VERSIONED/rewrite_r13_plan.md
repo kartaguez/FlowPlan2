@@ -1,5 +1,18 @@
 # FlowPlan2 V2 — PLAN R1.3 : transitions métier versionnées en RAM
 
+## Livraison d'implémentation — R1.3 IN REVIEW — 2026-10-12
+
+GO utilisateur explicite après audit favorable de ce PLAN corrigé, baseline
+6cce48f41afa015bba86fb428450b0dab9d861b8, préflight exact/propre/origin 0/0.
+[Canon livré](./rewrite_r13_canon.md), [preuves et reproduction](./proofs/r13/README.md),
+[PERF-EDIT et réserves](./proofs/r13/perf/report.md). B1–B4 implémentés selon les
+contrats ci-dessous. 282 tests V2 et quatre gates npm PASS, ciblés 51/155/37 PASS.
+Audit indépendant de livraison requis ; aucun DONE, R1.4/R2/R4 non commencés.
+Les sections suivantes conservent le PLAN audité et ses états de préparation :
+leurs « aucun GO / NOT EXECUTED / STOP documentaire » sont historiques pour
+cette livraison, sans modifier aucune règle métier ni autoriser une optimisation.
+
+
 PLAN initial livré le 2026-10-11 à `c61da72d6c01de8aa46e1ef5430f232ba1a385eb`.
 Correction documentaire le 2026-10-12 après audit indépendant ChatGPT :
 **FAVORABLE SOUS CORRECTIONS B1–B4**, sans GO.

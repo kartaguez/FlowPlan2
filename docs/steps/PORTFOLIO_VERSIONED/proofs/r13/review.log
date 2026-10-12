@@ -1,0 +1,7 @@
+Scope R1.3 vérifié ; Domain/Application/ports/adapters, tests, tooling et docs seulement.
+R1.1/R1.2, garde général, runtime shell, legacy, package/lock et preuves historiques inchangés.
+182 liens locaux existants vérifiés.
+Diff complet source, tests, tooling, docs examiné ; git diff --check et --cached --check sans erreur.
+Final source compilée session = source mesurée, SHA-256 0bd661b67b9907fe262665dddb5998f7ffb141a52d582251611767a55cf6d6b7.
+Journaux bruts compressés : hashes décompressés vérifiés, sans altération du contenu.
+Diff final --check et --cached --check PASS après compression EOF ; fetch final réussit après élévation sandbox.

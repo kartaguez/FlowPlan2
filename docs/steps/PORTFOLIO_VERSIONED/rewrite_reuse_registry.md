@@ -1,5 +1,23 @@
 # FlowPlan2 V2 — registre vivant des extractions
 
+## R1.3 — usages V2 et noyau natif — IN REVIEW
+
+Baseline 6cce48f41afa015bba86fb428450b0dab9d861b8 ; GO utilisateur après audit
+favorable du PLAN corrigé. [Canon](./rewrite_r13_canon.md), [preuves](./proofs/r13/README.md).
+Aucune extraction/import/copie de code legacy, aucun merge/cherry-pick. Transitions,
+ports et adapters RAM écrits nativement depuis les contrats R1.1/R1.2/R1.3.
+
+| Source V2 à la baseline | Usage R1.3 | Destination | Preuves / statut |
+| --- | --- | --- | --- |
+| src-v2/domain/primitives et versioning/immutableValue/owner | APIs existantes exactes, validations/copies/égalité/owners, aucune modification | Domain transitions et Application session | 282 tests V2 PASS ; audit R1.3 attendu |
+| src-v2/domain/portfolio/payloadValidation/manifest/validatedPortfolioGraph ; versioning/versionRegistry/localVersionTables | Factories publiques réutilisées, H+B conservateur, tables locales d'admission ; aucune nouvelle certification | Application session/ports, adapter RAM | G13-01–13 ; versions/certification/atomicité ; audit attendu |
+| scripts/benchmarks/r12-perf/fixture.mjs | Générateur inchangé, seed 1202 et profils natifs ; dérivations H non sélectionné dans nouveau harness | scripts/benchmarks/r13-edit | Mesures EDIT séparées, aucune requalification LOAD ni modification preuves historiques |
+
+Les opérations historiques et intentions d'extraction ci-dessous sont conservées.
+L'usage d'une API V2 déjà livrée ne constitue pas une nouvelle extraction legacy.
+Aucun statut R1.3 DONE ni validation d'audit anticipée.
+
+
 Matrice patrimoniale issue de R0 ; **reprises de primitives R1.1 validées, DONE**.
 Entités métier complètes et extractions R1.2+ NOT STARTED.
 [Intentions R1.2](#intentions-r12--plan-only-aucune-opération-réalisée) : PLAN ONLY ;

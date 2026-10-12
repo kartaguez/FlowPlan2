@@ -1,5 +1,25 @@
 # FlowPlan2 V2 — registre durable des décisions
 
+## Décisions techniques livrées R1.3 — IN REVIEW — 2026-10-12
+
+GO explicite utilisateur après audit du PLAN corrigé, baseline
+6cce48f41afa015bba86fb428450b0dab9d861b8. [Canon et API](./rewrite_r13_canon.md),
+[preuves](./proofs/r13/README.md), [PERF-EDIT](./proofs/r13/perf/report.md).
+O13-01 : handle nominal/Map privé de session, execute synchrone exclusif et
+révision BigInt anti-ABA. O13-02 : source native complète, inventaire fermé,
+ledger persistant RAM et refus sans fallback. O13-03 : CandidateCertificationFailure
+et InternalTransitionFailure distincts, dossier terminé. O13-04/B1 : TA/PTEC
+historique réintroduit toujours nouvelle VersionId, payload identique compris.
+B3 : base exacte choisie explicitement, jamais latest. O13-05/B4 : registre
+conservateur inchangé, qualification EDIT par mesure séparée S/H/B/certification
+avec réserves ; aucune autorisation de correction architecturale. O13-06 :
+defaults/bootstrap opérationnel restent hors montage et non arbitrés ici.
+
+A-R12-01–09 et contrats R1.1/R1.2 inchangés, aucune norme nouvelle durable.
+282 tests PASS, autres gates et mesures référencées au canon. R1.3 IN REVIEW,
+audit indépendant requis ; R1.4/R2/R4 non commencés, aucune clôture automatique.
+
+
 ## Corrections documentaires R1.3 après audit indépendant — 2026-10-12
 
 **R1.3 — PLAN CORRIGÉ / PROPOSED FOR RE-AUDIT / NOT STARTED. Aucun GO.**

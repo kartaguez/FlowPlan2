@@ -1,0 +1,6355 @@
+{
+  "environment": {
+    "node": "v24.21.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "cpus": [
+      "Apple M4",
+      "Apple M4",
+      "Apple M4",
+      "Apple M4",
+      "Apple M4",
+      "Apple M4",
+      "Apple M4",
+      "Apple M4",
+      "Apple M4",
+      "Apple M4"
+    ],
+    "memory": 17179869184
+  },
+  "sessionJsSha256": "0bd661b67b9907fe262665dddb5998f7ffb141a52d582251611767a55cf6d6b7",
+  "runs": [
+    {
+      "event": "complete",
+      "size": "small",
+      "variant": "dense",
+      "depth": 0,
+      "scenario": "local",
+      "mode": "official",
+      "historyForm": "chain",
+      "setupMs": 161.85174999999998,
+      "S": 894,
+      "H": 894,
+      "sHash": "eebbb7774fc5d4d719a85d4500a6b53fad9d128bf02b85f9a7e0b41bceb8621e",
+      "fixtureHash": "7adc331e1f02eb321f50bf85bd0e9f844dfd518c7b0fc8916f71c92da7ee7b24",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 48.342749999999995,
+          "role": "cold",
+          "prepare": 0.6838339999999903,
+          "execute": 106.33666699999998,
+          "total": 107.02050099999997,
+          "harnessAnswers": 0.04854100000000017,
+          "cpu": {
+            "user": 141661,
+            "system": 3086
+          },
+          "heapEndpoint": 29849592,
+          "rssEndpoint": 152551424,
+          "maxRssLifetime": 148976,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 45.15845899999999,
+          "role": "warmup",
+          "prepare": 0.13370800000001282,
+          "execute": 103.404833,
+          "total": 103.53854100000001,
+          "harnessAnswers": 0.04545899999999392,
+          "cpu": {
+            "user": 108779,
+            "system": 2193
+          },
+          "heapEndpoint": 37591520,
+          "rssEndpoint": 167198720,
+          "maxRssLifetime": 163280,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 48.54612500000002,
+          "role": "measured",
+          "prepare": 0.11108300000000781,
+          "execute": 107.02754100000004,
+          "total": 107.13862400000005,
+          "harnessAnswers": 0.051791999999977634,
+          "cpu": {
+            "user": 142603,
+            "system": 1102
+          },
+          "heapEndpoint": 20279520,
+          "rssEndpoint": 233291776,
+          "maxRssLifetime": 227952,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 47.68929099999991,
+          "role": "measured",
+          "prepare": 0.10474999999996726,
+          "execute": 103.44170799999995,
+          "total": 103.54645799999992,
+          "harnessAnswers": 0.0482920000000604,
+          "cpu": {
+            "user": 124003,
+            "system": 522
+          },
+          "heapEndpoint": 50194256,
+          "rssEndpoint": 233734144,
+          "maxRssLifetime": 228256,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 45.04070899999999,
+          "role": "measured",
+          "prepare": 0.10762499999998454,
+          "execute": 101.96195799999998,
+          "total": 102.06958299999997,
+          "harnessAnswers": 0.06279200000005858,
+          "cpu": {
+            "user": 106620,
+            "system": 452
+          },
+          "heapEndpoint": 65721760,
+          "rssEndpoint": 233750528,
+          "maxRssLifetime": 228272,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "small",
+      "variant": "dense",
+      "depth": 0,
+      "scenario": "actuals",
+      "mode": "official",
+      "historyForm": "chain",
+      "setupMs": 171.58520800000002,
+      "S": 894,
+      "H": 894,
+      "sHash": "eebbb7774fc5d4d719a85d4500a6b53fad9d128bf02b85f9a7e0b41bceb8621e",
+      "fixtureHash": "7adc331e1f02eb321f50bf85bd0e9f844dfd518c7b0fc8916f71c92da7ee7b24",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 52.59824999999998,
+          "role": "cold",
+          "prepare": 2.6159590000000037,
+          "execute": 113.83470899999998,
+          "total": 116.45066800000001,
+          "harnessAnswers": 0.06679099999999494,
+          "cpu": {
+            "user": 157789,
+            "system": 3378
+          },
+          "heapEndpoint": 48139848,
+          "rssEndpoint": 150929408,
+          "maxRssLifetime": 147392,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 46.39375000000001,
+          "role": "warmup",
+          "prepare": 1.5547919999999635,
+          "execute": 103.19716700000004,
+          "total": 104.751959,
+          "harnessAnswers": 0.05212499999998954,
+          "cpu": {
+            "user": 110541,
+            "system": 1213
+          },
+          "heapEndpoint": 54824488,
+          "rssEndpoint": 158613504,
+          "maxRssLifetime": 154896,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 46.42108399999995,
+          "role": "measured",
+          "prepare": 1.5520409999999174,
+          "execute": 111.90824999999995,
+          "total": 113.46029099999987,
+          "harnessAnswers": 0.04379200000005312,
+          "cpu": {
+            "user": 144492,
+            "system": 4211
+          },
+          "heapEndpoint": 28595016,
+          "rssEndpoint": 233406464,
+          "maxRssLifetime": 227936,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 46.125625000000014,
+          "role": "measured",
+          "prepare": 1.67450000000008,
+          "execute": 104.16474999999991,
+          "total": 105.83924999999999,
+          "harnessAnswers": 0.05737499999997908,
+          "cpu": {
+            "user": 125765,
+            "system": 666
+          },
+          "heapEndpoint": 31687408,
+          "rssEndpoint": 234291200,
+          "maxRssLifetime": 228800,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 45.99541599999998,
+          "role": "measured",
+          "prepare": 1.4266670000000659,
+          "execute": 103.41770799999995,
+          "total": 104.84437500000001,
+          "harnessAnswers": 0.058374999999955435,
+          "cpu": {
+            "user": 109629,
+            "system": 1010
+          },
+          "heapEndpoint": 35265784,
+          "rssEndpoint": 234307584,
+          "maxRssLifetime": 228816,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "small",
+      "variant": "dense",
+      "depth": 0,
+      "scenario": "boundary",
+      "mode": "official",
+      "historyForm": "chain",
+      "setupMs": 166.615,
+      "S": 894,
+      "H": 894,
+      "sHash": "eebbb7774fc5d4d719a85d4500a6b53fad9d128bf02b85f9a7e0b41bceb8621e",
+      "fixtureHash": "7adc331e1f02eb321f50bf85bd0e9f844dfd518c7b0fc8916f71c92da7ee7b24",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 50.774833,
+          "role": "cold",
+          "prepare": 7.523500000000013,
+          "execute": 109.63358299999999,
+          "total": 117.157083,
+          "harnessAnswers": 0.06466700000001424,
+          "cpu": {
+            "user": 155654,
+            "system": 2946
+          },
+          "heapEndpoint": 27195488,
+          "rssEndpoint": 151404544,
+          "maxRssLifetime": 147856,
+          "B": 7,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 5
+          },
+          "obligations": 10
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 46.676917,
+          "role": "warmup",
+          "prepare": 6.00162499999999,
+          "execute": 106.83587499999999,
+          "total": 112.83749999999998,
+          "harnessAnswers": 0.05520799999999326,
+          "cpu": {
+            "user": 118720,
+            "system": 2914
+          },
+          "heapEndpoint": 46236376,
+          "rssEndpoint": 159137792,
+          "maxRssLifetime": 155408,
+          "B": 7,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 5
+          },
+          "obligations": 10
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 49.202583000000004,
+          "role": "measured",
+          "prepare": 6.116709000000014,
+          "execute": 113.2733750000001,
+          "total": 119.39008400000012,
+          "harnessAnswers": 0.057999999999992724,
+          "cpu": {
+            "user": 167463,
+            "system": 2974
+          },
+          "heapEndpoint": 24519152,
+          "rssEndpoint": 233832448,
+          "maxRssLifetime": 228352,
+          "B": 7,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 5
+          },
+          "obligations": 10
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 57.26675,
+          "role": "measured",
+          "prepare": 6.161458000000039,
+          "execute": 108.9826250000001,
+          "total": 115.14408300000014,
+          "harnessAnswers": 0.06037499999990814,
+          "cpu": {
+            "user": 130277,
+            "system": 1001
+          },
+          "heapEndpoint": 81948072,
+          "rssEndpoint": 234471424,
+          "maxRssLifetime": 228976,
+          "B": 7,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 5
+          },
+          "obligations": 10
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 46.14254200000005,
+          "role": "measured",
+          "prepare": 5.858042000000069,
+          "execute": 107.4632079999999,
+          "total": 113.32124999999996,
+          "harnessAnswers": 0.08329200000002857,
+          "cpu": {
+            "user": 121227,
+            "system": 800
+          },
+          "heapEndpoint": 51633688,
+          "rssEndpoint": 234569728,
+          "maxRssLifetime": 229072,
+          "B": 7,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 5
+          },
+          "obligations": 10
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "small",
+      "variant": "dense",
+      "depth": 10,
+      "scenario": "local",
+      "mode": "official",
+      "historyForm": "chain",
+      "setupMs": 176.31729199999998,
+      "S": 894,
+      "H": 904,
+      "sHash": "eebbb7774fc5d4d719a85d4500a6b53fad9d128bf02b85f9a7e0b41bceb8621e",
+      "fixtureHash": "7adc331e1f02eb321f50bf85bd0e9f844dfd518c7b0fc8916f71c92da7ee7b24",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 52.18549999999999,
+          "role": "cold",
+          "prepare": 0.7489579999999876,
+          "execute": 113.03341700000001,
+          "total": 113.78237499999997,
+          "harnessAnswers": 0.06399999999999295,
+          "cpu": {
+            "user": 160099,
+            "system": 2537
+          },
+          "heapEndpoint": 46156864,
+          "rssEndpoint": 152977408,
+          "maxRssLifetime": 149392,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 47.74779100000001,
+          "role": "warmup",
+          "prepare": 0.13379100000003064,
+          "execute": 106.07995900000003,
+          "total": 106.21375000000012,
+          "harnessAnswers": 0.05475000000001273,
+          "cpu": {
+            "user": 113448,
+            "system": 1658
+          },
+          "heapEndpoint": 54902104,
+          "rssEndpoint": 161824768,
+          "maxRssLifetime": 158032,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 48.83720800000003,
+          "role": "measured",
+          "prepare": 0.1087080000000924,
+          "execute": 111.44408299999998,
+          "total": 111.55279100000007,
+          "harnessAnswers": 0.052416999999991276,
+          "cpu": {
+            "user": 141209,
+            "system": 2722
+          },
+          "heapEndpoint": 35782504,
+          "rssEndpoint": 235520000,
+          "maxRssLifetime": 230000,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 49.63529200000005,
+          "role": "measured",
+          "prepare": 0.11616700000001856,
+          "execute": 105.56745799999999,
+          "total": 105.683625,
+          "harnessAnswers": 0.059458000000063294,
+          "cpu": {
+            "user": 112057,
+            "system": 500
+          },
+          "heapEndpoint": 71383864,
+          "rssEndpoint": 235520000,
+          "maxRssLifetime": 230000,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 46.44541700000002,
+          "role": "measured",
+          "prepare": 0.11000000000001364,
+          "execute": 105.8665410000001,
+          "total": 105.97654100000011,
+          "harnessAnswers": 0.06699999999989359,
+          "cpu": {
+            "user": 110806,
+            "system": 1371
+          },
+          "heapEndpoint": 94647344,
+          "rssEndpoint": 235749376,
+          "maxRssLifetime": 230224,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "small",
+      "variant": "dense",
+      "depth": 10,
+      "scenario": "actuals",
+      "mode": "official",
+      "historyForm": "chain",
+      "setupMs": 174.663459,
+      "S": 894,
+      "H": 904,
+      "sHash": "eebbb7774fc5d4d719a85d4500a6b53fad9d128bf02b85f9a7e0b41bceb8621e",
+      "fixtureHash": "7adc331e1f02eb321f50bf85bd0e9f844dfd518c7b0fc8916f71c92da7ee7b24",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 53.093166999999994,
+          "role": "cold",
+          "prepare": 2.6106659999999806,
+          "execute": 114.07541699999996,
+          "total": 116.68608299999994,
+          "harnessAnswers": 0.07475000000002296,
+          "cpu": {
+            "user": 156331,
+            "system": 3645
+          },
+          "heapEndpoint": 43853512,
+          "rssEndpoint": 152092672,
+          "maxRssLifetime": 148528,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 48.190124999999966,
+          "role": "warmup",
+          "prepare": 1.602708000000007,
+          "execute": 121.24904199999997,
+          "total": 122.85174999999998,
+          "harnessAnswers": 0.056958000000008724,
+          "cpu": {
+            "user": 130657,
+            "system": 1902
+          },
+          "heapEndpoint": 53571208,
+          "rssEndpoint": 159809536,
+          "maxRssLifetime": 156064,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 48.99916600000006,
+          "role": "measured",
+          "prepare": 1.6131249999999682,
+          "execute": 114.87616600000001,
+          "total": 116.48929099999998,
+          "harnessAnswers": 0.05220899999994799,
+          "cpu": {
+            "user": 151370,
+            "system": 3852
+          },
+          "heapEndpoint": 62001960,
+          "rssEndpoint": 233472000,
+          "maxRssLifetime": 228000,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 49.04770800000006,
+          "role": "measured",
+          "prepare": 1.6665830000000597,
+          "execute": 106.23712499999999,
+          "total": 107.90370800000005,
+          "harnessAnswers": 0.06508399999995618,
+          "cpu": {
+            "user": 113580,
+            "system": 495
+          },
+          "heapEndpoint": 28551680,
+          "rssEndpoint": 233684992,
+          "maxRssLifetime": 228208,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 45.571957999999995,
+          "role": "measured",
+          "prepare": 1.5124159999999165,
+          "execute": 105.96879100000001,
+          "total": 107.48120699999993,
+          "harnessAnswers": 0.06595900000002075,
+          "cpu": {
+            "user": 112559,
+            "system": 435
+          },
+          "heapEndpoint": 49364808,
+          "rssEndpoint": 233684992,
+          "maxRssLifetime": 228208,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "small",
+      "variant": "dense",
+      "depth": 10,
+      "scenario": "boundary",
+      "mode": "official",
+      "historyForm": "chain",
+      "setupMs": 183.61429199999998,
+      "S": 894,
+      "H": 904,
+      "sHash": "eebbb7774fc5d4d719a85d4500a6b53fad9d128bf02b85f9a7e0b41bceb8621e",
+      "fixtureHash": "7adc331e1f02eb321f50bf85bd0e9f844dfd518c7b0fc8916f71c92da7ee7b24",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 49.43924999999999,
+          "role": "cold",
+          "prepare": 7.6402499999999804,
+          "execute": 111.78691700000002,
+          "total": 119.427167,
+          "harnessAnswers": 0.07316600000001472,
+          "cpu": {
+            "user": 164312,
+            "system": 2643
+          },
+          "heapEndpoint": 25086912,
+          "rssEndpoint": 151633920,
+          "maxRssLifetime": 148080,
+          "B": 7,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 5
+          },
+          "obligations": 10
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 46.436541999999974,
+          "role": "warmup",
+          "prepare": 5.998917000000006,
+          "execute": 105.938875,
+          "total": 111.937792,
+          "harnessAnswers": 0.05324999999999136,
+          "cpu": {
+            "user": 119819,
+            "system": 1446
+          },
+          "heapEndpoint": 45151184,
+          "rssEndpoint": 157679616,
+          "maxRssLifetime": 153984,
+          "B": 7,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 5
+          },
+          "obligations": 10
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 47.51320899999996,
+          "role": "measured",
+          "prepare": 5.790208000000007,
+          "execute": 113.5177910000001,
+          "total": 119.30799900000011,
+          "harnessAnswers": 0.056458999999904336,
+          "cpu": {
+            "user": 149771,
+            "system": 4656
+          },
+          "heapEndpoint": 41435960,
+          "rssEndpoint": 234110976,
+          "maxRssLifetime": 228624,
+          "B": 7,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 5
+          },
+          "obligations": 10
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 50.66166600000008,
+          "role": "measured",
+          "prepare": 6.1639169999999694,
+          "execute": 107.36725000000001,
+          "total": 113.53116699999998,
+          "harnessAnswers": 0.04691600000001017,
+          "cpu": {
+            "user": 118028,
+            "system": 440
+          },
+          "heapEndpoint": 83380248,
+          "rssEndpoint": 234422272,
+          "maxRssLifetime": 228928,
+          "B": 7,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 5
+          },
+          "obligations": 10
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 45.991874999999936,
+          "role": "measured",
+          "prepare": 5.8302079999999705,
+          "execute": 107.777916,
+          "total": 113.60812399999998,
+          "harnessAnswers": 0.07683400000007623,
+          "cpu": {
+            "user": 121039,
+            "system": 456
+          },
+          "heapEndpoint": 50625664,
+          "rssEndpoint": 234438656,
+          "maxRssLifetime": 228944,
+          "B": 7,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 5
+          },
+          "obligations": 10
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "small",
+      "variant": "dense",
+      "depth": 100,
+      "scenario": "local",
+      "mode": "official",
+      "historyForm": "chain",
+      "setupMs": 185.641292,
+      "S": 894,
+      "H": 994,
+      "sHash": "eebbb7774fc5d4d719a85d4500a6b53fad9d128bf02b85f9a7e0b41bceb8621e",
+      "fixtureHash": "7adc331e1f02eb321f50bf85bd0e9f844dfd518c7b0fc8916f71c92da7ee7b24",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 55.62224999999998,
+          "role": "cold",
+          "prepare": 0.7398750000000405,
+          "execute": 116.22958299999999,
+          "total": 116.96945800000003,
+          "harnessAnswers": 0.054666999999994914,
+          "cpu": {
+            "user": 158970,
+            "system": 1883
+          },
+          "heapEndpoint": 52295040,
+          "rssEndpoint": 153059328,
+          "maxRssLifetime": 149472,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 50.11862500000001,
+          "role": "warmup",
+          "prepare": 0.13404100000002472,
+          "execute": 112.76437499999997,
+          "total": 112.898416,
+          "harnessAnswers": 0.04529199999996081,
+          "cpu": {
+            "user": 135783,
+            "system": 1350
+          },
+          "heapEndpoint": 57515288,
+          "rssEndpoint": 162709504,
+          "maxRssLifetime": 158896,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 54.65224999999998,
+          "role": "measured",
+          "prepare": 0.14800000000002456,
+          "execute": 113.945333,
+          "total": 114.09333300000003,
+          "harnessAnswers": 0.051499999999919055,
+          "cpu": {
+            "user": 133275,
+            "system": 1357
+          },
+          "heapEndpoint": 34948720,
+          "rssEndpoint": 234782720,
+          "maxRssLifetime": 229280,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 51.96341700000005,
+          "role": "measured",
+          "prepare": 0.11291699999992488,
+          "execute": 112.52133300000003,
+          "total": 112.63424999999995,
+          "harnessAnswers": 0.060875000000010004,
+          "cpu": {
+            "user": 119085,
+            "system": 1412
+          },
+          "heapEndpoint": 34925912,
+          "rssEndpoint": 234815488,
+          "maxRssLifetime": 229312,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 47.99420799999996,
+          "role": "measured",
+          "prepare": 0.1107080000000451,
+          "execute": 111.59720900000013,
+          "total": 111.7079170000003,
+          "harnessAnswers": 0.06349999999997635,
+          "cpu": {
+            "user": 123426,
+            "system": 606
+          },
+          "heapEndpoint": 87079432,
+          "rssEndpoint": 235388928,
+          "maxRssLifetime": 229872,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "small",
+      "variant": "dense",
+      "depth": 100,
+      "scenario": "actuals",
+      "mode": "official",
+      "historyForm": "chain",
+      "setupMs": 187.535166,
+      "S": 894,
+      "H": 994,
+      "sHash": "eebbb7774fc5d4d719a85d4500a6b53fad9d128bf02b85f9a7e0b41bceb8621e",
+      "fixtureHash": "7adc331e1f02eb321f50bf85bd0e9f844dfd518c7b0fc8916f71c92da7ee7b24",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 54.53470800000002,
+          "role": "cold",
+          "prepare": 2.621208000000024,
+          "execute": 115.52391599999999,
+          "total": 118.14512400000001,
+          "harnessAnswers": 0.07016699999996945,
+          "cpu": {
+            "user": 155532,
+            "system": 1994
+          },
+          "heapEndpoint": 53917880,
+          "rssEndpoint": 153141248,
+          "maxRssLifetime": 149552,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 49.777375000000006,
+          "role": "warmup",
+          "prepare": 1.490000000000009,
+          "execute": 115.66599999999994,
+          "total": 117.15599999999995,
+          "harnessAnswers": 0.05941699999999628,
+          "cpu": {
+            "user": 136489,
+            "system": 1428
+          },
+          "heapEndpoint": 61173808,
+          "rssEndpoint": 162250752,
+          "maxRssLifetime": 158448,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 59.47112500000003,
+          "role": "measured",
+          "prepare": 1.8417080000000396,
+          "execute": 118.80437499999994,
+          "total": 120.64608299999998,
+          "harnessAnswers": 0.05579199999999673,
+          "cpu": {
+            "user": 146070,
+            "system": 1492
+          },
+          "heapEndpoint": 41638760,
+          "rssEndpoint": 234897408,
+          "maxRssLifetime": 229392,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 52.43354199999999,
+          "role": "measured",
+          "prepare": 1.6619589999999107,
+          "execute": 113.75600000000009,
+          "total": 115.417959,
+          "harnessAnswers": 0.07029099999999744,
+          "cpu": {
+            "user": 121150,
+            "system": 1334
+          },
+          "heapEndpoint": 36673912,
+          "rssEndpoint": 234962944,
+          "maxRssLifetime": 229456,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 48.89554199999998,
+          "role": "measured",
+          "prepare": 1.546542000000045,
+          "execute": 113.57695799999999,
+          "total": 115.12350000000004,
+          "harnessAnswers": 0.06766699999991488,
+          "cpu": {
+            "user": 125819,
+            "system": 609
+          },
+          "heapEndpoint": 84337592,
+          "rssEndpoint": 235077632,
+          "maxRssLifetime": 229568,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "small",
+      "variant": "dense",
+      "depth": 100,
+      "scenario": "boundary",
+      "mode": "official",
+      "historyForm": "chain",
+      "setupMs": 187.80275,
+      "S": 894,
+      "H": 994,
+      "sHash": "eebbb7774fc5d4d719a85d4500a6b53fad9d128bf02b85f9a7e0b41bceb8621e",
+      "fixtureHash": "7adc331e1f02eb321f50bf85bd0e9f844dfd518c7b0fc8916f71c92da7ee7b24",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 55.04049999999998,
+          "role": "cold",
+          "prepare": 8.16274999999996,
+          "execute": 116.72958299999999,
+          "total": 124.89233299999995,
+          "harnessAnswers": 0.0729170000000181,
+          "cpu": {
+            "user": 169807,
+            "system": 2272
+          },
+          "heapEndpoint": 36882136,
+          "rssEndpoint": 153812992,
+          "maxRssLifetime": 150208,
+          "B": 7,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 5
+          },
+          "obligations": 10
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 48.31458300000003,
+          "role": "warmup",
+          "prepare": 5.918957999999975,
+          "execute": 111.99062499999997,
+          "total": 117.90958299999994,
+          "harnessAnswers": 0.051000000000044565,
+          "cpu": {
+            "user": 144051,
+            "system": 1395
+          },
+          "heapEndpoint": 55719672,
+          "rssEndpoint": 162463744,
+          "maxRssLifetime": 158656,
+          "B": 7,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 5
+          },
+          "obligations": 10
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 52.971833999999944,
+          "role": "measured",
+          "prepare": 6.162666000000058,
+          "execute": 116.23666700000001,
+          "total": 122.39933300000007,
+          "harnessAnswers": 0.04529200000001765,
+          "cpu": {
+            "user": 142532,
+            "system": 2006
+          },
+          "heapEndpoint": 43213848,
+          "rssEndpoint": 234864640,
+          "maxRssLifetime": 229504,
+          "B": 7,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 5
+          },
+          "obligations": 10
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 52.858292000000006,
+          "role": "measured",
+          "prepare": 6.223416999999927,
+          "execute": 114.06062500000007,
+          "total": 120.284042,
+          "harnessAnswers": 0.04904199999998582,
+          "cpu": {
+            "user": 126562,
+            "system": 651
+          },
+          "heapEndpoint": 49535848,
+          "rssEndpoint": 235257856,
+          "maxRssLifetime": 229744,
+          "B": 7,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 5
+          },
+          "obligations": 10
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 49.5970420000001,
+          "role": "measured",
+          "prepare": 5.9126249999999345,
+          "execute": 114.53033300000004,
+          "total": 120.44295799999998,
+          "harnessAnswers": 0.07879200000002129,
+          "cpu": {
+            "user": 135480,
+            "system": 739
+          },
+          "heapEndpoint": 43688888,
+          "rssEndpoint": 235274240,
+          "maxRssLifetime": 229760,
+          "B": 7,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 5
+          },
+          "obligations": 10
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "small",
+      "variant": "dense",
+      "depth": 1000,
+      "scenario": "local",
+      "mode": "official",
+      "historyForm": "chain",
+      "setupMs": 327.444792,
+      "S": 894,
+      "H": 1894,
+      "sHash": "eebbb7774fc5d4d719a85d4500a6b53fad9d128bf02b85f9a7e0b41bceb8621e",
+      "fixtureHash": "7adc331e1f02eb321f50bf85bd0e9f844dfd518c7b0fc8916f71c92da7ee7b24",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 76.52112499999998,
+          "role": "cold",
+          "prepare": 0.7584580000000187,
+          "execute": 242.827875,
+          "total": 243.58633300000002,
+          "harnessAnswers": 0.05624999999997726,
+          "cpu": {
+            "user": 302121,
+            "system": 6679
+          },
+          "heapEndpoint": 33034464,
+          "rssEndpoint": 232161280,
+          "maxRssLifetime": 226720,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 79.569792,
+          "role": "warmup",
+          "prepare": 0.12570800000003146,
+          "execute": 227.07462499999997,
+          "total": 227.200333,
+          "harnessAnswers": 0.05412499999999909,
+          "cpu": {
+            "user": 258648,
+            "system": 2167
+          },
+          "heapEndpoint": 45103592,
+          "rssEndpoint": 238206976,
+          "maxRssLifetime": 232624,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 74.70862499999987,
+          "role": "measured",
+          "prepare": 0.12083299999994779,
+          "execute": 230.4012499999999,
+          "total": 230.52208299999984,
+          "harnessAnswers": 0.053334000000177184,
+          "cpu": {
+            "user": 255114,
+            "system": 2245
+          },
+          "heapEndpoint": 105821744,
+          "rssEndpoint": 254230528,
+          "maxRssLifetime": 248272,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 75.58950000000004,
+          "role": "measured",
+          "prepare": 0.11337499999990541,
+          "execute": 228.20708400000012,
+          "total": 228.32045900000003,
+          "harnessAnswers": 0.05224999999995816,
+          "cpu": {
+            "user": 250485,
+            "system": 2223
+          },
+          "heapEndpoint": 105568704,
+          "rssEndpoint": 272433152,
+          "maxRssLifetime": 266048,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 75.8905830000001,
+          "role": "measured",
+          "prepare": 0.11158300000010968,
+          "execute": 224.03087500000015,
+          "total": 224.14245800000026,
+          "harnessAnswers": 0.06887499999993452,
+          "cpu": {
+            "user": 234254,
+            "system": 2302
+          },
+          "heapEndpoint": 110424248,
+          "rssEndpoint": 288833536,
+          "maxRssLifetime": 282064,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "small",
+      "variant": "dense",
+      "depth": 1000,
+      "scenario": "actuals",
+      "mode": "official",
+      "historyForm": "chain",
+      "setupMs": 324.081208,
+      "S": 894,
+      "H": 1894,
+      "sHash": "eebbb7774fc5d4d719a85d4500a6b53fad9d128bf02b85f9a7e0b41bceb8621e",
+      "fixtureHash": "7adc331e1f02eb321f50bf85bd0e9f844dfd518c7b0fc8916f71c92da7ee7b24",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 76.863541,
+          "role": "cold",
+          "prepare": 2.518875000000037,
+          "execute": 242.380291,
+          "total": 244.89916599999998,
+          "harnessAnswers": 0.06674999999995634,
+          "cpu": {
+            "user": 300822,
+            "system": 6030
+          },
+          "heapEndpoint": 33554776,
+          "rssEndpoint": 230506496,
+          "maxRssLifetime": 225104,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 77.86729200000002,
+          "role": "warmup",
+          "prepare": 1.7324579999999514,
+          "execute": 228.71779200000003,
+          "total": 230.45024999999998,
+          "harnessAnswers": 0.0550829999999678,
+          "cpu": {
+            "user": 262352,
+            "system": 2006
+          },
+          "heapEndpoint": 46288768,
+          "rssEndpoint": 238075904,
+          "maxRssLifetime": 232496,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 74.50545799999998,
+          "role": "measured",
+          "prepare": 1.6331250000000637,
+          "execute": 230.16991699999994,
+          "total": 231.803042,
+          "harnessAnswers": 0.055791999999883046,
+          "cpu": {
+            "user": 257132,
+            "system": 2253
+          },
+          "heapEndpoint": 108601824,
+          "rssEndpoint": 254050304,
+          "maxRssLifetime": 248096,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 74.787916,
+          "role": "measured",
+          "prepare": 1.5264999999999418,
+          "execute": 241.8269580000001,
+          "total": 243.35345800000005,
+          "harnessAnswers": 0.05908399999998437,
+          "cpu": {
+            "user": 281321,
+            "system": 1213
+          },
+          "heapEndpoint": 77686928,
+          "rssEndpoint": 262406144,
+          "maxRssLifetime": 256256,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 79.20279200000004,
+          "role": "measured",
+          "prepare": 1.6531669999999394,
+          "execute": 229.19920899999988,
+          "total": 230.85237599999982,
+          "harnessAnswers": 0.06991600000014841,
+          "cpu": {
+            "user": 241736,
+            "system": 1134
+          },
+          "heapEndpoint": 99135976,
+          "rssEndpoint": 262406144,
+          "maxRssLifetime": 256256,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "small",
+      "variant": "dense",
+      "depth": 1000,
+      "scenario": "boundary",
+      "mode": "official",
+      "historyForm": "chain",
+      "setupMs": 321.937667,
+      "S": 894,
+      "H": 1894,
+      "sHash": "eebbb7774fc5d4d719a85d4500a6b53fad9d128bf02b85f9a7e0b41bceb8621e",
+      "fixtureHash": "7adc331e1f02eb321f50bf85bd0e9f844dfd518c7b0fc8916f71c92da7ee7b24",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 76.96249999999998,
+          "role": "cold",
+          "prepare": 7.4732910000000174,
+          "execute": 241.56458400000002,
+          "total": 249.03787500000004,
+          "harnessAnswers": 0.07474999999999454,
+          "cpu": {
+            "user": 306746,
+            "system": 6644
+          },
+          "heapEndpoint": 57503016,
+          "rssEndpoint": 238125056,
+          "maxRssLifetime": 232544,
+          "B": 7,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 5
+          },
+          "obligations": 10
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 78.99029199999995,
+          "role": "warmup",
+          "prepare": 6.510083000000009,
+          "execute": 229.06770899999992,
+          "total": 235.57779199999993,
+          "harnessAnswers": 0.06212500000003729,
+          "cpu": {
+            "user": 267494,
+            "system": 1056
+          },
+          "heapEndpoint": 86011208,
+          "rssEndpoint": 240238592,
+          "maxRssLifetime": 234608,
+          "B": 7,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 5
+          },
+          "obligations": 10
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 76.95079200000009,
+          "role": "measured",
+          "prepare": 6.093458000000055,
+          "execute": 233.33529199999998,
+          "total": 239.42875000000004,
+          "harnessAnswers": 0.061291999999866675,
+          "cpu": {
+            "user": 267673,
+            "system": 2504
+          },
+          "heapEndpoint": 98402560,
+          "rssEndpoint": 258392064,
+          "maxRssLifetime": 252336,
+          "B": 7,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 5
+          },
+          "obligations": 10
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 77.27387500000009,
+          "role": "measured",
+          "prepare": 5.716499999999996,
+          "execute": 230.83820800000012,
+          "total": 236.55470800000012,
+          "harnessAnswers": 0.061208000000078755,
+          "cpu": {
+            "user": 258362,
+            "system": 1953
+          },
+          "heapEndpoint": 108132464,
+          "rssEndpoint": 275021824,
+          "maxRssLifetime": 268576,
+          "B": 7,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 5
+          },
+          "obligations": 10
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 76.44270899999992,
+          "role": "measured",
+          "prepare": 5.823708000000124,
+          "execute": 225.31454099999996,
+          "total": 231.1382490000001,
+          "harnessAnswers": 0.08454200000005585,
+          "cpu": {
+            "user": 243798,
+            "system": 2096
+          },
+          "heapEndpoint": 125602400,
+          "rssEndpoint": 291438592,
+          "maxRssLifetime": 284608,
+          "B": 7,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 5
+          },
+          "obligations": 10
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "medium",
+      "variant": "dense",
+      "depth": 0,
+      "scenario": "local",
+      "mode": "official",
+      "historyForm": "chain",
+      "setupMs": 10029.907167,
+      "S": 55404,
+      "H": 55404,
+      "sHash": "517c87091c8fd943f6d0ddf0af1cbea3cb633827b3aaead7a5c9b72b5df19c77",
+      "fixtureHash": "f938611ae418174af984bf10b23c8f51b23d78e8caeb3656217a4f8847d16559",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 19097.442791,
+          "role": "cold",
+          "prepare": 2.503540999998222,
+          "execute": 7199.111249999998,
+          "total": 7201.614790999996,
+          "harnessAnswers": 0.0626250000022992,
+          "cpu": {
+            "user": 8104949,
+            "system": 35805
+          },
+          "heapEndpoint": 630356320,
+          "rssEndpoint": 805568512,
+          "maxRssLifetime": 875744,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 19159.299708000006,
+          "role": "warmup",
+          "prepare": 1.8436670000010054,
+          "execute": 7128.846666999998,
+          "total": 7130.690333999999,
+          "harnessAnswers": 0.06362500000250293,
+          "cpu": {
+            "user": 8072664,
+            "system": 77143
+          },
+          "heapEndpoint": 705738016,
+          "rssEndpoint": 981762048,
+          "maxRssLifetime": 966848,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 18834.312500000007,
+          "role": "measured",
+          "prepare": 1.8891249999869615,
+          "execute": 7090.971709000005,
+          "total": 7092.860833999992,
+          "harnessAnswers": 0.06641600000148173,
+          "cpu": {
+            "user": 8000701,
+            "system": 34448
+          },
+          "heapEndpoint": 679652248,
+          "rssEndpoint": 985104384,
+          "maxRssLifetime": 973632,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 19747.105916999993,
+          "role": "measured",
+          "prepare": 1.847791000007419,
+          "execute": 7093.667249999999,
+          "total": 7095.515041000006,
+          "harnessAnswers": 0.07933399999456014,
+          "cpu": {
+            "user": 8027236,
+            "system": 34277
+          },
+          "heapEndpoint": 675789288,
+          "rssEndpoint": 987512832,
+          "maxRssLifetime": 973632,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 17727.45950000001,
+          "role": "measured",
+          "prepare": 1.9081670000159647,
+          "execute": 7084.406958000007,
+          "total": 7086.315125000023,
+          "harnessAnswers": 0.08079199999338016,
+          "cpu": {
+            "user": 7978762,
+            "system": 32220
+          },
+          "heapEndpoint": 743932728,
+          "rssEndpoint": 985399296,
+          "maxRssLifetime": 973632,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "medium",
+      "variant": "dense",
+      "depth": 0,
+      "scenario": "actuals",
+      "mode": "official",
+      "historyForm": "chain",
+      "setupMs": 10003.683625,
+      "S": 55404,
+      "H": 55404,
+      "sHash": "517c87091c8fd943f6d0ddf0af1cbea3cb633827b3aaead7a5c9b72b5df19c77",
+      "fixtureHash": "f938611ae418174af984bf10b23c8f51b23d78e8caeb3656217a4f8847d16559",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 21329.062707999998,
+          "role": "cold",
+          "prepare": 2217.809083999997,
+          "execute": 7191.830875,
+          "total": 9409.639958999993,
+          "harnessAnswers": 0.07695800000510644,
+          "cpu": {
+            "user": 10434680,
+            "system": 36468
+          },
+          "heapEndpoint": 624299112,
+          "rssEndpoint": 814186496,
+          "maxRssLifetime": 890064,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 18914.457334,
+          "role": "warmup",
+          "prepare": 2207.9768750000003,
+          "execute": 7208.544499999996,
+          "total": 9416.52137499999,
+          "harnessAnswers": 0.06499999999505235,
+          "cpu": {
+            "user": 10338215,
+            "system": 70089
+          },
+          "heapEndpoint": 704421192,
+          "rssEndpoint": 988413952,
+          "maxRssLifetime": 972016,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 19687.791958,
+          "role": "measured",
+          "prepare": 2221.390916000004,
+          "execute": 7152.42525,
+          "total": 9373.816166000004,
+          "harnessAnswers": 0.07233399999677204,
+          "cpu": {
+            "user": 10327210,
+            "system": 36231
+          },
+          "heapEndpoint": 689483616,
+          "rssEndpoint": 987856896,
+          "maxRssLifetime": 975104,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 19029.286332999996,
+          "role": "measured",
+          "prepare": 2215.639208000008,
+          "execute": 7192.824999999997,
+          "total": 9408.464208000005,
+          "harnessAnswers": 0.08433399999921676,
+          "cpu": {
+            "user": 10315391,
+            "system": 35950
+          },
+          "heapEndpoint": 693572320,
+          "rssEndpoint": 980942848,
+          "maxRssLifetime": 975104,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 18651.112374999997,
+          "role": "measured",
+          "prepare": 2284.133292000013,
+          "execute": 7158.584624999989,
+          "total": 9442.717917000002,
+          "harnessAnswers": 0.08541699999477714,
+          "cpu": {
+            "user": 10403857,
+            "system": 35973
+          },
+          "heapEndpoint": 688185288,
+          "rssEndpoint": 982188032,
+          "maxRssLifetime": 975104,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "medium",
+      "variant": "dense",
+      "depth": 0,
+      "scenario": "boundary",
+      "mode": "official",
+      "historyForm": "chain",
+      "setupMs": 10123.078584,
+      "S": 55404,
+      "H": 55404,
+      "sHash": "517c87091c8fd943f6d0ddf0af1cbea3cb633827b3aaead7a5c9b72b5df19c77",
+      "fixtureHash": "f938611ae418174af984bf10b23c8f51b23d78e8caeb3656217a4f8847d16559",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 20630.933167000003,
+          "role": "cold",
+          "prepare": 2991.710750000002,
+          "execute": 7196.526458,
+          "total": 10188.237208000006,
+          "harnessAnswers": 0.1047919999982696,
+          "cpu": {
+            "user": 11108852,
+            "system": 87912
+          },
+          "heapEndpoint": 463210256,
+          "rssEndpoint": 841105408,
+          "maxRssLifetime": 880256,
+          "B": 22,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "PTEC": 20,
+            "ActualPeriod": 1
+          },
+          "obligations": 38
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 18432.195417000003,
+          "role": "warmup",
+          "prepare": 2980.2928329999995,
+          "execute": 7214.356957999997,
+          "total": 10194.649790999996,
+          "harnessAnswers": 0.0695419999974547,
+          "cpu": {
+            "user": 11053533,
+            "system": 97639
+          },
+          "heapEndpoint": 690894672,
+          "rssEndpoint": 989118464,
+          "maxRssLifetime": 969408,
+          "B": 22,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "PTEC": 20,
+            "ActualPeriod": 1
+          },
+          "obligations": 38
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 17529.798500000004,
+          "role": "measured",
+          "prepare": 2989.1973750000034,
+          "execute": 7124.483749999999,
+          "total": 10113.681125000003,
+          "harnessAnswers": 0.08800000000337604,
+          "cpu": {
+            "user": 10988960,
+            "system": 76913
+          },
+          "heapEndpoint": 691034560,
+          "rssEndpoint": 988987392,
+          "maxRssLifetime": 1016240,
+          "B": 22,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "PTEC": 20,
+            "ActualPeriod": 1
+          },
+          "obligations": 38
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 17888.976167,
+          "role": "measured",
+          "prepare": 3007.3178340000013,
+          "execute": 7080.228541000004,
+          "total": 10087.546375000005,
+          "harnessAnswers": 0.08387499999662396,
+          "cpu": {
+            "user": 11044824,
+            "system": 68315
+          },
+          "heapEndpoint": 683329976,
+          "rssEndpoint": 990756864,
+          "maxRssLifetime": 1020208,
+          "B": 22,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "PTEC": 20,
+            "ActualPeriod": 1
+          },
+          "obligations": 38
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 17675.42691699999,
+          "role": "measured",
+          "prepare": 2973.364750000008,
+          "execute": 7118.7994160000235,
+          "total": 10092.164166000031,
+          "harnessAnswers": 0.08662499999627471,
+          "cpu": {
+            "user": 11021249,
+            "system": 71132
+          },
+          "heapEndpoint": 671953656,
+          "rssEndpoint": 982368256,
+          "maxRssLifetime": 1020208,
+          "B": 22,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "PTEC": 20,
+            "ActualPeriod": 1
+          },
+          "obligations": 38
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "medium",
+      "variant": "dense",
+      "depth": 1000,
+      "scenario": "local",
+      "mode": "official",
+      "historyForm": "chain",
+      "setupMs": 10328.776,
+      "S": 55404,
+      "H": 56404,
+      "sHash": "517c87091c8fd943f6d0ddf0af1cbea3cb633827b3aaead7a5c9b72b5df19c77",
+      "fixtureHash": "f938611ae418174af984bf10b23c8f51b23d78e8caeb3656217a4f8847d16559",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 21724.863708,
+          "role": "cold",
+          "prepare": 2.508624999998574,
+          "execute": 7199.454916999999,
+          "total": 7201.963541999994,
+          "harnessAnswers": 0.06616700000085984,
+          "cpu": {
+            "user": 8174777,
+            "system": 35748
+          },
+          "heapEndpoint": 632535152,
+          "rssEndpoint": 829915136,
+          "maxRssLifetime": 876080,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 19539.111666999997,
+          "role": "warmup",
+          "prepare": 1.8376250000001164,
+          "execute": 7324.4125420000055,
+          "total": 7326.250167000006,
+          "harnessAnswers": 0.06225000000267755,
+          "cpu": {
+            "user": 8397994,
+            "system": 62135
+          },
+          "heapEndpoint": 685579656,
+          "rssEndpoint": 950370304,
+          "maxRssLifetime": 938176,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 18164.179875,
+          "role": "measured",
+          "prepare": 1.9255830000038259,
+          "execute": 7206.623041999992,
+          "total": 7208.548624999996,
+          "harnessAnswers": 0.06841700000222772,
+          "cpu": {
+            "user": 8122759,
+            "system": 42015
+          },
+          "heapEndpoint": 663078120,
+          "rssEndpoint": 984219648,
+          "maxRssLifetime": 967568,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 18480.258875,
+          "role": "measured",
+          "prepare": 1.9469160000007832,
+          "execute": 7224.562667000006,
+          "total": 7226.509583000006,
+          "harnessAnswers": 0.0861670000012964,
+          "cpu": {
+            "user": 8322662,
+            "system": 39965
+          },
+          "heapEndpoint": 707622024,
+          "rssEndpoint": 956416000,
+          "maxRssLifetime": 967568,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 17835.038541999995,
+          "role": "measured",
+          "prepare": 1.9165419999917503,
+          "execute": 7218.154124999972,
+          "total": 7220.070666999964,
+          "harnessAnswers": 0.08300000001327135,
+          "cpu": {
+            "user": 8089800,
+            "system": 37690
+          },
+          "heapEndpoint": 704841064,
+          "rssEndpoint": 986775552,
+          "maxRssLifetime": 973840,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "medium",
+      "variant": "dense",
+      "depth": 1000,
+      "scenario": "actuals",
+      "mode": "official",
+      "historyForm": "chain",
+      "setupMs": 10239.583583000001,
+      "S": 55404,
+      "H": 56404,
+      "sHash": "517c87091c8fd943f6d0ddf0af1cbea3cb633827b3aaead7a5c9b72b5df19c77",
+      "fixtureHash": "f938611ae418174af984bf10b23c8f51b23d78e8caeb3656217a4f8847d16559",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 22366.323333,
+          "role": "cold",
+          "prepare": 2213.505000000001,
+          "execute": 7316.915291999998,
+          "total": 9530.420291999995,
+          "harnessAnswers": 0.07920800000283634,
+          "cpu": {
+            "user": 10526124,
+            "system": 37367
+          },
+          "heapEndpoint": 581724224,
+          "rssEndpoint": 825950208,
+          "maxRssLifetime": 894160,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 18453.897459,
+          "role": "warmup",
+          "prepare": 2240.1933340000032,
+          "execute": 7405.615708000005,
+          "total": 9645.809042,
+          "harnessAnswers": 0.06999999999970896,
+          "cpu": {
+            "user": 10502188,
+            "system": 57804
+          },
+          "heapEndpoint": 705150720,
+          "rssEndpoint": 1006436352,
+          "maxRssLifetime": 988672,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 19403.781124999994,
+          "role": "measured",
+          "prepare": 2203.693041999999,
+          "execute": 7385.682832999999,
+          "total": 9589.375874999998,
+          "harnessAnswers": 0.09187499999825377,
+          "cpu": {
+            "user": 10590678,
+            "system": 38070
+          },
+          "heapEndpoint": 704582696,
+          "rssEndpoint": 1005043712,
+          "maxRssLifetime": 990528,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 19522.362917000006,
+          "role": "measured",
+          "prepare": 2226.567790999994,
+          "execute": 7309.532540999993,
+          "total": 9536.100331999987,
+          "harnessAnswers": 0.0785840000025928,
+          "cpu": {
+            "user": 10476634,
+            "system": 37906
+          },
+          "heapEndpoint": 671295792,
+          "rssEndpoint": 1001586688,
+          "maxRssLifetime": 990528,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 19636.527291000006,
+          "role": "measured",
+          "prepare": 2219.3483330000017,
+          "execute": 7359.192125000001,
+          "total": 9578.540458000003,
+          "harnessAnswers": 0.08529200000339188,
+          "cpu": {
+            "user": 10491350,
+            "system": 33929
+          },
+          "heapEndpoint": 682999056,
+          "rssEndpoint": 1002307584,
+          "maxRssLifetime": 990528,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "medium",
+      "variant": "dense",
+      "depth": 1000,
+      "scenario": "boundary",
+      "mode": "official",
+      "historyForm": "chain",
+      "setupMs": 10262.304,
+      "S": 55404,
+      "H": 56404,
+      "sHash": "517c87091c8fd943f6d0ddf0af1cbea3cb633827b3aaead7a5c9b72b5df19c77",
+      "fixtureHash": "f938611ae418174af984bf10b23c8f51b23d78e8caeb3656217a4f8847d16559",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 20905.335417000002,
+          "role": "cold",
+          "prepare": 2970.277666000002,
+          "execute": 7268.844458,
+          "total": 10239.122124000001,
+          "harnessAnswers": 0.09379199999966659,
+          "cpu": {
+            "user": 11132391,
+            "system": 74994
+          },
+          "heapEndpoint": 445543464,
+          "rssEndpoint": 864960512,
+          "maxRssLifetime": 946224,
+          "B": 22,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "PTEC": 20,
+            "ActualPeriod": 1
+          },
+          "obligations": 38
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 18047.148499999996,
+          "role": "warmup",
+          "prepare": 2997.538459000003,
+          "execute": 7230.058875000002,
+          "total": 10227.597334000006,
+          "harnessAnswers": 0.07412499999918509,
+          "cpu": {
+            "user": 11194788,
+            "system": 117032
+          },
+          "heapEndpoint": 646973664,
+          "rssEndpoint": 987791360,
+          "maxRssLifetime": 972064,
+          "B": 22,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "PTEC": 20,
+            "ActualPeriod": 1
+          },
+          "obligations": 38
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 19170.279500000004,
+          "role": "measured",
+          "prepare": 2994.0111250000045,
+          "execute": 7198.065833000001,
+          "total": 10192.076958000005,
+          "harnessAnswers": 0.07212499999150168,
+          "cpu": {
+            "user": 11118099,
+            "system": 76704
+          },
+          "heapEndpoint": 681504992,
+          "rssEndpoint": 985677824,
+          "maxRssLifetime": 1018640,
+          "B": 22,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "PTEC": 20,
+            "ActualPeriod": 1
+          },
+          "obligations": 38
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 19105.306375,
+          "role": "measured",
+          "prepare": 2991.150833000007,
+          "execute": 7273.445374999996,
+          "total": 10264.596208000003,
+          "harnessAnswers": 0.07850000000325963,
+          "cpu": {
+            "user": 11300156,
+            "system": 70781
+          },
+          "heapEndpoint": 670760600,
+          "rssEndpoint": 986185728,
+          "maxRssLifetime": 1031424,
+          "B": 22,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "PTEC": 20,
+            "ActualPeriod": 1
+          },
+          "obligations": 38
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 19588.295457999993,
+          "role": "measured",
+          "prepare": 3001.10379199998,
+          "execute": 7172.564041999984,
+          "total": 10173.667833999963,
+          "harnessAnswers": 0.08633300001383759,
+          "cpu": {
+            "user": 11147507,
+            "system": 74301
+          },
+          "heapEndpoint": 660003096,
+          "rssEndpoint": 986693632,
+          "maxRssLifetime": 1031424,
+          "B": 22,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "PTEC": 20,
+            "ActualPeriod": 1
+          },
+          "obligations": 38
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "medium",
+      "variant": "sparse",
+      "depth": 0,
+      "scenario": "local",
+      "mode": "official",
+      "historyForm": "chain",
+      "setupMs": 1625.125208,
+      "S": 8604,
+      "H": 8604,
+      "sHash": "70e6437315e352edc54f1db4320182f6d9b712d7e3ad72f50af3b9e3674bf538",
+      "fixtureHash": "87dd085a7c6991c5a11bf6d2706a9ef2492822f284d819709c1cc24baaba9aa9",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 847.423667,
+          "role": "cold",
+          "prepare": 1.2032079999999041,
+          "execute": 1145.154375,
+          "total": 1146.357583,
+          "harnessAnswers": 0.0593749999998181,
+          "cpu": {
+            "user": 1327609,
+            "system": 8471
+          },
+          "heapEndpoint": 154423536,
+          "rssEndpoint": 344768512,
+          "maxRssLifetime": 351456,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 704.0910829999998,
+          "role": "warmup",
+          "prepare": 0.3794580000003407,
+          "execute": 1138.3494169999994,
+          "total": 1138.7288749999998,
+          "harnessAnswers": 0.056916999999884865,
+          "cpu": {
+            "user": 1269411,
+            "system": 10206
+          },
+          "heapEndpoint": 137765584,
+          "rssEndpoint": 380174336,
+          "maxRssLifetime": 371504,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 713.5579170000001,
+          "role": "measured",
+          "prepare": 0.3524999999999636,
+          "execute": 1144.8084589999999,
+          "total": 1145.1609589999998,
+          "harnessAnswers": 0.05479100000047765,
+          "cpu": {
+            "user": 1243644,
+            "system": 6375
+          },
+          "heapEndpoint": 136825464,
+          "rssEndpoint": 394297344,
+          "maxRssLifetime": 385824,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 707.7421249999998,
+          "role": "measured",
+          "prepare": 0.4078330000002097,
+          "execute": 1131.1035420000007,
+          "total": 1131.511375,
+          "harnessAnswers": 0.06362499999977445,
+          "cpu": {
+            "user": 1282248,
+            "system": 4973
+          },
+          "heapEndpoint": 124457416,
+          "rssEndpoint": 395870208,
+          "maxRssLifetime": 387376,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 709.2946250000005,
+          "role": "measured",
+          "prepare": 0.36708400000134134,
+          "execute": 1130.7073340000006,
+          "total": 1131.074418000002,
+          "harnessAnswers": 0.0691659999993135,
+          "cpu": {
+            "user": 1239445,
+            "system": 4875
+          },
+          "heapEndpoint": 112396640,
+          "rssEndpoint": 398983168,
+          "maxRssLifetime": 390432,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "medium",
+      "variant": "sparse",
+      "depth": 0,
+      "scenario": "actuals",
+      "mode": "official",
+      "historyForm": "chain",
+      "setupMs": 1597.166125,
+      "S": 8604,
+      "H": 8604,
+      "sHash": "70e6437315e352edc54f1db4320182f6d9b712d7e3ad72f50af3b9e3674bf538",
+      "fixtureHash": "87dd085a7c6991c5a11bf6d2706a9ef2492822f284d819709c1cc24baaba9aa9",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 835.5432079999998,
+          "role": "cold",
+          "prepare": 52.51995799999986,
+          "execute": 1131.682792,
+          "total": 1184.20275,
+          "harnessAnswers": 0.07245800000009694,
+          "cpu": {
+            "user": 1368199,
+            "system": 7979
+          },
+          "heapEndpoint": 155287136,
+          "rssEndpoint": 346193920,
+          "maxRssLifetime": 351792,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 704.5712910000002,
+          "role": "warmup",
+          "prepare": 51.748333999999886,
+          "execute": 1136.1245829999998,
+          "total": 1187.8729169999997,
+          "harnessAnswers": 0.059208000000580796,
+          "cpu": {
+            "user": 1329257,
+            "system": 9402
+          },
+          "heapEndpoint": 129678424,
+          "rssEndpoint": 380764160,
+          "maxRssLifetime": 372320,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 709.6480000000001,
+          "role": "measured",
+          "prepare": 51.080542000000605,
+          "execute": 1123.9769580000002,
+          "total": 1175.0575000000008,
+          "harnessAnswers": 0.06129199999941193,
+          "cpu": {
+            "user": 1313081,
+            "system": 8006
+          },
+          "heapEndpoint": 167707352,
+          "rssEndpoint": 395542528,
+          "maxRssLifetime": 386992,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 713.863875,
+          "role": "measured",
+          "prepare": 51.06958300000042,
+          "execute": 1135.5714159999998,
+          "total": 1186.6409990000002,
+          "harnessAnswers": 0.07433399999990797,
+          "cpu": {
+            "user": 1330810,
+            "system": 4632
+          },
+          "heapEndpoint": 132460208,
+          "rssEndpoint": 395591680,
+          "maxRssLifetime": 387328,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 740.0548749999998,
+          "role": "measured",
+          "prepare": 51.68812500000058,
+          "execute": 1137.9778750000005,
+          "total": 1189.666000000001,
+          "harnessAnswers": 0.07462499999928696,
+          "cpu": {
+            "user": 1315591,
+            "system": 4967
+          },
+          "heapEndpoint": 120558792,
+          "rssEndpoint": 396181504,
+          "maxRssLifetime": 387328,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "medium",
+      "variant": "sparse",
+      "depth": 0,
+      "scenario": "boundary",
+      "mode": "official",
+      "historyForm": "chain",
+      "setupMs": 1600.147583,
+      "S": 8604,
+      "H": 8604,
+      "sHash": "70e6437315e352edc54f1db4320182f6d9b712d7e3ad72f50af3b9e3674bf538",
+      "fixtureHash": "87dd085a7c6991c5a11bf6d2706a9ef2492822f284d819709c1cc24baaba9aa9",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 842.8745419999998,
+          "role": "cold",
+          "prepare": 72.08620799999971,
+          "execute": 1150.196125,
+          "total": 1222.2823329999997,
+          "harnessAnswers": 0.0779170000000704,
+          "cpu": {
+            "user": 1408504,
+            "system": 8617
+          },
+          "heapEndpoint": 154056992,
+          "rssEndpoint": 347914240,
+          "maxRssLifetime": 352048,
+          "B": 4,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 2
+          },
+          "obligations": 4
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 711.9999580000003,
+          "role": "warmup",
+          "prepare": 79.89437499999985,
+          "execute": 1154.5302080000001,
+          "total": 1234.424583,
+          "harnessAnswers": 0.08516700000018318,
+          "cpu": {
+            "user": 1372177,
+            "system": 10897
+          },
+          "heapEndpoint": 144988600,
+          "rssEndpoint": 387809280,
+          "maxRssLifetime": 379968,
+          "B": 4,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 2
+          },
+          "obligations": 4
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 727.8036249999996,
+          "role": "measured",
+          "prepare": 71.17958400000043,
+          "execute": 1152.8802500000002,
+          "total": 1224.0598340000006,
+          "harnessAnswers": 0.06254100000023755,
+          "cpu": {
+            "user": 1333266,
+            "system": 8037
+          },
+          "heapEndpoint": 122525304,
+          "rssEndpoint": 406683648,
+          "maxRssLifetime": 397552,
+          "B": 4,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 2
+          },
+          "obligations": 4
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 712.3046250000007,
+          "role": "measured",
+          "prepare": 73.2820840000004,
+          "execute": 1152.6294159999998,
+          "total": 1225.9115000000002,
+          "harnessAnswers": 0.06287499999962165,
+          "cpu": {
+            "user": 1378256,
+            "system": 5602
+          },
+          "heapEndpoint": 104817616,
+          "rssEndpoint": 413319168,
+          "maxRssLifetime": 404112,
+          "B": 4,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 2
+          },
+          "obligations": 4
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 712.1260829999992,
+          "role": "measured",
+          "prepare": 71.42312500000116,
+          "execute": 1140.8793749999986,
+          "total": 1212.3024999999998,
+          "harnessAnswers": 0.06674999999995634,
+          "cpu": {
+            "user": 1344335,
+            "system": 4875
+          },
+          "heapEndpoint": 101706088,
+          "rssEndpoint": 413450240,
+          "maxRssLifetime": 405280,
+          "B": 4,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 2
+          },
+          "obligations": 4
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "medium",
+      "variant": "sparse",
+      "depth": 1000,
+      "scenario": "local",
+      "mode": "official",
+      "historyForm": "chain",
+      "setupMs": 1743.513834,
+      "S": 8604,
+      "H": 9604,
+      "sHash": "70e6437315e352edc54f1db4320182f6d9b712d7e3ad72f50af3b9e3674bf538",
+      "fixtureHash": "87dd085a7c6991c5a11bf6d2706a9ef2492822f284d819709c1cc24baaba9aa9",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 906.7137919999998,
+          "role": "cold",
+          "prepare": 1.026459000000159,
+          "execute": 1253.06075,
+          "total": 1254.0872090000003,
+          "harnessAnswers": 0.062207999999827734,
+          "cpu": {
+            "user": 1429393,
+            "system": 11278
+          },
+          "heapEndpoint": 130323496,
+          "rssEndpoint": 377864192,
+          "maxRssLifetime": 387328,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 763.5295839999999,
+          "role": "warmup",
+          "prepare": 0.381375000000844,
+          "execute": 1254.3829159999996,
+          "total": 1254.7642910000004,
+          "harnessAnswers": 0.05295899999964604,
+          "cpu": {
+            "user": 1380614,
+            "system": 5538
+          },
+          "heapEndpoint": 169863248,
+          "rssEndpoint": 380174336,
+          "maxRssLifetime": 387328,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 765.9747079999997,
+          "role": "measured",
+          "prepare": 0.3556669999998121,
+          "execute": 1244.6322499999997,
+          "total": 1244.9879169999995,
+          "harnessAnswers": 0.060042000000066764,
+          "cpu": {
+            "user": 1410541,
+            "system": 7264
+          },
+          "heapEndpoint": 111587864,
+          "rssEndpoint": 398802944,
+          "maxRssLifetime": 390016,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 761.5535,
+          "role": "measured",
+          "prepare": 0.41529199999968114,
+          "execute": 1246.3122089999997,
+          "total": 1246.7275009999994,
+          "harnessAnswers": 0.06420799999978044,
+          "cpu": {
+            "user": 1382478,
+            "system": 4729
+          },
+          "heapEndpoint": 149935544,
+          "rssEndpoint": 399458304,
+          "maxRssLifetime": 390576,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 758.7063749999998,
+          "role": "measured",
+          "prepare": 0.36762500000077125,
+          "execute": 1257.4534999999996,
+          "total": 1257.8211250000004,
+          "harnessAnswers": 0.0667909999992844,
+          "cpu": {
+            "user": 1385943,
+            "system": 5791
+          },
+          "heapEndpoint": 179623896,
+          "rssEndpoint": 406192128,
+          "maxRssLifetime": 396912,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "medium",
+      "variant": "sparse",
+      "depth": 1000,
+      "scenario": "actuals",
+      "mode": "official",
+      "historyForm": "chain",
+      "setupMs": 1765.262333,
+      "S": 8604,
+      "H": 9604,
+      "sHash": "70e6437315e352edc54f1db4320182f6d9b712d7e3ad72f50af3b9e3674bf538",
+      "fixtureHash": "87dd085a7c6991c5a11bf6d2706a9ef2492822f284d819709c1cc24baaba9aa9",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 907.9227080000001,
+          "role": "cold",
+          "prepare": 52.88416700000016,
+          "execute": 1278.5629159999999,
+          "total": 1331.447083,
+          "harnessAnswers": 0.07191700000021228,
+          "cpu": {
+            "user": 1519340,
+            "system": 8831
+          },
+          "heapEndpoint": 135695168,
+          "rssEndpoint": 365641728,
+          "maxRssLifetime": 357312,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 775.8375419999998,
+          "role": "warmup",
+          "prepare": 51.753208999999515,
+          "execute": 1276.155167,
+          "total": 1327.9083759999994,
+          "harnessAnswers": 0.05983300000025338,
+          "cpu": {
+            "user": 1484141,
+            "system": 8381
+          },
+          "heapEndpoint": 150889912,
+          "rssEndpoint": 382484480,
+          "maxRssLifetime": 374080,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 782.9587089999995,
+          "role": "measured",
+          "prepare": 52.093415999999706,
+          "execute": 1267.3803340000004,
+          "total": 1319.47375,
+          "harnessAnswers": 0.06387499999982538,
+          "cpu": {
+            "user": 1468811,
+            "system": 5974
+          },
+          "heapEndpoint": 178072088,
+          "rssEndpoint": 391970816,
+          "maxRssLifetime": 382784,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 768.8445830000001,
+          "role": "measured",
+          "prepare": 51.241667000000234,
+          "execute": 1280.5846669999992,
+          "total": 1331.8263339999994,
+          "harnessAnswers": 0.06149999999979627,
+          "cpu": {
+            "user": 1472910,
+            "system": 7427
+          },
+          "heapEndpoint": 144011992,
+          "rssEndpoint": 406650880,
+          "maxRssLifetime": 397600,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 778.274374999999,
+          "role": "measured",
+          "prepare": 51.851166999998895,
+          "execute": 1264.9772090000006,
+          "total": 1316.8283759999995,
+          "harnessAnswers": 0.07504100000005565,
+          "cpu": {
+            "user": 1444274,
+            "system": 6024
+          },
+          "heapEndpoint": 141727392,
+          "rssEndpoint": 411189248,
+          "maxRssLifetime": 401552,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "medium",
+      "variant": "sparse",
+      "depth": 1000,
+      "scenario": "boundary",
+      "mode": "official",
+      "historyForm": "chain",
+      "setupMs": 1750.2978329999999,
+      "S": 8604,
+      "H": 9604,
+      "sHash": "70e6437315e352edc54f1db4320182f6d9b712d7e3ad72f50af3b9e3674bf538",
+      "fixtureHash": "87dd085a7c6991c5a11bf6d2706a9ef2492822f284d819709c1cc24baaba9aa9",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 904.2518750000002,
+          "role": "cold",
+          "prepare": 74.36745900000005,
+          "execute": 1268.4645419999997,
+          "total": 1342.8320009999998,
+          "harnessAnswers": 0.0783329999999296,
+          "cpu": {
+            "user": 1524105,
+            "system": 13934
+          },
+          "heapEndpoint": 152063000,
+          "rssEndpoint": 384630784,
+          "maxRssLifetime": 386512,
+          "B": 4,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 2
+          },
+          "obligations": 4
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 765.1863330000001,
+          "role": "warmup",
+          "prepare": 71.36862500000007,
+          "execute": 1261.7098339999993,
+          "total": 1333.0784589999994,
+          "harnessAnswers": 0.05812500000047294,
+          "cpu": {
+            "user": 1467568,
+            "system": 6290
+          },
+          "heapEndpoint": 155031488,
+          "rssEndpoint": 383483904,
+          "maxRssLifetime": 386512,
+          "B": 4,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 2
+          },
+          "obligations": 4
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 768.3020000000006,
+          "role": "measured",
+          "prepare": 71.33375000000069,
+          "execute": 1268.542625000001,
+          "total": 1339.8763750000026,
+          "harnessAnswers": 0.06054199999925913,
+          "cpu": {
+            "user": 1495195,
+            "system": 7725
+          },
+          "heapEndpoint": 175330544,
+          "rssEndpoint": 405241856,
+          "maxRssLifetime": 395744,
+          "B": 4,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 2
+          },
+          "obligations": 4
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 775.255000000001,
+          "role": "measured",
+          "prepare": 71.62870800000019,
+          "execute": 1258.0731250000008,
+          "total": 1329.701833000001,
+          "harnessAnswers": 0.06495799999902374,
+          "cpu": {
+            "user": 1479013,
+            "system": 5379
+          },
+          "heapEndpoint": 133998768,
+          "rssEndpoint": 405929984,
+          "maxRssLifetime": 397728,
+          "B": 4,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 2
+          },
+          "obligations": 4
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 785.4040420000001,
+          "role": "measured",
+          "prepare": 71.53079100000105,
+          "execute": 1267.662459000001,
+          "total": 1339.193250000002,
+          "harnessAnswers": 0.07512499999938882,
+          "cpu": {
+            "user": 1478853,
+            "system": 5167
+          },
+          "heapEndpoint": 174913248,
+          "rssEndpoint": 406159360,
+          "maxRssLifetime": 397728,
+          "B": 4,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 2
+          },
+          "obligations": 4
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "small",
+      "variant": "dense",
+      "depth": 0,
+      "scenario": "local",
+      "mode": "instrumented",
+      "historyForm": "chain",
+      "setupMs": 185.607542,
+      "S": 894,
+      "H": 894,
+      "sHash": "eebbb7774fc5d4d719a85d4500a6b53fad9d128bf02b85f9a7e0b41bceb8621e",
+      "fixtureHash": "7adc331e1f02eb321f50bf85bd0e9f844dfd518c7b0fc8916f71c92da7ee7b24",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 50.75812500000001,
+          "role": "cold",
+          "prepare": 0.7763750000000016,
+          "execute": 111.47154200000003,
+          "total": 112.24791700000006,
+          "harnessAnswers": 0.05770799999999099,
+          "E1": 0.10883300000000418,
+          "E2": 0.7382090000000119,
+          "E4": 0.15279199999997672,
+          "E5": 58.22195800000003,
+          "E6": 52.743291,
+          "E7": 0.04904199999998582,
+          "E5-REGISTRY": 46.303582999999946,
+          "E5-MANIFEST": 8.59533300000004,
+          "E5-EXTRACTION": 3.320625000000007,
+          "E3": 0.23379200000002243,
+          "cpu": {
+            "user": 148665,
+            "system": 2685
+          },
+          "heapEndpoint": 29918384,
+          "rssEndpoint": 152387584,
+          "maxRssLifetime": 148816,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 47.07341600000001,
+          "role": "warmup",
+          "prepare": 0.14987500000000864,
+          "execute": 109.64845900000006,
+          "total": 109.79833400000012,
+          "harnessAnswers": 0.05158299999999372,
+          "E1": 0.012875000000008185,
+          "E2": 0.14125000000001364,
+          "E4": 0.052874999999971806,
+          "E5": 55.20862500000004,
+          "E6": 54.36058299999996,
+          "E7": 0.010499999999979082,
+          "E5-REGISTRY": 43.91479199999998,
+          "E5-MANIFEST": 8.14345800000001,
+          "E5-EXTRACTION": 3.148832999999968,
+          "E3": 0.011626000000092063,
+          "cpu": {
+            "user": 113689,
+            "system": 3542
+          },
+          "heapEndpoint": 37793072,
+          "rssEndpoint": 167116800,
+          "maxRssLifetime": 163200,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 51.18516599999998,
+          "role": "measured",
+          "prepare": 0.11729200000002038,
+          "execute": 110.97404199999994,
+          "total": 111.09133399999996,
+          "harnessAnswers": 0.047166000000061103,
+          "E1": 0.013208999999960724,
+          "E2": 0.10804099999995742,
+          "E4": 0.045834000000013475,
+          "E5": 55.766000000000076,
+          "E6": 55.140625,
+          "E7": 0.007792000000108601,
+          "E5-REGISTRY": 44.17066699999998,
+          "E5-MANIFEST": 8.684375000000045,
+          "E5-EXTRACTION": 2.909332999999947,
+          "E3": 0.009832999999844105,
+          "cpu": {
+            "user": 148351,
+            "system": 1761
+          },
+          "heapEndpoint": 20334296,
+          "rssEndpoint": 233308160,
+          "maxRssLifetime": 227952,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 49.17108300000007,
+          "role": "measured",
+          "prepare": 0.11574999999993452,
+          "execute": 106.60125000000005,
+          "total": 106.71699999999998,
+          "harnessAnswers": 0.052290999999968335,
+          "E1": 0.011915999999928317,
+          "E2": 0.10720900000001166,
+          "E4": 0.049624999999991815,
+          "E5": 55.36291700000004,
+          "E6": 51.168750000000045,
+          "E7": 0.006457999999952335,
+          "E5-REGISTRY": 43.56624999999997,
+          "E5-MANIFEST": 8.433332999999948,
+          "E5-EXTRACTION": 3.360832999999957,
+          "E3": 0.010125000000016371,
+          "cpu": {
+            "user": 127977,
+            "system": 656
+          },
+          "heapEndpoint": 50528032,
+          "rssEndpoint": 233603072,
+          "maxRssLifetime": 228128,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 45.97158400000001,
+          "role": "measured",
+          "prepare": 0.10854200000005676,
+          "execute": 105.22216700000001,
+          "total": 105.33070900000007,
+          "harnessAnswers": 0.05783299999995961,
+          "E1": 0.011209000000008018,
+          "E2": 0.10075000000006185,
+          "E4": 0.044541000000094755,
+          "E5": 54.220792000000074,
+          "E6": 50.93708400000003,
+          "E7": 0.007749999999987267,
+          "E5-REGISTRY": 43.01516700000002,
+          "E5-MANIFEST": 8.399042000000009,
+          "E5-EXTRACTION": 2.804583999999977,
+          "E3": 0.00858299999981682,
+          "cpu": {
+            "user": 109788,
+            "system": 558
+          },
+          "heapEndpoint": 66056840,
+          "rssEndpoint": 233603072,
+          "maxRssLifetime": 228128,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "small",
+      "variant": "dense",
+      "depth": 0,
+      "scenario": "actuals",
+      "mode": "instrumented",
+      "historyForm": "chain",
+      "setupMs": 189.186333,
+      "S": 894,
+      "H": 894,
+      "sHash": "eebbb7774fc5d4d719a85d4500a6b53fad9d128bf02b85f9a7e0b41bceb8621e",
+      "fixtureHash": "7adc331e1f02eb321f50bf85bd0e9f844dfd518c7b0fc8916f71c92da7ee7b24",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 52.599624999999975,
+          "role": "cold",
+          "prepare": 2.6274170000000368,
+          "execute": 111.31824999999998,
+          "total": 113.94566700000001,
+          "harnessAnswers": 0.06529199999999946,
+          "E1": 0.281750000000045,
+          "E2": 2.519584000000009,
+          "E4": 0.13958400000001348,
+          "E5": 58.67504200000002,
+          "E6": 52.09104100000002,
+          "E7": 0.04637500000001182,
+          "E5-REGISTRY": 46.764542000000006,
+          "E5-MANIFEST": 8.590666999999996,
+          "E5-EXTRACTION": 3.3175410000000056,
+          "E3": 0.19229099999989785,
+          "cpu": {
+            "user": 153666,
+            "system": 3027
+          },
+          "heapEndpoint": 30447952,
+          "rssEndpoint": 153583616,
+          "maxRssLifetime": 149984,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 46.93291700000003,
+          "role": "warmup",
+          "prepare": 1.615583000000015,
+          "execute": 107.08812500000005,
+          "total": 108.70370800000006,
+          "harnessAnswers": 0.05525000000000091,
+          "E1": 0.04408300000000054,
+          "E2": 1.6492090000000417,
+          "E4": 0.04233299999998508,
+          "E5": 55.216791,
+          "E6": 51.72929199999993,
+          "E7": 0.008125000000063665,
+          "E5-REGISTRY": 43.67591700000003,
+          "E5-MANIFEST": 8.718416999999988,
+          "E5-EXTRACTION": 2.8204580000000306,
+          "E3": 0.013875000000041382,
+          "cpu": {
+            "user": 114371,
+            "system": 1450
+          },
+          "heapEndpoint": 38869104,
+          "rssEndpoint": 161873920,
+          "maxRssLifetime": 158080,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 52.86908299999993,
+          "role": "measured",
+          "prepare": 1.5909580000000005,
+          "execute": 109.22416700000008,
+          "total": 110.81512500000008,
+          "harnessAnswers": 0.05124999999998181,
+          "E1": 0.05829100000005383,
+          "E2": 1.6184169999999085,
+          "E4": 0.046542000000044936,
+          "E5": 54.68283399999996,
+          "E6": 54.38958400000001,
+          "E7": 0.007416000000034728,
+          "E5-REGISTRY": 43.71029199999998,
+          "E5-MANIFEST": 8.117666999999983,
+          "E5-EXTRACTION": 2.853582999999958,
+          "E3": 0.01204100000006747,
+          "cpu": {
+            "user": 146170,
+            "system": 1375
+          },
+          "heapEndpoint": 59142488,
+          "rssEndpoint": 234012672,
+          "maxRssLifetime": 228640,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 49.56395800000007,
+          "role": "measured",
+          "prepare": 1.7818750000000136,
+          "execute": 105.6678750000001,
+          "total": 107.44975000000011,
+          "harnessAnswers": 0.05087499999990541,
+          "E1": 0.041917000000012195,
+          "E2": 1.8158329999999978,
+          "E4": 0.04204200000003766,
+          "E5": 54.18370799999991,
+          "E6": 51.346374999999966,
+          "E7": 0.006500000000073669,
+          "E5-REGISTRY": 43.172459,
+          "E5-MANIFEST": 8.160333000000037,
+          "E5-EXTRACTION": 2.849542000000042,
+          "E3": 0.013375000000110049,
+          "cpu": {
+            "user": 118515,
+            "system": 501
+          },
+          "heapEndpoint": 20982888,
+          "rssEndpoint": 234389504,
+          "maxRssLifetime": 228896,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 45.20304199999998,
+          "role": "measured",
+          "prepare": 1.5954169999999976,
+          "execute": 105.12545899999998,
+          "total": 106.72087599999998,
+          "harnessAnswers": 0.06316600000002381,
+          "E1": 0.04045800000005784,
+          "E2": 1.6196259999999256,
+          "E4": 0.03662499999995816,
+          "E5": 53.930417000000034,
+          "E6": 51.075541000000044,
+          "E7": 0.006958999999937987,
+          "E5-REGISTRY": 42.994958,
+          "E5-MANIFEST": 8.107041999999979,
+          "E5-EXTRACTION": 2.8269579999999905,
+          "E3": 0.01125000000001819,
+          "cpu": {
+            "user": 112417,
+            "system": 487
+          },
+          "heapEndpoint": 40273128,
+          "rssEndpoint": 234389504,
+          "maxRssLifetime": 228896,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "small",
+      "variant": "dense",
+      "depth": 0,
+      "scenario": "boundary",
+      "mode": "instrumented",
+      "historyForm": "chain",
+      "setupMs": 176.874416,
+      "S": 894,
+      "H": 894,
+      "sHash": "eebbb7774fc5d4d719a85d4500a6b53fad9d128bf02b85f9a7e0b41bceb8621e",
+      "fixtureHash": "7adc331e1f02eb321f50bf85bd0e9f844dfd518c7b0fc8916f71c92da7ee7b24",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 52.813334,
+          "role": "cold",
+          "prepare": 8.072792000000021,
+          "execute": 114.069166,
+          "total": 122.14195799999999,
+          "harnessAnswers": 0.07804199999998218,
+          "E1": 0.44120800000001736,
+          "E2": 8.095541999999995,
+          "E4": 0.6310000000000286,
+          "E5": 59.76125000000002,
+          "E6": 52.95195899999999,
+          "E7": 0.050957999999980075,
+          "E5-REGISTRY": 47.70799999999997,
+          "E5-MANIFEST": 8.740374999999972,
+          "E5-EXTRACTION": 3.310541999999998,
+          "E3": 0.2100409999999897,
+          "cpu": {
+            "user": 162610,
+            "system": 3453
+          },
+          "heapEndpoint": 31594472,
+          "rssEndpoint": 152944640,
+          "maxRssLifetime": 149360,
+          "B": 7,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 5
+          },
+          "obligations": 10
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 47.229625,
+          "role": "warmup",
+          "prepare": 6.072917000000018,
+          "execute": 107.76341699999995,
+          "total": 113.83633399999991,
+          "harnessAnswers": 0.04862500000001546,
+          "E1": 0.15379200000006676,
+          "E2": 6.162499999999909,
+          "E4": 0.36308300000001736,
+          "E5": 55.47000000000003,
+          "E6": 51.65229199999999,
+          "E7": 0.009833000000071479,
+          "E5-REGISTRY": 44.22779099999997,
+          "E5-MANIFEST": 8.366792000000032,
+          "E5-EXTRACTION": 2.873209000000031,
+          "E3": 0.02483399999988478,
+          "cpu": {
+            "user": 121285,
+            "system": 1197
+          },
+          "heapEndpoint": 51678880,
+          "rssEndpoint": 161431552,
+          "maxRssLifetime": 157648,
+          "B": 7,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 5
+          },
+          "obligations": 10
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 51.97304200000008,
+          "role": "measured",
+          "prepare": 5.859459000000015,
+          "execute": 110.86916699999995,
+          "total": 116.72862599999996,
+          "harnessAnswers": 0.061332999999990534,
+          "E1": 0.16912600000011935,
+          "E2": 5.930165999999872,
+          "E4": 0.3809590000000753,
+          "E5": 58.52220799999998,
+          "E6": 51.68745799999999,
+          "E7": 0.008042000000045846,
+          "E5-REGISTRY": 47.328291000000036,
+          "E5-MANIFEST": 8.284792000000039,
+          "E5-EXTRACTION": 2.907167000000072,
+          "E3": 0.030666999999880318,
+          "cpu": {
+            "user": 156649,
+            "system": 1232
+          },
+          "heapEndpoint": 81591696,
+          "rssEndpoint": 233439232,
+          "maxRssLifetime": 227968,
+          "B": 7,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 5
+          },
+          "obligations": 10
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 47.31916700000011,
+          "role": "measured",
+          "prepare": 6.126082999999994,
+          "execute": 107.65270900000007,
+          "total": 113.77879200000007,
+          "harnessAnswers": 0.056958000000008724,
+          "E1": 0.1305409999999938,
+          "E2": 6.228625000000079,
+          "E4": 0.3485409999999547,
+          "E5": 55.280666999999994,
+          "E6": 51.75725,
+          "E7": 0.008332999999993262,
+          "E5-REGISTRY": 44.22245899999996,
+          "E5-MANIFEST": 8.18604199999993,
+          "E5-EXTRACTION": 2.871250000000032,
+          "E3": 0.024835000000052787,
+          "cpu": {
+            "user": 128891,
+            "system": 579
+          },
+          "heapEndpoint": 30080568,
+          "rssEndpoint": 233521152,
+          "maxRssLifetime": 228048,
+          "B": 7,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 5
+          },
+          "obligations": 10
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 47.44545900000003,
+          "role": "measured",
+          "prepare": 5.756583999999975,
+          "execute": 107.23454200000003,
+          "total": 112.99112600000001,
+          "harnessAnswers": 0.07758300000000418,
+          "E1": 0.14300100000002658,
+          "E2": 5.83137499999998,
+          "E4": 0.3408750000000964,
+          "E5": 54.65716700000007,
+          "E6": 51.98520800000006,
+          "E7": 0.009458999999992557,
+          "E5-REGISTRY": 43.63454200000001,
+          "E5-MANIFEST": 8.158000000000015,
+          "E5-EXTRACTION": 2.8638750000000073,
+          "E3": 0.024040999999783708,
+          "cpu": {
+            "user": 120056,
+            "system": 404
+          },
+          "heapEndpoint": 45974992,
+          "rssEndpoint": 233553920,
+          "maxRssLifetime": 228080,
+          "B": 7,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 5
+          },
+          "obligations": 10
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "small",
+      "variant": "dense",
+      "depth": 1000,
+      "scenario": "local",
+      "mode": "instrumented",
+      "historyForm": "chain",
+      "setupMs": 332.92475,
+      "S": 894,
+      "H": 1894,
+      "sHash": "eebbb7774fc5d4d719a85d4500a6b53fad9d128bf02b85f9a7e0b41bceb8621e",
+      "fixtureHash": "7adc331e1f02eb321f50bf85bd0e9f844dfd518c7b0fc8916f71c92da7ee7b24",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 77.50912499999998,
+          "role": "cold",
+          "prepare": 0.7552919999999972,
+          "execute": 242.55504099999996,
+          "total": 243.3103329999999,
+          "harnessAnswers": 0.05875000000003183,
+          "E1": 0.11779200000000856,
+          "E2": 0.7017089999999939,
+          "E4": 0.10791699999998627,
+          "E5": 189.52254200000004,
+          "E6": 52.61920800000007,
+          "E7": 0.052042000000028565,
+          "E5-REGISTRY": 177.90887500000002,
+          "E5-MANIFEST": 8.307083000000034,
+          "E5-EXTRACTION": 3.303792000000044,
+          "E3": 0.18912299999982451,
+          "cpu": {
+            "user": 296659,
+            "system": 7550
+          },
+          "heapEndpoint": 27224312,
+          "rssEndpoint": 229801984,
+          "maxRssLifetime": 224416,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 77.85587499999997,
+          "role": "warmup",
+          "prepare": 0.11541600000009566,
+          "execute": 224.2735,
+          "total": 224.3889160000001,
+          "harnessAnswers": 0.05329199999994216,
+          "E1": 0.012583000000063294,
+          "E2": 0.10691699999995308,
+          "E4": 0.04833399999995436,
+          "E5": 172.834292,
+          "E6": 51.364417,
+          "E7": 0.0105829999999969,
+          "E5-REGISTRY": 161.5569170000001,
+          "E5-MANIFEST": 8.246333999999933,
+          "E5-EXTRACTION": 3.0289999999999964,
+          "E3": 0.01179000000013275,
+          "cpu": {
+            "user": 254981,
+            "system": 2021
+          },
+          "heapEndpoint": 102704072,
+          "rssEndpoint": 238010368,
+          "maxRssLifetime": 232432,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 75.72912499999995,
+          "role": "measured",
+          "prepare": 0.12716699999987213,
+          "execute": 230.35095899999988,
+          "total": 230.47812599999975,
+          "harnessAnswers": 0.053166000000146596,
+          "E1": 0.011999999999943611,
+          "E2": 0.11862599999994927,
+          "E4": 0.05104199999982484,
+          "E5": 176.98199999999997,
+          "E6": 53.293333000000075,
+          "E7": 0.010124999999788997,
+          "E5-REGISTRY": 164.86062500000003,
+          "E5-MANIFEST": 8.931249999999864,
+          "E5-EXTRACTION": 3.1864580000001297,
+          "E3": 0.011000000000194632,
+          "cpu": {
+            "user": 254848,
+            "system": 2253
+          },
+          "heapEndpoint": 100092984,
+          "rssEndpoint": 254509056,
+          "maxRssLifetime": 248544,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 77.39633400000002,
+          "role": "measured",
+          "prepare": 0.11291699999992488,
+          "execute": 248.27620899999988,
+          "total": 248.3891259999998,
+          "harnessAnswers": 0.05445800000006784,
+          "E1": 0.010958999999957086,
+          "E2": 0.10579099999995378,
+          "E4": 0.04775000000017826,
+          "E5": 196.11720800000012,
+          "E6": 52.088209000000006,
+          "E7": 0.008750000000190994,
+          "E5-REGISTRY": 174.63691700000004,
+          "E5-MANIFEST": 15.722459000000072,
+          "E5-EXTRACTION": 5.748833999999988,
+          "E3": 0.010458999999400476,
+          "cpu": {
+            "user": 283150,
+            "system": 1810
+          },
+          "heapEndpoint": 51675768,
+          "rssEndpoint": 263012352,
+          "maxRssLifetime": 256848,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 78.57549999999992,
+          "role": "measured",
+          "prepare": 0.1273750000000291,
+          "execute": 223.0927079999999,
+          "total": 223.22008299999993,
+          "harnessAnswers": 0.06999999999993634,
+          "E1": 0.012790999999879205,
+          "E2": 0.11858400000028269,
+          "E4": 0.0472500000000764,
+          "E5": 171.94233299999996,
+          "E6": 51.08162500000003,
+          "E7": 0.0075419999998302956,
+          "E5-REGISTRY": 160.92216600000006,
+          "E5-MANIFEST": 7.971207999999933,
+          "E5-EXTRACTION": 3.0469590000000153,
+          "E3": 0.009957999999869571,
+          "cpu": {
+            "user": 234277,
+            "system": 1082
+          },
+          "heapEndpoint": 69159624,
+          "rssEndpoint": 263192576,
+          "maxRssLifetime": 257024,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "small",
+      "variant": "dense",
+      "depth": 1000,
+      "scenario": "actuals",
+      "mode": "instrumented",
+      "historyForm": "chain",
+      "setupMs": 327.254208,
+      "S": 894,
+      "H": 1894,
+      "sHash": "eebbb7774fc5d4d719a85d4500a6b53fad9d128bf02b85f9a7e0b41bceb8621e",
+      "fixtureHash": "7adc331e1f02eb321f50bf85bd0e9f844dfd518c7b0fc8916f71c92da7ee7b24",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 77.78216699999996,
+          "role": "cold",
+          "prepare": 2.578958,
+          "execute": 244.869959,
+          "total": 247.44891699999994,
+          "harnessAnswers": 0.07295799999997143,
+          "E1": 0.29349999999999454,
+          "E2": 2.4518749999999727,
+          "E4": 0.11070799999998826,
+          "E5": 191.50908400000003,
+          "E6": 52.82887500000004,
+          "E7": 0.04716599999994742,
+          "E5-REGISTRY": 179.12383300000005,
+          "E5-MANIFEST": 8.682665999999926,
+          "E5-EXTRACTION": 3.6996670000000904,
+          "E3": 0.20770900000002257,
+          "cpu": {
+            "user": 302710,
+            "system": 7391
+          },
+          "heapEndpoint": 57321976,
+          "rssEndpoint": 229097472,
+          "maxRssLifetime": 223728,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 78.88712500000008,
+          "role": "warmup",
+          "prepare": 1.689958000000047,
+          "execute": 227.176375,
+          "total": 228.86633300000005,
+          "harnessAnswers": 0.05741699999998673,
+          "E1": 0.04658300000005511,
+          "E2": 1.7161660000000438,
+          "E4": 0.04408300000000054,
+          "E5": 175.14208399999995,
+          "E6": 51.89362500000004,
+          "E7": 0.01024999999992815,
+          "E5-REGISTRY": 163.42737499999998,
+          "E5-MANIFEST": 8.142500000000041,
+          "E5-EXTRACTION": 3.569749999999999,
+          "E3": 0.013542000000029475,
+          "cpu": {
+            "user": 259472,
+            "system": 2294
+          },
+          "heapEndpoint": 74146696,
+          "rssEndpoint": 240041984,
+          "maxRssLifetime": 234416,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 77.14537499999994,
+          "role": "measured",
+          "prepare": 1.5944580000000315,
+          "execute": 234.84558300000003,
+          "total": 236.44004100000006,
+          "harnessAnswers": 0.055041999999957625,
+          "E1": 0.05054199999995035,
+          "E2": 1.7134989999999561,
+          "E4": 0.049541999999973996,
+          "E5": 181.6585829999999,
+          "E6": 52.94479199999978,
+          "E7": 0.009374999999863576,
+          "E5-REGISTRY": 169.95412499999998,
+          "E5-MANIFEST": 8.503291999999874,
+          "E5-EXTRACTION": 3.1984999999999673,
+          "E3": 0.013708000000633547,
+          "cpu": {
+            "user": 263276,
+            "system": 2669
+          },
+          "heapEndpoint": 71966656,
+          "rssEndpoint": 257196032,
+          "maxRssLifetime": 251168,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 84.19704200000001,
+          "role": "measured",
+          "prepare": 1.6246249999999236,
+          "execute": 230.22645899999998,
+          "total": 231.8510839999999,
+          "harnessAnswers": 0.061208000000078755,
+          "E1": 0.04612500000007458,
+          "E2": 1.6548749999997199,
+          "E4": 0.04150000000004184,
+          "E5": 177.85854199999994,
+          "E6": 52.22458400000005,
+          "E7": 0.00891700000011042,
+          "E5-REGISTRY": 166.2940410000001,
+          "E5-MANIFEST": 8.406124999999975,
+          "E5-EXTRACTION": 3.156208000000106,
+          "E3": 0.01654099999996106,
+          "cpu": {
+            "user": 264554,
+            "system": 986
+          },
+          "heapEndpoint": 45238976,
+          "rssEndpoint": 260964352,
+          "maxRssLifetime": 255088,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 75.34395800000016,
+          "role": "measured",
+          "prepare": 1.5484160000000884,
+          "execute": 229.34899999999993,
+          "total": 230.89741600000002,
+          "harnessAnswers": 0.06504199999994853,
+          "E1": 0.04595700000004399,
+          "E2": 1.5702920000001086,
+          "E4": 0.03854200000000674,
+          "E5": 177.3075839999999,
+          "E6": 51.912874999999985,
+          "E7": 0.009083000000146058,
+          "E5-REGISTRY": 166.0682089999998,
+          "E5-MANIFEST": 8.164499999999862,
+          "E5-EXTRACTION": 3.073333000000048,
+          "E3": 0.013082999999824096,
+          "cpu": {
+            "user": 250373,
+            "system": 1141
+          },
+          "heapEndpoint": 51794712,
+          "rssEndpoint": 261275648,
+          "maxRssLifetime": 255152,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "small",
+      "variant": "dense",
+      "depth": 1000,
+      "scenario": "boundary",
+      "mode": "instrumented",
+      "historyForm": "chain",
+      "setupMs": 322.768375,
+      "S": 894,
+      "H": 1894,
+      "sHash": "eebbb7774fc5d4d719a85d4500a6b53fad9d128bf02b85f9a7e0b41bceb8621e",
+      "fixtureHash": "7adc331e1f02eb321f50bf85bd0e9f844dfd518c7b0fc8916f71c92da7ee7b24",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 82.51491700000003,
+          "role": "cold",
+          "prepare": 7.4392500000000155,
+          "execute": 243.68175000000002,
+          "total": 251.12100000000004,
+          "harnessAnswers": 0.07912499999997635,
+          "E1": 0.40300000000002,
+          "E2": 7.463082999999983,
+          "E4": 0.5254999999999654,
+          "E5": 188.27245899999997,
+          "E6": 54.19945800000005,
+          "E7": 0.05233299999997598,
+          "E5-REGISTRY": 175.40287499999994,
+          "E5-MANIFEST": 9.01845800000001,
+          "E5-EXTRACTION": 3.847791999999913,
+          "E3": 0.20516700000007404,
+          "cpu": {
+            "user": 305950,
+            "system": 7233
+          },
+          "heapEndpoint": 69150512,
+          "rssEndpoint": 229277696,
+          "maxRssLifetime": 223904,
+          "B": 7,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 5
+          },
+          "obligations": 10
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 77.36704200000008,
+          "role": "warmup",
+          "prepare": 6.077125000000024,
+          "execute": 231.587625,
+          "total": 237.66475000000003,
+          "harnessAnswers": 0.05658400000004349,
+          "E1": 0.15375000000005912,
+          "E2": 6.1752500000000055,
+          "E4": 0.3698330000000851,
+          "E5": 178.46029099999998,
+          "E6": 52.47104200000001,
+          "E7": 0.008792000000084954,
+          "E5-REGISTRY": 166.504459,
+          "E5-MANIFEST": 8.340249999999969,
+          "E5-EXTRACTION": 3.6130829999999605,
+          "E3": 0.025791999999796644,
+          "cpu": {
+            "user": 264114,
+            "system": 2214
+          },
+          "heapEndpoint": 84498512,
+          "rssEndpoint": 246202368,
+          "maxRssLifetime": 240432,
+          "B": 7,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 5
+          },
+          "obligations": 10
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 78.06166699999994,
+          "role": "measured",
+          "prepare": 5.88391700000011,
+          "execute": 239.41637500000002,
+          "total": 245.30029200000013,
+          "harnessAnswers": 0.06408299999998235,
+          "E1": 0.16975000000002183,
+          "E2": 5.953126000000111,
+          "E4": 0.3796660000000429,
+          "E5": 184.0173339999999,
+          "E6": 54.74350000000004,
+          "E7": 0.008709000000180822,
+          "E5-REGISTRY": 170.88791700000002,
+          "E5-MANIFEST": 10.024999999999864,
+          "E5-EXTRACTION": 3.102000000000089,
+          "E3": 0.028206999999838445,
+          "cpu": {
+            "user": 287982,
+            "system": 2452
+          },
+          "heapEndpoint": 58513336,
+          "rssEndpoint": 258310144,
+          "maxRssLifetime": 252256,
+          "B": 7,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 5
+          },
+          "obligations": 10
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 79.83666599999992,
+          "role": "measured",
+          "prepare": 6.266250000000127,
+          "execute": 230.36645799999997,
+          "total": 236.6327080000001,
+          "harnessAnswers": 0.06608299999993505,
+          "E1": 0.15141600000015387,
+          "E2": 6.361875999999938,
+          "E4": 0.36133300000005875,
+          "E5": 177.6367499999999,
+          "E6": 52.08633299999997,
+          "E7": 0.008375000000114596,
+          "E5-REGISTRY": 165.8888750000001,
+          "E5-MANIFEST": 8.27883399999996,
+          "E5-EXTRACTION": 3.4679579999999532,
+          "E3": 0.026624999999967258,
+          "cpu": {
+            "user": 258464,
+            "system": 1396
+          },
+          "heapEndpoint": 82733240,
+          "rssEndpoint": 258637824,
+          "maxRssLifetime": 252576,
+          "B": 7,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 5
+          },
+          "obligations": 10
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 76.58120800000006,
+          "role": "measured",
+          "prepare": 5.847791000000143,
+          "execute": 229.06833300000017,
+          "total": 234.9161240000003,
+          "harnessAnswers": 0.08441699999980301,
+          "E1": 0.16079100000024482,
+          "E2": 5.906624999999849,
+          "E4": 0.3546670000000631,
+          "E5": 176.29700000000003,
+          "E6": 52.16687499999989,
+          "E7": 0.008000000000038199,
+          "E5-REGISTRY": 164.549708,
+          "E5-MANIFEST": 8.669208000000026,
+          "E5-EXTRACTION": 3.076708999999937,
+          "E3": 0.022166000000197528,
+          "cpu": {
+            "user": 248078,
+            "system": 1436
+          },
+          "heapEndpoint": 101706968,
+          "rssEndpoint": 259604480,
+          "maxRssLifetime": 253520,
+          "B": 7,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 5
+          },
+          "obligations": 10
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "medium",
+      "variant": "dense",
+      "depth": 0,
+      "scenario": "local",
+      "mode": "instrumented",
+      "historyForm": "chain",
+      "setupMs": 10094.909791999999,
+      "S": 55404,
+      "H": 55404,
+      "sHash": "517c87091c8fd943f6d0ddf0af1cbea3cb633827b3aaead7a5c9b72b5df19c77",
+      "fixtureHash": "f938611ae418174af984bf10b23c8f51b23d78e8caeb3656217a4f8847d16559",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 19585.529416999998,
+          "role": "cold",
+          "prepare": 2.6187080000017886,
+          "execute": 7273.778166000004,
+          "total": 7276.3968740000055,
+          "harnessAnswers": 0.06191699999908451,
+          "E1": 0.11399900000469643,
+          "E2": 2.6071669999982987,
+          "E4": 0.14941699999690172,
+          "E5": 3580.8642499999987,
+          "E6": 3692.391042000003,
+          "E7": 0.07374999999592546,
+          "E5-REGISTRY": 2785.259624999999,
+          "E5-MANIFEST": 600.1598749999976,
+          "E5-EXTRACTION": 195.43925000000309,
+          "E3": 0.19724900000801426,
+          "cpu": {
+            "user": 8218302,
+            "system": 38282
+          },
+          "heapEndpoint": 605383512,
+          "rssEndpoint": 811646976,
+          "maxRssLifetime": 878960,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 18076.783625000004,
+          "role": "warmup",
+          "prepare": 1.9238330000007409,
+          "execute": 7252.488333000001,
+          "total": 7254.412166000002,
+          "harnessAnswers": 0.06166700000176206,
+          "E1": 0.019248999997216742,
+          "E2": 1.9613760000065668,
+          "E4": 0.06133399999816902,
+          "E5": 3543.312957999995,
+          "E6": 3709.0213749999966,
+          "E7": 0.018875000001571607,
+          "E5-REGISTRY": 2747.621583,
+          "E5-MANIFEST": 603.429750000003,
+          "E5-EXTRACTION": 192.25808300000062,
+          "E3": 0.0169990000067628,
+          "cpu": {
+            "user": 8238806,
+            "system": 47856
+          },
+          "heapEndpoint": 683667536,
+          "rssEndpoint": 981991424,
+          "maxRssLifetime": 969760,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 19570.387000000002,
+          "role": "measured",
+          "prepare": 1.9705839999951422,
+          "execute": 7196.334082999994,
+          "total": 7198.304666999989,
+          "harnessAnswers": 0.06933300000673626,
+          "E1": 0.01583399999071844,
+          "E2": 2.005250000001979,
+          "E4": 0.0614169999898877,
+          "E5": 3498.6746669999993,
+          "E6": 3697.5180839999957,
+          "E7": 0.013207999989390373,
+          "E5-REGISTRY": 2707.4610410000023,
+          "E5-MANIFEST": 600.2356659999932,
+          "E5-EXTRACTION": 190.97279200000048,
+          "E3": 0.016207000022404827,
+          "cpu": {
+            "user": 8131621,
+            "system": 33457
+          },
+          "heapEndpoint": 719902624,
+          "rssEndpoint": 986316800,
+          "maxRssLifetime": 970528,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 18645.881875000006,
+          "role": "measured",
+          "prepare": 1.9587909999972908,
+          "execute": 7189.344874999995,
+          "total": 7191.3036659999925,
+          "harnessAnswers": 0.07266700000036508,
+          "E1": 0.016040999995311722,
+          "E2": 1.9934590000048047,
+          "E4": 0.05558299999393057,
+          "E5": 3503.5154170000023,
+          "E6": 3685.6937079999916,
+          "E7": 0.014584000004106201,
+          "E5-REGISTRY": 2708.3307080000086,
+          "E5-MANIFEST": 601.1015000000043,
+          "E5-EXTRACTION": 194.078416999997,
+          "E3": 0.014874000000418164,
+          "cpu": {
+            "user": 8125430,
+            "system": 31454
+          },
+          "heapEndpoint": 698910144,
+          "rssEndpoint": 985251840,
+          "maxRssLifetime": 973456,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 19617.786791000006,
+          "role": "measured",
+          "prepare": 1.9467080000031274,
+          "execute": 7155.6367080000055,
+          "total": 7157.583416000009,
+          "harnessAnswers": 0.07820899999933317,
+          "E1": 0.017041000013705343,
+          "E2": 1.9747919999645092,
+          "E4": 0.05475000001024455,
+          "E5": 3491.1286669999827,
+          "E6": 3664.380666000012,
+          "E7": 0.012917000014567748,
+          "E5-REGISTRY": 2707.994166999997,
+          "E5-MANIFEST": 588.7648340000014,
+          "E5-EXTRACTION": 194.36491699999897,
+          "E3": 0.014583000011043623,
+          "cpu": {
+            "user": 8175593,
+            "system": 33815
+          },
+          "heapEndpoint": 700921984,
+          "rssEndpoint": 982138880,
+          "maxRssLifetime": 973456,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "medium",
+      "variant": "dense",
+      "depth": 0,
+      "scenario": "actuals",
+      "mode": "instrumented",
+      "historyForm": "chain",
+      "setupMs": 10030.809833000001,
+      "S": 55404,
+      "H": 55404,
+      "sHash": "517c87091c8fd943f6d0ddf0af1cbea3cb633827b3aaead7a5c9b72b5df19c77",
+      "fixtureHash": "f938611ae418174af984bf10b23c8f51b23d78e8caeb3656217a4f8847d16559",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 20659.126041,
+          "role": "cold",
+          "prepare": 2230.9173749999973,
+          "execute": 7260.612999999998,
+          "total": 9491.530374999995,
+          "harnessAnswers": 0.08133300000190502,
+          "E1": 0.30904200000077253,
+          "E2": 2231.6671669999996,
+          "E4": 0.17283400000451365,
+          "E5": 3570.8969170000055,
+          "E6": 3688.2053749999977,
+          "E7": 0.06524999999965075,
+          "E5-REGISTRY": 2758.750500000002,
+          "E5-MANIFEST": 538.8036659999998,
+          "E5-EXTRACTION": 273.33750000000146,
+          "E3": 0.21378999998705694,
+          "cpu": {
+            "user": 10447421,
+            "system": 39595
+          },
+          "heapEndpoint": 463778104,
+          "rssEndpoint": 839991296,
+          "maxRssLifetime": 881600,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 18470.360167,
+          "role": "warmup",
+          "prepare": 2235.8092079999988,
+          "execute": 7150.252250000005,
+          "total": 9386.061457999996,
+          "harnessAnswers": 0.07412499999918509,
+          "E1": 0.05941599999641767,
+          "E2": 2236.8504170000015,
+          "E4": 0.055958999997528736,
+          "E5": 3474.3287920000002,
+          "E6": 3674.7262910000063,
+          "E7": 0.01620800000091549,
+          "E5-REGISTRY": 2700.8391249999986,
+          "E5-MANIFEST": 579.0567919999958,
+          "E5-EXTRACTION": 194.42812500000582,
+          "E3": 0.024375000000873115,
+          "cpu": {
+            "user": 10433650,
+            "system": 72557
+          },
+          "heapEndpoint": 671408336,
+          "rssEndpoint": 987185152,
+          "maxRssLifetime": 974768,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 17700.859958,
+          "role": "measured",
+          "prepare": 2249.8195419999975,
+          "execute": 7173.433667000005,
+          "total": 9423.253209000002,
+          "harnessAnswers": 0.07133299999986775,
+          "E1": 0.05479199999535922,
+          "E2": 2251.0075829999987,
+          "E4": 0.05141699999512639,
+          "E5": 3479.961917000008,
+          "E6": 3692.142540999994,
+          "E7": 0.014083000001846813,
+          "E5-REGISTRY": 2706.1465000000026,
+          "E5-MANIFEST": 583.1184999999969,
+          "E5-EXTRACTION": 190.69233299999905,
+          "E3": 0.020876000009593554,
+          "cpu": {
+            "user": 10323644,
+            "system": 38551
+          },
+          "heapEndpoint": 690148648,
+          "rssEndpoint": 1044660224,
+          "maxRssLifetime": 1032944,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 17618.525332999998,
+          "role": "measured",
+          "prepare": 2218.7270419999986,
+          "execute": 7167.414042000004,
+          "total": 9386.141084000003,
+          "harnessAnswers": 0.08433299999160226,
+          "E1": 0.060251000002608635,
+          "E2": 2219.7366239999974,
+          "E4": 0.0565000000060536,
+          "E5": 3466.8381249999948,
+          "E6": 3699.416750000004,
+          "E7": 0.013166000004275702,
+          "E5-REGISTRY": 2685.852792000005,
+          "E5-MANIFEST": 588.7449590000033,
+          "E5-EXTRACTION": 192.2355419999949,
+          "E3": 0.019667999993544072,
+          "cpu": {
+            "user": 10307084,
+            "system": 35728
+          },
+          "heapEndpoint": 693884808,
+          "rssEndpoint": 1036419072,
+          "maxRssLifetime": 1032944,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 18046.747375000006,
+          "role": "measured",
+          "prepare": 2232.2660840000026,
+          "execute": 7141.645208000002,
+          "total": 9373.911292000004,
+          "harnessAnswers": 0.08470799998030998,
+          "E1": 0.06275100001948886,
+          "E2": 2233.25645799996,
+          "E4": 0.05537499999627471,
+          "E5": 3479.404042000009,
+          "E6": 3661.098874999996,
+          "E7": 0.01341600000159815,
+          "E5-REGISTRY": 2682.457792000001,
+          "E5-MANIFEST": 607.3687910000153,
+          "E5-EXTRACTION": 189.5714169999992,
+          "E3": 0.02037500002188608,
+          "cpu": {
+            "user": 10353741,
+            "system": 34064
+          },
+          "heapEndpoint": 702118080,
+          "rssEndpoint": 1039220736,
+          "maxRssLifetime": 1032944,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "medium",
+      "variant": "dense",
+      "depth": 0,
+      "scenario": "boundary",
+      "mode": "instrumented",
+      "historyForm": "chain",
+      "setupMs": 10167.538125,
+      "S": 55404,
+      "H": 55404,
+      "sHash": "517c87091c8fd943f6d0ddf0af1cbea3cb633827b3aaead7a5c9b72b5df19c77",
+      "fixtureHash": "f938611ae418174af984bf10b23c8f51b23d78e8caeb3656217a4f8847d16559",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 21898.566333,
+          "role": "cold",
+          "prepare": 2968.7576659999977,
+          "execute": 7155.262499999997,
+          "total": 10124.020165999995,
+          "harnessAnswers": 0.09266700000443961,
+          "E1": 0.9770409999982803,
+          "E2": 2980.4668329999986,
+          "E4": 1.2692499999975553,
+          "E5": 3478.236708999997,
+          "E6": 3662.7308330000014,
+          "E7": 0.06674999999813735,
+          "E5-REGISTRY": 2702.2736250000016,
+          "E5-MANIFEST": 581.3839579999985,
+          "E5-EXTRACTION": 194.57362500000454,
+          "E3": 0.2727500000037253,
+          "cpu": {
+            "user": 11086085,
+            "system": 74276
+          },
+          "heapEndpoint": 617940816,
+          "rssEndpoint": 805830656,
+          "maxRssLifetime": 851040,
+          "B": 22,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "PTEC": 20,
+            "ActualPeriod": 1
+          },
+          "obligations": 38
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 19035.181249999994,
+          "role": "warmup",
+          "prepare": 2993.088708000003,
+          "execute": 7277.141875000001,
+          "total": 10270.230582999997,
+          "harnessAnswers": 0.0657500000015716,
+          "E1": 0.5476250000065193,
+          "E2": 3004.723540999992,
+          "E4": 1.0625,
+          "E5": 3567.805625000008,
+          "E6": 3696.0046250000014,
+          "E7": 0.017958000011276454,
+          "E5-REGISTRY": 2756.582166,
+          "E5-MANIFEST": 544.7297499999986,
+          "E5-EXTRACTION": 266.4908330000035,
+          "E3": 0.06870899998466484,
+          "cpu": {
+            "user": 11309489,
+            "system": 93787
+          },
+          "heapEndpoint": 516396216,
+          "rssEndpoint": 983056384,
+          "maxRssLifetime": 979920,
+          "B": 22,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "PTEC": 20,
+            "ActualPeriod": 1
+          },
+          "obligations": 38
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 17903.40974999999,
+          "role": "measured",
+          "prepare": 3007.8846249999915,
+          "execute": 7277.291500000007,
+          "total": 10285.176124999998,
+          "harnessAnswers": 0.07233300000370946,
+          "E1": 0.5274999999819556,
+          "E2": 3019.7970000000205,
+          "E4": 0.9641669999982696,
+          "E5": 3537.5212089999986,
+          "E6": 3726.281959,
+          "E7": 0.01795799999672454,
+          "E5-REGISTRY": 2789.694916999986,
+          "E5-MANIFEST": 547.0555830000085,
+          "E5-EXTRACTION": 200.7667080000101,
+          "E3": 0.06633200000214856,
+          "cpu": {
+            "user": 11315302,
+            "system": 77808
+          },
+          "heapEndpoint": 514501952,
+          "rssEndpoint": 983351296,
+          "maxRssLifetime": 1023360,
+          "B": 22,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "PTEC": 20,
+            "ActualPeriod": 1
+          },
+          "obligations": 38
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 18231.159958999997,
+          "role": "measured",
+          "prepare": 3001.5672919999924,
+          "execute": 7189.408959000008,
+          "total": 10190.976251,
+          "harnessAnswers": 0.11816600000020117,
+          "E1": 0.5638749999925494,
+          "E2": 3019.2422919999954,
+          "E4": 1.0910410000069533,
+          "E5": 3494.7064580000006,
+          "E6": 3675.289916000009,
+          "E7": 0.009500000000116415,
+          "E5-REGISTRY": 2759.0702089999977,
+          "E5-MANIFEST": 541.4845420000056,
+          "E5-EXTRACTION": 194.14770899999712,
+          "E3": 0.07316899999568705,
+          "cpu": {
+            "user": 11064497,
+            "system": 89635
+          },
+          "heapEndpoint": 690829800,
+          "rssEndpoint": 995098624,
+          "maxRssLifetime": 1023568,
+          "B": 22,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "PTEC": 20,
+            "ActualPeriod": 1
+          },
+          "obligations": 38
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 17741.628125000003,
+          "role": "measured",
+          "prepare": 2997.8976249999832,
+          "execute": 7233.010999999999,
+          "total": 10230.908624999982,
+          "harnessAnswers": 0.0828330000222195,
+          "E1": 0.5298339999862947,
+          "E2": 3009.607290999993,
+          "E4": 0.983208999998169,
+          "E5": 3537.636415999994,
+          "E6": 3682.0767500000075,
+          "E7": 0.008916999999200925,
+          "E5-REGISTRY": 2739.886125000019,
+          "E5-MANIFEST": 606.7607499999867,
+          "E5-EXTRACTION": 190.98629199998686,
+          "E3": 0.06620800000382587,
+          "cpu": {
+            "user": 11226308,
+            "system": 70445
+          },
+          "heapEndpoint": 702037488,
+          "rssEndpoint": 992002048,
+          "maxRssLifetime": 1026928,
+          "B": 22,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "PTEC": 20,
+            "ActualPeriod": 1
+          },
+          "obligations": 38
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "medium",
+      "variant": "dense",
+      "depth": 1000,
+      "scenario": "local",
+      "mode": "instrumented",
+      "historyForm": "chain",
+      "setupMs": 10284.852958,
+      "S": 55404,
+      "H": 56404,
+      "sHash": "517c87091c8fd943f6d0ddf0af1cbea3cb633827b3aaead7a5c9b72b5df19c77",
+      "fixtureHash": "f938611ae418174af984bf10b23c8f51b23d78e8caeb3656217a4f8847d16559",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 22038.599042,
+          "role": "cold",
+          "prepare": 2.5442499999990105,
+          "execute": 7252.958459000001,
+          "total": 7255.502709,
+          "harnessAnswers": 0.0617500000007567,
+          "E1": 0.11208299999998417,
+          "E2": 2.5358759999980975,
+          "E4": 0.115458000000217,
+          "E5": 3630.174750000002,
+          "E6": 3622.2856660000034,
+          "E7": 0.0757919999959995,
+          "E5-REGISTRY": 2856.819374999999,
+          "E5-MANIFEST": 580.210708000006,
+          "E5-EXTRACTION": 193.1386660000062,
+          "E3": 0.20308400000067195,
+          "cpu": {
+            "user": 8208246,
+            "system": 32443
+          },
+          "heapEndpoint": 613670584,
+          "rssEndpoint": 829603840,
+          "maxRssLifetime": 891056,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 17956.937166000003,
+          "role": "warmup",
+          "prepare": 1.8517500000016298,
+          "execute": 7287.3605000000025,
+          "total": 7289.212250000004,
+          "harnessAnswers": 0.06229200000234414,
+          "E1": 0.016749999995226972,
+          "E2": 1.8795830000090064,
+          "E4": 0.06304199999431148,
+          "E5": 3598.9889580000017,
+          "E6": 3688.2298749999973,
+          "E7": 0.018084000003000256,
+          "E5-REGISTRY": 2809.4619170000005,
+          "E5-MANIFEST": 597.7467089999991,
+          "E5-EXTRACTION": 191.77562499999476,
+          "E3": 0.015958000003593042,
+          "cpu": {
+            "user": 8252420,
+            "system": 58611
+          },
+          "heapEndpoint": 691250880,
+          "rssEndpoint": 988643328,
+          "maxRssLifetime": 974992,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 19818.21850000001,
+          "role": "measured",
+          "prepare": 1.9621659999975236,
+          "execute": 7240.074041999993,
+          "total": 7242.03620799999,
+          "harnessAnswers": 0.06779200000164565,
+          "E1": 0.015081999998074025,
+          "E2": 1.9970420000026934,
+          "E4": 0.055291999990004115,
+          "E5": 3565.8086249999906,
+          "E6": 3674.1304170000076,
+          "E7": 0.011832999996840954,
+          "E5-REGISTRY": 2780.2124170000025,
+          "E5-MANIFEST": 594.314000000013,
+          "E5-EXTRACTION": 191.2774170000048,
+          "E3": 0.017917000004672445,
+          "cpu": {
+            "user": 8153125,
+            "system": 33371
+          },
+          "heapEndpoint": 663645632,
+          "rssEndpoint": 991248384,
+          "maxRssLifetime": 974992,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 18934.61229199999,
+          "role": "measured",
+          "prepare": 1.8677090000128374,
+          "execute": 7239.153207999989,
+          "total": 7241.020917000002,
+          "harnessAnswers": 0.06862499999988358,
+          "E1": 0.015334000025177374,
+          "E2": 1.9006249999947613,
+          "E4": 0.05608300000312738,
+          "E5": 3606.4428749999934,
+          "E6": 3632.571207999994,
+          "E7": 0.018500000005587935,
+          "E5-REGISTRY": 2788.696166000009,
+          "E5-MANIFEST": 626.0234159999964,
+          "E5-EXTRACTION": 191.71841600000334,
+          "E3": 0.016291999985696748,
+          "cpu": {
+            "user": 8193928,
+            "system": 33578
+          },
+          "heapEndpoint": 669051880,
+          "rssEndpoint": 987725824,
+          "maxRssLifetime": 976208,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 18879.488417,
+          "role": "measured",
+          "prepare": 1.9405419999966398,
+          "execute": 7220.5480830000015,
+          "total": 7222.488624999998,
+          "harnessAnswers": 0.08504200002062134,
+          "E1": 0.01570799999171868,
+          "E2": 1.975375999987591,
+          "E4": 0.055874999990919605,
+          "E5": 3561.9795830000076,
+          "E6": 3658.433667000005,
+          "E7": 0.013374999980442226,
+          "E5-REGISTRY": 2782.0046250000014,
+          "E5-MANIFEST": 588.6655829999945,
+          "E5-EXTRACTION": 191.30362500000047,
+          "E3": 0.015041000035125762,
+          "cpu": {
+            "user": 8188471,
+            "system": 47699
+          },
+          "heapEndpoint": 728110168,
+          "rssEndpoint": 989593600,
+          "maxRssLifetime": 976208,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "medium",
+      "variant": "dense",
+      "depth": 1000,
+      "scenario": "actuals",
+      "mode": "instrumented",
+      "historyForm": "chain",
+      "setupMs": 10399.9815,
+      "S": 55404,
+      "H": 56404,
+      "sHash": "517c87091c8fd943f6d0ddf0af1cbea3cb633827b3aaead7a5c9b72b5df19c77",
+      "fixtureHash": "f938611ae418174af984bf10b23c8f51b23d78e8caeb3656217a4f8847d16559",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 21946.932792,
+          "role": "cold",
+          "prepare": 2245.0040409999965,
+          "execute": 7263.296541000003,
+          "total": 9508.300582000003,
+          "harnessAnswers": 0.07583400000294205,
+          "E1": 0.32416599999851314,
+          "E2": 2245.8629579999943,
+          "E4": 0.13683299999684095,
+          "E5": 3626.4510410000003,
+          "E6": 3635.2377080000006,
+          "E7": 0.06479199999739649,
+          "E5-REGISTRY": 2852.761833000004,
+          "E5-MANIFEST": 582.4480829999957,
+          "E5-EXTRACTION": 191.23583299999882,
+          "E3": 0.22308400001202244,
+          "cpu": {
+            "user": 10509545,
+            "system": 35844
+          },
+          "heapEndpoint": 632904528,
+          "rssEndpoint": 798703616,
+          "maxRssLifetime": 876544,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 19735.289792000003,
+          "role": "warmup",
+          "prepare": 2216.199916999998,
+          "execute": 7346.710915999996,
+          "total": 9562.910833000002,
+          "harnessAnswers": 0.06749999999738066,
+          "E1": 0.05787599999894155,
+          "E2": 2217.2238330000037,
+          "E4": 0.05441699999937555,
+          "E5": 3676.859292000001,
+          "E6": 3668.6769160000113,
+          "E7": 0.0141250000015134,
+          "E5-REGISTRY": 2855.285041000003,
+          "E5-MANIFEST": 625.5600419999973,
+          "E5-EXTRACTION": 196.0093329999945,
+          "E3": 0.024373999978706706,
+          "cpu": {
+            "user": 10606264,
+            "system": 51580
+          },
+          "heapEndpoint": 702316768,
+          "rssEndpoint": 935591936,
+          "maxRssLifetime": 920288,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 19451.6005,
+          "role": "measured",
+          "prepare": 2251.5732080000016,
+          "execute": 7324.378917000009,
+          "total": 9575.95212500001,
+          "harnessAnswers": 0.07362499998998828,
+          "E1": 0.0579169999982696,
+          "E2": 2252.5703740000026,
+          "E4": 0.05224999999336433,
+          "E5": 3634.638042000006,
+          "E6": 3688.5985830000136,
+          "E7": 0.013790999990305863,
+          "E5-REGISTRY": 2850.7627079999947,
+          "E5-MANIFEST": 593.6524579999968,
+          "E5-EXTRACTION": 190.21720900000946,
+          "E3": 0.021168000006582588,
+          "cpu": {
+            "user": 10590103,
+            "system": 40479
+          },
+          "heapEndpoint": 705921424,
+          "rssEndpoint": 939737088,
+          "maxRssLifetime": 930128,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 19486.846957999995,
+          "role": "measured",
+          "prepare": 2253.2116249999963,
+          "execute": 7269.517458000002,
+          "total": 9522.729082999984,
+          "harnessAnswers": 0.07870800000091549,
+          "E1": 0.05862499999057036,
+          "E2": 2254.2430830000085,
+          "E4": 0.05154100000800099,
+          "E5": 3630.396541000009,
+          "E6": 3637.9446660000103,
+          "E7": 0.012791999994078651,
+          "E5-REGISTRY": 2896.2805840000074,
+          "E5-MANIFEST": 541.4408750000002,
+          "E5-EXTRACTION": 192.66949999998906,
+          "E3": 0.02183499997772742,
+          "cpu": {
+            "user": 10525978,
+            "system": 36017
+          },
+          "heapEndpoint": 767617256,
+          "rssEndpoint": 946126848,
+          "maxRssLifetime": 936560,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 17879.761582999985,
+          "role": "measured",
+          "prepare": 2221.2941669999855,
+          "execute": 7253.690250000014,
+          "total": 9474.984417,
+          "harnessAnswers": 0.08354099999996834,
+          "E1": 0.38983299999381416,
+          "E2": 2222.0243759999867,
+          "E4": 0.05345799998030998,
+          "E5": 3616.822749999992,
+          "E6": 3635.6577919999836,
+          "E7": 0.015458000008948147,
+          "E5-REGISTRY": 2822.1120419999934,
+          "E5-MANIFEST": 537.1602919999859,
+          "E5-EXTRACTION": 257.5460000000021,
+          "E3": 0.02075000005424954,
+          "cpu": {
+            "user": 10597626,
+            "system": 40896
+          },
+          "heapEndpoint": 532910784,
+          "rssEndpoint": 981270528,
+          "maxRssLifetime": 972336,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "medium",
+      "variant": "dense",
+      "depth": 1000,
+      "scenario": "boundary",
+      "mode": "instrumented",
+      "historyForm": "chain",
+      "setupMs": 10388.05825,
+      "S": 55404,
+      "H": 56404,
+      "sHash": "517c87091c8fd943f6d0ddf0af1cbea3cb633827b3aaead7a5c9b72b5df19c77",
+      "fixtureHash": "f938611ae418174af984bf10b23c8f51b23d78e8caeb3656217a4f8847d16559",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 20969.530832999997,
+          "role": "cold",
+          "prepare": 3001.2668749999975,
+          "execute": 7414.795042000005,
+          "total": 10416.061916999999,
+          "harnessAnswers": 0.09379199999966659,
+          "E1": 0.9858339999955206,
+          "E2": 3013.273874000006,
+          "E4": 1.2203749999971478,
+          "E5": 3687.8144170000014,
+          "E6": 3712.422458000001,
+          "E7": 0.06733299999905284,
+          "E5-REGISTRY": 2901.3102080000026,
+          "E5-MANIFEST": 590.9139159999977,
+          "E5-EXTRACTION": 195.58408300000156,
+          "E3": 0.27762600000278326,
+          "cpu": {
+            "user": 11348042,
+            "system": 82024
+          },
+          "heapEndpoint": 617420432,
+          "rssEndpoint": 864403456,
+          "maxRssLifetime": 958000,
+          "B": 22,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "PTEC": 20,
+            "ActualPeriod": 1
+          },
+          "obligations": 38
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 18997.491041,
+          "role": "warmup",
+          "prepare": 2991.201667000001,
+          "execute": 7348.641999999993,
+          "total": 10339.843666999994,
+          "harnessAnswers": 0.06758300000365125,
+          "E1": 0.5629170000029262,
+          "E2": 3002.9241249999977,
+          "E4": 1.0675840000039898,
+          "E5": 3627.0359590000007,
+          "E6": 3708.1689579999947,
+          "E7": 0.016667000003508292,
+          "E5-REGISTRY": 2840.9187500000044,
+          "E5-MANIFEST": 591.9485419999983,
+          "E5-EXTRACTION": 194.16495900000155,
+          "E3": 0.06745699999009958,
+          "cpu": {
+            "user": 11282863,
+            "system": 89472
+          },
+          "heapEndpoint": 674128520,
+          "rssEndpoint": 990511104,
+          "maxRssLifetime": 975920,
+          "B": 22,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "PTEC": 20,
+            "ActualPeriod": 1
+          },
+          "obligations": 38
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 19983.14695899999,
+          "role": "measured",
+          "prepare": 2996.435833999989,
+          "execute": 7345.120332999999,
+          "total": 10341.556166999988,
+          "harnessAnswers": 0.06975000000966247,
+          "E1": 0.5386259999941103,
+          "E2": 3015.954415999993,
+          "E4": 1.030166000011377,
+          "E5": 3633.659916999997,
+          "E6": 3690.2833329999994,
+          "E7": 0.01849999999103602,
+          "E5-REGISTRY": 2818.7847089999996,
+          "E5-MANIFEST": 622.5847920000087,
+          "E5-EXTRACTION": 192.2861669999984,
+          "E3": 0.07120900000154506,
+          "cpu": {
+            "user": 11265084,
+            "system": 72704
+          },
+          "heapEndpoint": 671786472,
+          "rssEndpoint": 990806016,
+          "maxRssLifetime": 1022144,
+          "B": 22,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "PTEC": 20,
+            "ActualPeriod": 1
+          },
+          "obligations": 38
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 19572.691957999996,
+          "role": "measured",
+          "prepare": 2997.982415999999,
+          "execute": 7332.707790999993,
+          "total": 10330.690207000007,
+          "harnessAnswers": 0.0830839999980526,
+          "E1": 0.524623999997857,
+          "E2": 3010.091459000003,
+          "E4": 1.0007499999919673,
+          "E5": 3627.077290999994,
+          "E6": 3691.9224579999864,
+          "E7": 0.00858299998799339,
+          "E5-REGISTRY": 2833.5081659999996,
+          "E5-MANIFEST": 598.7264999999898,
+          "E5-EXTRACTION": 194.83916699999827,
+          "E3": 0.06504200003109872,
+          "cpu": {
+            "user": 11284283,
+            "system": 71647
+          },
+          "heapEndpoint": 673682184,
+          "rssEndpoint": 991330304,
+          "maxRssLifetime": 1022672,
+          "B": 22,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "PTEC": 20,
+            "ActualPeriod": 1
+          },
+          "obligations": 38
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 17670.506458000018,
+          "role": "measured",
+          "prepare": 3048.629958000005,
+          "execute": 7361.962499999994,
+          "total": 10410.592458,
+          "harnessAnswers": 0.0902500000083819,
+          "E1": 0.5382079999835696,
+          "E2": 3060.530458000023,
+          "E4": 1.0184160000062548,
+          "E5": 3623.071916999994,
+          "E6": 3725.3620409999858,
+          "E7": 0.00858300001709722,
+          "E5-REGISTRY": 2845.1565829999745,
+          "E5-MANIFEST": 583.6147500000079,
+          "E5-EXTRACTION": 194.29658299998846,
+          "E3": 0.0628349999897182,
+          "cpu": {
+            "user": 11343770,
+            "system": 87380
+          },
+          "heapEndpoint": 697556680,
+          "rssEndpoint": 1039712256,
+          "maxRssLifetime": 1067392,
+          "B": 22,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "PTEC": 20,
+            "ActualPeriod": 1
+          },
+          "obligations": 38
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "medium",
+      "variant": "sparse",
+      "depth": 0,
+      "scenario": "local",
+      "mode": "instrumented",
+      "historyForm": "chain",
+      "setupMs": 1614.477833,
+      "S": 8604,
+      "H": 8604,
+      "sHash": "70e6437315e352edc54f1db4320182f6d9b712d7e3ad72f50af3b9e3674bf538",
+      "fixtureHash": "87dd085a7c6991c5a11bf6d2706a9ef2492822f284d819709c1cc24baaba9aa9",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 837.6797919999999,
+          "role": "cold",
+          "prepare": 1.0717079999999441,
+          "execute": 1139.1554589999996,
+          "total": 1140.2271669999996,
+          "harnessAnswers": 0.06150000000025102,
+          "E1": 0.12641600000006292,
+          "E2": 1.009291999999732,
+          "E4": 0.14533299999993687,
+          "E5": 524.8311670000003,
+          "E6": 613.869334,
+          "E7": 0.05633399999987887,
+          "E5-REGISTRY": 416.33345899999995,
+          "E5-MANIFEST": 79.33137499999975,
+          "E5-EXTRACTION": 29.162374999999884,
+          "E3": 0.18929099999968457,
+          "cpu": {
+            "user": 1323409,
+            "system": 8625
+          },
+          "heapEndpoint": 103259752,
+          "rssEndpoint": 355647488,
+          "maxRssLifetime": 365792,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 703.6795000000002,
+          "role": "warmup",
+          "prepare": 0.38404200000059063,
+          "execute": 1133.0042090000006,
+          "total": 1133.3882510000012,
+          "harnessAnswers": 0.05395799999951123,
+          "E1": 0.016042000001107226,
+          "E2": 0.3734169999988808,
+          "E4": 0.05475000000024011,
+          "E5": 523.5759159999998,
+          "E6": 609.3450830000002,
+          "E7": 0.011500000000523869,
+          "E5-REGISTRY": 416.60862499999985,
+          "E5-MANIFEST": 79.05033399999957,
+          "E5-EXTRACTION": 27.91279200000008,
+          "E3": 0.011543000000528991,
+          "cpu": {
+            "user": 1265025,
+            "system": 9453
+          },
+          "heapEndpoint": 157324912,
+          "rssEndpoint": 393330688,
+          "maxRssLifetime": 384592,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 709.7330840000004,
+          "role": "measured",
+          "prepare": 0.38475000000016735,
+          "execute": 1129.2667499999998,
+          "total": 1129.6515,
+          "harnessAnswers": 0.058584000000337255,
+          "E1": 0.01650000000063301,
+          "E2": 0.37358299999959854,
+          "E4": 0.049874999999701686,
+          "E5": 516.8829589999996,
+          "E6": 612.3071669999999,
+          "E7": 0.010249999999359716,
+          "E5-REGISTRY": 410.86616700000013,
+          "E5-MANIFEST": 77.31604100000004,
+          "E5-EXTRACTION": 28.696666999999252,
+          "E3": 0.011166000001139764,
+          "cpu": {
+            "user": 1240785,
+            "system": 7204
+          },
+          "heapEndpoint": 124830944,
+          "rssEndpoint": 410451968,
+          "maxRssLifetime": 401408,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 701.4219160000002,
+          "role": "measured",
+          "prepare": 0.3545410000006086,
+          "execute": 1127.1371249999993,
+          "total": 1127.491666,
+          "harnessAnswers": 0.06474999999954889,
+          "E1": 0.013666000000739587,
+          "E2": 0.3464590000003227,
+          "E4": 0.05383400000027905,
+          "E5": 518.6069580000003,
+          "E6": 608.448042,
+          "E7": 0.011042000000088592,
+          "E5-REGISTRY": 412.5590000000002,
+          "E5-MANIFEST": 77.99733299999934,
+          "E5-EXTRACTION": 28.047042000000147,
+          "E3": 0.011664999998174608,
+          "cpu": {
+            "user": 1282585,
+            "system": 5606
+          },
+          "heapEndpoint": 96974544,
+          "rssEndpoint": 416727040,
+          "maxRssLifetime": 407904,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 709.0081660000014,
+          "role": "measured",
+          "prepare": 0.40350000000034925,
+          "execute": 1127.0832499999997,
+          "total": 1127.48675,
+          "harnessAnswers": 0.07150000000001455,
+          "E1": 0.014542000000801636,
+          "E2": 0.39454099999966274,
+          "E4": 0.04954100000031758,
+          "E5": 516.725375,
+          "E6": 610.2770830000009,
+          "E7": 0.012416999999913969,
+          "E5-REGISTRY": 411.1467499999999,
+          "E5-MANIFEST": 77.82320899999831,
+          "E5-EXTRACTION": 27.751917000001413,
+          "E3": 0.013250999998490443,
+          "cpu": {
+            "user": 1245670,
+            "system": 4814
+          },
+          "heapEndpoint": 158519384,
+          "rssEndpoint": 417251328,
+          "maxRssLifetime": 409664,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "medium",
+      "variant": "sparse",
+      "depth": 0,
+      "scenario": "actuals",
+      "mode": "instrumented",
+      "historyForm": "chain",
+      "setupMs": 1595.951333,
+      "S": 8604,
+      "H": 8604,
+      "sHash": "70e6437315e352edc54f1db4320182f6d9b712d7e3ad72f50af3b9e3674bf538",
+      "fixtureHash": "87dd085a7c6991c5a11bf6d2706a9ef2492822f284d819709c1cc24baaba9aa9",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 846.473125,
+          "role": "cold",
+          "prepare": 52.593624999999975,
+          "execute": 1148.9386249999998,
+          "total": 1201.5322499999997,
+          "harnessAnswers": 0.06379200000037599,
+          "E1": 0.2820419999998194,
+          "E2": 52.59895800000004,
+          "E4": 0.13808400000016263,
+          "E5": 528.1920839999998,
+          "E6": 620.0495000000001,
+          "E7": 0.07237499999973807,
+          "E5-REGISTRY": 420.10649999999987,
+          "E5-MANIFEST": 78.79170900000008,
+          "E5-EXTRACTION": 29.290415999999823,
+          "E3": 0.19920700000011493,
+          "cpu": {
+            "user": 1394837,
+            "system": 7717
+          },
+          "heapEndpoint": 155088864,
+          "rssEndpoint": 346554368,
+          "maxRssLifetime": 351712,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 714.7614160000003,
+          "role": "warmup",
+          "prepare": 51.982082999999875,
+          "execute": 1140.293791,
+          "total": 1192.275874,
+          "harnessAnswers": 0.06329199999981938,
+          "E1": 0.04991700000027777,
+          "E2": 52.151332999999795,
+          "E4": 0.05545899999924586,
+          "E5": 524.8158750000002,
+          "E6": 615.1750840000004,
+          "E7": 0.013082999999824096,
+          "E5-REGISTRY": 416.7658330000004,
+          "E5-MANIFEST": 79.04824999999983,
+          "E5-EXTRACTION": 28.99920800000018,
+          "E3": 0.01512300000013056,
+          "cpu": {
+            "user": 1342491,
+            "system": 9116
+          },
+          "heapEndpoint": 129957704,
+          "rssEndpoint": 380780544,
+          "maxRssLifetime": 372320,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 715.6452909999998,
+          "role": "measured",
+          "prepare": 50.83695799999987,
+          "execute": 1130.3298329999998,
+          "total": 1181.1667909999996,
+          "harnessAnswers": 0.05570900000020629,
+          "E1": 0.04529100000036124,
+          "E2": 50.99754200000007,
+          "E4": 0.03916699999990669,
+          "E5": 523.5113339999998,
+          "E6": 606.548667,
+          "E7": 0.01079200000003766,
+          "E5-REGISTRY": 415.6723750000001,
+          "E5-MANIFEST": 79.60579099999995,
+          "E5-EXTRACTION": 28.230209000000286,
+          "E3": 0.01399799999944662,
+          "cpu": {
+            "user": 1321102,
+            "system": 6151
+          },
+          "heapEndpoint": 104248544,
+          "rssEndpoint": 395067392,
+          "maxRssLifetime": 386464,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 727.5914580000008,
+          "role": "measured",
+          "prepare": 51.50408299999981,
+          "execute": 1147.7919160000001,
+          "total": 1199.295999,
+          "harnessAnswers": 0.06279199999880802,
+          "E1": 0.05033299999922747,
+          "E2": 51.67962500000067,
+          "E4": 0.042250000000422006,
+          "E5": 529.9878750000007,
+          "E6": 617.5056249999998,
+          "E7": 0.012000000000625732,
+          "E5-REGISTRY": 418.9618329999994,
+          "E5-MANIFEST": 82.25470800000039,
+          "E5-EXTRACTION": 28.76508300000023,
+          "E3": 0.01829099999849859,
+          "cpu": {
+            "user": 1341793,
+            "system": 4960
+          },
+          "heapEndpoint": 150563984,
+          "rssEndpoint": 395329536,
+          "maxRssLifetime": 386880,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 717.6221250000017,
+          "role": "measured",
+          "prepare": 50.7817500000001,
+          "execute": 1132.1261249999989,
+          "total": 1182.907874999999,
+          "harnessAnswers": 0.07620800000040617,
+          "E1": 0.05595800000082818,
+          "E2": 50.94633299999987,
+          "E4": 0.0450410000012198,
+          "E5": 521.7108329999992,
+          "E6": 610.1250419999997,
+          "E7": 0.01058299999931478,
+          "E5-REGISTRY": 415.37908400000015,
+          "E5-MANIFEST": 78.33079100000032,
+          "E5-EXTRACTION": 27.99816699999974,
+          "E3": 0.014084999998885905,
+          "cpu": {
+            "user": 1315176,
+            "system": 4823
+          },
+          "heapEndpoint": 121013256,
+          "rssEndpoint": 395165696,
+          "maxRssLifetime": 387312,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "medium",
+      "variant": "sparse",
+      "depth": 0,
+      "scenario": "boundary",
+      "mode": "instrumented",
+      "historyForm": "chain",
+      "setupMs": 1619.7029169999998,
+      "S": 8604,
+      "H": 8604,
+      "sHash": "70e6437315e352edc54f1db4320182f6d9b712d7e3ad72f50af3b9e3674bf538",
+      "fixtureHash": "87dd085a7c6991c5a11bf6d2706a9ef2492822f284d819709c1cc24baaba9aa9",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 848.9601670000002,
+          "role": "cold",
+          "prepare": 76.45254100000011,
+          "execute": 1148.4809169999999,
+          "total": 1224.933458,
+          "harnessAnswers": 0.08454200000005585,
+          "E1": 0.3479160000001684,
+          "E2": 76.61191700000018,
+          "E4": 0.6670410000001539,
+          "E5": 528.3055419999996,
+          "E6": 618.7174580000001,
+          "E7": 0.06258299999990413,
+          "E5-REGISTRY": 419.9986670000003,
+          "E5-MANIFEST": 79.03920900000003,
+          "E5-EXTRACTION": 29.26404199999979,
+          "E3": 0.22100099999988743,
+          "cpu": {
+            "user": 1408977,
+            "system": 8655
+          },
+          "heapEndpoint": 132804464,
+          "rssEndpoint": 357203968,
+          "maxRssLifetime": 366944,
+          "B": 4,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 2
+          },
+          "obligations": 4
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 716.1647499999999,
+          "role": "warmup",
+          "prepare": 71.96424999999999,
+          "execute": 1154.15575,
+          "total": 1226.12,
+          "harnessAnswers": 0.05737500000032014,
+          "E1": 0.07804200000009587,
+          "E2": 72.24670799999967,
+          "E4": 0.4327080000002752,
+          "E5": 528.7081250000001,
+          "E6": 624.6242080000002,
+          "E7": 0.012499999999818101,
+          "E5-REGISTRY": 420.40979199999947,
+          "E5-MANIFEST": 79.07124999999996,
+          "E5-EXTRACTION": 29.222499999999854,
+          "E3": 0.017708999999740627,
+          "cpu": {
+            "user": 1357253,
+            "system": 8447
+          },
+          "heapEndpoint": 127607248,
+          "rssEndpoint": 387334144,
+          "maxRssLifetime": 379088,
+          "B": 4,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 2
+          },
+          "obligations": 4
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 717.8344580000003,
+          "role": "measured",
+          "prepare": 70.70424999999977,
+          "execute": 1157.2101670000002,
+          "total": 1227.914417,
+          "harnessAnswers": 0.06270800000038435,
+          "E1": 0.09116699999958655,
+          "E2": 70.96079099999952,
+          "E4": 0.44116700000085984,
+          "E5": 527.4879580000006,
+          "E6": 628.9009159999996,
+          "E7": 0.013541999999688414,
+          "E5-REGISTRY": 419.7775419999998,
+          "E5-MANIFEST": 79.28475000000071,
+          "E5-EXTRACTION": 28.421707999999853,
+          "E3": 0.018876000000091153,
+          "cpu": {
+            "user": 1352261,
+            "system": 6241
+          },
+          "heapEndpoint": 109575984,
+          "rssEndpoint": 395640832,
+          "maxRssLifetime": 387072,
+          "B": 4,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 2
+          },
+          "obligations": 4
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 715.6143749999992,
+          "role": "measured",
+          "prepare": 71.23054200000115,
+          "execute": 1150.9649580000005,
+          "total": 1222.1955000000016,
+          "harnessAnswers": 0.06391699999949196,
+          "E1": 0.08275000000139698,
+          "E2": 71.52374999999847,
+          "E4": 0.43399999999928696,
+          "E5": 529.5220410000002,
+          "E6": 620.5984579999986,
+          "E7": 0.011999999998806743,
+          "E5-REGISTRY": 420.961041999999,
+          "E5-MANIFEST": 80.0596659999992,
+          "E5-EXTRACTION": 28.497667000001456,
+          "E3": 0.02250100000492239,
+          "cpu": {
+            "user": 1376849,
+            "system": 4729
+          },
+          "heapEndpoint": 166308024,
+          "rssEndpoint": 396148736,
+          "maxRssLifetime": 388544,
+          "B": 4,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 2
+          },
+          "obligations": 4
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 748.2782499999994,
+          "role": "measured",
+          "prepare": 71.11149999999907,
+          "execute": 1154.1616249999988,
+          "total": 1225.273124999998,
+          "harnessAnswers": 0.073500000000422,
+          "E1": 0.07970899999963876,
+          "E2": 71.58454100000017,
+          "E4": 0.4210830000010901,
+          "E5": 542.2457919999997,
+          "E6": 610.9046659999985,
+          "E7": 0.013708000000406173,
+          "E5-REGISTRY": 419.2954170000012,
+          "E5-MANIFEST": 78.84041700000125,
+          "E5-EXTRACTION": 44.10583299999962,
+          "E3": 0.02362599999833037,
+          "cpu": {
+            "user": 1341113,
+            "system": 4657
+          },
+          "heapEndpoint": 164353368,
+          "rssEndpoint": 396476416,
+          "maxRssLifetime": 388544,
+          "B": 4,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 2
+          },
+          "obligations": 4
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "medium",
+      "variant": "sparse",
+      "depth": 1000,
+      "scenario": "local",
+      "mode": "instrumented",
+      "historyForm": "chain",
+      "setupMs": 1763.128083,
+      "S": 8604,
+      "H": 9604,
+      "sHash": "70e6437315e352edc54f1db4320182f6d9b712d7e3ad72f50af3b9e3674bf538",
+      "fixtureHash": "87dd085a7c6991c5a11bf6d2706a9ef2492822f284d819709c1cc24baaba9aa9",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 909.2877920000003,
+          "role": "cold",
+          "prepare": 1.2518340000001444,
+          "execute": 1264.2046249999999,
+          "total": 1265.456459,
+          "harnessAnswers": 0.056375000000116415,
+          "E1": 0.11208399999986796,
+          "E2": 1.2017500000001746,
+          "E4": 0.10529100000030667,
+          "E5": 648.4039579999999,
+          "E6": 615.3807920000004,
+          "E7": 0.06412499999987631,
+          "E5-REGISTRY": 539.697334,
+          "E5-MANIFEST": 79.09287499999982,
+          "E5-EXTRACTION": 29.608957999999802,
+          "E3": 0.18845899999951143,
+          "cpu": {
+            "user": 1440161,
+            "system": 12012
+          },
+          "heapEndpoint": 131590384,
+          "rssEndpoint": 375898112,
+          "maxRssLifetime": 379056,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 782.754167,
+          "role": "warmup",
+          "prepare": 0.3758330000000569,
+          "execute": 1276.500666,
+          "total": 1276.876499,
+          "harnessAnswers": 0.05216699999982666,
+          "E1": 0.01641600000039034,
+          "E2": 0.3651669999999285,
+          "E4": 0.051332999999431195,
+          "E5": 649.9906250000004,
+          "E6": 626.4285840000002,
+          "E7": 0.012875000000349246,
+          "E5-REGISTRY": 541.6652920000006,
+          "E5-MANIFEST": 79.62566700000025,
+          "E5-EXTRACTION": 28.69445800000085,
+          "E3": 0.011498999999275838,
+          "cpu": {
+            "user": 1417983,
+            "system": 6030
+          },
+          "heapEndpoint": 117804568,
+          "rssEndpoint": 377798656,
+          "maxRssLifetime": 379056,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 789.9303749999999,
+          "role": "measured",
+          "prepare": 0.37495899999976245,
+          "execute": 1270.726667,
+          "total": 1271.1016259999997,
+          "harnessAnswers": 0.06029099999977916,
+          "E1": 0.015376000000287604,
+          "E2": 0.36524999999983265,
+          "E4": 0.0500000000001819,
+          "E5": 664.8026250000003,
+          "E6": 605.8440419999997,
+          "E7": 0.01212500000019645,
+          "E5-REGISTRY": 553.5798329999998,
+          "E5-MANIFEST": 81.86204199999975,
+          "E5-EXTRACTION": 29.35608299999967,
+          "E3": 0.012207999999191088,
+          "cpu": {
+            "user": 1415956,
+            "system": 8531
+          },
+          "heapEndpoint": 150232360,
+          "rssEndpoint": 392937472,
+          "maxRssLifetime": 384208,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 767.8546669999996,
+          "role": "measured",
+          "prepare": 0.4013749999994616,
+          "execute": 1267.1458330000005,
+          "total": 1267.547208,
+          "harnessAnswers": 0.05720900000051188,
+          "E1": 0.01449999999931606,
+          "E2": 0.39187500000116415,
+          "E4": 0.04945900000166148,
+          "E5": 661.1245839999992,
+          "E6": 605.9433750000007,
+          "E7": 0.011666000000332133,
+          "E5-REGISTRY": 550.9989579999983,
+          "E5-MANIFEST": 79.61683400000038,
+          "E5-EXTRACTION": 30.503999999998996,
+          "E3": 0.01174899999750778,
+          "cpu": {
+            "user": 1397115,
+            "system": 8869
+          },
+          "heapEndpoint": 165658056,
+          "rssEndpoint": 418283520,
+          "maxRssLifetime": 408720,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 771.2629159999997,
+          "role": "measured",
+          "prepare": 0.3980839999985619,
+          "execute": 1269.1852500000005,
+          "total": 1269.583333999999,
+          "harnessAnswers": 0.0687500000003638,
+          "E1": 0.014333999999507796,
+          "E2": 0.3897919999981241,
+          "E4": 0.052041999999346444,
+          "E5": 665.4640829999989,
+          "E6": 603.639666000001,
+          "E7": 0.011959000001297682,
+          "E5-REGISTRY": 556.9311249999992,
+          "E5-MANIFEST": 79.2206669999996,
+          "E5-EXTRACTION": 29.309124999999767,
+          "E3": 0.011458000000857282,
+          "cpu": {
+            "user": 1395478,
+            "system": 5764
+          },
+          "heapEndpoint": 177196792,
+          "rssEndpoint": 418070528,
+          "maxRssLifetime": 409536,
+          "B": 1,
+          "byKind": {
+            "ProjectSettings": 1
+          },
+          "obligations": 0
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "medium",
+      "variant": "sparse",
+      "depth": 1000,
+      "scenario": "actuals",
+      "mode": "instrumented",
+      "historyForm": "chain",
+      "setupMs": 1748.0742500000001,
+      "S": 8604,
+      "H": 9604,
+      "sHash": "70e6437315e352edc54f1db4320182f6d9b712d7e3ad72f50af3b9e3674bf538",
+      "fixtureHash": "87dd085a7c6991c5a11bf6d2706a9ef2492822f284d819709c1cc24baaba9aa9",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 898.5211250000002,
+          "role": "cold",
+          "prepare": 53.268375000000106,
+          "execute": 1253.9418339999997,
+          "total": 1307.2102089999998,
+          "harnessAnswers": 0.07270800000014788,
+          "E1": 0.27541599999995015,
+          "E2": 53.27620900000011,
+          "E4": 0.10370899999998073,
+          "E5": 639.2475420000001,
+          "E6": 614.048792,
+          "E7": 0.062000000000352884,
+          "E5-REGISTRY": 532.6282080000001,
+          "E5-MANIFEST": 77.66533299999992,
+          "E5-EXTRACTION": 28.9497080000001,
+          "E3": 0.1965409999993426,
+          "cpu": {
+            "user": 1507696,
+            "system": 10962
+          },
+          "heapEndpoint": 132324256,
+          "rssEndpoint": 375963648,
+          "maxRssLifetime": 367920,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 774.4658329999997,
+          "role": "warmup",
+          "prepare": 51.457249999999476,
+          "execute": 1247.354875,
+          "total": 1298.8121249999995,
+          "harnessAnswers": 0.06087500000012369,
+          "E1": 0.04941599999892787,
+          "E2": 51.625584000001254,
+          "E4": 0.04841699999997218,
+          "E5": 638.9603340000003,
+          "E6": 608.1007079999999,
+          "E7": 0.01316699999915727,
+          "E5-REGISTRY": 531.7948329999999,
+          "E5-MANIFEST": 77.74612499999967,
+          "E5-EXTRACTION": 29.413916999999856,
+          "E3": 0.014498999999887019,
+          "cpu": {
+            "user": 1441093,
+            "system": 5905
+          },
+          "heapEndpoint": 155574848,
+          "rssEndpoint": 378322944,
+          "maxRssLifetime": 370784,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 780.9947499999998,
+          "role": "measured",
+          "prepare": 50.85241700000006,
+          "execute": 1245.948125,
+          "total": 1296.800542,
+          "harnessAnswers": 0.06404099999963364,
+          "E1": 0.04766699999981938,
+          "E2": 51.00550000000021,
+          "E4": 0.038333000000420725,
+          "E5": 649.883041,
+          "E6": 595.799,
+          "E7": 0.013125000000400178,
+          "E5-REGISTRY": 531.8542500000003,
+          "E5-MANIFEST": 78.15208299999995,
+          "E5-EXTRACTION": 39.87175000000025,
+          "E3": 0.013875999999072519,
+          "cpu": {
+            "user": 1478333,
+            "system": 6710
+          },
+          "heapEndpoint": 162373600,
+          "rssEndpoint": 394297344,
+          "maxRssLifetime": 385520,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 766.1166249999987,
+          "role": "measured",
+          "prepare": 51.50579199999993,
+          "execute": 1251.668375000001,
+          "total": 1303.174167000001,
+          "harnessAnswers": 0.06649999999899592,
+          "E1": 0.05029199999989942,
+          "E2": 51.67341699999997,
+          "E4": 0.03966700000091805,
+          "E5": 652.7296249999999,
+          "E6": 598.6530000000002,
+          "E7": 0.011791999999331892,
+          "E5-REGISTRY": 532.678582999999,
+          "E5-MANIFEST": 91.74954199999956,
+          "E5-EXTRACTION": 28.297458000000915,
+          "E3": 0.016374000000723754,
+          "cpu": {
+            "user": 1438246,
+            "system": 5737
+          },
+          "heapEndpoint": 116312112,
+          "rssEndpoint": 399982592,
+          "maxRssLifetime": 391056,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 795.2784999999985,
+          "role": "measured",
+          "prepare": 51.23833299999933,
+          "execute": 1251.8552500000005,
+          "total": 1303.0935829999999,
+          "harnessAnswers": 0.07612499999959255,
+          "E1": 0.05183299999771407,
+          "E2": 51.40308300000106,
+          "E4": 0.045041999999739346,
+          "E5": 653.9971249999999,
+          "E6": 597.5711659999997,
+          "E7": 0.011415999999371707,
+          "E5-REGISTRY": 548.2922500000004,
+          "E5-MANIFEST": 77.53237500000068,
+          "E5-EXTRACTION": 28.168917000000874,
+          "E3": 0.013918000002377084,
+          "cpu": {
+            "user": 1434835,
+            "system": 4905
+          },
+          "heapEndpoint": 146079696,
+          "rssEndpoint": 400572416,
+          "maxRssLifetime": 391456,
+          "B": 1,
+          "byKind": {
+            "TeamActual": 1
+          },
+          "obligations": 2
+        }
+      ]
+    },
+    {
+      "event": "complete",
+      "size": "medium",
+      "variant": "sparse",
+      "depth": 1000,
+      "scenario": "boundary",
+      "mode": "instrumented",
+      "historyForm": "chain",
+      "setupMs": 1765.323959,
+      "S": 8604,
+      "H": 9604,
+      "sHash": "70e6437315e352edc54f1db4320182f6d9b712d7e3ad72f50af3b9e3674bf538",
+      "fixtureHash": "87dd085a7c6991c5a11bf6d2706a9ef2492822f284d819709c1cc24baaba9aa9",
+      "raw": [
+        {
+          "event": "trial",
+          "trial": 0,
+          "trialSetupMs": 905.1565409999998,
+          "role": "cold",
+          "prepare": 71.49199999999973,
+          "execute": 1280.9013330000002,
+          "total": 1352.393333,
+          "harnessAnswers": 0.07450000000017099,
+          "E1": 0.3236669999996593,
+          "E2": 71.63700000000017,
+          "E4": 0.6627920000000813,
+          "E5": 654.1362910000003,
+          "E6": 625.3547910000002,
+          "E7": 0.06320800000003146,
+          "E5-REGISTRY": 545.5361250000001,
+          "E5-MANIFEST": 79.54550000000017,
+          "E5-EXTRACTION": 29.049165999999786,
+          "E3": 0.21558399999958056,
+          "cpu": {
+            "user": 1522588,
+            "system": 10793
+          },
+          "heapEndpoint": 149954848,
+          "rssEndpoint": 376340480,
+          "maxRssLifetime": 386528,
+          "B": 4,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 2
+          },
+          "obligations": 4
+        },
+        {
+          "event": "trial",
+          "trial": 1,
+          "trialSetupMs": 767.5217089999996,
+          "role": "warmup",
+          "prepare": 70.92741699999988,
+          "execute": 1272.121709,
+          "total": 1343.049126,
+          "harnessAnswers": 0.056207999999969616,
+          "E1": 0.07558400000016263,
+          "E2": 71.20358299999953,
+          "E4": 0.43308300000080635,
+          "E5": 650.3221670000003,
+          "E6": 620.9872909999995,
+          "E7": 0.010667000000466942,
+          "E5-REGISTRY": 543.0988749999997,
+          "E5-MANIFEST": 78.72449999999935,
+          "E5-EXTRACTION": 28.495208000000275,
+          "E3": 0.016750999999203486,
+          "cpu": {
+            "user": 1477505,
+            "system": 6908
+          },
+          "heapEndpoint": 132005616,
+          "rssEndpoint": 383467520,
+          "maxRssLifetime": 386528,
+          "B": 4,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 2
+          },
+          "obligations": 4
+        },
+        {
+          "event": "trial",
+          "trial": 2,
+          "trialSetupMs": 783.1355830000002,
+          "role": "measured",
+          "prepare": 71.26316700000007,
+          "execute": 1274.3223750000006,
+          "total": 1345.5855420000016,
+          "harnessAnswers": 0.06000000000040018,
+          "E1": 0.08679200000005949,
+          "E2": 71.54462500000045,
+          "E4": 0.43808400000034453,
+          "E5": 662.7625420000004,
+          "E6": 610.7225829999998,
+          "E7": 0.01112499999908323,
+          "E5-REGISTRY": 543.2943750000004,
+          "E5-MANIFEST": 78.77558399999998,
+          "E5-EXTRACTION": 40.68712499999947,
+          "E3": 0.01979100000062317,
+          "cpu": {
+            "user": 1504908,
+            "system": 7185
+          },
+          "heapEndpoint": 161097080,
+          "rssEndpoint": 402882560,
+          "maxRssLifetime": 393440,
+          "B": 4,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 2
+          },
+          "obligations": 4
+        },
+        {
+          "event": "trial",
+          "trial": 3,
+          "trialSetupMs": 768.7561670000014,
+          "role": "measured",
+          "prepare": 71.37774999999965,
+          "execute": 1271.380416,
+          "total": 1342.7581659999996,
+          "harnessAnswers": 0.062167000000044936,
+          "E1": 0.07441599999947357,
+          "E2": 71.64466700000048,
+          "E4": 0.4306670000005397,
+          "E5": 660.7847089999996,
+          "E6": 609.7929999999997,
+          "E7": 0.009792000000743428,
+          "E5-REGISTRY": 541.3126250000005,
+          "E5-MANIFEST": 90.83699999999953,
+          "E5-EXTRACTION": 28.629917000000205,
+          "E3": 0.020914999999149586,
+          "cpu": {
+            "user": 1481119,
+            "system": 5713
+          },
+          "heapEndpoint": 132616896,
+          "rssEndpoint": 403570688,
+          "maxRssLifetime": 394816,
+          "B": 4,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 2
+          },
+          "obligations": 4
+        },
+        {
+          "event": "trial",
+          "trial": 4,
+          "trialSetupMs": 782.9502909999992,
+          "role": "measured",
+          "prepare": 70.95570800000132,
+          "execute": 1275.7535000000007,
+          "total": 1346.709208000002,
+          "harnessAnswers": 0.07583399999930407,
+          "E1": 0.07837400000062189,
+          "E2": 71.22483400000056,
+          "E4": 0.4322919999995065,
+          "E5": 671.0127499999999,
+          "E6": 603.9250000000011,
+          "E7": 0.013249999999970896,
+          "E5-REGISTRY": 564.4437909999997,
+          "E5-MANIFEST": 77.74291600000106,
+          "E5-EXTRACTION": 28.822250000001077,
+          "E3": 0.022708000000420725,
+          "cpu": {
+            "user": 1496659,
+            "system": 5078
+          },
+          "heapEndpoint": 180848536,
+          "rssEndpoint": 404242432,
+          "maxRssLifetime": 395136,
+          "B": 4,
+          "byKind": {
+            "ActualSubPeriod": 1,
+            "ActualPeriod": 1,
+            "PTEC": 2
+          },
+          "obligations": 4
+        }
+      ]
+    }
+  ]
+}
