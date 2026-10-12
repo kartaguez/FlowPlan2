@@ -1,5 +1,27 @@
 # FlowPlan2 current canon
 
+## R1.3 — PLAN CORRIGÉ après audit B1–B4 — 2026-10-12
+
+**R1.3 — PLAN CORRIGÉ / PROPOSED FOR RE-AUDIT / NOT STARTED.**
+Audit indépendant ChatGPT du PLAN à `c61da72d6c01de8aa46e1ef5430f232ba1a385eb` :
+**FAVORABLE SOUS CORRECTIONS B1–B4** ; corrections documentaires uniquement.
+Préflight conforme sur ce SHA : fetch réussi, branche exacte
+`rewrite/portfolio-versioned`, HEAD/origin exacts, arbre propre, divergence 0/0.
+[PLAN corrigé et traçabilité B1–B4](./steps/PORTFOLIO_VERSIONED/rewrite_r13_plan.md#25-corrections-après-audit-indépendant--b1-à-b4) :
+TA/PTEC historique restauré → identité conservée/nouvelle version même payload
+identique ; admission historique complète et réservations explicites de session ;
+predecessor courant exact ou base historique désignée présente/validée ; gate
+PERF-EDIT S/H/B/certification avec pente historique et verdict après mesure,
+sans optimisation automatique. R1.1/R1.2 et leurs normes inchangés, aucune
+exhaustivité durable revendiquée avant R2, aucun CRUD complet R4.
+Aucun code/test/script/benchmark/fixture/preuve/config/runtime/dépendance modifié,
+aucun test/typecheck/build/benchmark exécuté. Contrôles documentaires seulement.
+**Aucun GO. Prochain acte : nouvel audit indépendant du PLAN corrigé.**
+R0/R0.1/R1.1/R1.2 DONE ; R1.4/R2 NOT STARTED ; R4 non commencé.
+PERF-EDIT non qualifiée, PERF-LOAD et réserve inchangées ; P3-C abandonné.
+Le bandeau présent prime sur les statuts/propositions documentaires initiaux
+conservés ci-dessous pour traçabilité ; aucune décision déclarée implémentée.
+
 ## R1.3 — PLAN ONLY — 2026-10-11
 
 **R1.3 — PLAN PROPOSED FOR AUDIT / NOT STARTED.**

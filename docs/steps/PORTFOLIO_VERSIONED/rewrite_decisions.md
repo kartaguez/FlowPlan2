@@ -1,5 +1,28 @@
 # FlowPlan2 V2 — registre durable des décisions
 
+## Corrections documentaires R1.3 après audit indépendant — 2026-10-12
+
+**R1.3 — PLAN CORRIGÉ / PROPOSED FOR RE-AUDIT / NOT STARTED. Aucun GO.**
+Audit ChatGPT du PLAN initial `c61da72d6c01de8aa46e1ef5430f232ba1a385eb` :
+**FAVORABLE SOUS CORRECTIONS B1–B4**, verdict reçu par instruction utilisateur.
+Baseline/préflight correction conformes à ce SHA, branche exacte, fetch réussi,
+HEAD/origin exacts, arbre propre et 0/0. [Clauses corrigées et traçabilité](./rewrite_r13_plan.md#25-corrections-après-audit-indépendant--b1-à-b4).
+Les corrections suivantes sont fixées documentairement par la mission, jamais
+marquées implémentées ; réaudit du PLAN corrigé avant tout éventuel GO explicite.
+
+| Correction / statut | Décision et remplacement | Contrat / gates futures |
+| --- | --- | --- |
+| B1 R1.3 — FIXÉE documentairement | Remplace resélection historique identique §12/O13-04 : TA/PTEC non sélectionné réintroduit par restore, identité conservée/nouvelle version même payload identique ; exception circonscrite, selected inchangé conserve ref, neuf première version | PLAN §5–7/11–12/14/17/25, G13-05/07 : historique positif ou zéro→zéro, PTEC identique nouveau, aucun replay/resélection |
+| B2 R1.3 — FIXÉE documentairement | Remplace admission ambiguë §15/O13-02 : source RAM/inventaire complet H/identités/refs/ledger, refus explicite contexte incomplet/collision, absence prouvée seule autorise allocation, réservations conservées | PLAN §15.1/17/25, G13-05/07/11 ; exhaustivité contractuelle de source RAM, unicité durable entre sessions/reconstruction incomplet exclusivement R2 |
+| B3 R1.3 — FIXÉE documentairement | Remplace dernière publication implicite §11/15 : selected→predecessor courant exact ; historique non sélectionné→base explicitement désignée présente/validée ; neuf→sans predecessor, provenance distincte | PLAN §11.1/15.1/17/25, G13-05/07 ; branches sans choix/base étrangère/manquante refusées, aucun latest, invariants R1.1 inchangés |
+| B4 R1.3 — GATE FIXÉ, qualification NOT EXECUTED | Précise §15/18/O13-05 : S fixe/H variable, pente historique et effets S/H/B/certification séparés, EDIT-local/actuals sur chargé ; favorable seulement après mesures, dégradation/non qualifié documentés | PLAN §18.1/19/25, G13-14 ; aucun SLA avant mesure, modification VersionRegistry seulement plan correctif séparé/audit/GO, certification complète unique, P3-C abandonné |
+
+A-R12-01–09 et B1–B4 **de R1.2** inchangés. R0/R0.1/R1.1/R1.2 DONE ;
+R1.3/R1.4/R2/R4 non commencés. Aucun code ni preuve historique modifié ; aucun
+test/typecheck/build/benchmark exécuté. Contrôles documentaires/Git uniquement.
+L'entrée initiale ci-dessous conserve sa proposition et son statut passés ;
+la présente correction et PLAN §25 priment pour l'état documentaire actuel.
+
 ## Préparation R1.3 — PLAN ONLY — 2026-10-11
 
 **R1.3 — PLAN PROPOSED FOR AUDIT / NOT STARTED.**
