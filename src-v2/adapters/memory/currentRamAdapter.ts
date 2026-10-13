@@ -1,8 +1,41 @@
 import type { CompleteRamHistorySource, CurrentRamPort, PublishedCurrent } from '../../application/ports/currentRamPort.js';
+import type { CurrentAcquisitionBinding, OwnedCurrentCapture, RamScope } from '../../application/ports/currentAuthorityPort.js';
+import type { CurrentSelection } from '../../domain/portfolio/manifest.js';
+import type { ValidatedPortfolioGraph } from '../../domain/portfolio/validatedPortfolioGraph.js';
+import type { BusinessVersion } from '../../domain/portfolio/payloads.js';
 import type { TransitionAllocationPort } from '../../application/ports/transitionAllocationPort.js';
 import { copyImmutableValue } from '../../domain/versioning/immutableValue.js';
 import { invalid, success, type DomainResult } from '../../domain/primitives/result.js';
-import { createId } from '../../domain/primitives/identity.js';
+import { createId, type PortfolioId } from '../../domain/primitives/identity.js';
+
+/** Final owner primitive under construction in A.1–A.3; no session uses it until A.4. */
+export function createCurrentAcquisitionCell(portfolioId: PortfolioId): Readonly<{
+  binding: CurrentAcquisitionBinding;
+  read(): OwnedCurrentCapture | null;
+  isTokenCurrent(token: object): boolean;
+}> {
+  let root: (OwnedCurrentCapture & { readonly generation: object; readonly technicalRevision: bigint }) | null = null;
+  let bound = false;
+  let entered = false;
+  const binding: CurrentAcquisitionBinding = Object.freeze({
+    portfolioId,
+    bindAcquirer() {
+      if (bound) throw new Error('RamAcquirerAlreadyBound');
+      bound = true;
+      return (scope: RamScope, selection: CurrentSelection, graph: ValidatedPortfolioGraph, selected: readonly BusinessVersion[]): OwnedCurrentCapture => {
+        if (entered) throw new Error('ConcurrentRamExecution');
+        entered = true;
+        try {
+          const token = Object.freeze(Object.create(null)) as object;
+          const next = Object.freeze({selection,graph,selected,scope,token,generation:Object.freeze(Object.create(null)) as object,technicalRevision:0n});
+          root = next;
+          return next;
+        } finally { entered = false; }
+      };
+    }
+  });
+  return Object.freeze({binding,read:() => root,isTokenCurrent:(token: object) => root?.token === token});
+}
 
 export function createCurrentRamAdapter(initial: PublishedCurrent): CurrentRamPort {
   let current = initial, entered = false, bound = false;
