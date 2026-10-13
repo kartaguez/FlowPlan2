@@ -11,21 +11,21 @@ Lot B (P4–P6), lot C (P7), R1.4 et R2 restent hors mission.
 
 ## 1. Baseline et corpus normatif
 
-### 1.1 Préflight avant rédaction
+### 1.1 Préflight avant correction
 
-Les commandes obligatoires ont été exécutées dans cet ordre, avant création du
-présent fichier :
+Préflight de correction après audit du lot A : les commandes obligatoires ont
+été exécutées dans cet ordre avant toute modification :
 
 | Commande | Résultat |
 | --- | --- |
 | `git fetch origin` | Succès, code 0 |
 | `git status --short` | Vide : arbre propre |
 | `git branch --show-current` | `rewrite/portfolio-versioned` |
-| `git rev-parse HEAD` | `b9db2ee28528e387f67c8277d0978066cc9d07e6` |
+| `git rev-parse HEAD` | `ab0a1b0479a08f17e41c7c9b45f3409d58c0cf69` |
 | `git rev-parse origin/rewrite/portfolio-versioned` | Même SHA |
 | `git rev-list --left-right --count origin/rewrite/portfolio-versioned...HEAD` | `0 0` |
 
-SHA initial = baseline documentaire validée = HEAD = origin. Aucun commit
+SHA initial = baseline du plan audité = HEAD = origin. Aucun commit
 postérieur : `git log baseline..HEAD` vide. Aucune modification existante à
 écraser, aucun blocage de synchronisation ou changement normatif constaté.
 La recherche dans le dépôt ne trouve aucun `AGENTS.md` applicable. Avant le
@@ -90,7 +90,7 @@ issus de la lecture des sources à la baseline, pas d'une exécution nouvelle.
 | `src-v2/application/ports/currentRamPort.ts` | PublishedCurrent={selection,registry,graph} ; bindTransitionSession/read/exclusive(callback)/publish(view), CompleteRamHistorySource. Session/adapter/tests. | Cellule propriétaire read coherent + commit(expected,candidate) ; admission source native attestée et transfer, aucune publication par callback. |
 | `src-v2/application/ports/transitionAllocationPort.ts` | reserveEntity(kind,owner), reserveVersion, reservePreparation ; session/allocateur déterministe/tests. | Réservation coordonnée avec autorité avant retour, receipts privés de dossier ; générateur technique optionnel derrière authority, sans ledger concurrent. |
 | `src-v2/application/ports/candidateAssemblyPort.ts` | assemble(base,selected):unknown, défaut assembleCandidateManifest ; fault seam tests. | Garder assemblage avant certification ; sortie unknown intégralement validée. Aucun accès à commit ou capacité fiable. |
-| `src-v2/adapters/memory/currentRamAdapter.ts` | current/entered/bound dans closure ; publish autorisé sous entered, gel superficiel view ; source copie tout jeu natif ; allocateur counters BigInt namespace. | Une closure propriétaire contient racines publiées, ledger, génération/révision, garde et writer. Les rôles peuvent rester dans ce fichier ; aucun deuxième store. |
+| `src-v2/adapters/memory/currentRamAdapter.ts` | current/entered/bound dans closure ; publish autorisé sous entered, gel superficiel view ; source copie tout jeu natif ; allocateur counters BigInt namespace. | Une closure propriétaire contient racines publiées, ledger, token writer/génération/révision technique, garde et writer. Les rôles peuvent rester dans ce fichier ; aucun deuxième store. |
 | `src-v2/adapters/memory/memoryPortfolioReadAdapter.ts` | Factory registre de toutes versions au setup ; snapshots acquis ; exact batch reconstruit table à chaque requête. Lecture seule. | Garder lecteur autonome R1.2 ; pour propriétaire éditable, façade lecture sur la racine publiée capturée, sans copier un second H. |
 | Composition native dans tests/harness ; bootstrap/shell V2 | Aucun répertoire `src-v2/composition/` à la baseline ; recherche des consommateurs : aucun montage métier R1.3 dans runtime shell, modules dormants. | Aucun montage UI/bootstrap/legacy nouveau. Qualification composition dans tests/harness uniquement. |
 
@@ -161,15 +161,37 @@ ne doivent pas importer `acquireCurrent.ts` ou `session.ts` (audit hexagonal).
 
 ### 3.2 Tuple, lecture et représentation
 
-Racine propriétaire privée :
-`{published:{selection, graph, archiveRoot, selectedIndex, generation, revision}, ledgerRoot}`.
-Une lecture capture cette racine une fois ; la vue publiée est immutable et
-concordante : graph.manifest = selection.manifest en valeur, revision identique
-au wrapper, chaque ref selected résout exactement dans archiveRoot ; index
-construit depuis ce même graph et lié au même token. ledgerRoot est technique,
-peut avancer sans changement métier, et ne devient aucun champ Current/Snapshot.
+Racine propriétaire privée conceptuelle :
+`{published:{selection, graph, archiveRoot, selectedIndex}, authority:{writer, generation, technicalRevision, token}, ledgerRoot}`.
+Les noms ne fixent pas les détails TypeScript de l'implémentation.
 
-Recommander un index exact persistant spécialisé, arbre équilibré par tuples
+Trois notions sont distinctes : **révision métier** = `selection.revision`,
+texte opaque du wrapper Current ; **génération privée** = identité runtime
+neuve et non réutilisable de l'installation fiable/propriétaire ; **révision
+technique privée** = progression des publications successives dans cette
+seule génération. Le **token propriétaire** opaque non forgeable lie writer,
+portée, génération et révision technique ; le texte métier seul n'autorise
+jamais un commit. La cellule est leur unique source, sans compteur de session
+concurrent ni deuxième voie de publication.
+
+Une lecture capture cette racine une fois ; la vue publiée est immutable et
+concordante : graph.manifest = selection.manifest en valeur, révision métier
+lue uniquement dans le wrapper, chaque ref selected résout dans archiveRoot ;
+index et capacité sont liés au token de cette capture. Le dossier capture ce
+token original à prepare. Il est comparé au token actif avant réponses et au
+commit ; une copie ou reconstruction des composantes n'est pas une capacité.
+Applied renouvelle le token et avance la révision technique dans la même
+génération ; NoOp/refus/abandon et réservations seules ne le changent pas.
+La révision métier du prochain wrapper est préparée selon le contrat R1.3
+puis publiée avec ce même Current, sans exposer le compteur technique comme
+histoire métier ni créer un Snapshot/ancien manifeste automatiquement.
+Une installation externe réussie crée une génération et un token neufs même
+à manifeste et révision métier identiques ; elle n'impose aucune modification
+du manifeste métier. Les anciens tokens/handles ne redeviennent jamais valides.
+ledgerRoot peut avancer sans changement métier et ne devient aucun champ
+Current/Snapshot.
+
+Adopter un index exact persistant spécialisé, arbre équilibré par tuples
 composants `(kind,family,value,versionFamily,versionValue)`, comparaison lexicale
 sans concaténation ambiguë ni hash d'autorité. Append copie uniquement les
 chemins des B insertions, enveloppes H partagées, itération exhaustive explicite
@@ -247,8 +269,8 @@ R1.2 restent utilisables hors session sans conversion arbitraire en sync.
 
 Après succès, une liaison Application privée à l'écrivain propriétaire crée
 la capacité : objet original stocké dans closure privée, owner original,
-génération neuve opaque par identité runtime, révision privée monotone et vue
-certifiée exacte. Ne pas exporter de factory acceptant un
+génération neuve opaque par identité runtime, révision technique privée
+monotone et vue certifiée exacte. Ne pas exporter de factory acceptant un
 `ValidatedPortfolioGraph` fourni par caller pour installer directement ; un
 cast, flag, symbole copié, Spread ou certificat Snapshot ne passe pas cette voie.
 Le propriétaire fournit un endpoint d'installation uniquement à ce service
@@ -259,15 +281,21 @@ Installation initiale, remplacement externe, réhydratation RAM et changement
 de propriétaire utilisent **tous** cette acquisition. Échec laisse ancien
 tuple intact et aucun token fiable nouveau. Succès crée génération nouvelle,
 révoque anciennes capacités/index/dossiers. Même révision texte et même M
-après A→B→A ne rendent jamais l'ancienne génération égale. Révision privée
-BigInt ne se réemploie pas entre éditions ; le texte Current demeure opaque.
-Remplacement sur même Portfolio conserve H et ledger, y ajoute les nouvelles
-archives acquises ; tentative d'omission n'efface rien. Changement Portfolio
-crée propriétaire/scope distinct, ne libère pas réservations de l'ancien.
-Transfert propriétaire = ancien écrivain révoqué puis nouveau installé après
-acquisition et transfert complet ; si intégralité non attestée, classes
-concernées deviennent indisponibles et créations refusées. Aucun import/export
-durable, codec ou recovery R2 ajouté.
+après A→B→A ne rendent jamais l'ancienne génération égale. La révision
+technique ne se réemploie pas dans sa génération ; le texte Current demeure
+opaque et distinct selon §3.2. Remplacement sur même Portfolio
+conserve H et ledger, y ajoute les nouvelles archives acquises ; tentative
+d'omission n'efface rien. Changement Portfolio crée propriétaire/scope distinct,
+ne libère pas réservations de l'ancien.
+
+Le transfert de propriétaire réutilise cette acquisition, puis le protocole
+**préparer → basculer atomiquement** de §5.2. Il n'y a pas de révocation
+préalable suivie d'une installation faillible : activation du nouvel écrivain
+et révocation de l'ancien appartiennent au même swap RAM. Tout échec avant
+activation conserve l'ancien propriétaire et ses réservations. Les classes
+historiques dont l'exhaustivité n'est pas attestée restent indisponibles :
+les créations qui les nécessitent sont refusées. Aucun import/export durable,
+codec ou recovery R2 ajouté.
 
 ### 5.2 Authority, archives, index et réservations
 
@@ -315,12 +343,37 @@ clé interdit ; pas de deuxième identité de secours. Rejected answers corrigib
 conserve pending ; abandon/stale/erreur termine dossier et brûle sorties non
 publiées. Burn ne libère jamais clé/ID.
 
-Transfert natif comprend mappings, émissions Entity/Version, receipts/statuts
-pending/burned/published et compteurs/namespace ; H seul insuffisant. Handles
-non transférables : pending de session quittée devient burned sans libération,
-ancien écrivain révoqué. Authority transférée unique, pas clonée en deux
-réservateurs actifs. Inspection ledger lit une racine cohérente et ne gèle pas
-un tableau mutable vivant.
+**Passation RAM atomique (C1).** La même cellule et son unique ledger restent
+l'autorité du namespace et de la portée. Le changement porte sur la liaison
+privée writer/propriétaire ; aucun nouveau store d'autorité n'est installé.
+Sous garde commune, la préparation capture la racine active, acquiert et
+certifie le Current destiné au nouvel écrivain, contrôle portée/namespaces et
+prépare l'état suivant. La nouvelle liaison reste inactive : elle ne peut ni
+réserver ni commit. Pendant préparation, les mutations de l'ancien écrivain
+sont suspendues par la garde ; ses capacités restent valides pour un retour
+sans activation. Lectures immuables permises. Toute tentative de deuxième
+transfert ou réservation réentrante est refusée avant effet.
+
+| Moment | Propriétaire / écrivain | Réservations / ledger |
+| --- | --- | --- |
+| Avant transfert | Ancien seul actif ; aucune autorité nouvelle | Racine unique contenant published, pending et burned ; toutes émissions EntityId/VersionId, mappings et compteurs conservés. |
+| Pendant préparation | Ancien demeure titulaire, mutations suspendues ; nouvelle liaison préparée inactive | Ledger actif inchangé ; état suivant préparé avec partage structurel, sans second ledger d'autorité. Aucun ID émis par la passation. |
+| Après activation réussie | Unique swap active nouveau writer/génération/token et révoque ancien ; ancien ne peut plus réserver ni commit | Même autorité conserve toutes émissions/mappings/published/burned. Tous dossiers de l'ancienne session sont non transférables dans A : leurs pending deviennent burned au même swap, sans réemploi. |
+| Échec ou interruption avant activation | Préparation jetée, nouvelle liaison jamais active ; ancien seul actif et garde libérée | Racine, dossiers et réservations de l'ancien inchangés, aucun pending perdu/brûlé par le seul échec de transfert ; toute réservation déjà burned reste burned. |
+
+La racine suivante, résultat et invalidations sont prêts avant le dernier
+contrôle de racine/writer/portée. Une assignation interne unique transfère
+l'autorité et le ledger avec les archives/index/Current acquis. Aucun callback,
+await, allocation ni traitement faillible entre ce contrôle et le swap, aucun
+retour d'échec après activation. Une interruption volontaire avant activation
+suit la ligne échec ; un arrêt physique du runtime ne relève pas d'un recovery
+RAM promis. Le nouvel écrivain ne réserve qu'après acquisition et activation
+réussies. Une ancienne façade vérifie son identité writer à chaque mutation,
+y compris réserve, même si elle conserve une référence au ledger. Les classes
+non attestées ne peuvent devenir complètes par transfert ; les réservations
+connues ne sont jamais supprimées. Pas de transaction distribuée, stockage
+durable, second propriétaire permanent ni gestionnaire générique de migration.
+Inspection ledger lit une racine cohérente, jamais un tableau mutable vivant.
 
 ### 5.3 Demandes historiques Domain et append
 
@@ -348,19 +401,33 @@ provenance ou fermeture transitive inventée. Restore B1 TA/PTEC force nouvelle
 VersionId même valeur égale. Collisions divergentes et owner inconnu non prouvé
 refusés avant extension.
 
-**Filiation incomplète :** H importé peut référencer un predecessor absent.
-La seule nouveauté du VersionId ne prouve donc pas l'absence de cycle H→B→H.
-Conserver index compact des liens predecessor et cibles non résolues lors de
-l'admission des archives. Pour append d'édition A, predecessor appartient à H
-(base résolue) et aucun ancien lien non résolu ne cible une ref nouvelle B :
-contrôle négatif exact par index, sinon refuser append et demander qualification
-des témoins pertinents. Les IDs mentionnés par liens non résolus ne sont pas
-considérés libres sans ce contrôle. H déjà acquis sans cycle fourni + liens B
-seulement vers H + absence H→B implique aucun cycle nouveau ; jamais scan
-lignée entière imposé. Ce refus technique ne transforme pas not-established
-en established et ne rend pas un Snapshot invalide du fait d'ancêtres absents.
-Un futur import complétant des liens exige validation contextuelle unknown,
-non cette voie d'édition. Contradictions connues dans témoins toujours refusées.
+**Filiation incomplète (C3) :** l'index compact de liens predecessor et cibles
+non résolues décrit les seuls liens effectivement acquis. Il n'ajoute ni
+prédécesseur, base implicite, fermeture transitive ni règle Snapshot.
+
+| Situation | Contrat et diagnostic |
+| --- | --- |
+| Historique partiellement connu mais cohérent | Import autorisé selon R1.1 et B1 R1.2 ; predecessor absent et relations sans témoin restent `not-established`. Une édition dont les preuves pertinentes suffisent reste possible sans résoudre tous les ancêtres. |
+| Contradiction historique établie | Les liens/enveloppes présents démontrent cycle, mauvais owner/identité ou collision : refus suivant diagnostics existants R1.1 ; ce n'est pas une indisponibilité. |
+| Append créant contradiction ou cycle | Analyser les liens B et témoins historiques pertinents ; preuve de contradiction ⇒ refus de l'append avec diagnostic existant, sans publier B ni altérer H. |
+| Preuve insuffisante pour append | Refus technique de l'opération, famille indisponibilité de preuve §5.5 ; aucune requalification rétroactive de H en invalide, aucun `established` sans témoin. |
+
+La nouveauté de VersionId ne prouve pas seule l'absence de cycle H→B→H.
+Pour l'append d'édition A, les predecessors sont des bases H résolues et
+explicitement choisies ; une identité réellement neuve n'en reçoit pas.
+Un index attesté complet des liens acquis permet le contrôle négatif exact
+qu'aucun lien H non résolu ne vise B. H sans cycle démontré, B dirigé vers H
+et absence attestée H→B prouvent l'absence de nouveau cycle predecessor.
+Si H→B existe, analyser ses témoins pertinents : un cycle démontré est une
+violation ; sans preuve suffisante de sûreté, refuser techniquement, sans
+faire de la seule cible auparavant absente une contradiction. Index incomplet
+et absence de preuve alternative ⇒ même refus technique. Les IDs mentionnés
+par des liens non résolus ne sont pas déclarés libres par simple cache miss.
+Branches historiques conservées ; aucune lignée entière imposée. Provenance
+garde uniquement ses contrôles R1.1, sans nouvelle fermeture transitive.
+Un import complétant des liens suit la validation contextuelle unknown R1.1,
+avec les relations effectivement établies, et non une interdiction générale
+issue du chemin d'édition. T13 sépare explicitement les quatre situations.
 
 Partage sûr : entrées unknown copiées/gelées avant indexation ; nouvelles B
 acquises séparément ; aucun nœud H ni payload partagé mutable. Toute mutation
@@ -371,23 +438,27 @@ Résolution exacte accessible sur chaque racine publiée et anciens snapshots.
 ### 5.4 Commit propriétaire et réentrance
 
 `read()` retourne une vue capturée ; l'écrivain lié seul détient
-`commit(expectedGeneration, expectedRevision, preparedCandidate)` → Committed /
+`commit(expectedToken, preparedCandidate)` → Committed /
 Stale / RefusedBeforePublication. Le candidat est interne et lié au dossier,
 à base/receipts et aux données **finales** certifiées. Assembly ne reçoit ni
 écrivain ni capacité. Aucun endpoint public prenant un certificat forgé ; ports
 qualifiés à la composition, pas sécurité magique contre du JS malveillant.
 
-Pipeline : garde → capture/stale → réponses → décision NoOp → réservations
-Versions → factories B → append séparé → M1/S1 résolu depuis archive candidate
+Pipeline : garde → capture du token propriétaire/stale → réponses → décision
+NoOp → réservations Versions → factories B → append séparé → M1/S1 résolu depuis archive candidate
 → certification complète réelle → index1 dérivé → préparation résultat Applied,
 terminaison dossier et changement ledger → dernier contrôle token → swap.
 Les préparations techniques après certification ne changent aucune donnée
 métier certifiée ; tuple compare exactement M1/S1/index1/archive candidate.
+Le token suivant est préparé par la cellule, puis devient actif au même swap ; le token précédent
+est invalidé. La révision métier du wrapper concorde avec Current1 et ne sert
+jamais de substitut au contrôle technique.
 
 Le propriétaire prépare **avant** fenêtre finale la prochaine racine englobant
 published1 et ledger1 (statuts published), le résultat immuable et les références
 de terminaison. Point de linéarisation = une assignation interne `root=nextRoot`
-après comparaison génération/révision et contrôle writer/receipts. Pas de copie,
+après comparaison du token propriétaire actif (writer/génération/révision
+technique) et contrôle portée/receipts. Pas de copie,
 factory, getter caller, allocation, I/O, await ou callback externe entre dernière
 comparaison et swap. Aucune notification dans commit. Après swap : retour du
 résultat déjà construit et suppression interne non faillible du handle ; pas
@@ -399,7 +470,7 @@ référence et valeur**, B absent de H publié ; réservations peuvent brûler.
 Après swap, résultat Applied, jamais catch général reconvertissant en
 InternalTransitionFailure. Échec de notification séparée après retour Applied
 ne requalifie rien. Pas de promesse de récupération universelle OOM/runtime.
-NoOp conserve tuple/révision et n'alloue aucune VersionId.
+NoOp conserve tuple et révisions métier/technique, sans allouer de VersionId.
 
 Garde unique propriétaire/session posée avant toute lecture/analyse/allocation,
 y compris reservePreparation. Elle couvre prepare/execute/abandon/remplacement
@@ -412,8 +483,9 @@ pendant fenêtre. Tests de tentatives passent via entrées réellement atteignab
 pas par ajout d'un hook de production dans swap. Remplacement externe utilise
 même garde et acquisition ; une tentative réentrante est refusée.
 
-Stale global compare owner/génération/révision **avant acquisition des réponses**
-et au commit ; Applied rend stale tous dossiers précédents même disjoints.
+Stale global compare le token propriétaire original (owner/génération/révision
+technique) **avant acquisition des réponses** et au commit ; Applied rend stale
+tous dossiers précédents même disjoints.
 Dossiers anciens peuvent être terminés paresseusement au prochain execute
 (Stale prioritaire) ; leurs réservations ne sont jamais réallouables et leur
 inspection indique burn après invalidation. Handle copié/étranger/terminé
@@ -421,9 +493,46 @@ Rejected, ABA même M/révision textuelle Stale. Aucun merge/rebase implicite.
 `exclusive(callback)` et `publish(view)` sont supprimés des ports/cellule et
 compositions R1.3 à la bascule : aucune compatibilité les conservant comme write.
 
+### 5.5 Table contractuelle des échecs (O-A05)
+
+Les unions publiques restent exactement R1.3 : prepare = Prepared/NoOp/Rejected ;
+execute = Applied/NoOp/Stale/Rejected/CandidateCertificationFailure/
+InternalTransitionFailure. Une indisponibilité attendue est un refus technique
+transporté par Rejected, jamais un invariant métier inventé ni une exception
+interne masquée. Les familles techniques ci-dessous sont des diagnostics de
+port, pas de nouvelles erreurs métier ; leurs noms TypeScript restent à proposer.
+Les codes existants sont réutilisés seulement lorsqu'ils couvrent exactement
+le cas. Stale précède lecture/validation des réponses ; validation commande
+précède requêtes de preuve, lesquelles précèdent les allocations nécessaires.
+Pour **toutes** les lignes, refus/exception n'altère pas le Current, graph,
+archive ni index publiés ; aucun B candidat n'entre dans H. Les stages nommés
+sont les étapes contractuelles, à raccorder explicitement aux libellés publics
+R1.3 lors du contrôle des consommateurs, sans effacer les stages existants.
+
+| Situation d'échec | Code / famille diagnostic | Stage de traitement | Résultat public R1.3 | Effet dossier | Effet réservations |
+| --- | --- | --- | --- | --- | --- |
+| Commande / précondition métier invalide | Diagnostics Domain existants, code/path/ordre conservés | business (prepare) | Rejected | Pas de dossier créé | Aucune allocation |
+| Handle copié, étranger ou terminé | InvalidPreparation | handle | Rejected | Aucun dossier admis/rejoué | Aucune modification |
+| Token périmé, y compris ABA / remplacement | Stale, sans nouvelle erreur métier | stale avant answers ou contrôle final commit | Stale | Terminé | Pending non publiés burned |
+| Réponses invalides ou mauvais binding | Diagnostics existants / AnswerPreparationMismatch | answers | Rejected | Reste corrigible pending | Pending conservés |
+| Réentrance / deuxième writer | ConcurrentRamExecution lorsque le cas est couvert ; famille technique liaison d'autorité sinon | exclusive / liaison avant effets | Rejected pour prepare/execute ; acquisition refusée hors unions session | Tentative sans nouveau dossier ; dossier extérieur inchangé | Aucune réservation imbriquée |
+| Classe de scope non attestée, base indisponible, index/témoins de filiation insuffisants | Famille technique indisponibilité de preuve, distinguant scope/base/liens ; jamais LINEAGE_CYCLE sans cycle prouvé ni MISSING_EXACT_VERSION pour cache miss | history / preuve d'append (registry) | Rejected en prepare ou execute | Pas de dossier en prepare ; en execute refus terminal, nouvelle préparation explicite requise | Zéro allocation si détecté en amont ; sinon pending burned |
+| Réponse exacte substituée / absence attestée de base requise | READ_REFERENCE_MISMATCH / MISSING_EXACT_VERSION si cas exact ; diagnostics de collecte existants pour extra | history / extraction | Rejected si acquisition demandée ; InternalTransitionFailure si invariant du lecteur qualifié violé en matérialisation | Pas de dossier ou terminé | Sorties acquises burned |
+| Contradiction historique / append prouvée | LINEAGE_CYCLE, PREDECESSOR_IDENTITY_MISMATCH, IMMUTABLE_OWNER_MISMATCH, DIVERGENT_VERSION_COLLISION, OWNER_IDENTITY_CONFLICT selon preuve | history / registry | Rejected pour fait historique refusé en prepare ; InternalTransitionFailure pour B matérialisé contraire au plan légal | Pas de dossier ou terminé | Sorties acquises burned |
+| Clé déjà réservée / collision allocateur / receipt incompatible | IdentityReservationConflict, PreparationAllocationCollision, VersionAllocationCollision si exact ; famille technique receipt invalide sinon | history / allocation / materialization | Rejected en prepare ; InternalTransitionFailure en execute | Pas de dossier ou terminé | Sorties acquises burned ; réservation du dossier concurrent inchangée ; aucun retry |
+| Candidat final invalide | Diagnostics oracle existants, dont PTEC_SELECTION_MISMATCH | certification | CandidateCertificationFailure | Terminé | Pending burned |
+| Exception allocation/factory/assembly/index ou préparation résultat avant swap | InternalTransitionFailure avec diagnostic interne/stage précis ; diagnostics factory propagés | Étape réellement échouée, dont materialization/manifest/registry/publication | Rejected en prepare (union inchangée), InternalTransitionFailure en execute | Pas de dossier ou terminé | Sorties acquises burned |
+| Acquisition / transfert échoué ou interrompu avant activation | Diagnostics acquisition existants ou famille technique transfert/portée ; aucune violation métier supposée | acquisition / préparation transfert | Résultat de service hors unions prepare/execute ; refus explicite | Dossiers de l'ancien propriétaire inchangés | Ledger conservé intégralement selon §5.2 |
+
+Abandon termine le dossier et brûle pending ; NoOp termine sans VersionId ni
+swap/token nouveau. Après un swap réussi, seul Applied (ou succès d'activation
+pour transfert) est rendu ; notification séparée ne change pas ce résultat.
+T19/T26 vérifient famille métier/preuve/interne, stage, priorité, dossier,
+réservations et identité du courant publié, y compris les nouveaux refus.
+
 ## 6. Jalons internes A.1–A.4
 
-Les tests référencés T01–T24 sont détaillés au §9. Tous sont futurs ; aucun
+Les tests référencés T01–T27 sont détaillés au §9. Tous sont futurs ; aucun
 jalon technique n'est commencé. Fichiers nouveaux sont prévus, noms audités
 avant GO ; source/test/canon historique ne sont pas modifiés par ce plan.
 
@@ -435,7 +544,7 @@ avant GO ; source/test/canon historique ne sont pas modifiés par ce plan.
   factorisée sans shortcut), currentRamPort.ts, currentAuthorityPort.ts nouveau,
   currentRamAdapter.ts ; tests acquireCurrent.test.ts et qualification adapter.
   validatedPortfolioGraph.ts/graphResolver.ts/graphValidation.ts conservés.
-- **Contrats :** capture cohérente ; génération privée ; capability originale
+- **Contrats :** capture cohérente ; génération et révision technique privées ; capability originale
   non sérialisable ; writer unique, mêmes garde/token pour futurs commit et
   réservations. Installation inconnue seulement après vraie certification.
 - **Dépendances :** P0 et APIs R1.2 ; aucun append ni transition ciblée requis.
@@ -443,7 +552,7 @@ avant GO ; source/test/canon historique ne sont pas modifiés par ce plan.
   faux certificat, capture changeante, remplacement valide/invalide, ABA.
 - **Acceptation :** certification intégrale observée sur unknown ; aucun
   certificat fourni ne peut installer ; remplacement échoué garde ancienne vue,
-  réussi invalide token ; Snapshot reste indépendant.
+  réussi invalide token même si M/révision métier sont identiques ; Snapshot reste indépendant.
 - **Passage :** audit interne des frontières et tests de capacité passes ;
   définition scope/transfert concordante avant A.2.
 - **Anciens mécanismes à supprimer à A.4 :** symbole d'admission comme seule
@@ -464,13 +573,14 @@ avant GO ; source/test/canon historique ne sont pas modifiés par ce plan.
   index de liens non résolus ; aucune Map H partagée mutable.
 - **Dépendances :** A.1 capacité/garde ; règles R1.1 et P0 §5 ; index d'identités
   attesté source native/transfert, pas déduction depuis S.
-- **Tests +/− :** T05–T13, T21–T22 ; lectures exactes, collisions cachées,
+- **Tests +/− :** T05–T13, T21–T22, T25 ; lectures exactes, collisions cachées,
   partiel, concurrence pending, erreurs/allocation, owner/filiation/branches.
 - **Acceptation :** créations non prouvées refusées ; VersionId neuve toujours
   garantie ; aucun cache miss→fresh ; H0 résout toutes refs après append/échec ;
   compteurs de visite/copie prouvent aucun parcours H par édition normale.
 - **Passage :** tests persistance et filiation incomplets passent, modèle ledger
-  prêt à passer pending→published au même swap que archives pour A.3.
+  et passation C1 qualifiés ; pending→published prêt au même swap que archives
+  pour A.3.
 - **Suppression à bascule :** ledger/sets d'autorité copiés en session,
   withVersions(H+B) et tables exactes H par édition ; pas suppression de la
   factory unknown R1.2 ou de ses tests.
@@ -482,11 +592,11 @@ avant GO ; source/test/canon historique ne sont pas modifiés par ce plan.
 - **Fichiers :** currentRamPort.ts/currentRamAdapter.ts, currentAuthorityPort.ts,
   currentDependencyIndex.ts nouveau ; tests cellule/commit/gardes et
   scripts/v2/r13.test.mjs (préparer assertions de bascule).
-- **Contrats :** tuple §3.2, expected owner/generation/revision, result préconstruit,
+- **Contrats :** tuple §3.2, token propriétaire original, résultat préconstruit,
   root swap unique ; pas d'erreur retournée après swap ; garde commune.
 - **Dépendances :** A.1/A.2 ; candidat déjà entièrement certifié, extensions
   et statuts techniques prêts avant fenêtre irréversible.
-- **Tests +/− :** T03–T04, T08–T10, T14–T17, T24 ; exceptions avant swap,
+- **Tests +/− :** T03–T04, T08–T10, T14–T17, T24–T27 ; exceptions avant swap,
   read coherent, stale final, tentatives réentrantes/allocation et writer concurrent.
 - **Acceptation :** source/JS commit sans callback/await/allocation dans fenêtre,
   trace uniquement old/new tuple ; ledger published concorde ; écriture directe
@@ -510,7 +620,7 @@ avant GO ; source/test/canon historique ne sont pas modifiés par ce plan.
   orchestrées, B1/B3, Applied/NoOp/Rejected/Stale et diagnostics conservés ;
   port assembly unknown toujours avant oracle entier.
 - **Dépendances :** A.1–A.3 qualifiés ; toutes familles R1.3 et fixtures.
-- **Tests +/− :** T01–T24 intégrés et suites G12/G13 ; T18–T20 sur obligations,
+- **Tests +/− :** T01–T27 intégrés et suites G12/G13 ; T18–T20 sur obligations,
   diagnostics, NoOp, archives/Snapshots et séquences ; mesures §10.
 - **Acceptation :** aucun appel normal d'édition à H entier/withVersions/
   publish/exclusive, pas de deuxième ledger/store ; réelle certification finale
@@ -528,17 +638,18 @@ avant GO ; source/test/canon historique ne sont pas modifiés par ce plan.
 | G01–G03 ; C01/C02 | Factories locales conservées, immutabilité/append contextualisé | T01/T11–T13/T21 |
 | G04–G11 ; C04–C15 | Règles locales/inter-entités et toutes commandes conservées ; oracle complet | T18/T19, suites G12/G13 |
 | G12/G13/G15 ; C03/C16 | Manifeste fermé, résolution exacte, Snapshot autonome, tombstones | T01/T05/T20 |
-| G14/G17 ; C02-MAP/C04–C06/C09/C11/C12 ; N02 | Authority de scope indépendante et refus partiel | T06–T10/T12 |
+| G14/G17 ; C02-MAP/C04–C06/C09/C11/C12 ; N02 | Authority de scope indépendante, transfert atomique et refus partiel | T06–T10/T12/T25 |
 | G16/T04 ; E0/C16 | Unknown intégral ; capacité privée en plus, aucun nouveau constructeur graph | T01–T04 ; T04 succession ciblée différée B |
 | T01/T02 | Suppression admission H universelle et passage H entier ; demandes exactes | T05–T07/T18/T22 |
-| T03/G18 ; C02 ; addendum §5.5 | Append B contrôlé et persistant, import unknown maintenu | T11–T13/T21/T22 |
+| T03/G18 ; C02 ; addendum §5.5 | Append B contrôlé et persistant, import unknown et not-established conservés | T11–T13/T21/T22 |
 | T05/G19 ; addendum §4 | **T05 différée B**, candidat intégralement certifié dans A | T14/T19 et audit AST réel |
 | G20 ; B1/B3 R1.3 | Bases choisies exactement, new VersionId restore même payload | T05/T11/T18 |
-| G21/T06/G22/N03 ; addendum §6 | Unique cellule, token, root swap et garde allocations | T03/T04/T08–T10/T14–T17 |
+| G21/T06/G22/N03 ; addendum §6 | Unique cellule, token propriétaire C2, root swap, transfert C1 et garde allocations | T03/T04/T08–T10/T14–T17/T25/T27 |
 | G23 ; frontières §1–3 | Domain pur, ports sans orchestration, adapter sans certification | T24, audits hexagonaux/canaris |
 | N01 ; E1–E8/R01–R12 | Base fiable et index selected stables ; aucun moteur U/A implémenté | T17/T24 ; preuves de fermeture différées B |
-| N04 | Aucun repli silencieux ni création sans I ; complet conservé dans A | T07/T19 ; aucune exception de repli autorisée |
+| N04 | Aucun repli silencieux ni création sans I ; complet conservé dans A, refus de preuve insuffisante distinct de violation | T07/T13/T19/T26 ; aucune exception de repli autorisée |
 | H01/H02 | Canons/statuts/preuves historiques inchangés, qualification par mesures | Vérification Git documentaire ; §10/§11 |
+| R1.3 unions publiques ; addendum §7 ; O-A05 | Familles métier, preuve indisponible et interne séparées selon §5.5 | T19/T26 ; dossier/ledger/publié contrôlés |
 
 Toutes familles C01–C16 restent couvertes par l'oracle entier, pas par un
 sous-ensemble d'index. E0/E1 servent acquisition et concordance selected ;
@@ -550,16 +661,18 @@ E2–E8 ne sont pas revendiquées comme preuves incrémentales en A.
 | --- | --- |
 | Archive absente du cache mais couple TA déjà historique | Authority Existing bloque fresh ; base exacte indisponible refuse, jamais zéro ou seconde identité. |
 | Source omet passé dans H et authority ensemble | Indétectable par validation interne ; scope attesté par composition, source non attestée ⇒ aucune preuve d'absence. |
-| H a v1→v2 absent ; append v2→v1 | Index des liens non résolus rejette l'append d'édition ; test contradictoire T13. Nouveauté d'ID seule insuffisante. |
+| H contient v1→v2 absent ; append B=v2→v1 | Si ces liens prouvent le cycle, refus de B avec LINEAGE_CYCLE ; sans témoin suffisant, refus technique de B. L'import préalable H demeure valide avec lien not-established ; T13. |
 | Même owner mais autre identité ou autre kind avec VersionId réemployée | Mapping Domain + authority émission namespace ; scopes exacts, collisions avant append. |
 | Object.freeze(Map) puis mutation via alias | Arbres purement persistants/nœuds gelés ; pas de Map exposée ; mutation des entrées et anciennes vues T21. |
 | Certificat R1.2 casté/copied et raccordement owner étranger | Acquisition inconnue obligatoire et capacité originale privée ; second writer/port non qualifié refusé. |
-| Applied puis remplacement A→B→A avec ancienne révision texte | Génération privée neuve + revision privée, stale avant réponses et au commit. |
+| Applied puis remplacement A→B→A avec ancienne révision métier textuelle | Token propriétaire privé neuf à chaque génération, révision technique avancée par Applied ; stale avant réponses et au commit, même M/texte. |
 | Allocateur entre prepare avant inscription couple | Garde posée avant premier appel, clé réservée par authority avant retour, aucun prepare réentrant ne lit/planifie. |
 | Port mutates-then-throws ou callback de burn après swap | Ancien port supprimé ; root swap interne, résultat/ledger préparés, pas de callback ni traitement faillible après swap. |
 | Candidate assembly omet PTEC hors objet modifié | Oracle réel entier refuse CandidateCertificationFailure avec diagnostic, même si append valide. |
 | Refus non métier transformé en contrainte métier nouvelle | Unavailable séparé d'Absent, refus technique de capacité ; diagnostics/stages qualifiés, règles R1.2 inchangées. |
 | Arbre persistant retient trop d'anciennes racines/dossiers | Handles terminés retirés, anciennes vues immuables conservées seulement par références réelles ; mesurer mémoire sur séquences. Aucune GC d'archives métier. |
+| Transfert échoue après préparation ou deuxième écrivain tente de réserver | La racine active reste ancienne jusqu'au swap unique ; garde et identité writer bloquent l'autre réserveur ; T25. |
+| Preuve de filiation absente assimilée à un cycle historique | Familles de diagnostics séparées §5.3/§5.5 ; import partiel cohérent conservé, append non prouvé refusé ; T13/T26. |
 | Certification et analyse Actuals dominent encore | Coûts S assumés/mesurés, aucune acceptabilité interactive globale annoncée par A. |
 
 Cas métier autorisés explicitement conservés (tests T18/T19) : AP couvert zéro
@@ -581,28 +694,31 @@ Domain/Application et adapter qualifié, même runner V2 ; aucune suite affaibli
 | --- | --- |
 | T01 / A.1 | Unknown invalide : wrapper/ref/owner/payload/getter, manque/extras, grille/PTEC incohérents. Espion lecteurs compte refs exactes, getter jamais appelé, diagnostic code/path attendu, zéro install/token/session fiable. Positif couvrant les 14 kinds passe vrai oracle. |
 | T02 / A.1 | Admission valide : examiner index construit depuis toutes refs du manifeste, certification réelle ; cast graph, spread capacité, symbole recopié, sérialisation et certificat Snapshot échouent à obtenir writer/capacité. Tests compile complètent runtime, ne le remplacent pas. |
-| T03 / A.1/A.3 | Remplacement externe valide entre prepare/execute : génération change, ancien handle Stale avant réponses getter invalides (getter compteur zéro). Remplacement invalide : même ancienne racine et token, aucune révocation prématurée. |
-| T04 / A.1/A.3 | ABA A→B→A avec même M et révision textuelle : ancienne capacité ne commit jamais ; autre propriétaire réutilisant texte idem. Token nouveau contrôlé par identité privée et writer ancien révoqué, pas seulement chaîne différente. |
+| T03 / A.1/A.3 | Remplacement externe valide entre prepare/execute, même M/révision métier permis : génération/token change, ancien handle Stale avant réponses getter invalides (getter compteur zéro). Remplacement invalide : même ancienne racine et token, aucune révocation prématurée. |
+| T04 / A.1/A.3 | ABA A→B→A avec même M et révision métier textuelle : ancienne capacité ne commit jamais ; autre propriétaire réutilisant texte idem. Token original opaque contrôlé par identité privée writer/génération/révision technique, ancien writer révoqué ; aucune modification forcée du manifeste pour créer la nouvelle génération. |
 | T05 / A.2/A.4 | Exact non selected : deux branches même identité, base explicitement choisie ; reader ne reçoit que refs demandées, predecessor de B égal branche choisie, payload conforme B1. Base manque/wrong/extra/incompatible refuse ; seule branche disponible sans choix refuse. |
 | T06 / A.2 | Couple/EntityId/VersionId dans archive volontairement non chargée au reader mais inscrit authority : collision refusée sans lecture/certification H, aucun fresh de secours. Témoin correct complet permet allocation d'une autre clé. |
 | T07 / A.2/A.4 | Authority Entity/couple partielle et Version exhaustive : édition existante avec owner/base attestés acceptée et oracle entier ; création et restore cellule inconnue refusées avant reserveEntity. Version authority indisponible ⇒ édition effective refusée. Même S valide ne change pas ce verdict. |
 | T08 / A.2/A.3 | Deux prepares séquentiels même clé fresh : premier pending, second refusé sans deuxième émission ; clés disjointes pending permises. Deux services sur cellule/scope refusés avant allocation ; appels réentrants qualifient concurrence RAM, pas threads/durable. |
 | T09 / A.2/A.3 | reservePreparation puis reserveEntity réentrants **avant retour de sortie** : tentative prepare/execute/abandon/remplacement, compteurs prouvent aucune lecture/analyse/réservation imbriquée. Refus réentrant et ledger une seule réservation. Ajouter reserveVersion réentrant et exception à chaque rang, guard libéré ensuite. |
-| T10 / A.2/A.4 | Abandon/stale/exception/collision après réservations partielles : H/Current intacts, IDs/couples burned non réemployés, pas retry. Rejected answers conserve pending pour retry valide. Transfert garde published/pending/burned (pending quittés burned), ancien writer/handles inutilisables, namespace ne repart pas à zéro. |
+| T10 / A.2/A.4 | Abandon/stale/exception/collision après réservations partielles : H/Current intacts, IDs/couples burned non réemployés, pas retry. Rejected answers conserve pending pour retry valide. Transfert réussi garde published/burned et brûle les pending non transférables, ancien writer/handles inutilisables, namespace ne repart pas à zéro ; protocole détaillé T25. |
 | T11 / A.2 | Append H ramifié, insertion B ordre varié : toutes refs H se résolvent exactement et mêmes données, branches conservées, aucune sélection implicite. Import répétition exacte reste admis R1.1 ; édition VersionId répétée refuse même payload. |
 | T12 / A.2 | Owner changé, deuxième mapping Settings/AP/Capacity/PT/TA/PTEC/global, predecessor foreign/self, provenance self/duplicate : diagnostics Domain attendus et extension absente. Positifs plusieurs SP même AP et versions multiples même identité passent. |
-| T13 / A.2 | Cycle fourni B ; contre-exemple H v1→v2 manquant puis B v2→v1, et témoin incomplet : refus avant extension. Parent ancien manquant non lié à B conserve not-established ; base explicitement requise manque ⇒ refus, sans exiger toute lignée pour Snapshot. |
+| T13 / A.2 | Quatre contre-exemples séparés : (1) H=v3→v2 absent, aucun lien touchant B : import valide, missingPredecessor et not-established conservés, append sûr possible sans fermer toute la lignée ; (2) H fourni v1→v2→v1 : cycle démontré, import refusé avec LINEAGE_CYCLE ; (3) H contient v1→v2 absent, B=v2→v1 avec base v1 résolue : cycle nouveau démontré, append refusé LINEAGE_CYCLE, H antérieur inchangé ; (4) H contient v1→v3 absent et v2→v0 absent, B=v3→v2 avec base v2 résolue : lien H→B connu mais relation v2→v1 indécidable sans v0, refus technique d'append sans diagnostic de cycle ni invalidation rétroactive de H. Index de liens incomplet impose aussi refus si aucune autre preuve n'établit la sûreté. Base explicitement requise absente refuse l'édition ; Snapshot et import partiel cohérent n'exigent aucune lignée transitive. |
 | T14 / A.3/A.4 | Injecter exception allocation/factory/assembly/index/préparation résultat juste avant fenêtre : published même objet, ancienne résolution exacte pour toutes refs, B non visible ; ledger brûlé. Fault assembly ptecs=[] passe vraie certification et conserve CandidateCertificationFailure/PTEC_SELECTION_MISMATCH, jamais internal allocation error. |
 | T15 / A.3 | Absence publication partielle : observations capturées dans chaque callback précommit, puis read après retour ; chaque observation est entièrement old ou new, chaque selected ref résout, index/graph/token concordent ; ledger published et archives apparaissent ensemble. Revue source/JS identifie unique assignation interne. |
 | T16 / A.3 | Réentrance commit : tentative depuis dernière composition précommit rejetée par garde ; entrée writer concurrent/stale refusée avant swap. Audit AST/runtime exports démontre absence callbacks externes/getters/await dans fenêtre et absence publish/exclusive ; canari d'ancien port arbitraire non qualifié refusé. Aucun hook externe ajouté au swap pour faire artificiellement le test. |
-| T17 / A.3 | Capturer read0, publier, capturer read1 ; chacune résout ses refs et index complet de son manifeste, read0 intact. Modifier token attendu à contrôle final via seam de laboratoire avant entrée commit : Stale sans swap. Aucun mélange de propriétés lues séparément. |
+| T17 / A.3 | Capturer read0, publier, capturer read1 ; chacune résout ses refs et index complet de son manifeste, read0 intact. Modifier token attendu à contrôle final via seam de laboratoire avant entrée commit : Stale sans swap. Vérifier révision métier de chaque wrapper et progression du seul token technique sur éditions successives, sans histoire métier artificielle. Aucun mélange de propriétés lues séparément. |
 | T18 / A.4 | Rejouer toutes commandes et séquences delete/restore/correct/partition/catalogue : même obligations ordonnées, contextes/confirmations, answers binding et revue ETC, B par kind, refs conservées et bases B1/B3. Anciens/new IDs comparés par bijection de sorties allocateur contrôlées, pas par suppression arbitraire des refs. |
-| T19 / A.4 | Diagnostics : candidats négatifs indépendants et comparaison résultats complets code/path/stage/ordre avec baseline isolée ; stale avant invalid answers, erreurs certif distinctes de matérialisation. NoOp prepare/keep : zéro VersionId, certification candidat et swap, révision inchangée, dossier terminé. |
+| T19 / A.4 | Diagnostics : candidats négatifs indépendants et comparaison résultats complets code/path/stage/ordre avec baseline isolée ; stale avant invalid answers, erreurs certif distinctes de matérialisation. Un Applied voisin garde la vérification de certification du candidat et du swap ; NoOp prepare/keep : zéro VersionId, aucun candidat à certifier ni swap, révisions métier et technique inchangées, dossier terminé si déjà préparé. |
 | T20 / A.1/A.4 | Snapshot avant édition puis correction/delete/restore : reader Snapshot+versions sans Current résout même refs/payloads, oracle Snapshot identique ; archives orphelines aussi accessibles. Aucun Snapshot/manifeste ancien auto-créé, retrait selected ne supprime rien. |
 | T21 / A.2 | Muter input unknown, payload B, refs/owners/provenance, ancienne/nouvelle racine et nœuds : rejet mutation ou copie détachée, résolution H0/H1 inchangée ; DAG input détaché. Tests équilibrage/order adversarial de l'arbre, nombreuses éditions et anciens readers : pas mutation de chemin partagé. |
 | T22 / A.2/A.4 | Compteurs en laboratoire sur H variable à S/B fixes : enveloppes H visitées/copiées par append = zéro, nœuds nouveaux bornés par chemins ; pas de materialize H ou factory registre H+B. Lookup ne reconstruit table H. Counters + revue source étayent propriété structurelle, timings seuls insuffisants. |
 | T23 / A.4 | Séquences générées reproductibles et contre-exemples manuels : après chaque Applied vraie certification entière dans labo, toutes anciennes refs conservées ; après refus publiée identique. Ledger monotone, stale global sur cibles disjointes. Trace allocation/commit/lecture vérifiée contre modèle simple indépendant, pas juste comparaison deux validateurs partageant règles. |
 | T24 / tous | Audit dépendances runtime/types/transitives avec canaris Domain→Application/adapter/UI/clock/legacy, Application→adapter, ports→session/acquire. Canaris de deuxième publisher/constructor graph privilégié, guard absent avant allocation. Quatre gates V2 et AST certif réelle avant commit maintenus ; ne pas affaiblir audit pour faire passer un nouveau module. |
+| T25 / A.2/A.3 | Passation C1 : avant/préparation/succès/échec/interruption avant activation selon §5.2 ; ancienne réservation suspendue pendant préparation, nouvelle interdite avant activation, ancienne interdite après ; tentative de double réserve même clé/namespace refusée. Comparer racines/ledger, émissions EntityId/VersionId, mappings, published/burned et pending brûlés seulement au succès. Injecter échec à chaque étape préparatoire, contrôler ancien writer et pending toujours utilisables ; classes non attestées refusent seulement créations concernées. |
+| T26 / A.3/A.4 | Table §5.5 : pour chaque famille injecter même faute avant/après allocation et contrôler code/stage/résultat R1.3, état du dossier, ledger, Current/archives inchangés ; violation historique démontrée ≠ preuve insuffisante, CandidateCertificationFailure ≠ indisponibilité, exception interne ≠ erreur métier. |
+| T27 / A.3/A.4 | Commit conditionnel C2 : capturer token au prepare, le comparer avant réponses et au dernier contrôle ; mauvais writer, génération ou révision technique ⇒ Stale sans swap ; Applied renouvelle token, NoOp/refus/réserve seule le conserve. Révision métier textuelle seule et token reconstruit/copié n'autorisent pas le commit ; deux éditions avancent la révision technique dans même génération, remplacement externe A→B→A crée génération neuve même avec M/texte identiques. |
 
 Qualification finale future : `npm run check:boundaries:v2`,
 `npm run typecheck:v2`, `npm run test:v2`, `npm run build:v2`, ciblés R1.1/R1.2/
@@ -670,10 +786,11 @@ sa vérification ou son push ne vaut pas GO technique.
 
 ### Clôture unique future du lot A
 
-Toutes gates A.1–A.4 et T01–T24 satisfaites avec preuves nouvelles, suites
+Toutes gates A.1–A.4 et T01–T27 satisfaites avec preuves nouvelles, suites
 existantes non affaiblies, réelle certification complète de chaque candidat,
-unknown/Snapshot inchangés, authority partielle/collisions/burn/transfert
-qualifiés ; tuple atomique et garde prouvés, API ancienne de publication absente.
+unknown/Snapshot inchangés, authority partielle/collisions/burn/transfert C1
+qualifiés ; token C2, filiation C3, table d'erreurs §5.5, tuple atomique et garde
+prouvés, API ancienne de publication absente.
 Revue source/JS des dépendances et fenêtre de swap, mesures H/S/B/D complètes
 avec limites/régressions, inventaire APIs et suppression temporaires, diff-check,
 commit/push normal et sync Git. Audit indépendant du code/tests/mesures puis
@@ -692,26 +809,33 @@ rewrite/portfolio-versioned sans force ; communiquer SHA initial/final,
 fichier modifié et résultats Git, vérifier arbre propre et divergence 0/0.
 Cette revue interne n'est pas l'audit indépendant attendu.
 
-## 12. Points ouverts nécessitant arbitrage architectural
+## 12. Arbitrages O-A01–O-A07 intégrés au plan
 
-Les recommandations ci-dessous rendent le plan exécutable après audit ; aucun
-arbitrage ne doit être improvisé pendant implémentation pour contourner une
-preuve manquante.
+Ces décisions fixent les contrats documentaires à auditer ; elles ne sont ni
+qualification exécutable ni GO d'implémentation.
 
-| Point / recommandation | Décision attendue avant GO ou limite |
+| Point | Décision intégrée et vérification future |
 | --- | --- |
-| O-A01 — rupture APIs expérimentales | Valider remplacement direct des ports/admission/PublishedCurrent.registry et analyse H ; inventaire ne trouve que tests/harness. Pas de shim publish. Bloquant pour bascule si consommateur extérieur révélé. |
-| O-A02 — représentation archive | Valider arbre exact persistant spécialisé avec partage de chemins, sans Map mutable exposée ; qualification balancing/coût T21/T22. Alternative segments seulement avec index exact et preuve coût non linéaire en nombre d'éditions ; pas décision opportuniste laissant deux représentations durables. |
-| O-A03 — portée/transfert natif | Valider scope RAM attesté, authority unique, transfert complet ledger et révocation ancien writer ; pending non transférables deviennent burned. Sans attestation exhaustive classes concernées indisponibles, création refusée. Aucun contrat durable inter-processus. |
-| O-A04 — filiation inconnue | Valider index compact liens/cibles non résolues et refus d'append A qui les complète sans témoins suffisants (§5.3), avec diagnostic/stage technique explicite préservant règles métier/context report. Bloquant si refus différent doit être exposé dans unions publiques. |
-| O-A05 — erreurs capacité/availability | Conserver unions/stages R1.3 et diagnostics Domain ; préciser codes nouveaux de port pour Unavailable/scope/receipt dans plan approuvé avant code, priorité après validation commande et avant allocation. Ne pas masquer erreur certif comme indisponibilité. |
-| O-A06 — coût index selected et réception performance | Valider reconstruction index S à chaque candidat certifié dans A et son coût visible, sans optimisation de fermeture ; A peut être conforme avec PERF-EDIT global encore non favorable, résultat à soumettre explicitement à l'audit et clôture. Aucun verdict de P7 implicite. |
-| O-A07 — synchronisme RAM | Valider lecteur historique sync capturé pour conserver API session synchrone ; load lecteurs async conservés. Toute source async future exige façade stale après attente, hors implémentation A ; pas conversion Promise bloquante. |
+| O-A01 — APIs expérimentales | Remplacement direct accepté à A.4, sous inventaire final des consommateurs V2, tests et harness ; aucun shim permanent, aucun impact UI/legacy introduit (§4, T24). |
+| O-A02 — représentation archive | Arbre exact persistant spécialisé équilibré accepté ; partage structurel, ordre adversarial, complexité lookup/append et mémoire qualifiés T21/T22 et §10. |
+| O-A03 — portée/transfert | Portée RAM et autorité unique acceptées sous C1 : préparation puis bascule atomique §5.1–5.2, T10/T25. |
+| O-A04 — filiation inconnue | Index de liens historiques non résolus accepté sous C3 : import partiel cohérent préservé, contradiction et preuve insuffisante séparées §5.3, T13/T26. |
+| O-A05 — erreurs | Unions publiques R1.3 conservées ; table contractuelle §5.5 avant code, distinguant erreurs métier, indisponibilité de preuve et erreurs internes ; T19/T26. |
+| O-A06 — coût index selected | Reconstruction complète après certification dans A acceptée, phase/coût mémoire explicitement mesurés §3.2/§10/T22 ; aucun coût masqué ni validation ciblée anticipée. |
+| O-A07 — synchronisme RAM | Lecture historique synchrone capturée acceptée en session §5.1–5.2 ; lecteurs async R1.2 conservés, aucune conversion bloquante. |
 
 Les arbitrages métier ratio RT/exception, defaults opérationnels/bootstrap,
 simulation, durabilité/CAS multi-onglets, recovery et UI ne sont pas requis
 pour ce socle et restent à leurs lots. Aucun point ouvert ne justifie de
 commencer B, C, R1.4 ou R2.
+
+### Traçabilité des corrections de l'audit indépendant du lot A
+
+| Correction | Résolution contractuelle | Preuves prévues |
+| --- | --- | --- |
+| C1 | §5.1–5.2 : préparation inactive, swap unique writer/ledger, états avant/pendant/après/échec, pending non transférables burned au succès | T10/T25, §6–§8, clôture §11 |
+| C2 | §3.2/§5.1/§5.4 : révision métier du wrapper distincte de génération et révision technique privées ; token original capturé/comparé/renouvelé | T03/T04/T17/T27, §6–§8, clôture §11 |
+| C3 | §5.3 : quatre situations filiation, `not-established` conservé, violation démontrée distincte de preuve insuffisante | T13/T26, §8–§9, clôture §11 |
 
 **STOP après livraison du plan. Attendre audit indépendant ChatGPT et GO
 explicite lot A avant toute implémentation.**
