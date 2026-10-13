@@ -1,5 +1,40 @@
 # FlowPlan2 current canon
 
+## Simplification R1.1–R1.3 — P0 DONE — 2026-10-13
+
+P0 est **DONE après audit documentaire indépendant favorable et GO explicite de
+clôture**. Le SHA de livraison documentaire audité est
+`1f831f12eec35c74f93892c4a9b939cdfc6f1cf6`. Références :
+[plan directeur](./steps/PORTFOLIO_VERSIONED/rewrite_r11_r13_simplification_plan.md),
+[plan P0](./steps/PORTFOLIO_VERSIONED/rewrite_simplification_p0_plan.md),
+[addendum normatif](./steps/PORTFOLIO_VERSIONED/rewrite_simplification_p0_addendum.md),
+[catalogue des invariants](./steps/PORTFOLIO_VERSIONED/rewrite_simplification_p0_invariants.md),
+[matrice des clauses](./steps/PORTFOLIO_VERSIONED/rewrite_simplification_p0_clauses.md) et
+[matrice hexagonale](./steps/PORTFOLIO_VERSIONED/rewrite_simplification_p0_boundaries.md).
+
+| Élément | Statut actuel |
+| --- | --- |
+| R0 / R0.1 / R1.1 / R1.2 | DONE |
+| R1.3 | IN REVIEW |
+| P0 — Simplification | DONE |
+| P1–P7 — Simplification | NOT STARTED |
+| R1.4 / R2 | NOT STARTED |
+
+L'audit documentaire valide la conservation ou le remplacement explicite des
+clauses historiques ; les champs, invariants et ensembles quantifiés détaillés ;
+les relations directes/inverses et preuves d'exhaustivité ; la séparation
+Current/Snapshot/archives et l'autorité d'unicité ; l'atomicité, la réentrance
+et les responsabilités hexagonales ; enfin, l'absence de changement de code et
+de tests pendant P0. Les preuves sont **documentaires et contractuelles, non
+exécutables**. La cible normative ne décrit pas une simplification implémentée :
+le code R1.3 ci-dessous reste IN REVIEW. P0 n'établit aucun gain de performance.
+
+Validation ciblée, fermeture effective, unicité, réentrance et publication
+atomique restent à tester dans les lots techniques futurs, avec les réserves de
+l'addendum. P1 requiert un cadrage architectural et un GO distincts. Les canons
+et preuves historiques ne sont ni supprimés ni requalifiés ; les états anciens
+ci-dessous restent datés et ce bandeau fixe le statut présent.
+
 ## R1.3 — IN REVIEW — 2026-10-12
 
 GO explicite utilisateur après audit favorable du PLAN corrigé B1–B4, baseline

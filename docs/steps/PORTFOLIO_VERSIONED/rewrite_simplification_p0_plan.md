@@ -1,5 +1,41 @@
 # FlowPlan2 V2 — PLAN d'exécution documentaire P0 de la simplification R1.1–R1.3
 
+## Clôture P0 — DONE — 2026-10-13
+
+L'exécution documentaire P0 livrée à
+`1f831f12eec35c74f93892c4a9b939cdfc6f1cf6` a reçu un **audit
+documentaire indépendant favorable et un GO explicite de clôture** : P0 est
+**DONE**. Le [plan directeur approuvé](./rewrite_r11_r13_simplification_plan.md)
+et les quatre livrables — [addendum](./rewrite_simplification_p0_addendum.md),
+[invariants](./rewrite_simplification_p0_invariants.md),
+[clauses](./rewrite_simplification_p0_clauses.md),
+[frontières](./rewrite_simplification_p0_boundaries.md) — constituent la trace
+normative. Les passages « PLAN ONLY » et prospectifs ci-dessous conservent leur
+sens historique à la date de préparation ; cette clôture fixe le statut actuel.
+
+| Élément | Statut actuel |
+| --- | --- |
+| R0 / R0.1 / R1.1 / R1.2 | DONE |
+| R1.3 | IN REVIEW |
+| P0 — Simplification | DONE |
+| P1–P7 — Simplification | NOT STARTED |
+| R1.4 / R2 | NOT STARTED |
+
+L'audit valide : clauses historiques conservées ou explicitement remplacées ;
+catalogue détaillé des champs, invariants et ensembles quantifiés ; relations
+directes/inverses et preuves d'exhaustivité ; distinction Current, Snapshot et
+archives avec autorité d'unicité ; contrats d'atomicité et de réentrance ;
+responsabilités hexagonales ; aucun code ni test modifié pendant P0. Les preuves
+sont **documentaires et contractuelles, non exécutables**. La cible normative
+reste distincte du code existant, dont R1.3 demeure IN REVIEW. P0 n'établit
+aucun gain de performance.
+
+Les tests de validation ciblée, fermeture effective, unicité, réentrance et
+publication atomique restent obligatoires dans les futurs lots techniques, de
+même que la levée des réserves techniques de l'addendum. P1 nécessite un
+cadrage architectural et un GO distincts ; aucun lot P1–P7 ne commence ici.
+Aucune garantie métier ni preuve historique n'est supprimée ou requalifiée.
+
 **Statut : PLAN ONLY — soumis à audit indépendant, sans GO d'exécution de P0.**
 Date : 2026-10-12. Branche : `rewrite/portfolio-versioned`. Baseline vérifiée
 après `git fetch origin` : HEAD = origin =
