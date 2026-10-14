@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>FlowPlan3 — Planning quotidien</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script type="module" src="/js/main/index.js"></script>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">FlowPlan3 · V0-A</p>
+        <h1>Planning quotidien</h1>
+        <p>Définissez un planning, une équipe et deux projets. Le calcul répartit chaque journée ouvrée selon les priorités.</p>
+      </header>
+
+      <form id="planning-form" novalidate>
+        <fieldset>
+          <legend>Planning</legend>
+          <div class="fields">
+            <label>Nom <input data-field="name" type="text" autocomplete="off"><span class="error" data-error-for="name"></span></label>
+            <label>Début global <input data-field="startDate" type="date"><span class="error" data-error-for="startDate"></span></label>
+            <label>Fin globale <input data-field="endDate" type="date"><span class="error" data-error-for="endDate"></span></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Équipe</legend>
+          <div class="fields">
+            <label>Identifiant <input data-field="team.id" type="text" autocomplete="off"><span class="error" data-error-for="team.id"></span></label>
+            <label>Nom <input data-field="team.name" type="text" autocomplete="off"><span class="error" data-error-for="team.name"></span></label>
+            <label>Capacité quotidienne (j.h) <input data-field="team.dailyCapacity" type="text" inputmode="decimal" autocomplete="off"><span class="error" data-error-for="team.dailyCapacity"></span></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Projet A</legend>
+          <div class="fields">
+            <label>Identifiant <input data-field="projects.0.id" type="text" autocomplete="off"><span class="error" data-error-for="projects.0.id"></span></label>
+            <label>Nom <input data-field="projects.0.name" type="text" autocomplete="off"><span class="error" data-error-for="projects.0.name"></span></label>
+            <label>Début au plus tôt <input data-field="projects.0.earliestStart" type="date"><span class="error" data-error-for="projects.0.earliestStart"></span></label>
+            <label>ETC (j.h) <input data-field="projects.0.etc" type="text" inputmode="decimal" autocomplete="off"><span class="error" data-error-for="projects.0.etc"></span></label>
+            <label>Rang de priorité <input data-field="projects.0.priority" type="text" inputmode="numeric" autocomplete="off"><span class="error" data-error-for="projects.0.priority"></span></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Projet B</legend>
+          <div class="fields">
+            <label>Identifiant <input data-field="projects.1.id" type="text" autocomplete="off"><span class="error" data-error-for="projects.1.id"></span></label>
+            <label>Nom <input data-field="projects.1.name" type="text" autocomplete="off"><span class="error" data-error-for="projects.1.name"></span></label>
+            <label>Début au plus tôt <input data-field="projects.1.earliestStart" type="date"><span class="error" data-error-for="projects.1.earliestStart"></span></label>
+            <label>ETC (j.h) <input data-field="projects.1.etc" type="text" inputmode="decimal" autocomplete="off"><span class="error" data-error-for="projects.1.etc"></span></label>
+            <label>Rang de priorité <input data-field="projects.1.priority" type="text" inputmode="numeric" autocomplete="off"><span class="error" data-error-for="projects.1.priority"></span></label>
+          </div>
+        </fieldset>
+
+        <button type="submit">Calculer le planning</button>
+        <p id="form-status" role="status" aria-live="polite"></p>
+      </form>
+
+      <section id="result" hidden aria-labelledby="result-title">
+        <h2 id="result-title"></h2>
+        <h3>Allocations quotidiennes</h3>
+        <div class="table-wrap"><table><thead><tr><th scope="col">Date</th><th scope="col">Disponible</th><th scope="col">Allouée</th><th scope="col">Inutilisée</th><th scope="col">Allocations par priorité</th></tr></thead><tbody id="day-rows"></tbody></table></div>
+        <h3>Projets</h3>
+        <div class="table-wrap"><table><thead><tr><th scope="col">Projet</th><th scope="col">ETC initial</th><th scope="col">Planifié</th><th scope="col">Non planifié</th><th scope="col">Début estimé</th><th scope="col">Fin estimée</th><th scope="col">État</th></tr></thead><tbody id="project-rows"></tbody></table></div>
+      </section>
+    </main>
+  </body>
+</html>

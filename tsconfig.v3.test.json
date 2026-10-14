@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.v3.app.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "scripts/v3/.generated/test",
+    "types": ["node"]
+  },
+  "include": ["src-v3/**/*.ts", "tests-v3/**/*.ts"]
+}
